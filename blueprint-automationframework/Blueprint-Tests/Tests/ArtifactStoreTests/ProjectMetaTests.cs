@@ -147,7 +147,7 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 403 Forbidden when a user doesn't have permission to access the specified project.");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
                 I18NHelper.FormatInvariant("The user does not have permissions for Project (Id:{0}).", _project.Id));
         }
 
@@ -180,7 +180,7 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 403 Forbidden for user without read permission to the project.");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess,
                 I18NHelper.FormatInvariant("The user does not have permissions for Project (Id:{0}).", _project.Id));
         }
 
@@ -197,7 +197,7 @@ namespace ArtifactStoreTests
             }, "The GET /projects/{projectId}/meta/customtypes endpoint should return 404 Not Found for non-existing Project ID.");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound,
                 I18NHelper.FormatInvariant("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", nonExistingProject.Id));
         }
     }

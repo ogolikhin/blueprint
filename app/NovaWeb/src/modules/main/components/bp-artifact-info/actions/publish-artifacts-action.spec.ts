@@ -13,6 +13,8 @@ import {
     IUnpublishedArtifactsService
 } from "../../../../editors/unpublished/unpublished.svc";
 import {IArtifact} from "../../../models/models";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {IDialogService} from "../../../../shared";
 
 describe("PublishArtifactsAction", () => {
     let $q: ng.IQService;
@@ -21,12 +23,14 @@ describe("PublishArtifactsAction", () => {
     let loadingOverlayService: ILoadingOverlayService;
     let messageService: IMessageService;
     let publishService: IUnpublishedArtifactsService;
+    let dialogService: IDialogService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("publishService", UnpublishedArtifactsService);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
+        $provide.service("dialogService", DialogServiceMock);
     }));
 
     beforeEach(inject((_$q_: ng.IQService,
@@ -34,24 +38,27 @@ describe("PublishArtifactsAction", () => {
                        _localization_: ILocalizationService,
                        _publishService_: IUnpublishedArtifactsService,
                        _loadingOverlayService_: ILoadingOverlayService,
-                       _$timeout_: ng.ITimeoutService) => {
+                       _$timeout_: ng.ITimeoutService,
+                       _dialogService_: IDialogService) => {
         $q = _$q_;
         $timeout = _$timeout_;
         messageService = _messageService_;
         localization = _localization_;
         publishService = _publishService_;
         loadingOverlayService = _loadingOverlayService_;
+        dialogService = _dialogService_;
+        
     }));
 
     it("throws exception when localization is null", () => {
-        expect(() => new PublishArtifactsAction(publishService, null, messageService, loadingOverlayService))
+        expect(() => new PublishArtifactsAction(publishService, null, messageService, loadingOverlayService, dialogService))
             .toThrow(new Error("Localization service not provided or is null"));
     });
 
     it("is disabled when no artifacts are provided", () => {
         // arrange
         const artifacts = [];
-        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService);
+        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService, dialogService);
 
         // act
         action.updateList(artifacts);
@@ -63,7 +70,7 @@ describe("PublishArtifactsAction", () => {
     it("is enabled when artifacts are provided", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService);
+        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService, dialogService);
 
         // act
         action.updateList(artifacts);
@@ -75,7 +82,7 @@ describe("PublishArtifactsAction", () => {
     it("calls publish and shows message when successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService);
+        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService, dialogService);
         action.updateList(artifacts);
 
         const publishSpy = spyOn(publishService, "publishArtifacts").and.returnValue($q.resolve({
@@ -98,7 +105,7 @@ describe("PublishArtifactsAction", () => {
     it("reloads unpublished artifacts and shows error when un-successfully executed", () => {
         // arrange
         const artifacts = <IArtifact[]>[{id: 1}, {id: 2}];
-        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService);
+        const action = new PublishArtifactsAction(publishService, localization, messageService, loadingOverlayService, dialogService);
         action.updateList(artifacts);
 
         const publishSpy = spyOn(publishService, "publishArtifacts").and.returnValue($q.reject("error"));

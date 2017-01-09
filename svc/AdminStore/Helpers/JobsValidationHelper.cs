@@ -1,6 +1,5 @@
 ﻿using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
-using System;
 using System.Globalization;
 
 namespace AdminStore.Helpers
@@ -16,13 +15,13 @@ namespace AdminStore.Helpers
             if (!ValidatePageSize(pageSize))
             {
                 throw new BadRequestException(
-                    String.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize), 
+                    string.Format(CultureInfo.CurrentCulture, "Page Size value must be provided and value between 1 and {0}", ServiceConstants.JobsMaxPageSize), 
                     ErrorCodes.PageSizeNullOrOutOfRange);
             }
         }
         private bool ValidatePageSize(int? pageSize)
         {
-            return pageSize.HasValue && pageSize > 0 && pageSize <= ServiceConstants.JobsMaxPageSize;            
+            return pageSize.HasValue && pageSize > 0 && pageSize <= ServiceConstants.JobsMaxPageSize;
         }
 
         private bool ValidateGetPage(int? requestedPage)

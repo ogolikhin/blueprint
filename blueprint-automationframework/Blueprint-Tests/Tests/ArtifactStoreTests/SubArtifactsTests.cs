@@ -572,7 +572,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
             // Verify
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, 
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, 
                 I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id));
         }
 
@@ -603,7 +603,7 @@ namespace ArtifactStoreTests
                RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
             // Verify
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
                 I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", child.Id));
         }
 

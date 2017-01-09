@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace ServiceLibrary.Models.Jobs
@@ -61,7 +60,9 @@ namespace ServiceLibrary.Models.Jobs
 
         ProjectExport = 0x2000,
 
-        GenerateTests = 0x4000
+        GenerateTests = 0x4000,
+
+        GenerateProcessTests = 0x8000,
     }
 
     public class JobInfo

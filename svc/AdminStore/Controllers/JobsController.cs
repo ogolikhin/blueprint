@@ -6,36 +6,38 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Repositories.Jobs;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Helpers.Files;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Jobs;
 using ServiceLibrary.Repositories.ConfigControl;
-using AdminStore.Helpers;
+using ServiceLibrary.Repositories.Files;
 
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
     [RoutePrefix("jobs")]
     [BaseExceptionFilter]
-    public class JobsController : LoggableApiController
+    public partial class JobsController : LoggableApiController
     {
-        private const string ContentDispositionType = "attachment";
-
         internal readonly IJobsRepository _jobsRepository;
-
-        public override string LogSource => "AdminStore.JobsService";
+        internal readonly IFileRepository _fileRepository;
 
         public JobsController() : this(new JobsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal JobsController(IJobsRepository jobsRepository, IServiceLogRepository serviceLogRepository) : base(serviceLogRepository)
+        internal JobsController(IJobsRepository jobsRepository, IServiceLogRepository serviceLogRepository, IFileRepository fileRepository = null) : base(serviceLogRepository)
         {
             _jobsRepository = jobsRepository;
+            _fileRepository = fileRepository;
         }
+
+        public override string LogSource => "AdminStore.JobsService";
 
         #region public methods
 
@@ -56,10 +58,10 @@ namespace AdminStore.Controllers
             {
                 var session = GetSession(Request);
 
-                JobsValidationHelper jobsHelper = new JobsValidationHelper();
+                var jobsHelper = new JobsValidationHelper();
                 jobsHelper.Validate(page, pageSize);
 
-                int offset = (page.Value - 1) * pageSize.Value;
+                var offset = (page.Value - 1) * pageSize.Value;
 
                 return Ok(await _jobsRepository.GetVisibleJobs(session.UserId, offset, pageSize, jobType));
             }
@@ -95,19 +97,32 @@ namespace AdminStore.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets the result file of a supported completed job (eg Project Export)
+        /// </summary>
+        /// <param name="jobId">Job id</param>
+        /// <response code="200">Ok.</response>
+        /// <response code="400">BadRequest.</response>
+        /// <response code="401">Unauthorized.</response>
+        /// <response code="404">NotFound.</response>
+        /// <response code="500">InternalServerError.</response>
         [HttpGet, NoCache]
         [Route("{jobId:int:min(1)}/result/file"), SessionRequired(true)]
         public async Task<IHttpActionResult> GetJobResultFile(int jobId)
         {
             var session = GetSession(Request);
-            var baseAddress = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
-            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, baseAddress, Session.Convert(session.SessionId));
+            var baseUri = WebApiConfig.FileStore != null ? new Uri(WebApiConfig.FileStore) : Request.RequestUri;
+            var fileRepository = _fileRepository ?? new FileRepository(new FileHttpWebClient(baseUri, Session.Convert(session.SessionId)));
+
+            var file = await _jobsRepository.GetJobResultFile(jobId, session.UserId, fileRepository);
 
             var response = Request.CreateResponse(HttpStatusCode.OK);
             response.Content = new StreamContent(file.ContentStream);
-            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue(ContentDispositionType);
-            response.Content.Headers.ContentDisposition.FileName = file.Info.Name;
-            response.Content.Headers.ContentDisposition.FileNameStar = file.Info.Name;
+            response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment")
+            {
+                FileName = file.Info.Name,
+                FileNameStar = file.Info.Name
+            };
             response.Content.Headers.ContentType = new MediaTypeHeaderValue(file.Info.Type);
             response.Content.Headers.ContentLength = file.Info.Size;
 
@@ -116,7 +131,7 @@ namespace AdminStore.Controllers
 
         #endregion
 
-        private Session GetSession(HttpRequestMessage request)
+        private static Session GetSession(HttpRequestMessage request)
         {
             object sessionValue;
             if (!request.Properties.TryGetValue(ServiceConstants.SessionProperty, out sessionValue))

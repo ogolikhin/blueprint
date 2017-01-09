@@ -355,7 +355,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 404 Not Found when an Artifact ID is passed in place of a Project ID!", REST_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, I18NHelper.FormatInvariant(
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, I18NHelper.FormatInvariant(
                 "The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", notAProject.Id));
         }
 

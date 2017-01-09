@@ -2,7 +2,7 @@ import "../../";
 import * as angular from "angular";
 import "angular-mocks";
 
-describe("Filter: Moment Date", () => {
+describe("Filter: Moment Date Time", () => {
     let momentFilter;
 
     // Load the module
@@ -16,7 +16,7 @@ describe("Filter: Moment Date", () => {
     // Inject in angular constructs otherwise,
     //  you would need to inject these into each test
     beforeEach(inject(($filter: ng.IFilterService) => {
-        momentFilter = $filter("momentDate");
+        momentFilter = $filter("momentDateTime");
     }));
 
     it("should exist", () => {
@@ -24,9 +24,9 @@ describe("Filter: Moment Date", () => {
     });
 
     it("should parse date", () => {
-        const tempDate = new Date("1980-10-11T00:00:00-04:00");
+        const tempDate = new Date("1980-12-11T09:45:05-05:00");
 
-        expect(momentFilter(tempDate)).toBe("October 11, 1980");
-        expect(momentFilter(tempDate, "YYYY-MM-DD")).toBe("1980-10-11");
+        expect(momentFilter(tempDate)).toBe("December 11, 1980 9:45:05 am");
+        expect(momentFilter(tempDate, "YYYY-MM-DD HH:mm")).toBe("1980-12-11 09:45");
     });
 });

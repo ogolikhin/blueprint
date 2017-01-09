@@ -41,6 +41,8 @@ namespace Helper
         //Jobs Parameter Validation Errors
         public const int PageNullOrNegative = 8000;
         public const int PageSizeNullOrOutOfRange = 8001;
+        public const int JobNotCompleted = 8002;
+        public const int ResultFileNotSupported = 8003;
     }
 
     // This is the global error code being used for Blueprint-current/NoSilverlight project

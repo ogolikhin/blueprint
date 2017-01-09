@@ -570,7 +570,7 @@ Copy_Images_Failed, "Images were not copied into clipboard."
 
 #Jobs
 Jobs_Empty, "No Jobs Available"
-Jobs_User, "User"
+Jobs_User, "Author"
 Jobs_Project, "Project"
 Jobs_Status, "Status"
 Jobs_Status_Scheduled, "Scheduled"
@@ -599,7 +599,7 @@ Jobs_Type_ProjectExport, "Project Export"
 Jobs_Type_GenerateTests,  "Test Plan Generation"
 Jobs_SubmittedDate, "Submitted on"
 Jobs_StartDate, "Started on"
-Jobs_EndDate, "Ended on"
+Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
 
 

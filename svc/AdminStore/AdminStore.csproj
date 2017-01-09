@@ -168,6 +168,7 @@
     <Content Include="doc\AdminStore Web Service Design.docx" />
     <Content Include="doc\AdminStore Web Service API - Swagger.URL" />
     <Content Include="doc\AdminStore Web Service API.docx" />
+    <Compile Include="Controllers\JobsController.ProcessTestGeneration.cs" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

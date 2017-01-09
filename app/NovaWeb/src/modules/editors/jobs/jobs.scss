@@ -160,7 +160,7 @@
 }
 
 .jobs__projectname {
-    width:50%;
+    width:80%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -169,7 +169,7 @@
 }
 
 .jobs__authorname {
-    width:calc(50% - 25px);
+    width:calc(80% - 25px);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;

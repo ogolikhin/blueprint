@@ -151,7 +151,7 @@ export class UnpublishedController {
     }
 
     public isSelected(artifact: IArtifactWithProject): boolean {
-        return this.selectedArtifacts.indexOf(artifact) > -1;
+        return !!_.find(this.selectedArtifacts, {id: artifact.id});
     }
 
     public isNavigatable(artifact: IArtifactWithProject): boolean {

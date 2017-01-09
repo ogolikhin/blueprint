@@ -77,7 +77,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
-    public get isBulkActionsVisible () {
+    public get isBulkActionsBarVisible () {
         return !this.isLoading && (this.manualTraces2.length || this.otherTraces.length) &&
             this.selectedTraces[this.item.id].length > 0 && this.categoryFilter < 2;
     }

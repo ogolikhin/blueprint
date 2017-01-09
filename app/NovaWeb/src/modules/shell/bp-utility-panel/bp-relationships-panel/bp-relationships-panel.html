@@ -14,7 +14,7 @@
     </div>
 </div>
 
-<div class="icons header-icons" ng-class="{active: $ctrl.isBulkActionsVisible}">
+<div class="icons header-icons" ng-class="{active: $ctrl.isBulkActionsBarVisible}">
     <div>
         {{$ctrl.selectedTraces[$ctrl.item.id].length}}
         <span ng-if="$ctrl.selectedTraces[$ctrl.item.id].length == 1">{{::$ctrl.localization.get('App_UP_Relationships_Selected_Singular') }}</span>

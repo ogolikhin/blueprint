@@ -293,6 +293,19 @@ export class PageToolbarController implements IPageToolbarController {
 
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProjectId: number = this.projectManager.getSelectedProjectId();
+        if (this.$state.current.name === "main.unpublished") {
+            this.publishService.getUnpublishedArtifacts().then((result) => {
+                const numArtifacts = result.artifacts.length;
+                const message = numArtifacts === 1 ? 
+                this.localization.get("Discard_Single_Artifact_Confirm") : 
+                this.localization.get("Discard_Multiple_Artifacts_Confirm").replace("{0}", numArtifacts.toString());
+                this.dialogService.alert(message, "Warning", "Discard", "Cancel").then(() => {
+                    const overlayId: number = this.loadingOverlayService.beginLoading();
+                    this.discardAllInternal(data);
+                    this.loadingOverlayService.endLoading(overlayId);
+                });
+            });
+        } else {
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -312,6 +325,7 @@ export class PageToolbarController implements IPageToolbarController {
             .then(() => {
                 this.discardAllInternal(data);
             });
+        }
     }
 
     private confirmPublishAll(data: Models.IPublishResultSet) {

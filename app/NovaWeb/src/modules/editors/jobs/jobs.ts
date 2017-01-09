@@ -128,10 +128,6 @@ export class JobsController {
             });
     }
 
-    private getDateTime(date: Date): string {
-        return !!date ? moment(date).format("MMMM DD, YYYY h:mm:ss a") : "--";
-    }
-
     private getStatus(statusId: JobStatus): string {
         switch (statusId) {
             case JobStatus.Scheduled:

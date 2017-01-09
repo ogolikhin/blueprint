@@ -9,7 +9,7 @@ export class MomentDateFilter {
                 format = "MMMM DD, YYYY";
             }
 
-            return moment(value).format(format).toString();
+            return moment(value).format(format);
         };
     }
 }

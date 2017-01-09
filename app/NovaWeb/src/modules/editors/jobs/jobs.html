@@ -64,7 +64,7 @@
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_StartDate"]}}: </strong>
-                                    <span>{{item.jobStartDateTime | momentDateTime}}</span>
+                                    <span>{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
                                 </div>
                                 <div class="col-xs-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
                                     <strong>{{::$root.config.labels["Jobs_Status"]}}:&nbsp;</strong>
@@ -79,7 +79,7 @@
                                 </div>
                                 <div class="col-xs-5">
                                     <strong>{{::$root.config.labels["Jobs_EndDate"]}}: </strong>
-                                    <span> {{item.jobEndDateTime | momentDateTime}}</span>
+                                    <span> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
                                 </div>
                                 <div class="col-xs-4">
                                     <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress"></uib-progressbar>

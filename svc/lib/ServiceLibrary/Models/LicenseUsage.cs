@@ -16,17 +16,11 @@ namespace ServiceLibrary.Models
         /// <summary>
         /// Month.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int ActivityMonth { get; set; }
 
         /// <summary>
         /// Year.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int ActivityYear { get; set; }
 
         /// <summary>
@@ -62,33 +56,21 @@ namespace ServiceLibrary.Models
         /// <summary>
         /// Maxumumn number of concurent Viewer licenses.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int MaxConCurrentViewers { get; set; }
 
         /// <summary>
         /// Maxumumn number of concurent Author licenses.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int MaxConCurrentAuthors { get; set; }
 
         /// <summary>
         /// Maxumumn number of concurent Collaborator licenses.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int MaxConCurrentCollaborators { get; set; }
         
          /// <summary>
         /// Breaks out the Viewers, may be less important with universal licensing.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int RegisteredViewersCreated { get; set; }
 
         /// <summary>
@@ -142,17 +124,11 @@ namespace ServiceLibrary.Models
         /// <summary>
         /// Number of users logged in from Analytics.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int UsersFromAnalytics { get; set; }
 
         /// <summary>
         /// Number of users logged in from RestAPI.
         /// </summary>
-        /// <remarks>
-        /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
-        /// </remarks>
         public int UsersFromRestApi { get; set; }
 
 

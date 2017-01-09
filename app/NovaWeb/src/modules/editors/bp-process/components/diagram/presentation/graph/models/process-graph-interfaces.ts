@@ -6,6 +6,7 @@ import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {SourcesAndDestinations, IUserStory, IArtifactReference} from "../../../../../models/process-models";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {IBridgesHandler}  from "../bridges-handler";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -156,6 +157,7 @@ export interface ILayout {
     getDefaultBranchLabel(decisionId: number, nodeType: NodeType): string;
     getTempShapeId(): number;
     setTempShapeId(id: number);
+    bridgesHandler: IBridgesHandler;
 }
 
 export interface ISourcesAndDestinations {

@@ -103,11 +103,12 @@ namespace AccessControlTests
             });
         }
 
+        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(null, null)]
         [TestCase(10, null)]
         [TestCase(null, 2016)]
         [TestCase(10, 2016)]
-        [TestRail(0)]
+        [TestRail(227232)]
         [Description("Check that GET info about license transactions returns 200 OK")]
         public void GetLicenseUsageInfo_200OK(int? month, int? year)
         {

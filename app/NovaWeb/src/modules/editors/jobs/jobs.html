@@ -8,11 +8,6 @@
                     </div>
                     <div class="col-xs-10">
                         <div class="pull-right">
-                            <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Next page" ng-click="$ctrl.loadNextPage()">
-                                    <span class="toolbar-button__icon ng-scope fonticon2-arrow-right"></span>
-                            </button>
-                        </div>
-                        <div class="pull-right">
                             <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" bp-tooltip="Reload jobs" ng-click="$ctrl.loadPage(1)">
                                     <span class="toolbar-button__icon ng-scope fonticon2-refresh-line"></span>
                             </button>
@@ -23,6 +18,11 @@
         </div>
     </div>
     <div class="page-body-wrapper">
+         <div class="jobs__response" ng-if="$ctrl.isJobsEmpty() && !$ctrl.isLoading">
+            <div class="center-item font-larger">
+                <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
+            </div>
+        </div>
         <div class="page-body">
             <div ng-if="$ctrl.isLoading" class="app-loading">
                 <span class="glyphicon glyphicon-refresh spin"></span>
@@ -99,11 +99,21 @@
                     </div>
                 </li>
             </ul>
-        </div>
-        <div class="jobs__response" ng-if="$ctrl.isJobsEmpty() && !$ctrl.isLoading">
-            <div class="center-item font-larger">
-                <span>{{::$root.config.labels["Jobs_Empty"]}}</span>
+            <div class="text-center">
+                <ul  uib-pagination
+                    class="jobs__pagination"
+                    total-items="$ctrl.paginationData.total"
+                    items-per-page="$ctrl.paginationData.pageSize"
+                    ng-model="$ctrl.paginationData.page"
+                    max-size="$ctrl.paginationData.maxVisiblePageCount"
+                    boundary-links="true"
+                    rotate="true"
+                    force-ellipses="true"
+                    ng-change="$ctrl.loadPage($ctrl.paginationData.page)"
+                    ng-if="$ctrl.showPagination()"
+                    ></ul>
             </div>
         </div>
+       
     </div>
 </div>

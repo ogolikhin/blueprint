@@ -217,7 +217,7 @@ export class JobsController {
     }
 
     public showPagination(): boolean {
-        return !this.isJobsEmpty() || this.page > 1;
+        return (!this.isJobsEmpty() || this.page > 1) && !this.isLoading;
     }
 
     public $onDestroy() {

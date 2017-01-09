@@ -456,7 +456,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request when artifact moved to itself", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "This move will result in a circular relationship between the artifact and its new parent.");
        }
 
@@ -475,7 +475,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request when artifact moved to itself", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
@@ -496,7 +496,7 @@ namespace ArtifactStoreTests
                 "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "Parameter orderIndex cannot be equal to or less than 0.");
         }
 
@@ -523,7 +523,7 @@ namespace ArtifactStoreTests
                 "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters,
                 "Parameter orderIndex cannot be equal to or less than 0.");
         }
 
@@ -583,7 +583,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move artifact to a different project.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move artifact to a different project.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -607,7 +607,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move artifact to a different project.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move artifact to a different project.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -627,7 +627,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a folder artifact to non folder/project parent.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a folder artifact to non folder/project parent.");
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -646,7 +646,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a folder artifact to non folder/project parent.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a folder artifact to non folder/project parent.");
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
@@ -674,7 +674,7 @@ namespace ArtifactStoreTests
                "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move an artifact to non project section.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move an artifact to non project section.");
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
@@ -702,7 +702,7 @@ namespace ArtifactStoreTests
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non collection section.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non collection section.");
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
@@ -730,7 +730,7 @@ namespace ArtifactStoreTests
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non folder parent.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non folder parent.");
         }
 
         #endregion 403 Forbidden tests
@@ -792,7 +792,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -809,7 +809,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -831,7 +831,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -852,7 +852,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -872,7 +872,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -897,7 +897,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact without proper permissions", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -920,7 +920,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not found when user tries to move artifact without proper permissions", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -946,7 +946,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to an artifact to which user has no permissions", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -969,7 +969,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when user moves an unlocked artifact to be a child of another artifact.", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser,
                 "Cannot move an artifact that has not been locked.");
         }
 
@@ -997,7 +997,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship,
                 "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
@@ -1025,7 +1025,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship,
                 "This move will result in a circular relationship between the artifact and its new parent.");
         }
 

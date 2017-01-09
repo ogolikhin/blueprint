@@ -62,6 +62,7 @@
     min-width: 100px;
     padding: 8px 19px;
     text-align: center;
+
     &[disabled],
     &.active[disabled],
     &[disabled]:hover,
@@ -81,7 +82,7 @@
         }
     }
     &:focus,
-    &:active
+    &:active,
     &:focus:active {
         outline: 0;
     }
@@ -92,6 +93,7 @@
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
+
     &:focus {
         background-color: transparent;
         border: 1px solid $gray-light;
@@ -110,42 +112,39 @@
 
 .btn-cancel {
     //@include button-variant($gray-light, transparent, 1px solid $gray-light);
-
     background-color: transparent;
     border: 1px solid $gray-light;
     color: $gray-light;
-    &:focus {
-        border: 1px solid $gray-light;
-        color: $gray-light;
-        outline: none;
-    }
+
     &:hover,
+    &:focus,
     &:active,
-    &.active {
+    &.active,
+    &.focus,
+    &:active:focus {
         background-color: transparent;
-        border: 1px solid $gray-lighter;
-        color: $gray-lighter;
+        border-color: darken($brand-secondary, 10%);;
+        color: darken($brand-secondary, 10%);;
         outline: none;
     }
 }
 
 .btn-promoted-action {
     //@include button-variant($gray-light, transparent, 1px solid $gray-light);
-
     background-color: $brand-secondary;
     border: solid 1px $brand-secondary;
     color: $white;
-    &:focus {
-        background-color: $brand-secondary;
-        border: solid 1px $brand-secondary;
-        color: $white;
-    }
+
     &:hover,
+    &:focus,
     &:active,
-    &.active {
+    &.active,
+    &.focus,
+    &:active:focus {
         background-color: darken($brand-secondary, 10%);
         border-color: darken($brand-secondary, 10%);
         color: $white;
+        outline: none;
     }
 }
 
@@ -153,14 +152,13 @@
     background-color: transparent;
     border: solid 1px $brand-secondary;
     color: $brand-secondary;
-    &:focus {
-        background-color: transparent;
-        border: solid 1px $brand-secondary;
-        color: $brand-secondary;
-    }
+
     &:hover,
+    &:focus,
     &:active,
-    &.active, {
+    &.active,
+    &.focus,
+    &:active:focus {
         background-color: $brand-secondary;
         border: solid 1px $brand-secondary;
         color: $white;
@@ -169,14 +167,14 @@
 }
 
 .btn__icon {
-    border: 0;
     background: transparent;
-    width: 24px;
+    border: 0;
+    margin: 0;
     max-width: 24px;
     min-width: 24px;
-    padding: 0;
-    margin: 0;
     outline: none;
+    padding: 0;
+    width: 24px;
 
     &:focus,
     &:active,
@@ -203,21 +201,35 @@
     }
 }
 
-.modal-alert .btn-promoted-action {
-    background-color: $brand-warning;
-    border: solid 1px $brand-warning;
-    color: $white;
-
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.focus,
-    &:active:focus {
-        background-color: darken($brand-warning, 10%);
-        border-color: darken($brand-warning, 10%);
+.modal-alert {
+    .btn-promoted-action {
+        background-color: $brand-warning;
+        border: solid 1px $brand-warning;
         color: $white;
-        outline: none;
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.focus,
+        &:active:focus {
+            background-color: darken($brand-warning, 10%);
+            border-color: darken($brand-warning, 10%);
+            color: $white;
+            outline: none;
+        }
+    }
+
+    .btn-cancel {
+        &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        &.focus,
+        &:active:focus {
+            border-color: darken($brand-warning, 10%);;
+            color: darken($brand-warning, 10%);;
+        }
     }
 }
 

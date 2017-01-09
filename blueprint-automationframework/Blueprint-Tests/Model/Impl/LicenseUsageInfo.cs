@@ -1,7 +1,7 @@
 ﻿
 namespace Model.Impl
 {
-    class LicenseUsageInfo : ILicenseUsageInfo
+    public class LicenseUsageInfo : ILicenseUsageInfo
     {
         #region Properties
 

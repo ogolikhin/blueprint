@@ -274,11 +274,9 @@ namespace Model.Impl
             RestApiFacade restApi = new RestApiFacade(Address);
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
 
-//            Dictionary<string, string> queryParameters = null;
             Dictionary<string, string> queryParameters = new Dictionary<string, string>();
             if (month != null)
                 queryParameters.Add("month", month.ToString());
-            //                queryParameters = new Dictionary<string, string> { { "month", month.ToString() } };
 
             if (year != null)
                 queryParameters.Add("year", year.ToString());

@@ -583,6 +583,26 @@ namespace Model.Impl
             return restResponse.ConvertAll(o => (IJobInfo)o);
         }
 
+        /// <seealso cref="IAdminStore.GetJob(IUser, int, List{HttpStatusCode})"/>
+        public IJobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJob));
+
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.JOBS_id_, jobId);
+
+            var tokenValue = user?.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var restResponse = restApi.SendRequestAndDeserializeObject<JobInfo>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return restResponse;
+        }
+
+
         #endregion Members inherited from IAdminStore
 
         #region Members inherited from IDisposable

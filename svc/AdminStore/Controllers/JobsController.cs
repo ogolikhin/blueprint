@@ -51,7 +51,7 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest.</response>
         [HttpGet, NoCache]
         [Route(""), SessionRequired]
-        [ResponseType(typeof(IEnumerable<JobInfo>))]
+        [ResponseType(typeof(JobResult))]
         public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
             try

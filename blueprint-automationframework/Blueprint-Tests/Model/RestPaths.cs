@@ -74,6 +74,7 @@ namespace Model
                     public const string ACTIVE                      = "svc/accesscontrol/licenses/active";
                     public const string LOCKED                      = "svc/accesscontrol/licenses/locked";
                     public const string TRANSACTIONS                = "svc/accesscontrol/licenses/transactions";
+                    public const string USAGE                       = "svc/AccessControl/licenses/usage";
                 }
 
                 public static class Sessions

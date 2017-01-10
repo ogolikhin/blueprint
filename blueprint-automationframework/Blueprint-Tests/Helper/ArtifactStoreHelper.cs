@@ -709,6 +709,8 @@ namespace Helper
 
         /// <summary>
         /// Creates a random image and adds it to a property of the specified artifact.  Artifact will be locked and saved.
+        /// NOTE: This function will first search for a top-level property with the specified name, then if not found it will
+        /// look in the CustomPropertyValues and then SpecificPropertyValues.
         /// </summary>
         /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
         /// <param name="project">The project where the artifact exists.</param>
@@ -746,7 +748,25 @@ namespace Helper
             }
 
             string propertyContent = string.Join("<br/>", imageTags);
-            CSharpUtilities.SetProperty(propertyName, propertyContent, artifactDetails);
+
+            if (artifactDetails.GetType().GetProperty(propertyName) != null)
+            {
+                CSharpUtilities.SetProperty(propertyName, propertyContent, artifactDetails);
+            }
+            else if (artifactDetails.CustomPropertyValues.Exists(p => p.Name == propertyName))
+            {
+                var property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                property.CustomPropertyValue = propertyContent;
+            }
+            else if (artifactDetails.SpecificPropertyValues.Exists(p => p.Name == propertyName))
+            {
+                var property = artifactDetails.SpecificPropertyValues.Find(p => p.Name == propertyName);
+                property.CustomPropertyValue = propertyContent;
+            }
+            else
+            {
+                Assert.Fail("No property named '{0}' was found in artifact ID: {1}!", propertyName, artifactDetails.Id);
+            }
 
             artifactStore.UpdateArtifact(user, project, artifactDetails);
             return artifactStore.GetArtifactDetails(user, artifactDetails.Id);

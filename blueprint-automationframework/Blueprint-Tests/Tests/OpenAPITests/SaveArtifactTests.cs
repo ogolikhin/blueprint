@@ -63,7 +63,7 @@ namespace OpenAPITests
             description.TextOrChoiceValue = I18NHelper.FormatInvariant("{0}{1}", description.TextOrChoiceValue, textToAppend);
 
             // Execute:
-            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, updateWithRandomDescription: false),
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifactDescription(openApiArtifact, _authorUser, updateWithRandomDescription: false),
                 "OpenAPI Save method shouldn't fail.");
 
             // Verify:
@@ -74,6 +74,63 @@ namespace OpenAPITests
             Assert.That(artifactDetailsAfter.Description.Contains("<p><img src=\"/svc/bpartifactstore/images/"),
                 "The embedded image didn't get converted back to HTML!");
             Assert.That(artifactDetailsAfter.Description.Contains(textToAppend), "The new appended text didn't get saved properly!");
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [TestCase]
+        [TestRail(227236)]
+        [Category(Categories.ArtifactStore)]
+        [Description("Create an artifact and add an embedded image into one of it's Rich Text Custom properties (using Nova).  Append text to the Rich Text property and " +
+                     "save the artifact (using OpenAPI).  Verify that the image is still embedded.")]
+        public void Save_ArtifactWithImageInRichTextCustomProperty_AppendText_ImageIsStillEmbedded()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
+
+            const string artifactTypeName = "ST-User Story";
+            const string propertyName = "ST-Acceptance Criteria";
+
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, Model.ArtifactModel.Enums.ItemTypePredefined.TextualRequirement,
+                artifactTypeName: artifactTypeName);
+            artifact.Lock(_authorUser);
+
+            const int numberOfImagesToAdd = 1;
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore,
+                propertyName: propertyName, numberOfImagesToAdd: numberOfImagesToAdd);
+
+            var openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
+            var openApiProperty = openApiArtifact.Properties.Find(p => p.Name == propertyName);
+            var novaProperty = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+
+            var images = VerifyImagesAreEmbeddedInArtifactAndGetImageIds((string)novaProperty.CustomPropertyValue, openApiProperty, numberOfImagesToAdd);
+
+            // Append some text to the Custom Property.
+            const string textToAppend = "<p>Appending some text here</p>";
+            string imageTag = I18NHelper.FormatInvariant("<p>[Image = {0}]</p>", images[0]);
+            openApiProperty.TextOrChoiceValue = openApiProperty.TextOrChoiceValue.Replace(imageTag, imageTag + textToAppend);
+
+            // Execute:
+            var propertiesToUpdate = new List<OpenApiPropertyForUpdate>();
+            propertiesToUpdate.Add(new OpenApiPropertyForUpdate
+            {
+                PropertyTypeId = openApiProperty.PropertyTypeId,
+                TextOrChoiceValue = openApiProperty.TextOrChoiceValue
+            });
+
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, propertiesToUpdate),
+                "OpenAPI Save method shouldn't fail.");
+
+            // Verify:
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+            var novaPropertyAfter = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
+            var novaPropertyValueAfter = (string) novaPropertyAfter.CustomPropertyValue;
+
+            Assert.AreNotEqual(novaPropertyValueAfter, openApiProperty.TextOrChoiceValue,
+                "The Nova artifact '{0}' property should be different than in OpenAPI because the [Image = ID] tag should be converted back to HTML in Nova.",
+                propertyName);
+            Assert.That(novaPropertyValueAfter.Contains("<p><img src=\"/svc/bpartifactstore/images/"),
+                "The embedded image didn't get converted back to HTML!");
+            Assert.That(novaPropertyValueAfter.Contains(textToAppend), "The new appended text didn't get saved properly!");
         }
 
         [TestCase]
@@ -102,7 +159,7 @@ namespace OpenAPITests
             description.TextOrChoiceValue = description.TextOrChoiceValue.Replace(tempValue, imageIds[1]);
 
             // Execute:
-            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, updateWithRandomDescription: false),
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifactDescription(openApiArtifact, _authorUser, updateWithRandomDescription: false),
                 "OpenAPI Save method shouldn't fail.");
 
             // Verify:
@@ -153,8 +210,8 @@ namespace OpenAPITests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                OpenApiArtifact.UpdateArtifact(openApiArtifact1, _authorUser, updateWithRandomDescription: false);
-                OpenApiArtifact.UpdateArtifact(openApiArtifact2, _authorUser, updateWithRandomDescription: false);
+                OpenApiArtifact.UpdateArtifactDescription(openApiArtifact1, _authorUser, updateWithRandomDescription: false);
+                OpenApiArtifact.UpdateArtifactDescription(openApiArtifact2, _authorUser, updateWithRandomDescription: false);
             },
                 "OpenAPI Save method shouldn't fail.");
 
@@ -204,7 +261,7 @@ namespace OpenAPITests
             description.TextOrChoiceValue = description.TextOrChoiceValue.Replace(imageTag, string.Empty);
 
             // Execute:
-            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, updateWithRandomDescription: false),
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifactDescription(openApiArtifact, _authorUser, updateWithRandomDescription: false),
                 "OpenAPI Save method shouldn't fail.");
 
             // Verify:
@@ -216,8 +273,159 @@ namespace OpenAPITests
                 "The embedded image ID was found in the description, even though we removed it!");
         }
 
-        // TODO: Add a test where an image is copied to another Rich Text field.
-        // TODO: Add a test where an image is copied to a single line Rich Text field.  How should that behave?
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [TestCase]
+        [TestRail(227233)]
+        [Category(Categories.ArtifactStore)]
+        [Description("Create an artifact that has at least 2 multi-line Rich Text fields and add an embedded image into one of them (using Nova).  Copy the [Image = ID] " +
+                     "to another multi-line Rich Text field and save the artifact (using OpenAPI).  Verify that the image is only embedded in the original Rich Text " +
+                     "field and remains in plain text in the 2nd Rich Text field.")]
+        public void Save_ArtifactWithImageInRichTextProperty_ImageCopiedToAnotherRichTextField_ImageIsEmbeddedInOriginalRichTextFieldOnly()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
+
+            // The 'ST-Title' property of 'ST-User Story' is the oly single-line Rich Text property.
+            const string artifactTypeName = "ST-User Story";
+            const string multiLineRTProperty = "ST-Acceptance Criteria";
+
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, Model.ArtifactModel.Enums.ItemTypePredefined.TextualRequirement,
+                artifactTypeName: artifactTypeName);
+            artifact.Lock(_authorUser);
+
+            const int numberOfImagesToAdd = 1;
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+
+            var openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
+            var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));
+            var otherRichTextProperty = openApiArtifact.Properties.Find(p => p.Name == multiLineRTProperty);
+
+            // Verify that the properties we found are different.
+            Assert.AreNotEqual(description.PropertyTypeId, otherRichTextProperty.PropertyTypeId,
+                "The PropertyTypeId of the two properties should be different!");
+
+            var imageIds = VerifyImagesAreEmbeddedInArtifactAndGetImageIds(artifactDetails.Description, description, numberOfImagesToAdd);
+
+            // Copy Description (and image) to another Rich Text property.
+            otherRichTextProperty.TextOrChoiceValue = description.TextOrChoiceValue;
+
+            // Execute:
+            var propertiesToUpdate = new List<OpenApiPropertyForUpdate>();
+            propertiesToUpdate.Add(new OpenApiPropertyForUpdate
+            {
+                PropertyTypeId = description.PropertyTypeId,
+                TextOrChoiceValue = description.TextOrChoiceValue
+            });
+            propertiesToUpdate.Add(new OpenApiPropertyForUpdate
+            {
+                PropertyTypeId = otherRichTextProperty.PropertyTypeId,
+                TextOrChoiceValue = otherRichTextProperty.TextOrChoiceValue
+            });
+
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, propertiesToUpdate),
+                "OpenAPI Save method shouldn't fail.");
+
+            // Verify:
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            Assert.AreNotEqual(artifactDetailsAfter.Description, description.TextOrChoiceValue,
+                "The Nova artifact description should be different than in OpenAPI because the [Image = ID] tag should be converted back to HTML in Nova.");
+            Assert.That(artifactDetailsAfter.Description.Contains("<p><img src=\"/svc/bpartifactstore/images/"),
+                "The embedded image didn't get converted back to HTML!");
+            Assert.That(artifactDetailsAfter.Description.Contains(imageIds[0]), "The image ID wasn't found in the Description!");
+
+            // Verify the other property didn't get its [Image = ID] converted to HTML.
+            var otherNovaRichTextProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == multiLineRTProperty);
+            string otherNovaRichTextPropertyValue = (string)otherNovaRichTextProperty.CustomPropertyValue;
+
+            Assert.AreNotEqual(artifactDetailsAfter.Description, otherNovaRichTextPropertyValue,
+                "The 'Description' and '{0}' properties should be different!", multiLineRTProperty);
+
+            Assert.IsFalse(otherNovaRichTextPropertyValue.Contains("<p><img src=\"/svc/bpartifactstore/images/"),
+                "The embedded image shouldn't get converted back to HTML if copied to other properties in the same artifact!");
+
+            string expectedImageTag = I18NHelper.FormatInvariant("[Image = {0}]", imageIds[0]);
+            Assert.That(otherNovaRichTextPropertyValue.Contains(expectedImageTag), "The '{0}' property should contain {1}!",
+                multiLineRTProperty, expectedImageTag);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [TestCase]
+        [TestRail(227234)]
+        [Category(Categories.ArtifactStore)]
+        [Description("Create an artifact that has at least 2 Rich Text fields (1 multi-line and 1 single-line) and add an embedded image into the multi-line property (using Nova).  " +
+                     "Copy the [Image = ID] from the multi-line Rich Text property to the single-line Rich Text field and save the artifact (using OpenAPI).  " +
+                     "Verify that the image is embedded in the multi-line Rich Text property but plain text in the single-line Rich Text property.")]
+        public void Save_ArtifactWithImageInRichTextProperty_ImageCopiedToAnotherSingleLineRichTextField_ImageIsPlainTextInSingleLineProperty()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
+
+            // The 'ST-Title' property of 'ST-User Story' is the oly single-line Rich Text property.
+            const string artifactTypeName = "ST-User Story";
+            const string singleLineRTProperty = "ST-Title";
+
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, Model.ArtifactModel.Enums.ItemTypePredefined.TextualRequirement,
+                artifactTypeName: artifactTypeName);
+            artifact.Lock(_authorUser);
+
+            const int numberOfImagesToAdd = 1;
+            var artifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(artifact, _authorUser, Helper.ArtifactStore, numberOfImagesToAdd: numberOfImagesToAdd);
+
+            var openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
+            var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));
+            var otherRichTextProperty = openApiArtifact.Properties.Find(p => p.Name == singleLineRTProperty);
+
+            // Verify that the properties we found are different.
+            Assert.AreNotEqual(description.PropertyTypeId, otherRichTextProperty.PropertyTypeId,
+                "The PropertyTypeId of the two properties should be different!");
+
+            var imageIds = VerifyImagesAreEmbeddedInArtifactAndGetImageIds(artifactDetails.Description, description, numberOfImagesToAdd);
+
+            // Copy Description (and image) to another Rich Text property.
+            otherRichTextProperty.TextOrChoiceValue = description.TextOrChoiceValue;
+
+            // Execute:
+            var propertiesToUpdate = new List<OpenApiPropertyForUpdate>();
+            propertiesToUpdate.Add(new OpenApiPropertyForUpdate
+            {
+                PropertyTypeId = description.PropertyTypeId,
+                TextOrChoiceValue = description.TextOrChoiceValue
+            });
+            propertiesToUpdate.Add(new OpenApiPropertyForUpdate
+            {
+                PropertyTypeId = otherRichTextProperty.PropertyTypeId,
+                TextOrChoiceValue = otherRichTextProperty.TextOrChoiceValue
+            });
+
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, propertiesToUpdate),
+                "OpenAPI Save method shouldn't fail.");
+
+            // Verify:
+            var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            Assert.AreNotEqual(artifactDetailsAfter.Description, description.TextOrChoiceValue,
+                "The Nova artifact description should be different than in OpenAPI because the [Image = ID] tag should be converted back to HTML in Nova.");
+            Assert.That(artifactDetailsAfter.Description.Contains("<p><img src=\"/svc/bpartifactstore/images/"),
+                "The embedded image didn't get converted back to HTML!");
+            Assert.That(artifactDetailsAfter.Description.Contains(imageIds[0]), "The image ID wasn't found in the Description!");
+
+            // Verify the other property didn't get its [Image = ID] converted to HTML.
+            var otherNovaRichTextProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == singleLineRTProperty);
+            string otherNovaRichTextPropertyValue = (string) otherNovaRichTextProperty.CustomPropertyValue;
+
+            Assert.AreNotEqual(artifactDetailsAfter.Description, otherNovaRichTextPropertyValue,
+                "The 'Description' and '{0}' properties should be different!", singleLineRTProperty);
+
+            Assert.IsFalse(otherNovaRichTextPropertyValue.Contains("<p><img src=\"/svc/bpartifactstore/images/"),
+                "The embedded image shouldn't get converted back to HTML if copied to other properties in the same artifact!");
+
+            string expectedImageTag = I18NHelper.FormatInvariant("[Image = {0}]", imageIds[0]);
+            Assert.That(otherNovaRichTextPropertyValue.Contains(expectedImageTag), "The '{0}' property should contain {1}!",
+                singleLineRTProperty, expectedImageTag);
+        }
+
+        // TODO: Add test that embeds an image, then delete image from FileStore, then get artifact with OpenAPI and verify that image is removed.
 
         #endregion Save artifact with image tests
 

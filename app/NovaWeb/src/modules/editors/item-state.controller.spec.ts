@@ -42,6 +42,7 @@ describe("Item State Controller tests", () => {
         beginLoading() {
             //
         };
+
         endLoading(id: number) {
             //
         };
@@ -61,18 +62,17 @@ describe("Item State Controller tests", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((
-        _$state_: ng.ui.IStateService,
-        _$rootScope_: ng.IRootScopeService,
-        _$q_: ng.IQService,
-        _artifactManager_: IArtifactManager,
-        _projectManager_: IProjectManager,
-        _localization_: ILocalizationService,
-        _messageService_: IMessageService,
-        _navigationService_: INavigationService,
-        _itemInfoService_: IItemInfoService,
-        _loadingOverlayService_: ILoadingOverlayService,
-        _statefulArtifactFactory_: IStatefulArtifactFactory) => {
+    beforeEach(inject((_$state_: ng.ui.IStateService,
+                       _$rootScope_: ng.IRootScopeService,
+                       _$q_: ng.IQService,
+                       _artifactManager_: IArtifactManager,
+                       _projectManager_: IProjectManager,
+                       _localization_: ILocalizationService,
+                       _messageService_: IMessageService,
+                       _navigationService_: INavigationService,
+                       _itemInfoService_: IItemInfoService,
+                       _loadingOverlayService_: ILoadingOverlayService,
+                       _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
         $state = _$state_;
         $rootScope = _$rootScope_;
@@ -186,7 +186,11 @@ describe("Item State Controller tests", () => {
                 const expectedState = "main.item.diagram";
                 itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.GenericDiagram});
+                    deferred.resolve({
+                        id: artifactId,
+                        projectId: 11,
+                        predefinedType: Models.ItemTypePredefined.GenericDiagram
+                    });
                     return deferred.promise;
                 });
 
@@ -197,7 +201,10 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {
+                    id: artifactId,
+                    version: undefined
+                }, {reload: expectedState});
             });
 
             it("glossary", () => {
@@ -205,7 +212,11 @@ describe("Item State Controller tests", () => {
                 const expectedState = "main.item.glossary";
                 itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Glossary});
+                    deferred.resolve({
+                        id: artifactId,
+                        projectId: 11,
+                        predefinedType: Models.ItemTypePredefined.Glossary
+                    });
                     return deferred.promise;
                 });
 
@@ -216,7 +227,10 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {
+                    id: artifactId,
+                    version: undefined
+                }, {reload: expectedState});
             });
 
             it("general", () => {
@@ -224,7 +238,11 @@ describe("Item State Controller tests", () => {
                 const expectedState = "main.item.general";
                 itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Project});
+                    deferred.resolve({
+                        id: artifactId,
+                        projectId: 11,
+                        predefinedType: Models.ItemTypePredefined.Project
+                    });
                     return deferred.promise;
                 });
 
@@ -235,7 +253,10 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {
+                    id: artifactId,
+                    version: undefined
+                }, {reload: expectedState});
             });
 
             it("collection", () => {
@@ -243,7 +264,11 @@ describe("Item State Controller tests", () => {
                 const expectedState = "main.item.collection";
                 itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.ArtifactCollection});
+                    deferred.resolve({
+                        id: artifactId,
+                        projectId: 11,
+                        predefinedType: Models.ItemTypePredefined.ArtifactCollection
+                    });
                     return deferred.promise;
                 });
 
@@ -254,7 +279,10 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {
+                    id: artifactId,
+                    version: undefined
+                }, {reload: expectedState});
             });
 
             it("process", () => {
@@ -262,7 +290,11 @@ describe("Item State Controller tests", () => {
                 const expectedState = "main.item.process";
                 itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
                     const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Process});
+                    deferred.resolve({
+                        id: artifactId,
+                        projectId: 11,
+                        predefinedType: Models.ItemTypePredefined.Process
+                    });
                     return deferred.promise;
                 });
 
@@ -273,7 +305,10 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {
+                    id: artifactId,
+                    version: undefined
+                }, {reload: expectedState});
             });
 
             it("details", () => {
@@ -292,7 +327,10 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(itemInfoSpy).toHaveBeenCalled();
                 expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(stateSpy).toHaveBeenCalledWith(expectedState, {
+                    id: artifactId,
+                    version: undefined
+                }, {reload: expectedState});
             });
         });
 
@@ -340,7 +378,7 @@ describe("Item State Controller tests", () => {
                 // assert
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(projectManagerSpy).toHaveBeenCalled();
-                expect(projectManagerSpy).toHaveBeenCalledWith(10);
+                expect(projectManagerSpy).toHaveBeenCalledWith({id: 10, projectId: 10});
                 expect(reloadNavigationSpy).toHaveBeenCalled();
             });
         });
@@ -572,7 +610,10 @@ describe("Item State Controller tests", () => {
             // assert
             expect(unloadSpy).toHaveBeenCalled();
             expect(stateSpy).toHaveBeenCalled();
-            expect(stateSpy).toHaveBeenCalledWith("main.item.process", {id: artifactId, version: undefined}, {reload: "main.item.process"});
+            expect(stateSpy).toHaveBeenCalledWith("main.item.process", {
+                id: artifactId,
+                version: undefined
+            }, {reload: "main.item.process"});
         });
 
         it("should not use artifact from artifact manager if it's deleted", () => {
@@ -580,15 +621,15 @@ describe("Item State Controller tests", () => {
             statefulArtifact.artifactState.deleted = true;
             const unloadSpy = spyOn(statefulArtifact, "unload");
             const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({
-                        id: artifactId,
-                        predefinedType: Models.ItemTypePredefined.Actor,
-                        isDeleted: true,
-                        deletedByUser: {}
-                    });
-                    return deferred.promise;
+                const deferred = $q.defer();
+                deferred.resolve({
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.Actor,
+                    isDeleted: true,
+                    deletedByUser: {}
                 });
+                return deferred.promise;
+            });
 
             // act
             ctrl = getItemStateController(artifactId.toString());

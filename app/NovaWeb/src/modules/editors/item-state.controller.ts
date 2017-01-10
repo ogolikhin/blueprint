@@ -7,7 +7,7 @@ import {IApplicationError} from "../core/error/applicationError";
 import {HttpStatusCode} from "../core/http/http-status-code";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {IMessageService} from "../core/messages/message.svc";
-import {MessageType, Message} from "../core/messages/message";
+import {MessageType} from "../core/messages/message";
 import {ILocalizationService} from "../core/localization/localizationService";
 import {ItemTypePredefined} from "../main/models/enums";
 import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
@@ -65,7 +65,7 @@ export class ItemStateController {
                 this.navigationService.navigateTo({id: result.id, redirect: true});
 
             } else if (this.itemInfoService.isProject(result)) {
-                this.projectManager.openProject(result.id).then(() => {
+                this.projectManager.openProject(result).then(() => {
                     this.navigationService.reloadCurrentState();
                 });
             } else if (this.itemInfoService.isArtifact(result) && !this.isBaselineOrReview(result.predefinedType)) {

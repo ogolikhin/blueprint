@@ -41,7 +41,6 @@ export class PageToolbarController implements IPageToolbarController {
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
     private _canCreateNew: boolean = false;
-    private _canGenerateTestCases: boolean = false;
 
     private get discardAllManyThreshold(): number {
         return 50;
@@ -507,8 +506,6 @@ export class PageToolbarController implements IPageToolbarController {
                             !this._currentArtifact.artifactState.historical && 
                             !this._currentArtifact.artifactState.deleted &&
                             (this._currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
-
-        this._canGenerateTestCases = !!this._currentArtifact;
     };
 
     public get isProjectOpened(): boolean {
@@ -524,6 +521,7 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     public get canGenerateTestCases(): boolean {
-        return this._canGenerateTestCases;
+        // determining project context by checking whether there is current artifact
+        return !!this._currentArtifact;
     }
 }

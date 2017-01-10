@@ -113,6 +113,7 @@ namespace AccessControlTests
         [TestCase(10, null)]
         [TestCase(null, 2016)]
         [TestCase(10, 2016)]
+        [TestCase(10, 2116)]
         [TestRail(227232)]
         [Description("Check that GET info about license transactions returns 200 OK")]
         public void GetLicenseUsage_WithMonthAndYear_VerifyUsageDataReturned(int? month, int? year)
@@ -132,12 +133,10 @@ namespace AccessControlTests
 
         //        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(-1, null)]
-        [TestCase(null, 1)]
-        [TestCase(null, 3000)]
-        [TestCase(12, 2017)]
+        [TestCase(12, 3000)]
         [TestRail(0)]
-        [Description("Tries to retrieve license usage information by passing out of range parameters. Verify GetLicenseUsage returns 404 Not Found")]
-        public void GetLicenseUsageInfo_OutOfRange_404NotFound(int? month, int? year)
+        [Description("Tries to retrieve license usage information by passing out of range month parameter. Verify GetLicenseUsage returns 404 Not Found")]
+        public void GetLicenseUsageInfo_MonthOutOfRange_404NotFound(int? month, int? year)
         {
             // Setup:
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
@@ -147,9 +146,26 @@ namespace AccessControlTests
                 Helper.AccessControl.GetLicenseUsage(month, year), "'GET {0}' should return 404 Not Found if parameters out of range!", path);
 
             // Verify:
-            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} is deleted.", 1);
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "Specified month is invalid");
         }
+
+        [TestCase(null, 1)]
+        [TestCase(null, 3000)]
+        [TestRail(0)]
+        [Description("Tries to retrieve license usage information by passing out of range parameters. Verify GetLicenseUsage returns 404 Not Found")]
+        public void GetLicenseUsageInfo_YearOutOfRange_404NotFound(int? month, int? year)
+        {
+            // Setup:
+            string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                Helper.AccessControl.GetLicenseUsage(month, year), "'GET {0}' should return 404 Not Found if parameters out of range!", path);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "Specified year is invalid");
+        }
+
 
         #region Private functions
 

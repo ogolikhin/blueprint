@@ -612,7 +612,7 @@ namespace Model.Impl
 
             File file = null;
 
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Jobs_id_.RESULT.FILE, jobId);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Jobs_id_.Result.FILE, jobId);
 
             var tokenValue = user?.Token?.AccessControlToken;
 

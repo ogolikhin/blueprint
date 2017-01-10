@@ -18,7 +18,7 @@ namespace AdminStoreTests
     [Category(Categories.CustomData)]
     public class JobResultFileTests : TestBase
     {
-        protected const string JOBRESULTFILE_PATH = RestPaths.Svc.AdminStore.Jobs_id_.RESULT.FILE;
+        protected const string JOBRESULTFILE_PATH = RestPaths.Svc.AdminStore.Jobs_id_.Result.FILE;
         protected const int DEFAULT_BASELINEORREVIEWID = 83;
 
         private IProject _projectCustomData = null;

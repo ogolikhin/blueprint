@@ -1,3 +1,4 @@
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -27,6 +28,7 @@ interface IPageToolbarController {
     refreshAll(evt?: ng.IAngularEvent);
     openTour(evt?: ng.IAngularEvent);
     showSubLevel(evt: ng.IAngularEvent): void;
+    generateTestCases(evt?: ng.IAngularEvent);
 }
 
 export class PageToolbar implements ng.IComponentOptions {
@@ -39,6 +41,7 @@ export class PageToolbarController implements IPageToolbarController {
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
     private _canCreateNew: boolean = false;
+    private _canGenerateTestCases: boolean = false;
 
     private get discardAllManyThreshold(): number {
         return 50;
@@ -261,6 +264,36 @@ export class PageToolbarController implements IPageToolbarController {
             });
     };
 
+    public generateTestCases = (evt: ng.IAngularEvent) => {
+        if (evt) {
+            evt.preventDefault();
+        }
+
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Toolbar_Generate_Test_Cases"),
+            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: this.localization.get("App_Toolbar_Generate_Test_Cases_Title")
+        };
+
+        const dialogOptions: IArtifactPickerOptions = {
+            selectableItemTypes: [Models.ItemTypePredefined.Process],
+            isItemSelectable: (item: Models.IArtifact) => {
+                        return item.id > 0 &&
+                                !item.lockedByUser;
+                    },
+            selectionMode: "checkbox",
+            showProjects: false
+        };
+        
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
+            items.forEach(item => {
+                console.log(item.id + " " + item.name);
+            });
+        });
+    };
+
     public refreshAll = (evt?: ng.IAngularEvent) => {
         if (evt) {
             evt.preventDefault();
@@ -474,6 +507,8 @@ export class PageToolbarController implements IPageToolbarController {
                             !this._currentArtifact.artifactState.historical && 
                             !this._currentArtifact.artifactState.deleted &&
                             (this._currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
+
+        this._canGenerateTestCases = !!this._currentArtifact;
     };
 
     public get isProjectOpened(): boolean {
@@ -488,5 +523,7 @@ export class PageToolbarController implements IPageToolbarController {
         return this._canCreateNew;
     }
 
-
+    public get canGenerateTestCases(): boolean {
+        return this._canGenerateTestCases;
+    }
 }

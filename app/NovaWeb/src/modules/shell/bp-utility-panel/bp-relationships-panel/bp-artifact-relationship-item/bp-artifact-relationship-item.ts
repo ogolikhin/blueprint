@@ -129,7 +129,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
             let text = Helper.stripHTMLTags(str);
             const imagePosition: number = text.indexOf(imageReplacementText);
             if (descriptionLength > imagePosition &&  imagePosition > (descriptionLength - imageReplacementLength)) {
-                descriptionLength = descriptionLength + (descriptionLength - imagePosition - imageReplacementLength);
+                descriptionLength = descriptionLength - (descriptionLength - imagePosition - imageReplacementLength);
             }
 
             return Helper.limitChars(text, descriptionLength).replace(/\u200B/g, "");

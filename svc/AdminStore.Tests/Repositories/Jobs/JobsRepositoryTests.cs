@@ -139,6 +139,31 @@ namespace AdminStore.Repositories.Jobs
             Assert.IsNotNull(file);
         }
 
+        [TestMethod]
+        public async Task GetJob_NullJob_Throws404ResourceNotFoundException()
+        {
+            const int jobId = 1;
+            const int userId = 1;
+            var job = CreateJob(jobId, JobType.ProjectExport, JobStatus.Running);
+            var fileRepositoryMock = new Mock<IFileRepository>();
+            var jobsRepository = CreateJobsRepository();
+            ResourceNotFoundException exception = null;
+
+            // Act
+            try
+            {
+                await jobsRepository.GetJob(jobId, userId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.ResourceNotFound, exception.ErrorCode);
+        }
+
         private static DJobMessage CreateJob(int jobId, JobType type, JobStatus status = JobStatus.Completed, string result = null)
         {
             return new DJobMessage

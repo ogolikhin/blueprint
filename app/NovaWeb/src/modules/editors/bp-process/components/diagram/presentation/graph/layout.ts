@@ -22,6 +22,7 @@ import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
+import {IBridgesHandler, BridgesHandler}  from "./bridges-handler";
 
 export let tempShapeId: number = 0;
 
@@ -31,7 +32,8 @@ export class Layout implements ILayout {
     private preprocessor: IGraphLayoutPreprocessor = null;
     private edgesGeo: EdgeGeo[] = [];
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
-
+    public bridgesHandler: IBridgesHandler;
+    
     constructor(private processGraph: IProcessGraph,
                 public viewModel: IProcessViewModel,
                 private rootScope: any,
@@ -162,15 +164,18 @@ export class Layout implements ILayout {
                 thisEdge.renderLabel();
             }
 
-            if (useAutolayout) {
-                if (selectedNodeId != null) {
-                    this.postRender(selectedNodeId);
-                }
-            }
-
             for (let edgeGeo of this.edgesGeo) {
                 if (edgeGeo) {
                     edgeGeo.state = this.getEdgeCellState(edgeGeo.edge);
+                }
+            }
+
+            this.bridgesHandler = new BridgesHandler(this.mxgraph, this.edgesGeo);
+            this.bridgesHandler.addConnectorBridges();
+
+            if (useAutolayout) {
+                if (selectedNodeId != null) {
+                    this.postRender(selectedNodeId);
                 }
             }
 

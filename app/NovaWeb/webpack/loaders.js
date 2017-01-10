@@ -9,7 +9,7 @@ module.exports = [
             path.join(__dirname, "../src/images"),
             path.join(__dirname, "../src/styles")
         ],
-        loader: "awesome-typescript",
+        loaders: ["ng-annotate", "awesome-typescript"],
         include: [
             path.join(__dirname, "../src")
         ]

@@ -173,6 +173,7 @@ namespace AdminStoreTests
 
         [TestCase(0)]
         [TestCase(-10)]
+        [TestCase(int.MaxValue)]
         [TestRail(227244)]
         [Description("GET JobResultFile using the invalid jobId which doesn't exist. Verify that 404 NotFound is returned.")]
         public void GetJobResultFile_ExecuteWithInvalidJobId_404NotFound(int jobId)

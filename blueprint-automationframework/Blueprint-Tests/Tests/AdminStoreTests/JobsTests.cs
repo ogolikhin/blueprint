@@ -63,6 +63,7 @@ namespace AdminStoreTests
 
         #region 200 OK Tests
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 10)]
         [TestRail(227081)]
@@ -86,6 +87,7 @@ namespace AdminStoreTests
             JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: jobsToBeFound);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
         [TestRail(227082)]
         [Description("GET Jobs using the jobType that doesn't match with jobs created for the test. Verify that the returned empty JobResult.")]
@@ -109,6 +111,7 @@ namespace AdminStoreTests
 
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
         [TestRail(227084)]
         [Description("GET Jobs using the author user after creating jobs with admin. Verify that the returned jobResult contains jobs belong to the user which is nothing.")]
@@ -131,6 +134,7 @@ namespace AdminStoreTests
             JobResultValidation(jobResult: jobResult, pageSize: pageSize);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 1, 1)]
         [TestRail(213052)]
         [Description("GET Jobs using a user that doesn't have permission to projects. Verify that an empty JobResult is returned.")]
@@ -156,6 +160,7 @@ namespace AdminStoreTests
             JobResultValidation(jobResult: jobResult, pageSize: pageSize);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(DEFAULT_BASELINEORREVIEWID)]
         [TestRail(227220)]
         [Description("Get a Job with a user that created the job. Verify that the returned JobResult")]
@@ -177,6 +182,7 @@ namespace AdminStoreTests
 
         #region 400 Bad Request Tests
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(null, 1, ErrorCodes.PageNullOrNegative)]
         [TestCase(1, null, ErrorCodes.PageSizeNullOrOutOfRange)]
         [TestRail(213053)]
@@ -198,6 +204,7 @@ namespace AdminStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(-1, -1, ErrorCodes.PageNullOrNegative)]
         [TestCase(-1, 1, ErrorCodes.PageNullOrNegative)]
         [TestCase(1, -1, ErrorCodes.PageSizeNullOrOutOfRange)]
@@ -225,6 +232,7 @@ namespace AdminStoreTests
 
         #region 401 Unauthorized Tests
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [TestRail(213050)]
         [Description("GET Jobs with missing 'Session-Token' header in the request. Verify that the call returns 401 Unautorized")]
@@ -242,6 +250,7 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Jobs which has no session token.", expectedExceptionMessage);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase]
         [TestRail(213051)]
         [Description("GET Jobs with invalid 'Session-Token' header in the request. Verify that the call return 401 Unautorized")]
@@ -260,6 +269,7 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Jobs which has invalid token", expectedExceptionMessage);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(int.MaxValue)]
         [TestRail(227221)]
         [Description("GET a Job with missing 'Session-Token' header in the request. Verify that the call returns 401 Unautorized")]
@@ -277,6 +287,7 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Job which has no session token.", expectedExceptionMessage);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(int.MaxValue)]
         [TestRail(227222)]
         [Description("GET a Job with invalid 'Session-Token' header in the request. Verify that the call return 401 Unautorized")]

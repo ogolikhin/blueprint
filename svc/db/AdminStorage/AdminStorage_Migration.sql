@@ -2074,7 +2074,6 @@ BEGIN
 	FROM L
 	GROUP BY L.ActivityYear, L.ActivityMonth;
 
-	DROP TABLE #Registered
 END
 
 GO 

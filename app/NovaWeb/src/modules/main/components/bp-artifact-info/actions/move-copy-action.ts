@@ -143,7 +143,7 @@ export class MoveCopyAction extends BPDropdownAction {
             ItemTypePredefined.ArtifactCollection
         ];
 
-        let dialogData: IMoveCopyArtifactPickerOptions = {
+        const dialogData: IMoveCopyArtifactPickerOptions = {
             showProjects: false,
             showArtifacts: collectionTypes.indexOf(this.artifact.predefinedType) === -1,
             showSubArtifacts: false,

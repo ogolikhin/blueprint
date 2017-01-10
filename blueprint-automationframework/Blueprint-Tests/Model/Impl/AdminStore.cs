@@ -623,7 +623,9 @@ namespace Model.Impl
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
 
-            // This code is dummy!!
+            // Create a file represents output file associated with the job
+            // TODO: Guid for the file cannot be retrieved with any existing API calls at this point and there is no plan to get the guid.
+            // TODO: Will introduce the sql calls later if it's required
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 string filename = HttpUtility.UrlDecode(new ContentDisposition(
@@ -632,10 +634,6 @@ namespace Model.Impl
                 file = new File
                 {
                     Content = response.RawBytes.ToArray(),
-                    Guid = jobId.ToStringInvariant(),
-                    LastModifiedDate =
-                        DateTime.ParseExact(response.Headers.First(h => h.Key == "Stored-Date").Value.ToString(), "o",
-                            null),
                     FileType = response.ContentType,
                     FileName = filename
                 };

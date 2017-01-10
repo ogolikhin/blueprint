@@ -1,7 +1,13 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
+using Model.Impl;
+using Model.JobModel;
+using Model.JobModel.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -13,13 +19,21 @@ namespace AdminStoreTests
     public class JobResultFileTests : TestBase
     {
         protected const string JOBRESULTFILE_PATH = RestPaths.Svc.AdminStore.Jobs_id_.RESULT.FILE;
-        protected const int PROJECTEXPORT_NONEXPIREDFILE_JOBID = 3;
-        protected const int PROJECTEXPORT_EXPIREDFILE_JOBID = 4;
+        protected const int DEFAULT_BASELINEORREVIEWID = 83;
 
-        //private List<IProject> _allProjects = null;
         private IProject _projectCustomData = null;
         private IUser _adminUser = null;
-        //private IUser _authorUser = null;
+
+        private const int PROJECTEXPORT_NONEXPIREDFILE_JOBID = 3;
+        private const int PROJECTEXPORT_EXPIREDFILE_JOBID = 4;
+        private const int DOCGEN_JOBID = 5;
+        private const string PROJECTEXPORT_NONEXPIREDFILE_FILEGUID = "b909ba6c-b1d6-e611-8144-12f00423610b";
+        private const string PROJECTEXPORT_EXPIREDFILE_FILEGUID = "4d056821-b2d6-e611-8144-12f00423610b";
+        private Dictionary<int, string> JobIdToFileGuidMap { get; } = new Dictionary<int, string>
+        {
+            { PROJECTEXPORT_NONEXPIREDFILE_JOBID, PROJECTEXPORT_NONEXPIREDFILE_FILEGUID },
+            { PROJECTEXPORT_EXPIREDFILE_JOBID, PROJECTEXPORT_EXPIREDFILE_FILEGUID}
+        };
 
         #region Setup and Cleanup
 
@@ -28,11 +42,8 @@ namespace AdminStoreTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            //_allProjects = ProjectFactory.GetAllProjects(_adminUser);
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             _projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
-            //_authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _projectCustomData);
-            // TODO: implement test cases use _authorUser
         }
 
         [TestFixtureTearDown]
@@ -45,24 +56,63 @@ namespace AdminStoreTests
 
         #region 200 OK Tests
 
-        // TODO: complete the test cases
         [TestCase(PROJECTEXPORT_NONEXPIREDFILE_JOBID)]
-        [TestRail(0)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestRail(227239)]
         [Description("GET JobResultFile using the jobId of ProjectExport which has non expired output file. Verify that valid project file is returned.")]
         public void GetJobResultFile_ExecuteWithNonExpiredProjectExportJobId_VerifyGetExportedProjectFile(int jobId)
         {
             // Setup: Use the prepared ProjectExport job
 
-            // Execute: Execute GetJobResultFile to get exported project data
-            Assert.DoesNotThrow(() => Helper.AdminStore.GetJobResultFile(_adminUser, jobId),
+            // Execute: Execute GetJobResultFile to get the exported project data and update guid for file validation step
+            IFile outputFile = null;
+            Assert.DoesNotThrow(() => outputFile = Helper.AdminStore.GetJobResultFile(_adminUser, jobId),
                 "Get {0} call failed using job Id {1}!", JOBRESULTFILE_PATH, jobId);
+            outputFile.Guid = JobIdToFileGuidMap[jobId];
 
             // Validation: Verify that the call returned exported project data
-            // TODO: implement validation steps
+            var storedFile = Helper.FileStore.GetFile(JobIdToFileGuidMap[jobId], _adminUser);
+            FileStoreTestHelper.AssertFilesAreIdentical(storedFile, outputFile);
         }
 
         #endregion 200 OK Tests
+
+        #region 400 Bad Request Tests
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase(DEFAULT_BASELINEORREVIEWID)]
+        [TestRail(227241)]
+        [Description("GET JobResultFile using the job which is not completed. Verify that 400 bad request is returned.")]
+        public void GetJobResultFile_ExecuteWithNotCompletedJobId_400BadRequest(int baselineOrReviewId)
+        {
+            // Setup: Create a ALM ChangeSummary job using the prepared ALM target
+            var createdJob = CreateALMSummaryJobsSetup(baselineOrReviewId, 1, _projectCustomData).First();
+
+            // Execute: Execute GetJobResultFile using the ALM ChangeSummary job Id which is not completed.
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobResultFile(_adminUser, createdJob.JobId),
+                "GET {0} call should return 400 Bad Request when using with not completed job Id ({1})!", JOBRESULTFILE_PATH, createdJob.JobId);
+
+            // Validation: Verify that the expected error code and error message are returned
+            string expectedExceptionMessage = "Job is not completed";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.JobNotCompleted, expectedExceptionMessage);
+        }
+
+        [TestCase(DOCGEN_JOBID)]
+        [TestRail(227242)]
+        [Description("GET JobResultFile using the job which is not supported (DocGen). Verify that 400 bad request is returned.")]
+        public void GetJobResultFile_ExecuteWithNoneSupportedJobId_400BadRequest(int jobId)
+        {
+            // Setup: Use the prepared DocGen job which is not supported by GetJobResultFile call yet.
+
+            // Execute: Execute GetJobResultFile using the ALM ChangeSummary job Id which is not being supported.
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobResultFile(_adminUser, jobId),
+                "GET {0} call should return 400 Bad Request when using with non-supported job Id ({1})!", JOBRESULTFILE_PATH, jobId);
+
+            // Validation: Verify that the expected error code and error message are returned
+            string expectedExceptionMessage = "Job doesn't support downloadable result files";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResultFileNotSupported, expectedExceptionMessage);
+        }
+
+        #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
 
@@ -102,5 +152,64 @@ namespace AdminStoreTests
         }
 
         #endregion 401 Unauthorized Tests
+
+        #region 404 Not Found Tests
+
+        [TestCase(PROJECTEXPORT_EXPIREDFILE_JOBID)]
+        [TestRail(227240)]
+        [Description("GET JobResultFile using the jobId of ProjectExport which has expired output file. Verify that 404 NotFound is returned.")]
+        public void GetJobResultFile_ExecuteWithExpiredProjectExportedJobId_404NotFound(int jobId)
+        {
+            // Setup: Use the prepared ProjectExport job
+
+            // Execute: Execute GetJobResultFile to get the exported project data which is expired
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.AdminStore.GetJobResultFile(_adminUser, jobId),
+                "GET {0} call should return 404 Not Found when using the job whose Id is {1}, which has expired output file!", JOBRESULTFILE_PATH, jobId);
+
+            // Validation: Verify that expected error code and error message are returned
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("File with id {0} is not found", JobIdToFileGuidMap[jobId]);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedExceptionMessage);
+        }
+
+        [TestCase(0)]
+        [TestCase(-10)]
+        [TestRail(227244)]
+        [Description("GET JobResultFile using the invalid jobId which doesn't exist. Verify that 404 NotFound is returned.")]
+        public void GetJobResultFile_ExecuteWithInvalidJobId_404NotFound(int jobId)
+        {
+            // Setup: Not required
+
+            // Execute and Verify: Execute GetJobResultFile with invalid job Id and verified that 404 NotFound is returned
+            Assert.Throws<Http404NotFoundException>(() => Helper.AdminStore.GetJobResultFile(_adminUser, jobId),
+                "GET {0} call should return 404 Not Found when using invalid job Id ({1})!", JOBRESULTFILE_PATH, jobId);
+        }
+
+        #endregion 404 Not Found Tests
+
+        #region private functions
+
+        /// <summary>
+        /// Create ALM Change Summary Jobs as a setup for testing Nova GET Jobs API calls
+        /// </summary>
+        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
+        /// <param name="numberOfJobsToBeCreated">The number of ALM Change Summary Jobs to be created.</param>
+        /// <param name="project">The project where ALM targets reside.</param>
+        /// <returns> List of ALM Summary Jobs created in decending order by jobId </returns>
+        private List<IOpenAPIJob> CreateALMSummaryJobsSetup(int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
+        {
+            var almTarget = AlmTarget.GetAlmTargets(Helper.ArtifactStore.Address, _adminUser, project).First();
+            Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
+            List<IOpenAPIJob> jobsToBeFound = new List<IOpenAPIJob>();
+            for (int i = 0; i < numberOfJobsToBeCreated; i++)
+            {
+                var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, project, baselineOrReviewId, almTarget);
+                jobsToBeFound.Add(openAPIJob);
+            }
+            jobsToBeFound.Reverse();
+            return jobsToBeFound;
+        }
+
+        #endregion private functions
+
     }
 }

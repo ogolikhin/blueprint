@@ -19,16 +19,16 @@ import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 
 interface IPageToolbarController {
-    openProject(evt?: ng.IAngularEvent);
-    closeProject(evt?: ng.IAngularEvent);
-    closeAllProjects(evt?: ng.IAngularEvent);
-    createNewArtifact(evt?: ng.IAngularEvent);
-    publishAll(evt?: ng.IAngularEvent);
-    discardAll(evt?: ng.IAngularEvent);
-    refreshAll(evt?: ng.IAngularEvent);
-    openTour(evt?: ng.IAngularEvent);
+    openProject(evt?: ng.IAngularEvent): void;
+    closeProject(evt?: ng.IAngularEvent): void;
+    closeAllProjects(evt?: ng.IAngularEvent): void;
+    createNewArtifact(evt?: ng.IAngularEvent): void;
+    publishAll(evt?: ng.IAngularEvent): void;
+    discardAll(evt?: ng.IAngularEvent): void;
+    refreshAll(evt?: ng.IAngularEvent): void;
+    openTour(evt?: ng.IAngularEvent): void;
     showSubLevel(evt: ng.IAngularEvent): void;
-    generateTestCases(evt?: ng.IAngularEvent);
+    generateTestCases(evt?: ng.IAngularEvent): void;
 }
 
 export class PageToolbar implements ng.IComponentOptions {
@@ -87,7 +87,7 @@ export class PageToolbarController implements IPageToolbarController {
         delete this._subscribers;
     }
 
-    public openProject = (evt: ng.IAngularEvent) => {
+    public openProject = (evt: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -101,7 +101,7 @@ export class PageToolbarController implements IPageToolbarController {
      * Otherwise navigates to next project in project list
      *
      */
-    public closeProject = (evt?: ng.IAngularEvent) => {
+    public closeProject = (evt?: ng.IAngularEvent): void => {
         const id = this.loadingOverlayService.beginLoading();
         if (evt) {
             evt.preventDefault();
@@ -118,7 +118,7 @@ export class PageToolbarController implements IPageToolbarController {
         });
     };
 
-    public closeAllProjects = (evt?: ng.IAngularEvent) => {
+    public closeAllProjects = (evt?: ng.IAngularEvent): void => {
         const id = this.loadingOverlayService.beginLoading();
         if (evt) {
             evt.preventDefault();
@@ -148,7 +148,7 @@ export class PageToolbarController implements IPageToolbarController {
         });
     };
 
-    public createNewArtifact = (evt?: ng.IAngularEvent) => {
+    public createNewArtifact = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -223,7 +223,7 @@ export class PageToolbarController implements IPageToolbarController {
             });
     };
 
-    public publishAll = (evt?: ng.IAngularEvent) => {
+    public publishAll = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -244,7 +244,7 @@ export class PageToolbarController implements IPageToolbarController {
         });
     };
 
-    public discardAll = (evt?: ng.IAngularEvent) => {
+    public discardAll = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -263,7 +263,7 @@ export class PageToolbarController implements IPageToolbarController {
             });
     };
 
-    public generateTestCases = (evt: ng.IAngularEvent) => {
+    public generateTestCases = (evt: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -293,7 +293,7 @@ export class PageToolbarController implements IPageToolbarController {
         });
     };
 
-    public refreshAll = (evt?: ng.IAngularEvent) => {
+    public refreshAll = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -311,7 +311,7 @@ export class PageToolbarController implements IPageToolbarController {
             });
         }
     };
-    public openTour = (evt?: ng.IAngularEvent) => {
+    public openTour = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }

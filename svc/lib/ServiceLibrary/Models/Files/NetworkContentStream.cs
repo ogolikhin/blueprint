@@ -9,61 +9,32 @@ namespace ServiceLibrary.Models.Files
     // use this class as a wrapper for the original stream which returns the actual Length
     public class NetworkFileStream : Stream
     {
-        private Stream _stream;
-        private long _length;
+        private readonly Stream _stream;
+        private readonly long _length;
 
         public NetworkFileStream(Stream stream, long length)
         {
             if (stream == null)
             {
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
             }
 
             if (length < 0)
             {
-                throw new ArgumentOutOfRangeException("length");
+                throw new ArgumentOutOfRangeException(nameof(length));
             }
 
             _stream = stream;
             _length = length;
         }
 
-        public override bool CanRead
-        {
-            get
-            {
-                return _stream.CanRead;
-            }
-        }
+        public override bool CanRead => _stream.CanRead;
 
-        public override bool CanSeek
-        {
-            get
-            {
-                return _stream.CanSeek;
-            }
-        }
+        public override bool CanSeek => _stream.CanSeek;
 
-        public override bool CanWrite
-        {
-            get
-            {
-                return _stream.CanWrite;
-            }
-        }
+        public override bool CanWrite => _stream.CanWrite;
 
-        public override long Length
-        {
-            get
-            {
-                if (_stream.CanSeek)
-                {
-                    return _stream.Length;
-                }
-
-                return _length;
-            }
-        }
+        public override long Length => _stream.CanSeek ? _stream.Length : _length;
 
         public override long Position
         {

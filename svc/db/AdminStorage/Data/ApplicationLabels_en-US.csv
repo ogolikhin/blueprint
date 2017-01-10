@@ -601,5 +601,6 @@ Jobs_SubmittedDate, "Submitted on"
 Jobs_StartDate, "Started on"
 Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
+Jobs_Button_Label_GetJobs, "Get Jobs"
 
 

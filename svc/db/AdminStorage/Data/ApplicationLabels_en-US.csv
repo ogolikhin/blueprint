@@ -79,6 +79,9 @@ App_Toolbar_Move,"Move Artifact"
 App_Toolbar_Copy,"Copy Artifact"
 App_Toolbar_Copy_Shapes, "Copy Shapes"
 App_Toolbar_Menu,"Additional actions"
+App_Toolbar_Generate, "Generate"
+App_Toolbar_Generate_Test_Cases, "Generate Test Cases"
+App_Toolbar_Generate_Test_Cases_Title, "Add Process to Generate Tests"
 
 App_Tooltip_Dirty, "Unsaved"
 
@@ -602,5 +605,6 @@ Jobs_StartDate, "Started on"
 Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
 Jobs_Button_Label_GetJobs, "Get Jobs"
+
 
 

@@ -2,7 +2,7 @@
 namespace Model.Impl
 {
     // Copied from: blueprint/svc/lib/ServiceLibrary/Models/LicenseUsage.cs
-    public class LicenseUsage// : ILicenseUsageInfo
+    public class LicenseUsage
     {
         #region Properties
 

@@ -8,7 +8,7 @@ namespace AdminStore.Repositories.Jobs
 {
     public interface IJobsRepository
     {
-        Task<IEnumerable<JobInfo>> GetVisibleJobs
+        Task<JobResult> GetVisibleJobs
         (
             int userId,
             int? offset = null,

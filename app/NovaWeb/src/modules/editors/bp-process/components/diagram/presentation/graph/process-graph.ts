@@ -1113,6 +1113,10 @@ export class ProcessGraph implements IProcessGraph {
         this.highlightedEdgeStates = [];
     }
 
+    public highlightBridges() {
+        this.layout.bridgesHandler.highlightBridges();
+    } 
+    
     private logError(arg: any) {
         if (this.$log) {
             this.$log.error(arg);

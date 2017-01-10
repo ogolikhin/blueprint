@@ -249,5 +249,15 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
         /// <returns>List of JobInfo</returns>
         List<IJobInfo> GetJobs(IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get a job for the user
+        /// </summary>
+        /// <param name="user">A user that authenticate with</param>
+        /// <param name="jobId">The job ID</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
+        /// <returns>JobInfo</returns>
+        IJobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
+
     }
 }

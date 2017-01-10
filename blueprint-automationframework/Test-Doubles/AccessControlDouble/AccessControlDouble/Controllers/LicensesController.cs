@@ -60,5 +60,33 @@ namespace AccessControlDouble.Controllers
 
             return await ProxyGetRequest(thisClassName, thisMethodName);
         }
+
+        /// <summary>
+        /// Returns license usage for the given {month} and {year}.
+        /// </summary>
+        /// <returns>JSON object like:  [{"LicenseLevel": 0, "Count": 0}]</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
+        [HttpGet]
+        [Route("usage")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> GetLicenseUsage(int? month = null, int? year = null)
+        {
+            string thisClassName = nameof(LicensesController);
+            string thisMethodName = nameof(GetLicenseUsage);
+
+            var args = new List<string>();
+
+            if (month != null)
+            {
+                args.Add(month.ToString());
+            }
+
+            if (year != null)
+            {
+                args.Add(year.ToString());
+            }
+
+            return await ProxyGetRequest(thisClassName, thisMethodName, args);
+        }
     }
 }

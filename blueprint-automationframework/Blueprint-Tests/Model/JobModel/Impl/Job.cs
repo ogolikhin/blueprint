@@ -53,7 +53,7 @@ namespace Model.JobModel.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Targets_id_.JOBS, project.Id, almTarget.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALM.Targets_id_.JOBS, project.Id, almTarget.Id);
             var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId);
             var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
                 path,

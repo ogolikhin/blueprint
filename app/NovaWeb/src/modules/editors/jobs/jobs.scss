@@ -1,5 +1,5 @@
-@import "../../../styles/settings/colors";
-@import "../../../styles/settings/typography";
+@import "./../../../styles/settings/colors";
+@import "./../../../styles/settings/typography";
 
 .jobs {
     width: 100%;
@@ -176,8 +176,11 @@
     display: inline-block;
     position:absolute;
 }
-
 .jobs__label {
     padding-right: 5px;
     font-weight: bold;
+}
+
+.jobs__pagination {
+    font-size: $font-size-bigger;
 }

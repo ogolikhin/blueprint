@@ -50,24 +50,32 @@ namespace AdminStore.Repositories.Jobs
 
         #region Public Methods
 
-        public async Task<IEnumerable<JobInfo>> GetVisibleJobs
+        public async Task<JobResult> GetVisibleJobs
         (
-            int userId, 
-            int? offset, 
-            int? limit, 
+            int userId,
+            int? offset,
+            int? limit,
             JobType? jobType = JobType.None
         )
         {
             var actualUserId = await GetActualUserId(userId);
+            var jobResult = new JobResult();
             var dJobMessages = (await GetJobMessages(actualUserId, offset, limit, jobType, false)).ToList();
+            if (dJobMessages.Any())
+            {
+                jobResult.TotalJobCount = dJobMessages.FirstOrDefault().TotalCount;
+            }
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(dJobMessages.Select(job => job.JobMessageId), true);
             var projectIds = new HashSet<int>
-            (
-                dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value)
-            );
+             (
+                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value)
+             );
             var projectNameIdMap = await GetProjectNamesForUserMapping(projectIds, actualUserId);
 
-            return dJobMessages.Select(job => GetJobInfo(job, systemMessageMap, projectNameIdMap));
+
+            jobResult.JobInfos = dJobMessages.Select(job => GetJobInfo(job, systemMessageMap, projectNameIdMap));
+
+            return jobResult;
         }
 
         public async Task<JobInfo> GetJob(int jobId, int userId)
@@ -77,7 +85,7 @@ namespace AdminStore.Repositories.Jobs
             var job = await GetJobMessage(jobId);
             if (job == null)
             {
-                return null;
+                throw new ResourceNotFoundException(string.Format("Job with id {0} is not found", jobId), ErrorCodes.ResourceNotFound);
             }
 
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(new[] { jobId });
@@ -175,7 +183,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure));
+                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure)).ToList();
             }
             catch (SqlException sqlException)
             {

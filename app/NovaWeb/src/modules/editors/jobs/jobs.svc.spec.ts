@@ -1,7 +1,8 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx";
-import {IJobInfo, JobsService, JobStatus, JobType} from "./jobs.svc";
+import {JobsService} from "./jobs.svc";
+import {IJobInfo, JobStatus, JobType} from "./model/models";
 import {HttpStatusCode} from "../../core/http/http-status-code";
 
 describe("Jobs Service", () => {

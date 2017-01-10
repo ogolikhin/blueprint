@@ -7,12 +7,14 @@ import "./bp-explorer";
 import "./bp-page-content";
 import "./quickSearch";
 import "./momentDateFilter";
+import "./momentDateTimeFilter";
 import "./pagination";
 import "./analytics";
 import "./dialogs/open-project";
 
 angular.module("bp.components", [
     "bp.components.momentDateFilter",
+    "bp.components.momentDateTimeFilter",
     "bp.components.accordion",
     "bp.components.artifactinfo",
     "bp.components.pagetoolbar",

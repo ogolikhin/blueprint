@@ -1,5 +1,5 @@
-@import "../../../styles/settings/colors";
-@import "../../../styles/settings/typography";
+@import "./../../../styles/settings/colors";
+@import "./../../../styles/settings/typography";
 
 .jobs {
     width: 100%;
@@ -141,19 +141,46 @@
 
 }
 
-.jobs__firstrow{
+.jobs__firstrow {
     margin-top: 10px;
 }
 
-.jobs__secondrow{
+.jobs__secondrow {
     margin-top: 3px;
 }
 
-.jobs__thirdrow{
+.jobs__thirdrow {
     margin-top: 3px;
 }
 
 
-.fonticon2-project.jobs__projecticon--size::before{
+.fonticon2-project.jobs__projecticon--size::before {
     font-size:15px;
+    padding-right: 5px;
+}
+
+.jobs__projectname {
+    width:80%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    position:absolute;
+}
+
+.jobs__authorname {
+    width:calc(80% - 25px);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: inline-block;
+    position:absolute;
+}
+.jobs__label {
+    padding-right: 5px;
+    font-weight: bold;
+}
+
+.jobs__pagination {
+    font-size: $font-size-bigger;
 }

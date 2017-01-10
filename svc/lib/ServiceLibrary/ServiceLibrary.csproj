@@ -129,6 +129,7 @@
     <Compile Include="Models\Jobs\ProcessTestGenerationResult.cs" />
     <Compile Include="Models\Jobs\ProjectExportResultDetails.cs" />
     <Compile Include="Models\Jobs\ProjectExportTaskStatus.cs" />
+    <Compile Include="Models\Jobs\JobResult.cs" />
     <Compile Include="Models\LicenseUsage.cs" />
     <Compile Include="Models\Messaging\SystemJobCommand.cs" />
     <Compile Include="Models\Messaging\SystemMessage.cs" />
@@ -151,9 +152,10 @@
     <Compile Include="Repositories\ConfigControl\IServiceLogRepository.cs" />
     <Compile Include="Repositories\ConfigControl\IConfigRepository.cs" />
     <Compile Include="Repositories\ConfigControl\ServiceLogRepository.cs" />
-    <Compile Include="Repositories\FileRepository.cs" />
+    <Compile Include="Repositories\Files\FileRepository.cs" />
+    <Compile Include="Helpers\Files\FileHttpWebClient.cs" />
     <Compile Include="Repositories\IArtifactPermissionsRepository.cs" />
-    <Compile Include="Repositories\IFileRepository.cs" />
+    <Compile Include="Repositories\Files\IFileRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\IInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\InstanceSettings\SqlInstanceSettingsRepository.cs" />
     <Compile Include="Repositories\ISqlArtifactRepository.cs" />

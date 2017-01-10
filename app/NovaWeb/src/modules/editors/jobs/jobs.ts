@@ -1,3 +1,4 @@
+import {IPaginationData} from "../../main/components/pagination/model";
 import moment = require("moment");
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
@@ -9,7 +10,8 @@ import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/act
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
-import {IJobsService, IJobInfo, JobStatus, JobType} from "./jobs.svc";
+import {IJobsService} from "./jobs.svc";
+import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";
 
 export class JobsComponent implements ng.IComponentOptions {
@@ -32,9 +34,9 @@ export class JobsController {
     public jobs: IJobInfo[];
     public toolbarActions: IBPAction[];
     public isLoading: boolean;
-    public page: number;
-    public pageLength: number;
- 
+
+    public paginationData: IPaginationData;
+    
     constructor(
         private $log: ng.ILogService,
         private $window: ng.IWindowService,
@@ -46,8 +48,13 @@ export class JobsController {
         private projectManager: IProjectManager
     ) {
         this.toolbarActions = [];
-        this.page = 1;
-        this.pageLength = 10;
+
+        this.paginationData = {
+            page: 1,
+            pageSize: 10,
+            total: 0,
+            maxVisiblePageCount: 10         
+        };
     }
 
     public $onInit() {
@@ -55,15 +62,22 @@ export class JobsController {
     };
 
     public loadNextPage() {
-        this.loadPage(this.page + 1);
+        this.loadPage(this.paginationData.page + 1);
     }
-    
-    private getJobAction(status: JobStatus): JobAction {
+
+    private getJobAction(job: IJobInfo): JobAction {
         let jobAction = JobAction.None;
 
-        switch (status) {
+        switch (job.status) {
             case JobStatus.Completed:
-                jobAction = JobAction.Download;
+                switch (job.jobType) {
+                    case JobType.ProjectExport:
+                        jobAction = JobAction.Download;
+                        break;
+                    default:
+                        jobAction = JobAction.None;
+                        break;
+                }
                 break;
             case JobStatus.Cancelling:
             case JobStatus.Running:
@@ -79,43 +93,49 @@ export class JobsController {
         return jobAction;
     }
 
-    public canDownload(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Download;
+    public canDownload(job: IJobInfo): boolean {
+        return this.getJobAction(job) === JobAction.Download;
     }
 
-    public canRefresh(status: JobStatus): boolean {
-        return this.getJobAction(status) === JobAction.Refresh;
+    public canRefresh(job: IJobInfo): boolean {
+        return this.getJobAction(job) === JobAction.Refresh;
     }
 
-    public refreshJob(jobId: number): void {
-        this.jobsService.getJob(jobId)
+    public refreshJob(job: IJobInfo): void {
+        if (!this.canRefresh(job)) {
+            return;
+        }
+
+        this.jobsService.getJob(job.jobId)
             .then((result: IJobInfo) => {
-                const index = _.indexOf(this.jobs, _.find(this.jobs, {jobId: result.jobId}));
                 result.userDisplayName = undefined;
-                _.merge(this.jobs[index], result);
+                _.merge(job, result);
             });
     }
 
-    public downloadItem(jobId: number): void {
-        const url = `/svc/adminstore/jobs/${jobId}/result/file`;
+    public downloadItem(job: IJobInfo): void {
+        if (!this.canDownload(job)) {
+            return;
+        }
+
+        const url = `/svc/adminstore/jobs/${job.jobId}/result/file`;
         this.$window.open(url, "_blank");
     }
 
-    private loadPage(page: number) {
+    public loadPage(page: number) {
         this.isLoading = true;
-        this.page = page;
+        this.paginationData.page = page;
         this.jobs = [];
-        this.jobsService.getJobs(page, this.pageLength)
-            .then((result: IJobInfo[]) => {
-                this.jobs = result;
+        this.jobsService.getJobs(page, this.paginationData.pageSize)
+            .then((result: IJobResult) => {
+                this.jobs = result.jobInfos;
+                if (result.totalJobCount) {
+                    this.paginationData.total = result.totalJobCount;
+                }
             })
             .finally(() => {
                 this.isLoading = false;
             });
-    } 
-    
-    private getDateTime(date: Date): string {
-        return !!date ? moment(date).format("MMMM DD, YYYY h:mm:ss a") : "--";
     }
 
     private getStatus(statusId: JobStatus): string {
@@ -197,6 +217,10 @@ export class JobsController {
 
     public isJobsEmpty(): boolean {
         return this.jobs.length === 0;
+    }
+
+    public showPagination(): boolean {
+        return (!this.isJobsEmpty() || this.paginationData.page > 1) && !this.isLoading;
     }
 
     public $onDestroy() {

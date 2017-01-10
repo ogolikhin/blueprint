@@ -14,7 +14,7 @@ using Utilities;
 namespace AdminStoreTests
 {
     [TestFixture]
-    [Category(Categories.ArtifactStore)]
+    [Category(Categories.AdminStore)]
     [Category(Categories.CustomData)]
     public class JobResultFileTests : TestBase
     {
@@ -56,6 +56,7 @@ namespace AdminStoreTests
 
         #region 200 OK Tests
 
+        [Category(Categories.GoldenData)]
         [TestCase(PROJECTEXPORT_NONEXPIREDFILE_JOBID)]
         [TestRail(227239)]
         [Description("GET JobResultFile using the jobId of ProjectExport which has non expired output file. Verify that valid project file is returned.")]
@@ -78,7 +79,7 @@ namespace AdminStoreTests
 
         #region 400 Bad Request Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [Category(Categories.GoldenData)]
         [TestCase(DEFAULT_BASELINEORREVIEWID)]
         [TestRail(227241)]
         [Description("GET JobResultFile using the job which is not completed. Verify that 400 bad request is returned.")]
@@ -96,6 +97,8 @@ namespace AdminStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.JobNotCompleted, expectedExceptionMessage);
         }
 
+        [Category(Categories.GoldenData)]
+        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(DOCGEN_JOBID)]
         [TestRail(227242)]
         [Description("GET JobResultFile using the job which is not supported (DocGen). Verify that 400 bad request is returned.")]
@@ -155,6 +158,7 @@ namespace AdminStoreTests
 
         #region 404 Not Found Tests
 
+        [Category(Categories.GoldenData)]
         [TestCase(PROJECTEXPORT_EXPIREDFILE_JOBID)]
         [TestRail(227240)]
         [Description("GET JobResultFile using the jobId of ProjectExport which has expired output file. Verify that 404 NotFound is returned.")]

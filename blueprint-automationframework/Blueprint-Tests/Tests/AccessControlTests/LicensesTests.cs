@@ -110,7 +110,7 @@ namespace AccessControlTests
         [TestCase(10, 2016)]
         [TestRail(227232)]
         [Description("Check that GET info about license transactions returns 200 OK")]
-        public void GetLicenseUsageInfo_200OK(int? month, int? year)
+        public void GetLicenseUsage_WithMonthAndYear_VerifyUsageDataReturned(int? month, int? year)
         {
             // Setup:
 

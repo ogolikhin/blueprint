@@ -3,8 +3,11 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
+using Utilities;
 
 namespace AccessControlTests
 {
@@ -103,7 +106,7 @@ namespace AccessControlTests
             });
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
+//        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(null, null)]
         [TestCase(10, null)]
         [TestCase(null, 2016)]
@@ -113,15 +116,62 @@ namespace AccessControlTests
         public void GetLicenseUsageInfo_200OK(int? month, int? year)
         {
             // Setup:
-
+            IList<LicenseUsage> response = null;
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Helper.AccessControl.GetLicenseUsage(month, year);
+                response = Helper.AccessControl.GetLicenseUsage(month, year);
             });
 
             // Verify:
-
+            VerifySomeProperties(response);
         }
+
+        //        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase(-1, null)]
+        [TestCase(null, 1)]
+        [TestCase(null, 3000)]
+        [TestCase(12, 2017)]
+        [TestRail(0)]
+        [Description("Tries to retrieve license usage information by passing out of range parameters. Verify GetLicenseUsage returns 404 Not Found")]
+        public void GetLicenseUsageInfo_OutOfRange_404NotFound(int? month, int? year)
+        {
+            // Setup:
+            string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                Helper.AccessControl.GetLicenseUsage(month, year), "'GET {0}' should return 404 Not Found if parameters out of range!", path);
+
+            // Verify:
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} is deleted.", 1);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
+        }
+
+        #region Private functions
+
+        private static void VerifySomeProperties(IList<LicenseUsage> response)
+        {
+            Assert.IsNotNull(response, "There is no response object created!");
+
+            if (response.Count != 0)
+            {
+                Assert.IsTrue(response[0].ActivityMonth.Equals(11), "The month should be 11!");
+                Assert.IsTrue(response[0].ActivityYear.Equals(2016), "The year should be 2016!");
+                Assert.IsTrue(response[0].MaxConCurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
+                Assert.IsTrue(response[0].UniqueAuthors.Equals(2), "UniqueAuthors should be 2");
+
+                Assert.IsTrue(response[1].ActivityMonth.Equals(12), "The month should be 12!");
+                Assert.IsTrue(response[1].ActivityYear.Equals(2016), "The year should be 2016!");
+                Assert.IsTrue(response[1].MaxConCurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
+                Assert.IsTrue(response[1].UniqueAuthors.Equals(1), "UniqueAuthors should be 2");
+            }
+            else
+            {
+                Assert.IsEmpty(response);
+            }
+        }
+
+        #endregion Private functions
     }
 }

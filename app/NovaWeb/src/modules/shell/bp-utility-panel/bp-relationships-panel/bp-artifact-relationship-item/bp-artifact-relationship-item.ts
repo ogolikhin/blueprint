@@ -120,9 +120,19 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
         $event.returnValue = false;
     }
 
-    public limitChars(str) {
+    public limitChars(str: string) {
         if (str) {
-            return Helper.limitChars(Helper.stripHTMLTags(str)).replace(/\u200B/g, "");
+            let descriptionLength: number = 100;
+            const imageReplacementText: string = " [Image] ";
+            const imageReplacementLength: number = imageReplacementText.length;
+            str = _.replace(str, /<img.*?>/gi, imageReplacementText);
+            let text = Helper.stripHTMLTags(str);
+            const imagePosition: number = text.indexOf(imageReplacementText);
+            if (descriptionLength > imagePosition &&  imagePosition > (descriptionLength - imageReplacementLength)) {
+                descriptionLength = descriptionLength + (descriptionLength - imagePosition - imageReplacementLength);
+            }
+
+            return Helper.limitChars(text, descriptionLength).replace(/\u200B/g, "");
         }
 
         return "";

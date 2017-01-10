@@ -103,6 +103,8 @@ namespace AccessControlTests
             });
         }
 
+        #region License Usage"
+
         [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(null, null)]
         [TestCase(10, null)]
@@ -123,5 +125,7 @@ namespace AccessControlTests
             // Verify:
 
         }
+
+        #endregion License Usage"
     }
 }

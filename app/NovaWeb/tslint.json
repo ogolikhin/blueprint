@@ -21,8 +21,6 @@
             "check-lowercase"
         ],
         "curly": true,
-        //"eofline": true,
-        //"forin": true,
         "indent": [
             true,
             "spaces"
@@ -67,9 +65,6 @@
         "no-duplicate-key": true,
         "no-duplicate-variable": true,
         "no-empty": true,
-        //"no-null-keyword": true,
-        //"no-unused-variable": true,
-        //"no-use-before-declare": true,
         "no-eval": true,
         "no-var-keyword": true,
         "no-internal-module": true,
@@ -129,10 +124,6 @@
             "check-separator",
             "check-type"
         ],
-        /*"only-arrow-functions": [
-            true,
-            "allow-declarations"
-        ],*/
         "trailing-comma": [
             true,
             {

@@ -494,7 +494,7 @@ describe("Page Toolbar:", () => {
     });
 
     describe("Generate->", () => {
-        it("can launce generate test cases artifact picker",
+        it("can launch generate test cases artifact picker",
             inject((dialogService: IDialogService) => {
                 // Arrange
             const dialogServiceSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.resolve(); });

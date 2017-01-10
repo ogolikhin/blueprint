@@ -10,6 +10,11 @@ export interface IArtifactSelectedArtifactMap {
     [artifactId: number]: Relationships.IRelationshipView[];
 }
 
+interface ISelectedItem extends TreeModels.ITreeNodeVM<any> {
+    parentArtifact?: Models.IArtifact;
+    project?: any;
+}
+
 export class ManageTracesDialogController extends BaseDialogController {
     public static $inject = ["$uibModalInstance", "dialogSettings", "localization",
         "artifactRelationships", "dialogData", "dialogService", "$timeout"];
@@ -100,7 +105,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
         for (let i = 0; i < selectedVMsLength; i++) {
 
-            let currentItem = selectedVMs[i],
+            let currentItem = selectedVMs[i] as ISelectedItem,
                 currentItemModel = (currentItem.model) as Relationships.IRelationshipView;
 
             currentItemModel.itemId = currentItemModel.id;
@@ -121,11 +126,17 @@ export class ManageTracesDialogController extends BaseDialogController {
                 currentItemModel.itemName = currentItemModel.name || currentItemModel.displayName || currentItemModel.itemLabel;
                 currentItemModel.itemTypePrefix = currentItemModel.prefix;
                 currentItemModel.traceDirection = this.direction;
-                currentItemModel.projectName = currentItem["project"] && currentItem["project"].name;
+                currentItemModel.projectName = currentItem.project && currentItem.project.name;
                 currentItemModel.hasAccess = true;
                 currentItemModel.suspect = false;
                 currentItemModel.cssClass = cssClass;
                 selected.push(currentItemModel);
+
+                if (currentItem.parentArtifact) {
+                    currentItemModel.artifactTypePrefix = currentItem.parentArtifact.prefix;
+                    currentItemModel.artifactId = currentItem.parentArtifact.id;
+                    currentItemModel.artifactName = currentItem.parentArtifact.name;
+                }
             }
         }
 

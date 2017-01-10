@@ -1,4 +1,3 @@
-import "lodash";
 import {Enums, Models} from "../../main";
 import {IStatefulItem, StatefulSubArtifact} from "../../managers/artifact-manager";
 import {Helper} from "../../shared/utils/helper";
@@ -70,7 +69,8 @@ export class PropertyEditor {
 
             default:
                 if (context.isRichText) {
-                    return Helper.tagsContainText($modelValue) ? $modelValue : ""; // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                    // tinyMCE returns empty tags (e.g. <p></p> when there is no content)
+                    return Helper.tagsContainText($modelValue) || Helper.hasNonTextTags($modelValue) ? $modelValue : "";
                 }
                 return $modelValue;
         }
@@ -117,7 +117,10 @@ export class PropertyEditor {
     }
 
 
-    public create(statefulItem: IStatefulItem, propertyDescriptors: IPropertyDescriptor[], force: boolean): boolean {
+    public create(statefulItem: IStatefulItem,
+                  propertyDescriptors: IPropertyDescriptor[],
+                  force: boolean,
+                  onBeforeFieldCreatedCallback?: (context: IPropertyDescriptor) => void): boolean {
 
         let fieldsupdated: boolean = false;
         this._model = {};
@@ -195,6 +198,9 @@ export class PropertyEditor {
                 }
                 if (isModelSet) {
                     propertyContext.isFresh = true;
+                    if (_.isFunction(onBeforeFieldCreatedCallback)) {
+                        onBeforeFieldCreatedCallback(propertyContext);
+                    }
                     let field = this.createPropertyField(propertyContext, statefulItem);
                     this._model[propertyContext.fieldPropertyName] = this.convertToFieldValue(field, modelValue);
                     if (fieldsupdated) {

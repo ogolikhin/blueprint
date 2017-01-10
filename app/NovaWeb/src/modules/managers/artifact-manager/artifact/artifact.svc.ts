@@ -7,7 +7,7 @@ export interface IArtifactService {
     getArtifactModel<T extends Models.IArtifact>(url: string, id: number, versionId?: number, timeout?: ng.IPromise<any>): ng.IPromise<T>;
     getSubArtifact(artifactId: number, subArtifactId: number, versionId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.ISubArtifact>;
     lock(artifactId: number): ng.IPromise<Models.ILockResult[]>;
-    updateArtifact(artifact: Models.IArtifact);
+    updateArtifact(url: string, artifact: Models.IArtifact);
     deleteArtifact(artifactId: number, timeout?: ng.IPromise<any>): ng.IPromise<Models.IArtifact[]>;
     create(name: string, projectId: number, parentId: number, itemTypeId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
     getArtifactNavigationPath(artifactId: number): ng.IPromise<Models.IArtifact[]>;
@@ -89,10 +89,10 @@ export class ArtifactService implements IArtifactService {
     }
 
 
-    public updateArtifact(artifact: Models.IArtifact): ng.IPromise<Models.IArtifact> {
+    public updateArtifact(url: string, artifact: Models.IArtifact): ng.IPromise<Models.IArtifact> {
         const defer = this.$q.defer<Models.IArtifact>();
 
-        this.$http.patch(`/svc/bpartifactstore/artifacts/${artifact.id}`, angular.toJson(artifact)).then(
+        this.$http.patch(url, angular.toJson(artifact)).then(
             (result: ng.IHttpPromiseCallbackArg<Models.IArtifact>) => defer.resolve(result.data),
             (result: ng.IHttpPromiseCallbackArg<any>) => {
                 defer.reject(result.data);

@@ -6,6 +6,7 @@ import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {SourcesAndDestinations, IUserStory, IArtifactReference} from "../../../../../models/process-models";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
+import {IBridgesHandler}  from "../bridges-handler";
 
 export interface IDeletable {
     canDelete(): boolean;
@@ -132,6 +133,7 @@ export interface IProcessGraph {
     clearCopyGroupHighlight(): void;
     highlightCopyGroups(nodes: IDiagramNode[]): void;
     clearHighlightEdges(): void;
+    highlightBridges(): void;
     destroy(): void;
 }
 
@@ -156,6 +158,7 @@ export interface ILayout {
     getDefaultBranchLabel(decisionId: number, nodeType: NodeType): string;
     getTempShapeId(): number;
     setTempShapeId(id: number);
+    bridgesHandler: IBridgesHandler;
 }
 
 export interface ISourcesAndDestinations {
@@ -230,7 +233,6 @@ export interface ITask extends IDiagramNode {
     description: string;
     associatedArtifact: IArtifactReference;
     personaReference: IArtifactReference;
-    activateButton(itemFlag: ItemIndicatorFlags): void;
 }
 
 export interface IUserStoryProperties {

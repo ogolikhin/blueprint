@@ -34,7 +34,7 @@ describe("BPBreadcrumbComponent", () => {
         const controller = <BPBreadcrumbController>$compile(template)($scope).controller("bpBreadcrumb");
 
         // assert
-        expect(controller.links).toEqual([]);
+        expect(controller.links).toBeUndefined();
     });
 
     it("correctly binds properties and events", () => {

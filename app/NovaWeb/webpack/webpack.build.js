@@ -26,9 +26,9 @@ module.exports = {
         vendor: ['./../src/vendor.ts']
     },
     output: {
-        publicPath: "/novaweb/",
+        publicPath: "/novaweb",
         path: path.resolve(_DIST + '/novaweb/'),
-        filename: '[name].bundle.js'
+        filename: '[name].bundle.[chunkhash].js'
     },
     plugins: [
         failPlugin,
@@ -37,36 +37,33 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './index.html',
             filename: '../index.html',
-            inject: false,
+            inject: true,
             minify: {
                 collapseWhitespace: true,
                 removeComments: true,
                 caseSensitive: true
             }
         }),
-        new ExtractTextPlugin('[name].css', {allChunks: true}),
-
+        new ExtractTextPlugin('[name].bundle.[chunkhash].css', {allChunks: true}),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false,
                 drop_console: true
             },
-            //mangle: true,
-            //beautify: false,
             sourceMap: isDebug
         }),
-        new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.js"),
+        new webpack.optimize.CommonsChunkPlugin("vendor", "vendor.bundle.[chunkhash].js"),
         new CopyWebpackPlugin([
             // {output}/file.txt
             {from: './web.config'},
-            {from: './favicon**', to: '../'},
+            {from: './favicon**', to:'../'},
             {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},
             {from: '../node_modules/bowser/bowser.js', to: './static/bowser.js'},
             {from: '../src/redirect/silverlight-links.js', to: './static/redirect-silverlight-links.js'},
 
-            {from: '../libs/tinymce/plugins/tinymce-mention', to: './libs/tinymce/plugins/mention'},
+            {from: '../libs/tinymce/**', to: './libs'},
 
             {from: '../libs/mxClient/icons', to: './libs/mxClient/icons'},
             {from: '../libs/mxClient/images', to: './libs/mxClient/images'},
@@ -85,7 +82,9 @@ module.exports = {
 
             {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
             {from: '../src/images/icons', to: './static/images/icons'}
-        ]),
+        ], {
+            ignore: ['*.spec.js']
+        }),
         new webpack.DefinePlugin({
             KEEN_PROJECT_ID: undefined,
             KEEN_WRITE_KEY: undefined,

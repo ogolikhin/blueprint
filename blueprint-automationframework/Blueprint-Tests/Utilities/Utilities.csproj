@@ -42,6 +42,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -50,12 +51,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CSharpUtilities.cs" />
     <Compile Include="DatabaseUtilities.cs" />
     <Compile Include="DateTimeUtilities.cs" />
     <Compile Include="Deserialization.cs" />
     <Compile Include="Factories\RandomGenerator.cs" />
     <Compile Include="Factories\WebExceptionFactory.cs" />
     <Compile Include="HashingUtilities.cs" />
+    <Compile Include="ImageUtilities.cs" />
     <Compile Include="StringUtilities.cs" />
     <Compile Include="ThrowIf.cs" />
     <Compile Include="WebExceptions.cs" />

@@ -8,6 +8,7 @@ import {BPFieldBaseController} from "../base-controller";
 import {ISettingsService} from "../../../../core/configuration/settings";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IFileResult, IFileUploadService} from "../../../../core/file-upload/fileUploadService";
 
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
     public name: string = "bpDocumentFile";
@@ -28,7 +29,8 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         "$window",
         "messageService",
         "dialogService",
-        "settings"
+        "settings",
+        "fileUploadService"
     ];
 
     constructor(private $scope: AngularFormly.ITemplateScope,
@@ -37,9 +39,9 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 private $window: ng.IWindowService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
-                private settings: ISettingsService) {
+                private settings: ISettingsService,
+                private fileUploadService: IFileUploadService) {
         super();
-        const maxAttachmentFilesizeDefault: number = 10485760; // 10 MB
         const maxNumberAttachments: number = 1;
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
@@ -47,9 +49,9 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
 
         let guid: number; //we use this to download newly added files (prior to saving).
 
-        let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", maxAttachmentFilesizeDefault);
+        let maxAttachmentFilesize: number = this.settings.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
         if (maxAttachmentFilesize < 0 || !Helper.isInt(maxAttachmentFilesize)) {
-            maxAttachmentFilesize = maxAttachmentFilesizeDefault;
+            maxAttachmentFilesize = Helper.maxAttachmentFilesizeDefault;
         }
 
         this.$scope["getFilename"] = () => {
@@ -64,7 +66,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
             return this.$scope.model && this.$scope.model[this.$scope.options["key"]] && this.$scope.model[this.$scope.options["key"]]["fileName"];
         };
 
-        let chooseDocumentFile = (files: File[], callback?: Function) => {
+        const chooseDocumentFile = (files: File[], callback?: Function) => {
             const dialogSettings = <IDialogSettings>{
                 okButton: localization.get("App_Button_Ok", "OK"),
                 template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
@@ -73,10 +75,21 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 header: localization.get("App_UP_Attachments_Upload_Dialog_Header", "File Upload"),
                 backdrop: false
             };
+
+            const uploadFile = (file: File,
+                progressCallback: (event: ProgressEvent) => void,
+                cancelPromise: ng.IPromise<void>): ng.IPromise<IFileResult> => {
+
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + 2);
+                return this.fileUploadService.uploadToFileStore(file, expiryDate, progressCallback, cancelPromise);
+            };
+
             const dialogData: IUploadStatusDialogData = {
                 files: files,
                 maxAttachmentFilesize: maxAttachmentFilesize,
-                maxNumberAttachments: maxNumberAttachments
+                maxNumberAttachments: maxNumberAttachments,
+                fileUploadAction: uploadFile
             };
             dialogService.open(dialogSettings, dialogData).then((uploadList: any[]) => {
                 if (uploadList && uploadList.length > 0) {
@@ -132,7 +145,8 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 const dialogSettings = <IDialogSettings>{
                     okButton: localization.get("App_Button_Delete", "Delete"),
                     header: localization.get("App_UP_Attachments_Delete_Attachment_Header", "Delete Attachment"),
-                    message: localization.get("App_UP_Attachments_Delete_Attachment", "Please confirm the deletion of this attachment.")
+                    message: localization.get("App_UP_Attachments_Delete_Attachment", "Please confirm the deletion of this attachment."),
+                    css: "nova-messaging"
                 };
                 dialogService.open(dialogSettings).then(() => {
                     this.$scope.model[this.$scope.options["key"]] = null;

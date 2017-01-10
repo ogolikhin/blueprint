@@ -2,12 +2,18 @@
 import {ISettingsService} from "../../core/configuration/settings";
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IDialogSettings, BaseDialogController} from "../../shared/widgets/bp-dialog/bp-dialog";
 
 export class ILoginInfo {
     public userName: string;
     public password: string;
     public loginSuccessful: boolean;
     public samlLogin: boolean;
+}
+
+export interface ILoginModalDialogData {
+    isChangePasswordScreenEnabled?: boolean;
+    changePasswordScreenMessage?: string;
 }
 
 export enum LoginState {
@@ -17,13 +23,14 @@ export enum LoginState {
     SamlLoginForm
 }
 
-export class LoginCtrl {
+export class LoginCtrl extends BaseDialogController {
 
     public isLabelErrorStyleShowing: boolean;
     public isTextFieldErrorStyleShowing: boolean;
 
     public errorMessage: string;
     public novaUserName: string;
+    public novaDisplayName: string;
     public novaPassword: string;
 
     public novaCurrentPassword: string;
@@ -32,6 +39,8 @@ export class LoginCtrl {
 
     public currentFormState: LoginState;
     public lastFormState: LoginState;
+
+    private _isSamlLoginAttempt: boolean;
 
     public get isInLoginForm(): boolean {
         return this.currentFormState === LoginState.LoginForm || this.lastFormState === LoginState.LoginForm;
@@ -70,24 +79,40 @@ export class LoginCtrl {
 
     public isLoginInProgress: boolean;
 
-    static $inject: [string] = ["localization", "$uibModalInstance", "session", "$timeout", "settings"];
+    static $inject = [
+        "$uibModalInstance",
+        "dialogSettings",
+        "dialogData",
+        "localization",
+        "session",
+        "$timeout",
+        "settings"
+    ];
 
-    constructor(private localization: ILocalizationService,
-                private $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
+    constructor($instance: ng.ui.bootstrap.IModalServiceInstance,
+                dialogSettings: IDialogSettings,
+                public dialogData: ILoginModalDialogData,
+                private localization: ILocalizationService,
                 private session: ISession,
                 private $timeout: ng.ITimeoutService,
                 private settings: ISettingsService) {
+        super($instance, dialogSettings);
+
         this.currentFormState = LoginState.LoginForm;
         this.errorMessage = session.getLoginMessage();
         this.novaUserName = session.forceUsername();
+        this.novaDisplayName = session.forceDisplayname();
 
         this.isForgetPasswordScreenEnabled = false;
 
         this.forgetPasswordScreenMessage = localization.get("Login_Session_EnterUsername");
 
-        this.isChangePasswordScreenEnabled = false;
-
-        this.changePasswordScreenMessage = localization.get("Login_Session_PasswordHasExpired_ChangePasswordPrompt");
+        if (dialogData) {
+            this.isChangePasswordScreenEnabled = dialogData.isChangePasswordScreenEnabled || false;
+            this.changePasswordScreenMessage = dialogData.changePasswordScreenMessage || "";
+        } else {
+            this.isChangePasswordScreenEnabled = false;
+        }
 
         this.SAMLScreenMessage = localization.get("Login_Session_EnterSamlCredentials_Verbose");
 
@@ -129,6 +154,7 @@ export class LoginCtrl {
     }
 
     public doSamlLogin(): void {
+        this._isSamlLoginAttempt = true;
         this.session.loginWithSaml(false).then(
             () => {
                 this.isLabelErrorStyleShowing = false;
@@ -136,7 +162,7 @@ export class LoginCtrl {
                 let result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
-                this.$uibModalInstance.close(result);
+                this.$instance.close(result);
             },
             (error) => {
                 this.handleLoginErrors(error);
@@ -176,12 +202,14 @@ export class LoginCtrl {
             this.hasChangePasswordScreenError = true;
             this.isCurrentPasswordFieldErrorStyleShowing = true;
             return;
-        } else if (this.novaNewPassword.length < 8) {
+        }
+        if (this.novaNewPassword.length < 8) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMinLength");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             return;
-        } else if (this.novaNewPassword.length > 128) {
+        }
+        if (this.novaNewPassword.length > 128) {
             this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordMaxLength");
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
@@ -192,6 +220,20 @@ export class LoginCtrl {
             this.hasChangePasswordScreenError = true;
             this.isNewPasswordFieldErrorStyleShowing = true;
             this.isConfirmPasswordFieldErrorStyleShowing = true;
+            return;
+        }
+        if (_.toLower(this.novaNewPassword) === _.toLower(this.novaUserName)) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeUsername");
+            this.hasChangePasswordScreenError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
+            return;
+        }
+        if (this.novaDisplayName && _.toLower(this.novaNewPassword) === _.toLower(this.novaDisplayName)) {
+            this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeDisplayname");
+            this.hasChangePasswordScreenError = true;
+            this.isNewPasswordFieldErrorStyleShowing = true;
+            this.isConfirmPasswordFieldErrorStyleShowing = false;
             return;
         }
 
@@ -247,6 +289,9 @@ export class LoginCtrl {
             } else if (error.errorCode === 4002) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCriteria");
                 this.isNewPasswordFieldErrorStyleShowing = true;
+            } else if (error.errorCode === 4003) {
+                this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordChangeCooldown");
+                this.isCurrentPasswordFieldErrorStyleShowing = true;
             } else {
                 this.changePasswordScreenMessage = "bad request: " + error.message;
             }
@@ -286,6 +331,7 @@ export class LoginCtrl {
                 this.errorMessage = this.localization.get("Login_Session_PasswordHasExpired");
                 this.isTextFieldErrorStyleShowing = false;
                 if (this.isChangePasswordScreenEnabled) {
+                    this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordHasExpired_ChangePasswordPrompt");
                     this.transitionToState(LoginState.ChangePasswordForm);
                 }
                 this.isChangePasswordScreenEnabled = true;
@@ -308,15 +354,16 @@ export class LoginCtrl {
             this.isLabelErrorStyleShowing = false;
             this.isTextFieldErrorStyleShowing = false;
             let result: ILoginInfo = new ILoginInfo();
-            if (this.novaUserName) {
+            if (this._isSamlLoginAttempt) {
+                result.samlLogin = true;
+            }
+            else if (this.novaUserName) {
                 result.userName = this.novaUserName;
                 result.password = this.novaPassword;
-            } else {
-                result.samlLogin = true;
             }
             result.loginSuccessful = false;
 
-            this.$uibModalInstance.close(result);
+            this.$instance.close(result);
         } else if (error.statusCode === 400) {
             this.isTextFieldErrorStyleShowing = true;
             if (error.errorCode === 2004) {
@@ -352,7 +399,7 @@ export class LoginCtrl {
                 let result: ILoginInfo = new ILoginInfo();
                 result.loginSuccessful = true;
 
-                this.$uibModalInstance.close(result);
+                this.$instance.close(result);
             },
             (error) => {
                 this.isLoginInProgress = false;

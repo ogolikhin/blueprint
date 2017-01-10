@@ -952,6 +952,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Move', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Copy', 'en-US', N'Copy')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_ConfirmCloseProject', 'en-US', N'Close Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Proceed', 'en-US', N'Proceed')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Download', 'en-US', N'Download')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Refresh', 'en-US', N'Refresh')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Alert', 'en-US', N'Warning')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Confirmation', 'en-US', N'Confirmation')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_LoadingMsg', 'en-US', N'Loading ...')
@@ -970,6 +972,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Sidebar_Right'
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_EmptyMessage', 'en-US', N'You have no projects loaded in the Explorer')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_LoadProject_ButtonLabel', 'en-US', N'Load project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_LoadProject_ButtonTooltip', 'en-US', N'Load project in Explorer')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_BottomBar_UnpublishedChanges', 'en-US', N'Unpublished Changes')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Explorer_BottomBar_Jobs', 'en-US', N'Jobs')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Open', 'en-US', N'Open Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Project_Name', 'en-US', N'Name')
@@ -1001,6 +1005,9 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Move',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Copy', 'en-US', N'Copy Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Copy_Shapes', 'en-US', N'Copy Shapes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Menu', 'en-US', N'Additional actions')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate', 'en-US', N'Generate')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate_Test_Cases', 'en-US', N'Generate Test Cases')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate_Test_Cases_Title', 'en-US', N'Add Process to Generate Tests')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Tooltip_Dirty', 'en-US', N'Unsaved')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Collapsible_ShowMore', 'en-US', N'Show more')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Collapsible_ShowLess', 'en-US', N'Show less')
@@ -1066,6 +1073,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_Start_Discussion', 'en-US', N'+ Start a new discussion')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Discussion', 'en-US', N'+ New comment')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_No_Artifact', 'en-US', N'The item you selected has no information to display or you do not have access to view it.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_No_Artifact_Id', 'en-US', N'You may collaborate with others using this discussion panel to add comments to any selected published sub-artifact.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Post_Button_Text', 'en-US', N'Post comment')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Cancel_Button_Text', 'en-US', N'Cancel')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Discussions_New_Comment_Place_Holder', 'en-US', N'Add a new comment...')
@@ -1157,6 +1165,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Single_Dia
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Dependents_Dialog_Message', 'en-US', N'If you discard changes to the artifact, other related artifacts will also need to be restored to previously published versions. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Success_Message', 'en-US', N'Changes have been discarded.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_No_Changes', 'en-US', N'This artifact has no changes to discard and will now be refreshed to the most recent version.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Single_Artifact_Confirm', 'en-US', N'This artifact will be restored to its last published version. If it has never been published, it will be deleted.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Discard_Multiple_Artifacts_Confirm', 'en-US', N'Artifacts with unpublished changes: {0}<br/> Artifacts that have never been published will be deleted, and published artifacts will be restored to their previous versions.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Header', 'en-US', N'Move to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Copy_Artifacts_Picker_Header', 'en-US', N'Copy to...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Move_Artifacts_Picker_Insert_Label', 'en-US', N'Insert:')
@@ -1183,6 +1193,13 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collectio
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Confirmation_Delete_Items', 'en-US', N'Please confirm the deletion of the selected items ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_No_Artifacts_In_Collection', 'en-US', N'No artifacts available in this collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Add_Artifacts_Picker_Header', 'en-US', N'Add artifacts to collection')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Picker_Header', 'en-US', N'Add Artifact to Collection')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection', 'en-US', N'Add to collection')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Include_Descendants', 'en-US', N'Include artifact descendants')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Success', 'en-US', N'The artifact has been added to the collection.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Filed_Because_Lock', 'en-US', N'The artifact could not be added to the collection. The collection is locked by {userName}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Header', 'en-US', N'Change Password')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Message', 'en-US', N'Use the form below to change your password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment', 'en-US', N'Are you sure you want to permanently delete the selected comment?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Confirmation_Delete_Comment_Thread', 'en-US', N'Are you sure you want to permanently delete all comments in this discussion?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Comment_Deleted', 'en-US', N'This comment has been deleted. Please refresh.')
@@ -1230,6 +1247,9 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewP
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordMinLength', 'en-US', N'Your new password must be at least 8 characters long.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCannotBeEmpty', 'en-US', N'New password cannot be empty.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordSameAsOld', 'en-US', N'Ensure your new password is different <br>from the current one.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCannotBeUsername', 'en-US', N'Ensure your new password is different from your username.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCannotBeDisplayname', 'en-US', N'Ensure your new password is different from your display name.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_PasswordChangeCooldown', 'en-US', N'Your password has not been updated. It can be changed <br> once every 24 hours. Please try again later.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_NewPasswordCriteria', 'en-US', N'Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_Timeout', 'en-US', N'​Your session has expired or was overridden.<br>Please log in to continue.​')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_InvalidLicense', 'en-US', N'Your license does not include access to this application.')
@@ -1246,6 +1266,15 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Does
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_AccessDenied', 'en-US', N'Cannot establish the artifact lock. Access denied.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Failure', 'en-US', N'Cannot establish the artifact lock due to general failure')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Lock_Refresh', 'en-US', N'This artifact has been changed on the server and will now be refreshed to the most recent version.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Version_NotFound', 'en-US', N'The specified artifact version does not exist.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_GoTo_NotAvailable', 'en-US', N'This artifact type cannot be opened directly using the Go To feature.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_NoPermissions', 'en-US', N'You do not have permission to edit this artifact.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_Locked', 'en-US', N'Locked.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedBy', 'en-US', N'Locked by {0}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedOn', 'en-US', N'Locked on {0}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_LockedByOn', 'en-US', N'Locked by {0} on {1}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_DeletedByOn', 'en-US', N'Deleted by {0} on {1}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_InfoBanner_Historical', 'en-US', N'Version {0}, published by {1} on {2}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Name', 'en-US', N'Name')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Type', 'en-US', N'Type')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_CreatedBy', 'en-US', N'Created by')
@@ -1406,6 +1435,39 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Search_Results_Res
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Unpublished_Empty', 'en-US', N'No Unpublished Changes')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('GO_TO_tooltip', 'en-US', N'Enter Artifact ID')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Copy_Images_Failed', 'en-US', N'Images were not copied into clipboard.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Empty', 'en-US', N'No Jobs Available')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_User', 'en-US', N'Author')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Project', 'en-US', N'Project')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status', 'en-US', N'Status')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Scheduled', 'en-US', N'Scheduled')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Terminated', 'en-US', N'Terminated')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Running', 'en-US', N'Running')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Completed', 'en-US', N'Completed')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Failed', 'en-US', N'Failed')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Cancelling', 'en-US', N'Cancelling')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Suspending', 'en-US', N'Suspending')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Status_Suspended', 'en-US', N'Suspended')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_None', 'en-US', N'None')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_System', 'en-US', N'System')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_DocGen', 'en-US', N'Document Generation')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_TfsExport', 'en-US', N'TFS Export')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_QcExport', 'en-US', N'HP ALM-COM Export')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_HpAlmRestExport', 'en-US', N'HP ALM-REST Export')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_TfsChangeSummary', 'en-US', N'TFS Change Summary')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_QcChangeSummary', 'en-US', N'HP ALM-COM Change Summary')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_HpAlmRestChangeSummary', 'en-US', N'HP ALM-REST Change Summary')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_TfsExportTests', 'en-US', N'TFS Test Plan Export')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_QcExportTests', 'en-US', N'HP ALM-COM Test Plan Export')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_HpAlmRetExportTests', 'en-US', N'HP ALM-REST Test Plan Export')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_ExcelImport', 'en-US', N'Artifact Import from Excel')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_ProjectImport', 'en-US', N'Project Import')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_ProjectExport', 'en-US', N'Project Export')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Type_GenerateTests', 'en-US', N'Test Plan Generation')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_SubmittedDate', 'en-US', N'Submitted on')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_StartDate', 'en-US', N'Started on')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_EndDate', 'en-US', N'Completed on')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Error_Label', 'en-US', N'Error')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Button_Label_GetJobs', 'en-US', N'Get Jobs')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')
@@ -1958,5 +2020,67 @@ END
 
 GO
 
+
+
+/******************************************************************************************************************************
+Name:			GetLicenseUsage
+
+Description:	Returns license usage information 
+
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseUsage]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLicenseUsage]
+GO
+
+CREATE PROCEDURE [dbo].[GetLicenseUsage]
+(
+	@month int = null,
+	@year int = null
+)
+AS
+BEGIN
+	DECLARE @currentDate datetime = GETUTCDATE();
+	DECLARE @startMonth date = DATEADD(month, @month, DATEADD(year, (@year-1900), 0));
+	DECLARE @currentMonth date = DATEADD(month, MONTH(@currentDate)-1, DATEADD(year, (YEAR(@currentDate)-1900), 0));
+	DECLARE @licensetype int;
+
+	WITH L
+	AS (
+		
+		SELECT	 YEAR(la.[TimeStamp]) AS ActivityYear
+				,MONTH(la.[TimeStamp]) AS ActivityMonth
+				,la.UserId as UserId
+				,la.ConsumerType AS Consumer
+				,la.UserLicenseType AS License
+				,da.LicenseType AS CountLicense
+				,da.[Count] AS [Count]
+		FROM LicenseActivities AS la WITH (NOLOCK) 
+			LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
+		ON la.LicenseActivityId = da.LicenseActivityId
+		WHERE (@year IS NULL OR @month IS NULL OR la.[TimeStamp] > @startMonth)
+				AND la.[TimeStamp] < @currentMonth
+	)
+	-- Consumer: Client-1, Analytics-2, REST-3
+	-- LicenseType: Viewer-1, Collaborator- 2, Author- 3
+	SELECT 
+		 L.ActivityYear 
+		,L.ActivityMonth
+		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS UniqueAuthors
+		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS UniqueCollaborators
+		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS UniqueViewers
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentAuthors
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentCollaborators
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentViewers
+		,COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE NULL END) AS UsersFromAnalytics
+		,COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE NULL END) AS UsersFromRestApi
+			
+	FROM L
+	GROUP BY L.ActivityYear, L.ActivityMonth;
+
+	DROP TABLE #Registered
+END
+
+GO 
 
 

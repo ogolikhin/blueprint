@@ -230,7 +230,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                         this.localization.get("ST_US_Generate_All_Success_Message");
                 this.messageService.addInfo(userStoriesGeneratedMessage);
 
-                return process.refresh(false);
+                return process.refresh();
             })
             .then(() => {
                 //refresh project

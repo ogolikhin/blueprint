@@ -25,7 +25,7 @@ export function formlyConfig(formlyConfig: AngularFormly.IFormlyConfig,
         name: "bpFieldLabel",
         template: `<div>
               <label for="{{id}}" ng-if="to.label && !to.hideLabel"
-                class="control-label {{to.labelSrOnly ? 'sr-only' : ''}}">
+                class="formly-label control-label {{to.labelSrOnly ? 'sr-only' : ''}}">
                 <div bp-tooltip="{{to.label}}" bp-tooltip-truncated="true">{{to.label}}</div><div>:</div>
               </label>
               <formly-transclude></formly-transclude>

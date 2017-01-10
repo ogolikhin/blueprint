@@ -133,13 +133,42 @@ bp-sidebar-layout {
     flex-grow: 1;
     height: 0;
 }
-
-.explorer__unpublished-changes {
-    background-color: $blue-lightest;
+.explorer__bottom-navbar {
+    width: 100%;
+    background-color: $gray-lightest;
+    display: flex;
+    padding: 0 5px;
+}
+.explorer__bottom-navbar-button{
+    border-radius: 0;
+    padding: 5px 10px;
+    background: transparent;
+    box-shadow: none;
+    color: $gray-dark;
+    &:focus, &:active:focus, &:hover {
+        color: $link-color;
+        text-decoration: none;
+        outline: none;
+        outline-offset: initial;
+        background: transparent;
+        box-shadow: none;
+    }
+    &.btn {
+        max-width: 80px;
+        min-width: 50px;
+    }
+}
+.explorer__bottom-navbar-icons:before {
+    font-size: 2.2rem;
+}
+.explorer__bottom-navbar-button-label {
+    font-size: $font-size-smaller;
+    line-height: $font-size-smallest;
+    white-space: normal;
+}
+.explorer__jobs {
     text-align: left;
     border-radius: 0;
-    height: 33px;
-    line-height: 33px;
     padding: 0 10px;
 
     &:focus, &:active:focus, &:hover {

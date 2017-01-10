@@ -77,24 +77,33 @@ namespace OpenAPITests
         #endregion Private Functions
 
         [TestCase]
+        [TestRail(227247)]
+        [Description("Login with a valid user but invalid password.  Verify 401 Unauthorized is returned.")]
         public void LoginWithInvalidPassword_401Error()
         {
             LoginWithInvalidCredentials(_user.Username);
         }
 
         [TestCase]
+        [TestRail(227248)]
+        [Description("Login with an invalid user & password.  Verify 401 Unauthorized is returned.")]
         public void LoginWithInvalidUser_401Error()
         {
             LoginWithInvalidCredentials("wrong-user");
         }
 
         [TestCase]
+        [TestRail(227243)]
+        [Description("Login with valid credentials.  Verify 200 OK is returned.")]
         public void LoginWithValidCredentials_OK()
         {
             LoginWithValidCredentials(_user);
         }
 
         [TestCase]
+        [TestRail(227245)]
+        [Description("Login with a bad password 4 times, then login with a valid password, then login again with a bad password.  Verify that if you" +
+                     "login again with a valid password that it returns 200 OK.")]
         public void Verify_InvalidLogonAttemptsNumber_IsResetOnSuccessfulLogin()
         {
             RestResponse response = null;
@@ -125,7 +134,9 @@ namespace OpenAPITests
         [TestCase(10, (uint)1)]
         [TestCase(100, (uint)2)]
         [TestCase(1000, (uint)5, Explicit = true, Reason = IgnoreReasons.OverloadsTheSystem)]
+        [TestRail(227246)]
         [Category(Categories.ConcurrentTest)]
+        [Description("Login with multiple users concurrently and verify that they all return 200 OK.")]
         public void LoginValidUsersConcurrently_OK(int numThreads, uint maxRetries)
         {
             // Setup:

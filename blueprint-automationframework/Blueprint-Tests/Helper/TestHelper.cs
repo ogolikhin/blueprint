@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using Common;
+﻿using Common;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
-using Model.StorytellerModel;
-using NUnit.Framework;
-using Utilities;
 using Model.SearchServiceModel;
+using Model.StorytellerModel;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using Utilities;
+using Utilities.Facades;
 using Utilities.Factories;
 
 namespace Helper
@@ -654,11 +656,14 @@ namespace Helper
         /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
         /// <param name="subArtifacts">(optional) The subartifacts to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null, List<NovaSubArtifact> subArtifacts = null)
+        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails,
+            List<CustomProperty> customProperties = null,
+            List<CustomProperty> specificProperties = null,
+            List<NovaSubArtifact> subArtifacts = null)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
 
-            NovaArtifactDetails changesetDetails = new NovaArtifactDetails
+            var changesetDetails = new NovaArtifactDetails
             {
                 Id = artifactDetails.Id,
                 ProjectId = artifactDetails.ProjectId
@@ -1109,26 +1114,7 @@ namespace Helper
         {
             string selectQuery = I18NHelper.FormatInvariant("SELECT Value FROM [dbo].[ApplicationSettings] WHERE [ApplicationSettings].[Key] ='{0}'", key);
 
-            using (var database = DatabaseFactory.CreateDatabase())
-            {
-                database.Open();
-                string query = selectQuery;
-
-                Logger.WriteDebug("Running: {0}", query);
-
-                using (var cmd = database.CreateSqlCommand(query))
-                using (var sqlDataReader = cmd.ExecuteReader())
-                {
-                    if (sqlDataReader.Read())
-                    {
-                        string value = DatabaseUtilities.GetValueOrDefault<string>(sqlDataReader, "Value");
-                        Logger.WriteInfo("Read database ApplicationSetting key='{0}': value='{1}'", key, value);
-                        return value;
-                    }
-
-                    throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
-                }
-            }
+            return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "Value");
         }
 
         /// <summary>
@@ -1256,6 +1242,45 @@ namespace Helper
             DateTime firstDate = DateTime.Parse(firstDateStr, CultureInfo.InvariantCulture);
             DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
             AssertUtcDatesAreEqual(firstDate, secondDate, message);
+        }
+
+        /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified ErrorCode and Message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorCode">The expected error code.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        public static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedErrorMessage)
+        {
+            IServiceErrorMessage serviceError = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
+
+            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+                expectedErrorCode,
+                expectedErrorMessage);
+
+            serviceError.AssertEquals(expectedError);
+        }
+
+        /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified Message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        public static void ValidateServiceError(RestResponse restResponse, string expectedErrorMessage)
+        {
+            string errorMessage = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                errorMessage = JsonConvert.DeserializeObject<string>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a string!");
+
+            Assert.AreEqual(expectedErrorMessage, errorMessage, "The error message received doesn't match what we expected!");
         }
 
         #endregion Custom Asserts

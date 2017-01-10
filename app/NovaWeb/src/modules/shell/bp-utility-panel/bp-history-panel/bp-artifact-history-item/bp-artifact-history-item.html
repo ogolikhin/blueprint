@@ -5,11 +5,9 @@
 <h6 ng-if="$ctrl.artifactInfo.artifactState === $ctrl.getArtifactState('Deleted')">{{
     $ctrl.localization.get('App_UP_History_Deleted') }}</h6>
 
-<bp-avatar
-    class="thumb"
-    icon=""
-    name="{{ $ctrl.artifactInfo.displayName }}"
-    color-base="{{ $ctrl.artifactInfo.userId + $ctrl.artifactInfo.displayName }}">
+<bp-avatar class="thumb"
+           user-id="$ctrl.artifactInfo.userId"
+           user-name="{{ $ctrl.artifactInfo.displayName }}">
 </bp-avatar>
 <div class="author" bp-tooltip="{{ $ctrl.artifactInfo.displayName }}" bp-tooltip-truncated="true">{{
     $ctrl.artifactInfo.displayName }}

@@ -1,8 +1,8 @@
 ﻿import "angular";
-import {IDialogService} from "../../shared/";
+import {IDialogService, IDialogSettings, BaseDialogController} from "../../shared/";
 import {IAuth, IUser} from "./auth.svc";
 import {SessionTokenHelper} from "./session.token.helper";
-import {LoginCtrl, ILoginInfo} from "./login.ctrl";
+import {LoginCtrl, ILoginInfo, ILoginModalDialogData} from "./login.ctrl";
 import {ILocalizationService} from "../../core/localization/localizationService";
 
 export interface ISession {
@@ -23,6 +23,8 @@ export interface ISession {
     getLoginMessage(): string;
 
     forceUsername(): string;
+
+    forceDisplayname(): string;
 }
 
 export class SessionSvc implements ISession {
@@ -36,12 +38,11 @@ export class SessionSvc implements ISession {
                 private dialogService: IDialogService) {
     }
 
-    private _modalInstance: ng.ui.bootstrap.IModalServiceInstance;
-
     private _currentUser: IUser;
     private _loginMsg: string;
     private _prevLogin: string;
     private _isExpired: boolean;
+    private _isLoginModalOpen: boolean;
     private _isForceSameUsername: boolean;
 
     public get currentUser(): IUser {
@@ -51,6 +52,14 @@ export class SessionSvc implements ISession {
     public forceUsername(): string {
         if (this._currentUser) {
             return this._currentUser.login;
+        } else {
+            return undefined;
+        }
+    }
+
+    public forceDisplayname(): string {
+        if (this._currentUser) {
+            return this._currentUser.displayName;
         } else {
             return undefined;
         }
@@ -117,7 +126,7 @@ export class SessionSvc implements ISession {
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {
-        if (this._currentUser || this._modalInstance) {
+        if (this._currentUser || this._isLoginModalOpen) {
             return this.$q.resolve();
         }
         const defer = this.$q.defer();
@@ -140,74 +149,70 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
-    private showLogin(done: ng.IDeferred<any>, error?: Error): void {
-        if (!this._modalInstance) {
-            this._modalInstance = this.$uibModal.open(<ng.ui.bootstrap.IModalSettings>{
-                template: require("./login.html"),
-                windowClass: "nova-login",
-                controller: LoginCtrl,
-                controllerAs: "ctrl",
-                keyboard: false, // cannot Escape ))
-                backdrop: false,
-                bindToController: true
-            });
-
-            this._modalInstance.result.then((result: ILoginInfo) => {
-
-                if (result) {
-                    let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
-                    if (result.loginSuccessful) {
-                        this._isExpired = false;
-                        done.resolve();
-                    } else if (result.samlLogin) {
-                        this.dialogService
-                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"))
-                            .then(() => {
-                                this.loginWithSaml(true).then(
-                                    () => {
-                                        this._isExpired = false;
-                                        done.resolve();
-                                    },
-                                    (err) => {
-                                        this.showLogin(done, err);
-                                    });
-                            })
-                            .catch(() => {
-                                this.showLogin(done);
-                            })
-                            .finally(() => {
-                                confirmationDialog = null;
-                            });
-                    } else if (result.userName && result.password) {
-                        this.dialogService
-                            .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
-                            .then(() => {
-                                this.login(result.userName, result.password, true).then(
-                                    () => {
-                                        this._isExpired = false;
-                                        done.resolve();
-                                    },
-                                    (err) => {
-                                        this.showLogin(done, err);
-                                    });
-                            })
-                            .catch(() => {
-                                this.showLogin(done);
-                            })
-                            .finally(() => {
-                                confirmationDialog = null;
-                            });
-                    } else {
-                        this.showLogin(done);
-                    }
+    private showLogin = (done: ng.IDeferred<any>, error?: Error): void => {
+        this.dialogService.open(<IDialogSettings>{
+            template: require("./login.html"),
+            css: "nova-login",
+            controller: LoginCtrl,
+            controllerAs: "ctrl",
+            keyboard: false, // cannot Escape ))
+            backdrop: false,
+            bindToController: true
+        }).then((result: ILoginInfo) => {
+            this._isLoginModalOpen = true;
+            if (result) {
+                let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
+                if (result.loginSuccessful) {
+                    this._isExpired = false;
+                    done.resolve();
+                } else if (result.samlLogin) {
+                    this.dialogService
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                        .then(() => {
+                            this.loginWithSaml(true).then(
+                                () => {
+                                    this._isExpired = false;
+                                    done.resolve();
+                                },
+                                (err) => {
+                                    this.showLogin(done, err);
+                                });
+                        })
+                        .catch(() => {
+                            this.showLogin(done);
+                        })
+                        .finally(() => {
+                            confirmationDialog = null;
+                        });
+                } else if (result.userName && result.password) {
+                    this.dialogService
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                        .then(() => {
+                            this.login(result.userName, result.password, true).then(
+                                () => {
+                                    this._isExpired = false;
+                                    done.resolve();
+                                },
+                                (err) => {
+                                    this.showLogin(done, err);
+                                });
+                        })
+                        .catch(() => {
+                            this.showLogin(done);
+                        })
+                        .finally(() => {
+                            confirmationDialog = null;
+                        });
                 } else {
                     this.showLogin(done);
                 }
-            }).finally(() => {
-                this._modalInstance = null;
-            });
-        }
-    }
+            } else {
+                this.showLogin(done);
+            }
+        }).finally(() => {
+            this._isLoginModalOpen = false;
+        });
+    };
 
     public resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
         const defer = this.$q.defer();
@@ -222,5 +227,3 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 }
-
-

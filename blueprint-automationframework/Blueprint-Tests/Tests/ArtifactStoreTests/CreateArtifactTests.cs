@@ -201,7 +201,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request if an invalid Project ID was passed!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Project not found.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Project not found.");
         }
 
         [TestCase(true, true, true, false)]
@@ -227,7 +227,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request if a required property is missing!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid request.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid request.");
         }
 
         [TestCase(ArtifactTypePredefined.Actor)]
@@ -245,7 +245,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 400 Bad Request when a corrupt JSON body is sent!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "An artifact is not defined.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "An artifact is not defined.");
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
@@ -256,7 +256,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_UnsupportedArtifactType_400BadRequest(ItemTypePredefined artifactType)
         {
             // Setup:
-            NovaArtifactDetails artifact = new NovaArtifactDetails
+            var artifact = new NovaArtifactDetails
             {
                 ItemTypeId = _project.GetItemTypeIdForPredefinedType(artifactType),
                 Name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
@@ -272,7 +272,7 @@ namespace ArtifactStoreTests
                 SVC_PATH, artifactType);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Cannot create an artifact with the specified Artifact Type.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Cannot create an artifact with the specified Artifact Type.");
         }
 
         [TestCase]
@@ -323,7 +323,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden if the user doesn't have permission to add artifacts!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to edit the artifact (ID: 1)");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "You do not have permission to edit the artifact (ID: 1)");
         }
 
         [TestCase]
@@ -347,7 +347,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden if the user doesn't have write permission to parent artifact!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
                 "You do not have permission to access the artifact (ID: {0})", parentArtifact.Id));
         }
 
@@ -372,7 +372,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 403 Forbidden if the user doesn't have write permission to parent artifact!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, string.Format(CultureInfo.InvariantCulture,
                 "You do not have permission to edit the artifact (ID: {0})", parentArtifact.Id));
         }
 
@@ -392,7 +392,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the ItemType ID doesn't exist!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemTypeNotFound, "Artifact type not found.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemTypeNotFound, "Artifact type not found.");
         }
 
         [TestCase(int.MaxValue)]
@@ -409,7 +409,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Parent ID doesn't exist!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
 
@@ -429,7 +429,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 404 Not Found if the Project ID doesn't exist!", SVC_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ProjectNotFound, "Project not found.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ProjectNotFound, "Project not found.");
         }
 
         [TestCase(ItemTypePredefined.Actor)]
@@ -446,7 +446,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when creating a regular artifact under the Collections folder!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
                 "Cannot create an artifact at this location.");
         }
 
@@ -464,7 +464,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when creating a Collection under another Collection!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
                 "Cannot create an artifact at this location.");
         }
 
@@ -478,7 +478,7 @@ namespace ArtifactStoreTests
             "'POST {0}' should return 409 Conflict when creating a Collection under the project!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
                 "Cannot create an artifact at this location.");
         }
 
@@ -492,7 +492,7 @@ namespace ArtifactStoreTests
             "'POST {0}' should return 409 Conflict when creating a Collection Folder under the project!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
                 "Cannot create an artifact at this location.");
         }
 
@@ -510,7 +510,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when trying to create a folder under a regular artifact!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
                 "Cannot create an artifact at this location.");
         }
 
@@ -540,7 +540,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifactBase, _user),
                 "You shouldn't be able to publish an artifact with missing required properties!");
 
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors,
                 I18NHelper.FormatInvariant("Artifact with Id {0} has validation errors.", artifactDetails.Id));
         }
 
@@ -615,7 +615,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when the Project ID is different than the project of the parent!");
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
                 "Invalid request.");
         }
 
@@ -734,7 +734,7 @@ namespace ArtifactStoreTests
             string jsonBody = JsonConvert.SerializeObject(artifactDetails);
 
             RestResponse response = CreateArtifactFromJson(user, jsonBody);
-            INovaArtifactDetails createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
+            var createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
             Helper.WrapNovaArtifact(createdArtifact, project, user, baseType);
 
@@ -780,7 +780,7 @@ namespace ArtifactStoreTests
             int? parentId = null,
             double? orderIndex = null)
         {
-            INovaArtifactDetails artifactDetails = new NovaArtifactDetails
+            var artifactDetails = new NovaArtifactDetails
             {
                 Name = artifactName,
                 ProjectId = projectId,

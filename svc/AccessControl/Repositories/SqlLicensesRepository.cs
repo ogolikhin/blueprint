@@ -52,5 +52,13 @@ namespace AccessControl.Repositories
             prm.Add("@ConsumerType", consumerType);
             return _connectionWrapper.QueryAsync<LicenseTransaction>("GetLicenseTransactions", prm, commandType: CommandType.StoredProcedure);
         }
+
+        public Task<IEnumerable<LicenseUsage>> GetLicenseUsage(int? month, int? year)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@month", month);
+            prm.Add("@year", year);
+            return _connectionWrapper.QueryAsync<LicenseUsage>("GetLicenseUsage", prm, commandType: CommandType.StoredProcedure);
+        }
     }
 }

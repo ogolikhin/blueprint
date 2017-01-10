@@ -13,6 +13,8 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
+import {ICollectionService} from "../../editors/bp-collection/collection.svc";
+import {IItemInfoService} from "../../core/navigation/item-info.svc";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -35,7 +37,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics"
+        "analytics",
+        "collectionService",
+        "itemInfoService"
     ];
 
     constructor($q: ng.IQService,
@@ -51,7 +55,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                analytics: IAnalyticsProvider) {
+                analytics: IAnalyticsProvider,
+                collectionService: ICollectionService,
+                itemInfoService: IItemInfoService) {
         super(
             $q,
             $scope,
@@ -66,7 +72,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            analytics
+            analytics,
+            collectionService,
+            itemInfoService
         );
     }
 

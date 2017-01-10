@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace Model
@@ -53,6 +54,13 @@ namespace Model
         /// <param name="deleteFromDatabase">(optional) By default the user is only disabled by setting the EndTimestamp field.
         ///     Pass true to really delete the user from the database.</param>
         void DeleteUser(bool deleteFromDatabase = false);
+
+        /// <summary>
+        ///  Adds an icon for user
+        /// </summary>
+        /// <param name="userId">User Id to which icon will be added</param>
+        /// <param name="value">Icon raw data</param>
+        void SetUserIcon(int userId, byte[] value);
 
         /// <summary>
         /// Sets the token for this user.

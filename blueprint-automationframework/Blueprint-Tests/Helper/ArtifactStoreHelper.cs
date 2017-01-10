@@ -654,6 +654,18 @@ namespace Helper
         #endregion Custom Asserts
 
         /// <summary>
+        /// Creates Embedded Image html for the artifact property
+        /// </summary>
+        /// <param name="imageGUID">Image GUID for embedded image</param>
+        /// <returns>Html string</returns>
+        public static string CreateEmbeddedImageHtml(string imageGUID)
+        {
+            Assert.IsNotNullOrEmpty(imageGUID, "Image GUID should not be null or empty!");
+
+            return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\" /></p>", imageGUID);
+        }
+
+        /// <summary>
         /// Gets the custom data project.
         /// </summary>
         /// <returns>The custom data project.</returns>
@@ -687,7 +699,7 @@ namespace Helper
         ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
         ///     For User property types, pass an IUser.</param>
         /// <returns>The custom property that was updated.</returns>
-        public static CustomProperty UpdateArtifactCustomProperty<T>(NovaArtifactDetails artifactDetails,
+        public static CustomProperty UpdateArtifactCustomProperty<T>(INovaArtifactDetails artifactDetails,
             IProject project,
             PropertyPrimitiveType propertyType,
             string propertyName,
@@ -901,7 +913,7 @@ namespace Helper
                 artifact.Lock(user, expectedLockResult: expectedLockResult);
             }
 
-            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
 
             foreach (var file in files)
             {
@@ -967,7 +979,7 @@ namespace Helper
             Assert.AreEqual(artifact.Id, subArtifact.ParentId, "subArtifact should belong to Artifact");
 
             artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
 
             NovaSubArtifact subArtifactToAdd = new NovaSubArtifact();
             subArtifactToAdd.Id = subArtifact.Id;
@@ -1005,7 +1017,7 @@ namespace Helper
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
             artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
@@ -1035,7 +1047,7 @@ namespace Helper
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
             artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
             NovaSubArtifact subArtifactToAdd = new NovaSubArtifact();
@@ -1057,7 +1069,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            NovaArtifactDetails novaArtifactDetails = new NovaArtifactDetails
+            var novaArtifactDetails = new NovaArtifactDetails
             {
                 Id = artifact.Id,
                 ProjectId = artifact.ProjectId,
@@ -1216,28 +1228,6 @@ namespace Helper
         }
 
         /// <summary>
-        /// Verifies that the content returned in the rest response contains the specified ErrorCode and Message.
-        /// </summary>
-        /// <param name="restResponse">The RestResponse that was returned.</param>
-        /// <param name="expectedErrorCode">The expected error code.</param>
-        /// <param name="expectedErrorMessage">The expected error message.</param>
-        public static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedErrorMessage)
-        {
-            IServiceErrorMessage serviceError = null;
-
-            Assert.DoesNotThrow(() =>
-            {
-                serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
-            }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
-
-            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
-                expectedErrorCode,
-                expectedErrorMessage);
-
-            serviceError.AssertEquals(expectedError);
-        }
-
-        /// <summary>
         /// Creates new rich text that includes inline trace(s)
         /// </summary>
         /// <param name="artifacts">The artifacts being added as inline trace(s)</param>
@@ -1290,7 +1280,7 @@ namespace Helper
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
             artifact.Lock(user);
-            NovaArtifactDetails artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
 
             NovaTrace traceToCreate = new NovaTrace();
             traceToCreate.ArtifactId = traceTarget.Id;

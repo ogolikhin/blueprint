@@ -22,6 +22,7 @@ import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
+import {IBridgesHandler, BridgesHandler}  from "./bridges-handler";
 
 export let tempShapeId: number = 0;
 
@@ -31,7 +32,8 @@ export class Layout implements ILayout {
     private preprocessor: IGraphLayoutPreprocessor = null;
     private edgesGeo: EdgeGeo[] = [];
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
-
+    public bridgesHandler: IBridgesHandler;
+    
     constructor(private processGraph: IProcessGraph,
                 public viewModel: IProcessViewModel,
                 private rootScope: any,
@@ -84,7 +86,7 @@ export class Layout implements ILayout {
         }
 
         const nodeFactorySettings = new NodeFactorySettings();
-        nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
+        nodeFactorySettings.isCommentsButtonEnabled = !this.viewModel.isSMB;
         nodeFactorySettings.isRelationshipButtonEnabled = !this.viewModel.isHistorical && !this.viewModel.isSMB;
         nodeFactorySettings.isDetailsButtonEnabled = this.viewModel.isSpa;
         nodeFactorySettings.isLinkButtonEnabled = this.viewModel.isSpa;
@@ -162,15 +164,18 @@ export class Layout implements ILayout {
                 thisEdge.renderLabel();
             }
 
-            if (useAutolayout) {
-                if (selectedNodeId != null) {
-                    this.postRender(selectedNodeId);
-                }
-            }
-
             for (let edgeGeo of this.edgesGeo) {
                 if (edgeGeo) {
                     edgeGeo.state = this.getEdgeCellState(edgeGeo.edge);
+                }
+            }
+
+            this.bridgesHandler = new BridgesHandler(this.mxgraph, this.edgesGeo);
+            this.bridgesHandler.addConnectorBridges();
+
+            if (useAutolayout) {
+                if (selectedNodeId != null) {
+                    this.postRender(selectedNodeId);
                 }
             }
 
@@ -268,17 +273,20 @@ export class Layout implements ILayout {
 
     public updateProcessChangedState(id: number, change: NodeChange = NodeChange.Add, redraw: boolean = false) {
         const eventArguments = {
-            processId: this.viewModel.id,
-            nodeChanges: [
-                {
-                    nodeId: id,
-                    change: change,
-                    redraw: redraw
-                }
-            ]
+            bubbles: true, //https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+            cancelable: true, //https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+            detail: {
+                processId: this.viewModel.id,
+                nodeChanges: [
+                    {
+                        nodeId: id,
+                        change: change,
+                        redraw: redraw
+                    }
+                ]
+            }
         };
-        const evt = document.createEvent("CustomEvent");
-        evt.initCustomEvent("graphUpdated", true, true, eventArguments);
+        const evt = new CustomEvent("graphUpdated", eventArguments);
         window.dispatchEvent(evt);
     }
 
@@ -504,8 +512,8 @@ export class Layout implements ILayout {
 
         if (sourceNode !== null && targetNode !== null) {
             let edgeGeo = new EdgeGeo();
-            edgeGeo.edge = Connector.render(this.processGraph, link, sourceNode, targetNode, 
-                                            true,  
+            edgeGeo.edge = Connector.render(this.processGraph, link, sourceNode, targetNode,
+                                            true,
                                             link.label, null);
             this.edgesGeo.push(edgeGeo);
         }

@@ -21,6 +21,7 @@ namespace Model
             {
                 public const string ARTIFACTS_id_                   = "api/v1/projects/{0}/artifacts/{1}";
                 public const string ARTIFACTS                       = "api/v1/projects/{0}/artifacts";
+                public const string ALMTARGETS                      = "api/v1/projects/{0}/alm/targets";
 
                 public static class Artifacts_id_
                 {
@@ -30,6 +31,14 @@ namespace Model
                     public static class SubArtifacts_id_
                     {
                         public const string ATTACHMENTS             = "api/v1/projects/{0}/artifacts/{1}/subartifacts/{2}/attachments";
+                    }
+                }
+
+                public static class ALM
+                {
+                    public static class Targets_id_
+                    {
+                        public const string JOBS                    = "api/v1/projects/{0}/alm/targets/{1}/jobs";
                     }
                 }
 
@@ -65,6 +74,7 @@ namespace Model
                     public const string ACTIVE                      = "svc/accesscontrol/licenses/active";
                     public const string LOCKED                      = "svc/accesscontrol/licenses/locked";
                     public const string TRANSACTIONS                = "svc/accesscontrol/licenses/transactions";
+                    public const string USAGE                       = "svc/AccessControl/licenses/usage";
                 }
 
                 public static class Sessions
@@ -84,6 +94,16 @@ namespace Model
                 public const string LOG                             = "svc/adminstore/log";
                 public const string SESSIONS                        = "svc/adminstore/sessions";
                 public const string STATUS                          = "svc/adminstore/status";
+                public const string JOBS                            = "svc/adminstore/jobs";
+                public const string JOBS_id_                        = "svc/adminstore/jobs/{0}";
+
+                public static class Jobs_id_
+                {
+                    public static class RESULT
+                    {
+                        public const string FILE                    = "svc/adminstore/jobs/{0}/result/file";
+                    }
+                }
 
                 public static class Config
                 {
@@ -128,6 +148,11 @@ namespace Model
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
                 }
+
+                public static class Users_id_
+                {
+                    public const string ICON                        = "svc/adminstore/users/{0}/icon";
+                }
             }
 
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
@@ -135,12 +160,15 @@ namespace Model
             {
                 public const string ARTIFACTS                       = "svc/bpartifactstore/artifacts";      // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
-                public const string DIAGRAM_id_                     = "/svc/bpartifactstore/diagram/{0}";   // NovaDiagramController.GetDiagram
-                public const string GLOSSARY_id_                    = "/svc/bpartifactstore/glossary/{0}";  // NovaGlossaryController.GetGlossary
-                public const string USECASE_id_                     = "/svc/bpartifactstore/usecase/{0}";   // NovaUseCaseController.GetUseCase
                 public const string COLLECTION_id_                  = "svc/bpartifactstore/collection/{0}"; // Collection
-
+                public const string DIAGRAM_id_                     = "svc/bpartifactstore/diagram/{0}";    // NovaDiagramController.GetDiagram
+                public const string GLOSSARY_id_                    = "svc/bpartifactstore/glossary/{0}";   // NovaGlossaryController.GetGlossary
+                public const string IMAGES                          = "svc/bpartifactstore/images";
+                public const string IMAGES_id_                      = "svc/bpartifactstore/images/{0}";
+                public const string PROCESS_id_                     = "svc/bpartifactstore/process/{0}";    // NovaProcessController.GetNovaProcess
+                public const string PROCESSUPDATE_id_               = "svc/bpartifactstore/processupdate/{0}";  // NovaProcessController.UpdateNovaProcess
                 public const string STATUS                          = "svc/artifactstore/status";
+                public const string USECASE_id_                     = "svc/bpartifactstore/usecase/{0}";    // NovaUseCaseController.GetUseCase
 
                 public static class Artifacts
                 {

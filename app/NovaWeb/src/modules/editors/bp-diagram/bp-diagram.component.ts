@@ -76,7 +76,7 @@ export class BPDiagramController extends BpBaseEditor {
             && selection.artifact
             && selection.artifact.id === this.artifact.id
             && !selection.subArtifact;
-    }
+    };
 
     protected destroy(): void {
         this.destroyDiagramView();
@@ -125,24 +125,28 @@ export class BPDiagramController extends BpBaseEditor {
                 });
             }
         }
-    }
+    };
 
     private onSelectionChanged = (diagramType: string, elements: Array<IDiagramElement>) => {
         this.$rootScope.$applyAsync(() => {
-            if (this.isDestroyed) {
+            if (this.isDestroyed || !this.artifact || this.artifact.isDisposed) {
                 return;
             }
+
             if (elements && elements.length > 0) {
                 const element = elements[0];
                 if (diagramType === Diagrams.USECASE_DIAGRAM && (element.type === Shapes.USECASE || element.type === Shapes.ACTOR)) {
+                    this.messageService.clearMessages();
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
                     const artifactId = parseInt(ShapeExtensions.getPropertyByName(<IShape>element, ShapeProps.ARTIFACT_ID), 10);
                     this.itemInfoService.get(artifactId).then((result: IItemInfoResult) => {
                         if (result.isDeleted) {
-                            const localizedDate = this.localization.current.formatShortDateTime(result.deletedDateTime);
-                            const deletedMessage = `Deleted by ${result.deletedByUser.displayName} on ${localizedDate}`;
-                            this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage, true));
+                            let deletedMessage = this.localization.get("Artifact_InfoBanner_DeletedByOn");
+                            deletedMessage = deletedMessage.replace("{0}", result.deletedByUser.displayName);
+                            deletedMessage = deletedMessage.replace("{1}", this.localization.current.formatShortDateTime(result.deletedDateTime));
+                            this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage));
                         }
+
                         if (artifactPromise) {
                             artifactPromise.then((artifact) => {
                                 artifact.unload();
@@ -160,7 +164,7 @@ export class BPDiagramController extends BpBaseEditor {
                 this.artifactManager.selection.setArtifact(this.artifact);
             }
         });
-    }
+    };
 
     private getUseCaseDiagramArtifact(shape: IShape): ng.IPromise<IStatefulArtifact> {
         const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);

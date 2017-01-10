@@ -17,6 +17,7 @@ import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../..
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
     private selectedNodes: IDiagramNode[];
+    private _tooltip: string;
     
     constructor(
         private process: IStatefulProcessArtifact,
@@ -31,11 +32,16 @@ export class ProcessDeleteAction extends DeleteAction {
     ) {
         super(process, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
     
-        if (!communication) {
+        if (!this.communication) {
             throw new Error("Process diagram communication is not provided or is null");
         }
 
+        this._tooltip = this.localization.get("App_Toolbar_Delete");
         this.selectionChangedHandle = this.communication.register(ProcessEvents.SelectionChanged, this.onSelectionChanged);
+    }
+
+    public get tooltip(): string {
+        return this._tooltip;
     }
 
     public dispose(): void {

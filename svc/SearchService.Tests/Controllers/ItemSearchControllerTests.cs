@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using SearchService.Repositories;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Repositories.ConfigControl;
 
 namespace SearchService.Controllers
 {
@@ -26,7 +28,7 @@ namespace SearchService.Controllers
             var controller = new ItemSearchController();
 
             // Assert
-            Assert.IsInstanceOfType(controller._itemSearchRepository, typeof(SqlItemSearchRepository));
+            Assert.IsInstanceOfType(controller.ItemSearchRepo, typeof(SqlItemSearchRepository));
         }
 
         #endregion
@@ -192,6 +194,34 @@ namespace SearchService.Controllers
             Assert.AreEqual(10, result.Page);
         }
 
+        [TestMethod]
+        public async Task SearchFullText_RepoThrowsException_LogShouldBeCalled()
+        {
+            // Arrange
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var logMock = new Mock<IServiceLogRepository>(MockBehavior.Strict);
+            logMock.Setup(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.Delay(1));
+            var exceptionToBeThrown = new Exception("MyException");
+            var controller = CreateControllerForExceptionCases(logMock, exceptionToBeThrown);
+            Exception actualException = null;
+
+            // Act
+            try
+            {
+                await controller.SearchFullText(searchCriteria, 10, 1);
+            }
+            catch (Exception ex)
+            {
+                actualException = ex;
+            }
+            
+
+            // Assert
+            Assert.IsNotNull(actualException);
+            Assert.AreEqual(exceptionToBeThrown.Message, actualException.Message, "Incorrect exception was thrown");
+            logMock.Verify(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()), Times.Exactly(1));
+        }
+
         #endregion SearchFullText
 
         #region FullTextMetaData
@@ -209,6 +239,34 @@ namespace SearchService.Controllers
             // Assert
             Assert.IsNotNull(result, "Result was not retrieved");
             Assert.AreEqual(ServiceConstants.SearchPageSize, result.PageSize);
+        }
+
+        [TestMethod]
+        public async Task FullTextMetaData_RepoThrowsException_LogShouldBeCalled()
+        {
+            // Arrange
+            var searchCriteria = new FullTextSearchCriteria { Query = "empty", ProjectIds = new[] { 1 } };
+            var logMock = new Mock<IServiceLogRepository>(MockBehavior.Strict);
+            logMock.Setup(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.Delay(1));
+            var exceptionToBeThrown = new Exception("MyException");
+            var controller = CreateControllerForExceptionCases(logMock, exceptionToBeThrown);
+            Exception actualException = null;
+
+            // Act
+            try
+            {
+                await controller.SearchFullText(searchCriteria, 10, 1);
+            }
+            catch (Exception ex)
+            {
+                actualException = ex;
+            }
+
+
+            // Assert
+            Assert.IsNotNull(actualException);
+            Assert.AreEqual(exceptionToBeThrown.Message, actualException.Message, "Incorrect exception was thrown");
+            logMock.Verify(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()), Times.Exactly(1));
         }
 
         #endregion FullTextMetaData
@@ -314,6 +372,37 @@ namespace SearchService.Controllers
             Assert.IsNotNull(result);
         }
 
+        [TestMethod]
+        public async Task SearchName_RepoThrowsException_LogShouldBeCalled()
+        {
+            // Arrange
+            var searchCriteria = new ItemNameSearchCriteria { Query = "Test", ProjectIds = new List<int> { 5 } };
+            var startOffset = 0;
+            var pageSize = 200;
+            
+            var logMock = new Mock<IServiceLogRepository>(MockBehavior.Strict);
+            logMock.Setup(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>())).Returns(Task.Delay(1));
+            var exceptionToBeThrown = new Exception("MyException");
+            var controller = CreateControllerForExceptionCases(logMock, exceptionToBeThrown);
+            Exception actualException = null;
+
+            // Act
+            try
+            {
+                var result = await controller.SearchName(searchCriteria, startOffset, pageSize);
+            }
+            catch (Exception ex)
+            {
+                actualException = ex;
+            }
+
+
+            // Assert
+            Assert.IsNotNull(actualException);
+            Assert.AreEqual(exceptionToBeThrown.Message, actualException.Message, "Incorrect exception was thrown");
+            logMock.Verify(t => t.LogError(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()), Times.Exactly(1));
+        }
+
         #endregion SearchName
 
         private ItemSearchController CreateController(int itemNameResultCount = 0)
@@ -344,10 +433,31 @@ namespace SearchService.Controllers
                 .ReturnsAsync(new ItemNameSearchResultSet { Items = itemNameSearchResult, PageItemCount = itemNameSearchResult.Count });
 
             var configuration = new Mock<ISearchConfiguration>();
+            var logMock = new Mock<IServiceLogRepository>();
 
             var request = new HttpRequestMessage();
             request.Properties.Add(ServiceConstants.SessionProperty, new Session { UserId = 1 });
-            return new ItemSearchController(itemSearchRepository.Object, configuration.Object)
+            return new ItemSearchController(itemSearchRepository.Object, configuration.Object, logMock.Object)
+            {
+                Request = request
+            };
+        }
+
+        private ItemSearchController CreateControllerForExceptionCases(Mock<IServiceLogRepository> logMock, Exception exceptionToBeThrown)
+        {
+            var itemSearchRepository = new Mock<IItemSearchRepository>();
+            itemSearchRepository.Setup(a => a.SearchFullText(It.IsAny<int>(), It.IsAny<FullTextSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Throws(exceptionToBeThrown);
+            itemSearchRepository.Setup(a => a.FullTextMetaData(It.IsAny<int>(), It.IsAny<FullTextSearchCriteria>()))
+                .Throws(exceptionToBeThrown);
+            itemSearchRepository.Setup(m => m.SearchName(It.IsAny<int>(), It.IsAny<ItemNameSearchCriteria>(), It.IsAny<int>(), It.IsAny<int>()))
+                .Throws(exceptionToBeThrown);
+
+            var configuration = new Mock<ISearchConfiguration>();
+
+            var request = new HttpRequestMessage();
+            request.Properties.Add(ServiceConstants.SessionProperty, new Session { UserId = 1 });
+            return new ItemSearchController(itemSearchRepository.Object, configuration.Object, logMock.Object)
             {
                 Request = request
             };

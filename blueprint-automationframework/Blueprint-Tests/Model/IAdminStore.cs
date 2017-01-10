@@ -1,4 +1,6 @@
 ﻿using Model.Impl;
+using Model.JobModel;
+using Model.JobModel.Enums;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -226,5 +228,36 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Navigation Path.</returns>
         List<string> GetProjectNavigationPath(int projectId, IUser user, bool? includeProjectItself = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the User Icon for the specified User ID.
+        /// </summary>
+        /// <param name="userId">The ID of the user whose icon you want to retrieve.</param>
+        /// <param name="user">A user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected,
+        ///     but 204 No Content is also valid if the user has no icon.</param>
+        /// <returns>The icon file.</returns>
+        IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get jobs available for user
+        /// </summary>
+        /// <param name="user">A user that authenticate with</param>
+        /// <param name="page">(optional) page index of job results. The length of which is determined by the pageSize argument</param>
+        /// <param name="pageSize">(optional) The maximum number of jobs on each page.</param>
+        /// <param name="jobType">(optional) The job type that user can filter with. If null, returns all jobs without filtering</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
+        /// <returns>List of JobInfo</returns>
+        List<IJobInfo> GetJobs(IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get a job for the user
+        /// </summary>
+        /// <param name="user">A user that authenticate with</param>
+        /// <param name="jobId">The job ID</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
+        /// <returns>JobInfo</returns>
+        IJobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
+
     }
 }

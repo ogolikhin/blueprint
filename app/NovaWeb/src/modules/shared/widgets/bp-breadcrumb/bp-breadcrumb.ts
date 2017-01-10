@@ -11,7 +11,7 @@ export class BPBreadcrumbComponent implements ng.IComponentOptions {
     };
 }
 
-export interface IBPBreadcrumbController {
+export interface IBPBreadcrumbController extends ng.IComponentController {
     links: IBreadcrumbLink[];
     trackPath: boolean;
 }
@@ -25,10 +25,6 @@ export class BPBreadcrumbController implements IBPBreadcrumbController {
     ];
 
     constructor(private navigationService: INavigationService) {
-    }
-
-    public $onInit() {
-        this.links = angular.isDefined(this.links) ? this.links : [];
     }
 
     public $onDestroy() {

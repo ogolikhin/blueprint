@@ -141,7 +141,7 @@ pagecontent, bp-properties-panel {
                 z-index: auto;
             }
 
-            label {
+            .formly-label {
                 color: $gray-dark;
                 display: inline-flex;
                 font-size: $font-size-normal;
@@ -673,6 +673,10 @@ pagecontent, bp-properties-panel {
                 }
             }
 
+            .input-file__container {
+                width: 100%;
+            }
+
             .has-messages {
                 display: inline-table;
                 position: relative;
@@ -792,7 +796,7 @@ pagecontent, bp-properties-panel {
                         margin: 6px 2px;
                         width: #{$user-picker-choice-size - 12px};
 
-                        .avatar-placeholder .initials {
+                        .avatar__initials {
                             font-size: $font-size-smaller;
                         }
                     }
@@ -843,6 +847,10 @@ pagecontent, bp-properties-panel {
                                 line-height: $user-picker-choice-size;
                                 text-align: center;
                                 width: #{$user-picker-choice-size - 8px};
+                            }
+
+                            .ui-select-choice-avatar {
+                                display: block;
                             }
                         }
                     }
@@ -921,7 +929,8 @@ pagecontent, bp-properties-panel {
                 border-width: 1px !important;
             }
 
-            .tinymce-toolbar-hidden .mce-toolbar-grp {
+            .tinymce-toolbar-hidden .mce-toolbar-grp,
+            .tinymce-body-hide {
                 display: none;
             }
 
@@ -1212,36 +1221,17 @@ pagecontent, bp-properties-panel {
 
         .formly-field-bpDocumentFile {
             width: 100% !important;
+
             .input-group-addon {
-                padding: 0;
                 background-color: transparent;
-                border: none;
+                border: 0;
+                padding: 0;
+
                 label {
-                    padding: 5px 9px;
-                    min-width: 20px;
-                    text-align: center;
-                    width: auto !important;
-                    margin: 5px 5px 5px;
-                    font-size: $font-size-big;
+                    margin: 5px;
+
                     input[type=file] {
                         display: none;
-                    }
-                    &.btn-small {
-                        padding: 5px 10px;
-                        min-width: 20px;
-                        font-size: 1.2rem;
-                    }
-                    &.btn-primary {
-                        background-color: transparent;
-                        border: 1px solid $gray-light;
-                        color: $gray-light;
-                        &:hover,
-                        &:focus,
-                        &:active {
-                            background-color: transparent;
-                            border-color: $brand-secondary;
-                            color: $brand-secondary;
-                        }
                     }
                 }
 
@@ -1308,7 +1298,7 @@ pagecontent, bp-properties-panel {
         height: #{$property-min-height + 23px + 12px}; // + label's height + margin-bottom
     }
 
-    .formly .formly-field label {
+    .formly .formly-label {
         margin-right: 0;
         padding: 0;
         width: $property-input-width;

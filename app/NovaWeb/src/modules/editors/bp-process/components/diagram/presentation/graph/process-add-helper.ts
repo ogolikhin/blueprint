@@ -5,7 +5,6 @@ import {
     NodeChange,
     ProcessShapeType,
     IProcessLink,
-    IUserTaskShape,
     ILayout
 } from "./models/";
 import {IProcessLinkModel, ProcessLinkModel} from "../../../../models/process-models";

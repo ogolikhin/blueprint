@@ -4,6 +4,7 @@ import {LoginCtrl, LoginState} from "./login.ctrl";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
 import {SettingsMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock} from "./mocks.spec";
 import {HttpStatusCode} from "../../core/http/http-status-code";
+import {DialogSettingsMock, DataMock} from "./login.ctrl.mock";
 
 describe("LoginCtrl", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -13,6 +14,8 @@ describe("LoginCtrl", () => {
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("settings", SettingsMock);
+        $provide.service("dialogSettings", DialogSettingsMock);
+        $provide.service("dialogData", DataMock);
     }));
 
     describe("login", () => {
@@ -469,7 +472,7 @@ describe("LoginCtrl", () => {
             expect(loginCtrl.hasChangePasswordScreenError).toBe(false);
         }));
 
-        it("respond with password confirm missmatch error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+        it("respond with password confirm mismatch error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
             // Arrange
             loginCtrl.novaUserName = "admin";
             loginCtrl.novaCurrentPassword = "changeme";
@@ -482,6 +485,39 @@ describe("LoginCtrl", () => {
             // Assert
             expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
             expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_PasswordConfirmMismatch");
+        }));
+
+        it("respond with password equals to username error (case insensitive)", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+            // Arrange
+            loginCtrl.novaUserName = "username<1>";
+            loginCtrl.novaCurrentPassword = "changeme";
+            loginCtrl.novaNewPassword = "UserName<1>";
+            loginCtrl.novaConfirmNewPassword = "UserName<1>";
+
+            // Act
+            loginCtrl.changePassword();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+            expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeUsername");
+        }));
+
+        it("respond with password equals to display name error (case insensitive)", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
+            // Arrange
+            loginCtrl.novaUserName = "Username<1>";
+            loginCtrl.novaDisplayName = "displayname<1>";
+            loginCtrl.novaCurrentPassword = "changeme";
+            loginCtrl.novaNewPassword = "DisplayName<1>";
+            loginCtrl.novaConfirmNewPassword = "DisplayName<1>";
+
+            // Act
+            loginCtrl.changePassword();
+            $rootScope.$digest();
+
+            // Assert
+            expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+            expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeDisplayname");
         }));
 
         it("respond with password min length error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl) => {
@@ -669,6 +705,32 @@ describe("LoginCtrl", () => {
                 // Assert
                 expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
                 expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCriteria");
+            }));
+
+        it("respond with password cooldown in effect",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+                // Arrange
+                loginCtrl.novaUserName = "admin";
+                loginCtrl.novaCurrentPassword = "changeme";
+                loginCtrl.novaNewPassword = "123EWQ!@#";
+                loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
+                spyOn(session, "resetPassword").and.callFake(function () {
+                    const deferred = $q.defer();
+                    const error = {
+                        statusCode: 400,
+                        errorCode: 4003
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
+
+                // Act
+                loginCtrl.changePassword();
+                $rootScope.$digest();
+
+                // Assert
+                expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_PasswordChangeCooldown");
             }));
 
         it("respond with unknown error", inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {

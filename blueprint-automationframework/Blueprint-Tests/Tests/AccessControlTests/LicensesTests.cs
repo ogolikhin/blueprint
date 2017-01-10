@@ -102,5 +102,30 @@ namespace AccessControlTests
                 Helper.AccessControl.GetLicenseTransactions(numberOfDays, consumerType, session);
             });
         }
+
+        #region License Usage"
+
+        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase(null, null)]
+        [TestCase(10, null)]
+        [TestCase(null, 2016)]
+        [TestCase(10, 2016)]
+        [TestRail(227232)]
+        [Description("Check that GET info about license transactions returns 200 OK")]
+        public void GetLicenseUsage_WithMonthAndYear_VerifyUsageDataReturned(int? month, int? year)
+        {
+            // Setup:
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AccessControl.GetLicenseUsage(month, year);
+            });
+
+            // Verify:
+
+        }
+
+        #endregion License Usage"
     }
 }

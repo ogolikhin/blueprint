@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using Common;
+﻿using Common;
+using Model.ArtifactModel;
+using Model.Factories;
+using Model.JobModel;
+using Model.JobModel.Enums;
+using Model.JobModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Utilities;
 using Utilities.Facades;
-using Model.Factories;
-using Model.ArtifactModel;
 
 namespace Model.Impl
 {
@@ -418,6 +422,35 @@ namespace Model.Impl
             return project;
         }
 
+        /// <seealso cref="IAdminStore.GetCustomUserIcon(int, IUser, List{HttpStatusCode})"/>
+        public IFile GetCustomUserIcon(int userId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            IFile file = null;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users_id_.ICON, userId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    FileType = response.ContentType
+                };
+            }
+
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                Assert.IsEmpty(response.Content, "Response body contains data, even though Status Code was 204 No Content!");
+            }
+
+            return file;
+        }
+
         /// <summary>
         /// Executes the REST request and returns the response.
         /// </summary>
@@ -510,8 +543,66 @@ namespace Model.Impl
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-                return navigationPath;
+            return navigationPath;
         }
+
+        /// <seealso cref="IAdminStore.GetJobs(IUser, int?, int?, JobType?, List{HttpStatusCode})"/>
+        public List<IJobInfo> GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJobs));
+
+            var path = RestPaths.Svc.AdminStore.JOBS;
+
+            var queryParams = new Dictionary<string, string>();
+
+            if (page != null)
+            {
+                queryParams.Add("page", page.ToString());
+            }
+
+            if (pageSize != null)
+            {
+                queryParams.Add("pageSize", pageSize.ToString());
+            }
+
+            if (jobType != null)
+            {
+                queryParams.Add("jobType", jobType.ToString());
+            }
+
+            var tokenValue = user?.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var restResponse = restApi.SendRequestAndDeserializeObject<List<JobInfo>>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return restResponse.ConvertAll(o => (IJobInfo)o);
+        }
+
+        /// <seealso cref="IAdminStore.GetJob(IUser, int, List{HttpStatusCode})"/>
+        public IJobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJob));
+
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.JOBS_id_, jobId);
+
+            var tokenValue = user?.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var jobInfo = restApi.SendRequestAndDeserializeObject<JobInfo>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return jobInfo;
+        }
+
 
         #endregion Members inherited from IAdminStore
 

@@ -99,6 +99,7 @@ export class ProcessModelProcessor implements IProcessModelProcessor {
                 let newShape: ProcessModels.IProcessShape = {
                     associatedArtifact: value.associatedArtifact,
                     personaReference: value.personaReference,
+                    flags: null,
                     baseItemTypePredefined: value.baseItemTypePredefined,
                     id: value.id,
                     name: value.name,

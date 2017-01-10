@@ -1,4 +1,4 @@
-import {BPButtonAction, IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
+import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers";
 import {IMessageService} from "../../../../core/messages/message.svc";
@@ -150,7 +150,8 @@ export class MoveCopyAction extends BPDropdownAction {
             showCollections: collectionTypes.indexOf(this.artifact.predefinedType) !== -1,
             selectionMode: "single",
             currentArtifact: this.artifact,
-            actionType: this.actionType
+            actionType: this.actionType,
+            selectableItemTypes: collectionTypes.indexOf(this.artifact.predefinedType)  !== -1 ? [ItemTypePredefined.CollectionFolder] : undefined
         };
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {

@@ -44,8 +44,8 @@
                 </div>
 
                 <div ng-hide="$ctrl.relationship.itemId==$ctrl.relationship.artifactId"><span
-                    class="bolded-text">Main artifact: </span>{{$ctrl.relationship.artifactTypePrefix}}{{$ctrl.relationship.artifactId}}
-                    - {{$ctrl.relationship.artifactName}}
+                    class="bolded-text">Main artifact: </span>{{::$ctrl.relationship.artifactTypePrefix}}{{::$ctrl.relationship.artifactId}}
+                    - {{::$ctrl.relationship.artifactName}}
                 </div>
                 <div class="bolded-text"><i class="icon-project"></i>{{$ctrl.relationship.projectName}}</div>
                 <div ng-if="$ctrl.expanded" ng-class="{'desc-visible': $ctrl.expanded, 'desc-hidden': !$ctrl.expanded}">

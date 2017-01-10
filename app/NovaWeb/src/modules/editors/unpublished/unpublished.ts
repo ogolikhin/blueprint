@@ -10,6 +10,8 @@ import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/act
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
+import {IDialogService} from "../../shared/";
+
 
 export class UnpublishedComponent implements ng.IComponentOptions {
     public template: string = require("./unpublished.html");
@@ -28,7 +30,8 @@ export class UnpublishedController {
         "publishService",
         "loadingOverlayService",
         "navigationService",
-        "projectManager"
+        "projectManager",
+        "dialogService"
     ];
 
     public toolbarActions: IBPAction[];
@@ -47,7 +50,8 @@ export class UnpublishedController {
                 private publishService: IUnpublishedArtifactsService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private navigationService: INavigationService,
-                private projectManager: IProjectManager) {
+                private projectManager: IProjectManager,
+                private dialogService: IDialogService) {
         this.toolbarActions = [];
         this.selectedArtifacts = [];
         this.unpublishedArtifacts = [];
@@ -69,14 +73,16 @@ export class UnpublishedController {
             this.publishService,
             this.localization,
             this.messageService,
-            this.loadingOverlayService);
+            this.loadingOverlayService,
+            this.dialogService);
 
         this.discardArtifactsButton = new DiscardArtifactsAction(
             this.publishService,
             this.localization,
             this.messageService,
             this.loadingOverlayService,
-            this.projectManager);
+            this.projectManager,
+            this.dialogService);
 
         this.toolbarActions.push(
             new BPButtonGroupAction(
@@ -145,7 +151,7 @@ export class UnpublishedController {
     }
 
     public isSelected(artifact: IArtifactWithProject): boolean {
-        return this.selectedArtifacts.indexOf(artifact) > -1;
+        return !!_.find(this.selectedArtifacts, {id: artifact.id});
     }
 
     public isNavigatable(artifact: IArtifactWithProject): boolean {

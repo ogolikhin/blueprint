@@ -22,10 +22,11 @@ namespace AccessControl
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(10, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(11, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<LicensesController>("GetActiveLicenses", HttpMethod.Get, "licenses/active");
             config.AssertAction<LicensesController>("GetLockedLicenses", HttpMethod.Get, "licenses/locked");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1&consumerType=1");
+            config.AssertAction<LicensesController>("GetLicenseUsage", HttpMethod.Get, "licenses/usage?month=10&year=2016");
             config.AssertAction<SessionsController>("GetSession", HttpMethod.Get, "sessions/1");
             config.AssertAction<SessionsController>("SelectSessions", HttpMethod.Get, "sessions/select");
             config.AssertAction<SessionsController>("SelectSessions", HttpMethod.Get, "sessions/select?ps=100&pn=1");

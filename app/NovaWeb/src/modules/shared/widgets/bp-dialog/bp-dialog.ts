@@ -88,9 +88,7 @@ export class DialogService implements IDialogService {
 
     public open(dialogSettings?: IDialogSettings, dialogData?): ng.IPromise<any> {
         this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);
-        if (dialogData) {
-            this.dialogData = dialogData;
-        }
+        this.dialogData = dialogData ? dialogData : undefined;
         return this.openInternal().result;
     }
 
@@ -116,7 +114,7 @@ export class DialogService implements IDialogService {
         const dialogSettings = {
             type: DialogTypeEnum.Confirm,
             header: this.localization.get(header || "App_DialogTitle_Confirmation"),
-            css: css,
+            css: css || "nova-messaging",
             message: message
         } as IDialogSettings;
         this.dialogSettings = _.assign({}, this.defaultSettings, dialogSettings);

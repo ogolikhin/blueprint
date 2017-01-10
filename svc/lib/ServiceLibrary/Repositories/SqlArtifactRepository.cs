@@ -72,6 +72,9 @@ namespace ServiceLibrary.Repositories
             ProjectSection? projectSection;
             dicUserArtifactVersions.TryGetValue(artifactId ?? projectId, out av);
 
+            // Bug 4357: Required for adjusting property hasChildren of Collections root  
+            var hasCollectionsSectionOrphans = false;
+
             if (av != null && TryGetProjectSectionFromRoot(av, out projectSection))
             {
                 prm = new DynamicParameters();
@@ -90,6 +93,13 @@ namespace ServiceLibrary.Repositories
                         // Replace with the corrected ParentId
                         if (dicUserArtifactVersions.ContainsKey(userOrphanVersion.ItemId))
                             dicUserArtifactVersions.Remove(userOrphanVersion.ItemId);
+
+                        // Bug 4357
+                        if (userOrphanVersion.ItemTypePredefined != null && !hasCollectionsSectionOrphans)
+                        {
+                            hasCollectionsSectionOrphans =
+                                userOrphanVersion.ItemTypePredefined.Value.IsCollectionsGroupType();
+                        }
 
                         // Add the orphan with children belonging to the respective project section
                         if (BelongsToProjectSection(userOrphanVersion, projectSection.GetValueOrDefault()))
@@ -151,6 +161,15 @@ namespace ServiceLibrary.Repositories
                 ? userArtifactVersionChildren.Max(a => a.OrderIndex)
                 : 0;
 
+            // Bug 4357: If the project (the Collections root is a child of the project) and there are orphans in Collection section,
+            // set property hasChildren of the Collections root to true  
+            if (artifactId == null && hasCollectionsSectionOrphans)
+            {
+                var collectionsRoot = FindCoollectionsRoot(userArtifactVersionChildren, projectId);
+                if(collectionsRoot != null)
+                    collectionsRoot.HasChildren = true;
+            }
+
             return userArtifactVersionChildren.Select(v => new Artifact
             {
                 Id = v.ItemId,
@@ -183,6 +202,13 @@ namespace ServiceLibrary.Repositories
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
                 return double.MaxValue;
             }).ToList();
+        }
+
+        private ArtifactVersion FindCoollectionsRoot(IEnumerable<ArtifactVersion> artifacts, int projectId)
+        {
+            return artifacts.FirstOrDefault(
+                        av => av?.ItemTypePredefined != null && av.ParentId == projectId
+                        && av.ItemTypePredefined.Value == ItemTypePredefined.CollectionFolder);
         }
 
         private bool BelongsToProjectSection(ArtifactVersion artifactVersion, ProjectSection projectSection)
@@ -409,7 +435,7 @@ namespace ServiceLibrary.Repositories
 
         #endregion
 
-        #region GetProjectOrArtifactChildrenAsync
+        #region GetExpandedTreeToArtifactAsync
 
         public virtual async Task<List<Artifact>> GetExpandedTreeToArtifactAsync(int projectId, int expandedToArtifactId, bool includeChildren, int userId)
         {
@@ -624,6 +650,16 @@ namespace ServiceLibrary.Repositories
             return result;
         }
 
+        #endregion
+
+        #region GetProjectNamesById
+        public async Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIds(IEnumerable<int> projectIds)
+        {
+            var param = new DynamicParameters();
+            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds, "Int32Collection", "Int32Value"));
+            
+            return (await _connectionWrapper.QueryAsync<ProjectNameIdPair>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure));            
+        }
         #endregion
     }
 }

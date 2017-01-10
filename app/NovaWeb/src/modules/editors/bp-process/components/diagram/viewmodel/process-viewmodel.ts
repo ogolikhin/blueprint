@@ -237,8 +237,10 @@ export class ProcessViewModel implements IProcessViewModel {
             this._messageService.clearMessages();
             this._messageService.addMessage(message);
             // force $digest cycle to show message
-            if (this._scope && this._scope.$apply) {
-                this._scope.$apply();
+            //TODO: we should look at removing these options from inside viewmodel etc.
+            //At the least, these should be triggered up to the editor and triggered from there as editor is angular
+            if (this._scope && this._scope.$applyAsync) {
+                this._scope.$applyAsync();
             }
         }
     }

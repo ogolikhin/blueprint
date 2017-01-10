@@ -1,18 +1,19 @@
-﻿using System;
+﻿using Common;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
+using Model.Factories;
+using Model.Impl;
+using Newtonsoft.Json;
+using NUnit.Framework;
+using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Common;
-using Model.Factories;
-using Model.Impl;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
-using Newtonsoft.Json;
-using NUnit.Framework;
+using Model.ArtifactModel.Enums;
 using Utilities;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace Model.StorytellerModel.Impl
 {
@@ -42,10 +43,11 @@ namespace Model.StorytellerModel.Impl
         public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
+            var artifactIds = deletedArtifactIds as int[] ?? deletedArtifactIds.ToArray();
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(Storyteller.NotifyArtifactDeletion), string.Join(", ", deletedArtifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactDeletion), string.Join(", ", artifactIds));
 
-            foreach (var deletedArtifactId in deletedArtifactIds)
+            foreach (var deletedArtifactId in artifactIds)
             {
                 Artifacts.ForEach(a =>
                 {
@@ -65,10 +67,11 @@ namespace Model.StorytellerModel.Impl
         public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
+            var artifactIds = publishedArtifactIds as int[] ?? publishedArtifactIds.ToArray();
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(Storyteller.NotifyArtifactPublish), String.Join(", ", publishedArtifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactPublish), String.Join(", ", artifactIds));
 
-            foreach (var publishedArtifactId in publishedArtifactIds)
+            foreach (var publishedArtifactId in artifactIds)
             {
                 Artifacts.ForEach(a =>
                 {
@@ -97,6 +100,8 @@ namespace Model.StorytellerModel.Impl
         #region Implemented from IStoryteller
 
         public List<IArtifact> Artifacts { get; } = new List<IArtifact>();
+
+        public List<NovaProcess> NovaProcesses { get; } = new List<NovaProcess>();
 
         public IArtifact CreateAndSaveProcessArtifact(IProject project, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -162,6 +167,76 @@ namespace Model.StorytellerModel.Impl
             return artifacts;
         }
 
+        public NovaProcess CreateAndSaveNovaProcessArtifact(IProject project, IUser user, int? parentId = null,
+            double? orderIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveNovaProcessArtifact));
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            parentId = parentId ?? project.Id;
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var novaArtifact = ArtifactStore.CreateArtifact(Address, user, ItemTypePredefined.Process, artifactName,
+                project, parentId, orderIndex, expectedStatusCodes);
+
+            var novaProcess = GetNovaProcess(user, novaArtifact.Id);
+            UpdateNovaProcess(user, novaProcess,expectedStatusCodes);
+            NovaProcesses.Add(novaProcess);
+
+            return novaProcess;
+        }
+
+        public List<NovaProcess> CreateAndSaveNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
+            double? orderIndex = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndSaveNovaProcessArtifacts));
+
+            var novaProcesses = new List<NovaProcess>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var novaProcess = CreateAndSaveNovaProcessArtifact(project, user, parentId, orderIndex);
+                novaProcesses.Add(novaProcess);
+            }
+            return novaProcesses;
+        }
+
+        public NovaProcess CreateAndPublishNovaProcessArtifact(IProject project, IUser user)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishNovaProcessArtifact));
+
+            var publishedNovaProcessList = CreateAndPublishNovaProcessArtifacts(project, user, 1);
+
+            Assert.That(publishedNovaProcessList.Count().Equals(1), "The expected number of published artifact" +
+                  " was 1 but response object contains {0} artifacts", publishedNovaProcessList.Count());
+            return publishedNovaProcessList[0];
+        }
+
+        public List<NovaProcess> CreateAndPublishNovaProcessArtifacts(IProject project, IUser user, int numberOfArtifacts, int? parentId = null,
+            double? orderIndex = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(CreateAndPublishNovaProcessArtifacts));
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var novaProcesses = new List<NovaProcess>();
+            var artifacts = new List<IArtifactBase>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var novaProcess = CreateAndSaveNovaProcessArtifact(project, user, parentId, orderIndex);
+                novaProcesses.Add(novaProcess);
+
+                var artifact = new Artifact(Address, novaProcess.Id, project.Id);
+                artifacts.Add(artifact);
+            }
+
+            ArtifactStore.PublishArtifacts(Address, artifacts, user);
+
+            return novaProcesses;
+        }
+
         /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
@@ -194,9 +269,8 @@ namespace Model.StorytellerModel.Impl
             RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
-            List<StorytellerUserStory> userstoryResults = null;
 
-            userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
+            var userstoryResults =  restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
                 path,
                 RestRequestMethod.POST,
                 additionalHeaders: additionalHeaders,
@@ -246,6 +320,37 @@ namespace Model.StorytellerModel.Impl
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
+
+            return response;
+        }
+
+        public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetNovaProcess));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESS_id_, artifactId);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (versionIndex.HasValue)
+            {
+                queryParameters.Add("versionId", versionIndex.ToString());
+            }
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(Storyteller), artifactId);
+
+            var response = restApi.SendRequestAndDeserializeObject<NovaProcess>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return response;
         }
@@ -332,9 +437,33 @@ namespace Model.StorytellerModel.Impl
             }
 
             var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
-            var updateProcessResult = JsonConvert.DeserializeObject<UpdateResult<Process>>(restResponse.Content);
+            var updatedProcess = JsonConvert.DeserializeObject<Process>(restResponse.Content);
 
-            return updateProcessResult.Result;
+            return updatedProcess;
+        }
+
+        public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
+
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESSUPDATE_id_, novaProcess.Id);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
+
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcessUpdateResult, NovaProcess>(
+                path,
+                RestRequestMethod.PATCH,
+                novaProcess,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return restResponse;
         }
 
         public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -461,24 +590,37 @@ namespace Model.StorytellerModel.Impl
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
             return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie, deleteChildren: deleteChildren);
         }
+
+        public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteNovaProcessArtifact));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
+
+            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+
+            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+        }
         
         public int GetStorytellerShapeLimitFromDb
         {
             get
             {
-                using (IDatabase database = DatabaseFactory.CreateDatabase())
-                {
-                    database.Open();
-                    string query = I18NHelper.FormatInvariant("SELECT [Value] FROM {0} WHERE [Key] = '{1}'",
+                string query = I18NHelper.FormatInvariant("SELECT [Value] FROM {0} WHERE [Key] = '{1}'",
                         Storyteller.APPLICATION_SETTINGS_TABLE, Storyteller.STORYTELLER_LIMIT_KEY);
-
-                    Logger.WriteDebug("Running: {0}", query);
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        var result = cmd.ExecuteScalar();
-                        return ParseStorytellerLimitFromDb(result);
-                    }
-                }
+                var result = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(query, "Value");
+                return ParseStorytellerLimitFromDb(result);
             }
         }
 
@@ -571,7 +713,7 @@ namespace Model.StorytellerModel.Impl
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcessArtifacts));
 
-            return Artifact.PublishArtifacts(
+            return ArtifactBase.PublishArtifacts(
                 artifactsToPublish, 
                 address, 
                 user, 
@@ -636,19 +778,29 @@ namespace Model.StorytellerModel.Impl
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
 
-            var restResponse = restApi.SendRequestAndGetResponse(
+            var processBodyObject = (Process)process;
+
+            restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
-                bodyObject: (Process)process,
+                bodyObject: processBodyObject,
                 expectedStatusCodes: expectedStatusCodes,
                 cookies: cookies);
 
             // Mark artifact in artifact list as saved
             MarkArtifactAsSaved(process.Id);
 
+            // Get restResponse using get process
+            var restResponse = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                bodyObject: processBodyObject,
+                expectedStatusCodes: expectedStatusCodes,
+                cookies: cookies);
+
             return restResponse;
         }
-
+        
         /// <summary>
         /// Parses the result from the database to an int value for Storyteller shape limit
         /// </summary>
@@ -668,6 +820,7 @@ namespace Model.StorytellerModel.Impl
                     STORYTELLER_LIMIT_KEY, APPLICATION_SETTINGS_TABLE);
             throw new ArgumentNullException(errorMessage);
         }
+        
         #endregion Private Methods
 
     }

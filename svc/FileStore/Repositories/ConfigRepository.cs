@@ -104,7 +104,7 @@ namespace FileStore.Repositories
 
         private static string GetConnectionString(string name)
         {
-            return ConfigurationManager.ConnectionStrings[name].ConnectionString;
+            return ConfigurationManager.ConnectionStrings[name]?.ConnectionString;
         }
 
         private static int GetConfigValue(string configKey, int defaultValue)

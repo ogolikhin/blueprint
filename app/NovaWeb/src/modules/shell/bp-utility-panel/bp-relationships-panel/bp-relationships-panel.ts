@@ -77,6 +77,11 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
+    public get isBulkActionsBarVisible () {
+        return !this.isLoading && (this.manualTraces2.length || this.otherTraces.length) &&
+            this.selectedTraces[this.item.id].length > 0 && this.categoryFilter < 2;
+    }
+
     public get showTracesTitle() {
         return this.manualTraces2.length && this.categoryFilter === 0;
     }
@@ -108,6 +113,13 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
     public onRelationshipUpdate = (relationships: Relationships.IRelationship[]) => {
         this.setRelationships(relationships);
+
+        //when we do refresh we empty selectedTraces array
+        if (!_.find(relationships, relationship => relationship.isSelected === true)) {
+            if (this.selectedTraces) {
+                this.selectedTraces[this.item.id].length = 0;
+            }
+        };
     }
 
     public get manualTraces2(): Relationships.IRelationship[] {
@@ -184,6 +196,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                 traces[i].traceDirection = direction;
             }
         }
+        this.item.relationships.updateManual(this.manualTraces);
+
     }
 
     public toggleFlag() {
@@ -213,6 +227,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
                 }
             }
         }
+        this.item.relationships.updateManual(this.manualTraces);
     }
 
     public deleteTraces(artifacts: Relationships.IRelationship[]): void {

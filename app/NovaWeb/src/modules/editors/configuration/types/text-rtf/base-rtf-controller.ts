@@ -57,8 +57,10 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected isDirty: boolean;
     protected isLinkPopupOpen: boolean;
+    protected hasReceivedFocus: boolean;
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
+    protected editorContainer: HTMLElement;
     protected onChange: AngularFormly.IExpressionFunction;
     protected allowedFonts: string[];
     protected isSingleLine: boolean = false;
@@ -88,8 +90,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 protected selectionManager: ISelectionManager,
                 protected artifactService: IArtifactService,
                 protected artifactRelationships: IArtifactRelationships) {
-        $scope["modelValue"] = null; //$scope.model[$scope.options["key"]];
-
         this.currentArtifact = selectionManager.getArtifact();
         this.currentSubArtifact = selectionManager.getSubArtifact();
 
@@ -105,6 +105,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
         this.isDirty = false;
         this.isLinkPopupOpen = false;
+        this.hasReceivedFocus = false;
         this.contentBuffer = undefined;
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
@@ -118,6 +119,24 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             this.removeObserver();
             if (this.editorBody) {
                 this.handleLinks(this.editorBody.querySelectorAll("a"), true);
+            }
+
+            // the following is to avoid TFS BUG 4330
+            // The bug is caused by IE9-11 not being able to focus on other INPUT elements if the focus was
+            // on a destroyed/removed from DOM element before. See also:
+            // http://stackoverflow.com/questions/19581464
+            // http://stackoverflow.com/questions/8978235
+            let isIE11 = false;
+            if (this.$window.navigator) {
+                const ua = this.$window.navigator.userAgent;
+                isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
+            }
+            if (isIE11 && !this.isSingleLine && this.hasReceivedFocus) {
+                const focusCatcher = this.$window.document.body.querySelector("input[type='text']") as HTMLElement;
+                if (focusCatcher) {
+                    focusCatcher.focus();
+                    focusCatcher.blur();
+                }
             }
         });
 
@@ -159,6 +178,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             if (formControl) {
                 formControl.$setValidity("requiredCustom", isValid, formControl);
                 $scope.to["isInvalid"] = !isValid;
+                $scope.options.validation["show"] = !isValid;
                 $scope.showError = !isValid;
             }
         });
@@ -181,7 +201,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         newContent = newContent || "";
 
         const $scope = this.$scope;
-        if ($scope.model[$scope.options["key"]] !== newContent) {
+        if (this.contentBuffer !== newContent) {
             this.isDirty = true;
             this.isLinkPopupOpen = false;
 
@@ -197,7 +217,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected prepRTF = (hasTables: boolean = false) => {
         const $scope = this.$scope;
-        $scope["modelValue"] = $scope.model[$scope.options["key"]];
+        this.mceEditor.setContent($scope.model[$scope.options["key"]] || "");
         this.isDirty = false;
         this.isLinkPopupOpen = false;
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
@@ -293,6 +313,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
         this.prepRTF(!this.isSingleLine);
 
+        if (this.isSingleLine && this.editorBody && this.editorBody.parentElement) {
+            this.editorContainer = this.editorBody.parentElement;
+        } else if (!this.isSingleLine && editor && editor.editorContainer) {
+            this.editorContainer = editor.editorContainer;
+        }
+
         // MutationObserver
         const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
         if (!_.isUndefined(mutationObserver)) {
@@ -339,26 +365,15 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         });
 
         editor.on("Focus", (e) => {
-            if (this.isSingleLine) {
-                if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
-                    this.editorBody.parentElement.parentElement.classList.remove("tinymce-toolbar-hidden");
-                }
-            } else {
-                if (editor.editorContainer) {
-                    editor.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
-                }
+            this.hasReceivedFocus = true;
+            if (this.editorContainer && this.editorContainer.parentElement) {
+                this.editorContainer.parentElement.classList.remove("tinymce-toolbar-hidden");
             }
         });
 
         editor.on("Blur", (e) => {
-            if (this.isSingleLine) {
-                if (this.editorBody.parentElement && this.editorBody.parentElement.parentElement) {
-                    this.editorBody.parentElement.parentElement.classList.add("tinymce-toolbar-hidden");
-                }
-            } else {
-                if (editor.editorContainer) {
-                    editor.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
-                }
+            if (this.editorContainer && this.editorContainer.parentElement) {
+                this.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
             }
         });
     };

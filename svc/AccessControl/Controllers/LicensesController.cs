@@ -21,6 +21,10 @@ namespace AccessControl.Controllers
         internal readonly ISessionsRepository _sessions;
         internal readonly IServiceLogRepository _log;
 
+        private const int maxMonth = 11;
+        private const int minYear = 1900;
+        private const int maxYear = 2999;
+
         public LicensesController() : this(new SqlLicensesRepository(), new SqlSessionsRepository(), new ServiceLogRepository())
         {
         }
@@ -122,6 +126,48 @@ namespace AccessControl.Controllers
                 var licenses = await _repo.GetLicenseTransactions(DateTime.UtcNow.AddDays(-days), consumerType);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, licenses);
+                return ResponseMessage(response);
+            }
+            catch (Exception ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceLicenses, ex);
+                return InternalServerError();
+            }
+        }
+
+        /// <summary>
+        /// Provides license usage information 
+        /// </summary>
+        /// <remarks>
+        /// Returns license usage for the given <paramref name="month" /> and <paramref name="year" />.
+        /// </remarks>
+        /// <param name="month">Optional. The number specifies the month to get license usage from.
+        /// Valid value: __0-11__</param>
+        /// <param name="year">Optional. The number specifies the year to get license usage from. 
+        /// Valid value: __1900-2999__</param>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Bad request.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpGet, NoCache]
+        [Route("usage")]
+        [ResponseType(typeof(IEnumerable<LicenseUsage>))]
+        public async Task<IHttpActionResult> GetLicenseUsage(int? month = null, int? year = null)
+        {
+            try
+            {
+                //parameter constrain
+                if ((month.HasValue && (month.Value < 0 || month.Value > maxMonth)) )
+                {
+                    return BadRequest("Specified month is invalid");
+                }
+                if (year.HasValue && (year < minYear || month.Value > maxYear))
+                {
+                    return BadRequest("Specified year is invalid");
+                }
+
+                var usage = await _repo.GetLicenseUsage(month, year);
+
+                var response = Request.CreateResponse(HttpStatusCode.OK, usage);
                 return ResponseMessage(response);
             }
             catch (Exception ex)

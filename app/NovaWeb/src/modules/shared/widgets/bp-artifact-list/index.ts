@@ -1,4 +1,4 @@
-require("./bp-artifact-list.scss");
+import "./bp-artifact-list.scss";
 
 import * as angular from "angular";
 import {BPArtifactListComponent, IBPArtifactListController} from "./bp-artifact-list";

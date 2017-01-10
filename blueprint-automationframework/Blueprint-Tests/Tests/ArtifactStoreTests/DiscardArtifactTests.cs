@@ -223,8 +223,8 @@ namespace ArtifactStoreTests
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, author, artifactType, numberOfArtifacts); 
   
             for (int i = 0; i < numberOfArtifacts; i++) 
-            { 
-                NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, publishedArtifacts[i].Id);
+            {
+                var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, publishedArtifacts[i].Id);
 
                 string requestBody = JsonConvert.SerializeObject(artifactDetails);
                 requestBody = requestBody.Replace(toChange, changeTo);
@@ -267,7 +267,7 @@ namespace ArtifactStoreTests
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(projectCustomData, author, artifactType, numberOfArtifacts);
             IArtifact firstArtifact = (IArtifact)publishedArtifacts[0];
 
-            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, firstArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, firstArtifact.Id);
 
             string requestBody = JsonConvert.SerializeObject(artifactDetails);
             requestBody = requestBody.Replace(toChange, changeTo);
@@ -443,7 +443,7 @@ namespace ArtifactStoreTests
             "'POST {0}' should return 400 Bad Request if body of the request does not have any artifact ids!", DISCARD_PATH);
             
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The list of artifact Ids is empty.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The list of artifact Ids is empty.");
         }
 
         #endregion 400 Bad Request tests
@@ -491,7 +491,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = "Artifact with ID " + artifact.Id + " is deleted.";
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         [TestCase(0, "Item with ID {0} is not an artifact.")]
@@ -512,7 +512,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedExceptionMessage = I18NHelper.FormatInvariant(expectedErrorMessage, artifact.Id);
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedExceptionMessage);
         }
 
         #endregion 404 Not Found tests
@@ -531,7 +531,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DiscardArtifacts(publishedArtifacts, _user),
                 "We should get a 409 Conflict when a user trying to discard published artifact(s) which has nothing to discard!");
 
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscard,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscard,
                 I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to discard.", publishedArtifacts[0].Id));
         }
 
@@ -554,7 +554,7 @@ namespace ArtifactStoreTests
                 "We should get a 409 Conflict when a user trying to discard published artifact(s) which has nothing to discard!");
 
             // Validation: Exception should contain expected message.
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscard,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscard,
                 I18NHelper.FormatInvariant("Artifact with ID {0} has nothing to discard.", mixedArtifacts[2].Id));
         }
 
@@ -579,7 +579,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not discarded!", DISCARD_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscardOverDependencies,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscardOverDependencies,
                 "Specified artifacts have dependent artifacts to discard.");
         }
 
@@ -602,7 +602,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if the Artifact has parent artifact which is not discarded!", DISCARD_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscardOverDependencies,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscardOverDependencies,
                 "Specified artifacts have dependent artifacts to discard.");
         }
 
@@ -629,7 +629,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict if the Artifact has deleted parent artifact which is not discarded!", DISCARD_PATH);
 
             // Verify:
-            ArtifactStoreHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscardOverDependencies,
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDiscardOverDependencies,
                 "Specified artifacts have dependent artifacts to discard.");
         }
 

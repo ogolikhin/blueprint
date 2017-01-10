@@ -1,10 +1,10 @@
 ﻿using Dapper;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ServiceLibrary.Repositories
 {
@@ -36,6 +36,14 @@ namespace ServiceLibrary.Repositories
             userInfosPrm.Add("@Email", email);
             userInfosPrm.Add("@GuestsOnly", guestsOnly);
             return await ConnectionWrapper.QueryAsync<UserInfo>("GetUsersByEmail", userInfosPrm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<bool> IsInstanceAdmin(bool contextUser, int sessionUserId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@contextUser", contextUser);
+            prm.Add("@userId", sessionUserId);
+            return (await ConnectionWrapper.QueryAsync<bool>("IsInstanceAdmin", prm, commandType: CommandType.StoredProcedure)).SingleOrDefault();            
         }
     }
 }

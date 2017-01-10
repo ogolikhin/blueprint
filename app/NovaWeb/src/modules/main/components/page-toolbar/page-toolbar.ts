@@ -1,3 +1,4 @@
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
 import {IArtifactManager, IProjectManager} from "../../../managers";
@@ -18,15 +19,16 @@ import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 
 interface IPageToolbarController {
-    openProject(evt?: ng.IAngularEvent);
-    closeProject(evt?: ng.IAngularEvent);
-    closeAllProjects(evt?: ng.IAngularEvent);
-    createNewArtifact(evt?: ng.IAngularEvent);
-    publishAll(evt?: ng.IAngularEvent);
-    discardAll(evt?: ng.IAngularEvent);
-    refreshAll(evt?: ng.IAngularEvent);
-    openTour(evt?: ng.IAngularEvent);
+    openProject(evt?: ng.IAngularEvent): void;
+    closeProject(evt?: ng.IAngularEvent): void;
+    closeAllProjects(evt?: ng.IAngularEvent): void;
+    createNewArtifact(evt?: ng.IAngularEvent): void;
+    publishAll(evt?: ng.IAngularEvent): void;
+    discardAll(evt?: ng.IAngularEvent): void;
+    refreshAll(evt?: ng.IAngularEvent): void;
+    openTour(evt?: ng.IAngularEvent): void;
     showSubLevel(evt: ng.IAngularEvent): void;
+    generateTestCases(evt?: ng.IAngularEvent): void;
 }
 
 export class PageToolbar implements ng.IComponentOptions {
@@ -46,6 +48,7 @@ export class PageToolbarController implements IPageToolbarController {
 
     static $inject = [
         "$q",
+        "$state",
         "localization",
         "dialogService",
         "projectManager",
@@ -58,6 +61,7 @@ export class PageToolbarController implements IPageToolbarController {
     ];
 
     constructor(private $q: ng.IQService,
+                private $state: ng.ui.IStateService,
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
@@ -83,7 +87,7 @@ export class PageToolbarController implements IPageToolbarController {
         delete this._subscribers;
     }
 
-    public openProject = (evt: ng.IAngularEvent) => {
+    public openProject = (evt: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -97,7 +101,7 @@ export class PageToolbarController implements IPageToolbarController {
      * Otherwise navigates to next project in project list
      *
      */
-    public closeProject = (evt?: ng.IAngularEvent) => {
+    public closeProject = (evt?: ng.IAngularEvent): void => {
         const id = this.loadingOverlayService.beginLoading();
         if (evt) {
             evt.preventDefault();
@@ -114,7 +118,7 @@ export class PageToolbarController implements IPageToolbarController {
         });
     };
 
-    public closeAllProjects = (evt?: ng.IAngularEvent) => {
+    public closeAllProjects = (evt?: ng.IAngularEvent): void => {
         const id = this.loadingOverlayService.beginLoading();
         if (evt) {
             evt.preventDefault();
@@ -144,7 +148,7 @@ export class PageToolbarController implements IPageToolbarController {
         });
     };
 
-    public createNewArtifact = (evt?: ng.IAngularEvent) => {
+    public createNewArtifact = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -219,7 +223,7 @@ export class PageToolbarController implements IPageToolbarController {
             });
     };
 
-    public publishAll = (evt?: ng.IAngularEvent) => {
+    public publishAll = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -240,7 +244,7 @@ export class PageToolbarController implements IPageToolbarController {
         });
     };
 
-    public discardAll = (evt?: ng.IAngularEvent) => {
+    public discardAll = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -259,7 +263,39 @@ export class PageToolbarController implements IPageToolbarController {
             });
     };
 
-    public refreshAll = (evt?: ng.IAngularEvent) => {
+    public generateTestCases = (evt: ng.IAngularEvent): void => {
+        if (evt) {
+            evt.preventDefault();
+        }
+
+        const dialogSettings = <IDialogSettings>{
+            okButton: this.localization.get("App_Toolbar_Generate_Test_Cases"),
+            template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
+            controller: ArtifactPickerDialogController,
+            css: "nova-open-project",
+            header: this.localization.get("App_Toolbar_Generate_Test_Cases_Title")
+        };
+
+        const dialogOptions: IArtifactPickerOptions = {
+            selectableItemTypes: [Models.ItemTypePredefined.Process],
+            isItemSelectable: (item: Models.IArtifact) => {
+                        return item.id > 0 &&
+                                !item.lockedByUser;
+                    },
+            selectionMode: "checkbox",
+            showProjects: false
+        };
+        
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
+            if (items) {
+                items.forEach(item => {
+                    console.log(item.id + " " + item.name);
+                });
+            }
+        });
+    };
+
+    public refreshAll = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -277,7 +313,7 @@ export class PageToolbarController implements IPageToolbarController {
             });
         }
     };
-    public openTour = (evt?: ng.IAngularEvent) => {
+    public openTour = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
@@ -291,6 +327,19 @@ export class PageToolbarController implements IPageToolbarController {
 
     private confirmDiscardAll(data: Models.IPublishResultSet) {
         const selectedProjectId: number = this.projectManager.getSelectedProjectId();
+        if (this.$state.current.name === "main.unpublished") {
+            this.publishService.getUnpublishedArtifacts().then((result) => {
+                const numArtifacts = result.artifacts.length;
+                const message = numArtifacts === 1 ? 
+                this.localization.get("Discard_Single_Artifact_Confirm") : 
+                this.localization.get("Discard_Multiple_Artifacts_Confirm").replace("{0}", numArtifacts.toString());
+                this.dialogService.alert(message, "Warning", "Discard", "Cancel").then(() => {
+                    const overlayId: number = this.loadingOverlayService.beginLoading();
+                    this.discardAllInternal(data);
+                    this.loadingOverlayService.endLoading(overlayId);
+                });
+            });
+        } else {
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Discard_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -310,11 +359,15 @@ export class PageToolbarController implements IPageToolbarController {
             .then(() => {
                 this.discardAllInternal(data);
             });
+        }
     }
 
     private confirmPublishAll(data: Models.IPublishResultSet) {
-        const selectedProjectId: number = this.projectManager.getSelectedProjectId();
-        this.dialogService.open(<IDialogSettings>{
+        if (this.$state.current.name === "main.unpublished") {
+            this.publishAllInternal(data);
+        } else {
+            const selectedProjectId: number = this.projectManager.getSelectedProjectId();
+            this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Publish_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
                 message: this.localization.get("Publish_All_Dialog_Message"),
@@ -331,6 +384,7 @@ export class PageToolbarController implements IPageToolbarController {
             .then(() => {
                 this.publishAllInternal(data);
             });
+        }
     }
 
     private closeProjectInternal(currentProjectId: number): ng.IPromise<any> {
@@ -417,9 +471,9 @@ export class PageToolbarController implements IPageToolbarController {
 
                 // If the current artifact has never been published, navigate back to the main page;
                 // otherwise, refresh all
-                if (!this.isProjectOpened && statefulArtifact.version === -1) {
+                if (!this.isProjectOpened && statefulArtifact && statefulArtifact.version === -1) {
                     this.navigationService.navigateToMain(true);
-                } else {          
+                } else {
                     this.refreshAll();
                 }
 
@@ -468,5 +522,8 @@ export class PageToolbarController implements IPageToolbarController {
         return this._canCreateNew;
     }
 
-
+    public get canGenerateTestCases(): boolean {
+        // determining project context by checking whether there is current artifact
+        return !!this._currentArtifact;
+    }
 }

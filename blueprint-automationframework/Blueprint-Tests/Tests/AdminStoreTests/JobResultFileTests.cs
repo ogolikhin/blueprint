@@ -2,9 +2,6 @@
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Impl;
-using Model.JobModel;
-using Model.JobModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,7 +83,7 @@ namespace AdminStoreTests
         public void GetJobResultFile_ExecuteWithNotCompletedJobId_400BadRequest(int baselineOrReviewId)
         {
             // Setup: Create a ALM ChangeSummary job using the prepared ALM target
-            var createdJob = CreateALMSummaryJobsSetup(baselineOrReviewId, 1, _projectCustomData).First();
+            var createdJob = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData).First();
 
             // Execute: Execute GetJobResultFile using the ALM ChangeSummary job Id which is not completed.
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobResultFile(_adminUser, createdJob.JobId),
@@ -98,11 +95,10 @@ namespace AdminStoreTests
         }
 
         [Category(Categories.GoldenData)]
-        [Explicit(IgnoreReasons.UnderDevelopment)]
         [TestCase(DOCGEN_JOBID)]
         [TestRail(227242)]
         [Description("GET JobResultFile using the job which is not supported (DocGen). Verify that 400 bad request is returned.")]
-        public void GetJobResultFile_ExecuteWithNoneSupportedJobId_400BadRequest(int jobId)
+        public void GetJobResultFile_ExecuteWithNonSupportedJobId_400BadRequest(int jobId)
         {
             // Setup: Use the prepared DocGen job which is not supported by GetJobResultFile call yet.
 
@@ -119,15 +115,15 @@ namespace AdminStoreTests
 
         #region 401 Unauthorized Tests
 
-        [TestCase(int.MaxValue)]
+        [TestCase]
         [TestRail(227237)]
         [Description("GET JobResultFile with missing 'Session-Token' header in the request. Verify that the call returns 401 Unautorized.")]
-        public void GetJobResultFile_ExecuteWithMissingSessionTokenHeader_401Unauthorized(int jobId)
+        public void GetJobResultFile_ExecuteWithMissingSessionTokenHeader_401Unauthorized()
         {
             // Setup: Not required
 
             // Execute: Execute GetJobResultFile using the user with missing session token header
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJobResultFile(user: null, jobId: jobId),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJobResultFile(user: null, jobId: int.MaxValue),
                 "GET {0} call should return 401 Unauthorized if no Session-Token header was passed!", JOBRESULTFILE_PATH);
 
             // Validation: Exception should contain expected message.
@@ -136,16 +132,16 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Jobs which has no session token.", expectedExceptionMessage);
         }
 
-        [TestCase(int.MaxValue)]
+        [TestCase]
         [TestRail(227238)]
         [Description("GET JobResultFile with invalid 'Session-Token' header in the request. Verify that the call return 401 Unautorized.")]
-        public void GetJobResultFile_ExecuteWithInvalidSessionToken_401Unauthorized(int jobId)
+        public void GetJobResultFile_ExecuteWithInvalidSessionToken_401Unauthorized()
         {
             // Setup: Not required
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute: Execute GetJobResultFile  using the user with invalid session token
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJobResultFile(user: userWithBadToken, jobId: jobId),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJobResultFile(user: userWithBadToken, jobId: int.MaxValue),
                 "GET {0} call should return 401 Unauthorized when using invalid session!", JOBRESULTFILE_PATH);
 
             // Validation: Exception should contain expected message.
@@ -189,31 +185,5 @@ namespace AdminStoreTests
         }
 
         #endregion 404 Not Found Tests
-
-        #region private functions
-
-        /// <summary>
-        /// Create ALM Change Summary Jobs as a setup for testing Nova GET Jobs API calls
-        /// </summary>
-        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
-        /// <param name="numberOfJobsToBeCreated">The number of ALM Change Summary Jobs to be created.</param>
-        /// <param name="project">The project where ALM targets reside.</param>
-        /// <returns> List of ALM Summary Jobs created in decending order by jobId </returns>
-        private List<IOpenAPIJob> CreateALMSummaryJobsSetup(int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
-        {
-            var almTarget = AlmTarget.GetAlmTargets(Helper.ArtifactStore.Address, _adminUser, project).First();
-            Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
-            List<IOpenAPIJob> jobsToBeFound = new List<IOpenAPIJob>();
-            for (int i = 0; i < numberOfJobsToBeCreated; i++)
-            {
-                var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, project, baselineOrReviewId, almTarget);
-                jobsToBeFound.Add(openAPIJob);
-            }
-            jobsToBeFound.Reverse();
-            return jobsToBeFound;
-        }
-
-        #endregion private functions
-
     }
 }

@@ -709,6 +709,8 @@ namespace Helper
 
         /// <summary>
         /// Creates a random image and adds it to a property of the specified artifact.  Artifact will be locked and saved.
+        /// NOTE: This function will first search for a top-level property with the specified name, then if not found it will
+        /// look in the CustomPropertyValues and then SpecificPropertyValues.
         /// </summary>
         /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
         /// <param name="project">The project where the artifact exists.</param>

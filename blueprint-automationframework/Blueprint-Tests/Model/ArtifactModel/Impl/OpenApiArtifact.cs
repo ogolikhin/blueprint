@@ -229,7 +229,7 @@ namespace Model.ArtifactModel.Impl
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
-                UpdateArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+                UpdateArtifactDescription(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
             }
             else
             {
@@ -245,7 +245,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <param name="updateWithRandomDescription">(optional) Pass true if you want to generate a new random Description, or false to use the existing Description.</param>
-        public static void UpdateArtifact(IArtifactBase artifactToUpdate,
+        public static void UpdateArtifactDescription(IArtifactBase artifactToUpdate,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,

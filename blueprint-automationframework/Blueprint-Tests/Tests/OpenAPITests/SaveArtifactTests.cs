@@ -63,7 +63,7 @@ namespace OpenAPITests
             description.TextOrChoiceValue = I18NHelper.FormatInvariant("{0}{1}", description.TextOrChoiceValue, textToAppend);
 
             // Execute:
-            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, updateWithRandomDescription: false),
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifactDescription(openApiArtifact, _authorUser, updateWithRandomDescription: false),
                 "OpenAPI Save method shouldn't fail.");
 
             // Verify:
@@ -159,7 +159,7 @@ namespace OpenAPITests
             description.TextOrChoiceValue = description.TextOrChoiceValue.Replace(tempValue, imageIds[1]);
 
             // Execute:
-            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, updateWithRandomDescription: false),
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifactDescription(openApiArtifact, _authorUser, updateWithRandomDescription: false),
                 "OpenAPI Save method shouldn't fail.");
 
             // Verify:
@@ -210,8 +210,8 @@ namespace OpenAPITests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                OpenApiArtifact.UpdateArtifact(openApiArtifact1, _authorUser, updateWithRandomDescription: false);
-                OpenApiArtifact.UpdateArtifact(openApiArtifact2, _authorUser, updateWithRandomDescription: false);
+                OpenApiArtifact.UpdateArtifactDescription(openApiArtifact1, _authorUser, updateWithRandomDescription: false);
+                OpenApiArtifact.UpdateArtifactDescription(openApiArtifact2, _authorUser, updateWithRandomDescription: false);
             },
                 "OpenAPI Save method shouldn't fail.");
 
@@ -261,7 +261,7 @@ namespace OpenAPITests
             description.TextOrChoiceValue = description.TextOrChoiceValue.Replace(imageTag, string.Empty);
 
             // Execute:
-            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifact(openApiArtifact, _authorUser, updateWithRandomDescription: false),
+            Assert.DoesNotThrow(() => OpenApiArtifact.UpdateArtifactDescription(openApiArtifact, _authorUser, updateWithRandomDescription: false),
                 "OpenAPI Save method shouldn't fail.");
 
             // Verify:

@@ -272,6 +272,97 @@ describe("Controller: Jobs", () => {
         });
     });
 
+    describe("loadPage", () => {
+        it("updates total items retrieved from server call", () => {
+            // arrange
+            controller.paginationData.total = 0;
+
+            spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 100}));
+
+            // act
+            controller.loadPage(1);
+            $rootScope.$digest();
+
+            // assert
+            expect(controller.paginationData.total).toBe(100);
+        });
+        it("updates total items when returned value is null and on first page", () => {
+            // arrange
+            controller.paginationData.total = 100;
+            
+            spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 0}));
+
+            // act
+            controller.loadPage(1);
+            $rootScope.$digest();
+
+            // assert
+            expect(controller.paginationData.total).toBe(0);
+        });
+        it("does not update total items when returned value is null and not on first page", () => {
+            // arrange
+            controller.paginationData.total = 100;
+            
+            spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 0}));
+
+            // act
+            controller.loadPage(2);
+            $rootScope.$digest();
+
+            // assert
+            expect(controller.paginationData.total).toBe(100);
+        });
+    });
+
+    describe("showPagination", () => {
+        it("returns true when there are jobs and is not loading", () => {
+            // arrange
+            controller.jobs = [createJob(1, JobType.DocGen, JobStatus.Completed)];
+            controller.isLoading = false;
+
+            // act 
+            const result = controller.showPagination();
+
+            // assert
+            expect(result).toBe(true);
+        });
+        it("returns true when there are no jobs but is not on first page", () => {
+            // arrange
+            controller.jobs = [];
+            controller.isLoading = false;
+            controller.paginationData.page = 2;
+
+            // act 
+            const result = controller.showPagination();
+
+            // assert
+            expect(result).toBe(true);
+        });
+        it("returns false when there are jobs and is loading", () => {
+            // arrange
+            controller.jobs = [createJob(1, JobType.DocGen, JobStatus.Completed)];
+            controller.isLoading = true;
+
+            // act 
+            const result = controller.showPagination();
+
+            // assert
+            expect(result).toBe(false);
+        });
+        it("returns false when there are no jobs and on first page", () => {
+            // arrange
+            controller.jobs = [];
+            controller.paginationData.page = 1;
+            controller.isLoading = false;
+
+            // act 
+            const result = controller.showPagination();
+
+            // assert
+            expect(result).toBe(false);
+        });
+    });
+
     function createJob(id: number, type: JobType, status: JobStatus): IJobInfo {
         return {
             jobId: 1,

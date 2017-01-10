@@ -493,4 +493,18 @@ describe("Page Toolbar:", () => {
             }));
     });
 
+    describe("Generate->", () => {
+        it("can launce generate test cases artifact picker",
+            inject((dialogService: IDialogService) => {
+                // Arrange
+            const dialogServiceSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.resolve(); });
+
+            // Act
+            toolbarCtrl.generateTestCases(null);
+            $scope.$digest();
+
+            // Assert
+            expect(dialogServiceSpy).toHaveBeenCalled();
+            }));
+    });
 });

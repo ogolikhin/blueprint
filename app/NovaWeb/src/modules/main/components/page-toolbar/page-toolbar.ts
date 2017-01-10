@@ -287,9 +287,11 @@ export class PageToolbarController implements IPageToolbarController {
         };
         
         this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
-            items.forEach(item => {
-                console.log(item.id + " " + item.name);
-            });
+            if (items) {
+                items.forEach(item => {
+                    console.log(item.id + " " + item.name);
+                });
+            }
         });
     };
 

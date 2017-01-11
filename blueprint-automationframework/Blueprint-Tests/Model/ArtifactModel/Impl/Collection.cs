@@ -47,6 +47,9 @@ namespace Model.ArtifactModel.Impl
             {
                 SpecificPropertyValues.Add(collectionContentProperty);
             }
+            /* Collection object returned from the server has empty SpecificPropertyValues list
+            we use SpecificPropertyValues only to update list of artifacts
+            */
             else
             {
                 SpecificPropertyValues[0] = collectionContentProperty;

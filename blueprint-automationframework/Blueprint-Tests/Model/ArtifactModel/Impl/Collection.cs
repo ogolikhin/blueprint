@@ -15,7 +15,6 @@ namespace Model.ArtifactModel.Impl
 
         public bool IsCreated { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<CollectionItem> Artifacts { get; set; }
 
         /// <summary>

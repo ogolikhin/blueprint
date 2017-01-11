@@ -19,7 +19,6 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON Properties
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // 'set' is needed for deserialization.
         public List<OpenApiTrace> Traces { get; set; } = new List<OpenApiTrace>();
 
         #endregion Serialized JSON Properties
@@ -994,7 +993,6 @@ namespace Model.ArtifactModel.Impl
     {
         public int Id { get; set; }
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<OpenApiPropertyForUpdate> Properties { get; set; }
     }
 

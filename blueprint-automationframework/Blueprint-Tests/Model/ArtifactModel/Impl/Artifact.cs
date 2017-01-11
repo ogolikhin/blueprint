@@ -1017,9 +1017,7 @@ namespace Model.ArtifactModel.Impl
         public int ProjectId { get; set; }
         public int Version { get; set; }
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<PropertyForUpdate> CustomPropertyValues { get; set; }
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<PropertyForUpdate> SpecificPropertyValues { get; set; }
     }
 

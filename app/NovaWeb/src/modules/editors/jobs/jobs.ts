@@ -224,7 +224,7 @@ export class JobsController {
     }
 
     public canShowPagination(): boolean {        
-        return !this.isLoading && (this.containsMoreThanOnePage() || !this.isFirstPage());
+        return !this.isLoading && (!this.isFirstPage() || this.containsMoreThanOnePage());
     }
 
     private isFirstPage(): boolean {
@@ -232,7 +232,7 @@ export class JobsController {
     }
 
     private containsMoreThanOnePage(): boolean {
-        return this.isFirstPage() && this.paginationData.total > this.paginationData.pageSize;
+        return this.paginationData.total > this.paginationData.pageSize;
     }
 
     public $onDestroy() {

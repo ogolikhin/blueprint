@@ -30,17 +30,17 @@ namespace Model.Impl
         /// <summary>
         /// Maxumumn number of concurent Viewer licenses.
         /// </summary>
-        public int MaxConCurrentViewers { get; set; }
+        public int MaxConcurrentViewers { get; set; }
 
         /// <summary>
         /// Maxumumn number of concurent Author licenses.
         /// </summary>
-        public int MaxConCurrentAuthors { get; set; }
+        public int MaxConcurrentAuthors { get; set; }
 
         /// <summary>
         /// Maxumumn number of concurent Collaborator licenses.
         /// </summary>
-        public int MaxConCurrentCollaborators { get; set; }
+        public int MaxConcurrentCollaborators { get; set; }
 
         /// <summary>
         /// Number of users logged in from Analytics.

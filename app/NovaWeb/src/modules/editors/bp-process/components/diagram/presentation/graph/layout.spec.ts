@@ -61,7 +61,7 @@ describe("Layout test", () => {
         return processModel;
     };
 
-    let SelectNode = function (graph, node) {
+    const selectNode = function (graph, node) {
         const mxgraph = graph.getMxGraph();
         if (node) {
             const evt = {
@@ -1223,7 +1223,7 @@ describe("Layout test", () => {
             // Act
             graph.render(false, null);
             const userTask = graph.getNodeById("80");
-            SelectNode(graph, userTask);
+            selectNode(graph, userTask);
 
             const bridge = <HTMLImageElement>document.getElementsByClassName("process-graph__bridge")[0];
             const index = bridge.innerHTML.indexOf(".st2{fill:#");

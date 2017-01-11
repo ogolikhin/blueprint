@@ -16,10 +16,10 @@ class ConnectorLine {
 } 
 
 class Bridge {
-    constructor (x: number, y: number, image: HTMLDivElement, edgeH: MxCell, edgeV: MxCell) {
+    constructor (x: number, y: number, imageContainer: HTMLDivElement, edgeH: MxCell, edgeV: MxCell) {
         this.x = x;
         this.y = y;
-        this.image = image;
+        this.imageContainer = imageContainer;
         this.hEdges = [];
         this.vEdges = [];
         this.hEdges.push(edgeH);
@@ -37,7 +37,7 @@ class Bridge {
 
     x: number;
     y: number;
-    image: HTMLDivElement;
+    imageContainer: HTMLDivElement;
     hEdges: MxCell[];
     vEdges: MxCell[];
 }
@@ -114,7 +114,7 @@ export class BridgesHandler implements IBridgesHandler {
                     st3 = "none"; //stateV.shape.stroke;
                 }
             }
-            bridge.image.innerHTML = this.getSvgImageSrc(st2, st3);
+            bridge.imageContainer.innerHTML = this.getSvgImageSrc(st2, st3);
         }
     }
     
@@ -161,17 +161,17 @@ export class BridgesHandler implements IBridgesHandler {
 
     private addBridgeImage(graph: MxGraph, x: number, y: number): HTMLDivElement {
         const div = graph.container;
-        const image =  document.createElement("div");
-        image.style.position = "absolute";
-        image.style.width = "16px";
-        image.style.height = "16px";
-        image.style.top = `${y - 8}px`;
-        image.style.left = `${x - 7.5}px`;
-        image.className = "process-graph__bridge";
-        div.appendChild(image);
-        image.innerHTML = this.getSvgImageSrc(mxConstants.DEFAULT_VALID_COLOR, mxConstants.DEFAULT_VALID_COLOR);
+        const imageContainer =  document.createElement("div");
+        imageContainer.style.position = "absolute";
+        imageContainer.style.width = "16px";
+        imageContainer.style.height = "16px";
+        imageContainer.style.top = `${y - 8}px`;
+        imageContainer.style.left = `${x - 7.5}px`;
+        imageContainer.className = "process-graph__bridge";
+        div.appendChild(imageContainer);
+        imageContainer.innerHTML = this.getSvgImageSrc(mxConstants.DEFAULT_VALID_COLOR, mxConstants.DEFAULT_VALID_COLOR);
 
-        return image;
+        return imageContainer;
     }
 }
 

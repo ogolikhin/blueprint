@@ -176,24 +176,24 @@ namespace AccessControlTests
         /// <summary>
         /// Verifying couple of elements in the response list
         /// </summary>
-        /// <param name="response">Call response</param>
+        /// <param name="licenseUsageInfo">License usage information broken down by months</param>
         /// <param name="isEmpty">Verifies if the response empty</param>
         /// <param name="offset">Offset from the total response</param>
-        private static void VerifySomeProperties(IList<LicenseUsage> response, bool isEmpty, int offset)
+        private static void VerifySomeProperties(IList<LicenseUsage> licenseUsageInfo, bool isEmpty, int offset)
         {
-            Assert.IsNotNull(response, "There is no response object created!");
+            Assert.IsNotNull(licenseUsageInfo, "License usage information should ever be null!");
 
             if (!isEmpty)
             {
-                Assert.IsTrue(response[2 - offset].ActivityMonth.Equals(11), "The month should be 11!");
-                Assert.IsTrue(response[2 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
-                Assert.IsTrue(response[2 - offset].MaxConcurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
-                Assert.IsTrue(response[2 - offset].UniqueAuthors.Equals(2), "UniqueAuthors should be 2");
+                Assert.IsTrue(licenseUsageInfo[2 - offset].ActivityMonth.Equals(11), "The month should be 11!");
+                Assert.IsTrue(licenseUsageInfo[2 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
+                Assert.IsTrue(licenseUsageInfo[2 - offset].MaxConcurrentAuthors.Equals(1), "MaxconCurrentAuthors should be 1!");
+                Assert.IsTrue(licenseUsageInfo[2 - offset].UniqueAuthors.Equals(2), "UniqueAuthors should be 2");
 
-                Assert.IsTrue(response[3 - offset].ActivityMonth.Equals(12), "The month should be 12!");
-                Assert.IsTrue(response[3 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
-                Assert.IsTrue(response[3 - offset].MaxConcurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
-                Assert.IsTrue(response[3 - offset].UniqueAuthors.Equals(1), "UniqueAuthors should be 2");
+                Assert.IsTrue(licenseUsageInfo[3 - offset].ActivityMonth.Equals(12), "The month should be 12!");
+                Assert.IsTrue(licenseUsageInfo[3 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
+                Assert.IsTrue(licenseUsageInfo[3 - offset].MaxConcurrentAuthors.Equals(1), "MaxConcurrentAuthors should be 1!");
+                Assert.IsTrue(licenseUsageInfo[3 - offset].UniqueAuthors.Equals(1), "UniqueAuthors should be 2");
             }
             else
             {

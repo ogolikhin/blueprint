@@ -112,7 +112,7 @@ namespace AccessControlTests
         [TestCase(null, null)]
         [TestCase(10, null)]
         [TestCase(null, 2016)]
-        [TestCase(10, 2016)]
+        [TestCase(9, 2016)]
         [TestCase(10, 2116)]
         [TestRail(227232)]
         [Description("Check that GET info about license transactions returns 200 OK")]
@@ -133,7 +133,7 @@ namespace AccessControlTests
 
         //        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(-1, null)]
-        [TestCase(12, 3000)]
+        [TestCase(12, 2016)]
         [TestRail(0)]
         [Description("Tries to retrieve license usage information by passing out of range month parameter. Verify GetLicenseUsage returns 404 Not Found")]
         public void GetLicenseUsageInfo_MonthOutOfRange_404NotFound(int? month, int? year)
@@ -142,7 +142,7 @@ namespace AccessControlTests
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
                 Helper.AccessControl.GetLicenseUsage(month, year), "'GET {0}' should return 404 Not Found if parameters out of range!", path);
 
             // Verify:
@@ -159,7 +159,7 @@ namespace AccessControlTests
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
                 Helper.AccessControl.GetLicenseUsage(month, year), "'GET {0}' should return 404 Not Found if parameters out of range!", path);
 
             // Verify:

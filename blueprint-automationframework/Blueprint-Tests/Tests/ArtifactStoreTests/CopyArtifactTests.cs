@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using CustomAttributes;
 using Helper;
@@ -16,7 +15,6 @@ using System.Linq;
 using Common;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {

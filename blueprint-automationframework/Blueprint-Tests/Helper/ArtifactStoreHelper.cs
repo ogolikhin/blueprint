@@ -1401,7 +1401,6 @@ namespace Helper
 
         public class ChoiceValues
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("validValues")]
             public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
 
@@ -1411,7 +1410,6 @@ namespace Helper
 
         public class UserGroupValues
         {
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("usersGroups")]
             public List<Identification> UsersGroups { get; set; }
 

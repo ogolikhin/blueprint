@@ -97,7 +97,6 @@ namespace Model
         /// </summary>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A JSON structure containing the status of all dependent services.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         string GetStatus(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -106,7 +105,6 @@ namespace Model
         /// </summary>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Status of File Store service.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")] // Ignore this warning.
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

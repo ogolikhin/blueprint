@@ -33,23 +33,18 @@ namespace Model.ArtifactModel.Impl
         public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // Setter needed for deserialization.
         // Setter needed for deserialization.
         public List<CustomProperty> CustomPropertyValues { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // Setter needed for deserialization.
         // Setter needed for deserialization.
         public List<CustomProperty> SpecificPropertyValues { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // Setter needed for deserialization.
         public List<NovaTrace> Traces { get; set; }
 
         public ItemTypePredefined? PredefinedType { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // Setter needed for deserialization.
         public List<AttachmentValue> AttachmentValues { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // Setter needed for deserialization.
         public List<NovaDocumentReference> DocRefValues { get; set; }
 
         #endregion Serialized JSON properties

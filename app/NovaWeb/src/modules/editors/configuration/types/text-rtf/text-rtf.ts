@@ -422,7 +422,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             filesize = Helper.maxAttachmentFilesizeDefault;
         }
 
-        const maxNumOfImages = this.settingsService.getNumber("MaxNumberRtfImages", 10);
+        const maxNumOfImages = this.settingsService.getNumber("MaxNumberEmbeddedImages", 10);
         const dialogData: IUploadStatusDialogData = {
             files: [file],
             maxAttachmentFilesize: filesize,

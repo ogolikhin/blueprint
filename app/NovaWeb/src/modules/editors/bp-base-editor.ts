@@ -44,13 +44,13 @@ export class BpBaseEditor {
                 }
             );
         }
-        
+
         this.subscribers = undefined;
     }
 
     protected onArtifactChanged = () => {
         this.onArtifactReady();
-    }
+    };
 
     protected onArtifactReady() {
         this.isLoading = false;

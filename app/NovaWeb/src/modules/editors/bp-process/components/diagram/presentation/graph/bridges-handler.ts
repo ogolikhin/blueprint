@@ -16,10 +16,10 @@ class ConnectorLine {
 } 
 
 class Bridge {
-    constructor (x: number, y: number, image: HTMLElement, edgeH: MxCell, edgeV: MxCell) {
+    constructor (x: number, y: number, imageContainer: HTMLDivElement, edgeH: MxCell, edgeV: MxCell) {
         this.x = x;
         this.y = y;
-        this.image = image;
+        this.imageContainer = imageContainer;
         this.hEdges = [];
         this.vEdges = [];
         this.hEdges.push(edgeH);
@@ -37,7 +37,7 @@ class Bridge {
 
     x: number;
     y: number;
-    image: HTMLElement;
+    imageContainer: HTMLDivElement;
     hEdges: MxCell[];
     vEdges: MxCell[];
 }
@@ -114,8 +114,7 @@ export class BridgesHandler implements IBridgesHandler {
                     st3 = "none"; //stateV.shape.stroke;
                 }
             }
-            const src = this.getSvgImageSrc(st2, st3);
-            bridge.image.setAttribute("src", src); 
+            bridge.imageContainer.innerHTML = this.getSvgImageSrc(st2, st3);
         }
     }
     
@@ -135,48 +134,44 @@ export class BridgesHandler implements IBridgesHandler {
     }
 
     private getSvgImageSrc(st2: string, st3: string): string {
-        return `data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" 
-        xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" 
-        width="300" height="300"><rect id="backgroundrect" width="100%" height="100%" x="0" y="0" fill="none" stroke="none"/>
+        return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" xml:space="preserve" 
+        width="16px" height="16px" viewBox="0 0 300 300" class="width: 16px; height: 16px;">
         <style type="text/css">
             .st0{fill:none;}
             .st1{fill:#FFFFFF;}
             .st2{fill:${st2};}
             .st3{fill:${st3};}
         </style>
-        <g class="currentLayer"><rect class="st3" stroke-dashoffset="" fill-rule="nonzero" id="svg_11" x="120" y="88" width="65" height="100"/>
-        <g id="Layer_3" class="">
-        <rect class="st0" width="300" height="300" id="svg_1" y="0" x="0.6578947305679321"/>
+        <g class="currentLayer"><title>Layer 1</title><rect fill=${st3} stroke-dashoffset="" fill-rule="nonzero" id="svg_11" 
+        x="106.76315307617188" y="88.71052551269531" width="85.78947448730469" height="100" style="color: rgb(0, 0, 0);" />
+        <g id="Layer_3" ><rect class="st0" width="300" height="300" id="svg_1" y="0" x="0.6578947305679321"/>
         </g><path class="st1" d="M232.5,129.5c0,0-46-34.3-82.2-34.3c-37.8,0-84.6,29.1-84.6,29.1L48,33c0,0,27.5-31.9,102-31.9  
-        C225,1.1,251,39,251,39L232.5,129.5z" id="svg_2"/>
-        <rect class="st1" x="185" y="90" width="76" height="105" />
-        <rect class="st1" x="40" y="90"   width="76" height="105" />
-        <path class="st2" 
+        C225,1.1,251,39,251,39L232.5,129.5z" id="svg_2"/><rect fill="#ffffff" stroke="#ffffff" stroke-dashoffset="" fill-rule="nonzero" id="svg_4" 
+        x="184.11403906345367" y="90.26315307617188" width="76" height="97.73684692382812" style="color: rgb(0, 0, 0);"  
+        stroke-opacity="1"/><rect fill="#ffffff" stroke="#ffffff" stroke-dashoffset="" fill-rule="nonzero" x="40.72807061672211" y="89.60525512695312" 
+        width="76" height="97.73684692382812" style="color: rgb(0, 0, 0);" stroke-opacity="1" id="svg_7"/><path fill=${st2} 
         d="M280.9,114c-16-41-56.9-93.8-131.1-93.8C72.2,20.2,31,68,16.6,113H0v75h23.1c0,0,0.1,0,0.1,0.1l49.1,0  c-6.7-11.4-10.4-24.3-10.4-38.1c0-44.7,
-        32.1-80.3,86.5-80.3c58.7,0,90.1,35.6,90.1,80.3c0,13.9-3.7,26.9-10.4,38.3l19.9,0V188h52  v-74H280.9z" id="svg_3"/>
-        <path fill="" stroke-dashoffset="" fill-rule="nonzero" marker-start="" marker-mid="" marker-end="" id="svg_9" 
-        d="M194.5486905700087,148.17502788322489 L194.8980155857922,
-        148.17502788322489 L194.8980155857922,148.5243528990084 L194.5486905700087,148.5243528990084 L194.5486905700087,
-        148.17502788322489 zM194.58944515518343,147.86645745261615 L194.58944515518343,148.13427329805015 L194.85726100061746,
-        148.13427329805015 L194.85726100061746,147.86645745261615 L194.58944515518343,147.86645745261615 z" style="color: rgb(0, 0, 0);" 
-        class=""/></g></svg>`;
+        32.1-80.3,86.5-80.3c58.7,0,90.1,35.6,90.1,80.3c0,13.9-3.7,26.9-10.4,38.3l19.9,0V188h52  v-74H280.9z" id="svg_3"/><path fill="" stroke-dashoffset="" 
+        fill-rule="nonzero" marker-start="" marker-mid="" marker-end="" id="svg_9" d="M194.5486905700087,148.17502788322489 
+        L194.8980155857922,148.17502788322489 L194.8980155857922,148.5243528990084 L194.5486905700087,148.5243528990084 
+        L194.5486905700087,148.17502788322489 zM194.58944515518343,147.86645745261615 L194.58944515518343,148.13427329805015 
+        L194.85726100061746,148.13427329805015 L194.85726100061746,147.86645745261615 L194.58944515518343,147.86645745261615 z" 
+        style="color: rgb(0, 0, 0);" /></g></svg>`;
     }
 
-    private addBridgeImage(graph: MxGraph, x: number, y: number): HTMLElement {
+    private addBridgeImage(graph: MxGraph, x: number, y: number): HTMLDivElement {
         const div = graph.container;
-        const image =  document.createElement("img");
-        const src = this.getSvgImageSrc( mxConstants.DEFAULT_VALID_COLOR,  
-                                                         mxConstants.DEFAULT_VALID_COLOR);
+        const imageContainer =  document.createElement("div");
+        imageContainer.style.position = "absolute";
+        imageContainer.style.width = "16px";
+        imageContainer.style.height = "16px";
+        imageContainer.style.top = `${y - 8}px`;
+        imageContainer.style.left = `${x - 7.5}px`;
+        imageContainer.className = "process-graph__bridge";
+        div.appendChild(imageContainer);
+        imageContainer.innerHTML = this.getSvgImageSrc(mxConstants.DEFAULT_VALID_COLOR, mxConstants.DEFAULT_VALID_COLOR);
 
-        image.setAttribute("src", src);
-        image.style.position = "absolute";
-        image.style.width = "16px";
-        image.style.height = "16px";
-        image.style.top = `${y - 8}px`;
-        image.style.left = `${x - 7.5}px`;
-        div.appendChild(image);
-
-        return image;
+        return imageContainer;
     }
 }
 

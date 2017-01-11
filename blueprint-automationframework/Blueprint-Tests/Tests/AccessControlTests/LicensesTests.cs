@@ -5,6 +5,7 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
 
 namespace AccessControlTests
 {
@@ -12,6 +13,9 @@ namespace AccessControlTests
     [Category(Categories.AccessControl)]
     public class LicensesTests : TestBase
     {
+        private const string YEAR_IS_INVALID = "Specified year is invalid";
+        private const string MONTH_IS_INVALID = "Specified month is invalid";
+
         private IUser _user = null;
 
         [SetUp]
@@ -27,6 +31,8 @@ namespace AccessControlTests
             Logger.WriteTrace("TearDown() is deleting all sessions created by the tests...");
             Helper?.Dispose();
         }
+
+        #region Private functions
 
         /// <summary>
         /// Adds (POST's) the specified session to the AccessControl service.
@@ -58,6 +64,10 @@ namespace AccessControlTests
             return AddSessionToAccessControl(session);
         }
 
+        #endregion Private functions
+
+        #region GetLicensesInfo tests
+
         [TestCase]
         [TestRail(96107)]
         [Description("Check that GET active licenses info returns 200 OK")]
@@ -84,6 +94,10 @@ namespace AccessControlTests
             });
         }
 
+        #endregion GetLicensesInfo tests
+
+        #region GetLicenseTransactions tests
+
         [TestCase]
         [TestRail(96109)]
         [Description("Check that GET info about license transactions returns 200 OK")]
@@ -103,16 +117,18 @@ namespace AccessControlTests
             });
         }
 
-        #region License Usage"
+        #endregion GetLicenseTransactions tests
 
-        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
+        #region GetLicenseUsage tests
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(null, null)]
         [TestCase(10, null)]
         [TestCase(null, 2016)]
         [TestCase(10, 2016)]
         [TestRail(227232)]
-        [Description("Check that GET info about license transactions returns 200 OK")]
-        public void GetLicenseUsage_WithMonthAndYear_VerifyUsageDataReturned(int? month, int? year)
+        [Description("Pass valid month and/or year values to GetLicenseUsage and verify it returns 200 OK with the correct usage data.")]
+        public void GetLicenseUsage_WithValidMonthAndYear_VerifyUsageDataReturned(int? month, int? year)
         {
             // Setup:
 
@@ -126,6 +142,28 @@ namespace AccessControlTests
 
         }
 
-        #endregion License Usage"
+        [TestCase(10, -1, YEAR_IS_INVALID)]
+        [TestCase(10, 0, YEAR_IS_INVALID)]
+        [TestCase(10, 9999, YEAR_IS_INVALID)]
+        [TestCase(-1, 2016, MONTH_IS_INVALID)]
+        [TestCase(12, 2016, MONTH_IS_INVALID)]
+        [TestRail(227249)]
+        [Description("Pass invalid month or year values to GetLicenseUsage and verify it returns 400 Bad Request.")]
+        public void GetLicenseUsage_WithInvalidMonthOrYear_400BadRequest(int month, int year, string expectedError)
+        {
+            // Setup: None
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AccessControl.GetLicenseUsage(month, year);
+            });
+
+            // Verify:
+            StringAssert.Contains(expectedError, ex.RestResponse.Content,
+                "The response body should contain the error: '{0}'", expectedError);
+        }
+
+        #endregion GetLicenseUsage tests
     }
 }

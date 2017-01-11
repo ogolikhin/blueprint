@@ -6,24 +6,50 @@ namespace Model.Impl
     {
         #region Properties
 
+        /// <summary>
+        /// Month.
+        /// </summary>
         public int ActivityMonth { get; set; }
+
+        /// <summary>
+        /// Year.
+        /// </summary>
         public int ActivityYear { get; set; }
-        public int UniqueViewers { get; set; }
+
+        /// <summary>
+        /// Number of unique authors who have accessed BP in a given month
+        /// </summary>
         public int UniqueAuthors { get; set; }
+
+        /// <summary>
+        /// Number of unique collaborators who have accessed BP in a given month
+        /// </summary>
         public int UniqueCollaborators { get; set; }
+
+        /// <summary>
+        /// Maxumumn number of concurent Viewer licenses.
+        /// </summary>
         public int MaxConCurrentViewers { get; set; }
+
+        /// <summary>
+        /// Maxumumn number of concurent Author licenses.
+        /// </summary>
         public int MaxConCurrentAuthors { get; set; }
+
+        /// <summary>
+        /// Maxumumn number of concurent Collaborator licenses.
+        /// </summary>
         public int MaxConCurrentCollaborators { get; set; }
+
+        /// <summary>
+        /// Number of users logged in from Analytics.
+        /// </summary>
         public int UsersFromAnalytics { get; set; }
+
+        /// <summary>
+        /// Number of users logged in from RestAPI.
+        /// </summary>
         public int UsersFromRestApi { get; set; }
-        public int RegisteredAuthorsCreated { get; set; }
-        public int RegisteredCollaboratorsCreated { get; set; }
-        public int AuthorsCreatedtodate { get; set; }
-        public int CollaboratorsCreatedtodate { get; set; }
-        public int AuthorsActive { get; set; }
-        public int AuthorsActiveLoggedOn { get; set; }
-        public int CollaboratorsActive { get; set; }
-        public int CollaboratorsActiveLoggedOn { get; set; }
 
         #endregion Properties
     }

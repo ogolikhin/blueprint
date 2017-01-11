@@ -267,17 +267,22 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAccessControl.GetLicenseUsage(int?, int?, List{HttpStatusCode})"/>
-        public IList<LicenseUsage> GetLicenseUsage(int? month = null, int? year = null, List < HttpStatusCode> expectedStatusCodes = null)
+        public IList<LicenseUsage> GetLicenseUsage(int? month = null, int? year = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
 
-            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            var queryParameters = new Dictionary<string, string>();
+
             if (month != null)
+            {
                 queryParameters.Add("month", month.ToString());
+            }
 
             if (year != null)
+            {
                 queryParameters.Add("year", year.ToString());
+            }
 
             try
             {

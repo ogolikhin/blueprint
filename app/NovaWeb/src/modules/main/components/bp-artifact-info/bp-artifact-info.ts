@@ -50,7 +50,6 @@ enum InfoBannerEnum {
 export class BpArtifactInfo implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactInfoController;
-    public transclude: boolean = true;
 }
 
 export class BpArtifactInfoController {

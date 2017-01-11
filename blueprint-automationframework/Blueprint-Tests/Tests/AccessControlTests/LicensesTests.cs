@@ -204,6 +204,5 @@ namespace AccessControlTests
         #endregion Private functions
 
         #endregion GetLicenseUsage tests
-
     }
 }

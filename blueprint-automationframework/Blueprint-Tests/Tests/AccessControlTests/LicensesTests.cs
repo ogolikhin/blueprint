@@ -144,7 +144,7 @@ namespace AccessControlTests
 
         [TestCase(10, -1, YEAR_IS_INVALID)]
         [TestCase(10, 0, YEAR_IS_INVALID)]
-        [TestCase(10, 9999, YEAR_IS_INVALID, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // https://trello.com/c/AtrPck66  Returns 500 error.
+        [TestCase(10, 9999, YEAR_IS_INVALID)]
         [TestCase(-1, 2016, MONTH_IS_INVALID)]
         [TestCase(12, 2016, MONTH_IS_INVALID)]
         [TestRail(227249)]

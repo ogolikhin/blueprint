@@ -315,16 +315,17 @@ describe("Controller: Jobs", () => {
     });
 
     describe("showPagination", () => {
-        it("returns true when there are jobs and is not loading", () => {
+        it("returns false when there are jobs but does not exceed page size and is not loading", () => {
             // arrange
             controller.jobs = [createJob(1, JobType.DocGen, JobStatus.Completed)];
             controller.isLoading = false;
-
+            controller.paginationData.total = 1;
+            controller.paginationData.pageSize = 10;
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
-            expect(result).toBe(true);
+            expect(result).toBe(false);
         });
         it("returns true when there are no jobs but is not on first page", () => {
             // arrange
@@ -333,7 +334,7 @@ describe("Controller: Jobs", () => {
             controller.paginationData.page = 2;
 
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
             expect(result).toBe(true);
@@ -344,7 +345,7 @@ describe("Controller: Jobs", () => {
             controller.isLoading = true;
 
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
             expect(result).toBe(false);
@@ -356,7 +357,7 @@ describe("Controller: Jobs", () => {
             controller.isLoading = false;
 
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
             expect(result).toBe(false);

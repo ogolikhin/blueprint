@@ -44,8 +44,7 @@ export class OpenProjectController extends BaseDialogController {
             const virtualDiv = window.document.createElement("DIV");
             virtualDiv.innerHTML = description;
 
-            description = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
-
+            description = Helper.stripWingdings(virtualDiv.innerHTML);
             description = String(description).replace(/<[^>]+>/gm, "");
         }
 

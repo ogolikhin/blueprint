@@ -156,11 +156,11 @@ namespace AccessControl.Controllers
             try
             {
                 //parameter constrain
-                if ((month.HasValue && (month.Value < 0 || month.Value > maxMonth)) )
+                if ((month.HasValue && (month < 0 || month > maxMonth)) )
                 {
                     return BadRequest("Specified month is invalid");
                 }
-                if (year.HasValue && (year < minYear || month.Value > maxYear))
+                if (year.HasValue && (year < minYear || year > maxYear))
                 {
                     return BadRequest("Specified year is invalid");
                 }

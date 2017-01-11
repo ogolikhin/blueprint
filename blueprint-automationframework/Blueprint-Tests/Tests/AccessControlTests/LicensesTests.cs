@@ -127,7 +127,7 @@ namespace AccessControlTests
 
         [TestCase(null, null, false, 0)]
         [TestCase(9, 2016, false, 1)]
-        [TestCase(10, 2116, true)]
+        [TestCase(10, 2116, true, 2)]
         [TestCase(10, 1999, false, 0)]
         [TestRail(227232)]
         [Description("Pass valid month and/or year values to GetLicenseUsage and verify it returns 200 OK with the correct usage data.")]

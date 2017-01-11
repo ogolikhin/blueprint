@@ -1,6 +1,7 @@
 ﻿using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Enums;
+using Model.JobModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -247,8 +248,8 @@ namespace Model
         /// <param name="pageSize">(optional) The maximum number of jobs on each page.</param>
         /// <param name="jobType">(optional) The job type that user can filter with. If null, returns all jobs without filtering</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
-        /// <returns>List of JobInfo</returns>
-        List<IJobInfo> GetJobs(IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>JobResult</returns>
+        JobResult GetJobs(IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Get a job for the user

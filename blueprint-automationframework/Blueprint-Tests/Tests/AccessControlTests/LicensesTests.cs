@@ -197,7 +197,7 @@ namespace AccessControlTests
             }
             else
             {
-                Assert.IsEmpty(response);
+                Assert.IsEmpty(licenseUsageInfo);
             }
         }
 

@@ -580,7 +580,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
             return returnedJobResult;
         }

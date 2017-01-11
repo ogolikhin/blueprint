@@ -84,6 +84,54 @@ namespace AdminStoreTests
             AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: jobsToBeFound);
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopment)] 
+        // TODO: There is no easy way to create job(s) that visible for the user used for the test and that prevents writing validation step for this tests
+        // TODO: Will work on this as tech debt so that we can create a author user with access to ALM target by injecting SQL query
+        [TestCase(DEFAULT_BASELINEORREVIEWID, 10, 4)]
+        [TestRail(000)]
+        [Description("GET Jobs that returns multiple pages for JobResult. Verify that number of result items matches with expecting search result items.")]
+        public void GetJobs_GetJobsReturnsMultiplePages_VerifyResultItemCountWithExpected(
+            int baselineOrReviewId,
+            int numberOfJobsToBeCreated,
+            int pageSize
+            )
+        {
+            // Setup: Create ALM Change Summary jobs
+            var jobsToBeFound = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _authorUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+
+            // Calculate expecting job result counts
+            var expectedJobResultCount = jobsToBeFound.Count();
+            var expectedPageCount = (expectedJobResultCount % pageSize).Equals(0) ? expectedJobResultCount / pageSize : expectedJobResultCount / pageSize + 1;
+            jobsToBeFound.Reverse();
+            var expectedJobsStack = new Stack<IOpenAPIJob>(jobsToBeFound);
+
+            // Execute: Execute GetJobs with page and pageSize
+            var returnedJobCount = 0;
+            var pageCount = 1;
+            while ( pageCount <= expectedPageCount)
+            {
+                // Execute GetJobs with page and pageSize
+                JobResult jobResult = null;
+                Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(user: _authorUser, page: pageCount, pageSize: pageSize, jobType: JobType.HpAlmRestChangeSummary),
+                    "GET {0} call failed when using it with page ({1}) and pageSize ({2})!", JOBS_PATH, pageCount, pageSize);
+
+                // Adds job result per page into returned job count
+                returnedJobCount += jobResult.JobInfos.Count();
+
+                // Create a job list per page, decending ordered by Job Id
+                List<IOpenAPIJob> pagedJobs = CreateJobListPerPage(expectedJobsStack, pageSize);
+
+                // Validation: Verify that jobResult contains list of expectedJobs
+                AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: pagedJobs);
+
+                pageCount++;
+            }
+
+            // Validation: Verify that expected job count is equal to returned job count
+            Assert.That(returnedJobCount.Equals(expectedJobResultCount),
+                "Expected job result count is {0} but {1} was returned", expectedJobResultCount, returnedJobCount);
+        }
+
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
         [TestRail(227082)]
         [Description("GET Jobs using the jobType that doesn't match with jobs created for the test. Verify that the returned empty JobResult.")]
@@ -312,5 +360,27 @@ namespace AdminStoreTests
         }
 
         #endregion 404 Not Found Tests
+
+        #region private functions
+
+        /// <summary>
+        /// Creates the jobs list per page with job list decending ordered by Job Id
+        /// </summary>
+        /// <param name="jobStack">a stack of job descending ordered by Job Id</param>
+        /// <param name="pageSize">maximum number of jobs that will be on the paged job list</param>
+        private static List<IOpenAPIJob> CreateJobListPerPage(Stack<IOpenAPIJob> jobStack, int pageSize)
+        {
+            List<IOpenAPIJob> pagedJobs = new List<IOpenAPIJob>();
+            for (int i = 0; i < pageSize; i++)
+            {
+                if (jobStack.Any())
+                {
+                    pagedJobs.Add(jobStack.Pop());
+                }
+            }
+            return pagedJobs;
+        }
+
+        #endregion private functions
     }
 }

@@ -16,7 +16,7 @@ namespace Helper
         /// </summary>
         /// <param name="jobResult">The jobResult from Nova GET jobs call in decending order by jobId</param>
         /// <param name="pageSize"> pageSize value that indicates number of items that get displayed per page</param>
-        /// <param name="expectedJobs"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, job content validation step gets skipped.</param>
+        /// <param name="expectedJobs"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, it verifies that jobResult.JobInfos is empty</param>
         public static void JobResultValidation(JobResult jobResult,
             int pageSize,
             List<IOpenAPIJob> expectedJobs = null
@@ -62,6 +62,7 @@ namespace Helper
                 Assert.AreEqual(0, jobInfoList.Count(),
                     "The jobInfos from jobResult should be empty when expected return result is empty but the response from the Nova GET job or jobs call returns {0} results",
                     jobInfoList.Count());
+                Assert.AreEqual(0, jobResult.TotalJobCount, "The totalJobCount should be 0 when expected return result is empty but the response from the Nova GET job or jobs call returns {0}", jobResult.TotalJobCount);
             }
 
             // Validation: Verify that jobResult uses pageSize values passed as optional parameters
@@ -83,7 +84,7 @@ namespace Helper
             jobResult.JobInfos = jobInfoList;
             jobResult.TotalJobCount = 0;
 
-            JobResultValidation(jobResult, 1, new List<IOpenAPIJob>() { expectedJob });
+            JobResultValidation(jobResult: jobResult, pageSize: 1, expectedJobs: new List<IOpenAPIJob>() { expectedJob });
         }
     }
 }

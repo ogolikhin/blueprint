@@ -126,6 +126,18 @@ namespace AdminStore.Repositories.Jobs
             }
         }
 
+        public async Task<DJobMessage> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+            int? projectId, string projectLabel)
+        {
+            int? userId = null;
+            string userName = null;
+            string hostUri = null;
+
+            return await AddJobMessage(type, hidden, parameters, 
+                receiverJobServiceId, projectId, projectLabel, 
+                userId, userName, hostUri);
+        }
+
         #endregion
 
         #region Private Methods
@@ -277,6 +289,40 @@ namespace AdminStore.Repositories.Jobs
 
             return projectNameIdDictionary;
         }
+
+        private async Task<DJobMessage> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+            int? projectId, string projectLabel, int? userId, string userName, string hostUri)
+        {
+
+            var param = new DynamicParameters();
+
+            param.Add("@type", (long)type);
+            param.Add("@hidden", hidden);
+            param.Add("@parameters", parameters ?? (object)DBNull.Value);
+            param.Add("@receiverJobServiceId", receiverJobServiceId ?? (object)DBNull.Value);
+            param.Add("@userId", userId ?? (object)DBNull.Value);
+            param.Add("@userLogin", userName ?? (object)DBNull.Value);
+            param.Add("@projectId", projectId ?? (object)DBNull.Value);
+            param.Add("@projectLabel", projectLabel ?? (object)DBNull.Value);
+            param.Add("@hostUri", (hostUri == null) ? (object)DBNull.Value : hostUri);
+
+            try
+            {
+                return (await ConnectionWrapper.QueryAsync<DJobMessage>("AddJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            }
+            catch (SqlException sqlException)
+            {
+                switch (sqlException.Number)
+                {
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                }
+
+                throw;
+            }
+        }
+
 
         #endregion
     }

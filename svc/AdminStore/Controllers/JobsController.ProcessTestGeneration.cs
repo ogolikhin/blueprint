@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
 
 namespace AdminStore.Controllers
@@ -22,14 +26,41 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("process/testgen"), SessionRequired]
         [ResponseType(typeof(ProcessTestGenerationResult))]
-        public async Task<IHttpActionResult> GenerateProcessTests([FromBody] ProcessTestGenerationRequest request)
+        public async Task<IHttpActionResult> QueueGenerateProcessTestsJob([FromBody] ProcessTestGenerationRequest request)
         {
-            await Task.FromResult(true);
+            ValidateRequest(request);
+
+            var parameters = SerializationHelper.ToXml(request);
+
+            var queuedJob = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
+                false, 
+                parameters , 
+                null, 
+                request.ProjectId,
+                request.ProjectName);
+
+            if (queuedJob == null)
+            {
+                return InternalServerError();
+            }
 
             return Ok(new ProcessTestGenerationResult
 	        {
-	            JobId = -1
+	            JobId = queuedJob.JobMessageId,
+
 	        });
 	    }
-	}
+
+        #region private methods
+
+	    void ValidateRequest(ProcessTestGenerationRequest request)
+	    {
+	        if (request?.Processes == null || !request.Processes.Any() || request.ProjectId <= 0)
+	        {
+	            throw new BadRequestException();
+	        }
+	    }
+
+	    #endregion
+    }
 }

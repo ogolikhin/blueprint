@@ -127,7 +127,7 @@ namespace AccessControlTests
 
         [TestCase(null, null, false, 0)]
         [TestCase(9, 2016, false, 1)]
-        [TestCase(10, 2116, true, 2)]
+        [TestCase(10, 2116, true)]
         [TestCase(10, 1999, false, 0)]
         [TestRail(227232)]
         [Description("Pass valid month and/or year values to GetLicenseUsage and verify it returns 200 OK with the correct usage data.")]
@@ -180,12 +180,12 @@ namespace AccessControlTests
             {
                 Assert.IsTrue(response[2 - offset].ActivityMonth.Equals(11), "The month should be 11!");
                 Assert.IsTrue(response[2 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
-                Assert.IsTrue(response[2 - offset].MaxConCurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
+                Assert.IsTrue(response[2 - offset].MaxConcurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
                 Assert.IsTrue(response[2 - offset].UniqueAuthors.Equals(2), "UniqueAuthors should be 2");
 
                 Assert.IsTrue(response[3 - offset].ActivityMonth.Equals(12), "The month should be 12!");
                 Assert.IsTrue(response[3 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
-                Assert.IsTrue(response[3 - offset].MaxConCurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
+                Assert.IsTrue(response[3 - offset].MaxConcurrentAuthors.Equals(1), "MaxConCurrentAuthors should be 1!");
                 Assert.IsTrue(response[3 - offset].UniqueAuthors.Equals(1), "UniqueAuthors should be 2");
             }
             else

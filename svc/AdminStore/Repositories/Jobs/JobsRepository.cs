@@ -61,10 +61,9 @@ namespace AdminStore.Repositories.Jobs
             var actualUserId = await GetActualUserId(userId);
             var jobResult = new JobResult();
             var dJobMessages = (await GetJobMessages(actualUserId, offset, limit, jobType, false)).ToList();
-            if (dJobMessages.Any())
-            {
-                jobResult.TotalJobCount = dJobMessages.FirstOrDefault().TotalCount;
-            }
+
+            jobResult.TotalJobCount = dJobMessages.Any() ? dJobMessages.FirstOrDefault().TotalCount : 0;
+
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(dJobMessages.Select(job => job.JobMessageId), true);
             var projectIds = new HashSet<int>
              (

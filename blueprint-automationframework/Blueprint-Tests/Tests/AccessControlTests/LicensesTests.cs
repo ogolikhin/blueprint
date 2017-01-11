@@ -125,6 +125,7 @@ namespace AccessControlTests
 
         #region GetLicenseUsage tests
 
+        [Category(Categories.GoldenData)]
         [TestCase(null, null, false, 0)]
         [TestCase(9, 2016, false, 1)]
         [TestCase(10, 2116, true, 0)]

@@ -187,7 +187,7 @@ namespace AccessControlTests
             {
                 Assert.IsTrue(licenseUsageInfo[2 - offset].ActivityMonth.Equals(11), "The month should be 11!");
                 Assert.IsTrue(licenseUsageInfo[2 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
-                Assert.IsTrue(licenseUsageInfo[2 - offset].MaxConcurrentAuthors.Equals(1), "MaxconCurrentAuthors should be 1!");
+                Assert.IsTrue(licenseUsageInfo[2 - offset].MaxConcurrentAuthors.Equals(1), "MaxConcurrentAuthors should be 1!");
                 Assert.IsTrue(licenseUsageInfo[2 - offset].UniqueAuthors.Equals(2), "UniqueAuthors should be 2");
 
                 Assert.IsTrue(licenseUsageInfo[3 - offset].ActivityMonth.Equals(12), "The month should be 12!");

@@ -2,7 +2,6 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Newtonsoft.Json;
 using NUnit.Framework;

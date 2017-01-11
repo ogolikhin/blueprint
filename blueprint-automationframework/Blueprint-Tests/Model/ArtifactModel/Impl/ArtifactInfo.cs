@@ -1,5 +1,4 @@
-﻿using System;
-using Model.ArtifactModel.Enums;
+﻿using Model.ArtifactModel.Enums;
 using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl

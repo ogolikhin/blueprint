@@ -22,7 +22,8 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {MessageType, Message} from "../../core/messages/message";
 
 describe("Item State Controller tests", () => {
-    let $state: angular.ui.IStateService,
+    let $stateParams: ng.ui.IStateParamsService,
+        $timeout: ng.ITimeoutService,
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         artifactManager: IArtifactManager,
@@ -32,17 +33,7 @@ describe("Item State Controller tests", () => {
         navigationService: INavigationService,
         itemInfoService: IItemInfoService,
         statefulArtifactFactory: IStatefulArtifactFactory,
-        ctrl: ItemStateController,
-        stateSpy;
-
-    class LoadingOverlayServiceMock {
-        beginLoading() {
-            //
-        };
-        endLoading(id: number) {
-            //
-        };
-    }
+        ctrl: ItemStateController;
 
     beforeEach(angular.mock.module("ui.router"));
     beforeEach(angular.mock.module("app.main"));
@@ -58,7 +49,8 @@ describe("Item State Controller tests", () => {
     }));
 
     beforeEach(inject((
-        _$state_: ng.ui.IStateService,
+        _$stateParams_: ng.ui.IStateParamsService,
+        _$timeout_: ng.ITimeoutService,
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _artifactManager_: IArtifactManager,
@@ -69,7 +61,8 @@ describe("Item State Controller tests", () => {
         _itemInfoService_: IItemInfoService,
         _statefulArtifactFactory_: IStatefulArtifactFactory) => {
 
-        $state = _$state_;
+        $stateParams = _$stateParams_;
+        $timeout = _$timeout_;
         $rootScope = _$rootScope_;
         $q = _$q_;
         artifactManager = _artifactManager_;
@@ -84,31 +77,15 @@ describe("Item State Controller tests", () => {
     beforeEach(() => {
         artifactManager.selection.setExplorerArtifact = (artifact) => null;
         artifactManager.selection.setArtifact = (artifact) => null;
-        stateSpy = spyOn($state, "go");
     });
 
-    function getItemStateController(id: string, version?: string): ItemStateController {
-        $state.params["id"] = id;
+    function getItemStateController(itemInfo: IItemInfoResult, version?: string): ItemStateController {
         if (version) {
-            $state.params["version"] = version;
+            $stateParams["version"] = version;
         }
-        const itemInfo = {
-            id: Number(id),
-            name: "text",
-            projectId: 277,
-            parentId: 277,
-            itemTypeId: 1162,
-            prefix: "RQ",
-            predefinedType: 4101,
-            versionCount: 1,
-            isDeleted: false,
-            hasChanges: false,
-            orderIndex: 20.0,
-            permissions: 8159
-        } as IItemInfoResult;
 
         return new ItemStateController(
-            $state,
+            $stateParams,
             artifactManager,
             projectManager,
             messageService,
@@ -116,28 +93,26 @@ describe("Item State Controller tests", () => {
             navigationService,
             itemInfoService,
             statefulArtifactFactory,
-            $rootScope,
+            $timeout,
             itemInfo);
     }
 
-    afterEach(() => {
-        delete $state.params["id"];
-    });
-
-    it("respond to url", () => {
+    it("respond to url", inject(($state: ng.ui.IStateService) => {
         expect($state.href("main.item", {id: 1})).toEqual("#/main/1");
-    });
+    }));
 
     it("clears locked messages", () => {
         // arrange
-        const artifactId = 10;
+        const itemInfo = {
+            id: 10
+        } as IItemInfoResult;
         const deleteMessageSpy = spyOn(messageService, "deleteMessageById");
         const message = new Message(MessageType.Deleted, "test");
         message.id = 1;
         messageService.addMessage(message);
 
         // act
-        ctrl = getItemStateController(artifactId.toString());
+        ctrl = getItemStateController(itemInfo);
         $rootScope.$digest();
 
         // assert
@@ -171,116 +146,104 @@ describe("Item State Controller tests", () => {
 
             it("diagram", () => {
                 // arrange
-                const expectedState = "main.item.diagram";
-                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.GenericDiagram});
-                    return deferred.promise;
-                });
+                const expectedEditor = "diagram";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.GenericDiagram
+                } as IItemInfoResult;
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
-                expect(itemInfoSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(ctrl.activeEditor).toBe(expectedEditor);
             });
 
             it("glossary", () => {
                 // arrange
-                const expectedState = "main.item.glossary";
-                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Glossary});
-                    return deferred.promise;
-                });
+                const expectedEditor = "glossary";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Glossary
+                } as IItemInfoResult;
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
-                expect(itemInfoSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(ctrl.activeEditor).toBe(expectedEditor);
             });
 
             it("general", () => {
                 // arrange
-                const expectedState = "main.item.general";
-                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Project});
-                    return deferred.promise;
-                });
+                const expectedEditor = "general";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Project
+                } as IItemInfoResult;
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
-                expect(itemInfoSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(ctrl.activeEditor).toBe(expectedEditor);
             });
 
             it("collection", () => {
                 // arrange
-                const expectedState = "main.item.collection";
-                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.ArtifactCollection});
-                    return deferred.promise;
-                });
+                const expectedEditor = "collection";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.ArtifactCollection
+                } as IItemInfoResult;
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
-                expect(itemInfoSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(ctrl.activeEditor).toBe(expectedEditor);
             });
 
             it("process", () => {
                 // arrange
-                const expectedState = "main.item.process";
-                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Process});
-                    return deferred.promise;
-                });
+                const expectedEditor = "process";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Process
+                } as IItemInfoResult;
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
-                expect(itemInfoSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(ctrl.activeEditor).toBe(expectedEditor);
             });
 
             it("details", () => {
                 // arrange
-                const expectedState = "main.item.details";
-                itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: 11, predefinedType: Models.ItemTypePredefined.Actor});
-                    return deferred.promise;
-                });
+                const expectedEditor = "details";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Actor
+                } as IItemInfoResult;
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
-                expect(itemInfoSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalled();
-                expect(stateSpy).toHaveBeenCalledWith(expectedState, {id: artifactId, version: undefined}, {reload: expectedState});
+                expect(ctrl.activeEditor).toBe(expectedEditor);
             });
         });
 
@@ -288,107 +251,95 @@ describe("Item State Controller tests", () => {
             it("should redirect to artifact", () => {
                 // arrange
                 const artifactId = 10;
-                const subArtifactId = 123;
+                const itemInfo = {
+                    id: artifactId,
+                    subArtifactId: 123
+                } as any as IItemInfoResult;
+
                 const isSubArtifactSpy = spyOn(itemInfoService, "isSubArtifact").and.callFake(() => true);
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, subArtifactId: subArtifactId});
-                    return deferred.promise;
-                });
                 const navigationSpy = spyOn(navigationService, "navigateTo");
 
                 // act
-                ctrl = getItemStateController(subArtifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
                 expect(navigationSpy).toHaveBeenCalled();
-                expect(navigationSpy).toHaveBeenCalledWith({id: 10, redirect: true});
+                expect(navigationSpy).toHaveBeenCalledWith({id: artifactId, redirect: true});
             });
 
             it("should navigate to a project", () => {
                 // arrange
                 const artifactId = 10;
-                const isSubArtifactSpy = spyOn(itemInfoService, "isProject").and.callFake(() => true);
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({id: artifactId, projectId: artifactId});
-                    return deferred.promise;
-                });
+                const isProjectSpy = spyOn(itemInfoService, "isProject").and.callFake(() => true);
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: artifactId
+                } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => {
-                    return $q.resolve();
-                });
+                const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => $q.resolve());
                 const reloadNavigationSpy = spyOn(navigationService, "reloadCurrentState");
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
                 expect(navigationSpy).not.toHaveBeenCalled();
+                expect(isProjectSpy).toHaveBeenCalled();
                 expect(projectManagerSpy).toHaveBeenCalled();
-                expect(projectManagerSpy).toHaveBeenCalledWith(10);
-                expect(reloadNavigationSpy).toHaveBeenCalled();
+                expect(projectManagerSpy).toHaveBeenCalledWith(artifactId);
+                expect(reloadNavigationSpy).not.toHaveBeenCalled();
             });
         });
 
         describe("artifact is deleted", () => {
-            it("should redirect to a historical version of artifact", () => {
+            it("should show a historical version of artifact", () => {
                 // arrange
                 const artifactId = 10;
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.Actor,
+                    isDeleted: true,
+                    deletedByUser: {}
+                } as any as IItemInfoResult;
+
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({
-                        id: artifactId,
-                        predefinedType: Models.ItemTypePredefined.Actor,
-                        isDeleted: true,
-                        deletedByUser: {}
-                    });
-                    return deferred.promise;
-                });
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
                 const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
-                expect(stateSpy).toHaveBeenCalled();
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
                 expect(selectedArtifact.artifactState.historical).toBe(true);
                 expect(selectedArtifact.artifactState.deleted).toBe(true);
             });
 
-            it("should redirect to a historical version if deleted artifact is an Artifact Collection", () => {
+            it("should show a historical version if deleted artifact is an Artifact Collection", () => {
                 // arrange
                 const artifactId = 10;
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({
-                        id: artifactId,
-                        predefinedType: Models.ItemTypePredefined.ArtifactCollection,
-                        isDeleted: true,
-                        deletedByUser: {}
-                    });
-                    return deferred.promise;
-                });
-
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.ArtifactCollection,
+                    isDeleted: true,
+                    deletedByUser: {}
+                } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
                 const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
-                expect(stateSpy).toHaveBeenCalled();
+                expect(ctrl.activeEditor).toBe("collection");
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
                 expect(selectedArtifact.artifactState.historical).toBe(true);
@@ -399,33 +350,27 @@ describe("Item State Controller tests", () => {
                 // arrange
                 const artifactId = 10;
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({
-                        id: artifactId,
-                        predefinedType: Models.ItemTypePredefined.CollectionFolder,
-                        isDeleted: true,
-                        deletedByUser: {}
-                    });
-                    return deferred.promise;
-                });
-
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                    isDeleted: true,
+                    deletedByUser: {}
+                } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
                 // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
 
                 // assert
                 const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
-                expect(stateSpy).toHaveBeenCalled();
+                expect(ctrl.activeEditor).toBe("details");
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
                 expect(selectedArtifact.artifactState.historical).toBe(true);
                 expect(selectedArtifact.artifactState.deleted).toBe(true);
             });
-
         });
 
         describe("historical artifact", () => {
@@ -434,25 +379,20 @@ describe("Item State Controller tests", () => {
                 const artifactId = 10;
                 const version = 5;
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({
-                        id: artifactId,
-                        predefinedType: Models.ItemTypePredefined.Actor,
-                        versionCount: 20
-                    });
-                    return deferred.promise;
-                });
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.Actor,
+                    versionCount: 20
+                } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
                 // act
-                ctrl = getItemStateController(artifactId.toString(), version.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo, version.toString());
+                $timeout.flush();
 
                 // assert
                 const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
-                expect(stateSpy).toHaveBeenCalled();
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
                 expect(selectedArtifact.artifactState.historical).toBe(true);
@@ -464,27 +404,22 @@ describe("Item State Controller tests", () => {
                 const artifactId = 10;
                 const version = 25;
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({
-                        id: artifactId,
-                        predefinedType: Models.ItemTypePredefined.Actor,
-                        versionCount: 20
-                    });
-                    return deferred.promise;
-                });
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.Actor,
+                    versionCount: 20
+                } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addError").and.callFake(message => void (0));
                 const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
 
                 // act
-                ctrl = getItemStateController(artifactId.toString(), version.toString());
-                $rootScope.$digest();
+                ctrl = getItemStateController(itemInfo, version.toString());
+                $timeout.flush();
 
                 // assert
                 const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
-                expect(stateSpy).not.toHaveBeenCalled();
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(navigateToMainSpy).toHaveBeenCalled();
                 expect(selectionSpy).not.toHaveBeenCalled();
@@ -492,35 +427,7 @@ describe("Item State Controller tests", () => {
                 expect(selectedArtifact).toBeUndefined();
             });
         });
-
-        describe("artifact is not found", () => {
-            it("should redirect to main state and show a not found message", () => {
-                // arrange
-                const artifactId = 10;
-                const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.reject({
-                        message: "Item (Id:${artifactId}) is not found.",
-                        statusCode: 404
-                    });
-                    return deferred.promise;
-                });
-                const mainNavigationSpy = spyOn(navigationService, "navigateToMain");
-                const messageSpy = spyOn(messageService, "addError").and.callFake(message => void(0));
-
-                // act
-                ctrl = getItemStateController(artifactId.toString());
-                $rootScope.$digest();
-
-                // assert
-                expect(mainNavigationSpy).toHaveBeenCalled();
-                expect(mainNavigationSpy).toHaveBeenCalledWith(true);
-                expect(messageSpy).toHaveBeenCalled();
-            });
-
-        });
     });
-
 
     describe("when in artifact manager", () => {
         let artifactId: number,
@@ -551,40 +458,37 @@ describe("Item State Controller tests", () => {
 
         it("should unload existing artifact and go to main.item.process state", () => {
             // arrange
+            const itemInfo = {
+                id: artifactId,
+                predefinedType: Models.ItemTypePredefined.Actor
+            } as any as IItemInfoResult;
             const unloadSpy = spyOn(statefulArtifact, "unload");
 
             // act
-            ctrl = getItemStateController(artifactId.toString());
-            $rootScope.$digest();
+            ctrl = getItemStateController(itemInfo);
+            $timeout.flush();
 
             // assert
             expect(unloadSpy).toHaveBeenCalled();
-            expect(stateSpy).toHaveBeenCalled();
-            expect(stateSpy).toHaveBeenCalledWith("main.item.process", {id: artifactId, version: undefined}, {reload: "main.item.process"});
         });
 
         it("should not use artifact from artifact manager if it's deleted", () => {
             // arrange
             statefulArtifact.artifactState.deleted = true;
+            const itemInfo = {
+                id: artifactId,
+                predefinedType: Models.ItemTypePredefined.Actor,
+                isDeleted: true,
+                deletedByUser: {}
+            } as any as IItemInfoResult;
             const unloadSpy = spyOn(statefulArtifact, "unload");
-            const itemInfoSpy = spyOn(itemInfoService, "get").and.callFake(() => {
-                    const deferred = $q.defer();
-                    deferred.resolve({
-                        id: artifactId,
-                        predefinedType: Models.ItemTypePredefined.Actor,
-                        isDeleted: true,
-                        deletedByUser: {}
-                    });
-                    return deferred.promise;
-                });
 
             // act
-            ctrl = getItemStateController(artifactId.toString());
-            $rootScope.$digest();
+            ctrl = getItemStateController(itemInfo);
+            $timeout.flush();
 
             // assert
             expect(unloadSpy).not.toHaveBeenCalled();
-            expect(itemInfoSpy).toHaveBeenCalled();
         });
     });
 });

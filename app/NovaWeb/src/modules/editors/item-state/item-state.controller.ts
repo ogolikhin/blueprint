@@ -47,6 +47,7 @@ export class ItemStateController {
             artifact.unload();
         }
 
+        this.activeEditor = null;
         this.clearStickyMessages();
         this.initItemInfo(itemInfo, _.isFinite(version) ? version : undefined);
     }
@@ -57,25 +58,24 @@ export class ItemStateController {
             this.navigationService.navigateTo({id: itemInfo.id, redirect: true});
 
         } else if (this.itemInfoService.isProject(itemInfo)) {
+            itemInfo.predefinedType = ItemTypePredefined.Project;
+
             this.projectManager.openProject(itemInfo.id).then(() => {
-                this.navigationService.reloadCurrentState();
+                const project = this.createArtifact(itemInfo);
+                project.itemTypeId = ItemTypePredefined.Project;
+                project.itemTypeName = "Project";
+
+                const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
+
+                this.$timeout(() => {
+                    this.setSelectedArtifact(statefulArtifact);
+                    this.setActiveEditor(statefulArtifact);
+                });
             });
         } else if (this.itemInfoService.isArtifact(itemInfo) && !this.isBaselineOrReview(itemInfo.predefinedType)) {
-            const artifact: Models.IArtifact = {
-                id: itemInfo.id,
-                projectId: itemInfo.projectId,
-                name: itemInfo.name,
-                parentId: itemInfo.parentId,
-                predefinedType: itemInfo.predefinedType,
-                prefix: itemInfo.prefix,
-                version: itemInfo.version,
-                orderIndex: itemInfo.orderIndex,
-                lockedByUser: itemInfo.lockedByUser,
-                lockedDateTime: itemInfo.lockedDateTime,
-                permissions: itemInfo.permissions
-            };
-
+            const artifact = this.createArtifact(itemInfo);
             const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
+
             if (version) {
                 if (itemInfo.versionCount < version) {
                     this.messageService.addError("Artifact_Version_NotFound", true);
@@ -92,7 +92,6 @@ export class ItemStateController {
                 statefulArtifact.artifactState.historical = true;
             }
 
-            this.activeEditor = null;
             this.$timeout(() => {
                 this.setSelectedArtifact(statefulArtifact);
                 this.setActiveEditor(statefulArtifact);
@@ -100,6 +99,22 @@ export class ItemStateController {
         } else {
             this.messageService.addError("Artifact_GoTo_NotAvailable", true);
         }
+    }
+
+    private createArtifact(itemInfo: IItemInfoResult): Models.IArtifact {
+        return {
+            id: itemInfo.id,
+            projectId: itemInfo.projectId,
+            name: itemInfo.name,
+            parentId: itemInfo.parentId,
+            predefinedType: itemInfo.predefinedType,
+            prefix: itemInfo.prefix,
+            version: itemInfo.version,
+            orderIndex: itemInfo.orderIndex,
+            lockedByUser: itemInfo.lockedByUser,
+            lockedDateTime: itemInfo.lockedDateTime,
+            permissions: itemInfo.permissions
+        } as Models.IArtifact;
     }
 
     private isCollection(itemType: Models.ItemTypePredefined): boolean {
@@ -174,8 +189,7 @@ export class ItemStateController {
 
     private onArtifactError(error: IApplicationError) {
         if (error.statusCode === HttpStatusCode.NotFound) {
-            // TODO: investigate
-            this.navigationService.reloadParentState();
+            this.navigationService.reloadCurrentState();
 
         } else if (error.statusCode === HttpStatusCode.Forbidden ||
             error.statusCode === HttpStatusCode.ServerError ||

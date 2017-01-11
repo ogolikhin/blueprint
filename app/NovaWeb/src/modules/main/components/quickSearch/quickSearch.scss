@@ -31,6 +31,26 @@
     }
 }
 
+// Commenting this block out due to bug 4450. Can uncomment when we decide to fix css issues in the modal, as wanted by UX.
+// .navbar.navbar-light {		
+//     background: $white;		
+//     border-bottom: 1px solid $gray-lightest;		
+//     position: fixed;		
+
+//     .navbar-header {		
+//         padding-left: 1.65em;		
+//         padding-top: 1em;		
+//         padding-bottom: 1em;		
+//         background: white;		
+//     }		
+
+//     .logo {		
+//         fill: $gray-dark;		
+//         stroke: $gray-dark;		
+//         height: 100%;		
+//     }		
+//  }
+
 .quick-serach__input--full-width {
     width: 100%;
 }

@@ -24,13 +24,16 @@ namespace ServiceLibrary.Attributes
             { typeof(BadRequestException), HttpStatusCode.BadRequest },
             { typeof(ResourceNotFoundException), HttpStatusCode.NotFound },
             { typeof(AuthorizationException), HttpStatusCode.Forbidden },
-            { typeof(SqlTimeoutException), HttpStatusCode.ServiceUnavailable },
-            { typeof(Exception), HttpStatusCode.InternalServerError }
+            { typeof(SqlTimeoutException), HttpStatusCode.ServiceUnavailable }
         };
 
         public override async Task OnExceptionAsync(HttpActionExecutedContext context, CancellationToken cancellationToken)
         {
-            var statusCode = HttpStatusCodesByExceptionType[context.Exception.GetType()];
+            HttpStatusCode statusCode;
+            if (!HttpStatusCodesByExceptionType.TryGetValue(context.Exception.GetType(), out statusCode))
+            {
+                statusCode = HttpStatusCode.InternalServerError;
+            }
 
             int? errorCode = null;
             var exceptionWithErrorCode = context.Exception as ExceptionWithErrorCode;

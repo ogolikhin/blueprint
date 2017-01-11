@@ -155,16 +155,30 @@ namespace AccessControl.Controllers
         {
             try
             {
+                
                 //parameter constrain
-                if ((month.HasValue && (month < 0 || month > maxMonth)) )
+                if (month.HasValue )
                 {
-                    return BadRequest("Specified month is invalid");
-                }
-                if (year.HasValue && (year < minYear || year > maxYear))
-                {
-                    return BadRequest("Specified year is invalid");
+                    if (month < 0 || month > maxMonth) {
+                        return BadRequest("Specified month is invalid");
+                    }
+                    if (!year.HasValue) {
+                        return BadRequest("A year must be specified");
+                    }
                 }
 
+                if (year.HasValue)
+                {
+                    if (year < minYear || year > maxYear)
+                    {
+                        return BadRequest("Specified year is invalid");
+                    }
+                    if (!month.HasValue)
+                    {
+                        return BadRequest("A month must be specified");
+                    }
+                }
+                
                 var usage = await _repo.GetLicenseUsage(month, year);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, usage);

@@ -5,6 +5,8 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using Model.JobModel;
+using Model.JobModel.Impl;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
 using Newtonsoft.Json;
@@ -1101,6 +1103,35 @@ namespace Helper
             return group;
         }
         #endregion Group management
+
+        #region Job Management
+
+        /// <summary>
+        /// Create ALM Change Summary Jobs as a setup for testing Nova GET Jobs API calls
+        /// </summary>
+        /// <param name="address">address for Blueprint application server</param>
+        /// <param name="user">user for authentication</param>
+        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
+        /// <param name="numberOfJobsToBeCreated">The number of ALM Change Summary Jobs to be created.</param>
+        /// <param name="project">The project where ALM targets reside.</param>
+        /// <returns> List of ALM Summary Jobs created in decending order by jobId </returns>
+        public static List<IOpenAPIJob> CreateALMSummaryJobsSetup(string address, IUser user, int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var almTarget = AlmTarget.GetAlmTargets(address, user, project).First();
+            Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
+            List<IOpenAPIJob> jobsToBeFound = new List<IOpenAPIJob>();
+            for (int i = 0; i < numberOfJobsToBeCreated; i++)
+            {
+                var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
+                jobsToBeFound.Add(openAPIJob);
+            }
+            jobsToBeFound.Reverse();
+            return jobsToBeFound;
+        }
+
+        #endregion Job Management
 
         #region Database Settings Management
 

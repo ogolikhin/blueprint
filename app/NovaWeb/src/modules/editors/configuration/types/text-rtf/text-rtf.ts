@@ -417,12 +417,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             return this.fileUploadService.uploadImageToFileStore(file, progressCallback, cancelPromise);
         };
 
-        let filesize = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
+        let filesize = this.settingsService.getNumber("MaxEmbeddedImageFileSize", Helper.maxAttachmentFilesizeDefault);
         if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.maxAttachmentFilesizeDefault) {
             filesize = Helper.maxAttachmentFilesizeDefault;
         }
 
-        const maxNumOfImages = this.settingsService.getNumber("MaxNumberEmbeddedImages", 10);
+        const maxNumOfImages = this.settingsService.getNumber("MaxEmbeddedImagesNumber", 10);
         const dialogData: IUploadStatusDialogData = {
             files: [file],
             maxAttachmentFilesize: filesize,

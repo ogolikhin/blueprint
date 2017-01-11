@@ -84,13 +84,13 @@ namespace AdminStoreTests
             AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: jobsToBeFound);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopment)] 
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] 
         // TODO: There is no easy way to create job(s) that visible for the user used for the test and that prevents writing validation step for this tests
         // TODO: Will work on this as tech debt so that we can create a author user with access to ALM target by injecting SQL query
         [TestCase(DEFAULT_BASELINEORREVIEWID, 10, 4)]
-        [TestRail(000)]
+        [TestRail(227295)]
         [Description("GET Jobs that returns multiple pages for JobResult. Verify that number of result items matches with expecting search result items.")]
-        public void GetJobs_GetJobsReturnsMultiplePages_VerifyResultItemCountWithExpected(
+        public void GetJobs_CreateMoreJobsThanThePageSize_VerifyCorrectNumberOfPagesAvailable(
             int baselineOrReviewId,
             int numberOfJobsToBeCreated,
             int pageSize

@@ -424,17 +424,15 @@ export class BPTreeViewController implements IBPTreeViewController {
                             row.classList.remove("ag-row-loading");
                             this.$timeout(() => {
                                 this.$log.debug(node);
-                                let currentNode = _.find((node as any).rowModel.rowsToDisplay, (item: any) => {
+                                const currentNode = _.find((node as any).rowModel.rowsToDisplay, (item: any) => {
                                     if (item.data && item.data.key === this.$stateParams.id.toString()) {
                                         return item;
                                     }
                                 });
                                 if (currentNode) {
                                     currentNode.selectThisNode(true);
-                                    this.$log.debug("node: ", currentNode);
                                 }
-                            }); //500 timeout for animation
-
+                            });
                         }
                     });
             }

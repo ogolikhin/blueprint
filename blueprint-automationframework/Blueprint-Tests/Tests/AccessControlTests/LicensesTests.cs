@@ -151,8 +151,8 @@ namespace AccessControlTests
         [TestCase(10, 9999, YEAR_IS_INVALID)]
         [TestCase(-1, 2016, MONTH_IS_INVALID)]
         [TestCase(12, 2016, MONTH_IS_INVALID)]
-        [TestCase(10, null, MONTH_NOT_SPECIFIED)]
-        [TestCase(null, 2016, YEAR_NOT_SPECIFIED)]
+        [TestCase(10, null, YEAR_NOT_SPECIFIED)]
+        [TestCase(null, 2016, MONTH_NOT_SPECIFIED)]
         [TestRail(227249)]
         [Description("Pass invalid month or year values to GetLicenseUsage and verify it returns 400 Bad Request.")]
         public void GetLicenseUsage_WithInvalidMonthOrYear_400BadRequest(int month, int year, string expectedError)

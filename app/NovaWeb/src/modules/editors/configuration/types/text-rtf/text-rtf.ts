@@ -342,9 +342,10 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;
                                 const imageFile = inputElement.files[0];
+                                const numberOfExistingImages = this.getNumberOfImagesInContent(editor.getContent());
                                 let dimensions: ISize;
 
-                                this.uploadImage(imageFile).then((uploadedImageUrl: string) => {
+                                this.uploadImage(imageFile, numberOfExistingImages).then((uploadedImageUrl: string) => {
                                     this.getImageDimensions(imageFile)
                                         .then(dim => {
                                             dimensions = this.getScaledDimensions(dim);
@@ -367,6 +368,10 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             }
         };
         _.assign($scope.to, to);
+    }
+
+    private getNumberOfImagesInContent(content: string): number {
+        return _.isEmpty(content) ? 0 : angular.element(content).find("img").length;
     }
 
     private getScaledDimensions(dimensions: ISize): ISize {
@@ -395,7 +400,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         return deferred.promise;
     }
 
-    private uploadImage(file: File): ng.IPromise<string> {
+    private uploadImage(file: File, numberOfExistingImages: number): ng.IPromise<string> {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Ok", "OK"),
             template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
@@ -417,10 +422,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             filesize = Helper.maxAttachmentFilesizeDefault;
         }
 
+        const maxNumOfImages = this.settingsService.getNumber("MaxNumberRtfImages", 10);
         const dialogData: IUploadStatusDialogData = {
             files: [file],
             maxAttachmentFilesize: filesize,
-            maxNumberAttachments: 1,
+            maxNumberAttachments: maxNumOfImages - numberOfExistingImages,
+            maxNumberAttachmentsError: "The artifact has the maximum number of images.",
             allowedExtentions: ["png", "jpeg", "jpg"],
             fileUploadAction: uploadFile
         };

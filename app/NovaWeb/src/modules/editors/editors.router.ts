@@ -1,5 +1,6 @@
-import {ItemStateController} from "./item-state.controller";
-import {IArtifactManager} from "./../managers";
+import {ItemStateController} from "./item-state/item-state.controller";
+import {IArtifactManager} from "../managers";
+import {IItemStateService} from "./item-state/item-state.svc";
 
 export class ArtifactRoutes {
 
@@ -19,47 +20,35 @@ export class ArtifactRoutes {
                 url: "/unpublished",
                 template: "<unpublished></unpublished>",
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
+                    saved: ["artifactManager", (am: IArtifactManager) => am.autosave()]
                 }
             })
             .state("main.jobs", <ng.ui.IState>{
                 url: "/jobs",
                 template: "<jobs></jobs>",
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
+                    saved: ["artifactManager", (am: IArtifactManager) => am.autosave()]
                 }
             })
             .state("main.item", <ng.ui.IState>{
                 url: "/{id:int}?{version:int}&{path:navpath}",
-                template: "<div ui-view class='artifact-state'></div>",
+                template: require("./item-state/item-state.html"),
                 reloadOnSearch: false,
                 controller: ItemStateController,
+                controllerAs: "$ctrl",
                 params: {
                     // prevents array format from being split into path=1&path=2&...
                     path: {array : false}
                 },
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]
-                }
-            })
+                    itemInfo: ["$stateParams", "itemStateService",
+                        ($stateParams: ng.ui.IStateParamsService, itemStateService: IItemStateService) => {
 
-            .state("main.item.process", {
-                template: require("./bp-process/process.state.html")
-            })
-            .state("main.item.details", {
-                template: require("./bp-artifact/details.state.html")
-            })
-            .state("main.item.general", {
-                template: require("./bp-artifact/general.state.html")
-            })
-            .state("main.item.glossary", {
-                template: require("./bp-glossary/glossary.state.html")
-            })
-            .state("main.item.collection", {
-                template: require("./bp-collection/collection.state.html")
-            })
-            .state("main.item.diagram", {
-                template: require("./bp-diagram/diagram.state.html")
+                        const id = parseInt($stateParams["id"], 10);
+                        return itemStateService.getItemInfoResult(id);
+                    }],
+                    saved: ["artifactManager", (am: IArtifactManager) => am.autosave()]
+                }
             });
     }
 }

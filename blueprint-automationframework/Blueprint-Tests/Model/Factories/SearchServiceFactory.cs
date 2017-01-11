@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System.Data;
+using CustomAttributes;
 using Model.SearchServiceModel;
 using Model.SearchServiceModel.Impl;
 
@@ -22,7 +23,6 @@ namespace Model.Factories
         /// </summary>
         /// <returns>The SearchService object.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static ISearchService GetSearchServiceFromTestConfig()
         {
             string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.SearchService);

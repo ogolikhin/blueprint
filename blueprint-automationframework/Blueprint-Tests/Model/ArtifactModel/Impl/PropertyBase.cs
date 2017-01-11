@@ -15,7 +15,6 @@ namespace Model.ArtifactModel.Impl
         public string TextOrChoiceValue { get; set; }           // OpenAPI-Add-Get
         public bool IsRichText { get; set; }                    // OpenAPI-Add-Get
         public bool IsReadOnly { get; set; }                    // OpenAPI-Get
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<UsersAndGroups> UsersAndGroups { get; set; }// OpenAPI-Add-Get
         public List<object> Choices { get; }
         public string DateValue { get; set; }                   // OpenAPI-Get

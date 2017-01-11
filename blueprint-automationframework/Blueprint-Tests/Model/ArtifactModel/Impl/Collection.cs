@@ -15,7 +15,6 @@ namespace Model.ArtifactModel.Impl
 
         public bool IsCreated { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<CollectionItem> Artifacts { get; set; }
 
         /// <summary>
@@ -25,6 +24,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifactsIdsToRemove">List of artifact's Id to remove from Collection.</param>
         public void UpdateArtifacts(List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {
+
             CollectionContentValue collectionContentValue = new CollectionContentValue();
 
             if (artifactsIdsToAdd?.Count > 0)
@@ -33,15 +33,26 @@ namespace Model.ArtifactModel.Impl
             }
             if (artifactsIdsToRemove?.Count > 0)
             {
-                collectionContentValue.AddedArtifacts.AddRange(artifactsIdsToRemove);
+                collectionContentValue.RemovedArtifacts.AddRange(artifactsIdsToRemove);
             }
-
+            
             CustomProperty collectionContentProperty = new CustomProperty();
             collectionContentProperty.Name = "CollectionContent";
             collectionContentProperty.PropertyTypeId = -1;
             collectionContentProperty.PropertyType = PropertyTypePredefined.Collection;
             collectionContentProperty.CustomPropertyValue = collectionContentValue;
-            SpecificPropertyValues.Add(collectionContentProperty);
+
+            if (SpecificPropertyValues.Count == 0)
+            {
+                SpecificPropertyValues.Add(collectionContentProperty);
+            }
+            /* Collection object returned from the server has empty SpecificPropertyValues list
+            we use SpecificPropertyValues only to update list of artifacts
+            */
+            else
+            {
+                SpecificPropertyValues[0] = collectionContentProperty;
+            }
         }
     }
 }

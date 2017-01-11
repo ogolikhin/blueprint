@@ -85,6 +85,30 @@ namespace ServiceLibrary.Repositories
         }
 
         [TestMethod]
+        public async Task GetFileAsync_FileStoreServiceUnavailable_ThrowsResourceNotFoundException()
+        {
+            // Arrange
+            var fileId = Guid.NewGuid();
+            var httpWebClient = CreateHttpWebClientClient(CreateHttpWebResponse(HttpStatusCode.ServiceUnavailable));
+            var fileRepository = new FileRepository(httpWebClient);
+            ResourceNotFoundException exception = null;
+
+            // Act
+            try
+            {
+                await fileRepository.GetFileAsync(fileId);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNotNull(exception);
+            Assert.AreEqual(ErrorCodes.ResourceNotFound, exception.ErrorCode);
+        }
+
+        [TestMethod]
         public async Task GetFileAsync_FileStoreError_ThrowsException()
         {
             // Arrange

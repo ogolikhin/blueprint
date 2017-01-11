@@ -28,17 +28,17 @@ namespace Model.Impl
         public int UniqueCollaborators { get; set; }
 
         /// <summary>
-        /// Maxumumn number of concurent Viewer licenses.
+        /// Maximum number of concurent Viewer licenses.
         /// </summary>
         public int MaxConcurrentViewers { get; set; }
 
         /// <summary>
-        /// Maxumumn number of concurent Author licenses.
+        /// Maximum number of concurent Author licenses.
         /// </summary>
         public int MaxConcurrentAuthors { get; set; }
 
         /// <summary>
-        /// Maxumumn number of concurent Collaborator licenses.
+        /// Maximum number of concurent Collaborator licenses.
         /// </summary>
         public int MaxConcurrentCollaborators { get; set; }
 

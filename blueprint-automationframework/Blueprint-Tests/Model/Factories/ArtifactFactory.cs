@@ -56,7 +56,6 @@ namespace Model.Factories
         /// <param name="parent">(optional) The parent artifact.  By default artifact will be created in root of the project.</param>
         /// <param name="name">(optional) Artifact's name.</param>
         /// <returns>new artifact object</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IOpenApiArtifact CreateOpenApiArtifact(IProject project,
             IUser user,
             BaseArtifactType artifactType,
@@ -123,7 +122,6 @@ namespace Model.Factories
         /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <param name="name">(optional) Artifact's name.</param>
         /// <returns>New artifact object.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType,
             int? artifactId = null, IArtifactBase parent = null, string name = null)
         {

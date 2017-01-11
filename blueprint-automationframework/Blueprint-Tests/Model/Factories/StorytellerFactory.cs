@@ -23,7 +23,6 @@ namespace Model.Factories
         /// </summary>
         /// <returns>The Storyteller object.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IStoryteller GetStorytellerFromTestConfig()
         {
             TestConfiguration testConfig = TestConfig.TestConfiguration.GetInstance();

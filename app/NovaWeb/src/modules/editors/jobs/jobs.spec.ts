@@ -321,7 +321,7 @@ describe("Controller: Jobs", () => {
             controller.isLoading = false;
 
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
             expect(result).toBe(true);
@@ -333,7 +333,7 @@ describe("Controller: Jobs", () => {
             controller.paginationData.page = 2;
 
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
             expect(result).toBe(true);
@@ -344,7 +344,7 @@ describe("Controller: Jobs", () => {
             controller.isLoading = true;
 
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
             expect(result).toBe(false);
@@ -356,7 +356,7 @@ describe("Controller: Jobs", () => {
             controller.isLoading = false;
 
             // act 
-            const result = controller.showPagination();
+            const result = controller.canShowPagination();
 
             // assert
             expect(result).toBe(false);

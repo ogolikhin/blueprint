@@ -259,5 +259,14 @@ namespace Model
         /// <returns>JobInfo</returns>
         IJobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Gets a result file from the job result
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="jobId">The job ID</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The file that was requested</returns>
+        IFile GetJobResultFile(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
+
     }
 }

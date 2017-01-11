@@ -478,6 +478,7 @@ CREATE PROCEDURE [dbo].[GetLicenseUsage]
 )
 AS
 BEGIN
+	SET @year = CASE WHEN ISNULL(@year, 1900) < 1900 THEN 1900 ELSE ISNULL(@year, 1900) END;
 	DECLARE @currentDate datetime = GETUTCDATE();
 	DECLARE @startMonth date = DATEADD(month, @month, DATEADD(year, (@year-1900), 0));
 	DECLARE @currentMonth date = DATEADD(month, MONTH(@currentDate)-1, DATEADD(year, (YEAR(@currentDate)-1900), 0));
@@ -517,6 +518,9 @@ BEGIN
 	GROUP BY L.ActivityYear, L.ActivityMonth;
 
 END
+
+
+GO
 
 GO 
 

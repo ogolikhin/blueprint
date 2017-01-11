@@ -172,6 +172,12 @@ namespace AccessControlTests
 
         #region Private functions
 
+        /// <summary>
+        /// Verifying couple of elements in the response list
+        /// </summary>
+        /// <param name="response">Call response</param>
+        /// <param name="isEmpty">Verifies if the response empty</param>
+        /// <param name="offset">Offset from the total response</param>
         private static void VerifySomeProperties(IList<LicenseUsage> response, bool isEmpty, int offset)
         {
             Assert.IsNotNull(response, "There is no response object created!");

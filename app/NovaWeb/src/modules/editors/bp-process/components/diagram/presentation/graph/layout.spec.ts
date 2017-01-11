@@ -1,5 +1,6 @@
 /* tslint:disable max-file-line-count */
 import * as angular from "angular";
+import "rx";
 require("script!mxClient");
 import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
@@ -58,6 +59,18 @@ describe("Layout test", () => {
         model.lock = () => undefined;
         const processModel = new ProcessViewModel(model, communicationManager);
         return processModel;
+    };
+
+    let SelectNode = function (graph, node) {
+        const mxgraph = graph.getMxGraph();
+        if (node) {
+            const evt = {
+                consume() {
+                    ;
+                }
+            };
+            mxgraph.selectCellForEvent(node, evt);
+        }
     };
 
     beforeEach(inject((_$window_: ng.IWindowService,
@@ -1161,4 +1174,65 @@ describe("Layout test", () => {
             expect(msg[0].messageText).toBe("The Process now has 7 of the maximum 9 shapes");
         });
     });
+
+    describe("Test bridges", () => {
+
+        beforeEach(() => {
+            let elements = document.getElementsByClassName("process-graph__bridge");
+            while(elements.length > 0){
+                elements[0].parentNode.removeChild(elements[0]);
+            }
+        });
+
+        it("Default process shoud not have bridges", () => {
+            // Arrange
+            const testModel = TestModels.createDefaultProcessModel();
+            const processModel = setProcessViewModel(testModel);
+
+            // Act
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+            graph.render(false, null);
+
+            const bridges = document.getElementsByClassName("process-graph__bridge");
+
+            //Assert
+            expect(bridges.length).toBe(0);
+        });
+
+        it("Process with crossing edges shoud have bridges", () => {
+            // Arrange
+            const testModel = TestModels.createUserDecisionInfiniteLoopModel();
+            const processModel = setProcessViewModel(testModel);
+
+            // Act
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+            graph.render(false, null);
+
+            const bridges = document.getElementsByClassName("process-graph__bridge");
+
+            //Assert
+            expect(bridges.length).toBe(1);
+        });
+
+        it("Process with crossing edges shoud have bridges", () => {
+            // Arrange
+            const testModel = TestModels.createUserDecisionInfiniteLoopModel();
+            const processModel = setProcessViewModel(testModel);
+            const graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+
+            // Act
+            graph.render(false, null);
+            const userTask = graph.getNodeById("80");
+            SelectNode(graph, userTask);
+
+            const bridge = <HTMLImageElement>document.getElementsByClassName("process-graph__bridge")[0];
+            const index = bridge.innerHTML.indexOf(".st2{fill:#");
+            const color = bridge.innerHTML.substr(index + 10, 7);
+            
+            //Assert
+            expect(color).toBe(mxConstants.EDGE_SELECTION_COLOR);
+        });
+
+    });
+    
 });

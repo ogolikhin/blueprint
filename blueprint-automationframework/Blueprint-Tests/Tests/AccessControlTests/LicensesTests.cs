@@ -13,6 +13,9 @@ namespace AccessControlTests
     [Category(Categories.AccessControl)]
     public class LicensesTests : TestBase
     {
+        private const string YEAR_IS_INVALID = "Specified year is invalid";
+        private const string MONTH_IS_INVALID = "Specified month is invalid";
+
         private IUser _user = null;
 
         [SetUp]
@@ -118,7 +121,7 @@ namespace AccessControlTests
 
         #region GetLicenseUsage tests
 
-        [Ignore(IgnoreReasons.UnderDevelopmentQaDev)]
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(null, null)]
         [TestCase(10, null)]
         [TestCase(null, 2016)]
@@ -139,11 +142,11 @@ namespace AccessControlTests
 
         }
 
-        [TestCase(10, -1, "Specified year is invalid")]
-        [TestCase(10, 0, "Specified year is invalid")]
-        [TestCase(10, 9999, "Specified year is invalid", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // https://trello.com/c/AtrPck66  Returne 500 error.
-        [TestCase(-1, 2016, "Specified month is invalid")]
-        [TestCase(12, 2016, "Specified month is invalid")]
+        [TestCase(10, -1, YEAR_IS_INVALID)]
+        [TestCase(10, 0, YEAR_IS_INVALID)]
+        [TestCase(10, 9999, YEAR_IS_INVALID, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]  // https://trello.com/c/AtrPck66  Returns 500 error.
+        [TestCase(-1, 2016, MONTH_IS_INVALID)]
+        [TestCase(12, 2016, MONTH_IS_INVALID)]
         [TestRail(227249)]
         [Description("Pass invalid month or year values to GetLicenseUsage and verify it returns 400 Bad Request.")]
         public void GetLicenseUsage_WithInvalidMonthOrYear_400BadRequest(int month, int year, string expectedError)

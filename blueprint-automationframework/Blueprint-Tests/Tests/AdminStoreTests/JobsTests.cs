@@ -118,8 +118,8 @@ namespace AdminStoreTests
                 // Adds job result per page into returned job count
                 returnedJobCount += jobResult.JobInfos.Count();
 
-                // Create a job list per page, decending ordered by Job Id
-                List<IOpenAPIJob> pagedJobs = CreateJobListPerPage(expectedJobsStack, pageSize);
+                // Create a paged job list per page, decending ordered by Job Id
+                List<IOpenAPIJob> pagedJobs = ExtractJobsFromJobStack(expectedJobsStack, pageSize);
 
                 // Validation: Verify that jobResult contains list of expectedJobs
                 AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: pagedJobs);
@@ -364,11 +364,11 @@ namespace AdminStoreTests
         #region private functions
 
         /// <summary>
-        /// Creates the jobs list per page with job list decending ordered by Job Id
+        /// Creates the jobs list decending ordered by Job Id, extracted from the job stack
         /// </summary>
-        /// <param name="jobStack">a stack of job descending ordered by Job Id</param>
+        /// <param name="jobStack">Job stack descending ordered by Job Id, jobs will be removed from this stack</param>
         /// <param name="pageSize">maximum number of jobs that will be on the paged job list</param>
-        private static List<IOpenAPIJob> CreateJobListPerPage(Stack<IOpenAPIJob> jobStack, int pageSize)
+        private static List<IOpenAPIJob> ExtractJobsFromJobStack(Stack<IOpenAPIJob> jobStack, int pageSize)
         {
             List<IOpenAPIJob> pagedJobs = new List<IOpenAPIJob>();
             for (int i = 0; i < pageSize; i++)
@@ -376,6 +376,10 @@ namespace AdminStoreTests
                 if (jobStack.Any())
                 {
                     pagedJobs.Add(jobStack.Pop());
+                }
+                else
+                {
+                    break;
                 }
             }
             return pagedJobs;

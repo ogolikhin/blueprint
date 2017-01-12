@@ -427,7 +427,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             files: [file],
             maxAttachmentFilesize: filesize,
             maxNumberAttachments: maxNumOfImages - numberOfExistingImages,
-            maxNumberAttachmentsError: "The artifact has the maximum number of images.",
+            maxNumberAttachmentsError: `This property exceeds the maximum number of images (${maxNumOfImages}).`,
             allowedExtentions: ["png", "jpeg", "jpg"],
             fileUploadAction: uploadFile
         };

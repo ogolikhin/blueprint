@@ -31,7 +31,7 @@ namespace AdminStore.Controllers
             ValidateRequest(request);
 
             var session = GetSession(Request);    
-            var parameters = SerializationHelper.ToXml(request);
+            var parameters = SerializationHelper.ToXml(request.Processes);
             var hostUri = GetBaseHostUri();
             var queuedJobInfo = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
                 false, 

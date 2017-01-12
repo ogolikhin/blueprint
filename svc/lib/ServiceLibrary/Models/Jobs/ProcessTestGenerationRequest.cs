@@ -11,7 +11,6 @@ namespace ServiceLibrary.Models.Jobs
         [JsonProperty]
         public int ProjectId { get; set; }
         
-        [XmlIgnore]
         [JsonProperty]
         public string ProjectName { get; set; }
 

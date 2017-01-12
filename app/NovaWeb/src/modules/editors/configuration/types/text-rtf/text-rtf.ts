@@ -42,6 +42,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         "$log",
         "$scope",
         "$window",
+        "$filter",
         "navigationService",
         "validationService",
         "messageService",
@@ -58,6 +59,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 private $log: ng.ILogService,
                 $scope: AngularFormly.ITemplateScope,
                 protected $window: ng.IWindowService,
+                private $filter: ng.IFilterService,
                 navigationService: INavigationService,
                 validationService: IValidationService,
                 messageService: IMessageService,
@@ -423,11 +425,13 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         }
 
         const maxNumOfImages = this.settingsService.getNumber("MaxEmbeddedImagesNumber", 10);
+        const localeFormatFilter = this.$filter("bpFormat") as Function;
+        const localeMessage = this.localization.get("Property_Max_Images_Error", "This property exceeds the maximum number of images ({0}).");
         const dialogData: IUploadStatusDialogData = {
             files: [file],
             maxAttachmentFilesize: filesize,
             maxNumberAttachments: maxNumOfImages - numberOfExistingImages,
-            maxNumberAttachmentsError: `This property exceeds the maximum number of images (${maxNumOfImages}).`,
+            maxNumberAttachmentsError: localeFormatFilter(localeMessage, maxNumOfImages),
             allowedExtentions: ["png", "jpeg", "jpg"],
             fileUploadAction: uploadFile
         };

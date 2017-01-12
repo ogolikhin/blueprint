@@ -44,6 +44,7 @@ namespace ArtifactStoreTests
         [TestCase(20, 30, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
         [TestCase(80, 80, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(211529)]
+        [Explicit(IgnoreReasons.ProductBug)] //Nova resize all images to 400px https://trello.com/c/0dtkC8zl
         [Description("Upload a random image file to ArtifactStore.  Verify 201 Created is returned and that the image is saved in the database properly.")]
         public void AddImage_ValidImage_ImageIsAddedToDatabase(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
@@ -191,6 +192,7 @@ namespace ArtifactStoreTests
         [TestCase(60, 40, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
         [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(211535)]
+        [Explicit(IgnoreReasons.ProductBug)] //Nova resize all images to 400px https://trello.com/c/0dtkC8zl
         [Description("Upload a random image file to ArtifactStore, then try to get that file.  Verify 200 OK is returned by the GET call " +
             "and the same image that was uploaded is returned.")]
         public void GetImage_AddedImage_ReturnsImage(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)

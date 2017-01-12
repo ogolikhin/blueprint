@@ -381,6 +381,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_Inlin
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Invalid_Selection', 'en-US', N'The traced artifact could not be added. The selection is invalid.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_InlineTrace_Error_Permissions', 'en-US', N'You do not have permission to add inline traces. Please contact an administrator.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Not_Available', 'en-US', N'n/a')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Max_Images_Error', 'en-US', N'This property exceeds the maximum number of images ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The operation could not be completed because of privilege-related issues.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Sorry, but the artifact cannot be found. It has likely been deleted or moved.')

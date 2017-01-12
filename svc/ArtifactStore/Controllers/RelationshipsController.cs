@@ -44,8 +44,11 @@ namespace ArtifactStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
+            if (addDrafts && versionId != null)
+            {
+                addDrafts = false;
+            }
             var itemId = subArtifactId ?? artifactId;
-
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
             var itemInfo = isDeleted && versionId != null ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :

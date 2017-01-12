@@ -29,15 +29,19 @@ export class BPTooltip implements ng.IDirective {
                 tooltip.style.left = (e.clientX - 15) + "px";
                 angular.element(tooltip).removeClass("bp-tooltip-right-tip").addClass("bp-tooltip-left-tip");
             }
-            const rect = tooltip.getBoundingClientRect();
-            if (rect.height < e.clientY - 20) {
-                tooltip.style.top = "";
-                tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
-                angular.element(tooltip).removeClass("bp-tooltip-top-tip").addClass("bp-tooltip-bottom-tip");
-            } else {
-                tooltip.style.bottom = "";
-                tooltip.style.top = e.clientY + 30 + "px";
-                angular.element(tooltip).removeClass("bp-tooltip-bottom-tip").addClass("bp-tooltip-top-tip");
+            // we make sure the tooltip has been added to the DOM before calling getBoundingClientRect to avoid this IE bug:
+            // https://connect.microsoft.com/IE/feedback/details/829392
+            if (tooltip.parentElement) {
+                const rect = tooltip.getBoundingClientRect();
+                if (rect.height < e.clientY - 20) {
+                    tooltip.style.top = "";
+                    tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
+                    angular.element(tooltip).removeClass("bp-tooltip-top-tip").addClass("bp-tooltip-bottom-tip");
+                } else {
+                    tooltip.style.bottom = "";
+                    tooltip.style.top = e.clientY + 30 + "px";
+                    angular.element(tooltip).removeClass("bp-tooltip-bottom-tip").addClass("bp-tooltip-top-tip");
+                }
             }
         }
 

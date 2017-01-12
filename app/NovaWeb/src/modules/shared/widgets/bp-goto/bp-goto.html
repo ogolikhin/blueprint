@@ -8,6 +8,7 @@
         ng-keypress="$ctrl.onKeypress($event)"
         ng-blur="$ctrl.hideSearch()"
         placeholder="Enter an ID...">
+    <div class="bp-goto__line"></div>
     <i class="bp-goto__clear-search fonticon-error" ng-if="$ctrl.gotoValue" ng-mousedown="$ctrl.onClearInput($event)"></i>
 </div>
 

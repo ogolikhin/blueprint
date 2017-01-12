@@ -68,20 +68,20 @@ describe("BPArtifactRelationshipItem", () => {
     it("action panel should be visible if item is manual trace and user has access to it",
         inject(($rootScope: ng.IRootScopeService) => {
 
-        //Arrange
-        let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
-        let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
-            new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
-        let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
+            //Arrange
+            let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
+            let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
+                new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
+            let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
 
-        vm2.canModifyItem = () => true;
-        vm2.showActionsPanel = true;
+            vm2.canModifyItem = () => true;
+            vm2.showActionsPanel = true;
 
-        $rootScope.$digest();
+            $rootScope.$digest();
 
-        //Assert
-        expect(directiveTest2.element.find(".icons").length).toBe(1);
-    }));
+            //Assert
+            expect(directiveTest2.element.find(".icons").length).toBe(1);
+        }));
 
     it("expanded view",
         inject(($httpBackend: ng.IHttpBackendService) => {
@@ -146,9 +146,10 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, replace Image tag with [Image] text if string more then 100 chars", () => {
         //Arrange
         const expectedResult = "test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678" + Helper.ELLIPSIS_SYMBOL;
-
+        const limitCharsResults = "test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111" +
+            "<img src=\"test.jpg\"/>";
         //Act
-        let result = vm.limitChars("test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111<img src=\"test.jpg\"/>");
+        let result = vm.limitChars(limitCharsResults);
 
         //Assert
         expect(result).toBe(expectedResult);
@@ -157,9 +158,12 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, replace Image tag with [Image] text if string more then 100 chars and image in range of the between 0 and 100 chars", () => {
         //Arrange
         const expectedResult = "test fffasdasfaffffffffrr [Image] fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" + Helper.ELLIPSIS_SYMBOL;
-
+        const limitCharResults = "test fffasdasfaffffffffrr" +
+            "<img src=\"test.jpg\"/>"
+            + "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111"
+            + "<img src=\"test.jpg\"/>";
         //Act
-        let result = vm.limitChars("test fffasdasfaffffffffrr<img src=\"test.jpg\"/>ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111<img src=\"test.jpg\"/>");
+        let result = vm.limitChars(limitCharResults);
 
         //Assert
         expect(result).toBe(expectedResult);

@@ -8,21 +8,27 @@ import {BPTreeViewComponent, BPTreeViewController, ITreeNode, IColumn} from "./b
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {IWindowManager, WindowManager} from "../../../main/services/window-manager";
 import {WindowResize} from "../../../core/services/window-resize";
-import {IMessageService, MessageService} from "./../../../core/messages/message.svc";
-import {MessageServiceMock} from "./../../../core/messages/message.mock";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {MessageServiceMock} from "../../../core/messages/message.mock";
 
 describe("BPTreeViewComponent", () => {
     angular.module("bp.widgets.treeView", [])
         .component("bpTreeView", new BPTreeViewComponent());
-
+    const stateParams = {
+        id: "22"
+    };
 
     beforeEach(angular.mock.module("bp.widgets.treeView", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
+        $provide.factory("$stateParams", function () {
+            return stateParams;
+        });
     }));
 
+    //This is not a needed/valid test as this is testing that component bindings work which is covered in core angular
     it("Values are bound", inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
         // Arrange
         const element = `<bp-tree-view grid-class="class"
@@ -34,7 +40,6 @@ describe("BPTreeViewComponent", () => {
                                        columns="[{isGroup: true}]"
                                        header-height="20"
                                        on-select="onSelect()" />`;
-
         // Act
         const controller = $compile(element)($rootScope.$new()).controller("bpTreeView") as BPTreeViewController;
         controller.options.api = jasmine.createSpyObj("api", ["setColumnDefs", "setRowData"]);
@@ -89,32 +94,45 @@ describe("BPTreeViewComponent", () => {
             getBusinessKeyForNode: controller.getBusinessKeyForNode,
             getNodeChildDetails: controller.getNodeChildDetails,
             onRowGroupOpened: controller.onRowGroupOpened,
-            onViewportChanged: controller.onViewportChanged,
             onCellClicked: controller.onCellClicked,
             onRowSelected: controller.onRowSelected,
-            onGridReady: controller.onGridReady,
-            onModelUpdated: controller.onModelUpdated
+            onGridReady: controller.onGridReady
         }));
     }));
 });
 
 describe("BPTreeViewController", () => {
     let controller: BPTreeViewController;
+    const stateParams = {
+        id: "22"
+    };
 
     beforeEach(angular.mock.module("bp.widgets.treeView", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
+        $provide.factory("$stateParams", function () {
+            return stateParams;
+        });
     }));
 
     beforeEach(inject(($q: ng.IQService,
                        $rootScope: ng.IRootScopeService,
                        $timeout: ng.ITimeoutService,
                        windowManager: IWindowManager,
-                       messageService: IMessageService) => {
+                       messageService: IMessageService,
+                       $stateParams,
+                       $log: ng.ILogService) => {
         const element = angular.element(`<bp-tree-view />`);
-        controller = new BPTreeViewController($q, element, new LocalizationServiceMock($rootScope), $timeout, windowManager, messageService);
+        controller = new BPTreeViewController($q,
+            element,
+            new LocalizationServiceMock($rootScope),
+            $timeout,
+            windowManager,
+            messageService,
+            $stateParams,
+            $log);
         controller.options = {
             api: jasmine.createSpyObj("api", [
                 "setColumnDefs",
@@ -421,7 +439,7 @@ describe("BPTreeViewController", () => {
             $rootScope.$digest(); // Resolves promises
         }));
 
-        it("When root node not visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("When root node not visible, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
                 getRowCount: () => 1
@@ -452,7 +470,7 @@ describe("BPTreeViewController", () => {
             $rootScope.$digest(); // Resolves promises
         }));
 
-        it("When root node is undefined, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("When root node is undefined, sets row data correctly", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             (controller.options.api.getModel as jasmine.Spy).and.returnValue({
                 getRowCount: () => 0
@@ -472,7 +490,7 @@ describe("BPTreeViewController", () => {
             $rootScope.$digest(); // Resolves promises
         }));
 
-        it("When saveSelection is true, restores selection", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+        it("When saveSelection is true, restores selection", (done: DoneFn) => inject(($rootScope: ng.IRootScopeService) => {
             // Arrange
             const rows = [{key: "a"}, {key: "b"}, {key: "c"}];
             const nodes = rows.map(row => {
@@ -610,28 +628,6 @@ describe("BPTreeViewController", () => {
 
             // Assert
             expect(vm.expanded).toEqual(false);
-        });
-
-        it("onModelUpdated calls updateScrollbars", () => {
-            // Arrange
-            spyOn(controller, "updateScrollbars");
-
-            // Act
-            controller.onModelUpdated();
-
-            // Assert
-            expect(controller.updateScrollbars).toHaveBeenCalled();
-        });
-
-        it("onViewportChanged calls updateScrollbars", () => {
-            // Arrange
-            spyOn(controller, "updateScrollbars");
-
-            // Act
-            controller.onViewportChanged();
-
-            // Assert
-            expect(controller.updateScrollbars).toHaveBeenCalled();
         });
 
         it("onCellClicked, when event target is outside the cell value div, does not call setSelectedParams", () => {

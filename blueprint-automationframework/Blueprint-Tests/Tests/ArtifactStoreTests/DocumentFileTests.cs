@@ -11,6 +11,8 @@ using Model.Factories;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
+using Common;
 
 namespace ArtifactStoreTests
 {
@@ -39,24 +41,28 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
+        #region Positive tests
+
         [TestCase]
         [TestRail(166132)]
         [Description("Create and publish document, attach file, check that artifact details has expected values.")]
         public void AddAttachment_PublishedDocument_ArtifactHasExpectedDetails()
         {
             // Setup:
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)2048,
-                "2KB_File.txt", "text/plain");
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
             System.DateTime expireTime = System.DateTime.Now.AddDays(2);
 
-            var uploadedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime, useMultiPartMime: true);
+            var uploadedFile = Helper.FileStore.AddFile(file, author, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
-            artifact.Lock();
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
+            artifact.Lock(author);
 
             // Execute & Verify:
-            UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile);
+            UpdateDocumentFile_CanGetAttachment(author, artifact, uploadedFile);
         }
 
         [TestCase]
@@ -65,22 +71,24 @@ namespace ArtifactStoreTests
         public void DeleteAttachment_PublishedDocumentWithAttachment_ArtifactHasNoAttachment()
         {
             // Setup:
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)2048,
-                "2KB_File.txt", "text/plain");
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
             System.DateTime expireTime = System.DateTime.Now.AddDays(2);
 
-            var uploadedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime, useMultiPartMime: true);
+            var uploadedFile = Helper.FileStore.AddFile(file, author, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
             artifact.Lock();
-            UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile);
+            UpdateDocumentFile_CanGetAttachment(author, artifact, uploadedFile);
             //
-            artifact.StorytellerPublish(_user);
-            artifact.Lock(_user);
+            artifact.StorytellerPublish(author);
+            artifact.Lock(author);
             //
             // Execute & Verify:
-            DeleteDocumentFile_CheckAttachmentIsEmpty(_user, artifact);
+            DeleteDocumentFile_CheckAttachmentIsEmpty(author, artifact);
         }
 
         [TestCase]
@@ -89,10 +97,110 @@ namespace ArtifactStoreTests
         public void ReplaceAttachment_PublishedDocumentWithAttachment_ArtifactHasExpectedDetails()
         {
             // Setup:
-            INovaFile file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)2048,
-                "2KB_File.txt", "text/plain");
-            INovaFile file2 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)4096,
-                "4KB_File.txt", "text/plain");
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            INovaFile file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            INovaFile file2 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(4096, "4KB_File.txt", "text/plain");
+
+            //Currently Nova set ExpireTime 2 days from today for newly uploaded file
+            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+
+            var uploadedFile1 = Helper.FileStore.AddFile(file1, author, expireTime: expireTime, useMultiPartMime: true);
+            Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile1.Guid), "Uploaded file shouldn't have null ExpiredTime");
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
+            artifact.Lock(author);
+            UpdateDocumentFile_CanGetAttachment(author, artifact, uploadedFile1);
+            artifact.StorytellerPublish(author);
+            artifact.Lock(author);
+            var uploadedFile2 = Helper.FileStore.AddFile(file2, author, expireTime: expireTime, useMultiPartMime: true);
+
+            // Execute & Verify:
+            UpdateDocumentFile_CanGetAttachment(author, artifact, uploadedFile2);
+        }
+
+        #endregion Positive tests
+
+        #region 403 Forbideen
+
+        [TestCase]
+        [TestRail(227302)]
+        [Description("Create and publish document & attach file with user that does not have permissions.  Verify returns 403 Forbidden.")]
+        public void AddAttachment_PublishedDocument_UserwithNoPermissions_403Forbidden()
+        {
+            // Setup:
+            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+
+            //Currently Nova set ExpireTime 2 days from today for newly uploaded file
+            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+
+            var uploadedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime, useMultiPartMime: true);
+            Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            artifact.Lock(_user);
+
+            var artifactDetails = CreateAndPopulateDocumentFileValue(_user, artifact, file);
+
+            var userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Artifact.UpdateArtifact(artifact, userWithNoPermissions, artifactDetails, 
+                address: Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+
+            // Verify:
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedExceptionMessage);
+
+            Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(file.Guid), "ExpiredTime for file should not be null if artifact is not saved!");
+        }
+
+        [TestCase]
+        [TestRail(227303)]
+        [Description("Create and publish document, attach file & delete attachment with user that does not have permissions.  Verify returns 403 Forbidden.")]
+        public void DeleteAttachment_PublishedDocumentWithAttachment_UserwithNoPermissions_403Forbidden()
+        {
+            // Setup:
+            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+
+            //Currently Nova set ExpireTime 2 days from today for newly uploaded file
+            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+
+            var uploadedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime, useMultiPartMime: true);
+            Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
+            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            artifact.Lock();
+
+            UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile);
+            
+            artifact.Publish(_user);
+            artifact.Lock(_user);
+
+            var userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            artifactDetails.DocumentFile = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Artifact.UpdateArtifact(artifact, userWithNoPermissions, artifactDetails,
+                address: Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+
+            // Verify:
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedExceptionMessage);
+
+            var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            Assert.IsNotNull(updatedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue, "File information should still be existing.  Value should not be null!");
+        }
+
+        [TestCase]
+        [TestRail(227304)]
+        [Description("Create and publish document, attach file, publish & replace attachment with user that does not have permissions.   Verify returns 403 Forbidden.")]
+        public void ReplaceAttachment_PublishedDocumentWithAttachment_UserwithNoPermissions_403Forbidden()
+        {
+            // Setup:
+            INovaFile file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            INovaFile file2 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(4096, "4KB_File.txt", "text/plain");
+
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
             System.DateTime expireTime = System.DateTime.Now.AddDays(2);
 
@@ -101,14 +209,30 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
             artifact.Lock(_user);
             UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile1);
-            artifact.StorytellerPublish(_user);
+            artifact.Publish(_user);
             artifact.Lock(_user);
             var uploadedFile2 = Helper.FileStore.AddFile(file2, _user, expireTime: expireTime, useMultiPartMime: true);
 
-            // Execute & Verify:
-            UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile2);
-        }
+            var artifactDetails = CreateAndPopulateDocumentFileValue(_user, artifact, uploadedFile2);
 
+            var userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Artifact.UpdateArtifact(artifact, userWithNoPermissions, artifactDetails,
+                address: Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+
+            // Verify:
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedExceptionMessage);
+
+            Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile2.Guid), "ExpiredTime for file should not be null if artifact is not saved!");
+
+            // Execute & Verify:
+            //            UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile2);
+        }
+        #endregion 403 Forbidden
+
+        #region Private functions
 
         /// <summary>
         /// Attaches specified file to the specified artifact and check that artifact has expected details.
@@ -119,25 +243,19 @@ namespace ArtifactStoreTests
         private void UpdateDocumentFile_CanGetAttachment(IUser user, IArtifact artifact, INovaFile file)
         {
             // Setup:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-            DocumentFileValue testFileValue = new DocumentFileValue();
-
-            testFileValue.FileExtension = "xls";//TODO - replace with param
-            testFileValue.FileGuid = file.Guid;
-            testFileValue.FileName = file.FileName;
-            testFileValue.FilePath = file.UriToFile.OriginalString;
-            artifactDetails.DocumentFile = testFileValue;
+            var artifactDetails = CreateAndPopulateDocumentFileValue(user, artifact, file);
 
             INovaArtifactDetails updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails, address: Helper.BlueprintServer.Address),
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, address: Helper.BlueprintServer.Address),
                 "Exception caught while trying to update an artifact!");
             var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             // Verify:
-            Assert.IsNull(Helper.FileStore.GetSQLExpiredTime(testFileValue.FileGuid), "After saving ExpiredTime for file should be Null.");
-            DocumentHasExpectedAttachment(updatedArtifactDetails, testFileValue);
+            Assert.IsNull(Helper.FileStore.GetSQLExpiredTime(file.Guid), "After saving ExpiredTime for file should be Null.");
+            //            DocumentHasExpectedAttachment(updatedArtifactDetails, testFileValue);
+            DocumentHasExpectedAttachment(artifactDetails, updatedArtifactDetails);
         }
 
         /// <summary>
@@ -149,18 +267,17 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-            DocumentFileValue testFileValue = null;
-            artifactDetails.DocumentFile = testFileValue;
+            artifactDetails.DocumentFile = null;
 
             INovaArtifactDetails updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, _user, artifactDetails,
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails,
                 address: Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
             var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             // Verify:
-            Assert.IsNull(updatedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue);
+            Assert.IsNull(updatedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue, "File information should not be existing.  Value should be null!");
         }
 
         /// <summary>
@@ -168,12 +285,40 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="artifactDetails">Artifact details to check.</param>
         /// <param name="expectedDocumentFile">Expected file info.</param>
-        private static void DocumentHasExpectedAttachment(INovaArtifactDetails artifactDetails, DocumentFileValue expectedDocumentFile)
+        private static void DocumentHasExpectedAttachment(INovaArtifactDetails expectedArtifactDetails, INovaArtifactDetails actualArtifactDetails)
         {
-            var documentFileProperty = artifactDetails.SpecificPropertyValues[0].CustomPropertyValue;
+            var expectedDocumentFileProperty = (DocumentFileValue)expectedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue;
+
+            var documentFileProperty = actualArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue;
             var actualDocumentFile = JsonConvert.DeserializeObject<DocumentFileValue>(documentFileProperty.ToString());
-            Assert.AreEqual(actualDocumentFile.FileExtension, expectedDocumentFile.FileExtension, "FileExtension should have expected value, but it doesn't.");
-            Assert.AreEqual(actualDocumentFile.FileName, expectedDocumentFile.FileName, "FileName should have expected value, but it doesn't.");
+
+            Assert.AreEqual(expectedDocumentFileProperty.FileExtension, actualDocumentFile.FileExtension, "FileExtension should have expected value, but it doesn't.");
+            Assert.AreEqual(expectedDocumentFileProperty.FileName, actualDocumentFile.FileName, "FileName should have expected value, but it doesn't.");
         }
+
+        /// <summary>
+        /// Creates and populates document file value.
+        /// </summary>
+        /// <param name="user">User to authenticate with.</param>
+        /// <param name="artifact">Artifact with document attachment</param>
+        /// <param name="file">File attached to artifact</param>
+        /// <returns></returns>
+        private NovaArtifactDetails CreateAndPopulateDocumentFileValue(IUser user, IArtifact artifact, INovaFile file)
+        {
+            const string EXTENTION = "xls";
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
+            DocumentFileValue testFileValue = new DocumentFileValue();
+
+            testFileValue.FileExtension = EXTENTION;
+            testFileValue.FileGuid = file.Guid;
+            testFileValue.FileName = file.FileName;
+            testFileValue.FilePath = file.UriToFile.OriginalString;
+            artifactDetails.DocumentFile = testFileValue;
+
+            return artifactDetails;
+        }
+
+        #endregion Private funactions
     }
 }

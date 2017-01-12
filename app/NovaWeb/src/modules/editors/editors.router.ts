@@ -33,7 +33,6 @@ export class ArtifactRoutes {
             .state("main.item", <ng.ui.IState>{
                 url: "/{id:int}?{version:int}&{path:navpath}",
                 template: require("./item-state/item-state.html"),
-                reloadOnSearch: false,
                 controller: ItemStateController,
                 controllerAs: "$ctrl",
                 params: {
@@ -41,8 +40,8 @@ export class ArtifactRoutes {
                     path: {array : false}
                 },
                 resolve: {
-                    itemInfo: ["$stateParams", "itemStateService",
-                        ($stateParams: ng.ui.IStateParamsService, itemStateService: IItemStateService) => {
+                    itemInfo: ["$stateParams", "itemStateService", "authenticated",
+                        ($stateParams: ng.ui.IStateParamsService, itemStateService: IItemStateService, authenticated) => {
 
                         const id = parseInt($stateParams["id"], 10);
                         return itemStateService.getItemInfoResult(id);

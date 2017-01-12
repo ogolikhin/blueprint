@@ -81,7 +81,7 @@ namespace Model.JobModel.Impl
         public int? UserId { get; set; }
         public string UserDisplayName { get; set; }
         public string Server { get; set; }
-        public string Progress { get; set; }
+        public decimal Progress { get; set; }
         public string Output { get; set; }
         public bool StatusChanged { get; set; }
         public bool HasCancelJob { get; set; }

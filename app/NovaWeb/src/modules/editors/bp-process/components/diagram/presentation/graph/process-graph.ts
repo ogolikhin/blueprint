@@ -121,6 +121,13 @@ export class ProcessGraph implements IProcessGraph {
             this.localization);
     }
 
+    private getElementByClassName (el: HTMLElement, cls: string): HTMLElement {
+        while ((el = el.parentElement) && !el.classList.contains(cls)) {
+            // nothing here
+        }
+        return el;
+    }
+
     private isCellSelectable = (cell: MxCell) => {
         if (cell instanceof DiagramNode) {
             return cell.isVertex();
@@ -269,6 +276,13 @@ export class ProcessGraph implements IProcessGraph {
 
     private initializeGraphContainer() {
         mxEvent.disableContextMenu(this.htmlElement);
+
+        // Remove  unneeded scrollbar
+        const parentElem = this.getElementByClassName(this.htmlElement, "page-body-wrapper");
+        if (!!parentElem) {
+            parentElem.style.overflow = "hidden";
+        }
+
         // This enables scrolling for the container of mxGraph
 
         if (this.viewModel.isSpa) {

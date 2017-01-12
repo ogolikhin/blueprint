@@ -129,6 +129,7 @@ $fonticon2-add: '\e84c'; /* '' */
 $fonticon2-more-menu: '\e84d'; /* '' */
 $fonticon2-unpublished: '\e852';
 $fonticon2-jobs: '\e848';
+$fonticon2-generate: '\e849';
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -512,6 +513,10 @@ $fonticon2-jobs: '\e848';
 }
 .fonticon2-jobs:before {
     content: $fonticon2-jobs;
+}
+.fonticon2-generate:before {
+    content: $fonticon2-generate;
+    font-size: 135%; // this icon has some optical illusion due to its zig-zag design that makes it look smaller than it is.  Need the corner to extend to its border a bit.
 }
 .fonticon2__action--disabled {
    color: $gray-lighter !important;

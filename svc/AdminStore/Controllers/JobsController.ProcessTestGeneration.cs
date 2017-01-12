@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Exceptions;
+using ServiceLibrary.Helpers;
 using ServiceLibrary.Models.Jobs;
 
 namespace AdminStore.Controllers
@@ -21,15 +25,41 @@ namespace AdminStore.Controllers
         /// <response code="500">InternalServerError.</response>
         [HttpPost]
         [Route("process/testgen"), SessionRequired]
-        [ResponseType(typeof(ProcessTestGenerationResult))]
-        public async Task<IHttpActionResult> GenerateProcessTests([FromBody] ProcessTestGenerationRequest request)
+        [ResponseType(typeof(AddJobResult))]
+        public async Task<IHttpActionResult> QueueGenerateProcessTestsJob([FromBody] GenerateProcessTestsJobParameters request)
         {
-            await Task.FromResult(true);
+            ValidateRequest(request);
 
-            return Ok(new ProcessTestGenerationResult
-	        {
-	            JobId = -1
-	        });
+            var session = GetSession(Request);    
+            var parameters = SerializationHelper.ToXml(request.Processes);
+            var hostUri = ServerUriHelper.BaseHostUri;
+            var jobId = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
+                false, 
+                parameters , 
+                null, 
+                request.ProjectId,
+                request.ProjectName, 
+                session.UserId, 
+                session.UserName,
+                hostUri.ToString());
+
+            if (!jobId.HasValue)
+            {
+                return InternalServerError();
+            }
+
+            return Ok(new AddJobResult() { JobMessageId = jobId.Value });
 	    }
-	}
+
+        #region private methods
+
+	    void ValidateRequest(GenerateProcessTestsJobParameters request)
+	    {
+	        if (request?.Processes == null || !request.Processes.Any() || request.ProjectId <= 0)
+	        {
+	            throw new BadRequestException();
+	        }
+	    }
+	    #endregion
+    }
 }

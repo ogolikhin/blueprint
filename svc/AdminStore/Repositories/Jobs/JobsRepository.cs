@@ -125,13 +125,18 @@ namespace AdminStore.Repositories.Jobs
             }
         }
 
-        public async Task<JobInfo> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+        public async Task<int?> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
             int? projectId, string projectLabel, int userId, string userName, string hostUri)
         {
             var jobMessage = await AddJobMessageQuery(type, hidden, parameters, 
                 receiverJobServiceId, projectId, projectLabel, userId, userName, hostUri);
 
-            return GetJobInfo(jobMessage, null, null);
+            if (jobMessage == null)
+            {
+                return null;
+            }
+
+            return jobMessage.JobMessageId;
         }
 
         #endregion

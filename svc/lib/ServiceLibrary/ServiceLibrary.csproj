@@ -126,7 +126,6 @@
     <Compile Include="Models\Jobs\DJobMessage.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenerationRequest.cs" />
-    <Compile Include="Models\Jobs\ProcessTestGenerationResult.cs" />
     <Compile Include="Models\Jobs\ProjectExportResultDetails.cs" />
     <Compile Include="Models\Jobs\ProjectExportTaskStatus.cs" />
     <Compile Include="Models\Jobs\JobResult.cs" />

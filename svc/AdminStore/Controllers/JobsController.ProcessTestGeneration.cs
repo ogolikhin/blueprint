@@ -25,29 +25,26 @@ namespace AdminStore.Controllers
         /// <response code="500">InternalServerError.</response>
         [HttpPost]
         [Route("process/testgen"), SessionRequired]
-        [ResponseType(typeof(ProcessTestGenerationResult))]
+        [ResponseType(typeof(JobInfo))]
         public async Task<IHttpActionResult> QueueGenerateProcessTestsJob([FromBody] GenerateProcessTestsJobParameters request)
         {
             ValidateRequest(request);
 
             var parameters = SerializationHelper.ToXml(request);
 
-            var queuedJob = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
+            var queuedJobInfo = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
                 false, 
                 parameters , 
                 null, 
                 request.ProjectId,
                 request.ProjectName);
 
-            if (queuedJob == null)
+            if (queuedJobInfo == null)
             {
                 return InternalServerError();
             }
 
-            return Ok(new ProcessTestGenerationResult
-	        {
-	            JobId = queuedJob.JobMessageId
-	        });
+            return Ok(queuedJobInfo);
 	    }
 
         #region private methods

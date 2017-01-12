@@ -125,16 +125,18 @@ namespace AdminStore.Repositories.Jobs
             }
         }
 
-        public async Task<DJobMessage> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+        public async Task<JobInfo> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
             int? projectId, string projectLabel)
         {
             int? userId = null;
             string userName = null;
             string hostUri = null;
 
-            return await AddJobMessage(type, hidden, parameters, 
+            var jobMessage = await AddJobMessage(type, hidden, parameters, 
                 receiverJobServiceId, projectId, projectLabel, 
                 userId, userName, hostUri);
+
+            return GetJobInfo(jobMessage, null, null);
         }
 
         #endregion
@@ -225,13 +227,13 @@ namespace AdminStore.Repositories.Jobs
                 JobEndDateTime = jobMessage.EndTimestamp == null ? jobMessage.EndTimestamp : DateTime.SpecifyKind(jobMessage.EndTimestamp.Value, DateTimeKind.Utc),
                 JobType = jobMessage.Type,
                 Progress = jobMessage.Progress,
-                Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel,
+                Project = jobMessage.ProjectId.HasValue && projectNameMap != null ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel,
                 Server = jobMessage.ExecutorJobServiceId,
                 Status = jobMessage.Status.Value,
                 UserId = jobMessage.UserId,
                 Output = jobMessage.StatusDescription,
                 StatusChanged = jobMessage.StatusChangedTimestamp != null,
-                HasCancelJob = systemMessageMap.ContainsKey(jobMessage.JobMessageId),
+                HasCancelJob = systemMessageMap != null ? systemMessageMap.ContainsKey(jobMessage.JobMessageId) : false,
                 ProjectId = jobMessage.ProjectId,
                 Result = jobMessage.Result
             };

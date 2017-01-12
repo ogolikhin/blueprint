@@ -97,7 +97,7 @@ export class BPTooltip implements ng.IDirective {
                 const elem = $element[0];
 
                 let clientRect = elem.getBoundingClientRect();
-                const width = clientRect.width;
+                const width = _.round(clientRect.width);
                 const height = _.ceil(clientRect.height);
                 // this allows to deal with inline elements, whose scrollWidth/Height is 0
                 let scrollWidth = _.max([elem.scrollWidth, width]);
@@ -105,13 +105,14 @@ export class BPTooltip implements ng.IDirective {
 
                 if (!isTriggerJustAWrapper(elem) &&
                     (width < scrollWidth || height < scrollHeight)) {
+                    console.log(width, elem.scrollWidth, scrollWidth);
                     return true;
                 }
 
                 if (isTriggerJustAWrapper(elem)) {
                     const child = elem.firstElementChild as HTMLElement;
                     const computedStyle = window.getComputedStyle(child);
-                    const availableWidth = _.round(width) - parseFloat(computedStyle.marginLeft) - parseFloat(computedStyle.marginRight);
+                    const availableWidth = width - parseFloat(computedStyle.marginLeft) - parseFloat(computedStyle.marginRight);
                     const availableHeight = height - parseFloat(computedStyle.marginTop) - parseFloat(computedStyle.marginBottom);
 
                     clientRect = child.getBoundingClientRect();

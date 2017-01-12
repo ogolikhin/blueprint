@@ -297,13 +297,13 @@ namespace AdminStore.Repositories.Jobs
 
             param.Add("@type", (long)type);
             param.Add("@hidden", hidden);
-            param.Add("@parameters", parameters ?? (object)DBNull.Value);
-            param.Add("@receiverJobServiceId", receiverJobServiceId ?? (object)DBNull.Value);
-            param.Add("@userId", userId ?? (object)DBNull.Value);
-            param.Add("@userLogin", userName ?? (object)DBNull.Value);
-            param.Add("@projectId", projectId ?? (object)DBNull.Value);
-            param.Add("@projectLabel", projectLabel ?? (object)DBNull.Value);
-            param.Add("@hostUri", (hostUri == null) ? (object)DBNull.Value : hostUri);
+            param.Add("@parameters", parameters);
+            param.Add("@receiverJobServiceId", receiverJobServiceId);
+            param.Add("@userId", userId);
+            param.Add("@userLogin", userName);
+            param.Add("@projectId", projectId);
+            param.Add("@projectLabel", projectLabel);
+            param.Add("@hostUri", hostUri);
 
             try
             {

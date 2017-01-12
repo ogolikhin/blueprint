@@ -26,7 +26,7 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("process/testgen"), SessionRequired]
         [ResponseType(typeof(ProcessTestGenerationResult))]
-        public async Task<IHttpActionResult> QueueGenerateProcessTestsJob([FromBody] ProcessTestGenerationRequest request)
+        public async Task<IHttpActionResult> QueueGenerateProcessTestsJob([FromBody] GenerateProcessTestsJobParameters request)
         {
             ValidateRequest(request);
 
@@ -46,14 +46,13 @@ namespace AdminStore.Controllers
 
             return Ok(new ProcessTestGenerationResult
 	        {
-	            JobId = queuedJob.JobMessageId,
-
+	            JobId = queuedJob.JobMessageId
 	        });
 	    }
 
         #region private methods
 
-	    void ValidateRequest(ProcessTestGenerationRequest request)
+	    void ValidateRequest(GenerateProcessTestsJobParameters request)
 	    {
 	        if (request?.Processes == null || !request.Processes.Any() || request.ProjectId <= 0)
 	        {

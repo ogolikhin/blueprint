@@ -45,7 +45,7 @@ export class BPTooltip implements ng.IDirective {
             if (window["MutationObserver"]) {
                 observer = new MutationObserver(function (mutations) {
                     mutations.forEach(function (mutation) {
-                        let tooltipText = angular.element(mutation.target).attr("bp-tooltip");
+                        const tooltipText = angular.element(mutation.target).attr("bp-tooltip");
                         angular.element(tooltip).children().html(tooltipText);
                         angular.element(tooltip).addClass("show");
                     });

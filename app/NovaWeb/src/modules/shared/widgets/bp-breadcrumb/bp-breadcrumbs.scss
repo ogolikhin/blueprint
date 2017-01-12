@@ -1,0 +1,77 @@
+@import '../../../../styles/settings/typography';
+@import '../../../../styles/settings/colors';
+@import '../../../../styles/modules/mixins';
+
+$breadcrumbs-item-height: $breadcrumbs-height - 1px;
+
+.breadcrumbs {
+    align-items: center;
+    background: $body-bg-color;
+    border-bottom: solid 1px $white;
+    box-sizing: border-box;
+    display: flex;
+    flex: none;
+    flex-flow: row nowrap;
+    font-size: $font-size-big;
+    height: $breadcrumbs-height;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0 50px;
+    transition-duration: .5s;
+    transition-property: padding-left, padding-right;
+
+    &::after {
+        clear: both;
+        content: '';
+        display: table;
+    }
+
+    .breadcrumbs__item {
+        color: $gray;
+        display: block;
+        height: $breadcrumbs-item-height;
+        line-height: $breadcrumbs-item-height;
+        list-style-type: none;
+        min-width: 40px;
+        overflow: hidden;
+        padding-left: 4px;
+
+        &:first-child {
+            padding-left: 0;
+        }
+    }
+
+    .breadcrumbs__link {
+        @include text-ellipsis-flex-width(500px);
+        color: $brand-secondary;
+        cursor: pointer;
+        display: inline-block;
+        font-weight: $font-weight-semibold;
+        line-height: $breadcrumbs-item-height;
+        text-decoration: none;
+        width: 100%;
+
+        &::before {
+            color: $gray;
+            content: '> ';
+            font-weight: $font-weight-normal;
+        }
+    }
+
+    .breadcrumbs__link--inaccessible {
+        color: $gray-dark;
+        cursor: default;
+    }
+
+    .breadcrumbs__link--first::before {
+        content: '';
+    }
+}
+
+.left-panel-visible .breadcrumbs {
+    padding-left: 20px;
+}
+
+.right-panel-visible .breadcrumbs {
+    padding-right: 20px;
+}

@@ -99,7 +99,7 @@ namespace Model
 
                 public static class Jobs_id_
                 {
-                    public static class RESULT
+                    public static class Result
                     {
                         public const string FILE                    = "svc/adminstore/jobs/{0}/result/file";
                     }

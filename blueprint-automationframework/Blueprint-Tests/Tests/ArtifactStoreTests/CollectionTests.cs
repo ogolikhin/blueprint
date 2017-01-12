@@ -65,6 +65,61 @@ namespace ArtifactStoreTests
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd });
         }
 
+        [TestCase()]
+        [TestRail(195445)]
+        [Description("Create new collection, add 2 artifacts to collection and save changes, remove 1 artifact and save, check collection content.")]
+        public void UpdateCollection_AddTwoArtifactsToCollectionAndSave_RemoveOneArtifactFromCollectionAndSave_CheckContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifactToAdd = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            var artifactToRemove = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Process);
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+
+            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id, artifactToRemove.Id });
+            collectionArtifact.Lock(_authorUser);
+            Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection);
+
+            // Execute:
+            collection.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove.Id });
+            
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection); },
+                "Updating collection content should throw no error.");
+
+            // Verify:
+            collection = Helper.ArtifactStore.GetCollection(_authorUser, collection.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have 1 artifact");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd });
+        }
+
+        [TestCase(1)]
+        [TestCase(5)]
+        [TestRail(195472)]
+        [Description("Create new collection, publish new artifact, add artifact to collection and publish changes, check collection content.")]
+        public void UpdateCollection_AddPublishedArtifactsToCollection_Publish_ValidateCollectionContent(int artifactsNumber)
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            List<IArtifact> artifactsToAdd = new List<IArtifact>();
+            for (int i = 0; i < artifactsNumber; i++)
+            {
+                artifactsToAdd.Add(Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor));
+            }
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+
+            // Execute:
+            collection.UpdateArtifacts(artifactsIdsToAdd: artifactsToAdd.ConvertAll(artifact => artifact.Id));
+            collectionArtifact.Lock(_authorUser);
+            Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection);
+            Assert.DoesNotThrow(() => { Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser); },
+                "Publishing collection should throw no error.");
+
+            // Verify:
+            collection = Helper.ArtifactStore.GetCollection(_adminUser, collection.Id);
+            Assert.AreEqual(artifactsNumber, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, artifactsToAdd);
+        }
+
         /// <summary>
         /// Creates empty collection and return corresponding IArtifact.
         /// </summary>

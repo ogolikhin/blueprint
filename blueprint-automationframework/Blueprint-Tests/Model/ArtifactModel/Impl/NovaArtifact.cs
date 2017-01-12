@@ -25,7 +25,6 @@ namespace Model.ArtifactModel.Impl
         public override int? ProjectId { get; set; }
         public override int? Version { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // This property can be null, so setter is needed.
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifact, NovaArtifact>))]
         public List<INovaArtifact> Children { get; set; }   // This is optional and can be null depending on the REST call made.
 

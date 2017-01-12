@@ -1330,7 +1330,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_RTF_Inlin
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Not_Available', 'en-US', N'n/a')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The operation could not be completed because of privilege-related issues.')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'Sorry, but the artifact cannot be found. It has likely been deleted or moved.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'The artifact could not be found.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Collection_NotFound', 'en-US', N'The Collection has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_InternalServer', 'en-US', N'Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Error_Page_Message1', 'en-US', N'An error ocurred while loading the page.')
@@ -2070,9 +2070,9 @@ BEGIN
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS UniqueAuthors
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS UniqueCollaborators
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS UniqueViewers
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentAuthors
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentCollaborators
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentViewers
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConcurrentAuthors
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConcurrentCollaborators
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConcurrentViewers
 		,COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE NULL END) AS UsersFromAnalytics
 		,COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE NULL END) AS UsersFromRestApi
 			

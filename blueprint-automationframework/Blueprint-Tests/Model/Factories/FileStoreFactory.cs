@@ -22,7 +22,6 @@ namespace Model.Factories
         /// </summary>
         /// <returns>The FileStore object.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IFileStore GetFileStoreFromTestConfig()
         {
             string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.FileStore);

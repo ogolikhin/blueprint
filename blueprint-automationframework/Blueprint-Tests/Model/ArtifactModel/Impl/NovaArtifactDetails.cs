@@ -126,16 +126,12 @@ namespace Model.ArtifactModel.Impl
         public int ItemTypeVersionId { get; set; }
         public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         public List<CustomProperty> CustomPropertyValues { get; set; } = new List<CustomProperty>();
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         public List<CustomProperty> SpecificPropertyValues { get; set; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         public List<NovaTrace> Traces { get; set; }
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         public List<NovaSubArtifact> SubArtifacts { get; set; }
 
         // TODO: found following properties when capturing PATCH /svc/bpartifactstore/artifacts/{artifactID}: 
@@ -308,14 +304,12 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// The artifacts that were published.
         /// </summary>
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
         public List<INovaArtifactResponse> Artifacts { get; set; } = new List<INovaArtifactResponse>();
 
         /// <summary>
         /// The projects where the published artifacts exist.
         /// </summary>
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]     // Ignore this warning for now.
         [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaProject, NovaProject>))]
         public List<INovaProject> Projects { get; set; } = new List<INovaProject>();
 
@@ -361,9 +355,7 @@ namespace Model.ArtifactModel.Impl
         public string DiagramType { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Shapes { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Connections { get; set; }
         public int LibraryVersion { get; set; }
 
@@ -406,7 +398,6 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> SubArtifacts { get; set; }
 
         #endregion Serialized JSON Properties
@@ -449,7 +440,6 @@ namespace Model.ArtifactModel.Impl
         public int? PredefinedType { get; set; }
 
         public RapidReviewUseCasePreCondition PreCondition { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<RapidReviewUseCaseStep> Steps { get; set; }
         public RapidReviewUseCasePostCondition PostCondition { get; set; }
 

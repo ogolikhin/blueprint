@@ -29,7 +29,8 @@ export class BPTooltip implements ng.IDirective {
                 tooltip.style.left = (e.clientX - 15) + "px";
                 angular.element(tooltip).removeClass("bp-tooltip-right-tip").addClass("bp-tooltip-left-tip");
             }
-            if (e.clientY > 80) { // put the tooltip at the bottom only within 80px from the top of the window
+            const rect = tooltip.getBoundingClientRect();
+            if (rect.height < e.clientY - 20) {
                 tooltip.style.top = "";
                 tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
                 angular.element(tooltip).removeClass("bp-tooltip-top-tip").addClass("bp-tooltip-bottom-tip");
@@ -44,7 +45,7 @@ export class BPTooltip implements ng.IDirective {
             if (window["MutationObserver"]) {
                 observer = new MutationObserver(function (mutations) {
                     mutations.forEach(function (mutation) {
-                        let tooltipText = angular.element(mutation.target).attr("bp-tooltip");
+                        const tooltipText = angular.element(mutation.target).attr("bp-tooltip");
                         angular.element(tooltip).children().html(tooltipText);
                         angular.element(tooltip).addClass("show");
                     });
@@ -96,7 +97,7 @@ export class BPTooltip implements ng.IDirective {
                 const elem = $element[0];
 
                 let clientRect = elem.getBoundingClientRect();
-                const width = clientRect.width;
+                const width = _.round(clientRect.width);
                 const height = _.ceil(clientRect.height);
                 // this allows to deal with inline elements, whose scrollWidth/Height is 0
                 let scrollWidth = _.max([elem.scrollWidth, width]);
@@ -110,7 +111,7 @@ export class BPTooltip implements ng.IDirective {
                 if (isTriggerJustAWrapper(elem)) {
                     const child = elem.firstElementChild as HTMLElement;
                     const computedStyle = window.getComputedStyle(child);
-                    const availableWidth = _.round(width) - parseFloat(computedStyle.marginLeft) - parseFloat(computedStyle.marginRight);
+                    const availableWidth = width - parseFloat(computedStyle.marginLeft) - parseFloat(computedStyle.marginRight);
                     const availableHeight = height - parseFloat(computedStyle.marginTop) - parseFloat(computedStyle.marginBottom);
 
                     clientRect = child.getBoundingClientRect();
@@ -144,7 +145,7 @@ export class BPTooltip implements ng.IDirective {
             if (angular.element(document.body).hasClass("is-touch")) {
                 //disabled for touch devices (for now)
             } else {
-                let elem = $element[0];
+                const elem = $element[0];
 
                 elem.addEventListener("mousemove", updateTooltip);
                 elem.addEventListener("mouseover", createTooltip);

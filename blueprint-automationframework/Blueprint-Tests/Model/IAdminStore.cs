@@ -1,6 +1,7 @@
 ﻿using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Enums;
+using Model.JobModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -111,7 +112,6 @@ namespace Model
         /// <param name="preAuthorizedKey">(optional) The pre-authorized key to use for authentication.  Defaults to a valid key.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A JSON structure containing the status of this service and its dependent services.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -120,7 +120,6 @@ namespace Model
         /// </summary>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The status code returned by AdminStore.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]
         HttpStatusCode GetStatusUpcheck(List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -247,8 +246,8 @@ namespace Model
         /// <param name="pageSize">(optional) The maximum number of jobs on each page.</param>
         /// <param name="jobType">(optional) The job type that user can filter with. If null, returns all jobs without filtering</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
-        /// <returns>List of JobInfo</returns>
-        List<IJobInfo> GetJobs(IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>JobResult</returns>
+        JobResult GetJobs(IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Get a job for the user
@@ -258,6 +257,15 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
         /// <returns>JobInfo</returns>
         IJobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets a result file from the job result
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="jobId">The job ID</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The file that was requested</returns>
+        IFile GetJobResultFile(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
 
     }
 }

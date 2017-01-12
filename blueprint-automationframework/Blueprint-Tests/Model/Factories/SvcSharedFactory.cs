@@ -22,7 +22,6 @@ namespace Model.Factories
         /// </summary>
         /// <returns>The ISvcShared object.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static ISvcShared GetSvcSharedFromTestConfig()
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();

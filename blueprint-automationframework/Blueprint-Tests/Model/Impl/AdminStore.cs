@@ -6,10 +6,12 @@ using Model.JobModel.Enums;
 using Model.JobModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using RestSharp.Extensions.MonoHttp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using Utilities;
 using Utilities.Facades;
 
@@ -547,7 +549,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetJobs(IUser, int?, int?, JobType?, List{HttpStatusCode})"/>
-        public List<IJobInfo> GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
+        public JobResult GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJobs));
 
@@ -574,13 +576,14 @@ namespace Model.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var restResponse = restApi.SendRequestAndDeserializeObject<List<JobInfo>>(
+            var returnedJobResult = restApi.SendRequestAndDeserializeObject<JobResult>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
-            return restResponse.ConvertAll(o => (IJobInfo)o);
+            return returnedJobResult;
         }
 
         /// <seealso cref="IAdminStore.GetJob(IUser, int, List{HttpStatusCode})"/>
@@ -603,6 +606,42 @@ namespace Model.Impl
             return jobInfo;
         }
 
+        /// <seealso cref="IAdminStore.GetJobResultFile(IUser, int, List{HttpStatusCode})"/>
+        public IFile GetJobResultFile(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJobResultFile));
+
+            File file = null;
+
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Jobs_id_.Result.FILE, jobId);
+
+            var tokenValue = user?.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Create a file represents output file associated with the job
+            // TODO: Guid for the file cannot be retrieved with any existing API calls at this point and there is no plan to get the guid.
+            // TODO: Will introduce the sql calls later if it's required
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                string filename = HttpUtility.UrlDecode(new ContentDisposition(
+                            response.Headers.First(h => h.Key == "Content-Disposition").Value.ToString()).FileName);
+
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    FileType = response.ContentType,
+                    FileName = filename
+                };
+            }
+
+            return file;
+        }
 
         #endregion Members inherited from IAdminStore
 

@@ -42,7 +42,7 @@ namespace SearchServiceTests
 
                 Assert.DoesNotThrow(() =>
                 {
-                    content = helper.SearchService.GetStatus();
+                    content = helper.SearchService.GetStatus(preAuthorizedKey: null);
                 }, "The GET /status endpoint should return 200 OK!");
 
                 var extraExpectedStrings = new List<string> { "SearchService", "Blueprint" };

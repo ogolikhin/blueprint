@@ -24,10 +24,9 @@ namespace Helper
         /// <param name="content">The content returned from a GET /status call.</param>
         /// <param name="extraExpectedStrings">(optional) A list of additional strings to search for in the returned JSON content.</param>
         /// <exception cref="AssertionException">If any expected fields are not found.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0")]   // The first assert already validates for null.
         public static void ValidateStatusResponseContent(string content, IList<string> extraExpectedStrings = null)
         {
-            Assert.IsFalse(string.IsNullOrWhiteSpace(content), "GET /status returned no content!");
+            Assert.IsNotNullOrEmpty(content, "GET /status returned no content!");
 
             Logger.WriteDebug("GET /status returned: '{0}'", content);
 

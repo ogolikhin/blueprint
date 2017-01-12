@@ -20,7 +20,6 @@ namespace Model.Factories
         /// Creates a BlueprintServer object with the settings defined in the TestConfiguration.
         /// </summary>
         /// <returns>The BlueprintServer object.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IBlueprintServer GetBlueprintServerFromTestConfig()
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();

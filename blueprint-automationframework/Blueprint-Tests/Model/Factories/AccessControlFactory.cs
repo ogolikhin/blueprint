@@ -22,7 +22,6 @@ namespace Model.Factories
         /// </summary>
         /// <returns>The AccessControl object.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IAccessControl GetAccessControlFromTestConfig()
         {
             string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AccessControl);

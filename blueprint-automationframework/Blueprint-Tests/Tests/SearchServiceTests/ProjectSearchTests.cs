@@ -6,7 +6,6 @@ using Model.SearchServiceModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using TestCommon;
-using Utilities;
 
 namespace SearchServiceTests
 {

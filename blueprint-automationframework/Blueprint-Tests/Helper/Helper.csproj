@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccessControlDoubleHelper.cs" />
+    <Compile Include="AdminStoreHelper.cs" />
     <Compile Include="ArtifactStoreHelper.cs" />
     <Compile Include="CommonServiceHelper.cs" />
     <Compile Include="ConcurrentTestHelper.cs" />

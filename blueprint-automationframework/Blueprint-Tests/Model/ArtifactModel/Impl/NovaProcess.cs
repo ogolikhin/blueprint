@@ -23,7 +23,6 @@ namespace Model.ArtifactModel.Impl
 
         // Mapping between temporary ids sent and actual ids received
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<KeyValuePair<int, int>> TempIdMap
         {
             get; set;

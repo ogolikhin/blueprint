@@ -34,9 +34,12 @@ namespace Model
                     }
                 }
 
-                public static class Targets_id_
+                public static class ALM
                 {
-                    public const string JOBS                        = "api/v1/projects/{0}/alm/targets/{1}/jobs";
+                    public static class Targets_id_
+                    {
+                        public const string JOBS                    = "api/v1/projects/{0}/alm/targets/{1}/jobs";
+                    }
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]   // Ignore this warning.
@@ -71,6 +74,7 @@ namespace Model
                     public const string ACTIVE                      = "svc/accesscontrol/licenses/active";
                     public const string LOCKED                      = "svc/accesscontrol/licenses/locked";
                     public const string TRANSACTIONS                = "svc/accesscontrol/licenses/transactions";
+                    public const string USAGE                       = "svc/AccessControl/licenses/usage";
                 }
 
                 public static class Sessions
@@ -91,6 +95,15 @@ namespace Model
                 public const string SESSIONS                        = "svc/adminstore/sessions";
                 public const string STATUS                          = "svc/adminstore/status";
                 public const string JOBS                            = "svc/adminstore/jobs";
+                public const string JOBS_id_                        = "svc/adminstore/jobs/{0}";
+
+                public static class Jobs_id_
+                {
+                    public static class Result
+                    {
+                        public const string FILE                    = "svc/adminstore/jobs/{0}/result/file";
+                    }
+                }
 
                 public static class Config
                 {

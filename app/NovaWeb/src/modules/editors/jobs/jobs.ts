@@ -108,6 +108,8 @@ export class JobsController {
 
         this.jobsService.getJob(job.jobId)
             .then((result: IJobInfo) => {
+                // refresh job does not return user display name in the stored procedure, so api returns this property as null. 
+                // Returned value from server needs to be undefined for _.merge() to not overwrite the previous value.
                 result.userDisplayName = undefined;
                 _.merge(job, result);
             });
@@ -129,7 +131,9 @@ export class JobsController {
         this.jobsService.getJobs(page, this.paginationData.pageSize)
             .then((result: IJobResult) => {
                 this.jobs = result.jobInfos;
-                if (result.totalJobCount) {
+                // When user's navigating through pages, if last page returns 0 results, the total count is not returned. In that case when we're
+                // not on the first page, and server returns 0 total jobs, we don't update it to keep pagination control for user to go back.
+                if (result.totalJobCount || this.isFirstPage()) {
                     this.paginationData.total = result.totalJobCount;
                 }
             })
@@ -219,8 +223,16 @@ export class JobsController {
         return this.jobs.length === 0;
     }
 
-    public showPagination(): boolean {
-        return (!this.isJobsEmpty() || this.paginationData.page > 1) && !this.isLoading;
+    public canShowPagination(): boolean {        
+        return !this.isLoading && (!this.isFirstPage() || this.containsMoreThanOnePage());
+    }
+
+    private isFirstPage(): boolean {
+        return this.paginationData.page === 1;
+    }
+
+    private containsMoreThanOnePage(): boolean {
+        return this.paginationData.total > this.paginationData.pageSize;
     }
 
     public $onDestroy() {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Data;
-using System.Data.SqlClient;
-using Common;
+﻿using System.Data;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using TestConfig;
@@ -26,7 +23,6 @@ namespace Model.Factories
         /// </summary>
         /// <returns>The Storyteller object.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IStoryteller GetStorytellerFromTestConfig()
         {
             TestConfiguration testConfig = TestConfig.TestConfiguration.GetInstance();

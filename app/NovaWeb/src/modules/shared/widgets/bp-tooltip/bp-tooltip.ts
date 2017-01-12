@@ -29,7 +29,8 @@ export class BPTooltip implements ng.IDirective {
                 tooltip.style.left = (e.clientX - 15) + "px";
                 angular.element(tooltip).removeClass("bp-tooltip-right-tip").addClass("bp-tooltip-left-tip");
             }
-            if (e.clientY > 80) { // put the tooltip at the bottom only within 80px from the top of the window
+            const rect = tooltip.getBoundingClientRect();
+            if (rect.height < e.clientY - 20) {
                 tooltip.style.top = "";
                 tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
                 angular.element(tooltip).removeClass("bp-tooltip-top-tip").addClass("bp-tooltip-bottom-tip");
@@ -144,7 +145,7 @@ export class BPTooltip implements ng.IDirective {
             if (angular.element(document.body).hasClass("is-touch")) {
                 //disabled for touch devices (for now)
             } else {
-                let elem = $element[0];
+                const elem = $element[0];
 
                 elem.addEventListener("mousemove", updateTooltip);
                 elem.addEventListener("mouseover", createTooltip);

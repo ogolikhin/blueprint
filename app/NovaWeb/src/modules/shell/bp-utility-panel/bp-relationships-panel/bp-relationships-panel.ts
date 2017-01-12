@@ -116,7 +116,7 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
 
         //when we do refresh we empty selectedTraces array
         if (!_.find(relationships, relationship => relationship.isSelected === true)) {
-            if (this.selectedTraces) {
+            if (this.selectedTraces && this.selectedTraces[this.item.id]) {
                 this.selectedTraces[this.item.id].length = 0;
             }
         };

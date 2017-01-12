@@ -549,7 +549,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetJobs(IUser, int?, int?, JobType?, List{HttpStatusCode})"/>
-        public List<IJobInfo> GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
+        public JobResult GetJobs (IUser user, int? page=null, int? pageSize=null, JobType? jobType=null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(GetJobs));
 
@@ -576,13 +576,14 @@ namespace Model.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var restResponse = restApi.SendRequestAndDeserializeObject<List<JobInfo>>(
+            var returnedJobResult = restApi.SendRequestAndDeserializeObject<JobResult>(
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
-            return restResponse.ConvertAll(o => (IJobInfo)o);
+            return returnedJobResult;
         }
 
         /// <seealso cref="IAdminStore.GetJob(IUser, int, List{HttpStatusCode})"/>

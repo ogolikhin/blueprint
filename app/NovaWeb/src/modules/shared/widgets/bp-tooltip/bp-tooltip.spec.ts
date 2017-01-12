@@ -413,4 +413,42 @@ describe("Directive BP-Tooltip", () => {
             }
         )
     );
+
+    it("moves the tooltip to the bottom if too close to the top edge",
+        inject(
+            ($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
+                // Arrange
+                const scope = $rootScope.$new();
+                scope["tooltipContent"] = _.pad("", 300, "ABCDEFGHI "); // generates long content for the tooltip
+                scope["tooltipTrigger"] = "Tooltip trigger";
+                const element = $compile(template)(scope);
+                angular.element("body").append(element);
+                document.body.style.width = "300px";
+                document.body.style.height = "400px";
+                scope.$digest();
+
+                // Act
+                $rootScope.$apply();
+                const trigger = <HTMLElement>element[0].firstChild;
+                trigger.dispatchEvent(new Event("mouseover", {"bubbles": true}));
+                const tooltip = <HTMLElement>document.body.querySelector("div.bp-tooltip");
+
+                const ev = document.createEvent("MouseEvent");
+                ev.initMouseEvent(
+                    "mousemove",
+                    true /* bubble */, true /* cancelable */,
+                    window, null,
+                    0, 0, /* screen coordinates */
+                    document.body.clientWidth * 0.25, 100, /* client coordinates */
+                    false, false, false, false, /* modifier keys */
+                    null, null
+                );
+                trigger.dispatchEvent(ev);
+
+                // Assert
+                expect(tooltip.classList).toContain("bp-tooltip-top-tip");
+                expect(tooltip.classList).not.toContain("bp-tooltip-bottom-tip");
+            }
+        )
+    );
 });

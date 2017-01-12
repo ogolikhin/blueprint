@@ -33,7 +33,6 @@ export class ArtifactRoutes {
             .state("main.item", <ng.ui.IState>{
                 url: "/{id:int}?{version:int}&{path:navpath}",
                 template: require("./item-state/item-state.html"),
-                reloadOnSearch: false,
                 controller: ItemStateController,
                 controllerAs: "$ctrl",
                 params: {

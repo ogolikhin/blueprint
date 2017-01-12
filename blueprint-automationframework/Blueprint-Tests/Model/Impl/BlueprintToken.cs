@@ -41,7 +41,6 @@ namespace Model.Impl
         /// <summary>
         /// Gets/sets the AccessControl token string.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1820:TestForEmptyStringsUsingStringLength")]   // Ignore this warning.
         public string AccessControlToken
         {
             get { return _accessControlToken; }
@@ -55,7 +54,6 @@ namespace Model.Impl
         /// <summary>
         /// Gets/sets the OpenAPI token string.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1820:TestForEmptyStringsUsingStringLength")]   // Ignore this warning.
         public string OpenApiToken
         {
             get { return _openApiToken; }

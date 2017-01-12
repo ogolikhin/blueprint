@@ -366,7 +366,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
-            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=35668
+            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4691
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -385,7 +385,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify
-            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=35668
+            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4691
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -409,7 +409,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify
-            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=35668
+            // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4691
         }
 
         #endregion 403 Forbidden

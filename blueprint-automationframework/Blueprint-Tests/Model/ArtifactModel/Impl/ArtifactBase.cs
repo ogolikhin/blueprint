@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using NUnit.Framework;
@@ -77,7 +76,6 @@ namespace Model.ArtifactModel.Impl
 
         //TODO Remove these from here or make them generic for both Artifact and OpenApiArtifact (So we don't need to use OpenApiArtifact in the Artifact class
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
         public List<OpenApiProperty> Properties { get; set; } = new List<OpenApiProperty>();
 

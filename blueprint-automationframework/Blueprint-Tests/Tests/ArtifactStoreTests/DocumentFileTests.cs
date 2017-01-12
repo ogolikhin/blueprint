@@ -252,7 +252,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.IsNull(Helper.FileStore.GetSQLExpiredTime(file.Guid), "After saving ExpiredTime for file should be Null.");
-            //            DocumentHasExpectedAttachment(updatedArtifactDetails, testFileValue);
+
             DocumentHasExpectedAttachment(artifactDetails, updatedArtifactDetails);
         }
 

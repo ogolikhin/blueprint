@@ -126,15 +126,10 @@ namespace AdminStore.Repositories.Jobs
         }
 
         public async Task<JobInfo> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
-            int? projectId, string projectLabel)
+            int? projectId, string projectLabel, int userId, string userName, string hostUri)
         {
-            int? userId = null;
-            string userName = null;
-            string hostUri = null;
-
-            var jobMessage = await AddJobMessage(type, hidden, parameters, 
-                receiverJobServiceId, projectId, projectLabel, 
-                userId, userName, hostUri);
+            var jobMessage = await AddJobMessageQuery(type, hidden, parameters, 
+                receiverJobServiceId, projectId, projectLabel, userId, userName, hostUri);
 
             return GetJobInfo(jobMessage, null, null);
         }
@@ -291,8 +286,8 @@ namespace AdminStore.Repositories.Jobs
             return projectNameIdDictionary;
         }
 
-        private async Task<DJobMessage> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
-            int? projectId, string projectLabel, int? userId, string userName, string hostUri)
+        private async Task<DJobMessage> AddJobMessageQuery(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+            int? projectId, string projectLabel, int userId, string userName, string hostUri)
         {
 
             var param = new DynamicParameters();

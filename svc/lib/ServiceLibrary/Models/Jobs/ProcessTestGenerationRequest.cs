@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace ServiceLibrary.Models.Jobs
 {
@@ -9,7 +10,8 @@ namespace ServiceLibrary.Models.Jobs
     {
         [JsonProperty]
         public int ProjectId { get; set; }
-
+        
+        [XmlIgnore]
         [JsonProperty]
         public string ProjectName { get; set; }
 

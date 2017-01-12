@@ -21,6 +21,6 @@ namespace AdminStore.Repositories.Jobs
         Task<File> GetJobResultFile(int jobId, int userId, IFileRepository fileRepository);
 
         Task<JobInfo> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
-            int? projectId, string projectLabel);
+            int? projectId, string projectLabel, int userId, string userName, string hostUri);
     }
 }

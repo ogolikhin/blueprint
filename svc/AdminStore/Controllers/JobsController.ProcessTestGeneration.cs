@@ -30,14 +30,18 @@ namespace AdminStore.Controllers
         {
             ValidateRequest(request);
 
+            var session = GetSession(Request);    
             var parameters = SerializationHelper.ToXml(request);
-
+            var hostUri = GetBaseHostUri();
             var queuedJobInfo = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
                 false, 
                 parameters , 
                 null, 
                 request.ProjectId,
-                request.ProjectName);
+                request.ProjectName, 
+                session.UserId, 
+                session.UserName,
+                hostUri.ToString());
 
             if (queuedJobInfo == null)
             {
@@ -57,6 +61,15 @@ namespace AdminStore.Controllers
 	        }
 	    }
 
+        Uri GetBaseHostUri()
+        {
+            var hostUri = Request.RequestUri;
+            var builder = new UriBuilder();
+            builder.Scheme = hostUri.Scheme;
+            builder.Host = hostUri.Host;
+            builder.Port = hostUri.Port;
+            return builder.Uri;
+        }
 	    #endregion
     }
 }

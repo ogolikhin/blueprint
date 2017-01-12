@@ -4,6 +4,8 @@ import {ItemTypePredefined} from "../../main/models/enums";
 export class Helper {
     static draftVersion = 2147483647;
     static maxAttachmentFilesizeDefault = 10485760; // 10MB
+    static defaultMaxEmbeddedImageFileSize = 10485760; // 10MB
+    static defaultMaxEmbeddedImageNumber = 10;
 
     static get ELLIPSIS_SYMBOL() {
          return String.fromCharCode(8230);

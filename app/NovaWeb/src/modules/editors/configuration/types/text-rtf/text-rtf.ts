@@ -419,12 +419,12 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             return this.fileUploadService.uploadImageToFileStore(file, progressCallback, cancelPromise);
         };
 
-        let filesize = this.settingsService.getNumber("MaxEmbeddedImageFileSize", Helper.maxAttachmentFilesizeDefault);
-        if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.maxAttachmentFilesizeDefault) {
-            filesize = Helper.maxAttachmentFilesizeDefault;
+        let filesize = this.settingsService.getNumber("MaxEmbeddedImageFileSize", Helper.defaultMaxEmbeddedImageFileSize, 1);
+        if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.defaultMaxEmbeddedImageFileSize) {
+            filesize = Helper.defaultMaxEmbeddedImageFileSize;
         }
 
-        const maxNumOfImages = this.settingsService.getNumber("MaxEmbeddedImagesNumber", 10);
+        const maxNumOfImages = this.settingsService.getNumber("MaxEmbeddedImagesNumber", Helper.defaultMaxEmbeddedImageNumber, 0);
         const localeFormatFilter = this.$filter("bpFormat") as Function;
         const localeMessage = this.localization.get("Property_Max_Images_Error", "This property exceeds the maximum number of images ({0}).");
         const dialogData: IUploadStatusDialogData = {

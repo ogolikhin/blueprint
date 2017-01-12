@@ -40,8 +40,8 @@ export class ArtifactRoutes {
                     path: {array : false}
                 },
                 resolve: {
-                    itemInfo: ["$stateParams", "itemStateService",
-                        ($stateParams: ng.ui.IStateParamsService, itemStateService: IItemStateService) => {
+                    itemInfo: ["$stateParams", "itemStateService", "authenticated",
+                        ($stateParams: ng.ui.IStateParamsService, itemStateService: IItemStateService, authenticated) => {
 
                         const id = parseInt($stateParams["id"], 10);
                         return itemStateService.getItemInfoResult(id);

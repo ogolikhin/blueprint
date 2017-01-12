@@ -25,14 +25,14 @@ namespace AdminStore.Controllers
         /// <response code="500">InternalServerError.</response>
         [HttpPost]
         [Route("process/testgen"), SessionRequired]
-        [ResponseType(typeof(int))]
+        [ResponseType(typeof(AddJobResult))]
         public async Task<IHttpActionResult> QueueGenerateProcessTestsJob([FromBody] GenerateProcessTestsJobParameters request)
         {
             ValidateRequest(request);
 
             var session = GetSession(Request);    
             var parameters = SerializationHelper.ToXml(request.Processes);
-            var hostUri = GetBaseHostUri();
+            var hostUri = ServerUriHelper.BaseHostUri;
             var jobId = await _jobsRepository.AddJobMessage(JobType.GenerateProcessTests, 
                 false, 
                 parameters , 
@@ -48,7 +48,7 @@ namespace AdminStore.Controllers
                 return InternalServerError();
             }
 
-            return Ok(jobId.Value);
+            return Ok(new AddJobResult() { JobMessageId = jobId.Value });
 	    }
 
         #region private methods
@@ -60,16 +60,6 @@ namespace AdminStore.Controllers
 	            throw new BadRequestException();
 	        }
 	    }
-
-        Uri GetBaseHostUri()
-        {
-            var hostUri = Request.RequestUri;
-            var builder = new UriBuilder();
-            builder.Scheme = hostUri.Scheme;
-            builder.Host = hostUri.Host;
-            builder.Port = hostUri.Port;
-            return builder.Uri;
-        }
 	    #endregion
     }
 }

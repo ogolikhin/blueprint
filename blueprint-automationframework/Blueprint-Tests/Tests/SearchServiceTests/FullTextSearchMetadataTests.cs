@@ -7,7 +7,6 @@ using Model;
 using NUnit.Framework;
 using System.Linq;
 using System.Net;
-using Common;
 using Model.ArtifactModel;
 using Model.Factories;
 using Model.SearchServiceModel.Impl;

@@ -223,13 +223,18 @@ export class JobsController {
         return this.jobs.length === 0;
     }
 
-    public showPagination(): boolean {        
-        return (!this.isJobsEmpty() || !this.isFirstPage()) && !this.isLoading;
+    public canShowPagination(): boolean {        
+        return !this.isLoading && (!this.isFirstPage() || this.containsMoreThanOnePage());
     }
 
     private isFirstPage(): boolean {
         return this.paginationData.page === 1;
     }
+
+    private containsMoreThanOnePage(): boolean {
+        return this.paginationData.total > this.paginationData.pageSize;
+    }
+
     public $onDestroy() {
         // not implemented
     }

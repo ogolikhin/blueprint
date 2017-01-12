@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Model.ArtifactModel.Impl;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Model.ArtifactModel
 {
@@ -34,7 +33,6 @@ namespace Model.ArtifactModel
         /// <summary>
         /// A list of child artifacts.  This is optional and can be null depending on the REST call made.
         /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")] // This property can be null, so setter is needed.
         List<INovaArtifact> Children { get; set; }
 
         #endregion Serialized JSON Properties
@@ -65,11 +63,7 @@ namespace Model.ArtifactModel
         List<CustomProperty> CustomPropertyValues { get; }
         List<CustomProperty> SpecificPropertyValues { get; }
         int? PredefinedType { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         List<NovaTrace> Traces { get; set; }
-
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         List<NovaSubArtifact> SubArtifacts { get; set; }
 
         #endregion Serialized JSON Properties

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using Common;
 using Model.Factories;
-using Model.ArtifactModel;
 using System.Collections.Generic;
-using Utilities;
-using NUnit.Framework;
 
 namespace Model.Impl
 {

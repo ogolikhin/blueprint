@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -16,54 +17,44 @@ namespace ServiceLibrary.Attributes
     {
         private const string UnknownLogSource = "Unknown";
 
+        private Dictionary<Type, HttpStatusCode> HttpStatusCodesByExceptionType = new Dictionary<Type, HttpStatusCode>
+        {
+            { typeof(AuthenticationException), HttpStatusCode.Unauthorized },
+            { typeof(NotImplementedException), HttpStatusCode.NotImplemented },
+            { typeof(BadRequestException), HttpStatusCode.BadRequest },
+            { typeof(ResourceNotFoundException), HttpStatusCode.NotFound },
+            { typeof(AuthorizationException), HttpStatusCode.Forbidden },
+            { typeof(SqlTimeoutException), HttpStatusCode.ServiceUnavailable }
+        };
+
         public override async Task OnExceptionAsync(HttpActionExecutedContext context, CancellationToken cancellationToken)
         {
-            var ex = context.Exception;
             HttpStatusCode statusCode;
-            int? errorCode = null;
-
-            if (ex is AuthenticationException)
-            {
-                statusCode = HttpStatusCode.Unauthorized;
-                errorCode = ((AuthenticationException)ex).ErrorCode;
-            }
-            else if (ex is NotImplementedException)
-            {
-                statusCode = HttpStatusCode.NotImplemented;
-            }
-            else if (ex is BadRequestException)
-            {
-                statusCode = HttpStatusCode.BadRequest;
-                errorCode = ((ExceptionWithErrorCode)ex).ErrorCode;
-            }
-            else if (ex is ResourceNotFoundException)
-            {
-                statusCode = HttpStatusCode.NotFound;
-                errorCode = ((ExceptionWithErrorCode) ex).ErrorCode;
-            }
-            else if (ex is AuthorizationException)
-            {
-                statusCode = HttpStatusCode.Forbidden;
-                errorCode = ((ExceptionWithErrorCode)ex).ErrorCode;
-            }
-            else if (ex is SqlTimeoutException)
-            {
-                statusCode = HttpStatusCode.ServiceUnavailable;
-                errorCode = ((ExceptionWithErrorCode)ex).ErrorCode;
-            }
-            else
+            if (!HttpStatusCodesByExceptionType.TryGetValue(context.Exception.GetType(), out statusCode))
             {
                 statusCode = HttpStatusCode.InternalServerError;
-
-                var loggableController = context?.ActionContext?.ControllerContext?.Controller;
-                var log = GetLog(loggableController);
-                if(log != null)
-                    await log.LogError(GetLogSource(loggableController), ex);
             }
 
-            var error = new HttpError(ex.Message);
+            int? errorCode = null;
+            var exceptionWithErrorCode = context.Exception as ExceptionWithErrorCode;
+            if (exceptionWithErrorCode != null)
+            {
+                errorCode = exceptionWithErrorCode.ErrorCode;
+            }
+            
+            var loggableController = context.ActionContext?.ControllerContext?.Controller;
+            var log = GetLog(loggableController);
+
+            if (log != null)
+            {
+                await log.LogError(GetLogSource(loggableController), context.Exception);
+            }
+
+            var error = new HttpError(context.Exception.Message);
             if (errorCode.HasValue)
+            {
                 error[ServiceConstants.ErrorCodeName] = errorCode;
+            }
 
             context.Response = context.Request.CreateErrorResponse(statusCode, error);
         }

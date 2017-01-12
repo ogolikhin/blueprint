@@ -12,7 +12,6 @@ namespace Model.Factories
         /// <param name="keyName">The key name of the service in TestConfiguration.xml</param>
         /// <returns>The address of the specified service.</returns>
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static string GetServiceAddressFromTestConfig(string keyName)
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();

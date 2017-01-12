@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Linq;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;
@@ -23,12 +22,10 @@ namespace Model.StorytellerModel.Impl
         public int TypeId { get; set; }
         public string TypePrefix { get; set; }
         public PropertyTypePredefined TypePredefined { get; set; }
-        [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
-        //[JsonConverter(typeof(Deserialization.ConcreteListConverter<IStorytellerProperty, StorytellerProperty>))]
+
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> SystemProperties { get; set; }
-        [SuppressMessage("Microsoft.Usage","CA2227:CollectionPropertiesShouldBeReadOnly")]
-        //[JsonConverter(typeof(Deserialization.ConcreteListConverter<IStorytellerProperty, StorytellerProperty>))]
+
         [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> CustomProperties { get; set; }
 

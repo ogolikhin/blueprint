@@ -4,7 +4,6 @@ using System.Net;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
-using Newtonsoft.Json;
 
 namespace Model
 {

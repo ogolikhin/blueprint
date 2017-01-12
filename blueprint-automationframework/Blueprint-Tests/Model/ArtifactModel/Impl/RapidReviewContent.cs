@@ -9,9 +9,7 @@ namespace Model.ArtifactModel.Impl
         public string DiagramType { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Shapes { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Connections { get; set; }
         public int LibraryVersion { get; set; }
     }
@@ -20,7 +18,6 @@ namespace Model.ArtifactModel.Impl
     public class RapidReviewGlossary
     {
         public int Id { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Terms { get; set; }
     }
 
@@ -55,9 +52,7 @@ namespace Model.ArtifactModel.Impl
     public class RapidReviewProperties
     {
         public int ArtifactId { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<RapidReviewProperty> Properties { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<RapidReviewAuthorHistory> AuthorHistory { get; set; }
         public RapidReviewDescription Description { get; set; }
     }
@@ -67,7 +62,6 @@ namespace Model.ArtifactModel.Impl
     {
         public string Description { get; set; }
         public int StepOf { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Flows { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
@@ -79,7 +73,6 @@ namespace Model.ArtifactModel.Impl
     {
         public string Description { get; set; }
         public int StepOf { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Flows { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
@@ -91,7 +84,6 @@ namespace Model.ArtifactModel.Impl
     {
         public string Description { get; set; }
         public int StepOf { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<object> Flows { get; set; }
         public int Id { get; set; }
         public string Name { get; set; }
@@ -103,7 +95,6 @@ namespace Model.ArtifactModel.Impl
     {
         public int Id { get; set; }
         public RapidReviewUseCasePreCondition PreCondition { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<RapidReviewUseCaseStep> Steps { get; set; }
         public RapidReviewUseCasePostCondition PostCondition { get; set; }
     }

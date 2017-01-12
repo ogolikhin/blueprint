@@ -35,6 +35,7 @@
     "angular-ui-tinymce": "^0.0.17",
     "angular-vs-repeat": "^1.1.7",
     "api-check": "^7.5.5",
+    "bootstrap": "^3.3.7",
     "bootstrap-sass": "^3.3.7",
     "bowser": "^1.5.0",
     "custom-event-polyfill": "^0.3.0",
@@ -102,19 +103,6 @@
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.16.2",
     "webpack-fail-plugin": "^1.0.5"
-  },
-  "suppliedDependencies": {
-    "bootstrap": true
-  },
-  "overrides": {
-    "bootstrap": {
-      "ignore": true
-    },
-    "bootstrap-sass": {
-      "main": [
-        "assets/stylesheets/_bootstrap.scss"
-      ]
-    }
   },
   "config": {
     "backend": "http://localhost:9801"

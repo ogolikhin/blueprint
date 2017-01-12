@@ -226,10 +226,8 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedExceptionMessage);
 
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile2.Guid), "ExpiredTime for file should not be null if artifact is not saved!");
-
-            // Execute & Verify:
-            //            UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile2);
         }
+
         #endregion 403 Forbidden
 
         #region Private functions

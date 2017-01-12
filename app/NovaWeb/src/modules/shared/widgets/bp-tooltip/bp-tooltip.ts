@@ -105,7 +105,6 @@ export class BPTooltip implements ng.IDirective {
 
                 if (!isTriggerJustAWrapper(elem) &&
                     (width < scrollWidth || height < scrollHeight)) {
-                    console.log(width, elem.scrollWidth, scrollWidth);
                     return true;
                 }
 

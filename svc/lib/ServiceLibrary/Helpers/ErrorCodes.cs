@@ -42,5 +42,6 @@
         public const int QueueJobProcessesInvalid = 8004;
         public const int QueueJobProjectIdInvalid = 8005;
         public const int QueueJobProjectNameEmpty = 8006;
+        public const int QueueJobEmptyRequest = 8007;
     }
 }

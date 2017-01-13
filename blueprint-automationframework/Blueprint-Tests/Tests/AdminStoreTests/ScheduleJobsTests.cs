@@ -65,7 +65,7 @@ namespace AdminStoreTests
             Assert.DoesNotThrow(() => addJobResult = Helper.AdminStore.QueueGenerateProcessTestsJob(_adminUser, processTestJobParameterRequest),
                 "POST {0} call failed!", TESTGEN_PATH);
 
-            // Validation: Vrify that the returned ProcessTestGenerationResult contain valid information (e.g. job id)
+            // Validation: Verify that the returned ProcessTestGenerationResult contain valid information (e.g. job id)
             AddJobResultValidation(addJobResult);
         }
 

@@ -108,8 +108,11 @@ module.exports = {
         }
     },
     tslint: {
-        emitErrors: true,
-        failOnHint: true
+        configuration: {
+            rules: {
+
+            }
+        }
     },
     module: {
         loaders: loaders,
@@ -117,7 +120,10 @@ module.exports = {
             {
                 test: /\.ts$/,
                 loader: 'tslint-loader',
-                exclude: ['../node_modules']
+                exclude: [
+                    '../node_modules',
+                    /\.spec.ts$/
+                ]
             }
         ]
     },

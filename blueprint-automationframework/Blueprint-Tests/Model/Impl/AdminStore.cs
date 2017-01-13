@@ -643,6 +643,25 @@ namespace Model.Impl
             return file;
         }
 
+        /// <seealso cref="IAdminStore.QueueGenerateProcessTestsJob(IUser, List{HttpStatusCode})"/>
+        public AddJobResult QueueGenerateProcessTestsJob(IUser user, GenerateProcessTestsJobParameters processTestJobParametersRequest, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(QueueGenerateProcessTestsJob));
+
+            var tokenValue = user?.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var addJobResult = restApi.SendRequestAndDeserializeObject<AddJobResult, GenerateProcessTestsJobParameters>(
+                RestPaths.Svc.AdminStore.Jobs.Process.TESTGEN,
+                RestRequestMethod.POST,
+                processTestJobParametersRequest,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return addJobResult;
+        }
+
         #endregion Members inherited from IAdminStore
 
         #region Members inherited from IDisposable

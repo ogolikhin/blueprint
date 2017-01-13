@@ -100,6 +100,8 @@
     <Compile Include="JobModel\IJob.cs" />
     <Compile Include="JobModel\Impl\Job.cs" />
     <Compile Include="JobModel\Impl\JobResult.cs" />
+    <Compile Include="JobModel\Impl\GenerateProcessTestsJobParameters.cs" />
+    <Compile Include="JobModel\Impl\AddJobResult.cs" />
     <Compile Include="SearchServiceModel\Impl\ItemSearchResult.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />

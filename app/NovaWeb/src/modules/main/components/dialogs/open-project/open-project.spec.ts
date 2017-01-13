@@ -58,4 +58,24 @@ describe("OpenProjectController", () => {
         expect(controller.returnValue).toEqual(model);
     }));
 
+    it("onDoubleClick, sets selection and calls ok", inject(($browser) => {
+        // Arrange
+        const model = {
+            id: 8,
+            name: "ghi",
+            type: AdminStoreModels.InstanceItemType.Project
+        } as AdminStoreModels.IInstanceItem;
+        const vm = new TreeModels.InstanceItemNodeVM(undefined, model);
+        spyOn(controller, "ok");
+
+        // Act
+        controller.onDoubleClick(vm);
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.selectedName).toEqual("ghi");
+        expect(controller.selectedDescription).toBeUndefined();
+        expect(controller.returnValue).toEqual(model);
+        expect(controller.ok).toHaveBeenCalled();
+    }));
 });

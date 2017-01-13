@@ -67,4 +67,11 @@ export class OpenProjectController extends BaseDialogController {
             this.setSelectedItem(selectedVMs.length ? selectedVMs[0] : undefined);
         }
     }
+
+    public onDoubleClick(vm: OpenProjectVM): void {
+        this.$scope.$applyAsync(() => {
+            this.setSelectedItem(vm);
+            this.ok();
+        });
+    }
 }

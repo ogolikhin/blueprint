@@ -136,7 +136,7 @@ namespace Model.ArtifactModel
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        IRaptorComment PostRaptorDiscussions(string discussionsText,
+        IRaptorDiscussion PostRaptorDiscussions(string discussionsText,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -148,8 +148,8 @@ namespace Model.ArtifactModel
         /// <param name="commentToUpdate">comment to update</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        IRaptorComment UpdateRaptorDiscussions(string discussionText,
-            IUser user, IRaptorComment commentToUpdate,
+        IRaptorDiscussion UpdateRaptorDiscussions(string discussionText,
+            IUser user, IRaptorDiscussion commentToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Model.ArtifactModel
         /// <param name="commentToDelete">comment to delete</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        string DeleteRaptorDiscussion(IUser user, IRaptorComment commentToDelete,
+        string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion commentToDelete,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

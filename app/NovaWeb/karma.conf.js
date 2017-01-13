@@ -72,11 +72,6 @@ module.exports = function (config) {
             '/novaweb/static/images/': '/base/src/styles/images/',
             '/novaweb/static/bp-process/images/': '/base/src/modules/editors/bp-process/styles/images/'
         },
-        babelPreprocessor: {
-            options: {
-                presets: ['es2015']
-            }
-        },
         mime: {
             'text/x-typescript': ['ts','tsx']
         },

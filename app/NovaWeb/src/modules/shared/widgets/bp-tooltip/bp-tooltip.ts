@@ -119,8 +119,8 @@ export class BPTooltip implements ng.IDirective {
                     const availableHeight = height - parseFloat(computedStyle.marginTop) - parseFloat(computedStyle.marginBottom);
 
                     clientRect = child.getBoundingClientRect();
-                    scrollWidth = _.max([child.scrollWidth, _.round(clientRect.width)]);
-                    scrollHeight = _.max([child.scrollHeight, _.ceil(clientRect.height)]);
+                    scrollWidth = _.max([scrollWidth, child.scrollWidth, _.round(clientRect.width)]);
+                    scrollHeight = _.max([scrollHeight, child.scrollHeight, _.ceil(clientRect.height)]);
 
                     return availableWidth < scrollWidth || availableHeight < scrollHeight;
                 }

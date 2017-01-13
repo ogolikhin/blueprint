@@ -168,9 +168,7 @@ export class ItemStateController {
                 this.activeEditor = "general";
                 break;
             case Models.ItemTypePredefined.CollectionFolder:
-                // Temporary decision while collections root description is not editable.
-                // if artifact is Collections root node
-                if (artifact.itemTypeId === ItemTypePredefined.Collections) {
+                if (artifact.parentId === artifact.projectId) {
                     this.activeEditor = "general";
                 } else {
                     this.activeEditor = "details";

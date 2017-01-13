@@ -110,6 +110,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             self.$location.hash(oldHash);
         });
     }
+
     public isDeleteConditionVisible(condition: ICondition): boolean {
         return !this.hasMinConditions && !this.isFirstBranch(condition);
     }

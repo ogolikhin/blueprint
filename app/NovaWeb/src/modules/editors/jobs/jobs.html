@@ -53,8 +53,12 @@
                                     </div>
                                 </div>
                                 <div class="col-xs-5">
-                                    <span class="jobs__label">{{::$root.config.labels["Jobs_SubmittedDate"]}}:</span>
-                                    <span>{{item.submittedDateTime | momentDateTime}}</span>
+                                    <div class="col-xs-4">                                        
+                                        <span class="jobs__label">{{::$root.config.labels["Jobs_SubmittedDate"]}}:</span>
+                                    </div>
+                                    <div class="col-xs-8">                                        
+                                         <span>{{item.submittedDateTime | momentDateTime}}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row jobs__secondrow">
@@ -63,8 +67,12 @@
                                     <span class="jobs__projectname" bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">{{item.project}}</span>
                                 </div>
                                 <div class="col-xs-5">
-                                    <span class="jobs__label">{{::$root.config.labels["Jobs_StartDate"]}}:</span>
-                                    <span>{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
+                                    <div class="col-xs-4">  
+                                        <span class="jobs__label">{{::$root.config.labels["Jobs_StartDate"]}}:</span>
+                                    </div>
+                                    <div class="col-xs-8">  
+                                        <span>{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
+                                    </div>
                                 </div>
                                 <div class="col-xs-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
                                     <span class="jobs__label">{{::$root.config.labels["Jobs_Status"]}}:</span>
@@ -78,8 +86,12 @@
                                     <span class="jobs__authorname" bp-tooltip="{{item.userDisplayName}}" bp-tooltip-truncated="true">{{item.userDisplayName}}</span>
                                 </div>
                                 <div class="col-xs-5">
-                                    <span class="jobs__label">{{::$root.config.labels["Jobs_EndDate"]}}:</span>
-                                    <span> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
+                                    <div class="col-xs-4">  
+                                         <span class="jobs__label">{{::$root.config.labels["Jobs_EndDate"]}}:</span>
+                                    </div>
+                                    <div class="col-xs-8">  
+                                         <span> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
+                                    </div>
                                 </div>
                                 <div class="col-xs-4">
                                     <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress"></uib-progressbar>

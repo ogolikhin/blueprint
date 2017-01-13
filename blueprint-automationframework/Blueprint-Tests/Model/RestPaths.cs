@@ -101,7 +101,7 @@ namespace Model
                 {
                     public static class Process
                     {
-                        public const string TESTGEN = "svc/adminstore/jobs/process/testgen";
+                        public const string TESTGEN                 = "svc/adminstore/jobs/process/testgen";
                     }
                 }
 

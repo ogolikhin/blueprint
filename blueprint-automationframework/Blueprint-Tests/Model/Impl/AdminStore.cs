@@ -652,6 +652,9 @@ namespace Model.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
             var addJobResult = restApi.SendRequestAndDeserializeObject<AddJobResult, GenerateProcessTestsJobParameters>(
                 RestPaths.Svc.AdminStore.Jobs.Process.TESTGEN,
                 RestRequestMethod.POST,

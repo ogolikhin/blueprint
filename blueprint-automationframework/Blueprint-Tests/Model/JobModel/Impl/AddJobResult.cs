@@ -2,6 +2,6 @@
 {
     public class AddJobResult
     {
-        public int JobId { get; set; }
+        public int JobMessageId { get; set; }
     }
 }

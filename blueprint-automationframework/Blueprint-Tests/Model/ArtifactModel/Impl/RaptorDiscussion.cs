@@ -12,7 +12,7 @@ namespace Model.ArtifactModel.Impl
         #region Serialized JSON properties
 
         public int ArtifactId { get; set; }
-        public int SubArtifactId { get; set; }
+        public int? SubArtifactId { get; set; }
         public bool CanCreate { get; set; }
         public bool AreEmailDiscusssionsEnabled { get; set; }
         public List<IRaptorDiscussion> Discussions { get; } = new List<IRaptorDiscussion>();

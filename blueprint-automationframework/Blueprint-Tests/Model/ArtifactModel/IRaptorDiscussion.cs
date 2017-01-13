@@ -13,7 +13,7 @@ namespace Model
         #region Serialized JSON properties
 
         int ArtifactId { get; }
-        int SubArtifactId { get; }
+        int? SubArtifactId { get; }
         bool CanCreate { get; }
         bool AreEmailDiscusssionsEnabled { get; }
         List<IRaptorDiscussion> Discussions { get; }

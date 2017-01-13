@@ -63,6 +63,10 @@ namespace AdminStore.Controllers
 
 	    void ValidateRequest(GenerateProcessTestsJobParameters request)
 	    {
+            if (request == null)
+            {
+                throw new BadRequestException("Please provide a request body", ErrorCodes.QueueJobEmptyRequest);
+            }
 	        if (request.ProjectId <= 0)
 	        {
 	            throw new BadRequestException("Please provide a valid project id", ErrorCodes.QueueJobProjectIdInvalid);

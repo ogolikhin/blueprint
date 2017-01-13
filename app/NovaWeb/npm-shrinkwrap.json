@@ -1,0 +1,131 @@
+{
+  "name": "nova",
+  "version": "2.0.1-0",
+  "dependencies": {
+    "ag-grid": {
+      "version": "6.4.2",
+      "from": "ag-grid@>=6.4.2 <6.5.0",
+      "resolved": "https://registry.npmjs.org/ag-grid/-/ag-grid-6.4.2.tgz"
+    },
+    "ag-grid-enterprise": {
+      "version": "6.4.2",
+      "from": "ag-grid-enterprise@>=6.4.2 <6.5.0",
+      "resolved": "https://registry.npmjs.org/ag-grid-enterprise/-/ag-grid-enterprise-6.4.2.tgz"
+    },
+    "angular": {
+      "version": "1.5.11",
+      "from": "angular@>=1.5.7 <1.6.0",
+      "resolved": "https://registry.npmjs.org/angular/-/angular-1.5.11.tgz"
+    },
+    "angular-animate": {
+      "version": "1.5.11",
+      "from": "angular-animate@>=1.5.8 <1.6.0",
+      "resolved": "https://registry.npmjs.org/angular-animate/-/angular-animate-1.5.11.tgz"
+    },
+    "angular-formly": {
+      "version": "8.4.0",
+      "from": "angular-formly@>=8.2.1 <9.0.0",
+      "resolved": "https://registry.npmjs.org/angular-formly/-/angular-formly-8.4.0.tgz"
+    },
+    "angular-formly-templates-bootstrap": {
+      "version": "6.4.0",
+      "from": "angular-formly-templates-bootstrap@>=6.4.0 <7.0.0",
+      "resolved": "https://registry.npmjs.org/angular-formly-templates-bootstrap/-/angular-formly-templates-bootstrap-6.4.0.tgz"
+    },
+    "angular-messages": {
+      "version": "1.5.11",
+      "from": "angular-messages@>=1.5.7 <1.6.0",
+      "resolved": "https://registry.npmjs.org/angular-messages/-/angular-messages-1.5.11.tgz"
+    },
+    "angular-mocks": {
+      "version": "1.5.11",
+      "from": "angular-mocks@>=1.5.2 <1.6.0",
+      "resolved": "https://registry.npmjs.org/angular-mocks/-/angular-mocks-1.5.11.tgz"
+    },
+    "angular-module-mocks": {
+      "version": "1.2.19",
+      "from": "angular-module-mocks@>=1.2.19 <1.3.0",
+      "resolved": "https://registry.npmjs.org/angular-module-mocks/-/angular-module-mocks-1.2.19.tgz"
+    },
+    "angular-sanitize": {
+      "version": "1.5.11",
+      "from": "angular-sanitize@>=1.5.2 <1.6.0",
+      "resolved": "https://registry.npmjs.org/angular-sanitize/-/angular-sanitize-1.5.11.tgz"
+    },
+    "angular-ui-bootstrap": {
+      "version": "2.3.0",
+      "from": "angular-ui-bootstrap@2.3.0",
+      "resolved": "https://registry.npmjs.org/angular-ui-bootstrap/-/angular-ui-bootstrap-2.3.0.tgz"
+    },
+    "angular-ui-router": {
+      "version": "0.2.18",
+      "from": "angular-ui-router@>=0.2.17 <0.3.0",
+      "resolved": "https://registry.npmjs.org/angular-ui-router/-/angular-ui-router-0.2.18.tgz"
+    },
+    "angular-ui-tinymce": {
+      "version": "0.0.17",
+      "from": "angular-ui-tinymce@>=0.0.17 <0.0.18",
+      "resolved": "https://registry.npmjs.org/angular-ui-tinymce/-/angular-ui-tinymce-0.0.17.tgz"
+    },
+    "angular-vs-repeat": {
+      "version": "1.1.7",
+      "from": "angular-vs-repeat@>=1.1.7 <2.0.0",
+      "resolved": "https://registry.npmjs.org/angular-vs-repeat/-/angular-vs-repeat-1.1.7.tgz"
+    },
+    "api-check": {
+      "version": "7.5.5",
+      "from": "api-check@>=7.5.5 <8.0.0",
+      "resolved": "https://registry.npmjs.org/api-check/-/api-check-7.5.5.tgz"
+    },
+    "bootstrap": {
+      "version": "3.3.7",
+      "from": "bootstrap@latest",
+      "resolved": "https://registry.npmjs.org/bootstrap/-/bootstrap-3.3.7.tgz"
+    },
+    "bootstrap-sass": {
+      "version": "3.3.7",
+      "from": "bootstrap-sass@>=3.3.7 <4.0.0",
+      "resolved": "https://registry.npmjs.org/bootstrap-sass/-/bootstrap-sass-3.3.7.tgz"
+    },
+    "bowser": {
+      "version": "1.6.0",
+      "from": "bowser@>=1.5.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/bowser/-/bowser-1.6.0.tgz"
+    },
+    "es6-shim": {
+      "version": "0.35.2",
+      "from": "es6-shim@>=0.35.1 <0.36.0",
+      "resolved": "https://registry.npmjs.org/es6-shim/-/es6-shim-0.35.2.tgz"
+    },
+    "jquery": {
+      "version": "3.1.1",
+      "from": "jquery@>=3.1.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz"
+    },
+    "lodash": {
+      "version": "4.17.4",
+      "from": "lodash@>=4.16.4 <5.0.0",
+      "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.17.4.tgz"
+    },
+    "moment": {
+      "version": "2.17.1",
+      "from": "moment@>=2.15.0 <3.0.0",
+      "resolved": "https://registry.npmjs.org/moment/-/moment-2.17.1.tgz"
+    },
+    "rx": {
+      "version": "4.1.0",
+      "from": "rx@>=4.1.0 <5.0.0",
+      "resolved": "https://registry.npmjs.org/rx/-/rx-4.1.0.tgz"
+    },
+    "tinymce": {
+      "version": "4.5.2",
+      "from": "tinymce@>=4.4.3 <5.0.0",
+      "resolved": "https://registry.npmjs.org/tinymce/-/tinymce-4.5.2.tgz"
+    },
+    "ui-select": {
+      "version": "0.19.4",
+      "from": "ui-select@0.19.4",
+      "resolved": "https://registry.npmjs.org/ui-select/-/ui-select-0.19.4.tgz"
+    }
+  }
+}

@@ -90,12 +90,13 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146055)]
-        [Description("Add comment to published artifact, delete artifact (don't publish), get discussion for this artifact.  Verify it returns 404 Not Found.")]
+        [Description("Add comment to published artifact, delete artifact (don't publish), get discussion for this artifact.  Verify returned discussions.")]
         public void GetDiscussions_MarkedForDeleteArtifact_ValidateReturnedDiscussion()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
+            artifact.Delete(_adminUser);
             DiscussionResultSet discussionSet = null;
 
             // Execute:
@@ -200,7 +201,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146063)]
-        [Description("Add comment to subartifact of published artifact, delete artifact (don't publish), get discussion for this subartifact.  Verify it returns 404 Not Found.")]
+        [Description("Add comment to subartifact of published artifact, delete artifact (don't publish), get discussion for this subartifact.  Verify it returns expected discussion.")]
         public void GetDiscussions_MarkedForDeleteSubArtifact_ValidateReturnedDiscussion()
         {
             // Setup:

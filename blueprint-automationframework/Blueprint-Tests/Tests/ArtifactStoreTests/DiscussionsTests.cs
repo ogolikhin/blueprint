@@ -75,7 +75,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Actor);
             artifact.Save(_adminUser);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
+            artifact.PostRaptorDiscussions("draft", _adminUser);
             DiscussionResultSet discussions = null;
 
             // In Nova UI doesn't allow to post discussion for never published artifact, it is possible to do by adding comment in SL and saving it
@@ -91,18 +91,23 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(146055)]
         [Description("Add comment to published artifact, delete artifact (don't publish), get discussion for this artifact.  Verify it returns 404 Not Found.")]
-        public void GetDiscussions_MarkedForDeleteArtifact_404NotFound()
+        public void GetDiscussions_MarkedForDeleteArtifact_ValidateReturnedDiscussion()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            artifact.PostRaptorDiscussions("draft", _adminUser);
-            artifact.Delete(_adminUser);
+            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
+            DiscussionResultSet discussionSet = null;
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            // Execute:
+            Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
-            }, "GetArtifactDiscussions should throw 404 error for artifacts marked for deletion, but it doesn't.");
+                discussionSet = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            }, "GetArtifactDiscussions shouldn't throw any error, but it doesn't.");
+
+            // Verify:
+            Assert.AreEqual(1, discussionSet.Discussions.Count, "Artifact should have 1 comment, but it has {0}",
+                discussionSet.Discussions.Count);
+            Assert.True(postedRaptorComment.Equals(discussionSet.Discussions[0]), "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         [TestCase]
@@ -139,23 +144,11 @@ namespace ArtifactStoreTests
             artifact.Save(_adminUser);
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
-            DiscussionResultSet discussions = null;
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
             {
-                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
-            }, "GetArtifactDiscussions shouldn't throw any error.");
-
-            // Verify:
-            Assert.AreEqual(1, discussions.Discussions.Count, "Subartifact should have 1 comment, but it has {0}",
-                discussions.Discussions.Count);
-            Assert.True(postedRaptorComment.Equals(discussions.Discussions[0]),
-                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
-            Assert.AreEqual(-1, postedRaptorComment.Version,
-                "Comment for draft should have version -1, but it has version {0}", postedRaptorComment.Version);
-            Assert.AreEqual(-1, discussions.Discussions[0].Version,
-                "Comment for draft should have version -1, but it has version {0}", discussions.Discussions[0].Version);
+                Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
+            }, "GetArtifactDiscussions should throw 404 error, but it doesn't.");
         }
 
         [TestCase]
@@ -208,19 +201,25 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(146063)]
         [Description("Add comment to subartifact of published artifact, delete artifact (don't publish), get discussion for this subartifact.  Verify it returns 404 Not Found.")]
-        public void GetDiscussions_MarkedForDeleteSubArtifact_404NotFound()
+        public void GetDiscussions_MarkedForDeleteSubArtifact_ValidateReturnedDiscussion()
         {
             // Setup:
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             artifact.Delete(_adminUser);
+            DiscussionResultSet discussionSet = null;
 
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            // Execute:
+            Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
-            }, "GetArtifactDiscussions should return 404 Not Found for artifacts marked for deletion, but it doesn't.");
+                discussionSet = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
+            }, "GetArtifactDiscussions shouldn't throw any exception, but it does.");
+
+            // Verify:
+            Assert.AreEqual(1, discussionSet.Discussions.Count, "Artifact should have 1 comment, but it has {0}",
+               discussionSet.Discussions.Count);
+            Assert.True(postedRaptorComment.Equals(discussionSet.Discussions[0]), "The discussion comment returned from ArtifactStore doesn't match what was posted!");
         }
 
         [TestCase]

@@ -17,6 +17,7 @@ import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent): void;
@@ -49,6 +50,7 @@ export class PageToolbarController implements IPageToolbarController {
     static $inject = [
         "$q",
         "$state",
+        "$timeout",
         "localization",
         "dialogService",
         "projectManager",
@@ -56,12 +58,14 @@ export class PageToolbarController implements IPageToolbarController {
         "publishService",
         "messageService",
         "navigationService",
+        "artifactService",
         "loadingOverlayService",
         "analytics"
     ];
 
     constructor(private $q: ng.IQService,
                 private $state: ng.ui.IStateService,
+                private $timeout: ng.ITimeoutService,
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
@@ -69,6 +73,7 @@ export class PageToolbarController implements IPageToolbarController {
                 private publishService: IUnpublishedArtifactsService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
+                private artifactService: IArtifactService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private analytics: IAnalyticsProvider) {
     }
@@ -152,7 +157,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        const artifact = this._currentArtifact; 
+        const artifact = this._currentArtifact;
         const projectId = artifact.projectId;
         const parentId = artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId;
         this.dialogService.open(<IDialogSettings>{
@@ -169,20 +174,20 @@ export class PageToolbarController implements IPageToolbarController {
             })
             .then((result: ICreateNewArtifactReturn) => {
                 const createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
-
                 const itemTypeId = result.artifactTypeId;
                 const name = result.artifactName;
 
-                this.artifactManager.create(name, projectId, parentId, itemTypeId)
+                this.artifactService.create(name, projectId, parentId, itemTypeId, undefined)
                     .then((data: Models.IArtifact) => {
                         const newArtifactId = data.id;
                         this.projectManager.refresh(projectId, null, true)
                             .finally(() => {
                                 this.projectManager.triggerProjectCollectionRefresh();
-                                this.navigationService.navigateTo({id: newArtifactId})
-                                    .finally(() => {
-                                        this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
-                                    });
+                                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+
+                                this.$timeout(() => {
+                                    this.navigationService.navigateTo({id: newArtifactId});
+                                });
                             });
                     })
                     .catch((error: IApplicationError) => {
@@ -285,7 +290,7 @@ export class PageToolbarController implements IPageToolbarController {
             selectionMode: "checkbox",
             showProjects: false
         };
-        
+
         this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
             if (items) {
                 items.forEach(item => {
@@ -302,7 +307,7 @@ export class PageToolbarController implements IPageToolbarController {
         let promise: ng.IPromise<any>;
         let artifact: IStatefulArtifact;
         if (this.isProjectOpened) {
-            promise = this.projectManager.refreshAll();    
+            promise = this.projectManager.refreshAll();
         } else if (artifact = this.artifactManager.selection.getArtifact()) {
             promise = artifact.refresh();
         }
@@ -330,8 +335,8 @@ export class PageToolbarController implements IPageToolbarController {
         if (this.$state.current.name === "main.unpublished") {
             this.publishService.getUnpublishedArtifacts().then((result) => {
                 const numArtifacts = result.artifacts.length;
-                const message = numArtifacts === 1 ? 
-                this.localization.get("Discard_Single_Artifact_Confirm") : 
+                const message = numArtifacts === 1 ?
+                this.localization.get("Discard_Single_Artifact_Confirm") :
                 this.localization.get("Discard_Multiple_Artifacts_Confirm").replace("{0}", numArtifacts.toString());
                 this.dialogService.alert(message, "Warning", "Discard", "Cancel").then(() => {
                     const overlayId: number = this.loadingOverlayService.beginLoading();
@@ -504,8 +509,8 @@ export class PageToolbarController implements IPageToolbarController {
     private setCurrentArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact = artifact;
         //calculate properties
-        this._canCreateNew = this._currentArtifact && 
-                            !this._currentArtifact.artifactState.historical && 
+        this._canCreateNew = this._currentArtifact &&
+                            !this._currentArtifact.artifactState.historical &&
                             !this._currentArtifact.artifactState.deleted &&
                             (this._currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     };

@@ -17,8 +17,8 @@ import {IAnalyticsProvider, AnalyticsProvider} from "../analytics/analyticsProvi
 import {SessionSvc, ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-import {IPublishResultSet} from "./../../models/models";
-
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 
 describe("Page Toolbar:", () => {
     let _$q: ng.IQService;
@@ -43,7 +43,7 @@ describe("Page Toolbar:", () => {
             return {
                 remove: (projectId: number) => {
                     return;
-                }, 
+                },
                 removeAll: () => {
                     return;
                 },
@@ -67,19 +67,17 @@ describe("Page Toolbar:", () => {
         });
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
-
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
-
         $provide.service("session", SessionSvc);
-
+        $provide.service("artifactService", ArtifactServiceMock);
         $provide.provider("analytics", AnalyticsProvider);
-
     }));
 
 
     beforeEach(inject(($q: ng.IQService,
                        $state: ng.ui.IStateService,
+                       $timeout: ng.ITimeoutService,
                        $rootScope: ng.IRootScopeService,
                        localization: LocalizationServiceMock,
                        dialogService: IDialogService,
@@ -88,6 +86,7 @@ describe("Page Toolbar:", () => {
                        publishService: UnpublishedArtifactsServiceMock,
                        messageService: IMessageService,
                        navigationService: NavigationServiceMock,
+                       artifactService: IArtifactService,
                        loadingOverlayService: LoadingOverlayService,
                        analytics: IAnalyticsProvider,
                        session: ISession) => {
@@ -105,9 +104,9 @@ describe("Page Toolbar:", () => {
             },
             discard: () => {; }
         };
-        toolbarCtrl = new PageToolbarController($q, _$state, localization,
+        toolbarCtrl = new PageToolbarController($q, _$state, $timeout, localization,
             dialogService, projectManager, artifactManager, publishService,
-            messageService, navigationService, loadingOverlayService, analytics);
+            messageService, navigationService, artifactService, loadingOverlayService, analytics);
         artifactManager.selection = {
             getArtifact: () => {
                 return;
@@ -121,8 +120,8 @@ describe("Page Toolbar:", () => {
     }));
 
     describe("refresh all ->", () => {
-        
-        it("refresh successful: project is opened", 
+
+        it("refresh successful: project is opened",
             inject((projectManager: IProjectManager) => {
             // Arrange
             spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);
@@ -137,7 +136,7 @@ describe("Page Toolbar:", () => {
             expect(refreshAllSpy).toHaveBeenCalled();
         }));
 
-        it("refresh successful: no opened project, but artifact is selected", 
+        it("refresh successful: no opened project, but artifact is selected",
             inject((artifactManager: IArtifactManager, projectManager: IProjectManager) => {
             // Arrange
             const refreshAllSpy = spyOn(artifact, "refresh").and.callFake(() => { return _$q.resolve(); });
@@ -152,7 +151,7 @@ describe("Page Toolbar:", () => {
             expect(refreshAllSpy).toHaveBeenCalled();
         }));
 
-        it("refresh unsuccessful: no opened project or selected artifact", 
+        it("refresh unsuccessful: no opened project or selected artifact",
             inject((artifactManager: IArtifactManager, projectManager: IProjectManager) => {
             // Arrange
             const refreshArtifactSpy = spyOn(artifact, "refresh").and.callFake(() => { return _$q.resolve(); });
@@ -178,7 +177,7 @@ describe("Page Toolbar:", () => {
             stateSpy = spyOn(_$state, "go");
         }));
 
-        it("publish successful", 
+        it("publish successful",
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 dialogService: IDialogService,
@@ -187,7 +186,7 @@ describe("Page Toolbar:", () => {
             // Arrange
             spyOn(publishService, "getUnpublishedArtifacts").and.callFake(() => {
                 return _$q.resolve({
-                        artifacts: [{}, {}] 
+                        artifacts: [{}, {}]
                 });
             });
             spyOn(messageService, "addInfo").and.callFake(() => {; });
@@ -204,7 +203,7 @@ describe("Page Toolbar:", () => {
             expect(publishSpy).toHaveBeenCalled();
             expect(refreshSpy).toHaveBeenCalled();
         }));
-        it("publish successful: nothing to publish", 
+        it("publish successful: nothing to publish",
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 dialogService: IDialogService,
@@ -227,7 +226,7 @@ describe("Page Toolbar:", () => {
             expect(confirmSpy).not.toHaveBeenCalled();
             expect(publishAll).not.toHaveBeenCalled();
         }));
-        
+
     });
 
     describe("discard all ->", () => {
@@ -236,8 +235,8 @@ describe("Page Toolbar:", () => {
             spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
             spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);
         }));
-        
-        it("discard successful", 
+
+        it("discard successful",
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 projectManager: IProjectManager,
@@ -253,7 +252,7 @@ describe("Page Toolbar:", () => {
             const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.resolve(); });
             const discardSpy = spyOn(publishService, "discardAll").and.callFake(() => {return _$q.resolve(); });
             spyOn(messageService, "addInfo").and.callFake((msg) => {
-                expect(msg).toEqual("Discard_All_Success_Message"); 
+                expect(msg).toEqual("Discard_All_Success_Message");
             });
 
             // Act
@@ -264,7 +263,7 @@ describe("Page Toolbar:", () => {
             expect(confirmSpy).toHaveBeenCalled();
             expect(discardSpy).toHaveBeenCalled();
         }));
-        it("discard -> confirmation canceled", 
+        it("discard -> confirmation canceled",
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 projectManager: IProjectManager,
@@ -279,7 +278,7 @@ describe("Page Toolbar:", () => {
 
             const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.reject(); });
             const discardSpy = spyOn(publishService, "discardAll").and.callFake(() => {return _$q.resolve(); });
-           
+
 
             // Act
             toolbarCtrl.discardAll();
@@ -290,7 +289,7 @@ describe("Page Toolbar:", () => {
             expect(discardSpy).not.toHaveBeenCalled();
         }));
 
-        it("discard -> nothing to discard", 
+        it("discard -> nothing to discard",
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 projectManager: IProjectManager,
@@ -306,7 +305,7 @@ describe("Page Toolbar:", () => {
             const confirmSpy = spyOn(dialogService, "open").and.callFake(() => {return _$q.reject(); });
             const discardSpy = spyOn(publishService, "discardAll").and.callFake(() => {return _$q.resolve(); });
             spyOn(messageService, "addInfo").and.callFake((msg) => {
-                expect(msg).toEqual("Discard_All_No_Unpublished_Changes"); 
+                expect(msg).toEqual("Discard_All_No_Unpublished_Changes");
             });
 
             // Act

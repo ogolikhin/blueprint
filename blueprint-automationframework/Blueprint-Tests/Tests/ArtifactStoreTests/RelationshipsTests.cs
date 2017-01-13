@@ -407,7 +407,7 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceUserHasNoAccessToTarget_403Forbidden()
         {
             // Setup:
-            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.BlueprintAnalytics);
+            IUser userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
@@ -421,7 +421,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetRelationships(user2, sourceArtifact);
+                Helper.ArtifactStore.GetRelationships(userWithNoPermissions, sourceArtifact);
             }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
         }
 

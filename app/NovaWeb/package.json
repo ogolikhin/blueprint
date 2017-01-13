@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "main": "/",
   "scripts": {
+    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production",
     "start": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
     "preinstall": "npm prune && npm update",
     "postinstall": "typings prune && typings install",
@@ -14,10 +15,10 @@
     "dev:no-browser": "npm config set nova_open_browser 0 && npm run dev",
     "dev:build": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --debug --NODE_ENV=dev ",
     "dev:public": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --public --NODE_ENV=dev",
+    "pretest":"node node_modules/tslint/bin/tslint -c tslint.json --project tsconfig.json -e src/**/*.spec.ts src/**/*.ts",
     "test": "karma start --NODE_ENV=test",
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
-    "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
-    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"
+    "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test"
   },
   "dependencies": {
     "ag-grid": "~7.1.0",

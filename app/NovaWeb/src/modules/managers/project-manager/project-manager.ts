@@ -215,8 +215,10 @@ export class ProjectManager implements IProjectManager {
             });
         }).catch((err: any) => {
             this.dialogService.alert("Refresh_Project_NotFound");
-            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
-            return this.$q.reject(err);
+            if (project && project.model) {
+                this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
+            }
+            return this.$q.reject();
         });
     }
 

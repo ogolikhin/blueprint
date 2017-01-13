@@ -117,7 +117,10 @@ module.exports = {
             {
                 test: /\.ts$/,
                 loader: 'tslint-loader',
-                exclude: ['../node_modules']
+                exclude: [
+                    '../node_modules',
+                    /\.spec.ts$/
+                ]
             }
         ]
     },

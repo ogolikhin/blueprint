@@ -9,7 +9,7 @@
             <div class="page-body" ng-switch="$ctrl.activeEditor">
                 <bp-glossary ng-switch-when="glossary"></bp-glossary>
                 <bp-process-editor ng-switch-when="process"></bp-process-editor>
-                <bp-artifact-details-editor ng-switch-when="details"></bp-artifact-details-editor>
+                <bp-artifact-details-editor ng-switch-when="details" class="properties-editor__container"></bp-artifact-details-editor>
                 <bp-diagram ng-switch-when="diagram"></bp-diagram>
                 <bp-collection ng-switch-when="collection"></bp-collection>
                 <bp-artifact-general-editor ng-switch-when="general"></bp-artifact-general-editor>

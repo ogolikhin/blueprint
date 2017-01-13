@@ -25,7 +25,7 @@ namespace SearchServiceTests
                     content = helper.SearchService.GetStatus();
                 }, "The GET /status endpoint should return 200 OK!");
 
-                var extraExpectedStrings = new List<string> { "SearchService", "Blueprint", "\"accessInfo\":\"data source=" };
+                var extraExpectedStrings = new List<string> { "SearchService", "Blueprint", "data source" };
 
                 CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
             }
@@ -42,7 +42,7 @@ namespace SearchServiceTests
 
                 Assert.DoesNotThrow(() =>
                 {
-                    content = helper.SearchService.GetStatus();
+                    content = helper.SearchService.GetStatus(preAuthorizedKey: null);
                 }, "The GET /status endpoint should return 200 OK!");
 
                 var extraExpectedStrings = new List<string> { "SearchService", "Blueprint" };
@@ -50,7 +50,7 @@ namespace SearchServiceTests
                 CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
 
                 // Verify secure info isn't returned:
-                Assert.IsFalse(content.Contains("accessInfo=data source"), "Connection string info was returned without a pre-authorized key!");
+                Assert.IsFalse(content.Contains("data source"), "Connection string info was returned without a pre-authorized key!");
             }
         }
 

@@ -33,7 +33,7 @@ $breadcrumbs-item-height: $breadcrumbs-height - 1px;
     height: $breadcrumbs-item-height;
     line-height: $breadcrumbs-item-height;
     list-style-type: none;
-    min-width: 40px;
+    min-width: 0; // see bug: https://github.com/angular/material/issues/6841
     overflow: hidden;
     padding-left: 4px;
 
@@ -51,6 +51,7 @@ $breadcrumbs-item-height: $breadcrumbs-height - 1px;
     @include text-ellipsis-flex-width(500px);
     display: inline-block;
     font-weight: $font-weight-semibold;
+    min-width: 40px;
     padding: 0 1px;
 }
 

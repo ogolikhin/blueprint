@@ -6,18 +6,19 @@
   "license": "UNLICENSED",
   "main": "/",
   "scripts": {
+    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production",
     "start": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
-    "preinstall": "npm prune && npm update",
+    "preinstall": "npm prune",
     "postinstall": "typings prune && typings install",
     "dev": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --NODE_ENV=dev",
     "dev:open-browser": "npm config set nova_open_browser 1 && npm run dev",
     "dev:no-browser": "npm config set nova_open_browser 0 && npm run dev",
     "dev:build": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --debug --NODE_ENV=dev ",
     "dev:public": "node_modules/.bin/webpack-dev-server --config webpack/webpack.dev.js --content-base src --inline --hot --public --NODE_ENV=dev",
+    "pretest":"node node_modules/tslint/bin/tslint -c tslint.json --project tsconfig.json -e src/**/*.spec.ts src/**/*.ts",
     "test": "karma start --NODE_ENV=test",
     "test:debug": "karma start karma.conf.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
-    "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test",
-    "build": "webpack --config webpack/webpack.build.js --NODE_ENV=production"
+    "test:spec": "karma start karma.debug.js --browsers=Chrome --no-single-run --debug --NODE_ENV=test"
   },
   "dependencies": {
     "ag-grid": "~7.1.0",
@@ -35,16 +36,17 @@
     "angular-ui-tinymce": "^0.0.17",
     "angular-vs-repeat": "^1.1.7",
     "api-check": "^7.5.5",
+    "bootstrap": "^3.3.7",
     "bootstrap-sass": "^3.3.7",
     "bowser": "^1.5.0",
     "custom-event-polyfill": "^0.3.0",
     "es6-shim": "^0.35.1",
     "jquery": "^3.1.0",
+    "keen-js": "^3.4.1",
     "lodash": "^4.16.4",
     "moment": "^2.15",
     "rx": "^4.1.0",
     "tinymce": "4.5.1",
-    "typings": "^2.0.0",
     "ui-select": "0.19.4"
   },
   "devDependencies": {
@@ -59,7 +61,6 @@
     "express": "^4.14.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
-    "guage": "0.0.0",
     "gulp": "^3.9.1",
     "gulp-cli": "^1.2.2",
     "gulp-sass": "^3.0.0",
@@ -79,7 +80,6 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "~0.0.23",
     "karma-webpack": "^1.7.0",
-    "keen-js": "^3.4.1",
     "ng-annotate-loader": "^0.2.0",
     "node-sass": "^4.0.0",
     "path": "^0.12.7",
@@ -98,23 +98,11 @@
     "tslint-eslint-rules": "^3.0.0",
     "tslint-loader": "^2.1.3",
     "typescript": "~2.0.3",
+    "typings": "^2.0.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.12.14",
     "webpack-dev-server": "^1.16.2",
     "webpack-fail-plugin": "^1.0.5"
-  },
-  "suppliedDependencies": {
-    "bootstrap": true
-  },
-  "overrides": {
-    "bootstrap": {
-      "ignore": true
-    },
-    "bootstrap-sass": {
-      "main": [
-        "assets/stylesheets/_bootstrap.scss"
-      ]
-    }
   },
   "config": {
     "backend": "http://localhost:9801"

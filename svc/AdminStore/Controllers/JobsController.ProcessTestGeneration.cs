@@ -63,10 +63,18 @@ namespace AdminStore.Controllers
 
 	    void ValidateRequest(GenerateProcessTestsJobParameters request)
 	    {
-	        if (request?.Processes == null || !request.Processes.Any() || request.ProjectId <= 0)
+	        if (request.ProjectId <= 0)
 	        {
-	            throw new BadRequestException();
-	        }
+	            throw new BadRequestException("Please provide a valid project id", ErrorCodes.QueueJobProjectIdInvalid);
+            }
+            if (String.IsNullOrEmpty(request.ProjectName))
+            {
+                throw new BadRequestException("Please provide the project name", ErrorCodes.QueueJobProjectNameEmpty);
+            }
+            if (request?.Processes == null || !request.Processes.Any() || request.Processes.Any(a => a.ProcessId <= 0))
+            {
+                throw new BadRequestException("Please provide valid processes to generate job", ErrorCodes.QueueJobProcessesInvalid);
+            }
 	    }
 	    #endregion
     }

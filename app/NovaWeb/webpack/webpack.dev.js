@@ -108,11 +108,8 @@ module.exports = {
         }
     },
     tslint: {
-        configuration: {
-            rules: {
-
-            }
-        }
+        emitErrors: true,
+        failOnHint: true
     },
     module: {
         loaders: loaders,

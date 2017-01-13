@@ -57,6 +57,8 @@ module.exports = {
         modulesDirectories: ["node_modules"]
     },
     tslint: {
+        emitErrors: true,
+        failOnHint: true,
         configuration: {
             rules: {
                 "only-arrow-functions": false

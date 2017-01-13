@@ -7,8 +7,6 @@
         "noImplicitThis": false,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
-        "emitErrors": true,
-        "failOnHint": true,
         "removeComments": true,
         "sourceMap": true,
         "module": "commonjs",

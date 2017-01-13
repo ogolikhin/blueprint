@@ -56,7 +56,7 @@ module.exports = {
         new CopyWebpackPlugin([
             // {output}/file.txt
             {from: './web.config'},
-            {from: './favicon**', to:'../'},
+            {from: './favicon**', to: '../'},
             {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},
@@ -107,6 +107,10 @@ module.exports = {
             mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.min.js'),
             mxClientCss: path.resolve(__dirname, '../libs/mxClient/css')
         }
+    },
+    tslint: {
+        emitErrors: true,
+        failOnHint: true
     },
     module: {
         loaders: loaders,

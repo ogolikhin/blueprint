@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Model.ArtifactModel.Adaptors;
 using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 
 namespace Model
 {
@@ -26,7 +27,7 @@ namespace Model
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
     public interface IRaptorDiscussion : IDiscussionAdaptor
     {
-        List<IRaptorReply> Replies { get; set; }
+        List<IReplyAdapter> Replies { get; set; }
 
         bool Equals(Discussion comment);
     }
@@ -43,8 +44,11 @@ namespace Model
         int DiscussionId { get; set; }
         int Version { get; set; }
         int UserId { get; set; }
-        DateTime LastEditedOnUtc { get; set; }
-        string UserName { get; set; }
+
+        [JsonProperty("LastEditedOnUtc")]
+        DateTime LastEditedOn { get; set; }
+
+        string Username { get; set; }
         bool IsGuest { get; set; }
         string Comment { get; set; }
         bool CanEdit { get; set; }

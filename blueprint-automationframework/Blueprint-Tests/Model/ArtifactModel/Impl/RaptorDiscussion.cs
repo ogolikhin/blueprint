@@ -73,7 +73,7 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON properties
 
-        public List<IRaptorReply> Replies { get; set; }
+        public List<IReplyAdapter> Replies { get; set; }
         public bool IsClosed { get; set; }
         public int ItemId { get; set; }
         public int DiscussionId { get; set; }
@@ -201,7 +201,7 @@ namespace Model.ArtifactModel.Impl
     }
 
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
-    public class RaptorReply : IRaptorReply
+    public class RaptorReply : IReplyAdapter
     {
         #region Serialized JSON properties
 
@@ -210,8 +210,11 @@ namespace Model.ArtifactModel.Impl
         public int DiscussionId { get; set; }
         public int Version { get; set; }
         public int UserId { get; set; }
-        public DateTime LastEditedOnUtc { get; set; }
-        public string UserName { get; set; }
+
+        [JsonProperty("LastEditedOnUtc")]
+        public DateTime LastEditedOn { get; set; }
+
+        public string Username { get; set; }
         public bool IsGuest { get; set; }
         public string Comment { get; set; }
         public bool CanEdit { get; set; }
@@ -224,7 +227,8 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="expectedReply">The expected Reply.</param>
         /// <param name="actualReply">The actual Reply.</param>
-        public static void AssertAreEqual(IRaptorReply expectedReply, IRaptorReply actualReply)
+        /// <param name="skipCanEdit">(optional) Pass true to skip comparison of the CanEdit properties.</param>
+        public static void AssertAreEqual(IReplyAdapter expectedReply, IReplyAdapter actualReply, bool skipCanEdit = false)
         {
             if ((expectedReply == null) || (actualReply == null))
             {
@@ -234,17 +238,35 @@ namespace Model.ArtifactModel.Impl
             {
                 const string MESSAGE = "The {0} properties don't match!";
 
-                Assert.AreEqual(expectedReply.CanDelete, actualReply.CanDelete, MESSAGE, nameof(IRaptorReply.CanDelete));
-                Assert.AreEqual(expectedReply.CanEdit, actualReply.CanEdit, MESSAGE, nameof(IRaptorReply.CanEdit));
-                Assert.AreEqual(expectedReply.Comment, actualReply.Comment, MESSAGE, nameof(IRaptorReply.Comment));
-                Assert.AreEqual(expectedReply.DiscussionId, actualReply.DiscussionId, MESSAGE, nameof(IRaptorReply.DiscussionId));
-                Assert.AreEqual(expectedReply.IsGuest, actualReply.IsGuest, MESSAGE, nameof(IRaptorReply.IsGuest));
-                Assert.AreEqual(expectedReply.ItemId, actualReply.ItemId, MESSAGE, nameof(IRaptorReply.ItemId));
-                Assert.AreEqual(expectedReply.LastEditedOnUtc, actualReply.LastEditedOnUtc, MESSAGE, nameof(IRaptorReply.LastEditedOnUtc));
-                Assert.AreEqual(expectedReply.ReplyId, actualReply.ReplyId, MESSAGE, nameof(IRaptorReply.ReplyId));
-                Assert.AreEqual(expectedReply.UserId, actualReply.UserId, MESSAGE, nameof(IRaptorReply.UserId));
-                Assert.AreEqual(expectedReply.UserName, actualReply.UserName, MESSAGE, nameof(IRaptorReply.UserName));
-                Assert.AreEqual(expectedReply.Version, actualReply.Version, MESSAGE, nameof(IRaptorReply.Version));
+                Assert.AreEqual(expectedReply.CanDelete, actualReply.CanDelete, MESSAGE, nameof(IReplyAdapter.CanDelete));
+
+                if (!skipCanEdit)
+                {
+                    Assert.AreEqual(expectedReply.CanEdit, actualReply.CanEdit, MESSAGE, nameof(IReplyAdapter.CanEdit));
+                }
+
+                // TFS Bug: 4706  Milliseconds are different.
+                // We need to remove the milliseconds when comparing the dates because RapidReview and Nova return different milliseconds for some reason.
+                var expectedLastEditedOn = expectedReply.LastEditedOn;
+                var actualLastEditedOn = actualReply.LastEditedOn;
+
+                expectedLastEditedOn = new DateTime(expectedLastEditedOn.Year, expectedLastEditedOn.Month, expectedLastEditedOn.Day,
+                    expectedLastEditedOn.Hour, expectedLastEditedOn.Minute, expectedLastEditedOn.Second, expectedLastEditedOn.Kind);
+
+                actualLastEditedOn = new DateTime(actualLastEditedOn.Year, actualLastEditedOn.Month, actualLastEditedOn.Day,
+                    actualLastEditedOn.Hour, actualLastEditedOn.Minute, actualLastEditedOn.Second, actualLastEditedOn.Kind);
+
+                Assert.AreEqual(expectedLastEditedOn, actualLastEditedOn, MESSAGE, nameof(IReplyAdapter.LastEditedOn));
+
+                Assert.AreEqual(expectedReply.Comment, actualReply.Comment, MESSAGE, nameof(IReplyAdapter.Comment));
+                Assert.AreEqual(expectedReply.DiscussionId, actualReply.DiscussionId, MESSAGE, nameof(IReplyAdapter.DiscussionId));
+                Assert.AreEqual(expectedReply.IsGuest, actualReply.IsGuest, MESSAGE, nameof(IReplyAdapter.IsGuest));
+                Assert.AreEqual(expectedReply.ItemId, actualReply.ItemId, MESSAGE, nameof(IReplyAdapter.ItemId));
+//                Assert.AreEqual(expectedReply.LastEditedOn, actualReply.LastEditedOn, MESSAGE, nameof(IReplyAdapter.LastEditedOn));
+                Assert.AreEqual(expectedReply.ReplyId, actualReply.ReplyId, MESSAGE, nameof(IReplyAdapter.ReplyId));
+                Assert.AreEqual(expectedReply.UserId, actualReply.UserId, MESSAGE, nameof(IReplyAdapter.UserId));
+                Assert.AreEqual(expectedReply.Username, actualReply.Username, MESSAGE, nameof(IReplyAdapter.Username));
+                Assert.AreEqual(expectedReply.Version, actualReply.Version, MESSAGE, nameof(IReplyAdapter.Version));
             }
         }
 
@@ -254,11 +276,11 @@ namespace Model.ArtifactModel.Impl
             { return false; }
             else
             {
-                if ((string.Equals(reply.ReplyText, Comment)) &&
+                if ((string.Equals(reply.Comment, Comment)) &&
                     (reply.DiscussionId == DiscussionId) && (reply.IsGuest == IsGuest) &&
                     (reply.ItemId == ItemId) && (reply.ReplyId == ReplyId) &&
                     //(DateTime.Equals(comment.LastEditedOn, LastEditedOnUtc)) && //microseconds are different
-                    (reply.UserId == UserId) && (string.Equals(reply.UserName, UserName)))
+                    (reply.UserId == UserId) && (string.Equals(reply.Username, Username)))
                 { return true; }
                 else
                 { return false; }

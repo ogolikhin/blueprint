@@ -923,7 +923,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
-        public static IRaptorReply PostRaptorDiscussionReply(string address,
+        public static IReplyAdapter PostRaptorDiscussionReply(string address,
             IDiscussionAdaptor discussion,
             string comment,
             IUser user,
@@ -945,8 +945,8 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        public static IRaptorReply UpdateRaptorDiscussionReply(string address,
-            int itemId, IDiscussionAdaptor discussion, IRaptorReply replyToUpdate,
+        public static IReplyAdapter UpdateRaptorDiscussionReply(string address,
+            int itemId, IDiscussionAdaptor discussion, IReplyAdapter replyToUpdate,
             string comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -966,7 +966,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>message</returns>
         public static string DeleteRaptorReply(string address,
-            int itemId, IRaptorReply replyToDelete,
+            int itemId, IReplyAdapter replyToDelete,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {

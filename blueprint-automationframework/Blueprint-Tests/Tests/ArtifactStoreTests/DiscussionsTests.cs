@@ -194,7 +194,7 @@ namespace ArtifactStoreTests
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             DiscussionResultSet discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
-            IRaptorReply postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
+            var postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
                 postedRaptorComment, "This is a reply to a comment.", _authorUser);
 
             List<Reply> replies = null;
@@ -208,8 +208,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, replies.Count, "Subartifact should have 1 comment, but it has {0}",
                 discussions.Discussions.Count);
-            Assert.True(postedReply.Equals(replies[0]),
-                "The discussion reply returned from ArtifactStore doesn't match what was posted!");
+            RaptorReply.AssertAreEqual(postedReply, replies[0], skipCanEdit: true);
         }
 
         [TestCase]
@@ -323,7 +322,7 @@ namespace ArtifactStoreTests
             var raptorComment = artifact.PostRaptorDiscussions(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
             string replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
-            IRaptorReply raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
+            var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
                 raptorComment, replyText, _adminUser);
 
             // Execute:
@@ -352,7 +351,8 @@ namespace ArtifactStoreTests
             var raptorComment = artifact.PostRaptorDiscussions(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
             string replyText = null;
-            IRaptorReply raptorReply = null;
+            IReplyAdapter raptorReply = null;
+
             for (int i = 0; i < 2; i++)
             {
                 replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
@@ -492,12 +492,13 @@ namespace ArtifactStoreTests
             var raptorComment = artifact.PostRaptorDiscussions(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
             string replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
-            IRaptorReply raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
+            var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
                 raptorComment, replyText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(replyText), raptorReply.Comment);
 
             string newReplyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
-            IRaptorReply updatedReply = null;
+            IReplyAdapter updatedReply = null;
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {

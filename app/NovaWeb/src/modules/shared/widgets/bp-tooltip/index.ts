@@ -1,4 +1,6 @@
-﻿import * as angular from "angular";
+﻿import "./bp-tooltip.scss";
+
+import * as angular from "angular";
 import {BPTooltip} from "./bp-tooltip";
 
 angular.module("bp.widgets.tooltip", [])

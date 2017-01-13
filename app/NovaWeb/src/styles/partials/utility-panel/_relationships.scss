@@ -237,8 +237,20 @@ bp-relationships-panel {
                     margin-right: 2px;
                 }
 
+                .artifact-name {
+                    @include text-ellipsis-fixed-width(100%);
+                    display: inline-block;
+                    padding: 2px 14px 2px 0;
+                }
+
+                .project-name {
+                    @include text-ellipsis-fixed-width(100%);
+                    font-weight: $font-weight-bold;
+                    line-height: 17px;
+                }
+
                 .bolded-text {
-                    font-weight: 700;
+                    font-weight: $font-weight-bold;
                 }
 
                 .desc-visible {
@@ -247,10 +259,6 @@ bp-relationships-panel {
 
                 .desc-hidden {
                     display: none;
-                }
-
-                & h6 {
-                    width: 90%;
                 }
 
                 & a {

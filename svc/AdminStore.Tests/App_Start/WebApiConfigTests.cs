@@ -44,7 +44,7 @@ namespace AdminStore
             config.AssertAction<JobsController>("GetJob", HttpMethod.Get, "jobs/1");
             config.AssertAction<JobsController>("GetJobResultFile", HttpMethod.Get, "jobs/1/result/file");
             config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
-            config.AssertAction<JobsController>("GenerateProcessTests", HttpMethod.Post, "jobs/process/testgen");
+            config.AssertAction<JobsController>("QueueGenerateProcessTestsJob", HttpMethod.Post, "jobs/process/testgen");
         }
 
         [TestMethod]

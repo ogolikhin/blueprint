@@ -146,10 +146,10 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, replace Image tag with [Image] text if string more then 100 chars", () => {
         //Arrange
         const expectedResult = "test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678" + Helper.ELLIPSIS_SYMBOL;
-        const limitCharsResults = "test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111" +
+        const limitCharsResult = "test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111" +
             "<img src=\"test.jpg\"/>";
         //Act
-        let result = vm.limitChars(limitCharsResults);
+        let result = vm.limitChars(limitCharsResult);
 
         //Assert
         expect(result).toBe(expectedResult);
@@ -158,12 +158,12 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, replace Image tag with [Image] text if string more then 100 chars and image in range of the between 0 and 100 chars", () => {
         //Arrange
         const expectedResult = "test fffasdasfaffffffffrr [Image] fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" + Helper.ELLIPSIS_SYMBOL;
-        const limitCharResults = "test fffasdasfaffffffffrr" +
-            "<img src=\"test.jpg\"/>"
-            + "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111"
-            + "<img src=\"test.jpg\"/>";
+        const limitCharsResult = "test fffasdasfaffffffffrr" +
+            "<img src=\"test.jpg\"/>" +
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111" +
+            "<img src=\"test.jpg\"/>";
         //Act
-        let result = vm.limitChars(limitCharResults);
+        let result = vm.limitChars(limitCharsResult);
 
         //Assert
         expect(result).toBe(expectedResult);

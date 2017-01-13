@@ -200,15 +200,6 @@ bp-properties-panel {
         }
     }
 
-    .uib-datepicker-popup {
-
-        table.uib-daypicker,
-        table.uib-monthpicker,
-        table.uib-yearpicker {
-            width: $property-input-width;
-        }
-    }
-
     .properties.collapsed .content.system-properties {
         height: #{$property-min-height * 2};
     }

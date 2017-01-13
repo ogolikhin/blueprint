@@ -100,6 +100,7 @@
     <Compile Include="Helpers\LoggableApiController.cs" />
     <Compile Include="Helpers\RemoveSecurityRelatedHeadersHttpModule.cs" />
     <Compile Include="Helpers\SerializationHelper.cs" />
+    <Compile Include="Helpers\ServerUriHelper.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
@@ -123,10 +124,10 @@
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />
     <Compile Include="Models\ItemInfo.cs" />
+    <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />
     <Compile Include="Models\Jobs\JobInfo.cs" />
     <Compile Include="Models\Jobs\ProcessTestGenerationRequest.cs" />
-    <Compile Include="Models\Jobs\ProcessTestGenerationResult.cs" />
     <Compile Include="Models\Jobs\ProjectExportResultDetails.cs" />
     <Compile Include="Models\Jobs\ProjectExportTaskStatus.cs" />
     <Compile Include="Models\Jobs\JobResult.cs" />

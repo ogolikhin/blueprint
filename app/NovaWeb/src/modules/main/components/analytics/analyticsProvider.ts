@@ -14,9 +14,7 @@ export interface IKeenEventObject {
     page_url: string;
     userToken?: string;
     analyticsSession?: string;
-    currentUser?: {
-
-    };
+    currentUser?: {};
     keen: {
         addons: Array<any>
     };
@@ -210,7 +208,7 @@ export class AnalyticsProvider implements ng.IServiceProvider {
             }
             newEvent = _.extend(newEvent, customEventData);
             if (this.isNotLocalhost || this.enableLocalhostTracking) {
-                this.client.addEvent(eventCollection, newEvent, function (error) {
+                this.client.addEvent(eventCollection, newEvent, (error) => {
                     if (error) {
                         $log.debug("KeenIO: ", error);
                     }

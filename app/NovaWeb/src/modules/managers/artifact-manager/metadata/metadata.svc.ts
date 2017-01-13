@@ -197,7 +197,7 @@ export class MetaDataService implements IMetaDataService {
                 return _.filter(data.artifactTypes, (it: IItemType) => {
                     return (itemType && (itemType.predefinedType === it.predefinedType));
                 });
-            }(projectMeta ? projectMeta.data : null).map(function (it) {
+            }(projectMeta ? projectMeta.data : null).map((it) => {
                 return <IOption>{
                     id: it.id,
                     value: it.name

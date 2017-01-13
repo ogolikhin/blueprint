@@ -23,7 +23,7 @@ export class KeenTrackEvent implements ng.IDirective {
     controllerAs = "KeenTrackEvent";
 
     link(scope: ng.IScope, element: ng.IAugmentedJQuery, attrs: IKeenEvent, ctrl: any): void {
-        element.bind("click", function (e) {
+        element.bind("click", (e) => {
             const options = ctrl.$parse(attrs.keenTrackEvent);
             if (attrs.keenTrackEventIf) {
                 if (!scope.$eval(attrs.keenTrackEventIf)) {

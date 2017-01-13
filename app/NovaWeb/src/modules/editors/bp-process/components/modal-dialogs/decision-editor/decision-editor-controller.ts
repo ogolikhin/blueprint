@@ -103,14 +103,13 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     private scrollToBottomOfConditionList() {
         const self = this;
-        this.$timeout(function () {
+        this.$timeout(() => {
             const oldHash = self.$location.hash();
             self.$location.hash("decision-modal-list-bottom");
             self.$anchorScroll();
             self.$location.hash(oldHash);
         });
     }
-
     public isDeleteConditionVisible(condition: ICondition): boolean {
         return !this.hasMinConditions && !this.isFirstBranch(condition);
     }

@@ -1,4 +1,4 @@
-require("./bp-breadcrumbs.scss");
+import "./bp-breadcrumbs.scss";
 
 import * as angular from "angular";
 import {BPBreadcrumbComponent} from "./bp-breadcrumb";

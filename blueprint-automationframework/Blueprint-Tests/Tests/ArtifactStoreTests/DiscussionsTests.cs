@@ -76,31 +76,24 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146054)]
-        [Description("Add comment to saved artifact, then get discussion for this artifact.  Verify it returns the comment that we added.")]
-        public void GetDiscussions_DraftArtifact_ReturnsCorrectDiscussion()
+        [Description("Add comment to saved artifact, then get discussion for this artifact.  Verify it returns 404.")]
+        public void GetDiscussions_DraftArtifact_Returns404()
         {
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Actor);
             artifact.Save(_adminUser);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussions("draft", _adminUser);
+            artifact.PostRaptorDiscussions("draft", _adminUser);
             Discussions discussions = null;
 
-            // Execute:
-            Assert.DoesNotThrow(() =>
+            // In Nova UI doesn't allow to post discussion for never published artifact, it is possible to do by adding comment in SL and saving it
+            // In this case it would be a conflict - in SL user will see comment and in Nova he will not.
+            // For consistency server shouldn't allow to create comment for never published artifact.
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
-            }, "GetArtifactDiscussions shouldn't throw any error, but it doesn't.");
-
-            // Verify:
-            Assert.AreEqual(1, discussions.Comments.Count, "Artifact should have 1 comment, but it has {0}",
-                discussions.Comments.Count);
-            Assert.True(postedRaptorComment.Equals(discussions.Comments[0]),
-                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
-            Assert.AreEqual(-1, postedRaptorComment.Version,
-                "Comment for draft should have version -1, but it has version {0}", postedRaptorComment.Version);
-            Assert.AreEqual(-1, discussions.Comments[0].Version,
-                "Comment for draft should have version -1, but it has version {0}", discussions.Comments[0].Version);
+            }, "GetArtifactDiscussions should throw 404 error, but it doesn't.");
         }
 
         [TestCase]

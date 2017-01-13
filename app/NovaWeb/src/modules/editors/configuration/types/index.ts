@@ -7,7 +7,7 @@ import {BPFieldNumber} from "./number/number";
 import {BPFieldSelect} from "./select/select";
 import {BPFieldSelectMulti} from "./select-multi/select-multi";
 import {BPFieldUserPicker} from "./user-picker/user-picker";
-import {BPFieldDatePicker} from "./date-picker/date-picker";
+import {BPFieldDatePicker} from "./date-picker";
 import {BPFieldDocumentFile} from "./document-file/document-file";
 import {BPFieldImage} from "./field-image/field-image";
 import {BPFieldInheritFrom} from "./actor-inheritance/actor-inheritance";

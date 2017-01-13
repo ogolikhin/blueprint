@@ -1,4 +1,4 @@
-﻿require("./bp-item-icon.scss");
+﻿import "./bp-item-icon.scss";
 
 import * as angular from "angular";
 import {BPItemTypeIconComponent} from "./bp-item-icon";

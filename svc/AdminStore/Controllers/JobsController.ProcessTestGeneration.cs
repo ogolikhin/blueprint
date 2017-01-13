@@ -71,7 +71,7 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException("Please provide the project name", ErrorCodes.QueueJobProjectNameEmpty);
             }
-            if (request?.Processes == null || !request.Processes.Any() || request.Processes.Where(a => a.ProcessId <= 0).Any())
+            if (request?.Processes == null || !request.Processes.Any() || request.Processes.Any(a => a.ProcessId <= 0))
             {
                 throw new BadRequestException("Please provide valid processes to generate job", ErrorCodes.QueueJobProcessesInvalid);
             }

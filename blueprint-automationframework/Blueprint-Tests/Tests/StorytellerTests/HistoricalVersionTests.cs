@@ -1,6 +1,5 @@
 ﻿using CustomAttributes;
 using Model;
-using Model.ArtifactModel;
 using Model.Factories;
 using NUnit.Framework;
 using Model.StorytellerModel;

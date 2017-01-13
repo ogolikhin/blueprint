@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.StorytellerModel.Impl;
 

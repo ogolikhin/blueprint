@@ -74,7 +74,10 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
 
         const dialogData: IArtifactPickerOptions = {
             selectableItemTypes: [Models.ItemTypePredefined.Document],
-            showSubArtifacts: false
+            isItemSelectable: (item: Models.IArtifact) => {
+                // only select document reference that has been published at least once
+                return item.version > 0;
+            }
         };
 
         this.dialogService.open(dialogSettings, dialogData).then((items: Models.IItem[]) => {

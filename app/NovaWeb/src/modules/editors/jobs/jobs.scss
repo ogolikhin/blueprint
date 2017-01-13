@@ -1,5 +1,5 @@
-@import "../../../styles/settings/colors";
-@import "../../../styles/settings/typography";
+@import "./../../../styles/settings/colors";
+@import "./../../../styles/settings/typography";
 
 .jobs {
     width: 100%;
@@ -160,7 +160,7 @@
 }
 
 .jobs__projectname {
-    width:50%;
+    width:80%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -169,15 +169,18 @@
 }
 
 .jobs__authorname {
-    width:calc(50% - 25px);
+    width:calc(80% - 25px);
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     display: inline-block;
     position:absolute;
 }
-
 .jobs__label {
     padding-right: 5px;
     font-weight: bold;
+}
+
+.jobs__pagination {
+    font-size: $font-size-bigger;
 }

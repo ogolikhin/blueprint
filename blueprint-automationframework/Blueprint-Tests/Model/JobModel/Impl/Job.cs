@@ -53,7 +53,7 @@ namespace Model.JobModel.Impl
 
             RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
 
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Targets_id_.JOBS, project.Id, almTarget.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALM.Targets_id_.JOBS, project.Id, almTarget.Id);
             var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId);
             var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
                 path,
@@ -81,7 +81,7 @@ namespace Model.JobModel.Impl
         public int? UserId { get; set; }
         public string UserDisplayName { get; set; }
         public string Server { get; set; }
-        public string Progress { get; set; }
+        public decimal Progress { get; set; }
         public string Output { get; set; }
         public bool StatusChanged { get; set; }
         public bool HasCancelJob { get; set; }

@@ -58,6 +58,7 @@ namespace ServiceLibrary.Repositories.Files
                     throw new AuthenticationException("Authentication is required", ErrorCodes.UnauthorizedAccess);
 
                 case HttpStatusCode.NotFound:
+                case HttpStatusCode.ServiceUnavailable:
                     throw new ResourceNotFoundException($"File with id {fileId} is not found", ErrorCodes.ResourceNotFound);
 
                 default:
@@ -80,6 +81,7 @@ namespace ServiceLibrary.Repositories.Files
                     throw new AuthenticationException("Authentication is required", ErrorCodes.UnauthorizedAccess);
 
                 case HttpStatusCode.NotFound:
+                case HttpStatusCode.ServiceUnavailable:
                     throw new ResourceNotFoundException($"File with id {fileId} is not found", ErrorCodes.ResourceNotFound);
 
                 default:

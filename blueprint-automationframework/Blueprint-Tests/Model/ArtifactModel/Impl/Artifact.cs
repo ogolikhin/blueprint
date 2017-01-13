@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Utilities;
 using NUnit.Framework;
@@ -1017,9 +1016,7 @@ namespace Model.ArtifactModel.Impl
         public int ProjectId { get; set; }
         public int Version { get; set; }
 
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<PropertyForUpdate> CustomPropertyValues { get; set; }
-        [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public List<PropertyForUpdate> SpecificPropertyValues { get; set; }
     }
 

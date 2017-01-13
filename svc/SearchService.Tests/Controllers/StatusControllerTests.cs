@@ -5,6 +5,7 @@ using System.Web.Http;
 using System.Web.Http.Results;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Helpers;
 
 namespace SearchService.Controllers
@@ -23,7 +24,7 @@ namespace SearchService.Controllers
             var controller = new StatusController();
 
             // Assert
-            Assert.IsInstanceOfType(controller.StatusControllerHelper, typeof(StatusControllerHelper));
+            Assert.IsInstanceOfType(controller._statusControllerHelper, typeof(StatusControllerHelper));
         }
 
         #endregion Constructor
@@ -40,10 +41,30 @@ namespace SearchService.Controllers
             var controller = CreateController(statusControllerHelper.Object, "mypreauthorizedkey");
 
             // Act
-            IHttpActionResult result = await controller.GetStatus("NOTmypreauthorizedkey");
+            ResponseMessageResult result = await controller.GetStatus("NOTmypreauthorizedkey") as ResponseMessageResult;
 
             // Assert
-            Assert.IsInstanceOfType(result, typeof(UnauthorizedResult));
+            Assert.AreEqual(HttpStatusCode.Unauthorized, result.Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task GetStatus_PreAuthorizedKeysNull_ReturnsOkWithCorrectContent()
+        {
+            // Arrange
+            var statusControllerHelper = new Mock<IStatusControllerHelper>();
+            statusControllerHelper.Setup(r => r.GetStatus()).ReturnsAsync(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName", AccessInfo = "MyAccessInfo" });
+            statusControllerHelper.Setup(e => e.GetShorterStatus(It.IsAny<ServiceStatus>())).Returns(new ServiceStatus() { NoErrors = true, ServiceName = "MyServiceName", AccessInfo = null });
+            var controller = CreateController(statusControllerHelper.Object);
+
+            // Act
+            OkNegotiatedContentResult<ServiceStatus> result = await controller.GetStatus() as OkNegotiatedContentResult<ServiceStatus>;
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("MyServiceName", result.Content.ServiceName);
+            Assert.AreEqual(null, result.Content.AccessInfo);
+
+
         }
 
         [TestMethod]
@@ -83,7 +104,7 @@ namespace SearchService.Controllers
 
 
 
-        private static StatusController CreateController(IStatusControllerHelper statusControllerHelper, string preAuthorizedKey)
+        private static StatusController CreateController(IStatusControllerHelper statusControllerHelper, string preAuthorizedKey = null)
         {
             var controller = new StatusController(statusControllerHelper, preAuthorizedKey)
             {

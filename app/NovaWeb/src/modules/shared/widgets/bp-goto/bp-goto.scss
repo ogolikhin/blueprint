@@ -17,15 +17,21 @@
         display: inline-block;
     }
 
-    &__input {
+    &__line {
         transition: width 0.5s ease-out;
+        height:1px;
+        overflow: hidden;
+        border-bottom: 1px solid $brand-secondary;
+        width: 50px;
+    }
+
+    &__input {
         background: none;
         height: 40px;
         width: 50px;
         padding: 10px 0 0 28px;
         color: $gray-darkest;
         border: none;
-        border-bottom: 1px solid $brand-secondary;
         margin: 0 0 3px 5px;
 
         &:focus {
@@ -91,6 +97,10 @@
     }
 
     .bp-goto__input {
+        width: 170px;
+    }
+
+    .bp-goto__line {
         width: 170px;
     }
 

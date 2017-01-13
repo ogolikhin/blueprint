@@ -99,7 +99,6 @@ namespace Model.StorytellerModel
         /// Gets the shape type of this ProcessShape.
         /// </summary>
         /// <returns>The type of shape this shape is.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // It should be a method since it could fail.
         ProcessShapeType GetShapeType();
 
         /// <summary>

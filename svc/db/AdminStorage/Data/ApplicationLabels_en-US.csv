@@ -79,6 +79,9 @@ App_Toolbar_Move,"Move Artifact"
 App_Toolbar_Copy,"Copy Artifact"
 App_Toolbar_Copy_Shapes, "Copy Shapes"
 App_Toolbar_Menu,"Additional actions"
+App_Toolbar_Generate, "Generate"
+App_Toolbar_Generate_Test_Cases, "Generate Test Cases"
+App_Toolbar_Generate_Test_Cases_Title, "Add Process to Generate Tests"
 
 App_Tooltip_Dirty, "Unsaved"
 
@@ -441,7 +444,7 @@ Property_Not_Available, "n/a"
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."
 HttpError_Forbidden, "The operation could not be completed because of privilege-related issues."
-HttpError_NotFound, "Sorry, but the artifact cannot be found. It has likely been deleted or moved."
+HttpError_NotFound, "The artifact could not be found."
 HttpError_Collection_NotFound, "The Collection has been deleted."
 HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."
 
@@ -601,5 +604,7 @@ Jobs_SubmittedDate, "Submitted on"
 Jobs_StartDate, "Started on"
 Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
+Jobs_Button_Label_GetJobs, "Get Jobs"
+
 
 

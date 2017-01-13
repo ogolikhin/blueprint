@@ -51,25 +51,17 @@ namespace AdminStore.Controllers
         /// <response code="400">BadRequest.</response>
         [HttpGet, NoCache]
         [Route(""), SessionRequired]
-        [ResponseType(typeof(IEnumerable<JobInfo>))]
+        [ResponseType(typeof(JobResult))]
         public async Task<IHttpActionResult> GetLatestJobs(int? page = null, int? pageSize = null, JobType jobType = JobType.None)
         {
-            try
-            {
-                var session = GetSession(Request);
+            var session = GetSession(Request);
 
-                var jobsHelper = new JobsValidationHelper();
-                jobsHelper.Validate(page, pageSize);
+            var jobsHelper = new JobsValidationHelper();
+            jobsHelper.Validate(page, pageSize);
 
-                var offset = (page.Value - 1) * pageSize.Value;
+            var offset = (page.Value - 1) * pageSize.Value;
 
-                return Ok(await _jobsRepository.GetVisibleJobs(session.UserId, offset, pageSize, jobType));
-            }
-            catch (Exception exception)
-            {
-                await Log.LogError(LogSource, exception);
-                throw;
-            }
+            return Ok(await _jobsRepository.GetVisibleJobs(session.UserId, offset, pageSize, jobType));
         }
 
         /// <summary>
@@ -84,17 +76,9 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(JobInfo))]
         public async Task<IHttpActionResult> GetJob(int jobId)
         {
-            try
-            {
-                var session = GetSession(Request);
+            var session = GetSession(Request);
 
-                return Ok(await _jobsRepository.GetJob(jobId, session.UserId));
-            }
-            catch (Exception exception)
-            {
-                await Log.LogError(LogSource, exception);
-                throw;
-            }
+            return Ok(await _jobsRepository.GetJob(jobId, session.UserId));
         }
 
         /// <summary>

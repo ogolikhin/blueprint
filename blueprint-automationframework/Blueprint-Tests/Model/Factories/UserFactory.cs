@@ -132,7 +132,6 @@ namespace Model.Factories
         /// NOTE: This user may or may not exist in the database.
         /// </summary>
         /// <returns>The user object from the TestConfiguration.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static IUser GetUserFromTestConfig()
         {
             TestConfiguration testConfig = TestConfiguration.GetInstance();
@@ -148,7 +147,6 @@ namespace Model.Factories
         /// <param name="includeDeletedUsers">(optional) Pass true if you want to get all users, including "deleted" users.
         /// By default, only users who have a NULL EndTimestamp field are returned.</param>
         /// <returns>A list of users.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate")]   // Ignore this warning.
         public static List<IUser> GetUsers(bool includeDeletedUsers = false)
         {
             using (IDatabase database = DatabaseFactory.CreateDatabase())

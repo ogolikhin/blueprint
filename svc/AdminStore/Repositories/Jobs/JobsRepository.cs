@@ -50,24 +50,31 @@ namespace AdminStore.Repositories.Jobs
 
         #region Public Methods
 
-        public async Task<IEnumerable<JobInfo>> GetVisibleJobs
+        public async Task<JobResult> GetVisibleJobs
         (
-            int userId, 
-            int? offset, 
-            int? limit, 
+            int userId,
+            int? offset,
+            int? limit,
             JobType? jobType = JobType.None
         )
         {
             var actualUserId = await GetActualUserId(userId);
+            var jobResult = new JobResult();
             var dJobMessages = (await GetJobMessages(actualUserId, offset, limit, jobType, false)).ToList();
+
+            jobResult.TotalJobCount = dJobMessages.Any() ? dJobMessages.FirstOrDefault().TotalCount : 0;
+
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(dJobMessages.Select(job => job.JobMessageId), true);
             var projectIds = new HashSet<int>
-            (
-                dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value)
-            );
+             (
+                 dJobMessages.Where(job => job.ProjectId.HasValue).Select(job => job.ProjectId.Value)
+             );
             var projectNameIdMap = await GetProjectNamesForUserMapping(projectIds, actualUserId);
 
-            return dJobMessages.Select(job => GetJobInfo(job, systemMessageMap, projectNameIdMap));
+
+            jobResult.JobInfos = dJobMessages.Select(job => GetJobInfo(job, systemMessageMap, projectNameIdMap));
+
+            return jobResult;
         }
 
         public async Task<JobInfo> GetJob(int jobId, int userId)
@@ -77,7 +84,7 @@ namespace AdminStore.Repositories.Jobs
             var job = await GetJobMessage(jobId);
             if (job == null)
             {
-                return null;
+                throw new ResourceNotFoundException(string.Format("Job with id {0} is not found", jobId), ErrorCodes.ResourceNotFound);
             }
 
             var systemMessageMap = await GetRelevantUnfinishCancelSystemJobSystemMessageMap(new[] { jobId });
@@ -116,6 +123,20 @@ namespace AdminStore.Repositories.Jobs
                 default:
                     throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.ResultFileNotSupported);
             }
+        }
+
+        public async Task<int?> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+            int? projectId, string projectLabel, int userId, string userName, string hostUri)
+        {
+            var jobMessage = await AddJobMessageQuery(type, hidden, parameters, 
+                receiverJobServiceId, projectId, projectLabel, userId, userName, hostUri);
+
+            if (jobMessage == null)
+            {
+                return null;
+            }
+
+            return jobMessage.JobMessageId;
         }
 
         #endregion
@@ -175,7 +196,7 @@ namespace AdminStore.Repositories.Jobs
 
             try
             {
-                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure));
+                return (await ConnectionWrapper.QueryAsync<DJobMessage>("GetJobMessagesNova", param, commandType: CommandType.StoredProcedure)).ToList();
             }
             catch (SqlException sqlException)
             {
@@ -206,13 +227,13 @@ namespace AdminStore.Repositories.Jobs
                 JobEndDateTime = jobMessage.EndTimestamp == null ? jobMessage.EndTimestamp : DateTime.SpecifyKind(jobMessage.EndTimestamp.Value, DateTimeKind.Utc),
                 JobType = jobMessage.Type,
                 Progress = jobMessage.Progress,
-                Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel,
+                Project = jobMessage.ProjectId.HasValue && projectNameMap != null ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel,
                 Server = jobMessage.ExecutorJobServiceId,
                 Status = jobMessage.Status.Value,
                 UserId = jobMessage.UserId,
                 Output = jobMessage.StatusDescription,
                 StatusChanged = jobMessage.StatusChangedTimestamp != null,
-                HasCancelJob = systemMessageMap.ContainsKey(jobMessage.JobMessageId),
+                HasCancelJob = systemMessageMap != null ? systemMessageMap.ContainsKey(jobMessage.JobMessageId) : false,
                 ProjectId = jobMessage.ProjectId,
                 Result = jobMessage.Result
             };
@@ -269,6 +290,40 @@ namespace AdminStore.Repositories.Jobs
 
             return projectNameIdDictionary;
         }
+
+        private async Task<DJobMessage> AddJobMessageQuery(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+            int? projectId, string projectLabel, int userId, string userName, string hostUri)
+        {
+
+            var param = new DynamicParameters();
+
+            param.Add("@type", (long)type);
+            param.Add("@hidden", hidden);
+            param.Add("@parameters", parameters);
+            param.Add("@receiverJobServiceId", receiverJobServiceId);
+            param.Add("@userId", userId);
+            param.Add("@userLogin", userName);
+            param.Add("@projectId", projectId);
+            param.Add("@projectLabel", projectLabel);
+            param.Add("@hostUri", hostUri);
+
+            try
+            {
+                return (await ConnectionWrapper.QueryAsync<DJobMessage>("AddJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            }
+            catch (SqlException sqlException)
+            {
+                switch (sqlException.Number)
+                {
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                }
+
+                throw;
+            }
+        }
+
 
         #endregion
     }

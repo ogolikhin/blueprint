@@ -3,12 +3,10 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Enums;
 using Model.JobModel.Impl;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TestCommon;
@@ -21,6 +19,7 @@ namespace AdminStoreTests
     [Category(Categories.CustomData)]
     public class JobsTests : TestBase
     {
+        protected const string JOB_PATH = RestPaths.Svc.AdminStore.JOBS_id_;
         protected const string JOBS_PATH = RestPaths.Svc.AdminStore.JOBS;
         protected const int MAXIMUM_PAGESIZE_VALUE = 200;
         protected const int DEFAULT_BASELINEORREVIEWID = 83;
@@ -62,7 +61,7 @@ namespace AdminStoreTests
 
         #region 200 OK Tests
 
-        [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1 )]
+        [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 10)]
         [TestRail(227081)]
         [Description("GET Jobs using page and pageSize parameters. Verify that the returned JobResult use page and pageSize parameters.")]
@@ -74,15 +73,63 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create ALM Change Summary jobs
-            List<IOpenAPIJob> jobsToBeFound = CreateALMSummaryJobsSetup(baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            List<IOpenAPIJob> jobsToBeFound = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
 
             // Execute: GetJobs with page and pageSize parameters
-            List<IJobInfo> jobResult = null;
+            JobResult jobResult = null;
             Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(_adminUser, page: page, pageSize: pageSize),
                 "GET {0} call failed when using it with page ({1}) and pageSize ({2})!", JOBS_PATH, page, pageSize);
 
             // Validation: Verify that page and pageSize works
-            JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: jobsToBeFound);
+            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: jobsToBeFound);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] 
+        // TODO: There is no easy way to create job(s) that visible for the user used for the test and that prevents writing validation step for this tests
+        // TODO: Will work on this as tech debt so that we can create a author user with access to ALM target by injecting SQL query
+        [TestCase(DEFAULT_BASELINEORREVIEWID, 10, 4)]
+        [TestRail(227295)]
+        [Description("GET Jobs that returns multiple pages for JobResult. Verify that number of result items matches with expecting search result items.")]
+        public void GetJobs_CreateMoreJobsThanThePageSize_VerifyCorrectNumberOfPagesAvailable(
+            int baselineOrReviewId,
+            int numberOfJobsToBeCreated,
+            int pageSize
+            )
+        {
+            // Setup: Create ALM Change Summary jobs
+            var jobsToBeFound = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _authorUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+
+            // Calculate expecting job result counts
+            var expectedJobResultCount = jobsToBeFound.Count();
+            var expectedPageCount = (expectedJobResultCount % pageSize).Equals(0) ? expectedJobResultCount / pageSize : expectedJobResultCount / pageSize + 1;
+            jobsToBeFound.Reverse();
+            var expectedJobsStack = new Stack<IOpenAPIJob>(jobsToBeFound);
+
+            // Execute: Execute GetJobs with page and pageSize
+            var returnedJobCount = 0;
+            var pageCount = 1;
+            while ( pageCount <= expectedPageCount)
+            {
+                // Execute GetJobs with page and pageSize
+                JobResult jobResult = null;
+                Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(user: _authorUser, page: pageCount, pageSize: pageSize, jobType: JobType.HpAlmRestChangeSummary),
+                    "GET {0} call failed when using it with page ({1}) and pageSize ({2})!", JOBS_PATH, pageCount, pageSize);
+
+                // Adds job result per page into returned job count
+                returnedJobCount += jobResult.JobInfos.Count();
+
+                // Create a paged job list per page, decending ordered by Job Id
+                List<IOpenAPIJob> pagedJobs = ExtractJobsFromJobStack(expectedJobsStack, pageSize);
+
+                // Validation: Verify that jobResult contains list of expectedJobs
+                AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: pagedJobs);
+
+                pageCount++;
+            }
+
+            // Validation: Verify that expected job count is equal to returned job count
+            Assert.That(returnedJobCount.Equals(expectedJobResultCount),
+                "Expected job result count is {0} but {1} was returned", expectedJobResultCount, returnedJobCount);
         }
 
         [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
@@ -96,15 +143,15 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create ALM Change Summary jobs
-            CreateALMSummaryJobsSetup(baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
 
             // Execute: GetJobs with JobType not which is not ALM Change Summary (DocGen)
-            List<IJobInfo> jobResult = null;
-            Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(_adminUser, jobType: JobType.DocGen, page: page, pageSize: pageSize),
+            JobResult jobResult = null;
+            Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(_adminUser, jobType: JobType.QcExport, page: page, pageSize: pageSize),
                 "GET {0} call failed when using it with jobType ({1})!", JOBS_PATH, JobType.DocGen);
 
             // Validation: Verify that jobType filter works by checking the empty jobResult from Get Jobs call
-            JobResultValidation(jobResult: jobResult, pageSize: pageSize );
+            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize);
 
         }
 
@@ -119,15 +166,15 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create ALM Change Summary jobs (using admin)
-            CreateALMSummaryJobsSetup(baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
 
             // Execute: Execute GetJobs using the author user
-            List<IJobInfo> jobResult = null;
+            JobResult jobResult = null;
             Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(_authorUser, page: page, pageSize: pageSize),
                 "GET {0} call failed when using an author user!", JOBS_PATH);
 
             // Validation: Verify that jobResult is empty since the author user doesn't have permission to view jobs created by admin
-            JobResultValidation(jobResult: jobResult, pageSize: pageSize);
+            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize);
         }
 
         [TestCase(DEFAULT_BASELINEORREVIEWID, 1, 1)]
@@ -140,19 +187,36 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create an ALM ChangeSummary job using the prepared ALM target
-            CreateALMSummaryJobsSetup(baselineOrReviewId, 1, _projectCustomData);
+            TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData);
 
             // Create user with no permission on any project
             var userWithNoPermissionOnAnyProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _allProjects);
 
             // Execute: Execute GetJobs using the user with no permission on any project
-            List<IJobInfo> jobResult = null;
+            JobResult jobResult = null;
             Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(userWithNoPermissionOnAnyProject, page: page, pageSize: pageSize),
                 "GET {0} call failed when using a user doesn't have permission to projects!",
                 JOBS_PATH);
 
             // Validation: Verify that jobResult is empty
-            JobResultValidation(jobResult: jobResult, pageSize: pageSize);
+            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize);
+        }
+
+        [TestCase(DEFAULT_BASELINEORREVIEWID)]
+        [TestRail(227220)]
+        [Description("Get a Job with a user that created the job. Verify that the returned JobResult")]
+        public void GetJob_GetTheJobCreated_VerifyJobResult(int baselineOrReviewId)
+        {
+            // Setup: Create a ALM ChangeSummary job using the prepared ALM target
+            var createdJob = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData).First();
+
+            // Execute: Execute GetJob to retrieve the job using job ID and user
+            IJobInfo returnedJobInfo = null;
+            Assert.DoesNotThrow(() => returnedJobInfo = Helper.AdminStore.GetJob(_adminUser, createdJob.JobId),
+                "Get {0} call failed when using job Id {1}!", JOB_PATH, createdJob.JobId);
+
+            // Validation: Verify that jobResult is identical with job
+            AdminStoreHelper.JobResultValidation(returnedJobInfo, createdJob);
         }
 
         #endregion 200 OK Tests
@@ -160,7 +224,7 @@ namespace AdminStoreTests
         #region 400 Bad Request Tests
 
         [TestCase(null, 1, ErrorCodes.PageNullOrNegative)]
-        [TestCase(1,null, ErrorCodes.PageSizeNullOrOutOfRange)]
+        [TestCase(1, null, ErrorCodes.PageSizeNullOrOutOfRange)]
         [TestRail(213053)]
         [Description("GET Jobs without either page or pageSize. Verify that 400 bad request is returned.")]
         public void GetJobs_GetJobsWithoutEitherPageOrPageSize_400BadRequest(
@@ -242,86 +306,83 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of Nova GET Jobs which has invalid token", expectedExceptionMessage);
         }
 
+        [TestCase(int.MaxValue)]
+        [TestRail(227221)]
+        [Description("GET a Job with missing 'Session-Token' header in the request. Verify that the call returns 401 Unautorized")]
+        public void GetJob_GetJobWithMissingSessionTokenHeader_401Unauthorized(int jobId)
+        {
+            // Setup: not required
+
+            // Execute: Execute GetJob using the user with missing session token header and dummy job Id
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: null, jobId: jobId),
+                "GET {0} call should return 401 Unauthorized if no Session-Token header was passed!", JOB_PATH);
+
+            // Validation: Exception should contain expected message.
+            const string expectedExceptionMessage = "Token is missing or malformed";
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
+                "{0} was not found in returned message of Nova GET Job which has no session token.", expectedExceptionMessage);
+        }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(227222)]
+        [Description("GET a Job with invalid 'Session-Token' header in the request. Verify that the call return 401 Unautorized")]
+        public void GetJob_GetJobWithInvalidSessionToken_401Unauthorized(int jobId)
+        {
+            // Setup: Not required
+            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            // Execute: Execute GetJob using the user with invalid session token and dummy job Id
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: userWithBadToken, jobId: jobId),
+                "GET {0} call should return 401 Unauthorized when using invalid session!", JOB_PATH);
+
+            // Validation: Exception should contain expected message.
+            const string expectedExceptionMessage = "Token is invalid";
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
+                "{0} was not found in returned message of Nova GET Job which has invalid token", expectedExceptionMessage);
+        }
+
         #endregion 401 Unauthorized Tests
+
+        #region 404 Not Found Tests
+
+        [TestCase(int.MaxValue)]
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestRail(227223)]
+        [Description("GET a Job using invalid job Id. Verify that 404 Not Found is returned.")]
+        public void GetJob_GetJobWithInvalidJobId_404NotFound(int jobId)
+        {
+            // Setup: Not required
+
+            // Execute and Validation: GetJob with invalid job Id and Verify that 404 Not Found is returned.
+            Assert.Throws<Http404NotFoundException>(() => Helper.AdminStore.GetJob(_adminUser, jobId),
+                "GET {0} call should return 404 Not Found when using invalid job Id ({1})!", JOB_PATH, jobId);
+        }
+
+        #endregion 404 Not Found Tests
 
         #region private functions
 
         /// <summary>
-        /// Create ALM Change Summary Jobs as a setup for testing Nova GET Jobs API calls
+        /// Creates the jobs list decending ordered by Job Id, extracted from the job stack
         /// </summary>
-        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
-        /// <param name="numberOfJobsToBeCreated">The number of ALM Change Summary Jobs to be created.</param>
-        /// <param name="project">The project where ALM targets reside.</param>
-        /// <returns> List of ALM Summary Jobs created in decending order by jobId </returns>
-        private List<IOpenAPIJob> CreateALMSummaryJobsSetup(int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
+        /// <param name="jobStack">Job stack descending ordered by Job Id, jobs will be removed from this stack</param>
+        /// <param name="pageSize">maximum number of jobs that will be on the paged job list</param>
+        private static List<IOpenAPIJob> ExtractJobsFromJobStack(Stack<IOpenAPIJob> jobStack, int pageSize)
         {
-            var almTarget = AlmTarget.GetAlmTargets(Helper.ArtifactStore.Address, _adminUser, project).First();
-            Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
-            List<IOpenAPIJob> jobsToBeFound = new List<IOpenAPIJob>();
-            for (int i = 0; i < numberOfJobsToBeCreated; i++)
+            List<IOpenAPIJob> pagedJobs = new List<IOpenAPIJob>();
+            for (int i = 0; i < pageSize; i++)
             {
-                var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(Helper.ArtifactStore.Address, _adminUser, project, baselineOrReviewId, almTarget);
-                jobsToBeFound.Add(openAPIJob);
-            }
-            jobsToBeFound.Reverse();
-            return jobsToBeFound;
-        }
-
-        /// <summary>
-        /// Asserts that returned jobResult from the Nova GET Jobs call match with jobs that are being retrieved.
-        /// </summary>
-        /// <param name="jobResult">The jobResult from Nova GET jobs call in decending order by jobId</param>
-        /// <param name="pageSize"> pageSize value that indicates number of items that get displayed per page</param>
-        /// <param name="expectedJobs"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, job content validation step gets skipped.</param>
-        private static void JobResultValidation(List<IJobInfo> jobResult,
-            int pageSize,
-            List<IOpenAPIJob> expectedJobs = null
-            )
-        {
-            ThrowIf.ArgumentNull(jobResult, nameof(jobResult));
-
-            expectedJobs = expectedJobs ?? new List<IOpenAPIJob>();
-
-            if (expectedJobs.Any())
-            {
-                // Job Contents comparison and validation
-                var compareCount = Math.Min(expectedJobs.Count, pageSize);
-                var jobsToBeFoundToCompare = expectedJobs.Take(compareCount).ToList();
-
-                for (int i = 0; i < compareCount; i++)
+                if (jobStack.Any())
                 {
-                    Assert.AreEqual(jobsToBeFoundToCompare[i].JobId, jobResult[i].JobId,
-                        "The jobId {0} was expected but jobId {1} is returned from GET jobs call.",
-                        jobsToBeFoundToCompare[i].JobId, jobResult[i].JobId);
-
-                    Assert.AreEqual(jobsToBeFoundToCompare[i].ProjectId, jobResult[i].ProjectId,
-                        "The projectId {0} was expected but projectId {1} is returned from GET jobs call.",
-                        jobsToBeFoundToCompare[i].ProjectId, jobResult[i].ProjectId);
-
-                    Assert.IsTrue(jobsToBeFoundToCompare[i].ProjectName.Contains(jobResult[i].Project),
-                        "The projectName {0} was expected to contain project value {1} from GET jobs call.",
-                        jobsToBeFoundToCompare[i].ProjectName, jobResult[i].Project);
-
-                    Assert.AreEqual(jobsToBeFoundToCompare[i].JobType, jobResult[i].JobType,
-                        "The jobType {0} was expected but jobType {1} is returned from GET jobs call.",
-                        jobsToBeFoundToCompare[i].JobType, jobResult[i].JobType);
-
-                    Assert.AreEqual(jobsToBeFoundToCompare[i].SubmittedDateTime.ToStringInvariant(),
-                        jobResult[i].SubmittedDateTime.ToStringInvariant(), "The SubmittedDateTime {0} was expected but SubmittedDateTime {1} is returned from GET jobs call.",
-                        jobsToBeFoundToCompare[i].SubmittedDateTime.ToStringInvariant(), jobResult[i].SubmittedDateTime.ToStringInvariant());
+                    pagedJobs.Add(jobStack.Pop());
+                }
+                else
+                {
+                    break;
                 }
             }
-            else
-            {
-                Assert.AreEqual(0, jobResult.Count(),
-                    "The jobResult should be null list when expected return result is empty but the response from the Nova GET Jobs call returns {0} results",
-                    jobResult.Count());
-            }
-
-            // Validation: Verify that jobResult uses pageSize values passed as optional parameters
-            Assert.That(jobResult.Count() <= pageSize,
-                "The expected pagesize value is {0} but {1} was found from the returned searchResult.",
-                pageSize, jobResult.Count());
+            return pagedJobs;
         }
 
         #endregion private functions

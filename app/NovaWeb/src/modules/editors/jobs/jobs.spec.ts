@@ -7,7 +7,8 @@ import {ProjectManagerMock} from "../../managers/project-manager/project-manager
 import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {IJobInfo, IJobsService, JobStatus, JobType} from "./jobs.svc";
+import {IJobsService} from "./jobs.svc";
+import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobsController} from "./jobs";
 import {JobsServiceMock} from "./jobs.svc.mock";
 
@@ -45,13 +46,13 @@ describe("Controller: Jobs", () => {
     it("should exist", () => {
         expect(controller).toBeDefined();
         expect(controller.toolbarActions.length).toBe(0);
-        expect(controller.page).toBe(1);
-        expect(controller.pageLength).toBe(10);
+        expect(controller.paginationData.page).toBe(1);
+        expect(controller.paginationData.pageSize).toBe(10);
     });
 
     it("should initialize loading of jobs $onInit", () => {
         // arrange
-        const testData: IJobInfo[] = [createJob(0, JobType.DocGen, JobStatus.Completed)];
+        const testData: IJobResult = {jobInfos: [createJob(0, JobType.DocGen, JobStatus.Completed)], totalJobCount: 1};
         const jobsSpy = spyOn(jobsService, "getJobs")
             .and.returnValue($q.resolve(testData));
 
@@ -62,7 +63,7 @@ describe("Controller: Jobs", () => {
         // assert
         expect(jobsSpy).toHaveBeenCalled();
         expect(controller.isLoading).toBe(false);
-        expect(controller.page).toBe(1);
+        expect(controller.paginationData.page).toBe(1);
         expect(controller.jobs.length).toBe(1);
     });
 
@@ -243,7 +244,7 @@ describe("Controller: Jobs", () => {
     describe("loadNextPage", () => {
         it("calls service with incremented page", () => {
             // arrange
-            const oldPage = controller.page;
+            const oldPage = controller.paginationData.page;
             let requestedPage: number;
 
             spyOn(jobsService, "getJobs").and.callFake((page: number = null, pageSize: number = null, timeout?: ng.IPromise<void>) => {
@@ -260,14 +261,106 @@ describe("Controller: Jobs", () => {
 
         it("increments page size by 1", () => {
             // arrange
-            const oldPage = controller.page;
+            const oldPage = controller.paginationData.page;
             spyOn(jobsService, "getJobs").and.returnValue($q.when());
 
             // act
             controller.loadNextPage();
 
             // assert
-            expect(controller.page).toBe(oldPage + 1);
+            expect(controller.paginationData.page).toBe(oldPage + 1);
+        });
+    });
+
+    describe("loadPage", () => {
+        it("updates total items retrieved from server call", () => {
+            // arrange
+            controller.paginationData.total = 0;
+
+            spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 100}));
+
+            // act
+            controller.loadPage(1);
+            $rootScope.$digest();
+
+            // assert
+            expect(controller.paginationData.total).toBe(100);
+        });
+        it("updates total items when returned value is null and on first page", () => {
+            // arrange
+            controller.paginationData.total = 100;
+            
+            spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 0}));
+
+            // act
+            controller.loadPage(1);
+            $rootScope.$digest();
+
+            // assert
+            expect(controller.paginationData.total).toBe(0);
+        });
+        it("does not update total items when returned value is null and not on first page", () => {
+            // arrange
+            controller.paginationData.total = 100;
+            
+            spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 0}));
+
+            // act
+            controller.loadPage(2);
+            $rootScope.$digest();
+
+            // assert
+            expect(controller.paginationData.total).toBe(100);
+        });
+    });
+
+    describe("showPagination", () => {
+        it("returns false when there are jobs but does not exceed page size and is not loading", () => {
+            // arrange
+            controller.jobs = [createJob(1, JobType.DocGen, JobStatus.Completed)];
+            controller.isLoading = false;
+            controller.paginationData.total = 1;
+            controller.paginationData.pageSize = 10;
+            // act 
+            const result = controller.canShowPagination();
+
+            // assert
+            expect(result).toBe(false);
+        });
+        it("returns true when there are no jobs but is not on first page", () => {
+            // arrange
+            controller.jobs = [];
+            controller.isLoading = false;
+            controller.paginationData.page = 2;
+
+            // act 
+            const result = controller.canShowPagination();
+
+            // assert
+            expect(result).toBe(true);
+        });
+        it("returns false when there are jobs and is loading", () => {
+            // arrange
+            controller.jobs = [createJob(1, JobType.DocGen, JobStatus.Completed)];
+            controller.isLoading = true;
+
+            // act 
+            const result = controller.canShowPagination();
+
+            // assert
+            expect(result).toBe(false);
+        });
+        it("returns false when there are no jobs and on first page", () => {
+            // arrange
+            controller.jobs = [];
+            controller.paginationData.page = 1;
+            controller.isLoading = false;
+
+            // act 
+            const result = controller.canShowPagination();
+
+            // assert
+            expect(result).toBe(false);
         });
     });
 

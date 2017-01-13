@@ -125,7 +125,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(227302)]
         [Description("Create and publish document & attach file with user that does not have permissions.  Verify returns 403 Forbidden.")]
-        public void AddAttachment_PublishedDocument_UserwithNoPermissions_403Forbidden()
+        public void AddAttachment_PublishedDocument_UserWithNoPermissions_403Forbidden()
         {
             // Setup:
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
@@ -140,7 +140,7 @@ namespace ArtifactStoreTests
 
             var artifactDetails = CreateAndPopulateDocumentFileValue(_user, artifact, file);
 
-            var userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
+            var userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project, artifact);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Artifact.UpdateArtifact(artifact, userWithNoPermissions, artifactDetails, 
@@ -156,7 +156,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(227303)]
         [Description("Create and publish document, attach file & delete attachment with user that does not have permissions.  Verify returns 403 Forbidden.")]
-        public void DeleteAttachment_PublishedDocumentWithAttachment_UserwithNoPermissions_403Forbidden()
+        public void DeleteAttachment_PublishedDocumentWithAttachment_UserWithNoPermissions_403Forbidden()
         {
             // Setup:
             INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
@@ -195,7 +195,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(227304)]
         [Description("Create and publish document, attach file, publish & replace attachment with user that does not have permissions.   Verify returns 403 Forbidden.")]
-        public void ReplaceAttachment_PublishedDocumentWithAttachment_UserwithNoPermissions_403Forbidden()
+        public void ReplaceAttachment_PublishedDocumentWithAttachment_UserWithNoPermissions_403Forbidden()
         {
             // Setup:
             INovaFile file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");

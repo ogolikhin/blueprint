@@ -358,7 +358,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactDiscussions(int, IUser, List{HttpStatusCode})"/>
-        public Discussions GetArtifactDiscussions(int itemId, IUser user,
+        public DiscussionResultSet GetArtifactDiscussions(int itemId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -366,7 +366,7 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, itemId);
             var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
 
-            var artifactDiscussions = restApi.SendRequestAndDeserializeObject<Discussions>(
+            var artifactDiscussions = restApi.SendRequestAndDeserializeObject<DiscussionResultSet>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
@@ -374,8 +374,8 @@ namespace Model.Impl
             return artifactDiscussions;
         }
 
-        /// <seealso cref="IArtifactStore.GetDiscussionsReplies(Comment, IUser, List{HttpStatusCode})"/>
-        public List<Reply> GetDiscussionsReplies(Comment comment, IUser user,
+        /// <seealso cref="IArtifactStore.GetDiscussionsReplies(Discussion, IUser, List{HttpStatusCode})"/>
+        public List<Reply> GetDiscussionsReplies(Discussion comment, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));

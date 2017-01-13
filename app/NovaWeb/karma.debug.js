@@ -31,11 +31,6 @@ module.exports = function (config) {
             './node_modules/phantomjs-polyfill/bind-polyfill.js',
             './src/**/'+spec+'.spec.ts'
         ],
-        babelPreprocessor: {
-            options: {
-                presets: ['es2015']
-            }
-        },
         mime: {
             'text/x-typescript': ['ts','tsx']
         },

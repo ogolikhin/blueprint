@@ -9,7 +9,7 @@
 <div class="modal-body storyteller-modal-body">
     <div>
         <div class="nova-form-group nova-floating-label">
-            <input type="text" ng-class="dialogModel.label ? 'nova-form-control input-is-dirty' : 'nova-form-control'" id="storyteller-action" ng-model="dialogModel.label" maxlength="32" ng-disabled="$ctrl.isReadonly">
+            <input type="text" ng-class="dialogModel.label ? 'nova-form-control input-is-dirty' : 'nova-form-control'" id="storyteller-action" ng-model="dialogModel.label" maxlength="{{::$ctrl.LABEL_MAX_LENGTH }}" ng-disabled="$ctrl.isReadonly">
             <label for="storyteller-action" class="nova-label"><i class="fonticon-storyteller-title"></i>{{::$root.config.labels['ST_Decision_Modal_Decision_Label']}}</label>
         </div>
         <div class="condition-list">

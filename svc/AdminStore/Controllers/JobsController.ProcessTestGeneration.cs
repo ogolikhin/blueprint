@@ -42,16 +42,24 @@ namespace AdminStore.Controllers
                 session.UserId, 
                 session.UserName,
                 hostUri.ToString());
+           
 
+            return ConstructHttpResponse(jobId);
+	    }
+
+        #region private methods
+        private IHttpActionResult ConstructHttpResponse(int? jobId)
+        {
             if (!jobId.HasValue)
             {
                 return InternalServerError();
             }
 
-            return Ok(new AddJobResult() { JobMessageId = jobId.Value });
-	    }
-
-        #region private methods
+            var requestJobUrl = I18NHelper.FormatInvariant("/svc/adminstore/jobs/{0}", jobId.Value);
+            var requestUri = new Uri(requestJobUrl, UriKind.Relative);
+            var result = new AddJobResult() { JobMessageId = jobId.Value };
+            return Created(requestUri, result);
+        }
 
 	    void ValidateRequest(GenerateProcessTestsJobParameters request)
 	    {

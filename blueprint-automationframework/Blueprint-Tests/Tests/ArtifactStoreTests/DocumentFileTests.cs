@@ -140,7 +140,7 @@ namespace ArtifactStoreTests
 
             var artifactDetails = CreateAndPopulateDocumentFileValue(_user, artifact, file);
 
-            var userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project, artifact);
+            var userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Artifact.UpdateArtifact(artifact, userWithNoPermissions, artifactDetails, 

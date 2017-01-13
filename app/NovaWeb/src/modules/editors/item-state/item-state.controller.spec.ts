@@ -352,6 +352,8 @@ describe("Item State Controller tests", () => {
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
                 const itemInfo = {
                     id: artifactId,
+                    projectId: 1,
+                    parentId: 3,
                     predefinedType: Models.ItemTypePredefined.CollectionFolder,
                     isDeleted: true,
                     deletedByUser: {}

@@ -23,7 +23,7 @@ describe("BPTreeViewComponent", () => {
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
-        $provide.factory("$stateParams", function () {
+        $provide.factory("$stateParams",  () => {
             return stateParams;
         });
     }));
@@ -122,7 +122,7 @@ describe("BPTreeViewController", () => {
                        $timeout: ng.ITimeoutService,
                        windowManager: IWindowManager,
                        messageService: IMessageService,
-                       $stateParams,
+                       $stateParams:ng.ui.IStateParamsService,
                        $log: ng.ILogService) => {
         const element = angular.element(`<bp-tree-view />`);
         controller = new BPTreeViewController($q,

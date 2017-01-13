@@ -211,7 +211,9 @@ export class ProjectManager implements IProjectManager {
             });
         }).catch((err: any) => {
             this.dialogService.alert("Refresh_Project_NotFound");
-            this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
+            if (project && project.model) {
+                this.projectCollection.getValue().splice(this.projectCollection.getValue().indexOf(this.getProject(project.model.id)), 1);
+            }
             return this.$q.reject();
         });
     }
@@ -340,7 +342,7 @@ export class ProjectManager implements IProjectManager {
 
         if (currentlySelectItem && currentlySelectItem.projectId === projectId && currentlySelectItem.isDisposed) {
             const updatedSelectedArtifact = this.artifactManager.get(currentlySelectItem.id);
-            
+
             if (updatedSelectedArtifact && !updatedSelectedArtifact.isDisposed) {
                 this.artifactManager.selection.setArtifact(updatedSelectedArtifact);
             } else {

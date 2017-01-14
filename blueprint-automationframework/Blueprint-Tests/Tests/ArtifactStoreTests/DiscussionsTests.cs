@@ -137,8 +137,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(146057)]
-        [Description("Add comment to subartifact of saved (unpublished) artifact, get discussion for this subartifact.  Verify it returns the comment that we added.")]
-        public void GetDiscussions_UnpublishedSubArtifact_ReturnsCorrectDiscussion()
+        [Description("Add comment to subartifact of saved (unpublished) artifact, get discussion for this subartifact.  Verify it returns 404.")]
+        public void GetDiscussions_UnpublishedSubArtifact_Returns404()
         {
             // Setup:
             IArtifact artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Process);

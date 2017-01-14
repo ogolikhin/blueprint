@@ -8,7 +8,6 @@ using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.ArtifactModel.Adaptors;
-using Model.Impl;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
@@ -108,7 +107,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discussionSet.Discussions.Count, "Artifact should have 1 comment, but it has {0}",
                 discussionSet.Discussions.Count);
-            Assert.True(postedRaptorComment.Equals(discussionSet.Discussions[0]), "The discussion comment returned from ArtifactStore doesn't match what was posted!");
+            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussionSet.Discussions[0]);
         }
 
         [TestCase]
@@ -131,8 +130,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}",
                 discussions.Discussions.Count);
-            Assert.True(postedRaptorComment.Equals(discussions.Discussions[0]),
-                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
+            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
         }
 
         [TestCase]
@@ -219,7 +217,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discussionSet.Discussions.Count, "Artifact should have 1 comment, but it has {0}",
                discussionSet.Discussions.Count);
-            Assert.True(postedRaptorComment.Equals(discussionSet.Discussions[0]), "The discussion comment returned from ArtifactStore doesn't match what was posted!");
+            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussionSet.Discussions[0]);
         }
 
         [TestCase]
@@ -232,11 +230,11 @@ namespace ArtifactStoreTests
 
             var postedRaptorComment = artifact.PostRaptorDiscussions("original discussion text", _authorUser);
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
-            Assert.True(postedRaptorComment.Equals(discussions.Discussions[0]),
-                "The discussion comment returned from ArtifactStore doesn't match what was posted!");
+            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
+
             IDiscussionAdaptor updatedDiscussion = null;
-            
 
             // Execute:
             Assert.DoesNotThrow(() =>

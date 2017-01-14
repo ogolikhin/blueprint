@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Model.ArtifactModel.Adaptors;
-using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
 
 namespace Model
@@ -28,8 +27,6 @@ namespace Model
     public interface IRaptorDiscussion : IDiscussionAdaptor
     {
         List<IReplyAdapter> Replies { get; set; }
-
-        bool Equals(Discussion comment);
     }
 
     //This representation is used for Discussion in RapidReview,
@@ -53,7 +50,6 @@ namespace Model
         string Comment { get; set; }
         bool CanEdit { get; set; }
         bool CanDelete { get; set; }
-        bool Equals(Reply reply);
 
         #endregion Serialized JSON properties
     }

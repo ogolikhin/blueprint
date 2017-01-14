@@ -182,22 +182,6 @@ namespace Model.ArtifactModel.Impl
                 Assert.AreEqual(expectedDiscussion.Version, actualDiscussion.Version, MESSAGE, nameof(IDiscussionAdaptor.Version));
             }
         }
-
-        public bool Equals(Discussion comment)
-        {
-            if (comment == null)
-            { return false; }
-            else
-            {
-                return (string.Equals(comment.Comment, Comment)) &&
-                    (comment.DiscussionId == DiscussionId) && (comment.IsClosed == IsClosed) &&
-                    (comment.IsGuest == IsGuest) && (comment.ItemId == ItemId) &&
-                    //(DateTime.Equals(comment.LastEditedOn, LastEditedOnUtc)) && //microseconds are different
-                    (comment.UserId == UserId) && (string.Equals(comment.Username, Username)) &&
-                    (comment.Version == Version) && (comment.CanDelete == CanDelete) &&
-                    (comment.CanEdit == CanEdit);
-            }
-        }
     }
 
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
@@ -267,23 +251,6 @@ namespace Model.ArtifactModel.Impl
                 Assert.AreEqual(expectedReply.UserId, actualReply.UserId, MESSAGE, nameof(IReplyAdapter.UserId));
                 Assert.AreEqual(expectedReply.Username, actualReply.Username, MESSAGE, nameof(IReplyAdapter.Username));
                 Assert.AreEqual(expectedReply.Version, actualReply.Version, MESSAGE, nameof(IReplyAdapter.Version));
-            }
-        }
-
-        public bool Equals(Reply reply)
-        {
-            if (reply == null)
-            { return false; }
-            else
-            {
-                if ((string.Equals(reply.Comment, Comment)) &&
-                    (reply.DiscussionId == DiscussionId) && (reply.IsGuest == IsGuest) &&
-                    (reply.ItemId == ItemId) && (reply.ReplyId == ReplyId) &&
-                    //(DateTime.Equals(comment.LastEditedOn, LastEditedOnUtc)) && //microseconds are different
-                    (reply.UserId == UserId) && (string.Equals(reply.Username, Username)))
-                { return true; }
-                else
-                { return false; }
             }
         }
     }

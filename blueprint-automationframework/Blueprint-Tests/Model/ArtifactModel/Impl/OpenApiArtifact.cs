@@ -582,12 +582,12 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
-        /// <param name="discussionText">text for new comment</param>
+        /// <param name="comment">The comment for new discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
         public static IRaptorDiscussion PostRaptorDiscussion(string address, int itemId, 
-            string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -596,7 +596,7 @@ namespace Model.ArtifactModel.Impl
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
-                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
+                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
             
             // Derialization
             var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
@@ -605,7 +605,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Updates the specified comment.
+        /// Updates the specified discussion.
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
@@ -673,7 +673,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="comment">Comment for replying.</param>
         /// <param name="user">The user to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
+        /// <returns>Newly created RaptorReply for artifact/subartifact discussion.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static IReplyAdapter PostRaptorDiscussionReply(string address,
             IDiscussionAdaptor discussion, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
@@ -734,10 +734,10 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
-        /// <param name="replyToDelete">comment to update</param>
+        /// <param name="replyToDelete">The reply to update.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
+        /// <returns>A success or failure message.</returns>
         public static string DeleteRaptorReply(string address, int itemId, IReplyAdapter replyToDelete,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {

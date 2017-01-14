@@ -25,8 +25,8 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Asserts that all the properties of the two DiscussionsInfo are equal.
         /// </summary>
-        /// <param name="expectedDiscussionInfo">The expected comment.</param>
-        /// <param name="actualDiscussionInfo">The actual comment.</param>
+        /// <param name="expectedDiscussionInfo">The expected DiscussionInfo.</param>
+        /// <param name="actualDiscussionInfo">The actual DiscussionInfo.</param>
         public static void AssertAreEqual(IRaptorDiscussionsInfo expectedDiscussionInfo, IRaptorDiscussionsInfo actualDiscussionInfo)
         {
             if ((expectedDiscussionInfo == null) || (actualDiscussionInfo == null))
@@ -97,8 +97,8 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Asserts that all the properties of the two Discussions are equal.
         /// </summary>
-        /// <param name="expectedDiscussion">The expected comment.</param>
-        /// <param name="actualDiscussion">The actual comment.</param>
+        /// <param name="expectedDiscussion">The expected discussion.</param>
+        /// <param name="actualDiscussion">The actual discussion.</param>
         public static void AssertAreEqual(IRaptorDiscussion expectedDiscussion, IRaptorDiscussion actualDiscussion)
         {
             AssertAreEqual((IDiscussionAdaptor)expectedDiscussion, (IDiscussionAdaptor)actualDiscussion);
@@ -133,8 +133,8 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Asserts that all the properties of the two Discussions are equal.
         /// </summary>
-        /// <param name="expectedDiscussion">The expected comment.</param>
-        /// <param name="actualDiscussion">The actual comment.</param>
+        /// <param name="expectedDiscussion">The expected discussion.</param>
+        /// <param name="actualDiscussion">The actual discussion.</param>
         /// <param name="skipCanDelete">(optional) Pass true to skip comparison of the CanDelete properties.</param>
         /// <param name="skipCanEdit">(optional) Pass true to skip comparison of the CanEdit properties.</param>
         public static void AssertAreEqual(IDiscussionAdaptor expectedDiscussion, IDiscussionAdaptor actualDiscussion,

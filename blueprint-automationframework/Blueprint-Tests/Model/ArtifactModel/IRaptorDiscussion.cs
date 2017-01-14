@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Model.ArtifactModel.Adaptors;
-using Newtonsoft.Json;
 
 namespace Model
 {
@@ -26,7 +25,11 @@ namespace Model
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
     public interface IRaptorDiscussion : IDiscussionAdaptor
     {
+        #region Serialized JSON properties
+
         List<IReplyAdapter> Replies { get; set; }
+
+        #endregion Serialized JSON properties
     }
 
     //This representation is used for Discussion in RapidReview,
@@ -41,10 +44,7 @@ namespace Model
         int DiscussionId { get; set; }
         int Version { get; set; }
         int UserId { get; set; }
-
-        [JsonProperty("LastEditedOnUtc")]
         DateTime LastEditedOn { get; set; }
-
         string Username { get; set; }
         bool IsGuest { get; set; }
         string Comment { get; set; }

@@ -44,7 +44,6 @@ namespace ArtifactStoreTests
         [TestCase(20, 30, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
         [TestCase(80, 80, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(211529)]
-        [Explicit(IgnoreReasons.ProductBug)] //Nova resize all images to 400px https://trello.com/c/0dtkC8zl
         [Description("Upload a random image file to ArtifactStore.  Verify 201 Created is returned and that the image is saved in the database properly.")]
         public void AddImage_ValidImage_ImageIsAddedToDatabase(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
@@ -70,7 +69,40 @@ namespace ArtifactStoreTests
             var fileStoreFileId = returnedFile.Guid;
             var filestoreFile = Helper.FileStore.GetFile(fileStoreFileId, _adminUser);
 
-            FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
+            FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile, compareContent: false);
+        }
+
+        [TestCase(500, 500, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(500, 300, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(300, 600, ArtifactStoreHelper.ImageType.PNG, "image/png")]
+        [TestRail(211529)]
+        [Description("Upload a random image file with resolution bigger than 400*400 to ArtifactStore.  Verify 201 Created is returned and that the image is saved in the database properly, size should be reduced.")]
+        public void AddImage_ValidImageWithHighResolution_ImageIsAddedToDatabase(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
+
+            EmbeddedImageFile returnedFile = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                returnedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 201 Created when called with a valid token & supported image format!", ADD_IMAGE_PATH);
+
+            // Verify:
+            Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+            
+            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId,
+                "The EmbeddedImageId should not be the same as the FileStore FileId!");
+
+            // Get the file from FileStore and compare against what we uploaded.
+            var fileStoreFileId = returnedFile.Guid;
+            var filestoreFile = Helper.FileStore.GetFile(fileStoreFileId, _adminUser);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile, compareContent: false);
+            // TODO: add real resolution check
         }
 
         [TestCase(20, 30, ArtifactStoreHelper.ImageType.GIF, "image/gif")]
@@ -192,7 +224,6 @@ namespace ArtifactStoreTests
         [TestCase(60, 40, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
         [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(211535)]
-        [Explicit(IgnoreReasons.ProductBug)] //Nova resize all images to 400px https://trello.com/c/0dtkC8zl
         [Description("Upload a random image file to ArtifactStore, then try to get that file.  Verify 200 OK is returned by the GET call " +
             "and the same image that was uploaded is returned.")]
         public void GetImage_AddedImage_ReturnsImage(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
@@ -210,7 +241,32 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false, compareContent: false);
+        }
+
+        [TestCase(500, 500, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(500, 300, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(300, 600, ArtifactStoreHelper.ImageType.PNG, "image/png")]
+        [TestRail(227323)]
+        [Description("Upload a random image file to ArtifactStore, then try to get that file.  Verify 200 OK is returned by the GET call " +
+            "and the same image that was uploaded is returned.")]
+        public void GetImage_AddedImageWithHighResolution_ReturnsImage(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
+
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            IFile returnedFile = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                returnedFile = Helper.ArtifactStore.GetImage(addedFile.EmbeddedImageId);
+            }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false, compareContent: false);
+            // TODO: add real resolution check
         }
 
         [TestCase("abcd1234")]

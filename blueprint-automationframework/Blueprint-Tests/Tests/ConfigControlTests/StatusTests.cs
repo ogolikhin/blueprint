@@ -2,45 +2,47 @@
 using CustomAttributes;
 using Helper;
 using NUnit.Framework;
+using TestCommon;
 
 namespace ConfigControlTests
 {
-    public static class StatusTests
+    public class StatusTests : TestBase
     {
-        [TestCase]
-        [TestRail(106946)]
-        [Description("Check that GET /svc/configcontrol/status returns 200 OK")]
-        public static void GetStatus_OK()
+        [SetUp]
+        public void SetUp()
         {
-            using (TestHelper helper = new TestHelper())
-            {
-                string content = null;
-
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.ConfigControl.GetStatus();
-                }, "'GET /status' should return 200 OK.");
-
-                var extraExpectedStrings = new List<string> {"AdminStorage", "ConfigControl"};
-
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-            }
+            Helper = new TestHelper();
         }
 
+        [TestCase]
+        [TestRail(106946)]
+        [Description("Calls the /status endpoint for ConfigControl with no preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
+        public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
+        {
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                content = Helper.ConfigControl.GetStatus();
+            }, "The GET /status endpoint should return 200 OK!");
+
+            var extraExpectedStrings = new List<string> { "AdminStorage", "ConfigControl" };
+
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+
+            // Verify secure info isn't returned:
+            Assert.IsFalse(content.Contains("data source"), "Connection string info was returned without a pre-authorized key!");
+        }
 
         [TestCase]
         [TestRail(106952)]
         [Description("Check that GET /svc/configcontrol/status/upcheck endpoint for ConfigControl and verifies that it returns 200 OK.")]
-        public static void GetStatusUpcheck_OK()
+        public void GetStatus_UpcheckOnly_OK()
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.DoesNotThrow(() =>
             {
-                Assert.DoesNotThrow(() =>
-                {
-                    helper.ConfigControl.GetStatusUpcheck();
-                });
-            }
+                Helper.ConfigControl.GetStatusUpcheck();
+            });
         }
-
     }
 }

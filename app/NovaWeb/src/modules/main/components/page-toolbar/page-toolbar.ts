@@ -18,6 +18,7 @@ import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
 import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 
 interface IPageToolbarController {
     openProject(evt?: ng.IAngularEvent): void;
@@ -50,6 +51,7 @@ export class PageToolbarController implements IPageToolbarController {
     static $inject = [
         "$q",
         "$state",
+        "$timeout",
         "localization",
         "dialogService",
         "projectManager",
@@ -57,6 +59,7 @@ export class PageToolbarController implements IPageToolbarController {
         "publishService",
         "messageService",
         "navigationService",
+        "artifactService",
         "loadingOverlayService",
         "analytics",
         "jobsService"
@@ -64,6 +67,7 @@ export class PageToolbarController implements IPageToolbarController {
 
     constructor(private $q: ng.IQService,
                 private $state: ng.ui.IStateService,
+                private $timeout: ng.ITimeoutService,
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
@@ -71,6 +75,7 @@ export class PageToolbarController implements IPageToolbarController {
                 private publishService: IUnpublishedArtifactsService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
+                private artifactService: IArtifactService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private analytics: IAnalyticsProvider,
                 private jobService: IJobsService) {
@@ -172,19 +177,19 @@ export class PageToolbarController implements IPageToolbarController {
             })
             .then((result: ICreateNewArtifactReturn) => {
                 const createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
-
                 const itemTypeId = result.artifactTypeId;
                 const name = result.artifactName;
 
-                this.artifactManager.create(name, projectId, parentId, itemTypeId)
+                this.artifactService.create(name, projectId, parentId, itemTypeId, undefined)
                     .then((data: Models.IArtifact) => {
                         const newArtifactId = data.id;
                         this.projectManager.refresh(projectId, null, true)
                             .finally(() => {
                                 this.projectManager.triggerProjectCollectionRefresh();
-                                this.navigationService.navigateTo({id: newArtifactId})
-                                    .finally(() => {
                                         this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+
+                                this.$timeout(() => {
+                                    this.navigationService.navigateTo({id: newArtifactId});
                                     });
                             });
                     })
@@ -300,7 +305,7 @@ export class PageToolbarController implements IPageToolbarController {
                     this.messageService.addInfo("Job" + result.jobMessageId + " " + this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message"));
                 }).catch((error: IApplicationError) => {
                     this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
-                    });             
+                });
             }
         });
     };

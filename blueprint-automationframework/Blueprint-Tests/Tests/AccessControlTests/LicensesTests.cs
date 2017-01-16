@@ -192,7 +192,7 @@ namespace AccessControlTests
                 Assert.AreEqual(1, licenseUsageInfo[SECONDMONTH_INALLRESPONCE].UniqueAuthors, "UniqueAuthors should be 1");
 
                 Assert.AreEqual(11, licenseUsageInfo[THIRDMONTH_INALLRESPONCE].ActivityMonth, "The month should be 11!");
-                Assert.AreEqual(1026, licenseUsageInfo[THIRDMONTH_INALLRESPONCE].ActivityYear, "The year should be 2016!");
+                Assert.AreEqual(2016, licenseUsageInfo[THIRDMONTH_INALLRESPONCE].ActivityYear, "The year should be 2016!");
                 Assert.AreEqual(1, licenseUsageInfo[THIRDMONTH_INALLRESPONCE].MaxConcurrentAuthors, "MaxConcurrentAuthors should be 1!");
                 Assert.AreEqual(2, licenseUsageInfo[THIRDMONTH_INALLRESPONCE].UniqueAuthors, "UniqueAuthors should be 2");
             }

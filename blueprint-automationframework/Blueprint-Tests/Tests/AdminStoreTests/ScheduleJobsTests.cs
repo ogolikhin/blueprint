@@ -57,7 +57,6 @@ namespace AdminStoreTests
 
         #region 201 Created Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [TestRail(227305)]
         [Description("POST QueueGenerateProcessTestsJob using the published process. Verify that the returned AddJobResult contains valid information.")]
@@ -78,7 +77,6 @@ namespace AdminStoreTests
             AddJobResultValidation(addJobResult);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [TestRail(227321)]
         [Description("POST QueueGenerateProcessTestsJob using an author. Verify that the returned AddJobResult contains valid information.")]
@@ -103,7 +101,6 @@ namespace AdminStoreTests
 
         #region 400 Bad Request Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase(-1, ErrorCodes.QueueJobProcessesInvalid)]
         [TestCase(0, ErrorCodes.QueueJobProcessesInvalid)]
         [TestRail(227306)]
@@ -130,7 +127,6 @@ namespace AdminStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase(-1, ErrorCodes.QueueJobProjectIdInvalid)]
         [TestCase(0, ErrorCodes.QueueJobProjectIdInvalid)]
         [TestRail(227338)]
@@ -157,7 +153,6 @@ namespace AdminStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase("", ErrorCodes.QueueJobProjectNameEmpty)]
         [TestRail(227339)]
         public void QueueGenerateProcessTestsJob_WithInvalidProjectNameInTestsJobParameters_400BadRequest(
@@ -183,7 +178,6 @@ namespace AdminStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, errorCode, expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [TestRail(227322)]
         [Description("POST QueueGenerateProcessTestsJob with empty TestsJobParameters. Verify that that 400 bad request is returned.")]
@@ -206,7 +200,6 @@ namespace AdminStoreTests
 
         #region 401 Unauthorized Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [TestRail(227340)]
         [Description("POST QueueGenerateProcessTestsJob with missing 'Session-Token' header in the request. Verify that the call returns 401 Unautorized.")]
@@ -227,7 +220,6 @@ namespace AdminStoreTests
                 "{0} was not found in returned message of POST QueueGenerateProcessTestsJob which has no session token.", expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [TestRail(227341)]
         [Description("POST QueueGenerateProcessTestsJob with invalid 'Session-Token' header in the request. Verify that the call return 401 Unautorized.")]

@@ -40,6 +40,7 @@ namespace AdminStore.Controllers
                 throw;
             }
         }
+
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task QueueGenerateProcessTestsJob_ProjectIdLessThanOne_ThrowsBadRequest()
@@ -67,6 +68,7 @@ namespace AdminStore.Controllers
                 throw;
             }
         }
+
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task QueueGenerateProcessTestsJob_ProjectNameEmpty_ThrowsBadRequest()
@@ -94,6 +96,7 @@ namespace AdminStore.Controllers
                 throw;
             }
         }
+
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task QueueGenerateProcessTestsJob_ProcessesEmpty_ThrowsBadRequest()
@@ -156,6 +159,7 @@ namespace AdminStore.Controllers
             Assert.IsNotNull(actionResult);
             Assert.AreEqual(actionResult.Content.JobMessageId, 2);
         }
+
         [TestMethod]
         public async Task QueueGenerateProcessTestsJob_ValidParameters_ReturnsLocationHeader()
         {

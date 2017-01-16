@@ -259,7 +259,9 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     private populateItemTypes(projectId: number): void {
         this.metadataService.get(projectId).then((metaData) => {
-            let artifactTypes = metaData.data.artifactTypes.filter(a => {
+            let itemTypes = [];
+
+            const artifactTypes = metaData.data.artifactTypes.filter(a => {
                 if ((a.predefinedType & Models.ItemTypePredefined.PrimitiveArtifactGroup) === 0) {
                     return false;
                 }
@@ -274,11 +276,26 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     a.predefinedType !== Models.ItemTypePredefined.Project &&
                     a.predefinedType !== Models.ItemTypePredefined.Baseline;
             });
-            if (this.selectableItemTypes) {
-                artifactTypes = artifactTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
+            if (artifactTypes.length) {
+                itemTypes = artifactTypes;
             }
-            artifactTypes = _.sortBy(artifactTypes, type => type.name.toLowerCase());
-            this.itemTypes = this.itemTypes.concat(artifactTypes);
+
+            // TODO: re-enable the following once the search can return sub-artifacts as well
+            // const subArtifactTypes = metaData.data.subArtifactTypes.filter(a => {
+            //     if ((a.predefinedType & Models.ItemTypePredefined.SubArtifactGroup) === 0) {
+            //         return false;
+            //     }
+            //     return this.showSubArtifacts;
+            // });
+            // if (subArtifactTypes.length) {
+            //     itemTypes = _.concat(itemTypes, subArtifactTypes);
+            // }
+
+            if (this.selectableItemTypes) {
+                itemTypes = itemTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
+            }
+            itemTypes = _.sortBy(itemTypes, type => type.name.toLowerCase());
+            this.itemTypes = this.itemTypes.concat(itemTypes);
         });
     }
 

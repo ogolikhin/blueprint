@@ -922,7 +922,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="comment">Comment for the new reply.</param>
         /// <param name="user">The user credentials to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created rReply for artifact/subartifact discussion.</returns>
+        /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
         public static IReplyAdapter PostRaptorDiscussionReply(string address,
             IDiscussionAdaptor discussion,
             string comment,

@@ -2,9 +2,11 @@
 
 export class ArtifactServiceMock implements IArtifactService {
 
-    public static $inject = ["$http", "$q"];
+    public static $inject: string[] = [
+        "$q"
+    ];
 
-    constructor(private $http: ng.IHttpService, private $q: ng.IQService) {
+    constructor(private $q: ng.IQService) {
     }
 
     public updateArtifact(url: string, artifact: Models.IArtifact) {

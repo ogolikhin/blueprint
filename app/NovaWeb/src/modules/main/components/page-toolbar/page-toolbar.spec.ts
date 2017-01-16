@@ -1,3 +1,4 @@
+import {JobsServiceMock} from "../../../editors/jobs/jobs.svc.mock";
 import "angular";
 import "angular-mocks";
 import "angular-ui-router";
@@ -70,6 +71,7 @@ describe("Page Toolbar:", () => {
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("session", SessionSvc);
         $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("jobsService", JobsServiceMock);
     }));
 
 
@@ -86,6 +88,7 @@ describe("Page Toolbar:", () => {
                        navigationService: NavigationServiceMock,
                        artifactService: IArtifactService,
                        loadingOverlayService: LoadingOverlayService,
+                       jobsService: JobsServiceMock,
                        session: ISession) => {
         $scope = $rootScope.$new();
         _$q = $q;
@@ -103,7 +106,7 @@ describe("Page Toolbar:", () => {
         };
         toolbarCtrl = new PageToolbarController($q, _$state, $timeout, localization,
             dialogService, projectManager, artifactManager, publishService,
-            messageService, navigationService, artifactService, loadingOverlayService);
+            messageService, navigationService, artifactService, loadingOverlayService, jobsService);
         artifactManager.selection = {
             getArtifact: () => {
                 return;

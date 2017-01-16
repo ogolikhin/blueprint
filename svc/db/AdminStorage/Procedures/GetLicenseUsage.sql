@@ -46,8 +46,8 @@ BEGIN
 	WITH L
 	AS (
 		
-		SELECT	 YEAR(la.[TimeStamp]) AS ActivityYear
-				,MONTH(la.[TimeStamp]) AS ActivityMonth
+		SELECT	 YEAR(la.[TimeStamp]) AS UsageYear
+				,MONTH(la.[TimeStamp]) AS UsageMonth
 				,la.UserId as UserId
 				,la.ConsumerType AS Consumer
 				,la.UserLicenseType AS License
@@ -62,8 +62,8 @@ BEGIN
 	-- Consumer: Client-1, Analytics-2, REST-3
 	-- LicenseType: Viewer-1, Collaborator- 2, Author- 3
 	SELECT 
-		 L.ActivityYear 
-		,L.ActivityMonth
+		 L.UsageYear 
+		,L.UsageMonth
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS UniqueAuthors
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS UniqueCollaborators
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS UniqueViewers
@@ -73,14 +73,14 @@ BEGIN
 		,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentAuthors
 		,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentCollaborators
 		,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentViewers
-		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 3 AND [Month] = L.ActivityMonth AND [Year] = L.ActivityYear), 0) RegisteredAuthorsCreated
-		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 2 AND [Month] = L.ActivityMonth AND [Year] = L.ActivityYear), 0) RegisteredCollaboratorsCreated
-		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 1 AND [Month] = L.ActivityMonth AND [Year] = L.ActivityYear), 0) RegisteredViewersCreated
+		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 3 AND [Month] = L.UsageMonth AND [Year] = L.UsageYear), 0) RegisteredAuthorsCreated
+		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 2 AND [Month] = L.UsageMonth AND [Year] = L.UsageYear), 0) RegisteredCollaboratorsCreated
+		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 1 AND [Month] = L.UsageMonth AND [Year] = L.UsageYear), 0) RegisteredViewersCreated
 		,COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE NULL END) AS UsersFromAnalytics
 		,COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE NULL END) AS UsersFromRestApi
 			
 	FROM L
-	GROUP BY L.ActivityYear, L.ActivityMonth;
+	GROUP BY L.UsageYear, L.UsageMonth;
 
 	DROP TABLE #Registered
 END

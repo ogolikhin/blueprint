@@ -12,17 +12,16 @@ namespace ServiceLibrary.Models
     [JsonObject]
     public class LicenseUsage
     {
+        /// <summary>
+        /// Year.
+        /// </summary>
+        public int UsageYear { get; set; }
 
         /// <summary>
         /// Month.
         /// </summary>
-        public int ActivityMonth { get; set; }
-
-        /// <summary>
-        /// Year.
-        /// </summary>
-        public int ActivityYear { get; set; }
-
+        public int UsageMonth { get; set; }
+ 
         /// <summary>
         /// Number of unique authors who have accessed BP in a given month
         /// </summary>
@@ -70,8 +69,6 @@ namespace ServiceLibrary.Models
         /// them as a RegisteredCollaboratorsCreated in June even if they are no longer assigned to an Collaborator group		
         /// </remarks>		
         public int RegisteredCollaboratorsCreated { get; set; }
-
-
 
         /// <summary>
         /// Number of users logged in from Analytics.

@@ -1,64 +1,82 @@
 ﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
+using Model;
 using NUnit.Framework;
+using TestCommon;
 using Utilities;
 
 namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
-    public static class StatusTests
+    public class StatusTests : TestBase
     {
-        [TestCase]
-        [TestRail(106928)]
-        [Explicit(IgnoreReasons.ProductBug)]    // Bug: 4135  Gets a 500 error.
-        [Description("Calls the /status endpoint for ArtifactStore with a valid preAuthorizedKey and verifies that it returns 200 OK and returns the proper data content.")]
-        public static void Status_ValidateReturnedContent()
+        private readonly string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus;
+
+        [SetUp]
+        public void SetUp()
         {
-            using (TestHelper helper = new TestHelper())
-            {
-                string content = null;
-
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.ArtifactStore.GetStatus();
-                }, "The GET /status endpoint should return 200 OK!");
-
-                var extraExpectedStrings = new List<string> {"ArtifactStore"};
-
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-            }
+            Helper = new TestHelper();
         }
 
-        [TestCase(null)]
-        [TestCase("ABCDEFG123456")]
-        [TestRail(106929)]
-        [Explicit(IgnoreReasons.ProductBug)]    // Bug: 4135  Gets a 500 error.
-        [Description("Calls the /status endpoint for ArtifactStore and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
-        public static void StatusWithBadKeys_Expect401Unauthorized(string preAuthorizedKey)
+        [TestCase]
+        [TestRail(106928)]
+        [Description("Calls the /status endpoint for ArtifactStore with a valid preAuthorizedKey and verifies that it returns 200 OK and returns the proper data content.")]
+        public void GetStatus_WithPreAuthorizedKey_ReturnsDetailedStatus()
         {
-            using (TestHelper helper = new TestHelper())
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
             {
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    helper.ArtifactStore.GetStatus(preAuthorizedKey);
-                }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
-            }
+                content = Helper.ArtifactStore.GetStatus(preAuthorizedKey: preAuthorizedKey);
+            }, "The GET /status endpoint should return 200 OK!");
+
+            var extraExpectedStrings = new List<string> {"ArtifactStore", "RaptorDB", "data source"};
+
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+        }
+
+        [TestCase]
+        [TestRail(106929)]
+        [Description("Calls the /status endpoint for ArtifactStore with NO preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
+        public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
+        {
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                content = Helper.ArtifactStore.GetStatus(preAuthorizedKey: null);
+            }, "The GET /status endpoint should return 200 OK!");
+
+            var extraExpectedStrings = new List<string> { "ArtifactStore", "RaptorDB" };
+
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
+
+            // Verify secure info isn't returned:
+            Assert.IsFalse(content.Contains("data source"), "Connection string info was returned without a pre-authorized key!");
+        }
+
+        [TestCase("ABCDEFG123456")]
+        [TestRail(227317)]
+        [Description("Calls the /status endpoint for ArtifactStore and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
+        public void GetStatus_InvalidPreAuthorizedKey_UnauthorizedException(string invalidPreAuthorizedKey)
+        {
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.ArtifactStore.GetStatus(preAuthorizedKey: invalidPreAuthorizedKey);
+            }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
         }
 
         [TestCase]
         [TestRail(106930)]
         [Description("Calls the /status/upcheck endpoint for ArtifactStore and verifies that it returns 200 OK.")]
-        public static void GetStatusUpcheck_OK()
+        public void GetStatus_UpcheckOnly_OK()
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.DoesNotThrow(() =>
             {
-                Assert.DoesNotThrow(() =>
-                {
-                    helper.ArtifactStore.GetStatusUpcheck();
-                });
-            }
+                Helper.ArtifactStore.GetStatusUpcheck();
+            });
         }
     }
 }

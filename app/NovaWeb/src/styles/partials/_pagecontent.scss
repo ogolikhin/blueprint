@@ -181,12 +181,14 @@ pagecontent, bp-properties-panel {
             font-size: $font-size-biggest;
             line-height: 25px;
             max-height: 250px; // 10x lines
+            overflow: hidden;
             white-space: pre-wrap;
             word-break: break-word;
             word-wrap: break-word;
 
             &.collapsible__expanded {
                 overflow-x: hidden;
+                overflow-y: auto;
             }
 
             .collapsible__button {

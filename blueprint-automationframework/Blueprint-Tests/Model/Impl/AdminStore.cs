@@ -252,7 +252,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetStatus(string, List{HttpStatusCode})"/>
-        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
+        public string GetStatus(string preAuthorizedKey = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(RestPaths.Svc.AdminStore.STATUS, preAuthorizedKey, expectedStatusCodes);
         }

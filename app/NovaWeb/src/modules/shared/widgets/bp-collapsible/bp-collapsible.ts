@@ -50,7 +50,7 @@ export class BPCollapsible implements ng.IDirective {
 
         ctrl.$timeout(() => {
             //displays the 'show more' and 'show less' part if comment height is more than desired size + (%30 of desired size)
-            if (element.offsetHeight > 1.3 * $scope.bpCollapsible) {
+            if (element.offsetHeight > 1.3 * desiredHeight) {
                 element.classList.add("collapsible__collapsed");
                 element.style.height = `${desiredHeight}px`;
                 element.appendChild(showMore[0]);

@@ -17,7 +17,7 @@ import {IUserStoryService} from "../../services/user-story.svc";
 import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
-import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
+import {ICollectionService} from "../../../bp-collection/collection.svc";
 import {IItemInfoService} from "../../../../core/navigation/item-info.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {

@@ -13,7 +13,6 @@ import {LoadingOverlayService} from "../../../core/loading-overlay/loading-overl
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
-import {IAnalyticsProvider, AnalyticsProvider} from "../analytics/analyticsProvider";
 import {SessionSvc, ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
@@ -71,7 +70,6 @@ describe("Page Toolbar:", () => {
         $provide.service("$uibModal", ModalServiceMock);
         $provide.service("session", SessionSvc);
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.provider("analytics", AnalyticsProvider);
     }));
 
 
@@ -88,7 +86,6 @@ describe("Page Toolbar:", () => {
                        navigationService: NavigationServiceMock,
                        artifactService: IArtifactService,
                        loadingOverlayService: LoadingOverlayService,
-                       analytics: IAnalyticsProvider,
                        session: ISession) => {
         $scope = $rootScope.$new();
         _$q = $q;
@@ -102,11 +99,11 @@ describe("Page Toolbar:", () => {
             artifactState : {
                 unlock: () => {return; }
             },
-            discard: () => {; }
+            discard: () => { }
         };
         toolbarCtrl = new PageToolbarController($q, _$state, $timeout, localization,
             dialogService, projectManager, artifactManager, publishService,
-            messageService, navigationService, artifactService, loadingOverlayService, analytics);
+            messageService, navigationService, artifactService, loadingOverlayService);
         artifactManager.selection = {
             getArtifact: () => {
                 return;

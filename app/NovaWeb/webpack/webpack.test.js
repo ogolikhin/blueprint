@@ -20,7 +20,10 @@ var postLoaders = [
 ];
 var preLoaders = [
     {
-        test: /\.spec.ts$/,
+        test: [
+            /\.spec.ts$/,
+            /\.mock.ts$/
+        ],
         loader: 'tslint-loader',
         exclude: [/node_modules/],
         include: [
@@ -63,8 +66,8 @@ module.exports = {
             rules: {
                 "only-arrow-functions": false,
                 "no-empty": false,
-                "max-file-line-count":false,
-                "max-line-length":false
+                "max-file-line-count": false,
+                "max-line-length": false
             }
         }
     },

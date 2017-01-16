@@ -188,7 +188,7 @@ pagecontent, bp-properties-panel {
 
             &.collapsible__expanded {
                 overflow-x: hidden;
-                overflow-y: auto !important;
+                overflow-y: auto;
             }
 
             .collapsible__button {

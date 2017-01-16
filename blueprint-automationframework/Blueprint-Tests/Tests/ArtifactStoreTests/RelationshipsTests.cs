@@ -443,7 +443,7 @@ namespace ArtifactStoreTests
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.To, _user, subArtifactId: subArtifactId);
-
+             
             Relationships relationships = null;
 
             // Execute:

@@ -61,7 +61,10 @@ module.exports = {
         failOnHint: true,
         configuration: {
             rules: {
-                "only-arrow-functions": false
+                "only-arrow-functions": false,
+                "no-empty": false,
+                "max-file-line-count":false,
+                "max-line-length":false
             }
         }
     },

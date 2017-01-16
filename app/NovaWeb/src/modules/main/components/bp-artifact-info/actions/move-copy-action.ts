@@ -9,9 +9,9 @@ import {
     MoveCopyArtifactInsertMethod,
     IMoveCopyArtifactPickerOptions,
     MoveCopyActionType
-} from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
+} from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {Models, Enums} from "../../../../main/models";
-import {ItemTypePredefined} from "../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 
@@ -19,6 +19,7 @@ export class MoveCopyAction extends BPDropdownAction {
     private actionType: MoveCopyActionType;
 
     constructor(private $q: ng.IQService,
+                private $timeout: ng.ITimeoutService,
                 private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
@@ -224,7 +225,9 @@ export class MoveCopyAction extends BPDropdownAction {
             this.projectManager.refresh(this.artifact.projectId, selectionId).then(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
                 if (selectionId) {
-                    this.navigationService.navigateTo({id: selectionId});
+                    this.$timeout(() => {
+                        this.navigationService.navigateTo({id: selectionId});
+                    });
                 }
             }).finally(() => {
                 this.loadingOverlayService.endLoading(refreshLoadingOverlayId);

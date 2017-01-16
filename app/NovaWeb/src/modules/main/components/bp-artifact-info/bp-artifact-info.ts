@@ -57,6 +57,7 @@ export class BpArtifactInfoController {
         "$q",
         "$scope",
         "$element",
+        "$timeout",
         "artifactManager",
         "localization",
         "messageService",
@@ -103,6 +104,7 @@ export class BpArtifactInfoController {
     constructor(public $q: ng.IQService,
                 public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
+                private $timeout: ng.ITimeoutService,
                 protected artifactManager: IArtifactManager,
                 protected localization: ILocalizationService,
                 protected messageService: IMessageService,
@@ -345,7 +347,7 @@ export class BpArtifactInfoController {
             this.projectManager, this.loadingOverlayService, this.navigationService);
         const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
             this.metadataService, this.mainBreadcrumbService);
-        const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+        const moveCopyAction = new MoveCopyAction(this.$q, this.$timeout, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService);
         const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService, this.itemInfoService);

@@ -147,7 +147,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IFileStore.GetStatus(string, List{HttpStatusCode})"/>
-        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
+        public string GetStatus(string preAuthorizedKey = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(RestPaths.Svc.FileStore.STATUS, preAuthorizedKey, expectedStatusCodes);
         }

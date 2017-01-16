@@ -1,84 +1,82 @@
 ﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
+using Model;
 using NUnit.Framework;
+using TestCommon;
 using Utilities;
 
 namespace FileStoreTests
 {
     [TestFixture]
     [Category(Categories.FileStore)]
-    public static class StatusTests
+    public class StatusTests : TestBase
     {
+        private readonly string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus;
+
+        [SetUp]
+        public void SetUp()
+        {
+            Helper = new TestHelper();
+        }
+
         [TestCase]
         [TestRail(106953)]
         [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing detailed status of dependent services.")]
-        public static void GetStatusWithPreAuthorizedKey_ValidPreAuthorizedKey_ReturnsDetailedStatus()
+        public void GetStatus_WithPreAuthorizedKey_ReturnsDetailedStatus()
         {
-            using (TestHelper helper = new TestHelper())
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
             {
-                string content = null;
+                content = Helper.FileStore.GetStatus(preAuthorizedKey: preAuthorizedKey);
+            }, "The GET /status endpoint should return 200 OK!");
 
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.FileStore.GetStatus();
-                }, "The GET /status endpoint should return 200 OK!");
+            var extraExpectedStrings = new List<string> {"FileStore", "FileStorageDB", "data source" };
 
-                var extraExpectedStrings = new List<string> {"FileStore", "FileStorageDB", "\"accessInfo\":\"data source=" };
-
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-            }
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
         }
 
         [TestCase]
         [TestRail(166143)]
         [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
-        public static void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
+        public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
         {
-            using (TestHelper helper = new TestHelper())
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
             {
-                string content = null;
+                content = Helper.FileStore.GetStatus(preAuthorizedKey: null);
+            }, "The GET /status endpoint should return 200 OK!");
 
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.FileStore.GetStatus();
-                }, "The GET /status endpoint should return 200 OK!");
+            var extraExpectedStrings = new List<string> { "FileStore", "FileStorageDB" };
 
-                var extraExpectedStrings = new List<string> { "FileStore", "FileStorageDB" };
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
 
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-
-                // Verify secure info isn't returned:
-                Assert.IsFalse(content.Contains("accessInfo=data source"), "Connection string info was returned without a pre-authorized key!");
-            }
+            // Verify secure info isn't returned:
+            Assert.IsFalse(content.Contains("data source"), "Connection string info was returned without a pre-authorized key!");
         }
 
         [TestCase("ABCDEFG123456")]
         [TestRail(106954)]
         [Description("Calls the /status endpoint for FileStore and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
-        public static void GetStatus_InvalidPreAuthorizedKey_UnauthorizedException(string preAuthorizedKey)
+        public void GetStatus_InvalidPreAuthorizedKey_UnauthorizedException(string invalidPreAuthorizedKey)
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    helper.FileStore.GetStatus(preAuthorizedKey);
-                }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
-            }
+                Helper.FileStore.GetStatus(invalidPreAuthorizedKey);
+            }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
         }
 
         [TestCase]
         [TestRail(106955)]
         [Description("Calls the /status/upcheck endpoint for FileStore and verifies that it returns 200 OK.")]
-        public static void GetStatus_UpcheckOnly_OK()
+        public void GetStatus_UpcheckOnly_OK()
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.DoesNotThrow(() =>
             {
-                Assert.DoesNotThrow(() =>
-                {
-                    helper.FileStore.GetStatusUpcheck();
-                });
-            }
+                Helper.FileStore.GetStatusUpcheck();
+            });
         }
     }
 }

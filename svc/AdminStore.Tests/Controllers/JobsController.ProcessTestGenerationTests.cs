@@ -157,7 +157,7 @@ namespace AdminStore.Controllers
             
 
             Assert.IsNotNull(actionResult);
-            Assert.AreEqual(actionResult.Content.JobMessageId, 2);
+            Assert.AreEqual(actionResult.Content.JobId, 2);
         }
 
         [TestMethod]

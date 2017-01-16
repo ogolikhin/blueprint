@@ -478,11 +478,32 @@ CREATE PROCEDURE [dbo].[GetLicenseUsage]
 )
 AS
 BEGIN
-	SET @year = CASE WHEN ISNULL(@year, 1900) < 1900 THEN 1900 ELSE ISNULL(@year, 1900) END;
 	DECLARE @currentDate datetime = GETUTCDATE();
 	DECLARE @startMonth date = DATEADD(month, @month, DATEADD(year, (@year-1900), 0));
 	DECLARE @currentMonth date = DATEADD(month, MONTH(@currentDate)-1, DATEADD(year, (YEAR(@currentDate)-1900), 0));
 	DECLARE @licensetype int;
+
+	CREATE TABLE #Registered (
+			[License] int NULL,
+			[Month] int  NULL,
+			[Year] int NULL,
+			[COUNT] int NULL
+	)
+	
+	INSERT INTO #Registered 
+	SELECT M.License, MONTH(m.FirstTime), YEAR(M.FirstTime), Count(*)
+		FROM (
+			SELECT 
+				UserId,
+				UserLicenseType AS License,
+				MIN(la.[TimeStamp]) AS FirstTime
+			FROM LicenseActivities AS la
+			WHERE la.ConsumerType = 1 AND la.ActionType = 1 -- Client(ConsumerType) and Login(ActionType)
+			GROUP BY la.[UserId], la.UserLicenseType
+		) as M
+		WHERE (@year IS NULL OR @month IS NULL OR M.[FirstTime] > @startMonth)
+			AND M.[FirstTime] < @currentMonth
+	GROUP BY M.License, MONTH(M.FirstTime), YEAR(M.FirstTime);
 
 	WITH L
 	AS (
@@ -508,19 +529,22 @@ BEGIN
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS UniqueAuthors
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS UniqueCollaborators
 		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS UniqueViewers
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConcurrentAuthors
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConcurrentCollaborators
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConcurrentViewers
+		--,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS AuthorsActiveLoggedOn
+		--,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS CollaboratorsActiveLoggedOn
+		--,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS ViewersActiveLoggedOn
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentAuthors
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentCollaborators
+		,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentViewers
+		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 3 AND [Month] = L.ActivityMonth AND [Year] = L.ActivityYear), 0) RegisteredAuthorsCreated
+		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 2 AND [Month] = L.ActivityMonth AND [Year] = L.ActivityYear), 0) RegisteredCollaboratorsCreated
+		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 1 AND [Month] = L.ActivityMonth AND [Year] = L.ActivityYear), 0) RegisteredViewersCreated
 		,COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE NULL END) AS UsersFromAnalytics
 		,COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE NULL END) AS UsersFromRestApi
 			
 	FROM L
 	GROUP BY L.ActivityYear, L.ActivityMonth;
 
+	DROP TABLE #Registered
 END
-
-
-GO
-
 GO 
 

@@ -1,3 +1,4 @@
+import {IJobsService} from "../../../editors/jobs/jobs.svc";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
@@ -57,7 +58,8 @@ export class PageToolbarController implements IPageToolbarController {
         "messageService",
         "navigationService",
         "loadingOverlayService",
-        "analytics"
+        "analytics",
+        "jobsService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -70,7 +72,8 @@ export class PageToolbarController implements IPageToolbarController {
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider) {
+                private analytics: IAnalyticsProvider,
+                private jobService: IJobsService) {
     }
 
     public $onInit() {
@@ -286,11 +289,18 @@ export class PageToolbarController implements IPageToolbarController {
             showProjects: false
         };
         
-        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
             if (items) {
-                items.forEach(item => {
-                    console.log(item.id + " " + item.name);
-                });
+                let processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
+                this.jobService.addeProcessTestsGenerationJobs(
+                    this._currentArtifact.projectId,
+                    this.projectManager.getProject(this._currentArtifact.projectId).model.name,
+                    processes
+                ).then((result) => {
+                    this.messageService.addInfo("Job" + result.jobMessageId + " " + this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message"));
+                }).catch((error: IApplicationError) => {
+                    this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
+                    });             
             }
         });
     };

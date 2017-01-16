@@ -5,6 +5,10 @@ export class MomentDateTimeFilter {
 
     static filter() {
         return (value, format) => {
+            if (value === null) {
+                return "";
+            }
+
             if (!format) {
                 format = "MMMM DD, YYYY h:mm:ss a";
             }

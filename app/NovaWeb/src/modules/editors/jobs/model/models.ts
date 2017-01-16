@@ -14,7 +14,8 @@ export enum JobType {
     ExcelImport = 0x800,
     ProjectImport = 0x1000,
     ProjectExport = 0x2000,
-    GenerateTests = 0x4000
+    GenerateTests = 0x4000,
+    GenerateProcessTests = 0x8000,
 }
 
 export enum JobStatus {
@@ -50,4 +51,8 @@ export interface IJobInfo {
 export interface IJobResult {
     jobInfos: IJobInfo[];
     totalJobCount: number;
+}
+
+export interface IAddJobResult {
+    jobMessageId: number;
 }

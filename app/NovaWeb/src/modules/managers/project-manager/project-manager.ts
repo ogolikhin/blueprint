@@ -13,7 +13,6 @@ import {IMainBreadcrumbService} from "../../main/components/bp-page-content/main
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 import {IApplicationError} from "../../core/error/applicationError";
 import {IInstanceItem} from "../../main/models/admin-store-models";
 
@@ -59,8 +58,7 @@ export class ProjectManager implements IProjectManager {
         "statefulArtifactFactory",
         "loadingOverlayService",
         "mainbreadcrumbService",
-        "localization",
-        "analytics"
+        "localization"
     ];
 
     constructor(private $q: ng.IQService,
@@ -72,8 +70,7 @@ export class ProjectManager implements IProjectManager {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
-                private localization: ILocalizationService,
-                private analytics: IAnalyticsProvider) {
+                private localization: ILocalizationService) {
         this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.subscribers = [];
     }
@@ -191,12 +188,12 @@ export class ProjectManager implements IProjectManager {
 
     public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-        let openProjects = _.map(this.projectCollection.getValue(), "model.id");
+        //let openProjects = _.map(this.projectCollection.getValue(), "model.id");
         return this.add(projectId).finally(() => {
-            const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
+            /*const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
             this.analytics.trackEvent("open", "project", label, projectId, {
                 openProjects: openProjects
-            });
+            });*/
             this.loadingOverlayService.endLoading(openProjectLoadingId);
         });
     }

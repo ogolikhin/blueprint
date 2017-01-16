@@ -5,7 +5,6 @@ import {LocalizationServiceMock} from "../../core/localization/localization.mock
 import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
 import {ProjectManager, IProjectManager, IArtifactNode} from "./project-manager";
 import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
-import {IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
 import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";
 import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact.factory.mock";
@@ -14,10 +13,9 @@ import {MessageServiceMock} from "../../core/messages/message.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
-import {AnalyticsProviderMock} from "../../main/components/analytics/analyticsProvider.mock";
 import {ProjectServiceMock} from "./project-service.mock";
-import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
-import {StatefulArtifactMock} from "../../managers/artifact-manager/artifact/artifact.mock";
+import {ArtifactManagerMock} from "../artifact-manager/artifact-manager.mock";
+import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
 import {ProjectServiceStatusCode} from "./project-service";
 import {HttpStatusCode} from "../../core/http/http-status-code";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
@@ -39,7 +37,6 @@ describe("Project Manager Test", () => {
         $provide.service("projectService", ProjectServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
-        $provide.service("analytics", AnalyticsProviderMock);
     }));
     beforeEach(inject(($q: ng.IQService, $compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
         selectionManager: SelectionManagerMock, statefulArtifactFactory: StatefulArtifactFactoryMock, artifactManager: ArtifactManagerMock,
@@ -282,7 +279,7 @@ describe("Project Manager Test", () => {
              projectManager.openProject(projectId);
              $rootScope.$digest();
 
-             // Assert            
+             // Assert
              expect(projectManager.projectCollection.getValue().length).toEqual(1);
              expect(projectManager.projectCollection.getValue()[0].model.id).toEqual(projectId);
          })));

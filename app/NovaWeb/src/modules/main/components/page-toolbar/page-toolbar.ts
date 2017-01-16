@@ -16,29 +16,16 @@ import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 
-interface IPageToolbarController {
-    openProject(evt?: ng.IAngularEvent): void;
-    closeProject(evt?: ng.IAngularEvent): void;
-    closeAllProjects(evt?: ng.IAngularEvent): void;
-    createNewArtifact(evt?: ng.IAngularEvent): void;
-    publishAll(evt?: ng.IAngularEvent): void;
-    discardAll(evt?: ng.IAngularEvent): void;
-    refreshAll(evt?: ng.IAngularEvent): void;
-    openTour(evt?: ng.IAngularEvent): void;
-    showSubLevel(evt: ng.IAngularEvent): void;
-    generateTestCases(evt?: ng.IAngularEvent): void;
-}
 
 export class PageToolbar implements ng.IComponentOptions {
     public template: string = require("./page-toolbar.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = PageToolbarController;
 }
 
-export class PageToolbarController implements IPageToolbarController {
+export class PageToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
@@ -61,7 +48,6 @@ export class PageToolbarController implements IPageToolbarController {
         "navigationService",
         "artifactService",
         "loadingOverlayService",
-        "analytics",
         "jobsService"
     ];
 
@@ -77,7 +63,6 @@ export class PageToolbarController implements IPageToolbarController {
                 private navigationService: INavigationService,
                 private artifactService: IArtifactService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider,
                 private jobService: IJobsService) {
     }
 
@@ -293,8 +278,8 @@ export class PageToolbarController implements IPageToolbarController {
             selectionMode: "checkbox",
             showProjects: false
         };
-        
-        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
+
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {
             if (items) {
                 const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
                 this.jobService.addProcessTestsGenerationJobs(

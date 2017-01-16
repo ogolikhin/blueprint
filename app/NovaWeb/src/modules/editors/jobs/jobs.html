@@ -57,7 +57,7 @@
                                         <span class="jobs__label">{{::$root.config.labels["Jobs_SubmittedDate"]}}:</span>
                                     </div>
                                     <div class="col-xs-8">                                        
-                                         <span>{{item.submittedDateTime | momentDateTime}}</span>
+                                         <span>{{::item.submittedDateTime | momentDateTime}}</span>
                                     </div>
                                 </div>
                             </div>
@@ -71,7 +71,7 @@
                                         <span class="jobs__label">{{::$root.config.labels["Jobs_StartDate"]}}:</span>
                                     </div>
                                     <div class="col-xs-8">  
-                                        <span>{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
+                                        <span>{{::item.jobStartDateTime | momentDateTime}}</span>
                                     </div>
                                 </div>
                                 <div class="col-xs-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
@@ -90,7 +90,7 @@
                                          <span class="jobs__label">{{::$root.config.labels["Jobs_EndDate"]}}:</span>
                                     </div>
                                     <div class="col-xs-8">  
-                                         <span> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
+                                         <span> {{::item.jobEndDateTime | momentDateTime}}</span>
                                     </div>
                                 </div>
                                 <div class="col-xs-4">

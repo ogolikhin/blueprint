@@ -278,10 +278,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             }
 
             // TODO: re-enable the following once the search can return sub-artifacts as well
-            // const subArtifactTypes = metaData.data.subArtifactTypes.filter(a => {
-            //     return this.showSubArtifacts;
-            // });
-            // if (subArtifactTypes.length) {
+            // if (this.showSubArtifacts && subArtifactTypes.length) {
             //     itemTypes = _.concat(itemTypes, subArtifactTypes);
             // }
 

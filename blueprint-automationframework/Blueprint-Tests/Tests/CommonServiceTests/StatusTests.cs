@@ -1,68 +1,69 @@
 ﻿using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
+using Model;
 using NUnit.Framework;
 using Utilities;
+using TestCommon;
 
 namespace CommonServiceTests
 {
-    public static class StatusTests
+    public class StatusTests : TestBase
     {
+        private readonly string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus;
+
+        [SetUp]
+        public void SetUp()
+        {
+            Helper = new TestHelper();
+        }
+
         [TestCase]
         [TestRail(106948)]
         [Description("Calls the /status endpoint for the main Blueprint site with a valid preAuthorizedKey and verifies that it returns 200 OK and returns detailed info about all services.")]
-        public static void StatusWithPreAuthorizedKey_ValidKey_ReturnsDetailedStatus()
+        public void GetStatus_WithPreAuthorizedKey_ReturnsDetailedStatus()
         {
-            using (TestHelper helper = new TestHelper())
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
             {
-                string content = null;
+                content = Helper.BlueprintServer.GetStatus(preAuthorizedKey: preAuthorizedKey);
+            }, "The GET /status endpoint should return 200 OK!");
 
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.BlueprintServer.GetStatus();
-                }, "The GET /status endpoint should return 200 OK!");
+            var extraExpectedStrings = new List<string> { "AdminStorageDB", "RaptorDB", "FileStorageDB", "AccessControl", "AdminStore", "ConfigControl", "FileStore", "Blueprint", "data source" };
 
-                var extraExpectedStrings = new List<string> { "AdminStorageDB", "RaptorDB", "AccessControl", "AdminStore", "ConfigControl", "FileStore", "\"accessInfo\":\"data source=" };
-
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-            }
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
         }
 
         [TestCase]
         [TestRail(166144)]
-        [Description("Calls the /status endpoint for the main Blueprint site with a valid preAuthorizedKey and verifies that it returns 200 OK and returns basic info about all services.")]
-        public static void Status_WithNoPreAuthorizedKey_ReturnsBasicStatus()
+        [Description("Calls the /status endpoint for the main Blueprint site with NO preAuthorizedKey and verifies that it returns 200 OK and returns basic info about all services.")]
+        public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
         {
-            using (TestHelper helper = new TestHelper())
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
             {
-                string content = null;
+                content = Helper.BlueprintServer.GetStatus(preAuthorizedKey: null);
+            }, "The GET /status endpoint should return 200 OK!");
 
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.BlueprintServer.GetStatus();
-                }, "The GET /status endpoint should return 200 OK!");
+            var extraExpectedStrings = new List<string> { "AdminStorageDB", "RaptorDB", "FileStorageDB", "AccessControl", "AdminStore", "ConfigControl", "FileStore", "Blueprint" };
 
-                var extraExpectedStrings = new List<string> { "AdminStorageDB", "RaptorDB", "AccessControl", "AdminStore", "ConfigControl", "FileStore" };
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
 
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-
-                // Verify secure info isn't returned:
-                Assert.IsFalse(content.Contains("accessInfo=data source"), "Connection string info was returned without a pre-authorized key!");
-            }
+            // Verify secure info isn't returned:
+            Assert.IsFalse(content.Contains("data source"), "Connection string info was returned without a pre-authorized key!");
         }
 
         [TestCase("ABCDEFG123456")]
         [TestRail(106949)]
         [Description("Calls the /status endpoint for the main Blueprint site and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 error.")]
-        public static void StatusWithBadKeys_Expect401Unauthorized(string preAuthorizedKey)
+        public void GetStatus_InvalidPreAuthorizedKey_UnauthorizedException(string invalidPreAuthorizedKey)
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    helper.BlueprintServer.GetStatus(preAuthorizedKey);
-                }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
-            }
+                Helper.BlueprintServer.GetStatus(preAuthorizedKey: invalidPreAuthorizedKey);
+            }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
         }
     }
 }

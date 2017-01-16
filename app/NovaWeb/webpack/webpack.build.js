@@ -56,7 +56,7 @@ module.exports = {
         new CopyWebpackPlugin([
             // {output}/file.txt
             {from: './web.config'},
-            {from: './favicon**', to:'../'},
+            {from: './favicon**', to: '../'},
             {from: '../node_modules/tinymce/plugins', to: './libs/tinymce/plugins'},
             {from: '../node_modules/tinymce/themes', to: './libs/tinymce/themes'},
             {from: '../node_modules/tinymce/skins', to: './libs/tinymce/skins'},
@@ -118,7 +118,11 @@ module.exports = {
             {
                 test: /\.ts$/,
                 loader: 'tslint-loader',
-                exclude: ['../node_modules']
+                exclude: [
+                    '../node_modules',
+                    /\.spec.ts$/
+
+                ]
             }
         ]
     },

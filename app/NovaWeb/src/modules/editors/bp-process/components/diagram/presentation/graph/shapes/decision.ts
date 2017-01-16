@@ -26,7 +26,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
 
     protected DECISION_WIDTH = 120;
     protected DECISION_HEIGHT = 120;
-    protected LABEL_EDIT_MAXLENGTH = 32;
+    protected LABEL_EDIT_MAXLENGTH = 140;
     protected LABEL_VIEW_MAXLENGTH = 28;
     protected DELETE_SHAPE_OFFSET = 3;
 

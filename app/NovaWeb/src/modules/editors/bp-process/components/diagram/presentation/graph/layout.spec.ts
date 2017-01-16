@@ -80,8 +80,7 @@ describe("Layout test", () => {
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory
-    ) => {
+                       _shapesFactory_: ShapesFactory) => {
         rootScope = $rootScope;
         msgService = messageService;
         wrapper = document.createElement("DIV");
@@ -1179,7 +1178,7 @@ describe("Layout test", () => {
 
         beforeEach(() => {
             let elements = document.getElementsByClassName("process-graph__bridge");
-            while(elements.length > 0){
+            while (elements.length > 0) {
                 elements[0].parentNode.removeChild(elements[0]);
             }
         });
@@ -1228,11 +1227,11 @@ describe("Layout test", () => {
             const bridge = <HTMLImageElement>document.getElementsByClassName("process-graph__bridge")[0];
             const index = bridge.innerHTML.indexOf(".st2{fill:#");
             const color = bridge.innerHTML.substr(index + 10, 7);
-            
+
             //Assert
             expect(color).toBe(mxConstants.EDGE_SELECTION_COLOR);
         });
 
     });
-    
+
 });

@@ -262,9 +262,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             let itemTypes = [];
 
             const artifactTypes = metaData.data.artifactTypes.filter(a => {
-                if ((a.predefinedType & Models.ItemTypePredefined.PrimitiveArtifactGroup) === 0) {
-                    return false;
-                }
                 if ((a.predefinedType & Models.ItemTypePredefined.BaselineArtifactGroup) !== 0) {
                     return false; // Baselines and Reviews are not currently supported
                 }
@@ -282,9 +279,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
             // TODO: re-enable the following once the search can return sub-artifacts as well
             // const subArtifactTypes = metaData.data.subArtifactTypes.filter(a => {
-            //     if ((a.predefinedType & Models.ItemTypePredefined.SubArtifactGroup) === 0) {
-            //         return false;
-            //     }
             //     return this.showSubArtifacts;
             // });
             // if (subArtifactTypes.length) {

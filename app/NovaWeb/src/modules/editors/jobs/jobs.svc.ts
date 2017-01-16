@@ -74,7 +74,7 @@ export class JobsService implements IJobsService {
     public addeProcessTestsGenerationJobs(projectId: number, projectName: string, processes: any[]): ng.IPromise<IAddJobResult> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
-            url: this.getUrl() + "process/testgen",
+            url: `${this.getUrl()}process/testgen`,
             method: "POST",
             data: {
                 projectId: projectId,

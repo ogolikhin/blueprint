@@ -284,7 +284,7 @@ namespace AdminStoreTests
         /// </summary>
         /// <param name="project">The target project</param>
         /// <param name="artifacts">Nova artifact respones list which will be use for the Process Tests generation job</param>
-        /// <returns></returns>
+        /// <returns>GenerateProcessTestsJobParameters which is used for scheduling a job for test generation</returns>
         private static GenerateProcessTestsJobParameters GenerateProcessTestsJobParameters(
             IProject project,
             List<INovaArtifactResponse> artifacts

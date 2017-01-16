@@ -1,8 +1,9 @@
-import {IJobInfo, IJobResult} from "./model/models";
+import {IAddJobResult, IJobInfo, IJobResult} from "./model/models";
 
 export interface IJobsService {
     getJobs(page?: number, pageSize?: number): ng.IPromise<IJobResult>;
     getJob(jobId: number): ng.IPromise<IJobInfo>;
+    addProcessTestsGenerationJobs(projectId: number, projectName: string, processes: any[]): ng.IPromise<IAddJobResult>;
 }
 
 export class JobsService implements IJobsService {
@@ -68,5 +69,30 @@ export class JobsService implements IJobsService {
             );
 
         return deferred.promise;
+    }
+
+    public addProcessTestsGenerationJobs(projectId: number, projectName: string, processes: any[]): ng.IPromise<IAddJobResult> {
+        const defer = this.$q.defer<any>();
+        const requestObj: ng.IRequestConfig = {
+            url: `${this.getUrl()}process/testgen`,
+            method: "POST",
+            data: {
+                projectId: projectId,
+                projectName: projectName,
+                processes: processes
+            },
+            params: {}
+        };
+
+        this.$http(requestObj)
+            .then((result: ng.IHttpPromiseCallbackArg<IAddJobResult>) => {
+                    defer.resolve(result.data);
+
+                },
+                (result: ng.IHttpPromiseCallbackArg<any>) => {
+                    defer.reject(result.data);
+                });
+
+        return defer.promise;
     }
 }

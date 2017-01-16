@@ -317,7 +317,7 @@ export class PageToolbarController implements IPageToolbarController {
         let promise: ng.IPromise<any>;
         let artifact: IStatefulArtifact;
         if (this.isProjectOpened) {
-            promise = this.projectManager.refreshAll();    
+            promise = this.projectManager.refreshAll();
         } else if (artifact = this.artifactManager.selection.getArtifact()) {
             promise = artifact.refresh();
         }
@@ -345,8 +345,8 @@ export class PageToolbarController implements IPageToolbarController {
         if (this.$state.current.name === "main.unpublished") {
             this.publishService.getUnpublishedArtifacts().then((result) => {
                 const numArtifacts = result.artifacts.length;
-                const message = numArtifacts === 1 ? 
-                this.localization.get("Discard_Single_Artifact_Confirm") : 
+                const message = numArtifacts === 1 ?
+                this.localization.get("Discard_Single_Artifact_Confirm") :
                 this.localization.get("Discard_Multiple_Artifacts_Confirm").replace("{0}", numArtifacts.toString());
                 this.dialogService.alert(message, "Warning", "Discard", "Cancel").then(() => {
                     const overlayId: number = this.loadingOverlayService.beginLoading();
@@ -519,8 +519,8 @@ export class PageToolbarController implements IPageToolbarController {
     private setCurrentArtifact = (artifact: IStatefulArtifact) => {
         this._currentArtifact = artifact;
         //calculate properties
-        this._canCreateNew = this._currentArtifact && 
-                            !this._currentArtifact.artifactState.historical && 
+        this._canCreateNew = this._currentArtifact &&
+                            !this._currentArtifact.artifactState.historical &&
                             !this._currentArtifact.artifactState.deleted &&
                             (this._currentArtifact.permissions & Enums.RolePermissions.Edit) === Enums.RolePermissions.Edit;
     };

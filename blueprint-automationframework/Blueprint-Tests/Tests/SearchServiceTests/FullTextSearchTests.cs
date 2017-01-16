@@ -737,66 +737,74 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182342)]
-        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with deleted but not published artifacts.  Execute Search with the same user - " +
             "Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithSameUserEmptySearchResult()
         {
-            // Setup: Delete all published artifacts
+            // Setup: Delete all published artifacts.
             foreach (var publishedArtifact in _publishedArtifacts)
             {
                 publishedArtifact.Delete(_user);
             }
 
-            // Create search criteria with search term that matches with deleted but not published artifact(s) description
+            var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, BaseArtifactType.Actor);
+
+            // Create search criteria with search term that matches the new published (not deleted) artifact.
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+
+            // Wait until the new published artifact appears in search results.
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
+
+            // Execute: Execute FullTextSearch with the search term using the same user.
+            // Create search criteria with search term that matches with deleted but not published artifact(s) description.
             var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
-            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
-
-            // Wait until first user no longer sees the artifact in search results or timeout occurs
-            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
-
-            // Execute: Execute FullTextSearch with the search term using the same user
+            searchCriteria.Query = searchTerm;
             FullTextSearchResult fullTextSearchResult = null;
+
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria),
                 "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!",
                 FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
-            // Validation: Verify that searchResult contains empty list of FullTextSearchItems
+            // Validation: Verify that searchResult contains empty list of FullTextSearchItems.
             FullTextSearchResultValidation(fullTextSearchResult);
         }
 
         [TestCase]
         [TestRail(182370)]
-        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [Description("Searching with the search criteria that matches with deleted but not published artifacts.  Execute Search - " +
             "Must return SearchResult with list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithDifferentUserSearchResultIncludesItem()
         {
-            // Setup: Delete all published artifacts
+            // Setup: Delete all published artifacts.
             foreach (var publishedArtifact in _publishedArtifacts)
             {
                 publishedArtifact.Delete(_user);
             }
 
-            // Create search criteria with search term that matches with deleted but not published artifact(s) description
-            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
-            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+            var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, BaseArtifactType.Actor);
 
-            // Set the pageSize that can accomodate all expecting search results for the user
+            // Create search criteria with search term that matches with deleted but not published artifact(s) description.
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria(artifact.Name, selectedProjectIds);
+
+            // Set the pageSize that can accomodate all expecting search results for the user.
             var customSearchPageSize = _publishedArtifacts.Count();
 
-            // Wait until first user no longer sees the artifact in search results or timeout occurs
-            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
+            // Wait until the new published artifact appears in search results.
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
-            // Execute: Execute FullTextSearch with the search term using the different user
+            // Execute: Execute FullTextSearch with the search term using the different user.
+            // Create search criteria with search term that matches with deleted but not published artifact(s) description.
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            searchCriteria.Query = searchTerm;
             FullTextSearchResult fullTextSearchResult = null;
-            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria),
+
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria, pageSize: customSearchPageSize),
                 "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!",
                 FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
-            // Validation: Verify that searchResult contains list of FullTextSearchItems
+            // Validation: Verify that searchResult contains list of FullTextSearchItems.
             FullTextSearchResultValidation(fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
         }
     }

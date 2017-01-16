@@ -160,7 +160,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        const artifact = this._currentArtifact; 
+        const artifact = this._currentArtifact;
         const projectId = artifact.projectId;
         const parentId = artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId;
         this.dialogService.open(<IDialogSettings>{
@@ -186,11 +186,11 @@ export class PageToolbarController implements IPageToolbarController {
                         this.projectManager.refresh(projectId, null, true)
                             .finally(() => {
                                 this.projectManager.triggerProjectCollectionRefresh();
-                                        this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
 
                                 this.$timeout(() => {
                                     this.navigationService.navigateTo({id: newArtifactId});
-                                    });
+                                });
                             });
                     })
                     .catch((error: IApplicationError) => {

@@ -263,8 +263,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             if (this.selectableItemTypes) {
                 artifactTypes = artifactTypes.filter(a =>
                     this.selectableItemTypes.indexOf(a.predefinedType) >= 0
-                    && (a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
-                    || (a.predefinedType === Models.ItemTypePredefined.CollectionFolder && a.id !== Models.ItemTypePredefined.Collections))
+                        // The following check to make sure that the main Collections area is still excluded when
+                        // we pass selectableItemTypes containing ItemTypePredefined.CollectionFolder
+                        && (a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
+                            || (a.predefinedType === Models.ItemTypePredefined.CollectionFolder && a.id !== Models.ItemTypePredefined.Collections)
+                        )
                 );
             } else {
                 artifactTypes = artifactTypes.filter(a =>
@@ -274,6 +277,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
                     && a.predefinedType !== Models.ItemTypePredefined.Baseline
                     && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
+                    // By specifying predefinedType !== Models.ItemTypePredefined.CollectionFolder we actually
+                    // exclude both the collection folders and the main Collections area
                     && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
                 );
             }

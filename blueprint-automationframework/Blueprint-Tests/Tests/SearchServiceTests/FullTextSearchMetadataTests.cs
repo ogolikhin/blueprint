@@ -318,7 +318,7 @@ namespace SearchServiceTests
             Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount, "The expected search hit count is {0} but {1} was returned.",
                 1, fullTextSearchMetaDataResult.TotalCount);
 
-            // First user deletes artifact but doesn't save.
+            // First user deletes artifact but doesn't publish.
             artifactToDelete.Delete(_user);
 
             // Delete & publish another artifact to know when search index is updated.

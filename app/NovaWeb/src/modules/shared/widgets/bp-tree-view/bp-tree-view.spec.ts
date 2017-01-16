@@ -112,7 +112,7 @@ describe("BPTreeViewController", () => {
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
-        $provide.factory("$stateParams", function () {
+        $provide.factory("$stateParams", () => {
             return stateParams;
         });
     }));

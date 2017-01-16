@@ -2,7 +2,7 @@ import {BPButtonGroupAction} from "./../../shared/widgets/bp-toolbar/actions/bp-
 import {DeleteAction} from "./../../main/components/bp-artifact-info/actions/delete-action";
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../shared";
+import {IDialogService, BPButtonOrDropdownSeparator} from "../../shared";
 import {IArtifactManager, IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../editors/bp-collection/collection-artifact";
@@ -12,7 +12,6 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 import {ICollectionService} from "../../editors/bp-collection/collection.svc";
 import {IItemInfoService} from "../../core/navigation/item-info.svc";
 
@@ -38,7 +37,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics",
         "collectionService",
         "itemInfoService"
     ];
@@ -57,7 +55,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                analytics: IAnalyticsProvider,
                 collectionService: ICollectionService,
                 itemInfoService: IItemInfoService) {
         super(
@@ -75,7 +72,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            analytics,
             collectionService,
             itemInfoService
         );

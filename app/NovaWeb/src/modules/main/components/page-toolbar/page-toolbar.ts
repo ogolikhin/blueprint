@@ -15,7 +15,6 @@ import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 
@@ -59,8 +58,7 @@ export class PageToolbarController implements IPageToolbarController {
         "messageService",
         "navigationService",
         "artifactService",
-        "loadingOverlayService",
-        "analytics"
+        "loadingOverlayService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -74,8 +72,7 @@ export class PageToolbarController implements IPageToolbarController {
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
                 private artifactService: IArtifactService,
-                private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider) {
+                private loadingOverlayService: ILoadingOverlayService) {
     }
 
     public $onInit() {

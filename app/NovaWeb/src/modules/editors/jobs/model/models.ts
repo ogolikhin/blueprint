@@ -54,5 +54,5 @@ export interface IJobResult {
 }
 
 export interface IAddJobResult {
-    jobMessageId: number;
+    jobId: number;
 }

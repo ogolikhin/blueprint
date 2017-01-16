@@ -3,7 +3,7 @@ import {IAddJobResult, IJobInfo, IJobResult} from "./model/models";
 export interface IJobsService {
     getJobs(page?: number, pageSize?: number): ng.IPromise<IJobResult>;
     getJob(jobId: number): ng.IPromise<IJobInfo>;
-    addeProcessTestsGenerationJobs(projectId: number, projectName: string, processes: any[]): ng.IPromise<IAddJobResult>;
+    addProcessTestsGenerationJobs(projectId: number, projectName: string, processes: any[]): ng.IPromise<IAddJobResult>;
 }
 
 export class JobsService implements IJobsService {
@@ -71,7 +71,7 @@ export class JobsService implements IJobsService {
         return deferred.promise;
     }
 
-    public addeProcessTestsGenerationJobs(projectId: number, projectName: string, processes: any[]): ng.IPromise<IAddJobResult> {
+    public addProcessTestsGenerationJobs(projectId: number, projectName: string, processes: any[]): ng.IPromise<IAddJobResult> {
         const defer = this.$q.defer<any>();
         const requestObj: ng.IRequestConfig = {
             url: `${this.getUrl()}process/testgen`,

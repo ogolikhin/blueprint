@@ -296,13 +296,13 @@ export class PageToolbarController implements IPageToolbarController {
         
         this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
             if (items) {
-                let processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
-                this.jobService.addeProcessTestsGenerationJobs(
+                const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
+                this.jobService.addProcessTestsGenerationJobs(
                     this._currentArtifact.projectId,
                     this.projectManager.getProject(this._currentArtifact.projectId).model.name,
                     processes
                 ).then((result) => {
-                    this.messageService.addInfo("Job" + result.jobMessageId + " " + this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message"));
+                    this.messageService.addInfo("Job" + result.jobId + " " + this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message"));
                 }).catch((error: IApplicationError) => {
                     this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
                 });

@@ -5,7 +5,7 @@ export class MomentDateTimeFilter {
 
     static filter() {
         return (value, format) => {
-            if (value === null) {
+            if (!value) {
                 return "";
             }
 

@@ -57,7 +57,7 @@ namespace AdminStore.Controllers
 
             var requestJobUrl = I18NHelper.FormatInvariant("/svc/adminstore/jobs/{0}", jobId.Value);
             var requestUri = new Uri(requestJobUrl, UriKind.Relative);
-            var result = new AddJobResult() { JobMessageId = jobId.Value };
+            var result = new AddJobResult() { JobId = jobId.Value };
             return Created(requestUri, result);
         }
 

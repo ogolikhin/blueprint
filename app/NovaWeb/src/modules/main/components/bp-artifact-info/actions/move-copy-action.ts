@@ -151,7 +151,7 @@ export class MoveCopyAction extends BPDropdownAction {
             selectionMode: "single",
             currentArtifact: this.artifact,
             actionType: this.actionType,
-            selectableItemTypes: collectionTypes.indexOf(this.artifact.predefinedType)  !== -1 ? [ItemTypePredefined.CollectionFolder] : undefined
+            selectableItemTypes: collectionTypes.indexOf(this.artifact.predefinedType) !== -1 ? collectionTypes : undefined
         };
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {

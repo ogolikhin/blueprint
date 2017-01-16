@@ -261,7 +261,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.metadataService.get(projectId).then((metaData) => {
             let artifactTypes = metaData.data.artifactTypes;
             if (this.selectableItemTypes) {
-                artifactTypes = artifactTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
+                artifactTypes = artifactTypes.filter(a =>
+                    this.selectableItemTypes.indexOf(a.predefinedType) >= 0
+                    && (a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
+                    || (a.predefinedType === Models.ItemTypePredefined.CollectionFolder && a.id !== Models.ItemTypePredefined.Collections))
+                );
             } else {
                 artifactTypes = artifactTypes.filter(a =>
                     a.predefinedType !== Models.ItemTypePredefined.Project
@@ -270,7 +274,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                     && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
                     && a.predefinedType !== Models.ItemTypePredefined.Baseline
                     && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
-                    && a.predefinedType !== Models.ItemTypePredefined.Collections
                     && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
                 );
             }

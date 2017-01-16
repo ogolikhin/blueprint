@@ -513,8 +513,7 @@ export class ProjectManager implements IProjectManager {
         }
 
         return promise.then(() => {
-            //filter collections and sort by order index
-            siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
+            //sort by order index
             siblings = _.sortBy(siblings, (a) => a.orderIndex);
             index = _.findIndex(siblings, (a) => a.id === selectedArtifact.id);
 

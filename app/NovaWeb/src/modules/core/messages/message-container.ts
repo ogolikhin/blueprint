@@ -49,6 +49,11 @@ export class MessageContainerController implements IMessageContainerController {
             }
         }
 
-        return this.$sce.trustAsHtml(_.escape(text));
+        let messageText = this.$sce.trustAsHtml(_.escape(text));
+        if (message.messageType === MessageType.LinkInfo) {
+            messageText = this.$sce.trustAsHtml(text);
+        } 
+
+        return messageText;
     }
 }

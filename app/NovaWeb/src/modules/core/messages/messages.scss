@@ -86,6 +86,10 @@ $toast-message-width: 350px;
     background-color: $messages-bg-warning;
 }
 
+.messages__message-container--linkinfo {
+    background-color: $messages-bg-info;
+}
+
 .messages__message-container--info {
     background-color: $messages-bg-info;
 }

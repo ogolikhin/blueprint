@@ -1115,13 +1115,13 @@ namespace Helper
         /// <param name="numberOfJobsToBeCreated">The number of ALM Change Summary Jobs to be created.</param>
         /// <param name="project">The project where ALM targets reside.</param>
         /// <returns> List of ALM Summary Jobs created in decending order by jobId </returns>
-        public static List<IOpenAPIJob> CreateALMSummaryJobsSetup(string address, IUser user, int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
+        public static List<OpenAPIJob> CreateALMSummaryJobsSetup(string address, IUser user, int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
             var almTarget = AlmTarget.GetAlmTargets(address, user, project).First();
             Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
-            List<IOpenAPIJob> jobsToBeFound = new List<IOpenAPIJob>();
+            List<OpenAPIJob> jobsToBeFound = new List<OpenAPIJob>();
             for (int i = 0; i < numberOfJobsToBeCreated; i++)
             {
                 var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);

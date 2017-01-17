@@ -4,6 +4,7 @@ using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.Factories;
+using Model.JobModel;
 using Model.JobModel.Enums;
 using Model.JobModel.Impl;
 using NUnit.Framework;
@@ -211,7 +212,7 @@ namespace AdminStoreTests
             var createdJob = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData).First();
 
             // Execute: Execute GetJob to retrieve the job using job ID and user
-            JobInfo returnedJobInfo = null;
+            IJobInfo returnedJobInfo = null;
             Assert.DoesNotThrow(() => returnedJobInfo = Helper.AdminStore.GetJob(_adminUser, createdJob.JobId),
                 "Get {0} call failed when using job Id {1}!", JOB_PATH, createdJob.JobId);
 

@@ -156,7 +156,7 @@ namespace Helper
         /// </summary>
         /// <param name="jobInfo">The jobInfo from Nova GET job call</param>
         /// <param name="expectedOpenAPIJob"> (optional) job that are expected to be found, if this is null, job content validation step gets skipped.</param>
-        public static void GetJobValidation(JobInfo jobInfo, IOpenAPIJob expectedOpenAPIJob)
+        public static void GetJobValidation(IJobInfo jobInfo, IOpenAPIJob expectedOpenAPIJob)
         {
             // creating the jobResult with the empty TotalJobCount
             JobResult jobResult = new JobResult();

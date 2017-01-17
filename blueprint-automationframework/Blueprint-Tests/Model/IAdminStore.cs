@@ -256,7 +256,7 @@ namespace Model
         /// <param name="jobId">The job ID</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected</param>
         /// <returns>JobInfo</returns>
-        JobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
+        IJobInfo GetJob(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets a result file from the job result

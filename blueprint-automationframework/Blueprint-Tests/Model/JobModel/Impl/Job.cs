@@ -40,7 +40,7 @@ namespace Model.JobModel.Impl
         /// <param name="almTarget">The ALM target</param>"
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
         /// <returns>OpenAPIJob that contains information for ALM ChangeSummary Job.</returns>
-        public static OpenAPIJob AddAlmChangeSummaryJob(string address,
+        public static IOpenAPIJob AddAlmChangeSummaryJob(string address,
             IUser user,
             IProject project,
             int baselineOrReviewId,

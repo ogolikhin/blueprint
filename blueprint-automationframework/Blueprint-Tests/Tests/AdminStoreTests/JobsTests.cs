@@ -155,7 +155,7 @@ namespace AdminStoreTests
 
         [TestCase(2, 1, 1)]
         [TestRail(227084)]
-        [Description("GET Jobs using the author user (author1) after creating jobs with different author (author2). Verify that the returned jobResult contains jobs belong to the user which should be empty.")]
+        [Description("GET Jobs using the author user (author1) after creating jobs with different author (author2). Verify that the returned jobResult contains jobs that belong to the user which should be empty.")]
         public void GetJobs_GetJobsWithUserWithNoAccessToJobsCreatedByAnotherAuthor_VerifyEmtpyJobResult(
             int numberOfJobsToBeCreated,
             int page,

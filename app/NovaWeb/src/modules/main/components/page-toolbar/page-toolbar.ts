@@ -276,6 +276,7 @@ export class PageToolbarController implements IPageToolbarController {
             evt.preventDefault();
         }
 
+        const projectId = this._currentArtifact.projectId;
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Toolbar_Generate_Test_Cases"),
             template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
@@ -293,26 +294,34 @@ export class PageToolbarController implements IPageToolbarController {
             selectionMode: "checkbox",
             showProjects: false
         };
-        
-        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
-            if (items) {
-                const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
-                this.jobService.addProcessTestsGenerationJobs(
-                    this._currentArtifact.projectId,
-                    this.projectManager.getProject(this._currentArtifact.projectId).model.name,
-                    processes
-                ).then((result) => {
-                    // let message = `${this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message")}<br> \
-                    // <a href=\"#/main/jobs\" target=\"_top\" class=\"btn-white-link\">Job list</a>\
-                    // as Job ${result.jobId}`;
 
-                    const link = `<a href="#/main/jobs" class="btn-white-link">${this.localization.get("Jobs_Label")}</a>`;
-                    const message = `${this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message")}`;
-                    this.messageService.addLinkInfo(message, link, result.jobId);
-                }).catch((error: IApplicationError) => {
-                    this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
-                });
-            }
+        //first, check if project is loaded, and if not - load it
+        let loadProjectPromise: ng.IPromise<any>;
+        if (!this.projectManager.getProject(projectId)) {
+            loadProjectPromise = this.projectManager.add(projectId);
+        } else {
+            loadProjectPromise = this.$q.resolve();
+        }
+
+        loadProjectPromise
+        .catch((err) => this.messageService.addError(err))
+        .then(() => {        
+            this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
+                if (items) {
+                    const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
+                    this.jobService.addProcessTestsGenerationJobs(
+                        projectId,
+                        this.projectManager.getProject(projectId).model.name,
+                        processes
+                    ).then((result) => {
+                        const link = `<a href="#/main/jobs" class="btn-white-link">${this.localization.get("Jobs_Label")}</a>`;
+                        const message = `${this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message")}`;
+                        this.messageService.addLinkInfo(message, link, result.jobId);
+                    }).catch((error: IApplicationError) => {
+                        this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
+                    });
+                }
+            });        
         });
     };
 

@@ -1,7 +1,6 @@
 ﻿using Common;
 using Model;
 using Model.ArtifactModel;
-using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Impl;
 using NUnit.Framework;
@@ -52,7 +51,7 @@ namespace Helper
         /// <param name="jobResult">The jobResult from Nova GET jobs call in decending order by jobId</param>
         /// <param name="pageSize"> pageSize value that indicates number of items that get displayed per page</param>
         /// <param name="expectedOpenAPIJobs"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, it verifies that jobResult.JobInfos is empty</param>
-        public static void GetJobsValidationWithExpectedOpenAPIJobs(JobResult jobResult,
+        public static void GetJobsValidation(JobResult jobResult,
             int pageSize,
             List<IOpenAPIJob> expectedOpenAPIJobs = null
             )
@@ -113,7 +112,7 @@ namespace Helper
         /// <param name="jobResult">The jobResult from Nova GET jobs call in decending order by jobId</param>
         /// <param name="pageSize"> pageSize value that indicates number of items that get displayed per page</param>
         /// <param name="expectedAddJobResults"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, it verifies that jobResult.JobInfos is empty</param>
-        public static void GetJobsValidationWithExpectedAddJobResults(JobResult jobResult,
+        public static void GetJobsValidation(JobResult jobResult,
             int pageSize,
             List<AddJobResult> expectedAddJobResults = null
             )
@@ -157,7 +156,7 @@ namespace Helper
         /// </summary>
         /// <param name="jobInfo">The jobInfo from Nova GET job call</param>
         /// <param name="expectedOpenAPIJob"> (optional) job that are expected to be found, if this is null, job content validation step gets skipped.</param>
-        public static void GetJobValidationWithExpectedOpenAPIJob(JobInfo jobInfo, IOpenAPIJob expectedOpenAPIJob = null)
+        public static void GetJobValidation(JobInfo jobInfo, IOpenAPIJob expectedOpenAPIJob)
         {
             // creating the jobResult with the empty TotalJobCount
             JobResult jobResult = new JobResult();
@@ -165,7 +164,7 @@ namespace Helper
             jobResult.JobInfos = jobInfoList;
             jobResult.TotalJobCount = 0;
 
-            GetJobsValidationWithExpectedOpenAPIJobs(jobResult: jobResult, pageSize: 1, expectedOpenAPIJobs: new List<IOpenAPIJob>() { expectedOpenAPIJob });
+            GetJobsValidation(jobResult: jobResult, pageSize: 1, expectedOpenAPIJobs: new List<IOpenAPIJob>() { expectedOpenAPIJob });
         }
     }
 

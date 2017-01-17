@@ -81,7 +81,7 @@ namespace AdminStoreTests
                 "GET {0} call failed when using it with page ({1}) and pageSize ({2})!", JOBS_PATH, page, pageSize);
 
             // Validation: Verify that page and pageSize works
-            AdminStoreHelper.GetJobsValidationWithExpectedOpenAPIJobs(jobResult: jobResult, pageSize: pageSize, expectedOpenAPIJobs: jobsToBeFound);
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedOpenAPIJobs: jobsToBeFound);
         }
 
         [TestCase(10, 4)]
@@ -119,7 +119,7 @@ namespace AdminStoreTests
                 List<AddJobResult> pagedJobs = ExtractAddJobResultsFromAddJobResultStack(expectedJobsStack, pageSize);
 
                 // Validation: Verify that jobResult contains list of expectedJobs
-                AdminStoreHelper.GetJobsValidationWithExpectedAddJobResults(jobResult: jobResult, pageSize: pageSize, expectedAddJobResults: pagedJobs);
+                AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedAddJobResults: pagedJobs);
 
                 pageCount++;
             }
@@ -148,7 +148,7 @@ namespace AdminStoreTests
                 "GET {0} call failed when using it with jobType ({1})!", JOBS_PATH, JobType.DocGen);
 
             // Validation: Verify that jobType filter works by checking the empty jobResult from Get Jobs call
-            AdminStoreHelper.GetJobsValidationWithExpectedOpenAPIJobs(jobResult: jobResult, pageSize: pageSize);
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedOpenAPIJobs: null);
 
         }
 
@@ -174,7 +174,7 @@ namespace AdminStoreTests
                 "GET {0} call failed when using an author user!", JOBS_PATH);
 
             // Validation: Verify that jobResult is empty since the author user doesn't have permission to view jobs created by another author
-            AdminStoreHelper.GetJobsValidationWithExpectedAddJobResults(jobResult: jobResult, pageSize: pageSize);
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedAddJobResults: null);
         }
 
         [TestCase(DEFAULT_BASELINEORREVIEWID, 1, 1)]
@@ -199,7 +199,7 @@ namespace AdminStoreTests
                 JOBS_PATH);
 
             // Validation: Verify that jobResult is empty
-            AdminStoreHelper.GetJobsValidationWithExpectedOpenAPIJobs(jobResult: jobResult, pageSize: pageSize);
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedOpenAPIJobs: null);
         }
 
         [TestCase(DEFAULT_BASELINEORREVIEWID)]
@@ -216,7 +216,7 @@ namespace AdminStoreTests
                 "Get {0} call failed when using job Id {1}!", JOB_PATH, createdJob.JobId);
 
             // Validation: Verify that jobResult is identical with job
-            AdminStoreHelper.GetJobValidationWithExpectedOpenAPIJob(returnedJobInfo, createdJob);
+            AdminStoreHelper.GetJobValidation(returnedJobInfo, createdJob);
         }
 
         #endregion 200 OK Tests

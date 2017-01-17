@@ -13,7 +13,7 @@ import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
 
-describe("Item State Controller tests", () => {
+describe("Item State Service tests", () => {
     let $timeout: ng.ITimeoutService,
         $q: ng.IQService,
         $state: ng.ui.IStateService,

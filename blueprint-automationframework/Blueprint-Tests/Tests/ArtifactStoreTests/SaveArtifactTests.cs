@@ -67,7 +67,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, nameof(NovaArtifactDetails.Description), "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -88,7 +88,7 @@ namespace ArtifactStoreTests
             string description = StringUtilities.WrapInHTML("NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", description, author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, nameof(NovaArtifactDetails.Description), description, author);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
@@ -148,10 +148,10 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green", "Blue" })]
         [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow", "Orange", "Purple" })]
         [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")] // newValue not used here, so pass empty string.
-        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
-        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
-        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")]
+        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")]
+        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")]
         [TestRail(191102)]
         [Description("Create and publish an artifact (that has custom properties). Change custom property. Verify the saved artifact has " +
                      "expected custom property change.")]

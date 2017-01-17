@@ -1,7 +1,7 @@
 import "angular-formly";
 import "angular-sanitize";
 import {Models, Enums} from "../../../../main/models";
-import {IPropertyDescriptor} from "./../../property-descriptor-builder";
+import {IPropertyDescriptor} from "../../property-descriptor-builder";
 import {Helper} from "../../../../shared";
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 
@@ -13,7 +13,7 @@ export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
         $scope.$applyAsync(() => {
             const data: any = $scope["options"].data;
             if (data.isRichText && (data.isMultipleAllowed || Models.PropertyTypePredefined.Description === data.propertyTypePredefined)) {
-                let richtextBody = $element[0].querySelector(".richtext-body");
+                const richtextBody = $element[0].querySelector(".read-only__richtext-body");
                 if (richtextBody) {
                     Helper.autoLinkURLText(richtextBody);
                 }
@@ -70,11 +70,6 @@ export class BpFieldReadOnlyController {
                 tooltip = newValue;
                 if (data) {
                     if (data.isRichText) {
-                        const defaultValue = data.stringDefaultValue || "";
-                        if (defaultValue.indexOf(newValue) !== -1) {
-                            // SL adds a <pre> tag around the default values for RTF
-                            newValue = Helper.stripHTMLTags(newValue);
-                        }
                         newValue = this.$sce.trustAsHtml(Helper.stripWingdings(newValue));
                         tooltip = Helper.stripHTMLTags(newValue);
                     } else if (data.isMultipleAllowed) {

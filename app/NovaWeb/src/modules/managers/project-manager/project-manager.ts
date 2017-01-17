@@ -11,7 +11,7 @@ import {HttpStatusCode} from "../../core/http/http-status-code";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
-import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
+import {OpenProjectController} from "../../main/components/dialogs/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IApplicationError} from "../../core/error/applicationError";
 import {IInstanceItem} from "../../main/models/admin-store-models";

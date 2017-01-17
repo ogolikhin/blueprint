@@ -1,0 +1,12 @@
+@import '../../../../../styles/settings/colors';
+
+.formly-field-bpFieldReadOnly {
+
+    .read-only__richtext-body {
+        display: inline-block;
+
+        & > pre {
+            color: red;
+        }
+    }
+}

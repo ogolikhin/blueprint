@@ -63,9 +63,9 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private collectionService: ICollectionService,
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
-                private $window: ng.IWindowService,
+                protected $window: ng.IWindowService,
                 private $scope: ng.IScope) {
-        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder, validationService);
+        super($window, messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder, validationService);
     }
 
     public get reviewUrl(): string {

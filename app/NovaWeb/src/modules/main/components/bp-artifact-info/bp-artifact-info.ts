@@ -34,7 +34,6 @@ import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-over
 import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
 import {IItemInfoService} from "../../../core/navigation/item-info.svc";
@@ -57,6 +56,7 @@ export class BpArtifactInfoController {
         "$q",
         "$scope",
         "$element",
+        "$timeout",
         "artifactManager",
         "localization",
         "messageService",
@@ -67,7 +67,6 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics",
         "collectionService",
         "itemInfoService"
     ];
@@ -103,6 +102,7 @@ export class BpArtifactInfoController {
     constructor(public $q: ng.IQService,
                 public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
+                private $timeout: ng.ITimeoutService,
                 protected artifactManager: IArtifactManager,
                 protected localization: ILocalizationService,
                 protected messageService: IMessageService,
@@ -113,7 +113,6 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected analytics: IAnalyticsProvider,
                 protected collectionService: ICollectionService,
                 public itemInfoService: IItemInfoService) {
         this.initProperties();
@@ -330,9 +329,9 @@ export class BpArtifactInfoController {
             .finally(() => {
                 //(eventCollection, action, label?, value?, custom?, jQEvent?
                 const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-                this.analytics.trackEvent("open", "project", label, projectId, {
+                /*this.analytics.trackEvent("open", "project", label, projectId, {
                     openProjects: openProjects
-                });
+                });*/
 
                 this.loadingOverlayService.endLoading(openProjectLoadingId);
             });
@@ -345,7 +344,7 @@ export class BpArtifactInfoController {
             this.projectManager, this.loadingOverlayService, this.navigationService);
         const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
             this.metadataService, this.mainBreadcrumbService);
-        const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+        const moveCopyAction = new MoveCopyAction(this.$q, this.$timeout, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService);
         const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService, this.itemInfoService);

@@ -21,7 +21,8 @@ namespace AccessControl.Controllers
         internal readonly ISessionsRepository _sessions;
         internal readonly IServiceLogRepository _log;
 
-        private const int maxMonth = 11;
+        private const int minMonth = 1;
+        private const int maxMonth = 12;
         private const int minYear = 1900;
         private const int maxYear = 2999;
 
@@ -142,7 +143,7 @@ namespace AccessControl.Controllers
         /// Returns license usage for the given <paramref name="month" /> and <paramref name="year" />.
         /// </remarks>
         /// <param name="month">Optional. The number specifies the month to get license usage from.
-        /// Valid value: __0-11__</param>
+        /// Valid value: __1-12__</param>
         /// <param name="year">Optional. The number specifies the year to get license usage from. 
         /// Valid value: __1900-2999__</param>
         /// <response code="200">OK.</response>
@@ -159,7 +160,7 @@ namespace AccessControl.Controllers
                 //parameter constrain
                 if (month.HasValue )
                 {
-                    if (month < 0 || month > maxMonth) {
+                    if (month < minMonth || month > maxMonth) {
                         return BadRequest("Specified month is invalid");
                     }
                     if (!year.HasValue) {
@@ -178,8 +179,8 @@ namespace AccessControl.Controllers
                         return BadRequest("A month must be specified");
                     }
                 }
-                
-                var usage = await _repo.GetLicenseUsage(month, year);
+                //NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
+                var usage = await _repo.GetLicenseUsage(month - 1, year);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, usage);
                 return ResponseMessage(response);

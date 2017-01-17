@@ -224,7 +224,6 @@ namespace SearchServiceTests
 
         #region Permissions Tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [TestCase(0, 0, BaseArtifactType.Actor)]
         [TestRail(182364)]
         [Description("Save artifact but don't publish. Search artifact with other user. Executed search must return no search hits.")]
@@ -233,18 +232,22 @@ namespace SearchServiceTests
             int expectedTotalPageCount,
             BaseArtifactType baseArtifactType)
         {
+            // Setup:
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
-            // Setup: 
-            // Create artifact in first project with random Name
-            var artifact = Helper.CreateAndSaveArtifact(_projects.First(), _user, baseArtifactType);
+            // Create artifact in first project with random Name.
+            var savedArtifact = Helper.CreateAndSaveArtifact(_projects.First(), _user, baseArtifactType);
+            var publishedArtifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
 
-            var searchTerm = artifact.Name;
+            var searchTerm = publishedArtifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
+            // Wait until the published artifact is found by search index.
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
-            // Execute: Perform search with another user
+            // Execute: Perform search for saved artifact with another user.
+            searchCriteria.Query = savedArtifact.Name;
+
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -285,7 +288,6 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
         [TestCase(1, 1, BaseArtifactType.Actor)]
         [TestRail(182366)]
         [Description("Delete artifact but don't publish. Search artifact with other user. Executed search must return search hits for search criteria.")]
@@ -294,16 +296,17 @@ namespace SearchServiceTests
             int expectedTotalPageCount,
             BaseArtifactType baseArtifactType)
         {
+            // Setup:
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
-            // Setup: 
-            // Create artifact in first project with unique random Name
-            var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
+            // Create artifact in first project with unique random Name.
+            var artifactToDelete = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
+            var artifactToDeleteAndPublish = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
 
-            var searchTerm = artifact.Name;
+            var searchTerm = artifactToDeleteAndPublish.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
-            // Wait until second user can see the artifact in the search results or timeout occurs
+            // Wait until second user can see the artifact in the search results or timeout occurs.
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user2, Helper, searchCriteria, 1);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
@@ -311,13 +314,18 @@ namespace SearchServiceTests
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
-            // After create and publish by first user, second user should be able to see the artifact
-            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(1), "The expected search hit count is {0} but {1} was returned.", 1, fullTextSearchMetaDataResult.TotalCount);
+            // After create and publish by first user, second user should be able to see the artifact.
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount, "The expected search hit count is {0} but {1} was returned.",
+                1, fullTextSearchMetaDataResult.TotalCount);
 
-            // First user deletes artifact but doesn't save
-            artifact.Delete(_user);
+            // First user deletes artifact but doesn't publish.
+            artifactToDelete.Delete(_user);
 
-            // Wait until first user no longer sees the artifact in search results or timeout occurs
+            // Delete & publish another artifact to know when search index is updated.
+            artifactToDeleteAndPublish.Delete(_user);
+            artifactToDeleteAndPublish.Publish(_user);
+
+            // Wait until first user no longer sees the artifact that was deleted & published in search results or timeout occurs.
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
@@ -326,7 +334,11 @@ namespace SearchServiceTests
                 searchCriteria.Query);
 
             // After delete but not publish by the original user, the original user should not be able to see the artifact
-            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(0), "The expected search hit count is {0} but {1} was returned.", 0, fullTextSearchMetaDataResult.TotalCount);
+            Assert.AreEqual(0, fullTextSearchMetaDataResult.TotalCount, "The expected search hit count is {0} but {1} was returned.",
+                0, fullTextSearchMetaDataResult.TotalCount);
+
+            // Execute:
+            searchCriteria.Query = artifactToDelete.Name;
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),

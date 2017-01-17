@@ -60,7 +60,7 @@ export class ItemStateController {
         } else if (this.itemInfoService.isProject(itemInfo)) {
             itemInfo.predefinedType = ItemTypePredefined.Project;
 
-            this.projectManager.openProject(itemInfo.id).then(() => {
+            this.projectManager.openProject(itemInfo).then(() => {
                 const project = this.createArtifact(itemInfo);
                 project.itemTypeId = ItemTypePredefined.Project;
                 project.itemTypeName = "Project";
@@ -134,7 +134,8 @@ export class ItemStateController {
 
     private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
-            if (!message.canBeClosedManually && message.messageType !== MessageType.Info) {
+            if (!message.canBeClosedManually && message.messageType !== MessageType.Info
+                 && message.messageType !== MessageType.LinkInfo) {
                 this.messageService.deleteMessageById(message.id);
             }
         });
@@ -168,9 +169,7 @@ export class ItemStateController {
                 this.activeEditor = "general";
                 break;
             case Models.ItemTypePredefined.CollectionFolder:
-                // Temporary decision while collections root description is not editable.
-                // if artifact is Collections root node
-                if (artifact.itemTypeId === ItemTypePredefined.Collections) {
+                if (artifact.parentId === artifact.projectId) {
                     this.activeEditor = "general";
                 } else {
                     this.activeEditor = "details";

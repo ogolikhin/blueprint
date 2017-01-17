@@ -9,7 +9,8 @@ import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
 
 export class DecisionEditorController extends BaseModalDialogController<DecisionEditorModel> implements ng.IComponentController {
-    private CONDITION_MAX_LENGTH = 40;
+    private CONDITION_MAX_LENGTH = 512;
+    private LABEL_MAX_LENGTH = 140;
 
     private deletedConditions: ICondition[] = [];
 

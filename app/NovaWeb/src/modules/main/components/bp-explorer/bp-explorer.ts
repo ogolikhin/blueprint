@@ -168,15 +168,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (this.pendingSelectedArtifactId) {
                 navigateToId = this.pendingSelectedArtifactId;
                 this.pendingSelectedArtifactId = undefined;
-            // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
+                // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
             } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
                 this.selectionManager.getArtifact() &&
                 // selectedArtifactId = undefined only if there is no projects open.
                 // if there are some artifact pre selected in the main area before opening project
                 // we need to check if this artifact is from opening project: this.projects[0] (opening project)
                 (!selectedArtifactId ||
-                    (selectedArtifactId &&
-                     this.isMainAreaSelectedArtifactBelongsToOpeningProject()))) {
+                (selectedArtifactId &&
+                this.isMainAreaSelectedArtifactBelongsToOpeningProject()))) {
                 if (!this.selectionManager.getArtifact().artifactState.historical) {
                     navigateToId = this.selectionManager.getArtifact().id;
                 } else {
@@ -230,23 +230,23 @@ export class ProjectExplorerController implements IProjectExplorerController {
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
             return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
-                   `${icon}<span>${label}</span></a>`;
+                `${icon}<span>${label}</span></a>`;
         }
     }];
 
     private resettingSelection: boolean;
 
     public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
-         if (!this.resettingSelection && isSelected) {
-             //Following has to be a const to restore current selection in case of faling navigation
-             const prevSelected = this.selected;
-             this.selected = vm;
-             this.navigationService.navigateTo({id: vm.model.id})
+        if (!this.resettingSelection && isSelected) {
+            //Following has to be a const to restore current selection in case of faling navigation
+            const prevSelected = this.selected;
+            this.selected = vm;
+            this.navigationService.navigateTo({id: vm.model.id})
                 .catch((err) => {
                     this.resettingSelection = true;
                     this.treeApi.setSelected(prevSelected);
                 });
-         }
-         this.resettingSelection = false;
+        }
+        this.resettingSelection = false;
     };
 }

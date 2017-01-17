@@ -15,6 +15,7 @@ import {OpenProjectController} from "../../main/components/dialogs/open-project/
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IApplicationError} from "../../core/error/applicationError";
 import {IInstanceItem} from "../../main/models/admin-store-models";
+import {IItemInfoResult} from "../../core/navigation/item-info.svc";
 
 export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     children?: this[];
@@ -41,7 +42,7 @@ export interface IProjectManager extends IDispose {
     triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
     calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
-    openProject(projectId: number): ng.IPromise<void>;
+    openProject(project: AdminStoreModels.IInstanceItem | IItemInfoResult): ng.IPromise<void>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -179,19 +180,22 @@ export class ProjectManager implements IProjectManager {
             template: require("../../main/components/dialogs/open-project/open-project.html"),
             controller: OpenProjectController,
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-        }).then((projectId: number) => {
-            if (projectId) {
-                this.openProject(projectId);
-            }
+        }).then((project) => {
+            this.openProject(project);
         });
     }
 
-    public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
+    public openProject(project: AdminStoreModels.IInstanceItem | IItemInfoResult): ng.IPromise<void> { // opens and selects project
+        if (!project.hasOwnProperty("id")) {
+            throw new Error("project does not have id");
+        }
+        /*fixme: this function should change.
+         what it needs to do is just to insert the project into the tree as a root node. Expanding it shall be done else-ware*/
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
         //let openProjects = _.map(this.projectCollection.getValue(), "model.id");
-        return this.add(projectId).finally(() => {
+        return this.add(project.id).finally(() => {
             /*const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-            this.analytics.trackEvent("open", "project", label, projectId, {
+            this.analytics.trackEvent("open", "project", label, project.id, {
                 openProjects: openProjects
             });*/
             this.loadingOverlayService.endLoading(openProjectLoadingId);
@@ -478,7 +482,7 @@ export class ProjectManager implements IProjectManager {
         return found ? found.model : null;
     };
 
-    public getDescendantsToBeDeleted(artifact: IStatefulArtifact):  ng.IPromise<Models.IArtifactWithProject[]> {
+    public getDescendantsToBeDeleted(artifact: IStatefulArtifact): ng.IPromise<Models.IArtifactWithProject[]> {
         let projectName: string;
         return this.projectService.getProject(artifact.projectId).then((project: AdminStoreModels.IInstanceItem) => {
             projectName = project.name;

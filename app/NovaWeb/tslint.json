@@ -96,7 +96,10 @@
             "check-separator",
             "check-type"
         ],
-
+        /*"only-arrow-functions": [
+            true,
+            "allow-declarations"
+        ],*/
         "trailing-comma": [
             true,
             {

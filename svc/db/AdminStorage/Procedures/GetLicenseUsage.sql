@@ -16,73 +16,162 @@ CREATE PROCEDURE [dbo].[GetLicenseUsage]
 )
 AS
 BEGIN
-	DECLARE @currentDate datetime = GETUTCDATE();
-	DECLARE @startMonth date = DATEADD(month, @month, DATEADD(year, (@year-1900), 0));
-	DECLARE @currentMonth date = DATEADD(month, MONTH(@currentDate)-1, DATEADD(year, (YEAR(@currentDate)-1900), 0));
-	DECLARE @licensetype int;
+DECLARE @currentDate datetime = GETUTCDATE();
+DECLARE @startMonth date = DATEADD(month, @month, DATEADD(year, (@year-1900), 0));
+DECLARE @currentMonth date = DATEADD(month, MONTH(@currentDate)-1, DATEADD(year, (YEAR(@currentDate)-1900), 0));
 
-	CREATE TABLE #Registered (
-			[License] int NULL,
-			[Month] int  NULL,
-			[Year] int NULL,
-			[COUNT] int NULL
-	)
-	
-	INSERT INTO #Registered 
-	SELECT M.License, MONTH(m.FirstTime), YEAR(M.FirstTime), Count(*)
-		FROM (
-			SELECT 
-				UserId,
-				UserLicenseType AS License,
-				MIN(la.[TimeStamp]) AS FirstTime
-			FROM LicenseActivities AS la
-			WHERE la.ConsumerType = 1 AND la.ActionType = 1 -- Client(ConsumerType) and Login(ActionType)
-			GROUP BY la.[UserId], la.UserLicenseType
-		) as M
-		WHERE (@year IS NULL OR @month IS NULL OR M.[FirstTime] > @startMonth)
-			AND M.[FirstTime] < @currentMonth
-	GROUP BY M.License, MONTH(M.FirstTime), YEAR(M.FirstTime);
 
-	WITH L
-	AS (
-		
-		SELECT	 YEAR(la.[TimeStamp]) AS UsageYear
-				,MONTH(la.[TimeStamp]) AS UsageMonth
-				,la.UserId as UserId
-				,la.ConsumerType AS Consumer
-				,la.UserLicenseType AS License
-				,da.LicenseType AS CountLicense
-				,da.[Count] AS [Count]
-		FROM LicenseActivities AS la WITH (NOLOCK) 
-			LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
-		ON la.LicenseActivityId = da.LicenseActivityId
-		WHERE (@year IS NULL OR @month IS NULL OR la.[TimeStamp] > @startMonth)
-				AND la.[TimeStamp] < @currentMonth
-	)
-	-- Consumer: Client-1, Analytics-2, REST-3
-	-- LicenseType: Viewer-1, Collaborator- 2, Author- 3
+-- To Hold registered user (first time login)
+DECLARE @registration TABLE  (
+	[YearMonth] int NULL,
+	[UserId] int NULL,
+	[License] int NULL
+)
+INSERT INTO @registration
+SELECT YEAR(R.FirstTime) * 100 + MONTH(R.FirstTime) as [YearMonth], R.UserId, R.License  
+FROM (		
 	SELECT 
-		 L.UsageYear 
-		,L.UsageMonth
-		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS UniqueAuthors
-		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS UniqueCollaborators
-		,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS UniqueViewers
-		--,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE NULL END) AS AuthorsActiveLoggedOn
-		--,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE NULL END) AS CollaboratorsActiveLoggedOn
-		--,COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE NULL END) AS ViewersActiveLoggedOn
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentAuthors
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentCollaborators
-		,ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE NULL END), 0) AS MaxConCurrentViewers
-		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 3 AND [Month] = L.UsageMonth AND [Year] = L.UsageYear), 0) RegisteredAuthorsCreated
-		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 2 AND [Month] = L.UsageMonth AND [Year] = L.UsageYear), 0) RegisteredCollaboratorsCreated
-		,ISNULL((SELECT TOP 1 [COUNT] from #Registered WHERE [License] = 1 AND [Month] = L.UsageMonth AND [Year] = L.UsageYear), 0) RegisteredViewersCreated
-		,COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE NULL END) AS UsersFromAnalytics
-		,COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE NULL END) AS UsersFromRestApi
-			
-	FROM L
-	GROUP BY L.UsageYear, L.UsageMonth;
+		UserId,
+		UserLicenseType AS License,
+		MIN(la.[TimeStamp]) AS FirstTime
+	FROM LicenseActivities AS la WITH (NOLOCK) 
+	WHERE la.ConsumerType = 1 AND la.ActionType = 1 -- Client(ConsumerType) and Login(ActionType)
+	GROUP BY la.[UserId], la.UserLicenseType
+) AS R
 
-	DROP TABLE #Registered
+-- To hold user activities
+DECLARE @useractivity TABLE  (
+	[YearMonth] int NULL,
+	[UserId] int NULL,
+	[Consumer] int NULL,
+	[License] int NULL,
+	[CountLicense] int NULL,
+	[Count] int NULL
+)
+INSERT INTO @useractivity
+SELECT YEAR(la.[TimeStamp]) * 100 + MONTH(la.[TimeStamp]) as [YearMonth],
+       la.[UserId],
+       la.[ConsumerType] AS [Consumer],
+       la.[UserLicenseType] AS [License],
+       da.[LicenseType] AS [CountLicense],
+       da.[Count] AS [Count]
+FROM LicenseActivities AS la WITH (NOLOCK) 
+	 LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
+ON la.[LicenseActivityId] = da.[LicenseActivityId]
+
+
+-- Create cumulative table 
+DECLARE @cumulative TABLE (
+	[YearMonth] int NULL,
+	[Authors] int NULL,
+	[Collaborators] int NULL,
+	[CumulativeAuthors] int NULL,
+	[CumulativeCollaborators] int NULL
+);
+
+-- Populate cumulative with all dates from the range
+DECLARE @startDate int;
+SELECT @startDate = MIN(YearMonth) from @useractivity;
+WITH d AS (
+	SELECT DATEADD(Month,DATEDIFF(Month,0, DateAdd(day, 0, DateAdd(month, @startDate%100-1, DateAdd(Year, @startDate/100-1900, 0)))),0) AS [Date]
+	UNION ALL
+	SELECT DATEADD(Month,1,[Date])
+		FROM d
+	WHERE DATEADD(Month,1,[Date]) <=  @currentMonth
+)
+INSERT INTO @cumulative
+SELECT Year([Date])*100 + Month([Date]), 0, 0, 0, 0
+FROM d
+OPTION (MAXRECURSION 0);
+
+--update counters per month and per license type
+UPDATE c SET 
+	c.Authors = ISNULL((
+		SELECT Count(UserId) as [Count] from @registration r 
+			WHERE r.YearMonth = c.YearMonth AND r.License = 3
+		GROUP BY r.YearMonth, r.License), 0),
+	c.Collaborators = ISNULL((
+		SELECT Count(UserId) as [Count] from @registration r 
+			WHERE r.YearMonth = c.YearMonth AND r.License = 2
+		GROUP BY r.YearMonth, r.License), 0)
+FROM @cumulative c;
+
+--Update Cumulative values
+WITH L
+AS (
+	SELECT YearMonth,
+	    SUM([Authors]) OVER (ORDER BY [YearMonth]) as [CA],
+		SUM([Collaborators]) OVER (ORDER BY [YearMonth]) as [CC]
+	FROM  @cumulative
+)
+UPDATE c SET 
+	[CumulativeAuthors] = L.CA,
+	[CumulativeCollaborators] = L.CC
+FROM @cumulative c INNER JOIN L 
+	ON c.YearMonth = l.YearMonth;
+
+--Create final result
+-- Consumer: Client-1, Analytics-2, REST-3
+-- LicenseType: Viewer-1, Collaborator- 2, Author- 3
+SELECT 
+	ua.[YearMonth] / 100 AS [UsageYear]
+	,ua.[YearMonth] % 100 AS [UsageMonth]
+	
+	
+	,COUNT(DISTINCT CASE WHEN ua.[Consumer] = 1 AND ua.[License] = 3 THEN ua.[UserId] ELSE NULL END) AS UniqueAuthors
+	,COUNT(DISTINCT CASE WHEN ua.[Consumer] = 1 AND ua.[License] = 2 THEN ua.[UserId] ELSE NULL END) AS UniqueCollaborators
+	,STUFF((
+		SELECT DISTINCT ',' + CAST(a.UserId AS VARCHAR(10)) 
+		FROM @useractivity as a
+		WHERE ua.[YearMonth] = a.[YearMonth]
+			AND a.[Consumer] = 1 
+			AND a.[License] = 3 
+		FOR XML PATH('')), 1, 1,'') as [UniqueAuthorUserIds]		
+	,STUFF((
+		SELECT DISTINCT ',' + CAST(a.[UserId] AS VARCHAR(10)) 
+		FROM @useractivity as a 
+		WHERE ua.[YearMonth] = a.[YearMonth]
+			AND a.[Consumer] = 1 
+			AND a.[License] = 2
+		FOR XML PATH('')), 1, 1, '') as [UniqueCollaboratorUserIds]
+
+	,(SELECT r.Authors FROM @cumulative as r WHERE r.[YearMonth] = ua.[YearMonth])  as RegisteredAuthorsCreated
+	,STUFF((
+		SELECT ',' + CAST(R.[UserId] AS VARCHAR(10)) 
+		FROM @registration as r 
+		WHERE r.[YearMonth] = ua.[YearMonth]
+			AND r.[License] = 3 
+		FOR XML PATH('')), 1, 1,'') as RegisteredAuthorsCreatedUserIds
+
+	,(SELECT r.Collaborators FROM @cumulative as r WHERE r.[YearMonth] = ua.[YearMonth])  as RegisteredCollaboratorsCreated
+	,STUFF((
+		SELECT ',' + CAST(r.[UserId] AS VARCHAR(10)) 
+		FROM @registration as r
+		WHERE r.[YearMonth] = ua.[YearMonth]
+			AND r.[License] = 2 
+		FOR XML PATH('')), 1, 1,'') as RegisteredCollaboratorCreatedUserIds
+
+	,ISNULL((SELECT c.[CumulativeAuthors]
+		FROM @cumulative c
+		WHERE c.YearMonth = ua.[YearMonth]), 0) as [AuthorsCreatedToDate]
+	,ISNULL((SELECT c.[CumulativeCollaborators]
+		FROM @cumulative c
+		WHERE c.YearMonth = ua.[YearMonth]), 0) as [CollaboratorsCreatedToDate]
+	
+
+	,ISNULL(MAX(CASE WHEN ua.[CountLicense] = 3 THEN ua.[Count] ELSE NULL END), 0) AS MaxConCurrentAuthors
+	,ISNULL(MAX(CASE WHEN ua.[CountLicense] = 2 THEN ua.[Count] ELSE NULL END), 0) AS MaxConCurrentCollaborators
+	,ISNULL(MAX(CASE WHEN ua.[CountLicense] = 1 THEN ua.[Count] ELSE NULL END), 0) AS MaxConCurrentViewers
+	,COUNT(CASE WHEN ua.[Consumer] = 2 THEN 1 ELSE NULL END) AS UsersFromAnalytics
+	,COUNT(CASE WHEN ua.[Consumer]= 3 THEN 1 ELSE NULL END) AS UsersFromRestApi
+
+			
+FROM @useractivity AS ua
+GROUP BY ua.[YearMonth]
+HAVING (@year IS NULL OR @month IS NULL OR ua.[YearMonth] >= Year(@startMonth) * 100 +  Month(@startMonth))
+	   AND ua.[YearMonth] < Year(@currentMonth) * 100 +  Month(@currentMonth)
+
+
 END
 GO 
 

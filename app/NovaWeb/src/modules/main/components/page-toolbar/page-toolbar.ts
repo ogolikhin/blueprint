@@ -302,7 +302,10 @@ export class PageToolbarController implements IPageToolbarController {
                     this.projectManager.getProject(this._currentArtifact.projectId).model.name,
                     processes
                 ).then((result) => {
-                    this.messageService.addInfo("Job" + result.jobId + " " + this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message"));
+                    this.messageService.addLinkInfo(`Job${result.jobId} \
+                    ${this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message")}\
+                    <a href=\"#/main/jobs\" class=\"messages__whiteLink\">Click here</a>\
+                      to see list  of all jobs`);
                 }).catch((error: IApplicationError) => {
                     this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
                 });

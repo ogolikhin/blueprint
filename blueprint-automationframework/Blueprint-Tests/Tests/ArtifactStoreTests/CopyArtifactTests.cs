@@ -822,6 +822,42 @@ namespace ArtifactStoreTests
             }
         }
 
+        [TestCase(BaseArtifactType.Actor)]
+        [TestRail(227354)]
+        [Description("Create and publish a source artifact. Add random inline image to source artifact description. Copy the source artifact into the same parent.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, except inline image. Copying should create new entry for inline image.")]
+        public void CopyArtifact_SavedArtifactWithInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
+        {
+            // Setup:
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, sourceArtifactType);
+
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            var imageFile = FileStoreTestHelper.CreateRandomImageFile();
+
+            var addedFile = Helper.ArtifactStore.AddImage(_user, imageFile);
+
+            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+
+            CSharpUtilities.SetProperty("Description", propertyContent, sourceArtifactDetails);
+
+            sourceArtifact.Lock(_user);
+            Artifact.UpdateArtifact(sourceArtifact, _user, sourceArtifactDetails, address: Helper.BlueprintServer.Address);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+            string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetEmbeddedImageId(copyResult.Artifact.Description);
+            var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(copiedArtifactEmbeddedImageId);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
+                expectedVersionOfOriginalArtifact: -1, skipDescription: true);
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, copiedArtifactImageFile, compareFileNames: false);
+        }
+
         #endregion 201 Created tests
 
         #region 400 Bad Request tests
@@ -1291,6 +1327,7 @@ namespace ArtifactStoreTests
         /// <param name="expectedVersionOfOriginalArtifact">(optional) The expected version of the original artifact.</param>
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
+        /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
         private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(INovaArtifactDetails originalArtifact,
             CopyNovaArtifactResultSet copyResult,
@@ -1298,7 +1335,8 @@ namespace ArtifactStoreTests
             int expectedNumberOfArtifactsCopied = 1,
             int expectedVersionOfOriginalArtifact = 1,
             bool skipCreatedBy = false,
-            bool skipPermissions = false)
+            bool skipPermissions = false,
+            bool skipDescription = false)
         {
             Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
             Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
@@ -1312,16 +1350,17 @@ namespace ArtifactStoreTests
             // We need to skip comparison of a lot of properties because the copy has different Id & Parent, and isn't published...
             ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact,
                 skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipCreatedBy: skipCreatedBy,
-                skipPublishedProperties: true, skipPermissions: skipPermissions);
+                skipPublishedProperties: true, skipPermissions: skipPermissions, skipDescription: skipDescription);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact, skipDescription: skipDescription);
             Assert.AreEqual(-1, artifactDetails.Version, "Version of copied artifact should be -1 (i.e. not published)!");
 
             // Make sure original artifact didn't change.
             var originalArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, originalArtifact.Id);
             // We need to skip Permissions comparison in cases where we use pre-created data that was created by a different user than used in the GET call.
-            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipPermissions: skipPermissions);
+            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifactDetails, originalArtifact, skipPermissions: skipPermissions,
+                skipDescription: skipDescription);
             Assert.AreEqual(expectedVersionOfOriginalArtifact, originalArtifactDetails.Version,
                 "The Version of the original artifact shouldn't have changed after the copy!");
         }

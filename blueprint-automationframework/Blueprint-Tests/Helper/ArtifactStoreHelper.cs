@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using Utilities;
 using Utilities.Facades;
 
@@ -249,10 +250,11 @@ namespace Helper
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
+        /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
             bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false,
-            bool skipPublishedProperties = false, bool skipPermissions = false)
+            bool skipPublishedProperties = false, bool skipPermissions = false, bool skipDescription = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -292,8 +294,12 @@ namespace Helper
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
             }
 
+            if (!skipDescription)
+            {
+                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
+            }
+
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
@@ -663,6 +669,16 @@ namespace Helper
             Assert.IsNotNullOrEmpty(imageGUID, "Image GUID should not be null or empty!");
 
             return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\" /></p>", imageGUID);
+        }
+
+        /// <summary>
+        /// Gets Embedded Image Id from html of the artifact rich text property
+        /// </summary>
+        /// <returns>Guid string, empty string if no guids were found</returns>
+        public static string GetEmbeddedImageId(string richTextProperty)
+        {
+            var guidString = Regex.Match(richTextProperty, @"[0-9a-f]{8}[-]([0-9a-f]{4}[-]){3}[0-9a-f]{12}");
+            return guidString.Value;
         }
 
         /// <summary>

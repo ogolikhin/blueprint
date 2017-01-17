@@ -43,7 +43,7 @@ App_Explorer_EmptyMessage,"You have no projects loaded in the Explorer"
 App_Explorer_LoadProject_ButtonLabel,"Load project"
 App_Explorer_LoadProject_ButtonTooltip,"Load project in Explorer"
 App_Explorer_BottomBar_UnpublishedChanges, "Unpublished Changes"
-App_Explorer_BottomBar_Jobs, "Jobs"
+
 
 App_Project,"Project"
 App_Project_Open,"Open Project"
@@ -82,7 +82,7 @@ App_Toolbar_Menu,"Additional actions"
 App_Toolbar_Generate, "Generate"
 App_Toolbar_Generate_Test_Cases, "Generate Test Cases"
 App_Toolbar_Generate_Test_Cases_Title, "Add Process to Generate Tests"
-App_Toolbar_Generate_Test_Cases_Success_Message, "been scheduled. Click here to see list  of all jobs."
+App_Toolbar_Generate_Test_Cases_Success_Message, "The operation has been added to the {0} list as Job {1}"
 App_Toolbar_Generate_Test_Cases_Failure_Message, "Failed to generate test cases."
 
 App_Tooltip_Dirty, "Unsaved"
@@ -574,6 +574,7 @@ GO_TO_tooltip, "Enter Artifact ID"
 Copy_Images_Failed, "Images were not copied into clipboard."
 
 #Jobs
+Jobs_Label, "Jobs"
 Jobs_Empty, "No Jobs Available"
 Jobs_User, "Author"
 Jobs_Project, "Project"
@@ -602,12 +603,13 @@ Jobs_Type_ExcelImport, "Artifact Import from Excel"
 Jobs_Type_ProjectImport, "Project Import"
 Jobs_Type_ProjectExport, "Project Export"
 Jobs_Type_GenerateTests,  "Test Plan Generation"
-Jobs_Type_GenerateProcessTests, "Process Test Plan Generation"
+Jobs_Type_GenerateProcessTests, "Process Test Case Generation"
 Jobs_SubmittedDate, "Submitted on"
 Jobs_StartDate, "Started on"
 Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
 Jobs_Button_Label_GetJobs, "Get Jobs"
+
 
 
 

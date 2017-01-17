@@ -1,7 +1,7 @@
 import * as agGrid from "ag-grid/main";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IMessageService} from "./../../../core/messages/message.svc";
+import {IMessageService} from "../../../core/messages/message.svc";
 
 /**
  * Usage:
@@ -78,6 +78,8 @@ export interface ITreeNode {
     selectable: boolean;
     /** Function returning a promise of an array of children, or undefined if children are provided through children. */
     loadChildrenAsync?(): ng.IPromise<ITreeNode[]>;
+    /*optional function that will unload the array of children from the node, only called if defined and on collapse of a node*/
+    unloadChildren?(): void;
 }
 
 export interface IColumn {
@@ -115,7 +117,7 @@ export interface IBPTreeViewControllerApi {
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService"];
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$stateParams", "$log"];
 
     // BPTreeViewComponent bindings
     public gridClass: string;
@@ -141,7 +143,9 @@ export class BPTreeViewController implements IBPTreeViewController {
                 private localization: ILocalizationService,
                 private $timeout: ng.ITimeoutService,
                 private windowManager: IWindowManager,
-                private messageService: IMessageService) {
+                private messageService: IMessageService,
+                private $stateParams,
+                private $log: ng.ILogService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -185,12 +189,10 @@ export class BPTreeViewController implements IBPTreeViewController {
 
             // Event handlers
             onRowGroupOpened: this.onRowGroupOpened,
-            onViewportChanged: this.onViewportChanged,
             onCellClicked: this.onCellClicked,
             onRowSelected: this.onRowSelected,
             onRowDoubleClicked: this.onRowDoubleClicked,
-            onGridReady: this.onGridReady,
-            onModelUpdated: this.onModelUpdated
+            onGridReady: this.onGridReady
         };
 
         this.options.context.allSelected = false;
@@ -381,13 +383,6 @@ export class BPTreeViewController implements IBPTreeViewController {
         return this.$q.all(vm.children.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm)));
     }
 
-    public updateScrollbars() {
-        const viewport = this.$element[0].querySelector(".ag-body-viewport");
-        if (viewport && !this.sizeColumnsToFit) {
-            this.options.columnApi.autoSizeAllColumns();
-        }
-    };
-
     // Callbacks
 
     public getNodeChildDetails(dataItem: any): agGrid.NodeChildDetails {
@@ -426,23 +421,40 @@ export class BPTreeViewController implements IBPTreeViewController {
                     row.classList.add("ag-row-loading");
                 }
                 this.loadExpanded(vm)
-                    .then(() => this.resetGridAsync(true))
+                    .then(() => {
+                        this.resetGridAsync(true);
+                    })
                     .catch(reason => this.messageService.addError(reason || "Artifact_NotFound"))
                     .finally(() => {
                         if (row) {
                             row.classList.remove("ag-row-loading");
                         }
+                        this.$timeout(() => {
+                            this.$log.debug(node);
+                            const currentNode = _.find((node as any).rowModel.rowsToDisplay, (item: any) => {
+                                if (item.data && item.data.key === this.$stateParams.id.toString()) {
+                                    return item;
+                                }
+                            });
+                            if (currentNode) {
+                                currentNode.selectThisNode(true);
+                            }
+                        });
                     });
             }
+            if (!vm.expanded) {
+                /*if the children can be unloaded, do it now*/
+                if (_.isFunction(vm.unloadChildren)) {
+                    /* ag-Grid: adding and removing rows is not supported when using nodeChildDetailsFunc, ie it is not supported if providing groups*
+                     * as such this is a work around
+                     */
+                    node.childrenAfterFilter = [];
+                    node.childrenAfterGroup = [];
+                    node.childrenAfterSort = [];
+                    vm.unloadChildren();
+                }
+            }
         }
-    };
-
-    public onModelUpdated = (event?: any) => {
-        this.updateScrollbars();
-    };
-
-    public onViewportChanged = (event?: any) => {
-        this.updateScrollbars();
     };
 
     public onCellClicked = (event: {event: MouseEvent, node: agGrid.RowNode}) => {

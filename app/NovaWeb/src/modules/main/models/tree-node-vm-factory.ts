@@ -72,7 +72,7 @@ export class TreeNodeVMFactory {
     }
 
     public static processChildArtifacts(children: Models.IArtifact[], artifactPath: string[],
-        idPath: number[], parentPredefinedType: Models.ItemTypePredefined): Models.IArtifact[] {
+                                        idPath: number[], parentPredefinedType: Models.ItemTypePredefined): Models.IArtifact[] {
         children.forEach((value: Models.IArtifact) => {
             value.artifactPath = artifactPath;
             value.idPath = idPath;
@@ -100,9 +100,11 @@ abstract class HomogeneousTreeNodeVM<T> extends TreeNodeVM<T> {
 
     public unloadChildren() {
         if (_.isArray(this.children)) {
-            this.children.forEach((it: this) => it.unloadChildren);
+            this.children.forEach((child: this) => {
+                child.unloadChildren();
+            });
         }
-        this.children = undefined;
+        this.children = null;
     }
 
     public getNode(comparator: T | ((model: T) => boolean), item?: this): this {
@@ -164,7 +166,7 @@ export class StatefulArtifactNodeVM extends HomogeneousTreeNodeVM<IStatefulArtif
         return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id, this.factory.timeout).then((children: Models.IArtifact[]) => {
             return children.map((it: Models.IArtifact) => {
                 const statefulArtifact = this.factory.statefulArtifactFactory.createStatefulArtifact(it);
-                this.factory.artifactManager.add(statefulArtifact);
+                //this.factory.artifactManager.add(statefulArtifact);
                 return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
             });
         });

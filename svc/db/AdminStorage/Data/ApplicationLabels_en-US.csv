@@ -442,6 +442,7 @@ Property_RTF_InlineTrace_Error_Itself,"An artifact cannot have an inline trace t
 Property_RTF_InlineTrace_Error_Invalid_Selection,"The traced artifact could not be added. The selection is invalid."
 Property_RTF_InlineTrace_Error_Permissions,"You do not have permission to add inline traces. Please contact an administrator."
 Property_Not_Available, "n/a"
+Property_Max_Images_Error, "This property exceeds the maximum number of images ({0})."
 
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."

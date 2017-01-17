@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
-using Common;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -23,25 +20,9 @@ namespace ArtifactStoreTests
         private const string ADD_IMAGE_PATH = RestPaths.Svc.ArtifactStore.IMAGES;
         private const string GET_IMAGE_PATH = RestPaths.Svc.ArtifactStore.IMAGES_id_;
 
-        private static Dictionary<ImageType, ImageFormat> ImageFormatMap = new Dictionary<ImageType, ImageFormat>
-        {
-            { ImageType.JPEG, ImageFormat.Jpeg },
-            { ImageType.PNG, ImageFormat.Png },
-            { ImageType.GIF, ImageFormat.Gif },
-            { ImageType.TIFF, ImageFormat.Tiff }
-        };
-
         private IUser _adminUser = null;
         private IUser _authorUser = null;
         private IProject _project = null;
-
-        public enum ImageType
-        {
-            JPEG,
-            PNG,
-            GIF,
-            TIFF
-        }
 
         [SetUp]
         public void SetUp()
@@ -60,14 +41,14 @@ namespace ArtifactStoreTests
 
         #region AddImage tests
 
-        [TestCase(20, 30, ImageType.JPEG, "image/jpeg")]
-        [TestCase(80, 80, ImageType.PNG, "image/png")]
+        [TestCase(20, 30, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(80, 80, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(211529)]
         [Description("Upload a random image file to ArtifactStore.  Verify 201 Created is returned and that the image is saved in the database properly.")]
-        public void AddImage_ValidImage_ImageIsAddedToDatabase(int width, int height, ImageType imageType, string contentType)
+        public void AddImage_ValidImage_ImageIsAddedToDatabase(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             EmbeddedImageFile returnedFile = null;
 
@@ -88,17 +69,50 @@ namespace ArtifactStoreTests
             var fileStoreFileId = returnedFile.Guid;
             var filestoreFile = Helper.FileStore.GetFile(fileStoreFileId, _adminUser);
 
-            FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile);
+            FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile, compareContent: false);
         }
 
-        [TestCase(20, 30, ImageType.GIF, "image/gif")]
-        [TestCase(80, 80, ImageType.TIFF, "image/tiff")]
-        [TestRail(211536)]
-        [Description("Try to upload a random image file to ArtifactStore but use the wrong Content-Type.  Verify 400 Bad Request is returned.")]
-        public void AddImage_ValidImage_InvalidContentType_400BadRequest(int width, int height, ImageType imageType, string contentType)
+        [TestCase(500, 500, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(500, 300, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(300, 600, ArtifactStoreHelper.ImageType.PNG, "image/png")]
+        [TestRail(211529)]
+        [Description("Upload a random image file with resolution bigger than 400*400 to ArtifactStore.  Verify 201 Created is returned and that the image is saved in the database properly, size should be reduced.")]
+        public void AddImage_ValidImageWithHighResolution_ImageIsAddedToDatabase(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
+
+            EmbeddedImageFile returnedFile = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                returnedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            }, "'POST {0}' should return 201 Created when called with a valid token & supported image format!", ADD_IMAGE_PATH);
+
+            // Verify:
+            Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
+            
+            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId,
+                "The EmbeddedImageId should not be the same as the FileStore FileId!");
+
+            // Get the file from FileStore and compare against what we uploaded.
+            var fileStoreFileId = returnedFile.Guid;
+            var filestoreFile = Helper.FileStore.GetFile(fileStoreFileId, _adminUser);
+
+            FileStoreTestHelper.AssertFilesAreIdentical(returnedFile, filestoreFile, compareContent: false);
+            // TODO: add real resolution check
+        }
+
+        [TestCase(20, 30, ArtifactStoreHelper.ImageType.GIF, "image/gif")]
+        [TestCase(80, 80, ArtifactStoreHelper.ImageType.TIFF, "image/tiff")]
+        [TestRail(211536)]
+        [Description("Try to upload a random image file to ArtifactStore but use the wrong Content-Type.  Verify 400 Bad Request is returned.")]
+        public void AddImage_ValidImage_InvalidContentType_400BadRequest(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
@@ -137,13 +151,13 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
         }
 
-        [TestCase(80, 80, ImageType.PNG, "image/png")]
+        [TestCase(80, 80, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(213049)]
         [Description("Upload a random image file to ArtifactStore.  Make sure filename parameter is not set. Verify 400 Bad Request is returned.")]
-        public void AddImage_ValidImageWithNotSetFileName_400BadRequest(int width, int height, ImageType imageType, string contentType)
+        public void AddImage_ValidImageWithNotSetFileName_400BadRequest(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             imageFile.FileName = null;
 
@@ -156,15 +170,15 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "The file name is missing or malformed.");
         }
 
-        [TestCase(20, 30, ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
-        [TestCase(80, 80, ImageType.PNG, "image/png", "")]
-        [TestCase(50, 50, ImageType.PNG, "image/png", null)]
+        [TestCase(20, 30, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
+        [TestCase(80, 80, ArtifactStoreHelper.ImageType.PNG, "image/png", "")]
+        [TestCase(50, 50, ArtifactStoreHelper.ImageType.PNG, "image/png", null)]
         [TestRail(211547)]
         [Description("Try to upload a random image file to ArtifactStore but use an invalid or missing token.  Verify 401 Unauthorized is returned.")]
-        public void AddImage_InvalidToken_401Unauthorized(int width, int height, ImageType imageType, string contentType, string token)
+        public void AddImage_InvalidToken_401Unauthorized(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType, string token)
         {
             // Setup:
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             // Set the bad token.
             _authorUser.Token.AccessControlToken = token;
@@ -181,14 +195,14 @@ namespace ArtifactStoreTests
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
 
-        [TestCase(5000, 10000, ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
-        [TestCase(1000, 10000, ImageType.PNG, "image/png")]     // Approx. 28MB
+        [TestCase(5000, 10000, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]   // Approx. 28MB
+        [TestCase(1000, 10000, ArtifactStoreHelper.ImageType.PNG, "image/png")]     // Approx. 28MB
         [TestRail(211538)]
         [Description("Try to upload a random image file to ArtifactStore that exceeds the FileStore size limit.  Verify 409 Conflict is returned.")]
-        public void AddImage_ValidImage_ExceedsFileSizeLimit_409Conflict(int width, int height, ImageType imageType, string contentType)
+        public void AddImage_ValidImage_ExceedsFileSizeLimit_409Conflict(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() =>
@@ -207,15 +221,15 @@ namespace ArtifactStoreTests
 
         #region GetImage tests
 
-        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
-        [TestCase(70, 50, ImageType.PNG, "image/png")]
+        [TestCase(60, 40, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(211535)]
         [Description("Upload a random image file to ArtifactStore, then try to get that file.  Verify 200 OK is returned by the GET call " +
             "and the same image that was uploaded is returned.")]
-        public void GetImage_AddedImage_ReturnsImage(int width, int height, ImageType imageType, string contentType)
+        public void GetImage_AddedImage_ReturnsImage(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
             IFile returnedFile = null;
@@ -227,7 +241,32 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false);
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false, compareContent: false);
+        }
+
+        [TestCase(500, 500, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(500, 300, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(300, 600, ArtifactStoreHelper.ImageType.PNG, "image/png")]
+        [TestRail(227323)]
+        [Description("Upload a random image file to ArtifactStore, then try to get that file.  Verify 200 OK is returned by the GET call " +
+            "and the same image that was uploaded is returned.")]
+        public void GetImage_AddedImageWithHighResolution_ReturnsImage(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
+        {
+            // Setup:
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
+
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+            IFile returnedFile = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                returnedFile = Helper.ArtifactStore.GetImage(addedFile.EmbeddedImageId);
+            }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile, compareFileNames: false, compareContent: false);
+            // TODO: add real resolution check
         }
 
         [TestCase("abcd1234")]
@@ -275,12 +314,12 @@ namespace ArtifactStoreTests
 
         #region Other tests
 
-        [TestCase(60, 40, ImageType.JPEG, "image/jpeg")]
-        [TestCase(70, 50, ImageType.PNG, "image/png")]
+        [TestCase(60, 40, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg")]
+        [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
         [TestRail(227091)]
         [Description("Create & publish artifact. Upload a random image file and then update artifact with this image.  " +
-        "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
-        public void UpdateArtifact_AddImageToArtifact_ExpiredTimeFieldUpdatedToNull(int width, int height, ImageType imageType, string contentType)
+            "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
+        public void UpdateArtifact_AddImageToArtifact_ExpiredTimeFieldUpdatedToNull(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
             BaseArtifactType artifactType = BaseArtifactType.Process;
@@ -290,23 +329,63 @@ namespace ArtifactStoreTests
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
 
-            var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
 
             string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
 
-            CSharpUtilities.SetProperty("Description", propertyContent, artifactDetails);
+            CSharpUtilities.SetProperty(nameof(NovaArtifactDetails.Description), propertyContent, artifactDetails);
 
             // Execute:
             Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);
 
             // Verify:
-            string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint].[dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
+            string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
             Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
 
-            selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [Blueprint_FileStorage].[FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
+            selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime", "FileStore"), "ExpiredTime is not null!");
+        }
+
+        [TestCase(70, 50, ArtifactStoreHelper.ImageType.PNG, "image/png")]
+        [TestRail(227235)]
+        [Description("Create & publish artifact.  Upload a random image file and then update artifact with this image in a Custom Rich Text Property.  " +
+            "Verify ExpiredTime field for this image is updated to null in EmbeddedImages and Files tables.")]
+        public void UpdateArtifact_AddImageToCustomProperty_ExpiredTimeFieldUpdatedToNull(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
+
+            // The 'ST-Title' property of 'ST-User Story' is the oly single-line Rich Text property.
+            const string artifactTypeName = "ST-User Story";
+            const string multiLineRTProperty = "ST-Acceptance Criteria";
+
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, Model.ArtifactModel.Enums.ItemTypePredefined.TextualRequirement,
+                artifactTypeName: artifactTypeName);
+            artifact.Lock(_authorUser);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
+
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+
+            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+            var customProperty = artifactDetails.CustomPropertyValues.Find(p => p.Name == multiLineRTProperty);
+            Assert.NotNull(customProperty, "Couldn't find a Custom Property named: {0}!", multiLineRTProperty);
+
+            customProperty.CustomPropertyValue = propertyContent;
+
+            // Execute:
+            Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, address: Helper.BlueprintServer.Address);
+
+            // Verify:
+            string selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [dbo].[EmbeddedImages] WHERE [FileId] ='{0}'", addedFile.Guid);
             Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime"), "ExpiredTime is not null!");
+
+            selectQuery = I18NHelper.FormatInvariant("SELECT ExpiredTime FROM [FileStore].[Files] WHERE [FileId] = '{0}'", addedFile.Guid);
+            Assert.IsNull(DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "ExpiredTime", "FileStore"), "ExpiredTime is not null!");
         }
 
         #endregion Other tests
@@ -324,24 +403,6 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(0, numberOfRows,
                 "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);
-        }
-
-        /// <summary>
-        /// Creates a random image file of the specified type and size.
-        /// </summary>
-        /// <param name="width">The image width.</param>
-        /// <param name="height">The image height.</param>
-        /// <param name="imageType">The type of image to create (ex. jpeg, png).</param>
-        /// <param name="contentType">The MIME Content-Type.</param>
-        /// <returns>The random image file.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
-        private static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
-        {
-            byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
-            string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, imageType.ToStringInvariant().ToLowerInvariant());
-
-            return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
         }
 
         #endregion Private functions

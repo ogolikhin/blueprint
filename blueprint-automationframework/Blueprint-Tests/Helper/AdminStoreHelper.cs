@@ -31,10 +31,14 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
             var generateProcessTestInfoList = new List<GenerateProcessTestInfo>();
+
             artifacts.ForEach(a => generateProcessTestInfoList.Add(new GenerateProcessTestInfo(a.Id)));
+
             var generateProcessTestsJobParameters = new GenerateProcessTestsJobParameters(
                 project.Id, project.Name, generateProcessTestInfoList);
+
             return generateProcessTestsJobParameters;
         }
 
@@ -57,16 +61,6 @@ namespace Helper
 
             expectedJobs = expectedJobs ?? new List<T>();
 
-            if (expectedJobs.GetType().Equals(typeof(List<IOpenAPIJob>)))
-            {
-                
-            }
-            else if (expectedJobs.GetType().Equals(typeof(List<AddJobResult>)))
-            {
-                expectedJobs = expectedJobs ?? new List<T>();
-
-            }
-
             var jobInfoList = jobResult.JobInfos.ToList<IJobInfo>();
 
             if (expectedJobs.Any())
@@ -77,9 +71,10 @@ namespace Helper
 
                 for (int i = 0; i < compareCount; i++)
                 {
-                    if (expectedJobs.GetType().Equals(typeof(List<IOpenAPIJob>)) || expectedJobs.GetType().Equals(typeof(List<AddJobResult>)))
+                    if (expectedJobs.GetType().Equals(typeof(List<AddJobResult>)))
                     {
                         var jobToBeFoundToCompareForAddJobResult = jobsToBeFoundToCompare[i] as AddJobResult;
+
                         Assert.AreEqual(jobToBeFoundToCompareForAddJobResult.JobId, jobInfoList[i].JobId,
                         "The jobId {0} was expected but jobId {1} is returned from GET job or jobs call.",
                         jobToBeFoundToCompareForAddJobResult.JobId, jobInfoList[i].JobId);
@@ -92,6 +87,7 @@ namespace Helper
                         Assert.AreEqual(jobToBeFoundToCompareForOpenAPIJobType.JobId, jobInfoList[i].JobId,
                         "The jobId {0} was expected but jobId {1} is returned from GET job or jobs call.",
                         jobToBeFoundToCompareForOpenAPIJobType.JobId, jobInfoList[i].JobId);
+
                         Assert.AreEqual(jobToBeFoundToCompareForOpenAPIJobType.ProjectId, jobInfoList[i].ProjectId,
                         "The projectId {0} was expected but projectId {1} is returned from GET job or jobs call.",
                         jobToBeFoundToCompareForOpenAPIJobType.ProjectId, jobInfoList[i].ProjectId);

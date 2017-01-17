@@ -48,7 +48,10 @@ export class MessageContainerController implements IMessageContainerController {
                 text = text.replace("{" + i + "}", message.parameters[i]);
             }
         }
-
-        return this.$sce.trustAsHtml(_.escape(text));
+        if (message.messageType === MessageType.LinkInfo) {
+            return this.$sce.trustAsHtml(text);            
+        } else {
+            return this.$sce.trustAsHtml(_.escape(text));
+        }
     }
 }

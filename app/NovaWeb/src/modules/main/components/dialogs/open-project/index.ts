@@ -1,4 +1,1 @@
-import "./open-project.scss";
-
-import {OpenProjectController} from "./open-project";
-export {OpenProjectController};
+require("./open-project.scss");

@@ -12,6 +12,7 @@ export class BpArtifactDetailsEditor implements ng.IComponentOptions {
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
+        "$window",
         "messageService",
         "artifactManager",
         "windowManager",
@@ -20,13 +21,14 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
         "validationService"
     ];
 
-    constructor(messageService: IMessageService,
+    constructor($window: ng.IWindowService,
+                messageService: IMessageService,
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
                 validationService: IValidationService) {
-        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super($window, messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
         this.validationService = validationService;
     }
 

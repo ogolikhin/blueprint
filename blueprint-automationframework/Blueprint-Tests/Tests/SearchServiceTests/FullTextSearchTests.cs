@@ -21,10 +21,10 @@ namespace SearchServiceTests
     /// </summary>
     public class FullTextSearchTestsBase : TestBase
     {
-        const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FULLTEXTSEARCH;
-        const int DEFAULT_PAGE_VALUE = 1;
-        const int DEFAULT_PAGESIZE_VALUE = 10;
-        const string DESCRIPTION = "Description";
+        protected const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FULLTEXTSEARCH;
+        protected const int DEFAULT_PAGE_VALUE = 1;
+        protected const int DEFAULT_PAGESIZE_VALUE = 10;
+        protected const string DESCRIPTION = "Description";
 
         protected IUser _user { get; set; } = null;
         protected IUser _userSecond { get; set; } = null;

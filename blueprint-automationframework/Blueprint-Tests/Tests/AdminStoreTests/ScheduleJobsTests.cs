@@ -2,7 +2,6 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.JobModel.Impl;
 using NUnit.Framework;
@@ -10,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using TestCommon;
 using Utilities;
-using Utilities.Factories;
 
 namespace AdminStoreTests
 {
@@ -63,9 +61,8 @@ namespace AdminStoreTests
         public void QueueGenerateProcessTestsJob_ScheduleProcessTestGenJobWithValidTestsJobParameters_VerifyAddJobResult()
         {
             // Setup: Create and publish a process
-            var publishedProcessArtifactResult = CreateAndPublishRandomlyNamedProcess(_adminUser, _project);
-            var publishedProcessArtifacts = publishedProcessArtifactResult.Artifacts;
-            var processTestJobParameterRequest = GenerateProcessTestsJobParameters(_project, publishedProcessArtifacts);
+            var publishedProcessArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _adminUser, BaseArtifactType.Process, 1);
+            var processTestJobParameterRequest = AdminStoreHelper.GenerateProcessTestsJobParameters(_project, publishedProcessArtifacts);
 
             // Execution: Execute QueueGenerateProcessTestsJob call
             AddJobResult addJobResult = null;
@@ -83,9 +80,8 @@ namespace AdminStoreTests
         public void QueueGenerateProcessTestsJob_ScheduleProcessTestGenJobWithAuthor_VerifyAddJobResult()
         {
             // Setup: Create and publish a process using an author
-            var publishedProcessArtifactResult = CreateAndPublishRandomlyNamedProcess(_authorUser, _project);
-            var publishedProcessArtifacts = publishedProcessArtifactResult.Artifacts;
-            var processTestJobParameterRequest = GenerateProcessTestsJobParameters(_project, publishedProcessArtifacts);
+            var publishedProcessArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _adminUser, BaseArtifactType.Process, 1);
+            var processTestJobParameterRequest = AdminStoreHelper.GenerateProcessTestsJobParameters(_project, publishedProcessArtifacts);
 
             // Execution: Execute QueueGenerateProcessTestsJob call using the author
             AddJobResult addJobResult = null;
@@ -135,8 +131,8 @@ namespace AdminStoreTests
             int errorCode)
         {
             // Setup: Create and publish a process then create a invalid TestJobParameters by using invalid project Id
-            var publishedProcessArtifactResult = CreateAndPublishRandomlyNamedProcess(_adminUser, _project);
-            var processInfo = new GenerateProcessTestInfo(publishedProcessArtifactResult.Artifacts.First().Id);
+            var publishedProcessArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _adminUser, BaseArtifactType.Process, 1);
+            var processInfo = new GenerateProcessTestInfo(publishedProcessArtifacts.First().Id);
             var processTestJobParameterRequest = new GenerateProcessTestsJobParameters(
                 invalidProjectId,
                 _project.Name,
@@ -160,8 +156,8 @@ namespace AdminStoreTests
             int errorCode)
         {
             // Setup: Create and publish a process then create a invalid TestJobParameters by using invalid project name
-            var publishedProcessArtifactResult = CreateAndPublishRandomlyNamedProcess(_adminUser, _project);
-            var processInfo = new GenerateProcessTestInfo(publishedProcessArtifactResult.Artifacts.First().Id);
+            var publishedProcessArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _adminUser, BaseArtifactType.Process, 1);
+            var processInfo = new GenerateProcessTestInfo(publishedProcessArtifacts.First().Id);
             var processTestJobParameterRequest = new GenerateProcessTestsJobParameters(
                 _project.Id,
                 invalidProjectName,
@@ -252,42 +248,6 @@ namespace AdminStoreTests
         #endregion 404 Not Found Tests
 
         #region private functions
-
-        /// <summary>
-        /// Create and Publish process artifact with randomized name
-        /// </summary>
-        /// <param name="user">user for authentication</param>
-        /// <param name="project">The target project</param>
-        /// <returns>INovaArtifactsAndProjectsResponse that represents the published artifact</returns>
-        private INovaArtifactsAndProjectsResponse CreateAndPublishRandomlyNamedProcess(IUser user, IProject project)
-        {
-            var process = Helper.ArtifactStore.CreateArtifact(
-                user,
-                ItemTypePredefined.Process,
-                RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
-                project
-                );
-            var processArtifact = Helper.WrapNovaArtifact(process, project, user, BaseArtifactType.Process);
-            return Helper.ArtifactStore.PublishArtifact(processArtifact, user);
-        }
-
-        /// <summary>
-        /// Create GenerateProcessTestsJobParameters used for QueueGenerateProcessTestsJob call
-        /// </summary>
-        /// <param name="project">The target project</param>
-        /// <param name="artifacts">Nova artifact respones list which will be use for the Process Tests generation job</param>
-        /// <returns>GenerateProcessTestsJobParameters which is used for scheduling a job for test generation</returns>
-        private static GenerateProcessTestsJobParameters GenerateProcessTestsJobParameters(
-            IProject project,
-            List<INovaArtifactResponse> artifacts
-            )
-        {
-            var generateProcessTestInfoList = new List<GenerateProcessTestInfo>();
-            artifacts.ForEach(a => generateProcessTestInfoList.Add(new GenerateProcessTestInfo(a.Id)));
-            var generateProcessTestsJobParameters = new GenerateProcessTestsJobParameters(
-                project.Id, project.Name, generateProcessTestInfoList);
-            return generateProcessTestsJobParameters;
-        }
 
         // TODO: This is a work in process validation function. Once it's finalized, will be moved to AdminStoreHelper
         /// <summary>

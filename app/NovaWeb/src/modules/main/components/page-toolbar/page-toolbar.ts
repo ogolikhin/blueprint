@@ -16,29 +16,16 @@ import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../core/error/applicationError";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 
-interface IPageToolbarController {
-    openProject(evt?: ng.IAngularEvent): void;
-    closeProject(evt?: ng.IAngularEvent): void;
-    closeAllProjects(evt?: ng.IAngularEvent): void;
-    createNewArtifact(evt?: ng.IAngularEvent): void;
-    publishAll(evt?: ng.IAngularEvent): void;
-    discardAll(evt?: ng.IAngularEvent): void;
-    refreshAll(evt?: ng.IAngularEvent): void;
-    openTour(evt?: ng.IAngularEvent): void;
-    showSubLevel(evt: ng.IAngularEvent): void;
-    generateTestCases(evt?: ng.IAngularEvent): void;
-}
 
 export class PageToolbar implements ng.IComponentOptions {
     public template: string = require("./page-toolbar.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = PageToolbarController;
 }
 
-export class PageToolbarController implements IPageToolbarController {
+export class PageToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
@@ -61,7 +48,6 @@ export class PageToolbarController implements IPageToolbarController {
         "navigationService",
         "artifactService",
         "loadingOverlayService",
-        "analytics",
         "jobsService"
     ];
 
@@ -77,7 +63,6 @@ export class PageToolbarController implements IPageToolbarController {
                 private navigationService: INavigationService,
                 private artifactService: IArtifactService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider,
                 private jobService: IJobsService) {
     }
 
@@ -294,7 +279,7 @@ export class PageToolbarController implements IPageToolbarController {
             selectionMode: "checkbox",
             showProjects: false
         };
-
+        
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
         if (!this.projectManager.getProject(projectId)) {
@@ -306,22 +291,22 @@ export class PageToolbarController implements IPageToolbarController {
         loadProjectPromise
         .catch((err) => this.messageService.addError(err))
         .then(() => {        
-            this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
-                if (items) {
-                    const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
-                    this.jobService.addProcessTestsGenerationJobs(
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
+            if (items) {
+                const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
+                this.jobService.addProcessTestsGenerationJobs(
                         projectId,
                         this.projectManager.getProject(projectId).model.name,
-                        processes
-                    ).then((result) => {
-                        const link = `<a href="#/main/jobs" class="btn-white-link">${this.localization.get("Jobs_Label")}</a>`;
-                        const message = `${this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message")}`;
-                        this.messageService.addLinkInfo(message, link, result.jobId);
-                    }).catch((error: IApplicationError) => {
-                        this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
-                    });
-                }
-            });        
+                    processes
+                ).then((result) => {
+                    const link = `<a href="#/main/jobs" class="btn-white-link">${this.localization.get("Jobs_Label")}</a>`;
+                    const message = `${this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message")}`;
+                    this.messageService.addLinkInfo(message, link, result.jobId);
+                }).catch((error: IApplicationError) => {
+                    this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
+                });
+            }
+        });
         });
     };
 

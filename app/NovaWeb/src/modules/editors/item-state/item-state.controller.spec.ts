@@ -288,7 +288,11 @@ describe("Item State Controller tests", () => {
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(isProjectSpy).toHaveBeenCalled();
                 expect(projectManagerSpy).toHaveBeenCalled();
-                expect(projectManagerSpy).toHaveBeenCalledWith(artifactId);
+                expect(projectManagerSpy).toHaveBeenCalledWith({
+                    id: artifactId,
+                    projectId: artifactId,
+                    predefinedType: -1
+                });
                 expect(reloadNavigationSpy).not.toHaveBeenCalled();
             });
         });

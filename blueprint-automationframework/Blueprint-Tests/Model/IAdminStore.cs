@@ -267,5 +267,13 @@ namespace Model
         /// <returns>The file that was requested</returns>
         IFile GetJobResultFile(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Schedules a job for test generation from the provided processes
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="processTestJobParametersRequest">parameter form required for adding process test generation job</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 201 Created is expected</param>
+        /// <returns>AddJobResult</returns>
+        AddJobResult QueueGenerateProcessTestsJob(IUser user, GenerateProcessTestsJobParameters processTestJobParametersRequest, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

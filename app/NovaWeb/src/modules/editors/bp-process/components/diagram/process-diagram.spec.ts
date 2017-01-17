@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import * as TestModels from "../../models/test-model-factory";
-import {ExecutionEnvironmentDetectorMock} from "./../../../../core/services/execution-environment-detector.mock";
-import {LoadingOverlayServiceMock} from "./../../../../core/loading-overlay/loading-overlay.svc.mock";
-import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
+import {ExecutionEnvironmentDetectorMock} from "../../../../core/services/execution-environment-detector.mock";
+import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
@@ -102,7 +102,7 @@ describe("ProcessDiagram Tests", () => {
         statefulArtifactFactory = _statefulArtifactFactory_;
         utilityPanelService = _utilityPanelService_;
         shapesFactory = _shapesFactory_;
-        fileUploadService = _fileUploadService_; 
+        fileUploadService = _fileUploadService_;
 
         wrapper = document.createElement("DIV");
         container = document.createElement("DIV");
@@ -349,51 +349,10 @@ describe("ProcessDiagram Tests", () => {
         rootScope.$apply();
 
         // act
-        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, 
+        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact,
         {id: artifactId, isAccessible: true});
 
         // assert
         expect(navigateToArtifactSpy).toHaveBeenCalledWith({id: artifactId, version: undefined, enableTracking: undefined});
-    });
-
-        it("calls navigationService to navigation to associated artifact", () => {
-        // arrange
-        let artifactId = 14;
-        let diagram = new ProcessDiagram(
-            rootScope,
-            scope,
-            timeout,
-            q,
-            log,
-            messageService,
-            communicationManager,
-            dialogService,
-            localization,
-            navigationService,
-            statefulArtifactFactory,
-            shapesFactory,
-            utilityPanelService,
-            clipboard,
-            artifactManager,
-            fileUploadService,
-            loadingOverlayService
-        );
-        const navigateToArtifactSpy = spyOn(navigationService, "navigateTo");
-        const errorMessageSpy = spyOn(messageService, "addError");
-
-
-        let model = TestModels.createDefaultProcessModel();
-        model.propertyValues["clientType"].value = ProcessType.BusinessProcess;
-
-        diagram.createDiagram(model, container);
-        rootScope.$apply();
-
-        // act
-        communicationManager.processDiagramCommunication.action(ProcessEvents.NavigateToAssociatedArtifact, 
-        {id: artifactId, isAccessible: false});
-
-        // assert
-        expect(navigateToArtifactSpy).not.toHaveBeenCalled();
-        expect(errorMessageSpy).toHaveBeenCalled();
     });
 });

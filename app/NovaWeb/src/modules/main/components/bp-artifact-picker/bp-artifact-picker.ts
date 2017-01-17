@@ -259,31 +259,34 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     private populateItemTypes(projectId: number): void {
         this.metadataService.get(projectId).then((metaData) => {
-            let artifactTypes = metaData.data.artifactTypes;
-            if (this.selectableItemTypes) {
-                artifactTypes = artifactTypes.filter(a =>
-                    this.selectableItemTypes.indexOf(a.predefinedType) >= 0
-                        // The following check to make sure that the main Collections area is still excluded when
-                        // we pass selectableItemTypes containing ItemTypePredefined.CollectionFolder
-                        && (a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
-                            || (a.predefinedType === Models.ItemTypePredefined.CollectionFolder && a.id !== Models.ItemTypePredefined.Collections)
-                        )
-                );
-            } else {
-                artifactTypes = artifactTypes.filter(a =>
-                    a.predefinedType !== Models.ItemTypePredefined.Project
-                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactBaseline
-                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactCollection
-                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
-                    && a.predefinedType !== Models.ItemTypePredefined.Baseline
-                    && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
-                    // By specifying predefinedType !== Models.ItemTypePredefined.CollectionFolder we actually
-                    // exclude both the collection folders and the main Collections area
-                    && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
-                );
+            let itemTypes = [];
+
+            const artifactTypes = metaData.data.artifactTypes.filter(a => {
+                if ((a.predefinedType & Models.ItemTypePredefined.BaselineArtifactGroup) !== 0) {
+                    return false; // Baselines and Reviews are not currently supported
+                }
+                if ((a.predefinedType & Models.ItemTypePredefined.CollectionArtifactGroup) !== 0) {
+                    return this.showCollections &&
+                        a.id !== Models.ItemTypePredefined.Collections; // Exclude main Collection folder
+                }
+                return this.showArtifacts &&
+                    a.predefinedType !== Models.ItemTypePredefined.Project &&
+                    a.predefinedType !== Models.ItemTypePredefined.Baseline;
+            });
+            if (artifactTypes.length) {
+                itemTypes = artifactTypes;
             }
-            artifactTypes = _.sortBy(artifactTypes, type => type.name.toLowerCase());
-            this.itemTypes = this.itemTypes.concat(artifactTypes);
+
+            // TODO: re-enable the following once the search can return sub-artifacts as well
+            // if (this.showSubArtifacts && subArtifactTypes.length) {
+            //     itemTypes = _.concat(itemTypes, subArtifactTypes);
+            // }
+
+            if (this.selectableItemTypes) {
+                itemTypes = itemTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
+            }
+            itemTypes = _.sortBy(itemTypes, type => type.name.toLowerCase());
+            this.itemTypes = this.itemTypes.concat(itemTypes);
         });
     }
 

@@ -154,7 +154,7 @@ class ImageHelper {
     public static initFallback() {
         let createElement = mxSvgCanvas2D.prototype.createElement;
         //noinspection TsLint
-        mxSvgCanvas2D.prototype.createElement = function (tagName: string, namespace: string) {
+        mxSvgCanvas2D.prototype.createElement = (tagName: string, namespace: string) => {
             let mxSvgCanvas = this;
             let element = createElement.call(mxSvgCanvas, tagName, namespace);
             if (tagName === "image") {

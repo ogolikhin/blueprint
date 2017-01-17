@@ -9,7 +9,7 @@ export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldReadOnly";
     public template: string = require("./read-only.html");
     public wrapper: string = "bpFieldLabel";
-    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
+    public link: ng.IDirectiveLinkFn = ($scope, $element, $attrs) => {
         $scope.$applyAsync(() => {
             const data: any = $scope["options"].data;
             if (data.isRichText && (data.isMultipleAllowed || Models.PropertyTypePredefined.Description === data.propertyTypePredefined)) {
@@ -37,7 +37,7 @@ export class BpFieldReadOnlyController {
                 let options = [];
                 const context: IPropertyDescriptor = $scope.options["data"];
                 if (context.primitiveType === Enums.PrimitiveType.Choice && context.validValues && context.validValues.length) {
-                    options = context.validValues.map(function (it) {
+                    options = context.validValues.map((it) => {
                         return {value: it.id, name: it.value} as any;
                     });
                 }

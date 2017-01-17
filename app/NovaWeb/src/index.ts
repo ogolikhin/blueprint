@@ -8,7 +8,7 @@ require("./styles/main.scss");
 
 declare let appBootstrap: any;
 
-(function () {
+(() => {
     if (appBootstrap.isSupportedVersion()) {
         appBootstrap.initApp();
     }

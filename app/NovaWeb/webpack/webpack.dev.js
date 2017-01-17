@@ -119,7 +119,9 @@ module.exports = {
                 loader: 'tslint-loader',
                 exclude: [
                     '../node_modules',
-                    /\.spec.ts$/
+                    /\.spec.ts$/,
+                    /\.mock.ts$/
+
                 ]
             }
         ]

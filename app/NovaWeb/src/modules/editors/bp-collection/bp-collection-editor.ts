@@ -13,7 +13,7 @@ import {Helper, IDialogService} from "../../shared";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IMessageService} from "../../core/messages/message.svc";
-import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IWindowManager} from "../../main/services/window-manager";
@@ -174,7 +174,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         eHeader.appendChild(sp);
 
         if (!isArtifactReadOnly) {
-            cb.addEventListener("click", function (e) {
+            cb.addEventListener("click", (e) => {
                 let checked: boolean;
 
                 if ((e.target)["data-checked"] && (e.target)["data-checked"] === true) {

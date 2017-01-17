@@ -117,8 +117,16 @@ namespace AdminStore.Repositories.Jobs
                     }
 
                     var projectExportResult = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
-                    var fileId = projectExportResult.Details.FileGuid;
-                    return await fileRepository.GetFileAsync(fileId);
+                    return await fileRepository.GetFileAsync(projectExportResult.Details.FileGuid);
+
+                case JobType.GenerateProcessTests:
+                    if (fileRepository == null)
+                    {
+                        throw new ArgumentNullException(nameof(fileRepository));
+                    }
+
+                    var processTestGenResult = SerializationHelper.FromXml<ProcessTestGenTaskResult>(job.Result);
+                    return await fileRepository.GetFileAsync(processTestGenResult.CsvFileGuid);
 
                 default:
                     throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.ResultFileNotSupported);

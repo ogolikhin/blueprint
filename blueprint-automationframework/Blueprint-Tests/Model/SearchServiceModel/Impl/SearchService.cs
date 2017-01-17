@@ -88,7 +88,7 @@ namespace Model.SearchServiceModel.Impl
             return restResponse;
         }
 
-        /// <seealso cref="ISearchService.SearchProjects(IUser, string, int, List{HttpStatusCode})"/>
+        /// <seealso cref="ISearchService.SearchProjects(IUser,string,Nullable{int},string,System.Collections.Generic.List{System.Net.HttpStatusCode})"/>
         public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
             List < HttpStatusCode> expectedStatusCodes = null)
         {
@@ -130,7 +130,7 @@ namespace Model.SearchServiceModel.Impl
             return projectSearchResult.Items;
         }
 
-        /// <seealso cref="ISearchService.SearchItems(IUser, FullTextSearchCriteria, int?, int?, string, List{HttpStatusCode})"/>
+        /// <seealso cref="ISearchService.SearchItems(IUser,ItemNameSearchCriteria,Nullable{int},Nullable{int},System.Collections.Generic.List{System.Net.HttpStatusCode})"/>
         public ItemNameSearchResultSet SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
             int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -166,7 +166,7 @@ namespace Model.SearchServiceModel.Impl
         }
 
         /// <seealso cref="ISearchService.GetStatus(string, List{HttpStatusCode})"/>
-        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
+        public string GetStatus(string preAuthorizedKey = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(RestPaths.Svc.SearchService.STATUS, preAuthorizedKey, expectedStatusCodes);
         }

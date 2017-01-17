@@ -5,6 +5,10 @@ export class MomentDateFilter {
 
     static filter() {
         return (value, format) => {
+            if (!value) {
+                return "";
+            }
+            
             if (!format) {
                 format = "MMMM DD, YYYY";
             }

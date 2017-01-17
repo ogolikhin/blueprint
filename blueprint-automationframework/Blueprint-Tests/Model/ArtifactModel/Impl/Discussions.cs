@@ -45,7 +45,7 @@ namespace Model.ArtifactModel.Impl
         { }
     }
 
-    public class Reply
+    public class Reply : IReplyAdapter
     {
         public int ReplyId { get; set; }
         public int ItemId { get; set; }
@@ -53,12 +53,9 @@ namespace Model.ArtifactModel.Impl
         public int Version { get; set; }
         public int UserId { get; set; }
         public DateTime LastEditedOn { get; set; }
-        public string UserName { get; set; }
+        public string Username { get; set; }
         public bool IsGuest { get; set; }
-
-        [JsonProperty("comment")]
-        public string ReplyText { get; set; }
-
+        public string Comment { get; set; }
         public bool CanEdit { get; set; }
         public bool CanDelete { get; set; }
     }

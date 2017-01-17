@@ -8,7 +8,6 @@ import {IMessageService} from "../../../core/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 
@@ -41,7 +40,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "messageService",
         "projectService",
         "loadingOverlayService",
-        "analytics",
         "$state",
         "localization"
     ];
@@ -54,7 +52,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private messageService: IMessageService,
                 private projectService: IProjectService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider,
                 private $state: ng.ui.IStateService,
                 public localization: ILocalizationService) {
     }

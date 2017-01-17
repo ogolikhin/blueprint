@@ -11,13 +11,11 @@ The HTML5 site requires webpack to run and supports multiple entry points as out
 * `npm run dev:no-browser`
 * `npm run dev:build`
 * `npm run dev:public`
+* `npm run pretest` - runs tslint over all .ts files (excluding .mock and .spec) using dev rules
 * `npm run test` - run the complete site test suite
 * `npm run test:debug`
-* `npm run test:spec`
+* `npm run test:spec --spec=[FILENAME]` - tests an individual file
 * `npm run build`<sup>*</sup> - bundle and minify the site for 'production' deployment
-* `npm run lint`
-* `npm run lint:all`
-* `npm run lint:nospec`
 
 * <sup>*</sup>once build if you need to view locally you can run `node dist backend=http://nw.blueprintsys.net` or any other API location
 * <sup>^</sup>Optional parms can be added to specify external backend `-- --backend=http://nw.blueprintsys.net` or any other API location

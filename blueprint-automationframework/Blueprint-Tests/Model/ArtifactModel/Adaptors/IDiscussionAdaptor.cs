@@ -2,18 +2,39 @@
 
 namespace Model.ArtifactModel.Adaptors
 {
-    public interface IDiscussionAdaptor
+    public interface ICommentBaseAdapter
     {
-        bool CanDelete { get; }
-        bool CanEdit { get; }
-        string Comment { get; }
-        int DiscussionId { get; }
+        #region Serialized JSON properties
+
+        int ItemId { get; set; }
+        int DiscussionId { get; set; }
+        int Version { get; set; }
+        int UserId { get; set; }
+        DateTime LastEditedOn { get; set; }
+        string Username { get; set; }
+        bool IsGuest { get; set; }
+        string Comment { get; set; }
+        bool CanEdit { get; set; }
+        bool CanDelete { get; set; }
+
+        #endregion Serialized JSON properties
+    }
+
+    public interface IDiscussionAdaptor : ICommentBaseAdapter
+    {
+        #region Serialized JSON properties
+
         bool IsClosed { get; }
-        bool IsGuest { get; }
-        int ItemId { get; }
-        DateTime LastEditedOn { get; }
-        int UserId { get; }
-        string Username { get; }
-        int Version { get; }
+
+        #endregion Serialized JSON properties
+    }
+
+    public interface IReplyAdapter : ICommentBaseAdapter
+    {
+        #region Serialized JSON properties
+
+        int ReplyId { get; set; }
+
+        #endregion Serialized JSON properties
     }
 }

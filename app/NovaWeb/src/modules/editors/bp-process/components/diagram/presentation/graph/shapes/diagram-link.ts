@@ -21,7 +21,7 @@ export interface IDiagramLink extends IDiagramElement, IMenuContainer {
 
 export class DiagramLink extends DiagramElement implements IDiagramLink {
     private LABEL_VIEW_MAXLENGTH: number = 25;
-    private LABEL_EDIT_MAXLENGTH: number = 40;
+    private LABEL_EDIT_MAXLENGTH: number = 512;
     private LABEL_TEXT_ALIGNMENT: string = "left";
 
     constructor(public model: IProcessLinkModel, parent: any, value?: string, geometry?: MxGeometry, style?: string) {

@@ -13,7 +13,6 @@ import {IMainBreadcrumbService} from "../../main/components/bp-page-content/main
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
 import {IApplicationError} from "../../core/error/applicationError";
 import {IInstanceItem} from "../../main/models/admin-store-models";
 import {IItemInfoResult} from "../../core/navigation/item-info.svc";
@@ -60,8 +59,7 @@ export class ProjectManager implements IProjectManager {
         "statefulArtifactFactory",
         "loadingOverlayService",
         "mainbreadcrumbService",
-        "localization",
-        "analytics"
+        "localization"
     ];
 
     constructor(private $q: ng.IQService,
@@ -73,8 +71,7 @@ export class ProjectManager implements IProjectManager {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
-                private localization: ILocalizationService,
-                private analytics: IAnalyticsProvider) {
+                private localization: ILocalizationService) {
         this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
         this.subscribers = [];
     }
@@ -195,12 +192,12 @@ export class ProjectManager implements IProjectManager {
         /*fixme: this function should change.
          what it needs to do is just to insert the project into the tree as a root node. Expanding it shall be done else-ware*/
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
-        let openProjects = _.map(this.projectCollection.getValue(), "model.id");
+        //let openProjects = _.map(this.projectCollection.getValue(), "model.id");
         return this.add(project.id).finally(() => {
-            const label = _.includes(openProjects, project.id) ? "duplicate" : "new";
+            /*const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
             this.analytics.trackEvent("open", "project", label, project.id, {
                 openProjects: openProjects
-            });
+            });*/
             this.loadingOverlayService.endLoading(openProjectLoadingId);
         });
     }
@@ -517,8 +514,7 @@ export class ProjectManager implements IProjectManager {
         }
 
         return promise.then(() => {
-            //filter collections and sort by order index
-            siblings = _.filter(siblings, (item) => item.predefinedType !== Enums.ItemTypePredefined.CollectionFolder);
+            //sort by order index
             siblings = _.sortBy(siblings, (a) => a.orderIndex);
             index = _.findIndex(siblings, (a) => a.id === selectedArtifact.id);
 

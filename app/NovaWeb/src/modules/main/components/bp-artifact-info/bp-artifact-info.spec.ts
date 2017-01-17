@@ -1,10 +1,8 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
-import "rx";
-import * as _ from "lodash";
 import ".";
 import {BpArtifactInfoController} from "./bp-artifact-info";
-import {IWindowManager, IMainWindow} from "../../../main/services/window-manager";
+import {IWindowManager, IMainWindow} from "../../services/window-manager";
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
@@ -15,13 +13,12 @@ import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-o
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {ProjectManagerMock} from "../../../managers/project-manager/project-manager.mock";
 import {MetaDataServiceMock} from "../../../managers/artifact-manager/metadata/metadata.svc.mock";
-import {MainBreadcrumbServiceMock} from "../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
+import {MainBreadcrumbServiceMock} from "../bp-page-content/mainbreadcrumb.svc.mock";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
-import {ItemTypePredefined, LockedByEnum, RolePermissions} from "../../../main/models/enums";
+import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
 import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
@@ -34,7 +31,6 @@ describe("BpArtifactInfo", () => {
     let artifactManager: IArtifactManager;
     let projectManager: IProjectManager;
     let loadingOverlayService: ILoadingOverlayService;
-    let analytics: IAnalyticsProvider;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
     let stateSubject: Rx.BehaviorSubject<IArtifactState>;
@@ -81,14 +77,7 @@ describe("BpArtifactInfo", () => {
             }
         };
 
-        analytics = <IAnalyticsProvider>{
-            trackEvent: () => "",
-            trackPage: () => "",
-            setAccount: () => {/* no op */
-            },
-            pageEvent: undefined,
-            enableLocalhostTracking: false
-        };
+
 
         $provide.service("messageService", MessageServiceMock);
         $provide.service("windowManager", () => windowManager);
@@ -101,7 +90,6 @@ describe("BpArtifactInfo", () => {
         $provide.service("metadataService", MetaDataServiceMock);
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
-        $provide.service("analytics", () => analytics);
         $provide.service("collectionService", CollectionServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
     }));
@@ -809,7 +797,6 @@ describe("BpArtifactInfo", () => {
                 const artifact = artifactManager.selection.getArtifact();
                 artifact.projectId = 34;
                 spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.resolve());
-                spyOn(analytics, "trackEvent").and.returnValue("");
                 const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
 
                 // act
@@ -826,7 +813,6 @@ describe("BpArtifactInfo", () => {
                 const artifact = artifactManager.selection.getArtifact();
                 artifact.projectId = 34;
                 spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.reject(new Error()));
-                spyOn(analytics, "trackEvent").and.returnValue("");
                 const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
 
                 // act

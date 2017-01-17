@@ -3,7 +3,6 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-o
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IWindowManager} from "../../../../main/services";
@@ -18,7 +17,7 @@ import {IUserStoryService} from "../../services/user-story.svc";
 import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
-import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
+import {ICollectionService} from "../../../bp-collection/collection.svc";
 import {IItemInfoService} from "../../../../core/navigation/item-info.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {
@@ -31,6 +30,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "$q",
         "$scope",
         "$element",
+        "$timeout",
         "artifactManager",
         "localization",
         "messageService",
@@ -41,7 +41,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics",
         "communicationManager",
         "breadcrumbService",
         "userStoryService",
@@ -52,6 +51,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     constructor($q: ng.IQService,
                 $scope: ng.IScope,
                 $element: ng.IAugmentedJQuery,
+                $timeout: ng.ITimeoutService,
                 artifactManager: IArtifactManager,
                 localization: ILocalizationService,
                 messageService: IMessageService,
@@ -62,7 +62,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                analytics: IAnalyticsProvider,
                 private communicationManager: ICommunicationManager,
                 private breadcrumbService: IBreadcrumbService,
                 private userStoryService: IUserStoryService,
@@ -72,6 +71,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             $q,
             $scope,
             $element,
+            $timeout,
             artifactManager,
             localization,
             messageService,
@@ -82,7 +82,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            analytics,
             collectionService,
             itemInfoService
         );

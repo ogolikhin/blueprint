@@ -51,59 +51,45 @@ namespace Helper
         /// </summary>
         /// <param name="jobResult">The jobResult from Nova GET jobs call in decending order by jobId</param>
         /// <param name="pageSize"> pageSize value that indicates number of items that get displayed per page</param>
-        /// <param name="expectedJobs"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, it verifies that jobResult.JobInfos is empty</param>
-        public static void JobResultValidation<T>(JobResult jobResult,
+        /// <param name="expectedOpenAPIJobs"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, it verifies that jobResult.JobInfos is empty</param>
+        public static void GetJobsValidationWithExpectedOpenAPIJobs(JobResult jobResult,
             int pageSize,
-            List<T> expectedJobs = null
-            ) where T : new ()
+            List<IOpenAPIJob> expectedOpenAPIJobs = null
+            )
         {
             ThrowIf.ArgumentNull(jobResult, nameof(jobResult));
 
-            expectedJobs = expectedJobs ?? new List<T>();
+            expectedOpenAPIJobs = expectedOpenAPIJobs ?? new List<IOpenAPIJob>();
 
             var jobInfoList = jobResult.JobInfos.ToList<IJobInfo>();
 
-            if (expectedJobs.Any())
+            if (expectedOpenAPIJobs.Any())
             {
                 // Job Contents comparison and validation
-                var compareCount = Math.Min(expectedJobs.Count, pageSize);
-                var jobsToBeFoundToCompare = expectedJobs.Take(compareCount).ToList();
+                var compareCount = Math.Min(expectedOpenAPIJobs.Count, pageSize);
+                var jobsToBeFoundToCompare = expectedOpenAPIJobs.Take(compareCount).ToList();
 
                 for (int i = 0; i < compareCount; i++)
                 {
-                    if (expectedJobs.GetType().Equals(typeof(List<AddJobResult>)))
-                    {
-                        var jobToBeFoundToCompareForAddJobResult = jobsToBeFoundToCompare[i] as AddJobResult;
-
-                        Assert.AreEqual(jobToBeFoundToCompareForAddJobResult.JobId, jobInfoList[i].JobId,
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].JobId, jobInfoList[i].JobId,
                         "The jobId {0} was expected but jobId {1} is returned from GET job or jobs call.",
-                        jobToBeFoundToCompareForAddJobResult.JobId, jobInfoList[i].JobId);
-                    }
+                        jobsToBeFoundToCompare[i].JobId, jobInfoList[i].JobId);
 
-                    if (expectedJobs.GetType().Equals(typeof(List<IOpenAPIJob>)))
-                    {
-                        var jobToBeFoundToCompareForOpenAPIJobType = jobsToBeFoundToCompare[i] as IOpenAPIJob;
-
-                        Assert.AreEqual(jobToBeFoundToCompareForOpenAPIJobType.JobId, jobInfoList[i].JobId,
-                        "The jobId {0} was expected but jobId {1} is returned from GET job or jobs call.",
-                        jobToBeFoundToCompareForOpenAPIJobType.JobId, jobInfoList[i].JobId);
-
-                        Assert.AreEqual(jobToBeFoundToCompareForOpenAPIJobType.ProjectId, jobInfoList[i].ProjectId,
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].ProjectId, jobInfoList[i].ProjectId,
                         "The projectId {0} was expected but projectId {1} is returned from GET job or jobs call.",
-                        jobToBeFoundToCompareForOpenAPIJobType.ProjectId, jobInfoList[i].ProjectId);
+                        jobsToBeFoundToCompare[i].ProjectId, jobInfoList[i].ProjectId);
 
-                        Assert.IsTrue(jobToBeFoundToCompareForOpenAPIJobType.ProjectName.Contains(jobInfoList[i].Project),
+                    Assert.IsTrue(jobsToBeFoundToCompare[i].ProjectName.Contains(jobInfoList[i].Project),
                         "The projectName {0} was expected to contain project value {1} from GET job or jobs call.",
-                        jobToBeFoundToCompareForOpenAPIJobType.ProjectName, jobInfoList[i].Project);
+                        jobsToBeFoundToCompare[i].ProjectName, jobInfoList[i].Project);
 
-                        Assert.AreEqual(jobToBeFoundToCompareForOpenAPIJobType.JobType, jobInfoList[i].JobType,
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].JobType, jobInfoList[i].JobType,
                         "The jobType {0} was expected but jobType {1} is returned from GET job or jobs call.",
-                        jobToBeFoundToCompareForOpenAPIJobType.JobType, jobInfoList[i].JobType);
+                        jobsToBeFoundToCompare[i].JobType, jobInfoList[i].JobType);
 
-                        Assert.AreEqual(jobToBeFoundToCompareForOpenAPIJobType.SubmittedDateTime.ToStringInvariant(),
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].SubmittedDateTime.ToStringInvariant(),
                         jobInfoList[i].SubmittedDateTime.ToStringInvariant(), "The SubmittedDateTime {0} was expected but SubmittedDateTime {1} is returned from GET job or jobs call.",
-                        jobToBeFoundToCompareForOpenAPIJobType.SubmittedDateTime.ToStringInvariant(), jobInfoList[i].SubmittedDateTime.ToStringInvariant());
-                    }
+                        jobsToBeFoundToCompare[i].SubmittedDateTime.ToStringInvariant(), jobInfoList[i].SubmittedDateTime.ToStringInvariant());
                 }
             }
             else
@@ -111,6 +97,52 @@ namespace Helper
                 Assert.AreEqual(0, jobInfoList.Count(),
                     "The jobInfos from jobResult should be empty when expected return result is empty but the response from the Nova GET job or jobs call returns {0} results",
                     jobInfoList.Count());
+
+                Assert.AreEqual(0, jobResult.TotalJobCount, "The totalJobCount should be 0 when expected return result is empty but the response from the Nova GET job or jobs call returns {0}", jobResult.TotalJobCount);
+            }
+
+            // Validation: Verify that jobResult uses pageSize values passed as optional parameters
+            Assert.That(jobInfoList.Count() <= pageSize,
+                "The expected pagesize value is {0} but {1} was found from the returned searchResult.",
+                pageSize, jobInfoList.Count());
+        }
+
+        /// <summary>
+        /// Asserts that returned jobResult from the Nova GET job or jobs call match with jobs that are being retrieved.
+        /// </summary>
+        /// <param name="jobResult">The jobResult from Nova GET jobs call in decending order by jobId</param>
+        /// <param name="pageSize"> pageSize value that indicates number of items that get displayed per page</param>
+        /// <param name="expectedAddJobResults"> (optional) jobs that are expected to be found in decending order by jobId, if this is null, it verifies that jobResult.JobInfos is empty</param>
+        public static void GetJobsValidationWithExpectedAddJobResults(JobResult jobResult,
+            int pageSize,
+            List<AddJobResult> expectedAddJobResults = null
+            )
+        {
+            ThrowIf.ArgumentNull(jobResult, nameof(jobResult));
+
+            expectedAddJobResults = expectedAddJobResults ?? new List<AddJobResult>();
+
+            var jobInfoList = jobResult.JobInfos.ToList<IJobInfo>();
+
+            if (expectedAddJobResults.Any())
+            {
+                // Job Contents comparison and validation
+                var compareCount = Math.Min(expectedAddJobResults.Count, pageSize);
+                var jobsToBeFoundToCompare = expectedAddJobResults.Take(compareCount).ToList();
+
+                for (int i = 0; i < compareCount; i++)
+                {
+                    Assert.AreEqual(jobsToBeFoundToCompare[i].JobId, jobInfoList[i].JobId,
+                        "The jobId {0} was expected but jobId {1} is returned from GET job or jobs call.",
+                        jobsToBeFoundToCompare[i].JobId, jobInfoList[i].JobId);
+                }
+            }
+            else
+            {
+                Assert.AreEqual(0, jobInfoList.Count(),
+                    "The jobInfos from jobResult should be empty when expected return result is empty but the response from the Nova GET job or jobs call returns {0} results",
+                    jobInfoList.Count());
+
                 Assert.AreEqual(0, jobResult.TotalJobCount, "The totalJobCount should be 0 when expected return result is empty but the response from the Nova GET job or jobs call returns {0}", jobResult.TotalJobCount);
             }
 
@@ -124,8 +156,8 @@ namespace Helper
         /// Asserts that returned jobInfo from the Nova GET Job call match with job that are being retrieved.
         /// </summary>
         /// <param name="jobInfo">The jobInfo from Nova GET job call</param>
-        /// <param name="expectedJob"> (optional) job that are expected to be found, if this is null, job content validation step gets skipped.</param>
-        public static void JobResultValidation(JobInfo jobInfo, OpenAPIJob expectedJob = null)
+        /// <param name="expectedOpenAPIJob"> (optional) job that are expected to be found, if this is null, job content validation step gets skipped.</param>
+        public static void GetJobValidationWithExpectedOpenAPIJob(JobInfo jobInfo, IOpenAPIJob expectedOpenAPIJob = null)
         {
             // creating the jobResult with the empty TotalJobCount
             JobResult jobResult = new JobResult();
@@ -133,7 +165,7 @@ namespace Helper
             jobResult.JobInfos = jobInfoList;
             jobResult.TotalJobCount = 0;
 
-            JobResultValidation(jobResult: jobResult, pageSize: 1, expectedJobs: new List<OpenAPIJob>() { expectedJob });
+            GetJobsValidationWithExpectedOpenAPIJobs(jobResult: jobResult, pageSize: 1, expectedOpenAPIJobs: new List<IOpenAPIJob>() { expectedOpenAPIJob });
         }
     }
 

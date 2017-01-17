@@ -25,20 +25,20 @@ import {IClipboardService} from "../../services/clipboard.svc";
 import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
 
 export class ProcessDiagram {
-    
+
     public processModel: IProcess = null;
     public processViewModel: IProcessViewModel = null;
     private processArtifact: IStatefulProcessArtifact = null;
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement;
     private toggleProcessTypeHandler: string;
-    private copySelectionHandler: string; 
+    private copySelectionHandler: string;
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
     private openUtilityPanelHandler: string;
     private selectionChangedHandler: string;
- 
+
     constructor(private $rootScope: ng.IRootScopeService,
                 private $scope: ng.IScope,
                 private $timeout: ng.ITimeoutService,
@@ -58,7 +58,7 @@ export class ProcessDiagram {
                 private loadingOverlayService: ILoadingOverlayService) {
 
         this.processModel = null;
-       
+
     }
 
     public createDiagram(process: any, htmlElement: HTMLElement) {
@@ -96,7 +96,7 @@ export class ProcessDiagram {
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
-   
+
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
 
@@ -119,7 +119,7 @@ export class ProcessDiagram {
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
-          
+
         }
 
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
@@ -155,22 +155,20 @@ export class ProcessDiagram {
 
     private copySelection = () => {
         this.graph.copySelectedShapes();
-    }
+    };
 
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
     };
 
     private navigateToAssociatedArtifact = (info: any) => {
-        if (!!info && info.isAccessible) {
+        if (!!info) {
             const options = {
                 id: info.id,
                 version: info.version,
                 enableTracking: info.enableTracking
             };
             this.navigationService.navigateTo(options);
-        } else {
-            this.messageService.addError(this.localization.get("HttpError_Forbidden"));
         }
     };
 
@@ -208,7 +206,7 @@ export class ProcessDiagram {
                 this.$q,
                 this.loadingOverlayService
             );
-             
+
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }
@@ -220,13 +218,13 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
-   
+
     private resetBeforeLoad() {
         if (this.graph != null) {
             this.graph.destroy();
             this.graph = null;
         }
-        // clear any subartifact that may still be selected 
+        // clear any subartifact that may still be selected
         // by selection manager and/or utility panel
 
         if (this.artifactManager && this.artifactManager.selection) {
@@ -243,7 +241,7 @@ export class ProcessDiagram {
     private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
         // Note: need to trigger an angular $digest so that bindings will
         // work in other components
-        
+
         if (elements.length === 1) {
             // single-selection
             const subArtifactId: number = elements[0].model.id;
@@ -285,7 +283,7 @@ export class ProcessDiagram {
         const processArtifactId = this.processArtifact ? this.processArtifact.id : NaN;
         return selectedArtifactId === processArtifactId;
     }
-    
+
     private handleInitProcessGraphFailed(processId: number, err: any) {
         this.messageService.addMessage(new Message(
             MessageType.Error, "There was an error initializing the process graph."));
@@ -306,8 +304,8 @@ export class ProcessDiagram {
         }
     }
 
-    public destroy() { 
-        
+    public destroy() {
+
         // tear down persistent objects and event handlers
         if (this.communicationManager) {
             if (this.communicationManager.toolbarCommunicationManager) {
@@ -340,6 +338,6 @@ export class ProcessDiagram {
             this.processViewModel.destroy();
             this.processViewModel = undefined;
         }
-        
+
     }
 }

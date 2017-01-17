@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+﻿import "angular";
 import "angular-mocks";
 import {OpenProjectController} from "./open-project";
 import {IDialogSettings} from "../../../../shared";
@@ -17,7 +17,7 @@ describe("OpenProjectController", () => {
         controller = new OpenProjectController($scope, $uibModalInstance, dialogSettings, $sce);
     }));
 
-    it("onSelect, when selected project, sets selection", inject(($browser) => {
+    it("onSelect, when selected project, sets selection", inject(() => {
         // Arrange
         const model = {
             id: 3,
@@ -33,14 +33,13 @@ describe("OpenProjectController", () => {
         controller.onSelectionChanged([vm]);
 
         // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.isProjectSelected).toEqual(true);
-        expect(controller.selectedName).toEqual("name");
-        expect($sce.getTrustedHtml(controller.selectedDescription)).toEqual("abc");
-        expect(controller.returnValue).toEqual(3);
+        expect(controller.selectedName).toEqual(model.name);
+        expect(controller.selectedDescription).toEqual(model.description);
+        expect(controller.returnValue).toEqual(model);
     }));
 
-    it("onSelect, when selected folder, sets selection", inject(($browser) => {
+    it("onSelect, when selected folder, sets selection", inject(() => {
         // Arrange
         const model = {
             id: 2,
@@ -53,11 +52,10 @@ describe("OpenProjectController", () => {
         controller.onSelectionChanged([vm]);
 
         // Assert
-        $browser.defer.flush(); // wait for $applyAsync()
-        expect(controller.isProjectSelected).toEqual(false);
-        expect(controller.selectedName).toEqual("def");
-        expect(controller.selectedDescription).toBeUndefined();
-        expect(controller.returnValue).toBeUndefined();
+        expect(controller.isProjectSelected).toEqual(true);
+        expect(controller.selectedName).toEqual(model.name);
+        expect(controller.selectedDescription).toEqual(model.description);
+        expect(controller.returnValue).toEqual(model);
     }));
 
     it("onDoubleClick, sets selection and calls ok", inject(($browser) => {
@@ -77,7 +75,7 @@ describe("OpenProjectController", () => {
         $browser.defer.flush(); // wait for $applyAsync()
         expect(controller.selectedName).toEqual("ghi");
         expect(controller.selectedDescription).toBeUndefined();
-        expect(controller.returnValue).toEqual(8);
+        expect(controller.returnValue).toEqual(model);
         expect(controller.ok).toHaveBeenCalled();
     }));
 });

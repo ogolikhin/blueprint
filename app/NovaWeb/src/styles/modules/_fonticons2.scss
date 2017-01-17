@@ -237,6 +237,7 @@ $fonticon2-generate: '\e849';
 
 /* '' */
 .fonticon2-info::before,
+.fonticon2-linkinfo::before,
 .fonticon2-information::before {
     content: $fonticon2-information;
 }

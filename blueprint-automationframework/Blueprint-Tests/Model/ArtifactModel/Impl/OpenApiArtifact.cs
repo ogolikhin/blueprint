@@ -228,7 +228,7 @@ namespace Model.ArtifactModel.Impl
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
-                UpdateArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+                UpdateArtifactDescription(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
             }
             else
             {
@@ -243,13 +243,51 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user updating the artifact</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <param name="updateWithRandomDescription">(optional) Pass true if you want to generate a new random Description, or false to use the existing Description.</param>
+        public static void UpdateArtifactDescription(IArtifactBase artifactToUpdate,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false,
+            bool updateWithRandomDescription = true)
+        {
+            ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
+
+            var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == nameof(NovaArtifactDetails.Description));
+            var newDescriptionValue = new OpenApiPropertyForUpdate
+            {
+                PropertyTypeId = propertyToUpdate.PropertyTypeId
+            };
+
+            if (updateWithRandomDescription)
+            {
+                newDescriptionValue.TextOrChoiceValue = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5);
+            }
+            else
+            {
+                newDescriptionValue.TextOrChoiceValue = propertyToUpdate.TextOrChoiceValue;
+            }
+
+            UpdateArtifact(artifactToUpdate, user, new List<OpenApiPropertyForUpdate> { newDescriptionValue },
+                expectedStatusCodes, sendAuthorizationAsCookie);
+        }
+
+        /// <summary>
+        /// Update an Artifact with Property Changes.
+        /// </summary>
+        /// <param name="artifactToUpdate">The artifact to be updated</param>
+        /// <param name="user">The user updating the artifact</param>
+        /// <param name="propertiesToUpdate">A list of properties to be updated with their new values.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         public static void UpdateArtifact(IArtifactBase artifactToUpdate,
-        IUser user,
-        List<HttpStatusCode> expectedStatusCodes = null,
-        bool sendAuthorizationAsCookie = false)
+            IUser user,
+            List<OpenApiPropertyForUpdate> propertiesToUpdate,
+            List<HttpStatusCode> expectedStatusCodes = null,
+            bool sendAuthorizationAsCookie = false)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
+            ThrowIf.ArgumentNull(propertiesToUpdate, nameof(propertiesToUpdate));
 
             Assert.That(artifactToUpdate.Id != 0, "Artifact Id cannot be 0 to perform an update.");
 
@@ -264,22 +302,11 @@ namespace Model.ArtifactModel.Impl
 
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToUpdate.ProjectId);
 
-            //TODO: Remove this when solution to have the property to update configurable
-            var propertyToUpdate = artifactToUpdate.Properties.First(p => p.Name == "Description");
-
-            // TODO: Expand this to have the properties to update configurable
             // Create a copy of the artifact to update that only includes the properties to be updated
             var artifactWithPropertyToUpdate = new OpenApiArtifactForUpdate
             {
                 Id = artifactToUpdate.Id,
-                Properties = new List<OpenApiPropertyForUpdate>
-                {
-                    new OpenApiPropertyForUpdate
-                    {
-                        PropertyTypeId = propertyToUpdate.PropertyTypeId,
-                        TextOrChoiceValue = "NewDescription_"+ RandomGenerator.RandomAlphaNumeric(5)
-                    }
-                }
+                Properties = propertiesToUpdate
             };
 
             var artifactsToUpdate = new List<OpenApiArtifactForUpdate> { artifactWithPropertyToUpdate };
@@ -298,8 +325,24 @@ namespace Model.ArtifactModel.Impl
             {
                 Logger.WriteDebug("Result Code for the Saved Artifact {0}: {1}, Message: {2}", updateResult.ArtifactId, updateResult.ResultCode, updateResult.Message);
 
-                // Copy updated property into original artifact
-                propertyToUpdate.TextOrChoiceValue = artifactWithPropertyToUpdate.Properties.First(p => p.PropertyTypeId == propertyToUpdate.PropertyTypeId).TextOrChoiceValue;
+                foreach (var updatedProperty in propertiesToUpdate)
+                {
+                    var property = artifactToUpdate.Properties.Find(p => p.PropertyTypeId == updatedProperty.PropertyTypeId);
+
+                    if (property != null)
+                    {
+                        // TODO: Refactor to be able to use property types other than TextOrChoiceValue.
+                        property.TextOrChoiceValue = updatedProperty.TextOrChoiceValue;
+                    }
+                    else
+                    {
+                        artifactToUpdate.Properties.Add(new OpenApiProperty(artifactToUpdate.Properties[0].Address)
+                        {
+                            PropertyTypeId = updatedProperty.PropertyTypeId,
+                            TextOrChoiceValue = updatedProperty.TextOrChoiceValue
+                        });
+                    }
+                }
 
                 artifactToUpdate.IsSaved = true;
 
@@ -430,6 +473,8 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
+
+            returnedArtifact.Address = baseAddress;
 
             return returnedArtifact;
         }
@@ -582,12 +627,12 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
-        /// <param name="discussionText">text for new comment</param>
+        /// <param name="comment">The comment for new discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
         public static IRaptorDiscussion PostRaptorDiscussion(string address, int itemId, 
-            string discussionText, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -596,7 +641,7 @@ namespace Model.ArtifactModel.Impl
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
-                bodyObject: discussionText, expectedStatusCodes: expectedStatusCodes);
+                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
             
             // Derialization
             var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
@@ -605,7 +650,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Updates the specified comment.
+        /// Updates the specified discussion.
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
@@ -615,6 +660,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToUpdate,
             string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -644,6 +690,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>message</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static string DeleteRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToDelete,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -671,8 +718,9 @@ namespace Model.ArtifactModel.Impl
         /// <param name="comment">Comment for replying.</param>
         /// <param name="user">The user to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
-        public static IRaptorReply PostRaptorDiscussionReply(string address,
+        /// <returns>Newly created RaptorReply for artifact/subartifact discussion.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static IReplyAdapter PostRaptorDiscussionReply(string address,
             IDiscussionAdaptor discussion, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -703,8 +751,9 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Updated RaptorReply.</returns>
-        public static IRaptorReply UpdateRaptorDiscussionReply(string address, int itemId, IDiscussionAdaptor discussion,
-            IRaptorReply replyToUpdate, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static IReplyAdapter UpdateRaptorDiscussionReply(string address, int itemId, IDiscussionAdaptor discussion,
+            IReplyAdapter replyToUpdate, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussion, nameof(discussion));
@@ -730,11 +779,11 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
-        /// <param name="replyToDelete">comment to update</param>
+        /// <param name="replyToDelete">The reply to update.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
-        public static string DeleteRaptorReply(string address, int itemId, IRaptorReply replyToDelete,
+        /// <returns>A success or failure message.</returns>
+        public static string DeleteRaptorReply(string address, int itemId, IReplyAdapter replyToDelete,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));

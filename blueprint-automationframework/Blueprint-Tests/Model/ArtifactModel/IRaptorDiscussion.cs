@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Model.ArtifactModel.Adaptors;
-using Model.ArtifactModel.Impl;
 
 namespace Model
 {
@@ -26,9 +25,11 @@ namespace Model
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
     public interface IRaptorDiscussion : IDiscussionAdaptor
     {
-        List<IRaptorReply> Replies { get; set; }
+        #region Serialized JSON properties
 
-        bool Equals(Discussion comment);
+        List<IReplyAdapter> Replies { get; set; }
+
+        #endregion Serialized JSON properties
     }
 
     //This representation is used for Discussion in RapidReview,
@@ -43,13 +44,12 @@ namespace Model
         int DiscussionId { get; set; }
         int Version { get; set; }
         int UserId { get; set; }
-        DateTime LastEditedOnUtc { get; set; }
-        string UserName { get; set; }
+        DateTime LastEditedOn { get; set; }
+        string Username { get; set; }
         bool IsGuest { get; set; }
         string Comment { get; set; }
         bool CanEdit { get; set; }
         bool CanDelete { get; set; }
-        bool Equals(Reply reply);
 
         #endregion Serialized JSON properties
     }

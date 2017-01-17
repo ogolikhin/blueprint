@@ -37,6 +37,9 @@ export class BPAvatarController {
     }
 
     public getAvatarInitials(name: string): string {
+        if (!name) {
+            name = "";
+        }
         const userNames: string[] = name.trim().split(" ");
         let user: string = "";
 

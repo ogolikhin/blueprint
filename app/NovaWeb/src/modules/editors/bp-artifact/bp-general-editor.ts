@@ -15,6 +15,7 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
 
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
+        "$window",
         "messageService",
         "artifactManager",
         "windowManager",
@@ -22,12 +23,13 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
         "propertyDescriptorBuilder"
     ];
 
-    constructor(messageService: IMessageService,
+    constructor($window: ng.IWindowService,
+                messageService: IMessageService,
                 artifactManager: IArtifactManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
-        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super($window, messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

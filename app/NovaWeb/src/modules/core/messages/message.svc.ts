@@ -11,6 +11,7 @@ export interface IMessageService {
     addError(text: string | Error | any, persist?: boolean): void;
     addWarning(text: string, ...params: any[]): void;
     addInfo(text: string, ...params: any[]): void;
+    addLinkInfo(text: string, ...params: any[]): void;
     deleteMessageById(id: number): void;
     clearMessages(clearPersistent?: boolean, typesToForceClear?: MessageType[]): void;
     messages: IMessage[];
@@ -70,6 +71,7 @@ export class MessageService implements IMessageService {
                 result = timeout.Error;
                 break;
             case MessageType.Info:
+            case MessageType.LinkInfo:
                 result = timeout.Info;
                 break;
             case MessageType.Warning:
@@ -126,6 +128,13 @@ export class MessageService implements IMessageService {
             return;
         }
         this.addMessage(new Message(MessageType.Info, msg, true, ...params));
+    }
+
+    public addLinkInfo(msg: string, ...params: any[]): void {
+        if (!msg) {
+            return;
+        }
+        this.addMessage(new Message(MessageType.LinkInfo, msg, true, ...params));
     }
 
     /**

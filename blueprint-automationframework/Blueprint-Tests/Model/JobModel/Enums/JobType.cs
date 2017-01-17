@@ -35,7 +35,8 @@
         ExcelImport = 0x800,
         ProjectImport = 0x1000,
         ProjectExport = 0x2000,
-        GenerateTests = 0x4000
+        GenerateTests = 0x4000,
+        GenerateProcessTests = 0x8000
     }
 
     // AlmType copied from Blueprint-current AlmType

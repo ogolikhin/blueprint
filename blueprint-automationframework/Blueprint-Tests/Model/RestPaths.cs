@@ -97,6 +97,14 @@ namespace Model
                 public const string JOBS                            = "svc/adminstore/jobs";
                 public const string JOBS_id_                        = "svc/adminstore/jobs/{0}";
 
+                public static class Jobs
+                {
+                    public static class Process
+                    {
+                        public const string TESTGEN                 = "svc/adminstore/jobs/process/testgen";
+                    }
+                }
+
                 public static class Jobs_id_
                 {
                     public static class Result

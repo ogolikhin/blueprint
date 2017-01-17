@@ -1,3 +1,5 @@
+import "./formly-config.scss";
+
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {

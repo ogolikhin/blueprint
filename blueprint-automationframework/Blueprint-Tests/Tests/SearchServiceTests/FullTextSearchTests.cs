@@ -24,6 +24,7 @@ namespace SearchServiceTests
         protected const string FULLTEXTSEARCH_PATH = RestPaths.Svc.SearchService.FULLTEXTSEARCH;
         protected const int DEFAULT_PAGE_VALUE = 1;
         protected const int DEFAULT_PAGESIZE_VALUE = 10;
+        protected const string DESCRIPTION = "Description";
 
         protected IUser _user { get; set; } = null;
         protected IUser _userSecond { get; set; } = null;
@@ -330,7 +331,7 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches with description value of all published artifacts
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that can accomodate all expecting search results for the user
@@ -342,7 +343,122 @@ namespace SearchServiceTests
                 "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Validation: Verify that searchResult contains all published artifacts
-            FullTextSearchResultValidation(fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
+            FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
+        }
+
+        [TestCase]
+        [TestRail(182342)]
+        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
+        [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithSameUserEmptySearchResult()
+        {
+            // Setup: Delete all published artifacts
+            foreach (var publishedArtifact in _publishedArtifacts)
+            {
+                publishedArtifact.Delete(_user);
+            }
+
+            // Create search criteria with search term that matches with deleted but not published artifact(s) description
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+
+            // Wait until first user no longer sees the artifact in search results or timeout occurs
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
+
+            // Execute: Execute FullTextSearch with the search term using the same user
+            FullTextSearchResult fullTextSearchResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains empty list of FullTextSearchItems
+            FullTextSearchResultValidation(searchResult: fullTextSearchResult);
+        }
+
+        [TestCase]
+        [TestRail(182370)]
+        [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
+        [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search - Must return SearchResult with list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithDifferentUserSearchResultIncludesItem()
+        {
+            // Setup: Delete all published artifacts
+            foreach (var publishedArtifact in _publishedArtifacts)
+            {
+                publishedArtifact.Delete(_user);
+            }
+
+            // Create search criteria with search term that matches with deleted but not published artifact(s) description
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+
+            // Set the pageSize that can accomodate all expecting search results for the user
+            var customSearchPageSize = _publishedArtifacts.Count();
+
+            // Wait until first user no longer sees the artifact in search results or timeout occurs
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
+
+            // Execute: Execute FullTextSearch with the search term using the different user
+            FullTextSearchResult fullTextSearchResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted but not published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains list of FullTextSearchItems
+            FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: _publishedArtifacts, pageSize: customSearchPageSize);
+        }
+
+        [Explicit(IgnoreReasons.FlakyTest)] // This test deletes the artifacts in the FixtureSetup which then causes all tests after it to fail.
+        [TestCase]
+        [TestRail(182343)]
+        [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchDeletedAndPublishedArtifact_VerifyWithSameUserEmptySearchResult()
+        {
+            // Setup: Delete all published artifacts
+            foreach (var publishedArtifact in _publishedArtifacts)
+            {
+                publishedArtifact.Delete(_user);
+                publishedArtifact.Publish(_user);
+            }
+
+            // Create search criteria with search term that matches with deleted and published artifact(s) description
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with the search term using the same user
+            FullTextSearchResult fullTextSearchResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted and published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains empty list of FullTextSearchItems
+            FullTextSearchResultValidation(searchResult: fullTextSearchResult);
+        }
+
+        [Explicit(IgnoreReasons.FlakyTest)] // This test deletes the artifacts in the FixtureSetup which then causes all tests after it to fail.
+        [TestCase]
+        [TestRail(182371)]
+        [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with different user - Must return SearchResult with empty list of FullTextSearchItems.")]
+        public void FullTextSearch_SearchDeletedAndPublishedArtifact_VerifyWithDifferentUserEmptySearchResult()
+        {
+            // Setup: Delete all published artifacts
+            foreach (var publishedArtifact in _publishedArtifacts)
+            {
+                publishedArtifact.Delete(_user);
+                publishedArtifact.Publish(_user);
+            }
+
+            // Create search criteria with search term that matches with deleted and published artifact(s) description
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+
+            // Execute: Execute FullTextSearch with the search term using the different user
+            FullTextSearchResult fullTextSearchResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_userSecond, searchCriteria: searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with deleted and published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
+
+            // Validation: Verify that searchResult contains empty list of FullTextSearchItems
+            FullTextSearchResultValidation(searchResult: fullTextSearchResult);
         }
 
         [TestCase]
@@ -380,7 +496,7 @@ namespace SearchServiceTests
         {
             // Setup: Create search criteria with search term that matches published artifact(s) description
             var searchProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, projectIds: searchProjectIds);
 
             // Calculate expecting values for the selected project(s) and published artifacts for the project(s)
@@ -429,7 +545,7 @@ namespace SearchServiceTests
 
             // Create search criteria with search term that matches with current version of artifact(s) description
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = WebUtility.HtmlDecode(publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Create search criteria with search term that matches with new version of artifact(s) description
@@ -441,8 +557,7 @@ namespace SearchServiceTests
             {
                 publishedArtifact.Lock(_user);
                 SearchServiceTestHelper.UpdateArtifactProperty(
-                    Helper, _user, _projects.Find(p=>p.Id.Equals(publishedArtifact.ProjectId)),
-                    publishedArtifact, publishedArtifact.BaseArtifactType, "Description", newSearchTerm);
+                    Helper, _user, _projects.Find(p=>p.Id.Equals(publishedArtifact.ProjectId)), publishedArtifact, publishedArtifact.BaseArtifactType, DESCRIPTION, newSearchTerm);
                 publishedArtifact.Publish(_user);
             }
 
@@ -466,7 +581,7 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchWithSearchTermReturnsMultiplePages_VerifyResultItemCountWithExpected(int pageSize)
         {
             // Setup: Create search criteria that will return multiple page for SearchResult
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.ConvertAll(o => o.Id));
 
             // Calculate expecting search result counts
@@ -510,7 +625,7 @@ namespace SearchServiceTests
             // Setup: Create search criteria with search term that matches published artifact(s) description
             FullTextSearchResult fullTextSearchResult = null;
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals("Description")).TextOrChoiceValue);
+            var searchTerm = WebUtility.HtmlDecode(_publishedArtifacts.First().Properties.Find(p => p.Name.Equals(DESCRIPTION)).TextOrChoiceValue);
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
 
             // Set the pageSize that displays all expecting search results for the user with permission on selected project(s)

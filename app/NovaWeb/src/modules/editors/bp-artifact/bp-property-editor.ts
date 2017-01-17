@@ -326,7 +326,7 @@ export class PropertyEditor {
                     field.defaultValue = (context.defaultValidValueId || 0).toString();
                     field.templateOptions.options = [];
                     if (context.validValues) {
-                        field.templateOptions.options = context.validValues.map((it) => {
+                        field.templateOptions.options = context.validValues.map(function (it) {
                             return <AngularFormly.ISelectOption>{value: it.id.toString(), name: it.value};
                         });
                     }

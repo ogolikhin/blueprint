@@ -108,7 +108,7 @@ export class BPCommentEditController {
                 styles: {"font-size": "20pt"}
             });
         },
-        setup: (editor) => {
+        setup: function (editor) {
             editor.addButton("format", {
                 title: "Format",
                 type: "menubutton",
@@ -118,28 +118,28 @@ export class BPCommentEditController {
                     {
                         icon: "bullist",
                         text: " Bulleted list",
-                        onclick: () => {
+                        onclick: function () {
                             editor.editorCommands.execCommand("InsertUnorderedList");
                         }
                     },
                     {
                         icon: "numlist",
                         text: " Numeric list",
-                        onclick: () => {
+                        onclick: function () {
                             editor.editorCommands.execCommand("InsertOrderedList");
                         }
                     },
                     {
                         icon: "outdent",
                         text: " Outdent",
-                        onclick: () => {
+                        onclick: function () {
                             editor.editorCommands.execCommand("Outdent");
                         }
                     },
                     {
                         icon: "indent",
                         text: " Indent",
-                        onclick: () => {
+                        onclick: function () {
                             editor.editorCommands.execCommand("Indent");
                         }
                     },
@@ -147,7 +147,7 @@ export class BPCommentEditController {
                     {
                         icon: "removeformat",
                         text: " Clear formatting",
-                        onclick: () => {
+                        onclick: function () {
                             editor.editorCommands.execCommand("RemoveFormat");
                         }
                     }
@@ -160,55 +160,55 @@ export class BPCommentEditController {
                 menu: [
                     {
                         text: "8",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font8");
                         }
                     },
                     {
                         text: "9",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font9");
                         }
                     },
                     {
                         text: "10",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font10");
                         }
                     },
                     {
                         text: "11",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font11");
                         }
                     },
                     {
                         text: "12",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font12");
                         }
                     },
                     {
                         text: "14",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font14");
                         }
                     },
                     {
                         text: "16",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font16");
                         }
                     },
                     {
                         text: "18",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font18");
                         }
                     },
                     {
                         text: "20",
-                        onclick: () => {
+                        onclick: function () {
                             editor.formatter.apply("font20");
                         }
                     }]

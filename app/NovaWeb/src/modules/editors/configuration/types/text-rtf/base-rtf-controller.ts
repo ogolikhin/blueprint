@@ -187,7 +187,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected fontFormats(): string {
         let fontFormats = "";
         if (_.isArray(this.allowedFonts) && this.allowedFonts.length) {
-            this.allowedFonts.forEach((font) => {
+            this.allowedFonts.forEach(function (font) {
                 fontFormats += `${font}=` + (font.indexOf(" ") !== -1 ? `"${font}";` : `${font};`);
             });
         }
@@ -437,74 +437,74 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             } else {
                 const isSubArtifact: boolean = !items[0].hasOwnProperty("projectId");
                 this.$q.when(isSubArtifact ? this.artifactService.getArtifact(items[0].parentId) : items[0] as Models.IArtifact)
-                    .then((artifact: Models.IArtifact) => {
-                        let subArtifact: Models.ISubArtifactNode = isSubArtifact ? items[0] as Models.ISubArtifactNode : undefined;
-                        const itemId: number = isSubArtifact ? subArtifact.id : artifact.id;
+                .then((artifact: Models.IArtifact) => {
+                    let subArtifact: Models.ISubArtifactNode = isSubArtifact ? items[0] as Models.ISubArtifactNode : undefined;
+                    const itemId: number = isSubArtifact ? subArtifact.id : artifact.id;
 
-                        const itemName: string = isSubArtifact ? subArtifact.displayName : artifact.name;
-                        const itemPrefix: string = isSubArtifact ? subArtifact.prefix : artifact.prefix;
+                    const itemName: string = isSubArtifact ? subArtifact.displayName : artifact.name;
+                    const itemPrefix: string = isSubArtifact ? subArtifact.prefix : artifact.prefix;
 
-                        currentItem.relationships.get()
-                            .then((relationships: IRelationship[]) => {
-                                // get the pre-existing manual traces
-                                let manualTraces: IRelationship[] = relationships
-                                    .filter((relationship: IRelationship) =>
-                                    relationship.traceType === LinkType.Manual);
+                    currentItem.relationships.get()
+                        .then((relationships: IRelationship[]) => {
+                            // get the pre-existing manual traces
+                            let manualTraces: IRelationship[] = relationships
+                                .filter((relationship: IRelationship) =>
+                                relationship.traceType === LinkType.Manual);
 
+                            // if the pre-existing manual traces already include the artifact we want to link
+                            // (with either To or TwoWay direction) we don't need to add the manual trace.
+                            const isArtifactAlreadyLinkedTo: boolean = manualTraces
+                                .some((relationship: IRelationship) => {
+                                    return relationship.itemId === itemId &&
+                                        (relationship.traceDirection === TraceDirection.To || relationship.traceDirection === TraceDirection.TwoWay);
+                                });
+
+                            if (!isArtifactAlreadyLinkedTo) {
                                 // if the pre-existing manual traces already include the artifact we want to link
-                                // (with either To or TwoWay direction) we don't need to add the manual trace.
-                                const isArtifactAlreadyLinkedTo: boolean = manualTraces
+                                // (with From direction) we just update the direction
+                                const isArtifactAlreadyLinkedFrom = manualTraces
                                     .some((relationship: IRelationship) => {
-                                        return relationship.itemId === itemId &&
-                                            (relationship.traceDirection === TraceDirection.To || relationship.traceDirection === TraceDirection.TwoWay);
+                                        return relationship.itemId === itemId && relationship.traceDirection === TraceDirection.From;
                                     });
 
-                                if (!isArtifactAlreadyLinkedTo) {
-                                    // if the pre-existing manual traces already include the artifact we want to link
-                                    // (with From direction) we just update the direction
-                                    const isArtifactAlreadyLinkedFrom = manualTraces
-                                        .some((relationship: IRelationship) => {
-                                            return relationship.itemId === itemId && relationship.traceDirection === TraceDirection.From;
-                                        });
+                                if (isArtifactAlreadyLinkedFrom) {
+                                    manualTraces.forEach((relationship: IRelationship) => {
+                                        if (relationship.itemId === itemId) {
+                                            relationship.traceDirection = TraceDirection.TwoWay;
+                                        }
+                                    });
+                                } else {
+                                    const newTrace: IRelationship = {
+                                        artifactId: artifact.id,
+                                        artifactTypePrefix: artifact.prefix,
+                                        artifactName: artifact.name,
+                                        itemId: itemId,
+                                        itemTypePrefix: isSubArtifact ? subArtifact.prefix : artifact.prefix,
+                                        itemName: isSubArtifact ? undefined : artifact.name,
+                                        itemLabel: isSubArtifact ? subArtifact.displayName : undefined,
+                                        projectId: artifact.projectId,
+                                        projectName: artifact.artifactPath && artifact.artifactPath.length ?
+                                            artifact.artifactPath[0] : undefined, //TODO: find project name when subartifact
+                                        traceDirection: TraceDirection.To,
+                                        traceType: LinkType.Manual,
+                                        suspect: false,
+                                        hasAccess: true,
+                                        primitiveItemTypePredefined: undefined, //TODO: put proper value
+                                        isSelected: false,
+                                        readOnly: false //TODO: put proper value
+                                    };
 
-                                    if (isArtifactAlreadyLinkedFrom) {
-                                        manualTraces.forEach((relationship: IRelationship) => {
-                                            if (relationship.itemId === itemId) {
-                                                relationship.traceDirection = TraceDirection.TwoWay;
-                                            }
-                                        });
-                                    } else {
-                                        const newTrace: IRelationship = {
-                                            artifactId: artifact.id,
-                                            artifactTypePrefix: artifact.prefix,
-                                            artifactName: artifact.name,
-                                            itemId: itemId,
-                                            itemTypePrefix: isSubArtifact ? subArtifact.prefix : artifact.prefix,
-                                            itemName: isSubArtifact ? undefined : artifact.name,
-                                            itemLabel: isSubArtifact ? subArtifact.displayName : undefined,
-                                            projectId: artifact.projectId,
-                                            projectName: artifact.artifactPath && artifact.artifactPath.length ?
-                                                artifact.artifactPath[0] : undefined, //TODO: find project name when subartifact
-                                            traceDirection: TraceDirection.To,
-                                            traceType: LinkType.Manual,
-                                            suspect: false,
-                                            hasAccess: true,
-                                            primitiveItemTypePredefined: undefined, //TODO: put proper value
-                                            isSelected: false,
-                                            readOnly: false //TODO: put proper value
-                                        };
-
-                                        manualTraces = manualTraces.concat([newTrace]);
-                                    }
-
-                                    currentItem.relationships.updateManual(manualTraces);
+                                    manualTraces = manualTraces.concat([newTrace]);
                                 }
-                            })
-                            .finally(() => {
-                                this.insertInlineTrace(itemId, itemName, itemPrefix);
-                                this.triggerChange();
-                            });
-                    });
+
+                                currentItem.relationships.updateManual(manualTraces);
+                            }
+                        })
+                        .finally(() => {
+                            this.insertInlineTrace(itemId, itemName, itemPrefix);
+                            this.triggerChange();
+                        });
+                });
             }
         });
     };

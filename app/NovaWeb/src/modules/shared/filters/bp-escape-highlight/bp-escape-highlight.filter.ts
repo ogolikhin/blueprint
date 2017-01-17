@@ -12,7 +12,7 @@ export class BpEscapeAndHighlightFilter {
             "/": "&#x2F;"
         };
 
-        let escapeHtmlEntities = (toSanitize) => {
+        let escapeHtmlEntities = function (toSanitize) {
             return (toSanitize || "").replace(/[&<>"'\/]/g, s => entityMap[s]); // Escape HTML entities
         };
 
@@ -26,7 +26,7 @@ export class BpEscapeAndHighlightFilter {
                 toFilterLCase = "";
                 if (substrings.length > 1 && toHighlight !== "") {
                     let pos = 0;
-                    substrings.forEach((substring, index) => {
+                    substrings.forEach(function (substring, index) {
                         toFilterLCase += escapeHtmlEntities(toFilter.substr(pos, substring.length));
                         pos += substring.length;
                         if (index < substrings.length - 1) {

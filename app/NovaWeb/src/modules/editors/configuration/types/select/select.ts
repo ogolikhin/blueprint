@@ -9,7 +9,7 @@ export class BPFieldSelect implements AngularFormly.ITypeOptions {
     public extends: string = "select";
     public template: string = require("./select.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public link: ng.IDirectiveLinkFn = ($scope, $element, $attrs) => {
+    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
         });
@@ -33,8 +33,8 @@ export class BpFieldSelectController extends BPFieldBaseController {
     private customValue: ISelectItem;
 
     constructor(private $scope: AngularFormly.ITemplateScope,
-                private localization: ILocalizationService,
-                private validationService: IValidationService) {
+                     private localization: ILocalizationService,
+                     private validationService: IValidationService) {
         super();
         this.propertyDescriptor = $scope.options["data"];
 

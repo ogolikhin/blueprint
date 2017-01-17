@@ -1,4 +1,4 @@
-import {BPFieldReadOnly} from "./read-only/read-only";
+import {BPFieldReadOnly} from "./read-only";
 import {BPFieldText} from "./text/text";
 import {BPFieldTextMulti} from "./text-multi/text-multi";
 import {BPFieldTextRTF} from "./text-rtf/text-rtf";

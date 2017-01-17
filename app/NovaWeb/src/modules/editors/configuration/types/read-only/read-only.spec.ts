@@ -134,7 +134,7 @@ describe("Formly ReadOnly", () => {
     it("should display read only number", function () {
         compileAndSetupStuff({model: {field: 10}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[0];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[0];
 
         expect(fieldInput.innerHTML).toBe("10");
     });
@@ -142,7 +142,7 @@ describe("Formly ReadOnly", () => {
     it("should display read only date", function () {
         compileAndSetupStuff({model: {readonlyDate: new Date("2016-08-08")}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[1];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[1];
 
         expect(fieldInput.innerHTML).toContain("2016");
     });
@@ -150,7 +150,7 @@ describe("Formly ReadOnly", () => {
     it("should display read only multichoice", function () {
         compileAndSetupStuff({model: {readonlySelectMulti: [1, 2]}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[2];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[2];
 
         expect(fieldInput.children.length).toBe(2);
         expect(fieldInput.children[0].innerHTML).toContain("Option 1");
@@ -160,7 +160,7 @@ describe("Formly ReadOnly", () => {
     it("should display read only select", function () {
         compileAndSetupStuff({model: {readonlySelect: 5}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[3];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[3];
 
         expect(fieldInput.innerHTML).toContain("Option 5");
     });
@@ -168,7 +168,7 @@ describe("Formly ReadOnly", () => {
     it("should display read only select with custom values", function () {
         compileAndSetupStuff({model: {readonlySelect: {customValue: "Custom value"}}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[3];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[3];
 
         expect(fieldInput.innerHTML).toContain("Custom value");
     });
@@ -176,34 +176,37 @@ describe("Formly ReadOnly", () => {
     it("should display read only text", function () {
         compileAndSetupStuff({model: {readonlyText: "Lorem ipsum"}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[4];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[4];
 
         expect(fieldInput.innerHTML).toBe("Lorem ipsum");
-        expect(fieldInput.classList.contains("simple")).toBeTruthy();
-        expect(fieldInput.classList.contains("multiple")).toBeFalsy();
-        expect(fieldInput.classList.contains("richtext")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--simple")).toBeTruthy();
+        expect(fieldInput.classList.contains("read-only__field--multiple")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--richtext")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--inline-richtext")).toBeFalsy();
     });
 
     it("should display read only multiline text", function () {
         compileAndSetupStuff({model: {readonlyTextMulti: "Lorem ipsum"}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[5];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[5];
 
         expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
-        expect(fieldInput.classList.contains("simple")).toBeFalsy();
-        expect(fieldInput.classList.contains("multiple")).toBeTruthy();
-        expect(fieldInput.classList.contains("richtext")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--simple")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--multiple")).toBeTruthy();
+        expect(fieldInput.classList.contains("read-only__field--richtext")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--inline-richtext")).toBeFalsy();
     });
 
     it("should display read only rich text", function () {
         compileAndSetupStuff({model: {readonlyRichText: "Lorem ipsum"}});
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[6];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[6];
 
         expect(fieldInput.firstElementChild.innerHTML).toBe("Lorem ipsum");
-        expect(fieldInput.classList.contains("simple")).toBeFalsy();
-        expect(fieldInput.classList.contains("multiple")).toBeFalsy();
-        expect(fieldInput.classList.contains("richtext")).toBeTruthy();
+        expect(fieldInput.classList.contains("read-only__field--simple")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--multiple")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--richtext")).toBeFalsy();
+        expect(fieldInput.classList.contains("read-only__field--inline-richtext")).toBeTruthy();
     });
 
     it("should display read only users", function () {
@@ -223,7 +226,7 @@ describe("Formly ReadOnly", () => {
             }
         });
 
-        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input")[7];
+        let fieldInput = node.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field")[7];
         let content = fieldInput.innerHTML.split(", ");
 
         expect(content.length).toBe(2);
@@ -234,7 +237,7 @@ describe("Formly ReadOnly", () => {
     it("should not display read only invalid type", function () {
         compileAndSetupStuff({model: {readonlyInvalid: "Invalid"}});
 
-        let fields = document.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only-input");
+        let fields = document.querySelectorAll(".formly-field-bpFieldReadOnly div.read-only__field");
 
         expect(fields.length).toBe(fieldsDefinition.length - 1);
     });

@@ -82,7 +82,7 @@ App_Toolbar_Menu,"Additional actions"
 App_Toolbar_Generate, "Generate"
 App_Toolbar_Generate_Test_Cases, "Generate Test Cases"
 App_Toolbar_Generate_Test_Cases_Title, "Add Process to Generate Tests"
-App_Toolbar_Generate_Test_Cases_Success_Message, "been scheduled."
+App_Toolbar_Generate_Test_Cases_Success_Message, "has been scheduled."
 App_Toolbar_Generate_Test_Cases_Failure_Message, "Failed to generate test cases."
 
 App_Tooltip_Dirty, "Unsaved"

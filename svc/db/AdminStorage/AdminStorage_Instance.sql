@@ -1074,7 +1074,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Menu',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate', 'en-US', N'Generate')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate_Test_Cases', 'en-US', N'Generate Test Cases')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate_Test_Cases_Title', 'en-US', N'Add Process to Generate Tests')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate_Test_Cases_Success_Message', 'en-US', N'been scheduled.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate_Test_Cases_Success_Message', 'en-US', N'has been scheduled.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Toolbar_Generate_Test_Cases_Failure_Message', 'en-US', N'Failed to generate test cases.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Tooltip_Dirty', 'en-US', N'Unsaved')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Collapsible_ShowMore', 'en-US', N'Show more')

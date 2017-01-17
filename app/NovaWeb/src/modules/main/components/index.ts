@@ -9,7 +9,6 @@ import "./quickSearch";
 import "./momentDateFilter";
 import "./momentDateTimeFilter";
 import "./pagination";
-import "./analytics";
 import "./dialogs/open-project";
 
 angular.module("bp.components", [
@@ -23,6 +22,5 @@ angular.module("bp.components", [
     "bp.components.pagecontent",
     "bp.components.artifactpicker",
     "bp.components.quickSearch",
-    "bp.components.pagination",
-    "bp.components.analytics"
+    "bp.components.pagination"
 ]);

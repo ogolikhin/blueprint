@@ -252,7 +252,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetStatus(string, List{HttpStatusCode})"/>
-        public string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null)
+        public string GetStatus(string preAuthorizedKey = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return GetStatus(RestPaths.Svc.AdminStore.STATUS, preAuthorizedKey, expectedStatusCodes);
         }
@@ -641,6 +641,28 @@ namespace Model.Impl
             }
 
             return file;
+        }
+
+        /// <seealso cref="IAdminStore.QueueGenerateProcessTestsJob(IUser, List{HttpStatusCode})"/>
+        public AddJobResult QueueGenerateProcessTestsJob(IUser user, GenerateProcessTestsJobParameters processTestJobParametersRequest, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(AdminStore), nameof(QueueGenerateProcessTestsJob));
+
+            var tokenValue = user?.Token?.AccessControlToken;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            // Set expectedStatusCodes to 201 Created by default if it's null.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
+            var addJobResult = restApi.SendRequestAndDeserializeObject<AddJobResult, GenerateProcessTestsJobParameters>(
+                RestPaths.Svc.AdminStore.Jobs.Process.TESTGEN,
+                RestRequestMethod.POST,
+                processTestJobParametersRequest,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return addJobResult;
         }
 
         #endregion Members inherited from IAdminStore

@@ -313,44 +313,50 @@ export class BPTreeViewController implements IBPTreeViewController {
                 this.options.api.showLoadingOverlay();
             }
 
-            return this.$q.all(this.rowData.filter(vm => vm.expanded).map(vm => this.loadExpanded(vm))).then(() => {
-                if (this.options.api) {
-                    this.options.api.setRowData(this.rootNodeVisible ? this.rowData : _.flatten(this.rowData.map(r => r.children)));
+            if (this.rowData) {
+                return this.$q.all(this.rowData.filter(vm => vm.expanded)
+                    .map(vm => this.loadExpanded(vm)))
+                    .then(() => {
+                        if (this.options.api) {
+                            this.options.api.setRowData(this.rootNodeVisible ? this.rowData : _.flatten(this.rowData.map(r => r.children)));
 
-                    if (this.sizeColumnsToFit) {
-                        this.timers[1] = this.$timeout(() => {
-                            this.options.api.sizeColumnsToFit();
-                        }, fitColumnDelay);
-                    } else {
-                        this.options.columnApi.autoSizeAllColumns();
-                    }
-
-                    if (!_.isEmpty(selectedVMs)) {
-                        // Restore selection (don't raise selection events)
-                        this.options.onRowSelected = undefined;
-                        this.options.api.forEachNode(node => {
-                            if (selectedVMs[node.data.key]) {
-                                node.setSelected(true);
+                            if (this.sizeColumnsToFit) {
+                                this.timers[1] = this.$timeout(() => {
+                                    this.options.api.sizeColumnsToFit();
+                                }, fitColumnDelay);
+                            } else {
+                                this.options.columnApi.autoSizeAllColumns();
                             }
-                        });
-                        this.options.onRowSelected = this.onRowSelected;
-                    }
-                }
-            }).catch(reason => {
-                this.messageService.addError(reason || "Artifact_NotFound");
-            }).finally(() => {
-                if (this.options.api) {
-                    this.options.api.hideOverlay();
-                    if (this.options.api.getModel().getRowCount() === 0) {
-                        this.options.api.showNoRowsOverlay();
-                    }
-                }
-                if (_.isFunction(this.onGridReset)) {
-                    this.onGridReset({isExpanding: isExpanding});
-                }
-            });
-        }
 
+                            if (!_.isEmpty(selectedVMs)) {
+                                // Restore selection (don't raise selection events)
+                                this.options.onRowSelected = undefined;
+                                this.options.api.forEachNode(node => {
+                                    if (selectedVMs[node.data.key]) {
+                                        node.setSelected(true);
+                                    }
+                                });
+                                this.options.onRowSelected = this.onRowSelected;
+                            }
+                        }
+                    })
+                    .catch(reason => {
+                        this.messageService.addError(reason || "Artifact_NotFound");
+                    })
+                    .finally(() => {
+                        if (this.options.api) {
+                            this.options.api.hideOverlay();
+                            if (this.options.api.getModel().getRowCount() === 0) {
+                                this.options.api.showNoRowsOverlay();
+                            }
+                        }
+                        if (_.isFunction(this.onGridReset)) {
+                            this.onGridReset({isExpanding: isExpanding});
+                        }
+                    });
+            }
+
+        }
         return this.$q.resolve();
     }
 

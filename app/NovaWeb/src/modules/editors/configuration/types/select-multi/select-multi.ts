@@ -34,7 +34,7 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
-    private propertyDescriptor: IPropertyDescriptor;
+    private propertyDescriptor: IPropertyDescriptor; 
     constructor(private $scope: AngularFormly.ITemplateScope,
                      private localization: ILocalizationService,
                      private $timeout: ng.ITimeoutService,

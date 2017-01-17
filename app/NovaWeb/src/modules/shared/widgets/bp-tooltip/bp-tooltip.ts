@@ -47,8 +47,8 @@ export class BPTooltip implements ng.IDirective {
 
         function createTooltip(e?: MouseEvent) {
             if (window["MutationObserver"]) {
-                observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
+                observer = new MutationObserver(function (mutations) {
+                    mutations.forEach(function (mutation) {
                         const tooltipText = angular.element(mutation.target).attr("bp-tooltip");
                         angular.element(tooltip).children().html(tooltipText);
                         angular.element(tooltip).addClass("show");
@@ -157,7 +157,7 @@ export class BPTooltip implements ng.IDirective {
                 elem.addEventListener("mouseout", removeTooltip);
                 //elem.addEventListener("transitionend", hideTooltip);
 
-                $scope.$on("$destroy", () => {
+                $scope.$on("$destroy", function () {
                     removeTooltip();
 
                     elem.removeEventListener("mousemove", updateTooltip);

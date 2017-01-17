@@ -1,4 +1,4 @@
-import {ICommunicationManager} from "../../../services/communication-manager";
+import {ICommunicationManager} from "./../../../services/communication-manager";
 import {UserStoryProperties} from "../../diagram/presentation/graph/shapes/user-task";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
@@ -39,11 +39,11 @@ export class PreviewCenterController {
         "$state",
         "statefulArtifactFactory",
         "messageService",
-        "localization",
+        "localization",        
         "communicationManager"
     ];
 
-    public resizeContentAreas = (isTabSetVisible) => {
+    public resizeContentAreas = function (isTabSetVisible) {
         const availHeight = window.innerHeight ? window.innerHeight :
             (document.documentElement && document.documentElement.clientHeight ? document.documentElement.clientHeight :
                 (document.body ? document.body.clientHeight : screen.availHeight));
@@ -86,8 +86,8 @@ export class PreviewCenterController {
 
         const n = document.createTextNode(" ");
         element.appendChild(n);
-//fixme: should use $timeout
-        setTimeout(() => {
+
+        setTimeout(function () {
             n.parentNode.removeChild(n);
         }, 20);
     }
@@ -204,7 +204,7 @@ export class PreviewCenterController {
         }
     }
 
-    private onUserStoryLoaded ()  {
+    private onUserStoryLoaded = () => {
         this.communicationManager.modalDialogManager.notifyUserStoryLoaded(true);
     }
 

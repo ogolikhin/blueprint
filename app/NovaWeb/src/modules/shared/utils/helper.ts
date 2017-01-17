@@ -12,7 +12,7 @@ export class Helper {
     }
 
     static get UID(): string {
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
             const r = Math.random() * 16 | 0;
             const v = c === "x" ? r : (r & 0x3 | 0x8);
             return v.toString(16);
@@ -71,7 +71,7 @@ export class Helper {
 
         // if it has children, we go deeper
         if (node.hasChildNodes()) {
-            [].forEach.call(node.childNodes, (child) => {
+            [].forEach.call(node.childNodes, function (child) {
                 if (child.nodeType === 1) { // we dig into HTML children only
                     Helper.autoLinkURLText(child);
                 } else if (child.nodeType === 3) {
@@ -103,7 +103,7 @@ export class Helper {
 
         let element = node as HTMLElement;
         let tds = element.querySelectorAll("td");
-        [].forEach.call(tds, (td) => {
+        [].forEach.call(tds, function (td) {
             if (td.style.borderStyle === "" || td.style.borderStyle.indexOf("none") !== -1) {
                 td.style.borderStyle = "solid";
             }
@@ -124,7 +124,7 @@ export class Helper {
 
         // if it has children, we go deeper
         if (node.hasChildNodes()) {
-            [].forEach.call(node.childNodes, (child) => {
+            [].forEach.call(node.childNodes, function (child) {
                 if (child.nodeType === 1) { // we dig into HTML children only
                     Helper.setFontFamilyOrOpenSans(child, allowedFonts);
                 } else if (child.nodeType === 3 && child.textContent.trim() !== "") {
@@ -141,10 +141,10 @@ export class Helper {
                             fontFamily = "'Open Sans'";
                         } else if (allowedFonts && allowedFonts.length) {
                             let isFontAllowed = false;
-                            allowedFonts.forEach((allowedFont) => {
-                                isFontAllowed = isFontAllowed || fontFamily.split(",").some((font) => {
-                                        return font.toLowerCase().trim().indexOf(allowedFont.toLowerCase()) !== -1;
-                                    });
+                            allowedFonts.forEach(function (allowedFont) {
+                                isFontAllowed = isFontAllowed || fontFamily.split(",").some(function (font) {
+                                    return font.toLowerCase().trim().indexOf(allowedFont.toLowerCase()) !== -1;
+                                });
                             });
                             if (!isFontAllowed) {
                                 fontFamily += ",'Open Sans'";
@@ -222,8 +222,7 @@ export class Helper {
 
     public static removeAttributeFromNode(node: Node, attribute: string) {
         let result: string;
-
-        const walk = (node, func) => {
+        const walk_the_Node = function walk(node, func) {
             func(node);
             node = node.firstChild;
             while (node) {
@@ -231,7 +230,7 @@ export class Helper {
                 node = node.nextSibling;
             }
         };
-        walk(node, (element) => {
+        walk_the_Node(node, function (element) {
             if (element.removeAttribute && element.hasAttribute(attribute)) {
                 element.removeAttribute(attribute);
             }

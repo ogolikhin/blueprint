@@ -9,7 +9,7 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
     public extends: string = "input";
     public template: string = require("./number.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public link: ng.IDirectiveLinkFn = ($scope, $element, $attrs) => {
+    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
         });
@@ -25,7 +25,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
 
         let validators = {
             decimalPlaces: {
-                expression: ($viewValue, $modelValue, scope) => {
+                expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.numberValidation.decimalPlaces($viewValue, $modelValue, scope.to.decimalPlaces,
                                                                                                      scope.options.data.isValidated);
                     BPFieldBaseController.handleValidationMessage("decimalPlaces", isValid, scope);
@@ -33,7 +33,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
                 }
             },
             wrongFormat: {
-                expression: ($viewValue, $modelValue, scope) => {
+                expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.numberValidation.wrongFormat($viewValue, $modelValue, scope.to.decimalPlaces,
                                                                                                      scope.options.data.isValidated);
                     BPFieldBaseController.handleValidationMessage("wrongFormat", isValid, scope);
@@ -42,7 +42,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
                 }
             },
             max: {
-                expression: ($viewValue, $modelValue, scope) => {
+                expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.numberValidation.isMax($viewValue, $modelValue, scope.to.max,
                                                                                         scope.options.data.isValidated);
                     BPFieldBaseController.handleValidationMessage("max", isValid, scope);
@@ -50,7 +50,7 @@ export class BpFieldNumberController extends BPFieldBaseController {
                 }
             },
             min: {
-                expression: ($viewValue, $modelValue, scope) => {
+                expression: function ($viewValue, $modelValue, scope) {
                     const isValid = validationService.numberValidation.isMin($viewValue, $modelValue, scope.to.min,
                                                                                        scope.options.data.isValidated);
                     BPFieldBaseController.handleValidationMessage("min", isValid, scope);

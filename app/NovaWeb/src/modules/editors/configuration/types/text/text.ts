@@ -9,7 +9,7 @@ export class BPFieldText implements AngularFormly.ITypeOptions {
     public extends: string = "input";
     public template: string = require("./text.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public link: ng.IDirectiveLinkFn = ($scope, $element, $attrs) => {
+    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
         });
@@ -25,7 +25,7 @@ export class BpFieldTextController extends BPFieldBaseController {
 
         let validators = {
             requiredCustom: {
-                expression: ($viewValue, $modelValue, scope) => {
+                expression: function ($viewValue, $modelValue, scope) {
                     if (scope.options["data"].propertyTypePredefined === Models.PropertyTypePredefined.Name) {
                         const isValid = validationService.systemValidation.validateName($modelValue);
                         BPFieldBaseController.handleValidationMessage("requiredCustom", isValid, scope);

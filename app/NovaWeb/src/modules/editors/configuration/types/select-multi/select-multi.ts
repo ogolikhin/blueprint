@@ -33,13 +33,14 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
-    private propertyDescriptor: IPropertyDescriptor; 
-    constructor(private $scope: AngularFormly.ITemplateScope,
-                     private localization: ILocalizationService,
-                     private $timeout: ng.ITimeoutService,
-                     private validationService: IValidationService) {
-        super();
+    static $inject: [string] = ["$document", "$scope", "localization", "$timeout", "validationService"];
+    private propertyDescriptor: IPropertyDescriptor;
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
+                private localization: ILocalizationService,
+                private $timeout: ng.ITimeoutService,
+                private validationService: IValidationService) {
+        super($document);
         this.propertyDescriptor = $scope.options["data"];
 
         const to: AngularFormly.ITemplateOptions = {
@@ -139,6 +140,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             },
             closeDropdownOnTab: this.closeDropdownOnTab,
             scrollIntoView: this.scrollIntoView,
+            catchClick: this.catchClick,
             setFocus: function () {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
@@ -234,6 +236,8 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 selectMulti.isScrolling = true;
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
+                this.catchClick(isOpen);
+
                 this.isOpen = isOpen;
                 this.items = options;
                 this.$select = $select;

@@ -7,6 +7,11 @@ export interface IBPFieldBaseController {
 }
 
 export class BPFieldBaseController implements IBPFieldBaseController {
+    static $inject = ["$document"];
+
+    constructor(protected $document: ng.IDocumentService) {
+    }
+
     public blurOnKey = (event: KeyboardEvent, keyCode?: number | number[]): void => {
         let _keyCode: number[];
         if (!keyCode) {
@@ -41,6 +46,23 @@ export class BPFieldBaseController implements IBPFieldBaseController {
             event.target.dispatchEvent(escKey);
 
             this.blurOnKey(event, 9);
+        }
+    };
+
+    public catchClick = (isDropdownOpen?: boolean): void => {
+        if (isDropdownOpen) {
+            const iframes = this.$document[0].querySelectorAll("iframe");
+            for (let i = 0; i < iframes.length; i++) {
+                const iframe = iframes[i] as HTMLElement;
+                const catcher = angular.element(`<div class="ui-select__click-catcher"/>`)[0];
+                iframe.parentElement.insertBefore(catcher, iframe);
+            }
+        } else {
+            const catchers = this.$document[0].querySelectorAll(".ui-select__click-catcher");
+            for (let i = 0; i < catchers.length; i++) {
+                const catcher = catchers[i] as HTMLElement;
+                catcher.parentElement.removeChild(catcher);
+            }
         }
     };
 

@@ -832,7 +832,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, sourceArtifactType);
             
             var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user, Helper.ArtifactStore);
-            string sourceArtifactInlineImageId = ArtifactStoreHelper.GetEmbeddedImageId(sourceArtifactDetails.Description);
+            string sourceArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(sourceArtifactDetails.Description);
             var sourceArtifactImageFile = Helper.ArtifactStore.GetImage(_user, sourceArtifactInlineImageId);
 
             // Execute:
@@ -840,7 +840,7 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
-            string copiedArtifactInlineImageId = ArtifactStoreHelper.GetEmbeddedImageId(copyResult.Artifact.Description);
+            string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
 
             // Verify:

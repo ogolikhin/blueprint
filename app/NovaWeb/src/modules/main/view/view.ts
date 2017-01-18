@@ -1,14 +1,15 @@
-﻿import {IWindowVisibility, VisibilityStatus} from "../../core/services/window-visibility";
-import {IUser, ISession} from "../../shell";
-import {Models, Enums} from "../models";
-import {IProjectManager} from "../../managers/project-manager";
-import {IArtifactManager, IStatefulArtifact} from "../../managers/artifact-manager";
-import {IMessageService} from "../../core/messages/message.svc";
+﻿import {ILocalStorageService} from "../../core/local-storage/local-storage.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
-import {ILocalStorageService} from "../../core/local-storage/local-storage.svc";
+import {IMessageService} from "../../core/messages/message.svc";
+import {IWindowVisibility, VisibilityStatus} from "../../core/services/window-visibility";
+import {IStatefulArtifact} from "../../managers/artifact-manager";
+import {IProjectManager} from "../../managers/project-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IDialogService, IDialogSettings} from "../../shared";
+import {ISession, IUser} from "../../shell";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {BPTourController} from "../components/dialogs/bp-tour/bp-tour";
+import {Enums, Models} from "../models";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -27,7 +28,7 @@ export class MainViewController {
         "projectManager",
         "messageService",
         "localization",
-        "artifactManager",
+        "selectionManager",
         "windowVisibility",
         "utilityPanelService",
         "localStorageService",
@@ -47,7 +48,7 @@ export class MainViewController {
                 private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private windowVisibility: IWindowVisibility,
                 private utilityPanelService: IUtilityPanelService,
                 private localStorageService: ILocalStorageService,
@@ -62,8 +63,8 @@ export class MainViewController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
             this.windowVisibility.visibilityObservable.distinctUntilChanged()
-                .subscribeOnNext(this.onVisibilityChanged, this)           
-        ]; 
+                .subscribeOnNext(this.onVisibilityChanged, this)
+        ];
 
         this.openTourFirstTime();
     }
@@ -94,7 +95,7 @@ export class MainViewController {
         });
         this.messageService.dispose();
         this.projectManager.dispose();
-        this.artifactManager.dispose();
+        this.selectionManager.dispose();
     }
     private onVisibilityChanged = (status: VisibilityStatus) => {
         this.$document[0].body.classList.remove(status === VisibilityStatus.Visible ? "is-hidden" : "is-visible");

@@ -1,26 +1,24 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 import "angular-sanitize";
-import "../../";
-import {ComponentTest} from "../../../util/component.test";
-import {BPDiscussionPanelController} from "./bp-discussions-panel";
 import {HttpStatusCode} from "../../../core/http/http-status-code";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
-import {IReply, IDiscussion} from "./artifact-discussions.svc";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ItemTypePredefined} from "../../../main/models/enums";
-import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
-import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
+import {IStatefulArtifactFactory} from "../../../managers/artifact-manager";
+import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
-import {StatefulArtifact, IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {StatefulSubArtifact} from "../../../managers/artifact-manager/sub-artifact";
+import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {Helper} from "../../../shared/utils/helper";
-import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
-import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ComponentTest} from "../../../util/component.test";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
+import {IDiscussion, IReply} from "./artifact-discussions.svc";
+import {BPDiscussionPanelController} from "./bp-discussions-panel";
+import * as angular from "angular";
 
 let setInitialArtifact = ($q: ng.IQService, artifactService: ArtifactServiceMock): IStatefulArtifact => {
     const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
@@ -48,12 +46,11 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((artifactManager: IArtifactManager, selectionManager: SelectionManagerMock) => {
-        artifactManager.selection = selectionManager;
+    beforeEach(inject((selectionManager: SelectionManagerMock) => {
+        selectionManager = selectionManager;
         directiveTest = new ComponentTest<BPDiscussionPanelController>(template, "bp-discussion-panel");
         vm = directiveTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
         onChangesObj = {
@@ -178,7 +175,7 @@ describe("Component BPDiscussionPanel", () => {
             const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
             const artifact = new StatefulArtifact({id: 2, name: "Collection", predefinedType: ItemTypePredefined.Collections, version: 1}, services);
             onChangesObj.context.currentValue.artifact = artifact;
-            
+
             //Act
             vm.$onChanges(onChangesObj);
             $rootScope.$digest();

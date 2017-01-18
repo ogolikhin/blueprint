@@ -1,31 +1,23 @@
-import * as angular from "angular";
 import "angular-mocks";
-import "../../shell";
-import {IProcessUpdateResult} from "./services/process.svc";
-import {ProcessServiceMock} from "./services/process.svc.mock";
-import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
-import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
-import {Models} from "../../main/models";
-import * as TestModels from "./models/test-model-factory";
-import {IProcess} from "./models/process-models";
-import {ShapeModelMock} from "./components/diagram/presentation/graph/shapes/shape-model.mock";
-import {
-    ArtifactManager,
-    IStatefulArtifactFactory,
-    StatefulArtifactFactory,
-    MetaDataService
-} from "../../managers/artifact-manager";
-import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
-import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {MessageServiceMock} from "../../core/messages/message.mock";
+import {Models} from "../../main/models";
+import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../managers/artifact-manager";
+import {IArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
+import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ArtifactAttachmentsMock} from "../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
+import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.svc.mock";
-import {IArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
+import {IProcess} from "./models/process-models";
+import * as TestModels from "./models/test-model-factory";
+import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
+import {ProcessServiceMock} from "./services/process.svc.mock";
+import * as angular from "angular";
 
 describe("StatefulProcessArtifact", () => {
 
@@ -44,7 +36,7 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.service("artifactManager", ArtifactManager);
+        $provide.service("selectionManager", SelectionManager);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);

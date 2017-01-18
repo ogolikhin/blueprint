@@ -1,3 +1,4 @@
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import * as angular from "angular";
 import * as TestModels from "../../models/test-model-factory";
 import {ExecutionEnvironmentDetectorMock} from "../../../../core/services/execution-environment-detector.mock";
@@ -38,7 +39,7 @@ describe("ProcessDiagram Tests", () => {
         navigationService: INavigationService,
         utilityPanelService: UtilityPanelService,
         shapesFactory: ShapesFactory,
-        artifactManager: IArtifactManager,
+        selectionManager: ISelectionManager,
         fileUploadService: FileUploadServiceMock,
         loadingOverlayService: ILoadingOverlayService;
 
@@ -49,8 +50,6 @@ describe("ProcessDiagram Tests", () => {
     _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        artifactManager = <IArtifactManager>{};
-
         $provide.service("messageService", MessageServiceMock);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("$uibModal", ModalServiceMock);
@@ -127,7 +126,7 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager,
+            selectionManager,
             fileUploadService,
             loadingOverlayService
         );
@@ -159,7 +158,7 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager,
+            selectionManager,
             fileUploadService,
             loadingOverlayService
         );
@@ -194,7 +193,7 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager,
+            selectionManager,
             fileUploadService,
             loadingOverlayService
         );
@@ -229,7 +228,7 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager,
+            selectionManager,
             fileUploadService,
             loadingOverlayService
         );
@@ -265,7 +264,7 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager,
+            selectionManager,
             fileUploadService,
             loadingOverlayService
         );
@@ -300,7 +299,7 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager,
+            selectionManager,
             fileUploadService,
             loadingOverlayService
         );
@@ -336,7 +335,7 @@ describe("ProcessDiagram Tests", () => {
             shapesFactory,
             utilityPanelService,
             clipboard,
-            artifactManager,
+            selectionManager,
             fileUploadService,
             loadingOverlayService
         );

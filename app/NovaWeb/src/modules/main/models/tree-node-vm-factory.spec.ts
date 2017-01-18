@@ -1,10 +1,10 @@
 import "angular";
 import "angular-mocks";
 import "rx";
-import {Models, AdminStoreModels} from "../models";
+import {IStatefulArtifactFactory, StatefulArtifact} from "../../managers/artifact-manager";
 import {IProjectService} from "../../managers/project-manager/project-service";
-import {TreeNodeVMFactory, ArtifactNodeVM} from "./tree-node-vm-factory";
-import {IArtifactManager, IStatefulArtifactFactory, StatefulArtifact} from "../../managers/artifact-manager";
+import {AdminStoreModels, Models} from "../models";
+import {ArtifactNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
 
 describe("TreeNodeVMFactory", () => {
     let projectService: IProjectService;
@@ -13,10 +13,9 @@ describe("TreeNodeVMFactory", () => {
 
     beforeEach(() => {
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
-        const artifactManager = jasmine.createSpyObj("artifactManager", ["add"]) as IArtifactManager;
         const statefulArtifactFactory = jasmine.createSpyObj("statefulArtifactFactory", ["createStatefulArtifact"]) as IStatefulArtifactFactory;
         (statefulArtifactFactory.createStatefulArtifact as jasmine.Spy).and.callFake(model => new StatefulArtifact(model, undefined));
-        factory = new TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
+        factory = new TreeNodeVMFactory(projectService, statefulArtifactFactory);
         project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
     });
 

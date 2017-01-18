@@ -72,7 +72,7 @@ export class ProjectManager implements IProjectManager {
                 private loadingOverlayService: ILoadingOverlayService,
                 private mainBreadcrumbService: IMainBreadcrumbService,
                 private localization: ILocalizationService) {
-        this.factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
+        this.factory = new TreeModels.TreeNodeVMFactory(projectService, statefulArtifactFactory);
         this.subscribers = [];
     }
 

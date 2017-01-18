@@ -787,7 +787,8 @@ namespace Helper
         /// <param name="contentType">The MIME Content-Type.</param>
         /// <returns>The random image file.</returns>
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
-        public static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
+        public static IFile CreateRandomImageFile(int width = 300, int height = 100, ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg")
         {
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
             string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);

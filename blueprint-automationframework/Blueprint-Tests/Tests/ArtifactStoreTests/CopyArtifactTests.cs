@@ -830,32 +830,25 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, sourceArtifactType);
-
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
-
-            var imageFile = FileStoreTestHelper.CreateRandomImageFile();
-
-            var addedFile = Helper.ArtifactStore.AddImage(_user, imageFile);
-
-            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
-
-            CSharpUtilities.SetProperty("Description", propertyContent, sourceArtifactDetails);
-
-            sourceArtifact.Lock(_user);
-            Artifact.UpdateArtifact(sourceArtifact, _user, sourceArtifactDetails, address: Helper.BlueprintServer.Address);
+            
+            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user, Helper.ArtifactStore);
+            string sourceArtifactInlineImageId = ArtifactStoreHelper.GetEmbeddedImageId(sourceArtifactDetails.Description);
+            var sourceArtifactImageFile = Helper.ArtifactStore.GetImage(_user, sourceArtifactInlineImageId);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
-            string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetEmbeddedImageId(copyResult.Artifact.Description);
-            var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(copiedArtifactEmbeddedImageId);
+            string copiedArtifactInlineImageId = ArtifactStoreHelper.GetEmbeddedImageId(copyResult.Artifact.Description);
+            var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
 
             // Verify:
+            Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactInlineImageId,
+                "ImageId's for source and copied artifacts should be different.");
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: -1, skipDescription: true);
-            FileStoreTestHelper.AssertFilesAreIdentical(imageFile, copiedArtifactImageFile, compareFileNames: false);
+            FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
         }
 
         #endregion 201 Created tests

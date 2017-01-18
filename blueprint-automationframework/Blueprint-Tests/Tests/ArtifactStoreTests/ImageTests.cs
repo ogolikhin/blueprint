@@ -170,7 +170,7 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ValidationFailed, "The file name is missing or malformed.");
         }
 
-        [TestCase(20, 30, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg", "00000000-0000-0000-0000-000000000000")]
+        [TestCase(20, 30, ArtifactStoreHelper.ImageType.JPEG, "image/jpeg", CommonConstants.InvalidToken)]
         [TestCase(80, 80, ArtifactStoreHelper.ImageType.PNG, "image/png", "")]
         [TestCase(50, 50, ArtifactStoreHelper.ImageType.PNG, "image/png", null)]
         [TestRail(211547)]
@@ -321,7 +321,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 404 Not Found when passed image GUID for non existing image!", GET_IMAGE_PATH);
         }
 
-        [TestCase("00000000-0000-0000-0000-000000000000")]
+        [TestCase(CommonConstants.InvalidToken)]
         [TestRail(213039)]
         [Description("Try to get an image with no ImageId specified.  Verify it returns 404 Not Found.")]
         public void GetImage_NonExistingImage_404NotFound(string imageId)

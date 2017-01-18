@@ -37,10 +37,11 @@ namespace Model
         /// <summary>
         /// Gets an image that was uploaded to artifact store.  No authentication is required.
         /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="embeddedImageId">The GUID of the file you want to retrieve.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The file that was requested.</returns>
-        EmbeddedImageFile GetImage(string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null);
+        EmbeddedImageFile GetImage(IUser user, string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Copies an artifact to a new parent.

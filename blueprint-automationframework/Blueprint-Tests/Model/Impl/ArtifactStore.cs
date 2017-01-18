@@ -53,10 +53,10 @@ namespace Model.Impl
             return addedImage;
         }
 
-        /// <seealso cref="IArtifactStore.GetImage(string, List{HttpStatusCode})"/>
-        public EmbeddedImageFile GetImage(string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetImage(IUser, string, List{HttpStatusCode})"/>
+        public EmbeddedImageFile GetImage(IUser user, string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetImage(Address, embeddedImageId, expectedStatusCodes);
+            return GetImage(Address, user, embeddedImageId, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.CopyArtifact(IArtifactBase, IArtifactBase, IUser, double?, List{HttpStatusCode})"/>
@@ -746,16 +746,17 @@ namespace Model.Impl
         /// Gets an image that was uploaded to artifact store.  No authentication is required.
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="embeddedImageId">The GUID of the file you want to retrieve.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The file that was requested.</returns>
-        public static EmbeddedImageFile GetImage(string address, string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null)
+        public static EmbeddedImageFile GetImage(string address, IUser user, string embeddedImageId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(embeddedImageId, nameof(embeddedImageId));
 
             EmbeddedImageFile file = null;
 
-            var restApi = new RestApiFacade(address);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             var path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.IMAGES_id_, embeddedImageId);
 
             var response = restApi.SendRequestAndGetResponse(

@@ -53,14 +53,13 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldUserPickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$document", "$scope", "localization", "usersAndGroupsService", "$compile", "validationService"];
+    static $inject: [string] = ["$scope", "localization", "usersAndGroupsService", "$compile", "validationService"];
 
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
+    constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private usersAndGroupsService: IUsersAndGroupsService,
                 private $compile: ng.ICompileService, private validationService: IValidationService) {
-        super($document);
+        super();
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
@@ -223,8 +222,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             },
             scrollIntoView: this.scrollIntoView,
-            catchClick: this.catchClick,
-            catchClickId: _.toString(_.random(1000000)),
+            closeDropdownOnBlur: this.closeDropdownOnBlur,
             resetSettings: function () {
                 this.currentState = null;
                 this.currentLimit = this.minLimit;
@@ -342,7 +340,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
-                this.catchClick(isOpen, this.catchClickId);
+                this.closeDropdownOnBlur(isOpen, $select.searchInput);
 
                 $select.items = [];
                 $scope.to.options = [];

@@ -7,11 +7,6 @@ export interface IBPFieldBaseController {
 }
 
 export class BPFieldBaseController implements IBPFieldBaseController {
-    static $inject = ["$document"];
-
-    constructor(protected $document: ng.IDocumentService) {
-    }
-
     public blurOnKey = (event: KeyboardEvent, keyCode?: number | number[]): void => {
         let _keyCode: number[];
         if (!keyCode) {
@@ -49,21 +44,19 @@ export class BPFieldBaseController implements IBPFieldBaseController {
         }
     };
 
-    public catchClick = (isDropdownOpen: boolean, catcherId: string): void => {
+    private dropdownBlurHandler = (event) => {
+        const escKey = document.createEvent("Events");
+        escKey.initEvent("keydown", true, true);
+        escKey["which"] = 27; // 27 = Escape
+        escKey["keyCode"] = 27;
+        event.target.dispatchEvent(escKey);
+    };
+
+    public closeDropdownOnBlur = (isDropdownOpen: boolean, searchInput: ng.IAugmentedJQuery): void => {
         if (isDropdownOpen) {
-            const iframes = this.$document[0].querySelectorAll("iframe");
-            for (let i = 0; i < iframes.length; i++) {
-                const iframe = iframes[i] as HTMLElement;
-                const catcher = angular.element(`<div class="ui-select__click-catcher ui-select__click-catcher--${catcherId}"
-                                                      onclick="this.parentElement.removeChild(this)"/>`)[0];
-                iframe.parentElement.insertBefore(catcher, iframe);
-            }
+            searchInput.on("blur", this.dropdownBlurHandler);
         } else {
-            const catchers = this.$document[0].querySelectorAll(`.ui-select__click-catcher--${catcherId}`);
-            for (let i = 0; i < catchers.length; i++) {
-                const catcher = catchers[i] as HTMLElement;
-                catcher.parentElement.removeChild(catcher);
-            }
+            searchInput.off("blur", this.dropdownBlurHandler);
         }
     };
 

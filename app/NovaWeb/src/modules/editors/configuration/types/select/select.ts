@@ -27,22 +27,19 @@ interface ISelectItem {
 }
 
 export class BpFieldSelectController extends BPFieldBaseController {
-    static $inject: [string] = ["$document", "$scope", "localization", "validationService"];
+    static $inject: [string] = ["$scope", "localization", "validationService"];
     private propertyDescriptor: IPropertyDescriptor;
     private allowsCustomValues: boolean;
     private customValue: ISelectItem;
-    private catchClickId: string;
 
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
+    constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private validationService: IValidationService) {
-        super($document);
+        super();
         this.propertyDescriptor = $scope.options["data"];
 
         this.allowsCustomValues = !this.propertyDescriptor.isValidated;
         this.customValue = null;
-        this.catchClickId = _.toString(_.random(1000000));
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
@@ -72,7 +69,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
 
         $scope["bpFieldSelect"] = {
             closeDropdownOnTab: this.closeDropdownOnTab,
-            catchClick: this.catchClick,
+            closeDropdownOnBlur: this.closeDropdownOnBlur,
             labels: {
                 noMatch: localization.get("Property_No_Matching_Options")
             },
@@ -120,7 +117,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
     };
 
     private onOpenClose = ($select, isOpen: boolean) => {
-        this.catchClick(isOpen, this.catchClickId);
+        this.closeDropdownOnBlur(isOpen, $select.searchInput);
 
         if (!isOpen) {
             $select.items = this.refreshOptions();

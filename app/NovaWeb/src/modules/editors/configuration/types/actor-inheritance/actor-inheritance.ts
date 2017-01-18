@@ -20,7 +20,6 @@ export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
 
 export class BPFieldInheritFromController extends BPFieldBaseController {
     static $inject: [string] = [
-        "$document",
         "$scope",
         "localization",
         "$window",
@@ -29,14 +28,13 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
         "selectionManager"
     ];
 
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
+    constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private $window: ng.IWindowService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
                 private selectionManager: ISelectionManager) {
-        super($document);
+        super();
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
         let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.

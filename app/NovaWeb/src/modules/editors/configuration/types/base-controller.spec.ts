@@ -45,8 +45,6 @@ describe("Formly Base Controller", () => {
             <div class="container" style="height:100px;width:100px;overflow:auto;">
                 <div class="spacer" style="height:200px;width:100px;"></div>
                 <input type="text" style="width:100px;" />
-                <iframe id="iframe1"></iframe>
-                <iframe id="iframe2"></iframe>
             </div>`);
     });
 
@@ -128,45 +126,6 @@ describe("Formly Base Controller", () => {
             expect(document.activeElement).not.toBe(input);
 
             expect(onBlurSpy).toHaveBeenCalled();
-        });
-    });
-
-    describe("catchClick", () => {
-        const catcherId = "123";
-        const catcherIdOther = "456";
-        const catcherClass = "ui-select__click-catcher";
-
-        it("creates the catcher(s) on dropdown open", () => {
-            // Arrange
-
-            // Act
-            controller.catchClick(true, catcherId);
-
-            // Assert
-            expect(document.querySelectorAll(`.${catcherClass}--${catcherId}`).length).toBe(2);
-            expect(document.querySelectorAll(`.${catcherClass}--${catcherIdOther}`).length).toBe(0);
-        });
-
-        it("removes the related catcher(s) on dropdown close", () => {
-            // Arrange
-            const iframe1: HTMLElement = angular.element("#iframe1")[0];
-            const catcher1: HTMLElement = angular.element(`<div class="${catcherClass}--${catcherId}"/>`)[0];
-            iframe1.parentElement.insertBefore(catcher1, iframe1);
-            const catcher1Other: HTMLElement = angular.element(`<div class="${catcherClass}--${catcherIdOther}"/>`)[0];
-            iframe1.parentElement.insertBefore(catcher1Other, iframe1);
-
-            const iframe2: HTMLElement = angular.element("#iframe2")[0];
-            const catcher2: HTMLElement = angular.element(`<div class="${catcherClass}--${catcherId}"/>`)[0];
-            iframe2.parentElement.insertBefore(catcher2, iframe2);
-            const catcher2Other: HTMLElement = angular.element(`<div class="${catcherClass}--${catcherIdOther}"/>`)[0];
-            iframe2.parentElement.insertBefore(catcher2Other, iframe2);
-
-            // Act
-            controller.catchClick(false, catcherId);
-
-            // Assert
-            expect(document.querySelectorAll(`.${catcherClass}--${catcherId}`).length).toBe(0);
-            expect(document.querySelectorAll(`.${catcherClass}--${catcherIdOther}`).length).toBe(2);
         });
     });
 

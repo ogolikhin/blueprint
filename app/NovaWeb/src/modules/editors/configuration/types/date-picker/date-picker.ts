@@ -66,13 +66,10 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldDatePickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$document", "$scope", "localization", "validationService"];
+    static $inject: [string] = ["$scope", "localization", "validationService"];
 
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
-                private localization: ILocalizationService,
-                private validationService: IValidationService) {
-        super($document);
+    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private validationService: IValidationService) {
+        super();
 
         const to: AngularFormly.ITemplateOptions = {
             datepickerOptions: {

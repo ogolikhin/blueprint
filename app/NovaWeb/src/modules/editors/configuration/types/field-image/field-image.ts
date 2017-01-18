@@ -20,7 +20,6 @@ export class BPFieldImage implements AngularFormly.ITypeOptions {
 
 export class BPFieldImageController extends BPFieldBaseController {
     static $inject: [string] = [
-        "$document",
         "$scope",
         "localization",
         "$window",
@@ -29,14 +28,13 @@ export class BPFieldImageController extends BPFieldBaseController {
         "fileUploadService"
     ];
 
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
+    constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private $window: ng.IWindowService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
                 private fileUploadService: IFileUploadService) {
-        super($document);
+        super();
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
         let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.

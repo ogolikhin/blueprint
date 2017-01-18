@@ -18,13 +18,10 @@ export class BPFieldNumber implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldNumberController extends BPFieldBaseController {
-    static $inject: [string] = ["$document", "$scope", "localization", "validationService"];
+    static $inject: [string] = ["$scope", "localization", "validationService"];
 
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
-                private localization: ILocalizationService,
-                private validationService: IValidationService) {
-        super($document);
+    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private validationService: IValidationService) {
+        super();
 
         let validators = {
             decimalPlaces: {

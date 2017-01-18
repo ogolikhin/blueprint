@@ -23,7 +23,6 @@ export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
 
 export class BPFieldDocumentFileController extends BPFieldBaseController {
     static $inject: [string] = [
-        "$document",
         "$scope",
         "localization",
         "artifactAttachments",
@@ -34,8 +33,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         "fileUploadService"
     ];
 
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
+    constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private artifactAttachments: IArtifactAttachmentsService,
                 private $window: ng.IWindowService,
@@ -43,7 +41,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 private dialogService: IDialogService,
                 private settings: ISettingsService,
                 private fileUploadService: IFileUploadService) {
-        super($document);
+        super();
         const maxNumberAttachments: number = 1;
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];

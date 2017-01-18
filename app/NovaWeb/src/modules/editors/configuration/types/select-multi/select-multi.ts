@@ -33,14 +33,13 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
-    static $inject: [string] = ["$document", "$scope", "localization", "$timeout", "validationService"];
+    static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
     private propertyDescriptor: IPropertyDescriptor;
-    constructor(protected $document: ng.IDocumentService,
-                private $scope: AngularFormly.ITemplateScope,
+    constructor(private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private $timeout: ng.ITimeoutService,
                 private validationService: IValidationService) {
-        super($document);
+        super();
         this.propertyDescriptor = $scope.options["data"];
 
         const to: AngularFormly.ITemplateOptions = {
@@ -139,9 +138,8 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
             },
             closeDropdownOnTab: this.closeDropdownOnTab,
+            closeDropdownOnBlur: this.closeDropdownOnBlur,
             scrollIntoView: this.scrollIntoView,
-            catchClick: this.catchClick,
-            catchClickId: _.toString(_.random(1000000)),
             setFocus: function () {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
@@ -237,7 +235,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 selectMulti.isScrolling = true;
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
-                this.catchClick(isOpen, this.catchClickId);
+                this.closeDropdownOnBlur(isOpen, $select.searchInput);
 
                 this.isOpen = isOpen;
                 this.items = options;

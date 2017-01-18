@@ -6,6 +6,7 @@ using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -127,42 +128,42 @@ namespace AccessControlTests
 
         [Category(Categories.GoldenData)]
         [TestCase(null, null, false)]
-        [TestCase(9, 2016, false)]
-        [TestCase(10, 2116, true)]
-        [TestCase(10, 1999, false)]
+        [TestCase(2016, 9, false)]
+        [TestCase(2116, 10, true)]
+        [TestCase(1999, 10, false)]
         [TestRail(227232)]
         [Description("Pass valid month and/or year values to GetLicenseUsage and verify it returns 200 OK with the correct usage data.")]
-        public void GetLicenseUsage_WithValidMonthAndYear_VerifyUsageDataReturned(int? month, int? year, bool isEmpty)
+        public void GetLicenseUsage_WithValidMonthAndYear_VerifyUsageDataReturned(int? year, int? month, bool expectedEmptyResponse)
         {
             // Setup:
-            IList<LicenseUsage> response = null;
+            List<LicenseUsage> response = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                response = Helper.AccessControl.GetLicenseUsage(month, year);
+                response = Helper.AccessControl.GetLicenseUsage(year, month);
             });
 
             // Verify:
-            VerifySomeProperties(response, isEmpty);
+            VerifySomeProperties(response, expectedEmptyResponse, year, month);
         }
 
-        [TestCase(10, 0, YEAR_IS_INVALID)]
-        [TestCase(10, 9999, YEAR_IS_INVALID)]
-        [TestCase(0, 2016, MONTH_IS_INVALID)]
-        [TestCase(13, 2016, MONTH_IS_INVALID)]
-        [TestCase(10, null, YEAR_NOT_SPECIFIED)]
-        [TestCase(null, 2016, MONTH_NOT_SPECIFIED)]
+        [TestCase(0, 10, YEAR_IS_INVALID)]
+        [TestCase(9999, 10, YEAR_IS_INVALID)]
+        [TestCase(2016, 0, MONTH_IS_INVALID)]
+        [TestCase(2016, 13, MONTH_IS_INVALID)]
+        [TestCase(null, 10, YEAR_NOT_SPECIFIED)]
+        [TestCase(2016, null, MONTH_NOT_SPECIFIED)]
         [TestRail(227249)]
         [Description("Pass invalid month or year values to GetLicenseUsage and verify it returns 400 Bad Request.")]
-        public void GetLicenseUsage_WithInvalidMonthOrYear_400BadRequest(int? month, int? year, string expectedError)
+        public void GetLicenseUsage_WithInvalidMonthOrYear_400BadRequest(int? year, int? month, string expectedError)
         {
             // Setup: None
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.AccessControl.GetLicenseUsage(month, year);
+                Helper.AccessControl.GetLicenseUsage(year, month);
             });
 
             // Verify:
@@ -176,30 +177,90 @@ namespace AccessControlTests
         /// Verifying couple of elements in the response list
         /// </summary>
         /// <param name="licenseUsageInfo">License usage information broken down by months</param>
-        /// <param name="isEmpty">Verifies if the response empty</param>
-        private static void VerifySomeProperties(IList<LicenseUsage> licenseUsageInfo, bool isEmpty)
+        /// <param name="expectedEmptyResponse">Pass true if the response should be empty or false if it should contain data.</param>
+        /// <param name="year">The year requested in the REST call.</param>
+        /// <param name="month">The month requested in the REST call.</param>
+        private static void VerifySomeProperties(List<LicenseUsage> licenseUsageInfo, bool expectedEmptyResponse, int? year, int? month)
         {
             Assert.IsNotNull(licenseUsageInfo, "License usage information should ever be null!");
 
-            const int SECOND_MONTH_IN_RESPONSE = 1;  // In response from /svc/AccessControl/licenses/usage
-            const int THIRD_MONTH_IN_RESPONSE = 2;
-
-            if (!isEmpty)
+            if (!expectedEmptyResponse)
             {
-                Assert.AreEqual(10, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UsageMonth, "The month should be 10!");
-                Assert.AreEqual(2016, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UsageYear, "The year should be 2016!");
-                Assert.AreEqual(1, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].MaxConcurrentAuthors, "MaxConcurrentAuthors should be 1!");
-                Assert.AreEqual(1, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UniqueAuthors, "UniqueAuthors should be 1");
+                const int FIRST_YEAR_IN_DB = 2016;
+                const int FIRST_MONTH_IN_DB = 9;
 
-                Assert.AreEqual(11, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UsageMonth, "The month should be 11!");
-                Assert.AreEqual(2016, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UsageYear, "The year should be 2016!");
-                Assert.AreEqual(1, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].MaxConcurrentAuthors, "MaxConcurrentAuthors should be 1!");
-                Assert.AreEqual(2, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UniqueAuthors, "UniqueAuthors should be 2");
+                // If we passed null month & year, default to the first month & year in the golden data.
+                year = year ?? FIRST_YEAR_IN_DB;
+                month = month ?? FIRST_MONTH_IN_DB;
+
+                // If the year is before our golden database was created, set month & year to the first ones in the golden DB.
+                if (year < FIRST_YEAR_IN_DB)
+                {
+                    year = FIRST_YEAR_IN_DB;
+                    month = FIRST_MONTH_IN_DB;
+                }
+
+                // First verify that the license usage starts from the month & year we requested.
+                Assert.AreEqual(year, licenseUsageInfo.First().UsageYear, "The year should be {0}!", year);
+                Assert.AreEqual(month, licenseUsageInfo.First().UsageMonth, "The month should be {0}!", month);
+
+                var licenseUsage = licenseUsageInfo.Find(u => u.UsageYear.Equals(2016) && u.UsageMonth.Equals(10));
+                VerifyLicenseUsageValues(licenseUsage, usageMonth: 10, usageYear: 2016, uniqueAuthors: 1, uniqueAuthorUserIds: "1", authorsCreatedToDate: 1,
+                    registeredAuthorsCreated: 0, registeredAuthorsCreatedUserIds: null);
+
+                licenseUsage = licenseUsageInfo.Find(u => u.UsageYear.Equals(2016) && u.UsageMonth.Equals(11));
+                VerifyLicenseUsageValues(licenseUsage, usageMonth: 11, usageYear: 2016, uniqueAuthors: 2, uniqueAuthorUserIds: "1,2", authorsCreatedToDate: 2,
+                    registeredAuthorsCreated: 1, registeredAuthorsCreatedUserIds: "2");
             }
             else
             {
                 Assert.IsEmpty(licenseUsageInfo);
             }
+        }
+
+        /// <summary>
+        /// Verifies that the specified LicenseUsage contains the specified values.
+        /// </summary>
+        /// <param name="licenseUsage">The LicenseUsage to verify.</param>
+        /// <param name="usageYear">The expected usageYear.</param>
+        /// <param name="usageMonth">The expected usageMonth.</param>
+        /// <param name="uniqueAuthors">The expected uniqueAuthors.</param>
+        /// <param name="uniqueAuthorUserIds">The expected uniqueAuthorUserIds.</param>
+        /// <param name="authorsCreatedToDate">The expected authorsCreatedToDate.</param>
+        /// <param name="registeredAuthorsCreated">The expected registeredAuthorsCreated.</param>
+        /// <param name="registeredAuthorsCreatedUserIds">The expected registeredAuthorsCreatedUserIds.</param>
+        private static void VerifyLicenseUsageValues(LicenseUsage licenseUsage, int usageYear, int usageMonth, int uniqueAuthors, string uniqueAuthorUserIds, int authorsCreatedToDate,
+            int registeredAuthorsCreated, string registeredAuthorsCreatedUserIds)
+        {
+            // These properties are always the same in our Golden DB (so far).
+            const string registeredCollaboratorCreatedUserIds = null;
+            const string uniqueCollaboratorUserIds = null;
+            const int uniqueCollaborators = 0;
+            const int collaboratorsCreatedToDate = 0;
+            const int maxConcurrentViewers = 0;
+            const int maxConcurrentAuthors = 1;
+            const int maxConcurrentCollaborators = 0;
+            const int registeredCollaboratorsCreated = 0;
+            const int usersFromAnalytics = 0;
+            const int usersFromRestApi = 0;
+
+            Assert.AreEqual(usageYear, licenseUsage.UsageYear, "The UsageYear should be {0}!", usageYear);
+            Assert.AreEqual(usageMonth, licenseUsage.UsageMonth, "The UsageMonth should be {0}!", usageMonth);
+            Assert.AreEqual(uniqueAuthors, licenseUsage.UniqueAuthors, "UniqueAuthors should be {0}!", uniqueAuthors);
+            Assert.AreEqual(uniqueCollaborators, licenseUsage.UniqueCollaborators, "UniqueCollaborators should be {0}!", uniqueCollaborators);
+            Assert.AreEqual(uniqueAuthorUserIds, licenseUsage.UniqueAuthorUserIds, "UniqueAuthorUserIds should be {0}!", uniqueAuthorUserIds);
+            Assert.AreEqual(uniqueCollaboratorUserIds, licenseUsage.UniqueCollaboratorUserIds, "UniqueCollaboratorUserIds should be {0}!", uniqueCollaboratorUserIds);
+            Assert.AreEqual(registeredAuthorsCreated, licenseUsage.RegisteredAuthorsCreated, "RegisteredAuthorsCreated should be {0}!", registeredAuthorsCreated);
+            Assert.AreEqual(registeredAuthorsCreatedUserIds, licenseUsage.RegisteredAuthorsCreatedUserIds, "RegisteredAuthorsCreatedUserIds should be {0}!", registeredAuthorsCreatedUserIds);
+            Assert.AreEqual(registeredCollaboratorsCreated, licenseUsage.RegisteredCollaboratorsCreated, "RegisteredCollaboratorsCreated should be {0}!", registeredCollaboratorsCreated);
+            Assert.AreEqual(registeredCollaboratorCreatedUserIds, licenseUsage.RegisteredCollaboratorCreatedUserIds, "RegisteredCollaboratorCreatedUserIds should be {0}!", registeredCollaboratorCreatedUserIds);
+            Assert.AreEqual(authorsCreatedToDate, licenseUsage.AuthorsCreatedToDate, "AuthorsCreatedToDate should be {0}!", authorsCreatedToDate);
+            Assert.AreEqual(collaboratorsCreatedToDate, licenseUsage.CollaboratorsCreatedToDate, "CollaboratorsCreatedToDate should be {0}!", collaboratorsCreatedToDate);
+            Assert.AreEqual(maxConcurrentViewers, licenseUsage.MaxConcurrentViewers, "MaxConcurrentViewers should be {0}!", maxConcurrentViewers);
+            Assert.AreEqual(maxConcurrentAuthors, licenseUsage.MaxConcurrentAuthors, "MaxConcurrentAuthors should be {0}!", maxConcurrentAuthors);
+            Assert.AreEqual(maxConcurrentCollaborators, licenseUsage.MaxConcurrentCollaborators, "MaxConcurrentCollaborators should be {0}!", maxConcurrentCollaborators);
+            Assert.AreEqual(usersFromAnalytics, licenseUsage.UsersFromAnalytics, "UsersFromAnalytics should be {0}!", usersFromAnalytics);
+            Assert.AreEqual(usersFromRestApi, licenseUsage.UsersFromRestApi, "UsersFromRestApi should be {0}!", usersFromRestApi);
         }
 
         #endregion Private functions

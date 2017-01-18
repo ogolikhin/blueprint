@@ -1,5 +1,10 @@
 import * as angular from "angular";
 
+interface IKeyboardEventWritable extends KeyboardEvent {
+    keyCode: number;
+    which: number;
+}
+
 export interface IBPFieldBaseController {
     blurOnKey(event: KeyboardEvent, keyCode?: number | number[]): void;
     closeDropdownOnTab(event: KeyboardEvent): void;
@@ -44,11 +49,11 @@ export class BPFieldBaseController implements IBPFieldBaseController {
         }
     };
 
-    private fireEscKeydown = (event) => {
-        const escKey = this.$document[0].createEvent("Events");
+    private fireEscKeydown = (event: Event) => {
+        const escKey = this.$document[0].createEvent("Events") as IKeyboardEventWritable;
         escKey.initEvent("keydown", true, true);
-        escKey["which"] = 27; // 27 = Escape
-        escKey["keyCode"] = 27;
+        escKey.which = 27; // 27 = Escape
+        escKey.keyCode = 27;
         event.target.dispatchEvent(escKey);
     };
 

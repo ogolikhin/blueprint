@@ -7,11 +7,14 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
 using Model.NovaModel;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
 
 namespace Helper
 {
     public static class FileStoreTestHelper
     {
+
         /// <summary>
         /// Asserts that the two files are identical.
         /// </summary>

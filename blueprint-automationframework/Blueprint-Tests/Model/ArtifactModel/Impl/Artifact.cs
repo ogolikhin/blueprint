@@ -475,6 +475,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             // Hack: This is a required hack because the REST call will now return a 501 Unimplemented if you pass the ItemTypeId in the JSON body.
+            int? itemTypeId = artifactChanges.ItemTypeId; //we need to restore ItemTypeId after server call
             artifactChanges.ItemTypeId = null;
 
             if (address == null)
@@ -527,6 +528,7 @@ namespace Model.ArtifactModel.Impl
                     }
                 }
 
+                artifactChanges.ItemTypeId = itemTypeId; //restore ItemTypeId
                 return artifactChanges;
             }
 

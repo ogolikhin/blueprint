@@ -186,13 +186,13 @@ namespace AccessControlTests
 
             if (!isEmpty)
             {
-                Assert.AreEqual(10, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].ActivityMonth, "The month should be 10!");
-                Assert.AreEqual(2016, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].ActivityYear, "The year should be 2016!");
+                Assert.AreEqual(10, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UsageMonth, "The month should be 10!");
+                Assert.AreEqual(2016, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UsageYear, "The year should be 2016!");
                 Assert.AreEqual(1, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].MaxConcurrentAuthors, "MaxConcurrentAuthors should be 1!");
                 Assert.AreEqual(1, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UniqueAuthors, "UniqueAuthors should be 1");
 
-                Assert.AreEqual(11, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].ActivityMonth, "The month should be 11!");
-                Assert.AreEqual(2016, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].ActivityYear, "The year should be 2016!");
+                Assert.AreEqual(11, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UsageMonth, "The month should be 11!");
+                Assert.AreEqual(2016, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UsageYear, "The year should be 2016!");
                 Assert.AreEqual(1, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].MaxConcurrentAuthors, "MaxConcurrentAuthors should be 1!");
                 Assert.AreEqual(2, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UniqueAuthors, "UniqueAuthors should be 2");
             }

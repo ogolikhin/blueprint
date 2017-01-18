@@ -229,6 +229,7 @@ namespace ArtifactStoreTests
         public void GetImage_AddedImage_ReturnsImage(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
             var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width, height, imageType, contentType);
 
             var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
@@ -237,7 +238,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                returnedFile = Helper.ArtifactStore.GetImage(addedFile.EmbeddedImageId);
+                returnedFile = Helper.ArtifactStore.GetImage(user, addedFile.EmbeddedImageId);
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
@@ -261,7 +262,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                returnedFile = Helper.ArtifactStore.GetImage(addedFile.EmbeddedImageId);
+                returnedFile = Helper.ArtifactStore.GetImage(_authorUser, addedFile.EmbeddedImageId);
             }, "'GET {0}' should return 200 OK when a valid image GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
@@ -277,11 +278,35 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.ArtifactStore.GetImage(imageId);
+                Helper.ArtifactStore.GetImage(_authorUser, imageId);
             }, "'GET {0}' should return 400 Bad request when bad GUID is passed!", GET_IMAGE_PATH);
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Invalid format of specified image id.");
+        }
+
+        [TestCase(null)]
+        [TestCase(CommonConstants.InvalidToken)]
+        [TestRail(227357)]
+        [Description("Upload a random image file to ArtifactStore, then try to get that file but pass an invalid token.  Verify 401 Unauthorized is returned.")]
+        public void GetImage_InvalidToken_401Unauthorized(string invalidToken)
+        {
+            // Setup:
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile(width: 50, height: 50, imageType: ArtifactStoreHelper.ImageType.PNG, contentType: "image/png");
+
+            var addedFile = Helper.ArtifactStore.AddImage(_authorUser, imageFile);
+
+            // Invalidate the user token.
+            _authorUser.Token.AccessControlToken = invalidToken;
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.ArtifactStore.GetImage(_authorUser, addedFile.EmbeddedImageId);
+            }, "'GET {0}' should return 401 Unauthorized when an invalid token is passed!", GET_IMAGE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
         }
 
         [TestCase("")]
@@ -292,7 +317,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetImage(imageId);
+                Helper.ArtifactStore.GetImage(_authorUser, imageId);
             }, "'GET {0}' should return 404 Not Found when passed image GUID for non existing image!", GET_IMAGE_PATH);
         }
 
@@ -304,7 +329,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetImage(imageId);
+                Helper.ArtifactStore.GetImage(_authorUser, imageId);
             }, "'GET {0}' should return 404 Not Found when a image GUID not provided!", GET_IMAGE_PATH);
 
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, "The image with the given GUID does not exist");

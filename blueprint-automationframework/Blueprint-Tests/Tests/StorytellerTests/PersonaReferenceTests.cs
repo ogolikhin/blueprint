@@ -22,6 +22,7 @@ namespace StorytellerTests
     {
         private IUser _adminUser;
         private IUser _authorFullAccess;
+        private IProject _projectCustomData;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -32,6 +33,7 @@ namespace StorytellerTests
             Helper = new TestHelper();
 
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             _project = ProjectFactory.GetProject(_adminUser);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
             _authorFullAccess = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -44,6 +46,62 @@ namespace StorytellerTests
         }
 
         #endregion Setup and Cleanup
+
+        #region 200 OK Tests
+
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(227359)]
+        [Description("Add a persona reference to a Process artifact task. Move the persona reference into folder. Verify that no change on persona referance after the move.")]
+        public void PersonaReference_MoveReferenceInTask_VerifyNoChangeInPersonaReference(string taskName)
+        {
+            // Setup: Create and the default process and update with the added persona reference
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _authorFullAccess);
+            
+            var process = Helper.Storyteller.GetProcess(_authorFullAccess, addedProcessArtifact.Id);
+
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+
+            var folderArtifact = Helper.CreateAndPublishArtifact(_project, _authorFullAccess, BaseArtifactType.PrimitiveFolder);
+
+            // Execution: Move the persona referece and update the process
+            Helper.ArtifactStore.MoveArtifact(addedProcessArtifact, folderArtifact, _authorFullAccess);
+
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
+
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+
+            // Validation: Verify that there is no change in personaReference before and after the Move
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, savedPersonaReference);
+
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
+        }
+
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(227360)]
+        [Description("Add a persona reference from different project to a Process artifact task. Verify that no change on persona reference after the update.")]
+        public void PersonaReference_AddReferenceFromDifferentProjectToTask_VerifyNoChangeInPersonaReference(string taskName)
+        {
+            // Setup: Create a default process and update with the added persona reference from differnt project
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _adminUser);
+
+            var process= Helper.Storyteller.GetProcess(_adminUser, addedProcessArtifact.Id);
+
+            var addedPersonaReferenceFromDifferentProject = AddPersonaReferenceToTask(taskName, process, _adminUser, _projectCustomData);
+
+            // Execution: update the process with addedPersonaReference from different project
+            var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);
+
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+
+            // Validation: Verify that there is no change in personaReference before and after the process update
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReferenceFromDifferentProject, savedPersonaReference);
+
+            AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
+        }
+
+        #endregion 200 OK Tests
 
         #region Tests
 

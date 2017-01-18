@@ -934,9 +934,9 @@ namespace ArtifactStoreTests
         #endregion 201 Created tests
 
         [TestCase(ItemTypePredefined.Actor)]
-        [TestRail(1)]
-        [Description("" +
-                     ".")]
+        [TestRail(227358)]
+        [Description("Create and publish a source artifact. Add random inline image to source artifact custom property. Copy the source artifact into the same parent.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, except inline image. Copying should create new entry for inline image.")]
         public void CopyArtifact_PublishedArtifactWithInlineImageInRichText_ToProjectRoot_ReturnsNewArtifact(ItemTypePredefined itemType)
         {
             // Setup:
@@ -947,8 +947,6 @@ namespace ArtifactStoreTests
             
             var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user,
                 Helper.ArtifactStore, propertyName: customPropertyName);
-
-            int expectedVersion = -1;
 
             Func<INovaArtifactDetails, string, string> GetCustomPropertyStringValueByName = (details, propertyName) =>
             {
@@ -970,8 +968,7 @@ namespace ArtifactStoreTests
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactEmbeddedImageId);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
-                expectedVersionOfOriginalArtifact: expectedVersion, skipDescription: true);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user, skipDescription: true);
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
         }
 

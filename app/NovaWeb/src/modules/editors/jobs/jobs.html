@@ -4,7 +4,7 @@
             <div class="artifact-heading-group1">
                 <div class="artifact-heading-group2">
                     <div class="col-xs-2">
-                        <div class="name">Jobs</div>
+                        <div class="name">{{$ctrl.localization.get("Jobs_Label")}}</div>
                     </div>
                     <div class="col-xs-10">
                         <div class="pull-right">
@@ -41,7 +41,7 @@
                             </div>
                             <div class="row">
                                 <div class="font-blue jobs__type">
-                                    {{$ctrl.getType(item.jobType)}}
+                                    {{::$ctrl.getType(item.jobType)}}
                                 </div>
                             </div>
                         </div>
@@ -49,22 +49,30 @@
                             <div class="row jobs__firstrow">
                                 <div class="col-xs-3">
                                     <div class="font-blue">
-                                        JOB{{item.jobId}}
+                                        JOB{{::item.jobId}}
                                     </div>
                                 </div>
                                 <div class="col-xs-5">
-                                    <span class="jobs__label">{{::$root.config.labels["Jobs_SubmittedDate"]}}:</span>
-                                    <span>{{item.submittedDateTime | momentDateTime}}</span>
+                                    <div class="col-xs-4">                                        
+                                        <span class="jobs__label">{{::$root.config.labels["Jobs_SubmittedDate"]}}:</span>
+                                    </div>
+                                    <div class="col-xs-8">                                        
+                                         <span>{{::item.submittedDateTime | momentDateTime}}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row jobs__secondrow">
                                 <div class="col-xs-3">
                                     <i class="fonticon2-project jobs__projecticon--size"></i>
-                                    <span class="jobs__projectname" bp-tooltip="{{item.project}}" bp-tooltip-truncated="true">{{item.project}}</span>
+                                    <span class="jobs__projectname" bp-tooltip="{{::item.project}}" bp-tooltip-truncated="true">{{::item.project}}</span>
                                 </div>
                                 <div class="col-xs-5">
-                                    <span class="jobs__label">{{::$root.config.labels["Jobs_StartDate"]}}:</span>
-                                    <span>{{item.jobStartDateTime ? (item.jobStartDateTime | momentDateTime) : "--"}}</span>
+                                    <div class="col-xs-4">  
+                                        <span class="jobs__label">{{::$root.config.labels["Jobs_StartDate"]}}:</span>
+                                    </div>
+                                    <div class="col-xs-8">  
+                                        <span>{{::item.jobStartDateTime | momentDateTime}}</span>
+                                    </div>
                                 </div>
                                 <div class="col-xs-4" ng-class="{job__invalidStatus: !$ctrl.isValidStatus(item.status)}">
                                     <span class="jobs__label">{{::$root.config.labels["Jobs_Status"]}}:</span>
@@ -75,11 +83,15 @@
                             <div class="row jobs__thirdrow">
                                 <div class="col-xs-3">
                                     <span class="jobs__label">{{::$root.config.labels["Jobs_User"]}}:</span>
-                                    <span class="jobs__authorname" bp-tooltip="{{item.userDisplayName}}" bp-tooltip-truncated="true">{{item.userDisplayName}}</span>
+                                    <span class="jobs__authorname" bp-tooltip="{{::item.userDisplayName}}" bp-tooltip-truncated="true">{{::item.userDisplayName}}</span>
                                 </div>
                                 <div class="col-xs-5">
-                                    <span class="jobs__label">{{::$root.config.labels["Jobs_EndDate"]}}:</span>
-                                    <span> {{item.jobEndDateTime ? (item.jobEndDateTime | momentDateTime) : "--"}}</span>
+                                    <div class="col-xs-4">  
+                                         <span class="jobs__label">{{::$root.config.labels["Jobs_EndDate"]}}:</span>
+                                    </div>
+                                    <div class="col-xs-8">  
+                                         <span> {{::item.jobEndDateTime | momentDateTime}}</span>
+                                    </div>
                                 </div>
                                 <div class="col-xs-4">
                                     <uib-progressbar ng-if="$ctrl.isJobRunning(item.status)" value="item.progress"></uib-progressbar>

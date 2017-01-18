@@ -1,12 +1,10 @@
-import {
-    Models, Enums,
-    BpArtifactEditor,
-    IArtifactManager,
-    IWindowManager
-} from "./bp-artifact-editor";
-import {IMessageService} from "../../core/messages/message.svc";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IMessageService} from "../../core/messages/message.svc";
+import {Enums, Models} from "../../main/models";
+import {IWindowManager} from "../../main/services/window-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {BpArtifactEditor} from "./bp-artifact-editor";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -15,19 +13,21 @@ export class BpArtifactGeneralEditor implements ng.IComponentOptions {
 
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
+        "$window",
         "messageService",
-        "artifactManager",
+        "selectionManager",
         "windowManager",
         "localization",
         "propertyDescriptorBuilder"
     ];
 
-    constructor(messageService: IMessageService,
-                artifactManager: IArtifactManager,
+    constructor($window: ng.IWindowService,
+                messageService: IMessageService,
+                selectionManager: ISelectionManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
-        super(messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super($window, messageService, selectionManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

@@ -1,16 +1,15 @@
-import {TreeModels} from "../../models";
-import {Helper} from "../../../shared";
-import {IProjectManager, IArtifactManager} from "../../../managers";
-import {IItemChangeSet} from "../../../managers/artifact-manager";
-import {ISelectionManager} from "../../../managers/selection-manager";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
-import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {IProjectManager} from "../../../managers";
+import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
+import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ISelectionManager} from "../../../managers/selection-manager";
+import {Helper} from "../../../shared";
+import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
+import {TreeModels} from "../../models";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -35,26 +34,22 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public static $inject: [string] = [
         "$q",
         "projectManager",
-        "artifactManager",
         "navigationService",
         "selectionManager",
         "messageService",
         "projectService",
         "loadingOverlayService",
-        "analytics",
         "$state",
         "localization"
     ];
 
     constructor(private $q: ng.IQService,
                 private projectManager: IProjectManager,
-                private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
                 private messageService: IMessageService,
                 private projectService: IProjectService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider,
                 private $state: ng.ui.IStateService,
                 public localization: ILocalizationService) {
     }
@@ -171,15 +166,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
             if (this.pendingSelectedArtifactId) {
                 navigateToId = this.pendingSelectedArtifactId;
                 this.pendingSelectedArtifactId = undefined;
-            // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
+                // For case when we open a project for loaded artifact in a main area. ("Load project" button in main area)
             } else if (this.numberOfProjectsOnLastLoad < this.projects.length &&
                 this.selectionManager.getArtifact() &&
                 // selectedArtifactId = undefined only if there is no projects open.
                 // if there are some artifact pre selected in the main area before opening project
                 // we need to check if this artifact is from opening project: this.projects[0] (opening project)
                 (!selectedArtifactId ||
-                    (selectedArtifactId &&
-                     this.isMainAreaSelectedArtifactBelongsToOpeningProject()))) {
+                (selectedArtifactId &&
+                this.isMainAreaSelectedArtifactBelongsToOpeningProject()))) {
                 if (!this.selectionManager.getArtifact().artifactState.historical) {
                     navigateToId = this.selectionManager.getArtifact().id;
                 } else {
@@ -233,23 +228,23 @@ export class ProjectExplorerController implements IProjectExplorerController {
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
             return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
-                   `${icon}<span>${label}</span></a>`;
+                `${icon}<span>${label}</span></a>`;
         }
     }];
 
     private resettingSelection: boolean;
 
     public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
-         if (!this.resettingSelection && isSelected) {
-             //Following has to be a const to restore current selection in case of faling navigation
-             const prevSelected = this.selected;
-             this.selected = vm;
-             this.navigationService.navigateTo({id: vm.model.id})
+        if (!this.resettingSelection && isSelected) {
+            //Following has to be a const to restore current selection in case of faling navigation
+            const prevSelected = this.selected;
+            this.selected = vm;
+            this.navigationService.navigateTo({id: vm.model.id})
                 .catch((err) => {
                     this.resettingSelection = true;
                     this.treeApi.setSelected(prevSelected);
                 });
-         }
-         this.resettingSelection = false;
+        }
+        this.resettingSelection = false;
     };
 }

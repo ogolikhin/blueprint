@@ -126,13 +126,13 @@ namespace AccessControlTests
         #region GetLicenseUsage tests
 
         [Category(Categories.GoldenData)]
-        [TestCase(null, null, false, 0)]
-        [TestCase(9, 2016, false, 1)]
-        [TestCase(10, 2116, true, 0)]
-        [TestCase(10, 1999, false, 0)]
+        [TestCase(null, null, false)]
+        [TestCase(9, 2016, false)]
+        [TestCase(10, 2116, true)]
+        [TestCase(10, 1999, false)]
         [TestRail(227232)]
         [Description("Pass valid month and/or year values to GetLicenseUsage and verify it returns 200 OK with the correct usage data.")]
-        public void GetLicenseUsage_WithValidMonthAndYear_VerifyUsageDataReturned(int? month, int? year, bool isEmpty, int offset)
+        public void GetLicenseUsage_WithValidMonthAndYear_VerifyUsageDataReturned(int? month, int? year, bool isEmpty)
         {
             // Setup:
             IList<LicenseUsage> response = null;
@@ -144,14 +144,13 @@ namespace AccessControlTests
             });
 
             // Verify:
-            VerifySomeProperties(response, isEmpty, offset);
+            VerifySomeProperties(response, isEmpty);
         }
 
-        [TestCase(10, -1, YEAR_IS_INVALID)]
         [TestCase(10, 0, YEAR_IS_INVALID)]
         [TestCase(10, 9999, YEAR_IS_INVALID)]
-        [TestCase(-1, 2016, MONTH_IS_INVALID)]
-        [TestCase(12, 2016, MONTH_IS_INVALID)]
+        [TestCase(0, 2016, MONTH_IS_INVALID)]
+        [TestCase(13, 2016, MONTH_IS_INVALID)]
         [TestCase(10, null, YEAR_NOT_SPECIFIED)]
         [TestCase(null, 2016, MONTH_NOT_SPECIFIED)]
         [TestRail(227249)]
@@ -178,22 +177,24 @@ namespace AccessControlTests
         /// </summary>
         /// <param name="licenseUsageInfo">License usage information broken down by months</param>
         /// <param name="isEmpty">Verifies if the response empty</param>
-        /// <param name="offset">Offset from the total response</param>
-        private static void VerifySomeProperties(IList<LicenseUsage> licenseUsageInfo, bool isEmpty, int offset)
+        private static void VerifySomeProperties(IList<LicenseUsage> licenseUsageInfo, bool isEmpty)
         {
             Assert.IsNotNull(licenseUsageInfo, "License usage information should ever be null!");
 
+            const int SECOND_MONTH_IN_RESPONSE = 1;  // In response from /svc/AccessControl/licenses/usage
+            const int THIRD_MONTH_IN_RESPONSE = 2;
+
             if (!isEmpty)
             {
-                Assert.IsTrue(licenseUsageInfo[2 - offset].ActivityMonth.Equals(11), "The month should be 11!");
-                Assert.IsTrue(licenseUsageInfo[2 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
-                Assert.IsTrue(licenseUsageInfo[2 - offset].MaxConcurrentAuthors.Equals(1), "MaxConcurrentAuthors should be 1!");
-                Assert.IsTrue(licenseUsageInfo[2 - offset].UniqueAuthors.Equals(2), "UniqueAuthors should be 2");
+                Assert.AreEqual(10, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UsageMonth, "The month should be 10!");
+                Assert.AreEqual(2016, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UsageYear, "The year should be 2016!");
+                Assert.AreEqual(1, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].MaxConcurrentAuthors, "MaxConcurrentAuthors should be 1!");
+                Assert.AreEqual(1, licenseUsageInfo[SECOND_MONTH_IN_RESPONSE].UniqueAuthors, "UniqueAuthors should be 1");
 
-                Assert.IsTrue(licenseUsageInfo[3 - offset].ActivityMonth.Equals(12), "The month should be 12!");
-                Assert.IsTrue(licenseUsageInfo[3 - offset].ActivityYear.Equals(2016), "The year should be 2016!");
-                Assert.IsTrue(licenseUsageInfo[3 - offset].MaxConcurrentAuthors.Equals(1), "MaxConcurrentAuthors should be 1!");
-                Assert.IsTrue(licenseUsageInfo[3 - offset].UniqueAuthors.Equals(1), "UniqueAuthors should be 2");
+                Assert.AreEqual(11, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UsageMonth, "The month should be 11!");
+                Assert.AreEqual(2016, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UsageYear, "The year should be 2016!");
+                Assert.AreEqual(1, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].MaxConcurrentAuthors, "MaxConcurrentAuthors should be 1!");
+                Assert.AreEqual(2, licenseUsageInfo[THIRD_MONTH_IN_RESPONSE].UniqueAuthors, "UniqueAuthors should be 2");
             }
             else
             {

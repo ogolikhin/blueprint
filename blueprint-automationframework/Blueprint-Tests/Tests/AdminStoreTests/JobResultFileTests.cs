@@ -140,7 +140,7 @@ namespace AdminStoreTests
             // Setup: Not required
             IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
-            // Execute: Execute GetJobResultFile  using the user with invalid session token
+            // Execute: Execute GetJobResultFile using the user with invalid session token
             var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJobResultFile(user: userWithBadToken, jobId: int.MaxValue),
                 "GET {0} call should return 401 Unauthorized when using invalid session!", JOBRESULTFILE_PATH);
 

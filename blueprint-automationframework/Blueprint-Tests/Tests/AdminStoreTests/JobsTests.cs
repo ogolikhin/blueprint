@@ -2,6 +2,7 @@
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.ArtifactModel;
 using Model.Factories;
 using Model.JobModel;
 using Model.JobModel.Enums;
@@ -48,7 +49,7 @@ namespace AdminStoreTests
             _allProjects = ProjectFactory.GetAllProjects(_adminUser);
             _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             _projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
-            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _projectCustomData);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _projectCustomData);
         }
 
         [TestFixtureTearDown]
@@ -73,7 +74,7 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create ALM Change Summary jobs
-            List<IOpenAPIJob> jobsToBeFound = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            var jobsToBeFound = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
 
             // Execute: GetJobs with page and pageSize parameters
             JobResult jobResult = null;
@@ -81,29 +82,26 @@ namespace AdminStoreTests
                 "GET {0} call failed when using it with page ({1}) and pageSize ({2})!", JOBS_PATH, page, pageSize);
 
             // Validation: Verify that page and pageSize works
-            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: jobsToBeFound);
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedOpenAPIJobs: jobsToBeFound);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)] 
-        // TODO: There is no easy way to create job(s) that visible for the user used for the test and that prevents writing validation step for this tests
-        // TODO: Will work on this as tech debt so that we can create a author user with access to ALM target by injecting SQL query
-        [TestCase(DEFAULT_BASELINEORREVIEWID, 10, 4)]
+        [TestCase(10, 4)]
         [TestRail(227295)]
         [Description("GET Jobs that returns multiple pages for JobResult. Verify that number of result items matches with expecting search result items.")]
         public void GetJobs_CreateMoreJobsThanThePageSize_VerifyCorrectNumberOfPagesAvailable(
-            int baselineOrReviewId,
             int numberOfJobsToBeCreated,
             int pageSize
             )
         {
-            // Setup: Create ALM Change Summary jobs
-            var jobsToBeFound = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _authorUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            //Setup: Schedules Process test generation job(s) with the provided process using the author user
+            var publishedProcessArtifacts = Helper.CreateAndPublishMultipleArtifacts(_projectCustomData, _adminUser, BaseArtifactType.Process, 1);
+            var processTestJobParameterRequest = AdminStoreHelper.GenerateProcessTestsJobParameters(_projectCustomData, publishedProcessArtifacts);
+            var jobsToBeFound = QueueMultipleGenerateProcessTestsJobs(_authorUser, processTestJobParameterRequest, numberOfJobsToBeCreated);
 
             // Calculate expecting job result counts
             var expectedJobResultCount = jobsToBeFound.Count();
             var expectedPageCount = (expectedJobResultCount % pageSize).Equals(0) ? expectedJobResultCount / pageSize : expectedJobResultCount / pageSize + 1;
-            jobsToBeFound.Reverse();
-            var expectedJobsStack = new Stack<IOpenAPIJob>(jobsToBeFound);
+            var expectedJobsStack = new Stack<AddJobResult>(jobsToBeFound);
 
             // Execute: Execute GetJobs with page and pageSize
             var returnedJobCount = 0;
@@ -112,17 +110,17 @@ namespace AdminStoreTests
             {
                 // Execute GetJobs with page and pageSize
                 JobResult jobResult = null;
-                Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(user: _authorUser, page: pageCount, pageSize: pageSize, jobType: JobType.HpAlmRestChangeSummary),
+                Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(user: _authorUser, page: pageCount, pageSize: pageSize, jobType: JobType.GenerateProcessTests),
                     "GET {0} call failed when using it with page ({1}) and pageSize ({2})!", JOBS_PATH, pageCount, pageSize);
 
                 // Adds job result per page into returned job count
                 returnedJobCount += jobResult.JobInfos.Count();
 
                 // Create a paged job list per page, decending ordered by Job Id
-                List<IOpenAPIJob> pagedJobs = ExtractJobsFromJobStack(expectedJobsStack, pageSize);
+                List<AddJobResult> pagedJobs = ExtractAddJobResultsFromAddJobResultStack(expectedJobsStack, pageSize);
 
                 // Validation: Verify that jobResult contains list of expectedJobs
-                AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize, expectedJobs: pagedJobs);
+                AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedAddJobResults: pagedJobs);
 
                 pageCount++;
             }
@@ -151,30 +149,33 @@ namespace AdminStoreTests
                 "GET {0} call failed when using it with jobType ({1})!", JOBS_PATH, JobType.DocGen);
 
             // Validation: Verify that jobType filter works by checking the empty jobResult from Get Jobs call
-            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize);
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedOpenAPIJobs: null);
 
         }
 
-        [TestCase(DEFAULT_BASELINEORREVIEWID, 2, 1, 1)]
+        [TestCase(2, 1, 1)]
         [TestRail(227084)]
-        [Description("GET Jobs using the author user after creating jobs with admin. Verify that the returned jobResult contains jobs belong to the user which is nothing.")]
-        public void GetJobs_GetJobsWithUserWithNoAccessToJobsCreatedByAdmin_VerifyEmtpyJobResult(
-            int baselineOrReviewId,
+        [Description("GET Jobs using the author user (author1) after creating jobs with different author (author2). Verify that the returned jobResult contains jobs that belong to the user which should be empty.")]
+        public void GetJobs_GetJobsWithUserWithNoAccessToJobsCreatedByAnotherAuthor_VerifyEmtpyJobResult(
             int numberOfJobsToBeCreated,
             int page,
             int pageSize
             )
         {
-            // Setup: Create ALM Change Summary jobs (using admin)
-            TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            //Setup: Schedules Process test generation job(s) using the different author (author2)
+            var author1 = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _allProjects.First());
+            var author2 = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _allProjects.First());
+            var publishedProcessArtifacts = Helper.CreateAndPublishMultipleArtifacts(_projectCustomData, _adminUser, BaseArtifactType.Process, 1);
+            var processTestJobParameterRequest = AdminStoreHelper.GenerateProcessTestsJobParameters(_projectCustomData, publishedProcessArtifacts);
+            QueueMultipleGenerateProcessTestsJobs(author2, processTestJobParameterRequest, numberOfJobsToBeCreated);
 
-            // Execute: Execute GetJobs using the author user
+            // Execute: Execute GetJobs using the author user with no access to the sheduled process test generation job(s)
             JobResult jobResult = null;
-            Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(_authorUser, page: page, pageSize: pageSize),
+            Assert.DoesNotThrow(() => jobResult = Helper.AdminStore.GetJobs(author1, page: page, pageSize: pageSize),
                 "GET {0} call failed when using an author user!", JOBS_PATH);
 
-            // Validation: Verify that jobResult is empty since the author user doesn't have permission to view jobs created by admin
-            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize);
+            // Validation: Verify that jobResult is empty since the author user doesn't have permission to view jobs created by another author
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedAddJobResults: null);
         }
 
         [TestCase(DEFAULT_BASELINEORREVIEWID, 1, 1)]
@@ -199,7 +200,7 @@ namespace AdminStoreTests
                 JOBS_PATH);
 
             // Validation: Verify that jobResult is empty
-            AdminStoreHelper.JobResultValidation(jobResult: jobResult, pageSize: pageSize);
+            AdminStoreHelper.GetJobsValidation(jobResult: jobResult, pageSize: pageSize, expectedOpenAPIJobs: null);
         }
 
         [TestCase(DEFAULT_BASELINEORREVIEWID)]
@@ -216,7 +217,7 @@ namespace AdminStoreTests
                 "Get {0} call failed when using job Id {1}!", JOB_PATH, createdJob.JobId);
 
             // Validation: Verify that jobResult is identical with job
-            AdminStoreHelper.JobResultValidation(returnedJobInfo, createdJob);
+            AdminStoreHelper.GetJobValidation(returnedJobInfo, createdJob);
         }
 
         #endregion 200 OK Tests
@@ -364,25 +365,50 @@ namespace AdminStoreTests
         #region private functions
 
         /// <summary>
-        /// Creates the jobs list decending ordered by Job Id, extracted from the job stack
+        /// Creates the jobs list decending ordered by Job Id, extracted from the AddJobResult stack
         /// </summary>
-        /// <param name="jobStack">Job stack descending ordered by Job Id, jobs will be removed from this stack</param>
+        /// <param name="addJobResultStack">AddJobResult stack descending ordered by Job Id, jobs will be removed from this stack</param>
         /// <param name="pageSize">maximum number of jobs that will be on the paged job list</param>
-        private static List<IOpenAPIJob> ExtractJobsFromJobStack(Stack<IOpenAPIJob> jobStack, int pageSize)
+        /// <returns>AddJobResultList representing the job list decending ordered by Job Id</returns>
+        private static List<AddJobResult> ExtractAddJobResultsFromAddJobResultStack(Stack<AddJobResult> addJobResultStack, int pageSize)
         {
-            List<IOpenAPIJob> pagedJobs = new List<IOpenAPIJob>();
+            List<AddJobResult> pagedAddJobResultList = new List<AddJobResult>();
             for (int i = 0; i < pageSize; i++)
             {
-                if (jobStack.Any())
+                if (addJobResultStack.Any())
                 {
-                    pagedJobs.Add(jobStack.Pop());
+                    pagedAddJobResultList.Add(addJobResultStack.Pop());
                 }
                 else
                 {
                     break;
                 }
             }
-            return pagedJobs;
+            return pagedAddJobResultList;
+        }
+
+        /// <summary>
+        /// Schedules multiple numbers of process test generation job with the provided processes
+        /// </summary>
+        /// <param name="user">The user who will schedule job(s).</param>
+        /// <param name="processTestJobParametersRequest">parameter form required for adding process test generation job</param>
+        /// <param name="numberOfArtifacts">The number of jobs to create.</param>
+        /// <returns>List of AddJobResult</returns>
+        private List<AddJobResult> QueueMultipleGenerateProcessTestsJobs(
+            IUser user,
+            GenerateProcessTestsJobParameters processTestJobParametersRequest,
+            int numberOfArtifacts
+            )
+        {
+            var addJobResultList = new List<AddJobResult>();
+
+            for (int i = 0; i < numberOfArtifacts; i++)
+            {
+                var addJobResult = Helper.AdminStore.QueueGenerateProcessTestsJob(user, processTestJobParametersRequest);
+                addJobResultList.Add(addJobResult);
+            }
+
+            return addJobResultList;
         }
 
         #endregion private functions

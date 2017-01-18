@@ -1,23 +1,11 @@
-import {IWindowManager, IMainWindow} from "../../main/services/window-manager";
-import {
-    Models, Enums,
-    IArtifactManager,
-    IStatefulArtifact,
-    BpBaseEditor
-} from "../bp-base-editor";
-
-import {PropertyEditor} from "./bp-property-editor";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
-
-export {
-    IArtifactManager,
-    IStatefulArtifact,
-    IWindowManager,
-    Models,
-    Enums
-}
+import {IMessageService} from "../../core/messages/message.svc";
+import {Enums} from "../../main/models";
+import {IMainWindow, IWindowManager} from "../../main/services/window-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {BpBaseEditor} from "../bp-base-editor";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
+import {PropertyEditor} from "./bp-property-editor";
 
 export abstract class BpArtifactEditor extends BpBaseEditor {
 
@@ -28,12 +16,13 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public editor: PropertyEditor;
     public activeTab: number;
 
-    constructor(public messageService: IMessageService,
-                public artifactManager: IArtifactManager,
+    constructor(protected $window: ng.IWindowService,
+                public messageService: IMessageService,
+                public selectionManager: ISelectionManager,
                 public windowManager: IWindowManager,
                 public localization: ILocalizationService,
                 public propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
-        super(messageService, artifactManager);
+        super(messageService, selectionManager);
         this.activeTab = 0;
     }
 
@@ -85,7 +74,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 if (this.isDestroyed) {
                     return;
                 }
-                
+
                 this.displayContent(propertyContexts);
             });
     }
@@ -138,15 +127,18 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     }
 
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
-        // MUST match $property-width in styles/partials/_properties.scss plus various padding/margin
-        // TODO: make more CSS/layout independent
-        const minimumWidth: number = 392 + ((20 + 1 + 15 + 1 + 10) * 2) + 20;
+        let computedMinWidth: number;
 
-        const pageBodyWrapper = document.querySelector(".page-body-wrapper") as HTMLElement;
+        const pageBodyWrapper = this.$window.document.querySelector(".page-body-wrapper") as HTMLElement;
         if (pageBodyWrapper) {
-            const availableWidth: number = mainWindow ? mainWindow.contentWidth : pageBodyWrapper.offsetWidth;
+            computedMinWidth = _.parseInt(this.$window.getComputedStyle(pageBodyWrapper).getPropertyValue("min-width"), 10);
+        }
+        const minWidth = _.isFinite(computedMinWidth) ? computedMinWidth + 6 : 392;
 
-            if (availableWidth < minimumWidth) {
+        const formlyField = this.$window.document.querySelector(".page-body-wrapper .formly-field") as HTMLElement;
+
+        if (formlyField) {
+            if (formlyField.offsetWidth < minWidth) {
                 pageBodyWrapper.classList.add("single-column-property");
             } else {
                 pageBodyWrapper.classList.remove("single-column-property");

@@ -27,17 +27,17 @@ interface ISelectItem {
 }
 
 export class BpFieldSelectController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "validationService"];
+    static $inject: [string] = ["$document", "$scope", "localization", "validationService"];
     private propertyDescriptor: IPropertyDescriptor;
     private allowsCustomValues: boolean;
     private customValue: ISelectItem;
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
-                     private localization: ILocalizationService,
-                     private validationService: IValidationService) {
-        super();
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
+                private localization: ILocalizationService,
+                private validationService: IValidationService) {
+        super($document);
         this.propertyDescriptor = $scope.options["data"];
-
 
         this.allowsCustomValues = !this.propertyDescriptor.isValidated;
         this.customValue = null;
@@ -70,6 +70,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
 
         $scope["bpFieldSelect"] = {
             closeDropdownOnTab: this.closeDropdownOnTab,
+            closeDropdownOnBlur: this.closeDropdownOnBlur,
             labels: {
                 noMatch: localization.get("Property_No_Matching_Options")
             },
@@ -117,6 +118,8 @@ export class BpFieldSelectController extends BPFieldBaseController {
     };
 
     private onOpenClose = ($select, isOpen: boolean) => {
+        this.closeDropdownOnBlur(isOpen, $select.searchInput);
+
         if (!isOpen) {
             $select.items = this.refreshOptions();
         }

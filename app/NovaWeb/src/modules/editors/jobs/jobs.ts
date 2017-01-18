@@ -71,6 +71,7 @@ export class JobsController {
         switch (job.status) {
             case JobStatus.Completed:
                 switch (job.jobType) {
+                    case JobType.GenerateProcessTests:
                     case JobType.ProjectExport:
                         jobAction = JobAction.Download;
                         break;
@@ -206,6 +207,9 @@ export class JobsController {
                 return this.localization.get("Jobs_Type_ProjectExport");
             case JobType.GenerateTests:
                 return this.localization.get("Jobs_Type_GenerateTests");
+            case JobType.GenerateProcessTests:
+                return this.localization.get("Jobs_Type_GenerateProcessTests");
+
             default:
                 this.$log.error(`Unknown job type: '${typeId}'`);
                 return "Unknown";

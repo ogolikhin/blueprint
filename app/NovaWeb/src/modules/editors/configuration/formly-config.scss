@@ -19,13 +19,3 @@ $richtext-linkcolor: #00f;
 $richtext-min-height: 150px;
 $richtext-fontsize: 12pt;
 $richtext-fontfamily: $font-family-base;
-
-.mce-container .ui-select__click-catcher, // needed to override tinyMce
-.ui-select__click-catcher {
-    display: block;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}

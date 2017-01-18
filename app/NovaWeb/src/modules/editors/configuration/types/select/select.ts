@@ -31,6 +31,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
     private propertyDescriptor: IPropertyDescriptor;
     private allowsCustomValues: boolean;
     private customValue: ISelectItem;
+    private catchClickId: string;
 
     constructor(protected $document: ng.IDocumentService,
                 private $scope: AngularFormly.ITemplateScope,
@@ -39,9 +40,9 @@ export class BpFieldSelectController extends BPFieldBaseController {
         super($document);
         this.propertyDescriptor = $scope.options["data"];
 
-
         this.allowsCustomValues = !this.propertyDescriptor.isValidated;
         this.customValue = null;
+        this.catchClickId = _.toString(_.random(1000000));
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
@@ -119,7 +120,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
     };
 
     private onOpenClose = ($select, isOpen: boolean) => {
-        this.catchClick(isOpen);
+        this.catchClick(isOpen, this.catchClickId);
 
         if (!isOpen) {
             $select.items = this.refreshOptions();

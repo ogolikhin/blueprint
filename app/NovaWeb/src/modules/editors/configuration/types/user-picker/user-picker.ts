@@ -224,6 +224,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             },
             scrollIntoView: this.scrollIntoView,
             catchClick: this.catchClick,
+            catchClickId: _.toString(_.random(1000000)),
             resetSettings: function () {
                 this.currentState = null;
                 this.currentLimit = this.minLimit;
@@ -341,7 +342,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
-                this.catchClick(isOpen);
+                this.catchClick(isOpen, this.catchClickId);
 
                 $select.items = [];
                 $scope.to.options = [];

@@ -141,6 +141,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             closeDropdownOnTab: this.closeDropdownOnTab,
             scrollIntoView: this.scrollIntoView,
             catchClick: this.catchClick,
+            catchClickId: _.toString(_.random(1000000)),
             setFocus: function () {
                 if ($scope["uiSelectContainer"]) {
                     $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
@@ -236,7 +237,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 selectMulti.isScrolling = true;
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
-                this.catchClick(isOpen);
+                this.catchClick(isOpen, this.catchClickId);
 
                 this.isOpen = isOpen;
                 this.items = options;

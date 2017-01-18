@@ -40,12 +40,9 @@ export class OpenProjectController extends BaseDialogController {
         this._returnValue = undefined;
         let description = vm ? vm.model.description : undefined;
         if (description) {
-
             const virtualDiv = window.document.createElement("DIV");
-            virtualDiv.innerHTML = description;
-
-            description = Helper.stripWingdings(virtualDiv.innerHTML);
-            description = String(description).replace(/<[^>]+>/gm, "");
+            virtualDiv.innerHTML = description.replace(/<\/p>/gi, "</p>\n\r");
+            description = virtualDiv.innerText.replace(/(?:\r\n|\r|\n|\u00a0|\ufeff|\u200b)/g, " ").trim();
         }
 
         this.selectedName = vm ? vm.model.name : undefined;

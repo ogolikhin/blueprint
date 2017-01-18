@@ -165,7 +165,6 @@ export class StatefulArtifactNodeVM extends HomogeneousTreeNodeVM<IStatefulArtif
         return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id, this.factory.timeout).then((children: Models.IArtifact[]) => {
             return children.map((it: Models.IArtifact) => {
                 const statefulArtifact = this.factory.statefulArtifactFactory.createStatefulArtifact(it);
-                //this.factory.artifactManager.add(statefulArtifact);
                 return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
             });
         });

@@ -3,7 +3,6 @@ import "angular-mocks";
 import ".";
 import {BpArtifactInfoController} from "./bp-artifact-info";
 import {IWindowManager, IMainWindow} from "../../services/window-manager";
-import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
@@ -22,13 +21,14 @@ import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
 import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
     let $q: ng.IQService;
     let $rootScope: ng.IRootScopeService;
     let windowManager: IWindowManager;
-    let artifactManager: IArtifactManager;
+    let selectionManager: ISelectionManager;
     let projectManager: IProjectManager;
     let loadingOverlayService: ILoadingOverlayService;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
@@ -70,18 +70,16 @@ describe("BpArtifactInfo", () => {
             getObservable: () => artifactObservable,
             getProperyObservable: () => propertyObservable
         };
-        artifactManager = <IArtifactManager>{
-            selection: {
-                artifactObservable: artifactObservable,
-                getArtifact: () => artifact
-            }
+        selectionManager = <ISelectionManager>{
+            artifactObservable: artifactObservable,
+            getArtifact: () => artifact
         };
 
 
 
         $provide.service("messageService", MessageServiceMock);
         $provide.service("windowManager", () => windowManager);
-        $provide.service("artifactManager", () => artifactManager);
+        $provide.service("selectionManager", () => selectionManager);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
@@ -89,7 +87,6 @@ describe("BpArtifactInfo", () => {
         $provide.service("projectManager", ProjectManagerMock);
         $provide.service("metadataService", MetaDataServiceMock);
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
-        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("collectionService", CollectionServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
     }));
@@ -127,8 +124,8 @@ describe("BpArtifactInfo", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
-            artifactManager.selection.getArtifact = () => undefined;
-            const artifactSpy = spyOn(artifactManager.selection.artifactObservable, "subscribeOnNext").and.callThrough();
+            selectionManager.getArtifact = () => undefined;
+            const artifactSpy = spyOn(selectionManager.artifactObservable, "subscribeOnNext").and.callThrough();
 
             // act
             const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
@@ -141,7 +138,9 @@ describe("BpArtifactInfo", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
-            const spy = spyOn(artifactManager.selection.artifactObservable, "subscribeOnNext").and.callThrough();
+            console.log("test");
+            console.log(selectionManager);
+            const spy = spyOn(selectionManager.artifactObservable, "subscribeOnNext").and.callThrough();
 
             // act
             const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
@@ -154,7 +153,7 @@ describe("BpArtifactInfo", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
-            const spy = spyOn(artifactManager.selection.getArtifact().artifactState.onStateChange, "subscribeOnNext").and.callThrough();
+            const spy = spyOn(selectionManager.getArtifact().artifactState.onStateChange, "subscribeOnNext").and.callThrough();
 
             // act
             const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
@@ -167,7 +166,7 @@ describe("BpArtifactInfo", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
-            const spy = spyOn(artifactManager.selection.getArtifact().getProperyObservable(), "subscribeOnNext").and.callThrough();
+            const spy = spyOn(selectionManager.getArtifact().getProperyObservable(), "subscribeOnNext").and.callThrough();
 
             // act
             const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;
@@ -178,7 +177,7 @@ describe("BpArtifactInfo", () => {
 
         it("adds Open Impact Analysis action for other artifacts", () => {
             // arrange
-            const artifact = artifactManager.selection.getArtifact();
+            const artifact = selectionManager.getArtifact();
             artifact.predefinedType = ItemTypePredefined.Process;
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
@@ -192,7 +191,7 @@ describe("BpArtifactInfo", () => {
 
         it("shows the artifact toolbar for live artifact", () => {
             // arrange
-            const artifact = artifactManager.selection.getArtifact();
+            const artifact = selectionManager.getArtifact();
             artifact.predefinedType = ItemTypePredefined.TextualRequirement;
             const template = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
@@ -208,7 +207,7 @@ describe("BpArtifactInfo", () => {
 
         it("doesn't show the artifact toolbar for deleted artifact", () => {
             // arrange
-            const artifact = artifactManager.selection.getArtifact();
+            const artifact = selectionManager.getArtifact();
             artifact.predefinedType = ItemTypePredefined.TextualRequirement;
             artifact.artifactState.deleted = true;
             const template = "<bp-artifact-info></bp-artifact-info>";
@@ -236,7 +235,7 @@ describe("BpArtifactInfo", () => {
         describe("on artifact loaded/reloaded", () => {
             it("adds historical message for historical artifact", () => {
                 // arrange
-                const historicalArtifact = artifactManager.selection.getArtifact();
+                const historicalArtifact = selectionManager.getArtifact();
                 historicalArtifact.lastEditedBy = {displayName: "Author"};
                 historicalArtifact.lastEditedOn = new Date();
                 historicalArtifact.version = 7;
@@ -252,7 +251,7 @@ describe("BpArtifactInfo", () => {
 
             it("doesn't add historical message for deleted artifact", () => {
                 // arrange
-                const deletedArtifact = artifactManager.selection.getArtifact();
+                const deletedArtifact = selectionManager.getArtifact();
                 deletedArtifact.lastEditedBy = {displayName: "Author"};
                 deletedArtifact.lastEditedOn = new Date();
                 deletedArtifact.artifactState.historical = true;
@@ -267,7 +266,7 @@ describe("BpArtifactInfo", () => {
 
             it("doesn't add historical message for live artifact", () => {
                 // arrange
-                const liveArtifact = artifactManager.selection.getArtifact();
+                const liveArtifact = selectionManager.getArtifact();
 
                 // act
                 artifactSubject.onNext(liveArtifact);
@@ -278,7 +277,7 @@ describe("BpArtifactInfo", () => {
 
             it("updates artifact name", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.name = "Up-to-date";
 
                 // act
@@ -290,7 +289,7 @@ describe("BpArtifactInfo", () => {
 
             it("updates artifact type", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.itemTypeName = "Textual Requirement";
 
                 // act
@@ -302,7 +301,7 @@ describe("BpArtifactInfo", () => {
 
             it("updates artifact type id", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.itemTypeId = 123;
 
                 // act
@@ -314,7 +313,7 @@ describe("BpArtifactInfo", () => {
 
             it("updates artifact type description", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.prefix = "TR";
                 updatedArtifact.itemTypeName = "Textual Requirement";
 
@@ -327,7 +326,7 @@ describe("BpArtifactInfo", () => {
 
             it("updates artifact class of collection folder", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.itemTypeId = ItemTypePredefined.Collections;
                 updatedArtifact.predefinedType = ItemTypePredefined.CollectionFolder;
                 const expectedArtifactClass = `icon-${_.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections])}`;
@@ -341,7 +340,7 @@ describe("BpArtifactInfo", () => {
 
             it("updates artifact class of general artifact", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.itemTypeId = ItemTypePredefined.TextualRequirement;
                 updatedArtifact.predefinedType = ItemTypePredefined.TextualRequirement;
                 const expectedArtifactClass = `icon-${_.kebabCase(ItemTypePredefined[updatedArtifact.predefinedType])}`;
@@ -355,7 +354,7 @@ describe("BpArtifactInfo", () => {
 
             it("updates artifact type icon id", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.itemTypeIconId = 456;
 
                 // act
@@ -367,7 +366,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets hasCustomIcon to true when item type icon id is present", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.itemTypeIconId = 456;
 
                 // act
@@ -379,7 +378,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets hasCustomIcon to false when item type icon id is not present", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
 
                 // act
                 artifactSubject.onNext(updatedArtifact);
@@ -390,7 +389,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isLegacy to true when artifact is not Process", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.predefinedType = ItemTypePredefined.Glossary;
 
                 // act
@@ -402,7 +401,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isLegacy to false when artifact is Process", () => {
                 // arrange
-                const updatedArtifact = artifactManager.selection.getArtifact();
+                const updatedArtifact = selectionManager.getArtifact();
                 updatedArtifact.predefinedType = ItemTypePredefined.Process;
 
                 // act
@@ -414,7 +413,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets noPermissions to false if current user has permissions to edit", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.permissions = 8159;
 
                 // act
@@ -426,7 +425,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets noPermissions to true if current user has no permissions to edit", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.permissions = 9;
 
                 // act
@@ -451,7 +450,7 @@ describe("BpArtifactInfo", () => {
 
             it("doesn't add lockedMessage if artifact is not locked", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.None;
 
@@ -465,7 +464,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets selfLocked to true if locked by current user", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.CurrentUser;
 
@@ -479,7 +478,7 @@ describe("BpArtifactInfo", () => {
 
             it("doesn't add lockedMessage if artifact locked by current user", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.CurrentUser;
                 updatedState.lockDateTime = new Date();
@@ -494,7 +493,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets selfLocked to false if locked by another user", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.OtherUser;
 
@@ -508,7 +507,7 @@ describe("BpArtifactInfo", () => {
 
             it("adds lockedMessage if artifact locked by another user", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.OtherUser;
                 updatedState.lockDateTime = new Date();
@@ -524,7 +523,7 @@ describe("BpArtifactInfo", () => {
 
             it("adds lockedMessage if artifact locked by another user (no datetime info)", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.OtherUser;
                 updatedState.lockOwner = "Another User";
@@ -539,7 +538,7 @@ describe("BpArtifactInfo", () => {
 
             it("adds lockedMessage if artifact locked by another user (no user info)", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.OtherUser;
                 updatedState.lockDateTime = new Date();
@@ -554,7 +553,7 @@ describe("BpArtifactInfo", () => {
 
             it("adds lockedMessage if artifact locked by another user (no additional info)", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.lockedBy = LockedByEnum.OtherUser;
 
@@ -568,7 +567,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isReadonly to true if artifact is read-only", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.readonly = true;
 
@@ -581,7 +580,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isReadonly to false if artifact is not read-only", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.readonly = false;
 
@@ -594,7 +593,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isDeleted to true if artifact has been deleted", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.deleted = true;
 
@@ -607,7 +606,7 @@ describe("BpArtifactInfo", () => {
 
             it("adds deletedMessage if artifact has been deleted", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.deleted = true;
                 updatedState.deletedById = 10;
@@ -624,7 +623,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isDeleted to false if artifact has not been deleted", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.deleted = false;
 
@@ -637,7 +636,7 @@ describe("BpArtifactInfo", () => {
 
             it("doesn't add deletedMessage if artifact has not been deleted", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.deleted = false;
 
@@ -650,7 +649,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isChanged to true if artifact is dirty", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.dirty = true;
 
@@ -663,7 +662,7 @@ describe("BpArtifactInfo", () => {
 
             it("sets isChanged to false if artifact is not dirty", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedState = artifact.artifactState;
                 updatedState.dirty = false;
 
@@ -678,7 +677,7 @@ describe("BpArtifactInfo", () => {
         describe("on property change", () => {
             it("sets name to new value when updated", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedArtifact = _.clone(artifact);
                 updatedArtifact.name = "Test";
 
@@ -691,7 +690,7 @@ describe("BpArtifactInfo", () => {
 
             it("ignores update if no update to name", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 const updatedArtifact = _.clone(artifact);
                 const spy = spyOn(controller, "onArtifactPropertyChanged");
 
@@ -706,7 +705,7 @@ describe("BpArtifactInfo", () => {
         describe("canLoadProject", () => {
             it("returns false when no artifact is selected", () => {
                 // arrange
-                spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
+                spyOn(selectionManager, "getArtifact").and.returnValue(undefined);
 
                 // act
                 const result = controller.canLoadProject;
@@ -717,7 +716,7 @@ describe("BpArtifactInfo", () => {
 
             it("returns false when selected artifact doesn't specify project information", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.projectId = undefined;
 
                 // act
@@ -729,7 +728,7 @@ describe("BpArtifactInfo", () => {
 
             it("returns false for artifact from open project", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
                 spyOn(projectManager, "getProject").and.returnValue({});
 
@@ -742,7 +741,7 @@ describe("BpArtifactInfo", () => {
 
             it("returns true for artifact from closed project", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
                 spyOn(projectManager, "getProject").and.returnValue(undefined);
 
@@ -781,7 +780,7 @@ describe("BpArtifactInfo", () => {
 
             it("displays loading overlay when started", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
                 const spy = spyOn(loadingOverlayService, "beginLoading").and.returnValue(undefined);
 
@@ -794,7 +793,7 @@ describe("BpArtifactInfo", () => {
 
             it("hides loading overlay when completed successfully", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
                 spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.resolve());
                 const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
@@ -810,7 +809,7 @@ describe("BpArtifactInfo", () => {
 
             it("hides loading overlay when completed with failure", () => {
                 // arrange
-                const artifact = artifactManager.selection.getArtifact();
+                const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
                 spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.reject(new Error()));
                 const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();

@@ -1,15 +1,15 @@
-import {TreeModels} from "../../models";
-import {Helper} from "../../../shared";
-import {IProjectManager, IArtifactManager} from "../../../managers";
-import {IItemChangeSet} from "../../../managers/artifact-manager";
-import {ISelectionManager} from "../../../managers/selection-manager";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
-import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {IProjectManager} from "../../../managers";
+import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
+import {IProjectService} from "../../../managers/project-manager/project-service";
+import {ISelectionManager} from "../../../managers/selection-manager";
+import {Helper} from "../../../shared";
+import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
+import {TreeModels} from "../../models";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -34,7 +34,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public static $inject: [string] = [
         "$q",
         "projectManager",
-        "artifactManager",
         "navigationService",
         "selectionManager",
         "messageService",
@@ -46,7 +45,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     constructor(private $q: ng.IQService,
                 private projectManager: IProjectManager,
-                private artifactManager: IArtifactManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
                 private messageService: IMessageService,

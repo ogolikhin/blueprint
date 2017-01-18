@@ -62,7 +62,7 @@ describe("Project Manager Test", () => {
         artifact.parentId = 10;
         selectionManager.setArtifact(artifact);
         projectManager.initialize();
-        let factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
+        let factory = new TreeModels.TreeNodeVMFactory(projectService, statefulArtifactFactory);
 
 
         const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(starterProject);
@@ -230,10 +230,9 @@ describe("Project Manager Test", () => {
                                    projectManager: ProjectManager,
                                    projectService: ProjectServiceMock,
                                    selectionManager: SelectionManagerMock,
-                                   statefulArtifactFactory: StatefulArtifactFactoryMock,
-                                   artifactManager: ArtifactManagerMock) => {
+                                   statefulArtifactFactory: StatefulArtifactFactoryMock) => {
             // Arrange
-            let factory = new TreeModels.TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
+            let factory = new TreeModels.TreeNodeVMFactory(projectService, statefulArtifactFactory);
             const project = {
                 id: 12,
                 name: "oldName 2",

@@ -1,7 +1,8 @@
-import {IArtifactManager, IStatefulSubArtifact} from "../../managers/artifact-manager";
-import {BpBaseEditor} from "../bp-base-editor";
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localizationService";
+import {IMessageService} from "../../core/messages/message.svc";
+import {IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {BpBaseEditor} from "../bp-base-editor";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");
@@ -14,7 +15,7 @@ export class BpGlossaryController extends BpBaseEditor {
         "localization",
         "$sce",
         "messageService",
-        "artifactManager"
+        "selectionManager"
     ];
 
     public terms: IStatefulSubArtifact[];
@@ -24,14 +25,14 @@ export class BpGlossaryController extends BpBaseEditor {
                 public localization: ILocalizationService,
                 public $sce: ng.ISCEService,
                 public messageService: IMessageService,
-                public artifactManager: IArtifactManager) {
+                public selectionManager: ISelectionManager) {
 
-        super(messageService, artifactManager);
+        super(messageService, selectionManager);
     }
 
     public $onInit() {
         super.$onInit();
-        this.subscribers.push(this.artifactManager.selection.subArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this));
+        this.subscribers.push(this.selectionManager.subArtifactObservable.filter(s => s == null).subscribeOnNext(this.clearSelection, this));
         this.terms = [];
     }
 
@@ -49,13 +50,13 @@ export class BpGlossaryController extends BpBaseEditor {
 
     private clearSelection() {
         this.selectedTerm = null;
-        this.artifactManager.selection.clearSubArtifact();
+        this.selectionManager.clearSubArtifact();
     }
 
     public selectTerm(term: IStatefulSubArtifact) {
         if (term !== this.selectedTerm) {
             this.selectedTerm = term;
-            this.artifactManager.selection.setSubArtifact(this.selectedTerm);
+            this.selectionManager.setSubArtifact(this.selectedTerm);
         }
     }
 }

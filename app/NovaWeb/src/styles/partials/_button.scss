@@ -304,5 +304,9 @@ Helper classes
 .btn-white-link {
     color: white;
     text-decoration: underline;
+    &:hover {
+        color: white;
+        opacity: 80%;
+    }
 }
 

@@ -29,6 +29,9 @@ export class AppRoutes {
             decode: (item: string): string[] => {
                 return _.isString(item) ? item.split(",") : [];
             },
+            equals: (val1, val2) => {
+                return _.isEqual(val1, val2);
+            },
             is: (item) => {
                 return _.isObject(item);
             }

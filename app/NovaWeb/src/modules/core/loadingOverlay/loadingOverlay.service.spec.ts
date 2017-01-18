@@ -1,16 +1,16 @@
 ﻿import "../../main/";
 import * as angular from "angular";
 import "angular-mocks";
-import {ILoadingOverlayService, LoadingOverlayService} from "./loading-overlay.svc";
-import {BpLoadingOverlayController} from "./bp-loading-overlay";
 import {ComponentTest} from "../../util/component.test";
+import {LoadingOverlayService, ILoadingOverlayService} from "./loadingOverlay.service";
+import {BpLoadingOverlayController} from "./loadingOverlay.controller";
 
 //The service and component are closely related, so we test both at the same time.
 //See loading-overlay.svc
 
 describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("loadingOverlay"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("loadingOverlayService", LoadingOverlayService);
@@ -31,7 +31,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
 
-        // Assert      
+        // Assert
         expect(componentTest.element.find("div:nth-child(1)").hasClass("overlay")).toBe(true);
         expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(true);
     })));
@@ -41,7 +41,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
 
-        // Assert      
+        // Assert
         expect(componentTest.element.find("div:nth-child(1)").hasClass("overlay")).toBe(true);
         expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(true);
     })));
@@ -53,7 +53,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         loadingOverlayService.endLoading(id);
         componentTest.scope.$digest();
 
-        // Assert      
+        // Assert
         expect(componentTest.element.find("div:nth-child(1)").hasClass("overlay")).toBe(false);
         expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(false);
     })));
@@ -64,7 +64,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         loadingOverlayService.beginLoading();
         componentTest.scope.$digest();
 
-        // Assert      
+        // Assert
         expect(componentTest.element.find("div:nth-child(1)").hasClass("overlay")).toBe(true);
         expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(true);
     })));
@@ -77,7 +77,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         loadingOverlayService.endLoading(id1);
         componentTest.scope.$digest();
 
-        // Assert      
+        // Assert
         expect(componentTest.element.find("div:nth-child(1)").hasClass("overlay")).toBe(true);
         expect(componentTest.element.find("div:nth-child(2)").hasClass("overlay-graphic")).toBe(true);
 
@@ -96,7 +96,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
         loadingOverlayService.endLoading(id);
         componentTest.scope.$digest();
 
-        // Act + Assert      
+        // Act + Assert
         expect(() => {
             loadingOverlayService.endLoading(id);
         }).toThrow(new Error(`Invalid id; endLoading may have been called multiple times on the same id or called before beginLoading`));
@@ -115,7 +115,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
             loadingOverlayService.endLoading(id1);
             componentTest.scope.$digest();
 
-            // Act + Assert      
+            // Act + Assert
             expect(() => {
                 loadingOverlayService.endLoading(id1);
             }).toThrow(new Error(`Invalid id; endLoading may have been called multiple times on the same id or called before beginLoading`));

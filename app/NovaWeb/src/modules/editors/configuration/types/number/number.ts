@@ -1,6 +1,6 @@
 import "angular-formly";
 import {BPFieldBaseController} from "../base-controller";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 //fixme: only one class per file

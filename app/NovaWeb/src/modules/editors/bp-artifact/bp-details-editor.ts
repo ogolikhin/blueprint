@@ -2,7 +2,7 @@
 import {BpArtifactEditor, IArtifactManager, IWindowManager} from "./bp-artifact-editor";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {

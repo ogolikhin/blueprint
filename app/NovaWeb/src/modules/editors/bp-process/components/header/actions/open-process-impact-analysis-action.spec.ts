@@ -6,7 +6,7 @@ import {OpenProcessImpactAnalysisAction} from "./open-process-impact-analysis-ac
 import {StatefulProcessArtifact, IStatefulProcessArtifact} from "./../../../process-artifact";
 import {IProcessDiagramCommunication} from "./../../diagram/process-diagram-communication";
 import {CommunicationManager} from "./../../../services/communication-manager";
-import {LocalizationServiceMock} from "./../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
 import {ItemTypePredefined} from "../../../../../main/models/enums";
 import * as TestShapes from "../../../models/test-shape-factory";
 import * as TestModels from "../../../models/test-model-factory";

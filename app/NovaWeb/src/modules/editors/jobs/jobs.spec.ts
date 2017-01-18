@@ -4,9 +4,9 @@ import "rx";
 import "lodash";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
+import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
 import {MessageServiceMock} from "../../core/messages/message.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {IJobsService} from "./jobs.svc";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobsController} from "./jobs";
@@ -289,7 +289,7 @@ describe("Controller: Jobs", () => {
         it("updates total items when returned value is null and on first page", () => {
             // arrange
             controller.paginationData.total = 100;
-            
+
             spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 0}));
 
             // act
@@ -302,7 +302,7 @@ describe("Controller: Jobs", () => {
         it("does not update total items when returned value is null and not on first page", () => {
             // arrange
             controller.paginationData.total = 100;
-            
+
             spyOn(jobsService, "getJobs").and.returnValue($q.when({jobInfos: [], totalJobCount: 0}));
 
             // act
@@ -321,7 +321,7 @@ describe("Controller: Jobs", () => {
             controller.isLoading = false;
             controller.paginationData.total = 1;
             controller.paginationData.pageSize = 10;
-            // act 
+            // act
             const result = controller.canShowPagination();
 
             // assert
@@ -333,7 +333,7 @@ describe("Controller: Jobs", () => {
             controller.isLoading = false;
             controller.paginationData.page = 2;
 
-            // act 
+            // act
             const result = controller.canShowPagination();
 
             // assert
@@ -344,7 +344,7 @@ describe("Controller: Jobs", () => {
             controller.jobs = [createJob(1, JobType.DocGen, JobStatus.Completed)];
             controller.isLoading = true;
 
-            // act 
+            // act
             const result = controller.canShowPagination();
 
             // assert
@@ -356,7 +356,7 @@ describe("Controller: Jobs", () => {
             controller.paginationData.page = 1;
             controller.isLoading = false;
 
-            // act 
+            // act
             const result = controller.canShowPagination();
 
             // assert

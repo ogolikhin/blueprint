@@ -1,7 +1,7 @@
 ﻿import {Helper, IDialogService} from "../../../../shared";
 import {Relationships} from "../../../../main";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IArtifactManager} from "../../../../managers/artifact-manager/artifact-manager";
 import {IRelationshipDetailsService} from "./relationship-details.svc";
 

@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {LocalizationServiceMock} from "./../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "./../../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessGraph} from "./models/process-graph-interfaces";
 import {ProcessType} from "./../../../../models/enums";
@@ -54,9 +54,9 @@ describe("ProcessGraphSelectionHelper", () => {
         shapesFactory = _shapesFactory_;
 
         $rootScope["config"] = {
-            labels: [], 
+            labels: [],
             settings: {
-                StorytellerShapeLimit: "100", 
+                StorytellerShapeLimit: "100",
                 StorytellerIsSMB: "false"
             }
         };
@@ -685,7 +685,7 @@ describe("ProcessGraphSelectionHelper", () => {
 
         // act
         graph.getMxGraph().setSelectionCells([
-            start, preCondition, userTask1, systemTask2, userDecision, userTask2, 
+            start, preCondition, userTask1, systemTask2, userDecision, userTask2,
             systemTask3, userTask3, systemTask4, mergingPoint, end
         ]);
 

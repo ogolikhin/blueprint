@@ -1,5 +1,4 @@
-﻿
-export interface ILocalStorageService {
+﻿export interface ILocalStorageService {
 
     read(path: string): any;
     readObject<T>(path): T;
@@ -10,15 +9,15 @@ export interface ILocalStorageService {
 }
 
 export class LocalStorageService implements ILocalStorageService {
-    
+
     public static $inject = [
-        "$log"       
+        "$log"
     ];
 
     constructor(private $log: ng.ILogService) {
     }
 
-    public read(path: string): any {      
+    public read(path: string): any {
         const text: string = localStorage.getItem(path);
         if (_.isNil(text)) {
             this.$log.debug("LocalStorageService::read(" + path + ") - path not found, returned null");

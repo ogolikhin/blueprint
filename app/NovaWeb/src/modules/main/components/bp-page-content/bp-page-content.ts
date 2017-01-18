@@ -4,7 +4,7 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/art
 import {ItemTypePredefined} from "../../models/enums";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {IProjectManager} from "../../../managers/project-manager";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 
 export class PageContent implements ng.IComponentOptions {

@@ -1,15 +1,12 @@
-﻿import {ILoadingOverlayService} from "./loading-overlay.svc";
+import {ILoadingOverlayService} from "./loadingOverlay.service";
 
 export class BpLoadingOverlayComponent implements ng.IComponentOptions {
-    public template: string = require("./bp-loading-overlay.html");
+    public template: string = require("./loadingOverlay.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpLoadingOverlayController;
     public transclude: boolean = true;
 }
 
-export interface IBpLoadingOverlayController {
-}
-
-export class BpLoadingOverlayController implements IBpLoadingOverlayController {
+export class BpLoadingOverlayController {
 
     public static $inject = ["loadingOverlayService"];
 

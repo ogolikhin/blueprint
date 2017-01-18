@@ -1,9 +1,15 @@
-﻿import {ISession} from "../login/session.svc";
-import {SessionTokenHelper} from "../login/session.token.helper";
-import {IApplicationError, ApplicationError} from "../../core/error/applicationError";
-import {IHttpInterceptorConfig} from "../../core/http/http-interceptor-config";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {IMessageService} from "../../core/messages/message.svc";
+﻿import {ISession} from "../../shell/login/session.svc";
+import {SessionTokenHelper} from "../../shell/login/session.token.helper";
+import {IApplicationError, ApplicationError} from "../../shell/error/applicationError";
+import {HttpStatusCode} from "./http-status-code";
+import {IMessageService} from "../messages/message.svc";
+
+
+export interface IHttpInterceptorConfig extends ng.IRequestConfig {
+    ignoreInterceptor: boolean;
+    dontRetry: boolean;
+    dontHandle: boolean;
+}
 
 export class HttpErrorInterceptor {
 

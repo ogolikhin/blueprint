@@ -1,5 +1,4 @@
-import {IFileUploadService, IFileResult} from "./fileUploadService";
-import {ICopyImageResult} from "./models/models";
+import {IFileUploadService, IFileResult, ICopyImageResult} from "./";
 
 export class FileUploadServiceMock implements IFileUploadService {
     public static $inject = [

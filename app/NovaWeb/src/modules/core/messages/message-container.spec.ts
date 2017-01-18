@@ -1,11 +1,11 @@
 ﻿import "angular";
 import "angular-mocks";
 import "lodash";
-import {LocalizationServiceMock} from "../localization/localization.mock";
+import {LocalizationServiceMock} from "../localization/localization.service.mock";
 import {IMessageService, MessageService} from "./message.svc";
 import {Message, MessageType} from "./message";
 import {MessageContainerController, MessageContainerComponent} from "./message-container";
-import {SettingsService} from "../configuration/settings";
+import {SettingsService} from "../configuration/settings.service";
 
 
 describe("messages container directive", () => {

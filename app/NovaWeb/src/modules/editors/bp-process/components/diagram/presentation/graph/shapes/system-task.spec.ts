@@ -9,7 +9,7 @@ import {SystemTask, DiagramNodeElement} from "./";
 import {NodeChange, NodeType, ElementType} from "../models/";
 import {ISystemTask, ISystemTaskShape} from "../models/";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.service.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
 import {IStatefulArtifact} from "../../../../../../../managers/artifact-manager/";

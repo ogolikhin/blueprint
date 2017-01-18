@@ -1,7 +1,7 @@
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../bp-artifact-picker/bp-artifact-picker-dialog";
 import {Models, TreeModels} from "../../../../main/models";
 import {IDialogSettings} from "../../../../shared/";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IProjectService} from "../../../../../modules/managers/project-manager";
 
 export interface IAddArtifactToCollectionOptions extends IArtifactPickerOptions {

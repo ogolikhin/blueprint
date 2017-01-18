@@ -14,7 +14,7 @@ import {IMetaDataService} from "../../managers/artifact-manager";
 import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IWindowManager} from "../../main/services/window-manager";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";

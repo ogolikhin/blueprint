@@ -5,7 +5,7 @@ import {ExecutionEnvironmentDetectorMock} from "./../../../../core/services/exec
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";

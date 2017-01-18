@@ -1,12 +1,12 @@
 import {BPButtonAction} from "../../../../shared";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IArtifact, IPublishResultSet} from "../../../models/models";
 import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";
 import {IDialogService, IDialogSettings} from "../../../../shared";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../main/components/dialogs/bp-confirm-publish";
-import {HttpStatusCode} from "../../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../../core/httpInterceptor/http-status-code";
 
 export class PublishArtifactsAction extends BPButtonAction {
     private artifactList: IArtifact[];

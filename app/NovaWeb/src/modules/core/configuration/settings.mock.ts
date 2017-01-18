@@ -1,4 +1,4 @@
-import {ISettingsService} from "./settings";
+import {ISettingsService} from "./settings.service";
 
 export class SettingsServiceMock implements ISettingsService {
 

@@ -3,7 +3,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import {Relationships} from "../../../../main";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {BPManageTracesItem, BPManageTracesItemController} from "./bp-manage-traces-item";
 import {ComponentTest} from "../../../../util/component.test";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";

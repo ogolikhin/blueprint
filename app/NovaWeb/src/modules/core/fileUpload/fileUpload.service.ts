@@ -1,4 +1,9 @@
-import {ICopyImageResult} from "./models/models";
+export interface ICopyImageResult {
+    originalId: number;
+    newImageId: string;
+    newImageUrl: string;
+}
+
 
 export interface IFileUploadService {
     uploadToFileStore(file: any,

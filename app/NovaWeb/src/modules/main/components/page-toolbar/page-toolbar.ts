@@ -11,11 +11,11 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IApplicationError} from "../../../core/error/applicationError";
+import {IApplicationError} from "../../../shell/error/applicationError";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 
@@ -279,7 +279,7 @@ export class PageToolbarController {
             selectionMode: "checkbox",
             showProjects: false
         };
-        
+
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
         if (!this.projectManager.getProject(projectId)) {
@@ -290,8 +290,8 @@ export class PageToolbarController {
 
         loadProjectPromise
         .catch((err) => this.messageService.addError(err))
-        .then(() => {        
-        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {            
+        .then(() => {
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {
             if (items) {
                 const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
                 this.jobService.addProcessTestsGenerationJobs(

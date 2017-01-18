@@ -7,7 +7,7 @@ import {IProcessService} from "../../../editors/bp-process/services/process.svc"
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {ComponentTest} from "../../../util/component.test";
 import {BPRelationshipsPanelController} from "./bp-relationships-panel";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";

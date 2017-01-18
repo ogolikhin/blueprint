@@ -1,8 +1,8 @@
 ﻿import "angular-mocks";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {IRelationshipDetailsService, RelationshipDetailsService} from "./relationship-details.svc";
 import {Relationships} from "../../../../main";
-import {HttpStatusCode} from "../../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../../core/httpInterceptor/http-status-code";
 
 describe("Artifact Relationships Service", () => {
 

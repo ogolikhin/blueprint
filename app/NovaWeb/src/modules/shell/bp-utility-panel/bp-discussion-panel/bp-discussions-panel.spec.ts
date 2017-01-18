@@ -4,8 +4,8 @@ import "angular-sanitize";
 import "../../";
 import {ComponentTest} from "../../../util/component.test";
 import {BPDiscussionPanelController} from "./bp-discussions-panel";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
 import {IReply, IDiscussion} from "./artifact-discussions.svc";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
@@ -178,7 +178,7 @@ describe("Component BPDiscussionPanel", () => {
             const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
             const artifact = new StatefulArtifact({id: 2, name: "Collection", predefinedType: ItemTypePredefined.Collections, version: 1}, services);
             onChangesObj.context.currentValue.artifact = artifact;
-            
+
             //Act
             vm.$onChanges(onChangesObj);
             $rootScope.$digest();

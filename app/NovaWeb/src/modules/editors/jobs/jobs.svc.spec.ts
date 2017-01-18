@@ -3,7 +3,7 @@ import "angular-mocks";
 import "rx";
 import {JobsService} from "./jobs.svc";
 import {IJobInfo, JobStatus, JobType} from "./model/models";
-import {HttpStatusCode} from "../../core/http/http-status-code";
+import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
 
 describe("Jobs Service", () => {
     let service: JobsService, httpBackend;
@@ -23,20 +23,20 @@ describe("Jobs Service", () => {
         it("successfully", inject(($httpBackend: ng.IHttpBackendService) => {
             // Arrange
             const testData: IJobInfo[] = [{
-                jobId: 0, 
-                status: JobStatus.Completed, 
-                jobType: JobType.DocGen, 
-                project: "test project", 
-                submittedDateTime: null,  
-                jobStartDateTime: null, 
-                jobEndDateTime: null,  
-                userId: 1,  
-                userDisplayName: "user A", 
-                server: null,  
-                progress: 9,  
-                output: "successful",  
-                statusChanged: true,  
-                hasCancelJob: false, 
+                jobId: 0,
+                status: JobStatus.Completed,
+                jobType: JobType.DocGen,
+                project: "test project",
+                submittedDateTime: null,
+                jobStartDateTime: null,
+                jobEndDateTime: null,
+                userId: 1,
+                userDisplayName: "user A",
+                server: null,
+                progress: 9,
+                output: "successful",
+                statusChanged: true,
+                hasCancelJob: false,
                 projectId: 1
             }];
 

@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "angular-ui-router";
 import {ItemInfoService, IItemInfoService, IItemInfoResult} from "./item-info.svc";
-import {HttpStatusCode} from "../http/http-status-code";
+import {HttpStatusCode} from "../httpInterceptor/http-status-code";
 
 describe("Item Info Service", () => {
     let $q: ng.IQService;

@@ -1,4 +1,4 @@
-import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
@@ -18,8 +18,8 @@ import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {MessageType, Message} from "../../../../core/messages/message";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IFileUploadService} from "../../../../core/file-upload/fileUploadService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {IFileUploadService} from "../../../../core/fileUpload/fileUpload.service";
 import {PanelType, IUtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "../../services/clipboard.svc";
 import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";

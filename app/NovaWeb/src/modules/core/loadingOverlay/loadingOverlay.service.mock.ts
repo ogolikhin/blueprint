@@ -1,4 +1,4 @@
-import {ILoadingOverlayService} from "./loading-overlay.svc";
+import {ILoadingOverlayService} from "./loadingOverlay.service";
 
 export class LoadingOverlayServiceMock implements ILoadingOverlayService {
 

@@ -9,14 +9,14 @@ import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import "tinymce";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager, SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {BPFieldInheritFromController} from "./actor-inheritance";
 import {ArtifactPickerDialogServiceMock} from "./artifact-picker-dialog.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
 
 describe("Actor Inheritance controller", () => {

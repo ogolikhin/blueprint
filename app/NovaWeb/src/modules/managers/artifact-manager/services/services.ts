@@ -5,9 +5,9 @@ import {IMetaDataService} from "../metadata";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IArtifactRelationshipsService} from "../relationships";
 import {IValidationService} from "../validation/validation.svc";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 

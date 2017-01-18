@@ -1,7 +1,7 @@
 ﻿import {ISession} from "./session.svc";
-import {ISettingsService} from "../../core/configuration/settings";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ISettingsService} from "../../core/configuration/settings.service";
+import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {IDialogSettings, BaseDialogController} from "../../shared/widgets/bp-dialog/bp-dialog";
 
 export class ILoginInfo {

@@ -1,12 +1,12 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {
     UnpublishedArtifactsService,
     IUnpublishedArtifactsService

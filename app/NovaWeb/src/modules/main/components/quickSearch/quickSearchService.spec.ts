@@ -5,7 +5,7 @@ import {IQuickSearchService} from "./quickSearchService";
 import {Models} from "../../models";
 import {IProjectManager} from "../../../managers/project-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
 
 describe("Service: Quick Search", () => {
     let service: IQuickSearchService;

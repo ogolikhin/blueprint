@@ -25,8 +25,8 @@ export class LoadingOverlayService implements ILoadingOverlayService {
 
     private loadingIds: number[];
 
-    public initialize = () => {
-        this.loadingIds = new Array<number>();
+    public initialize() {
+        this.loadingIds = [];
     }
 
     public get displayOverlay(): boolean {
@@ -34,7 +34,7 @@ export class LoadingOverlayService implements ILoadingOverlayService {
     }
 
     public dispose(): void {
-        this.loadingIds = new Array<number>();
+        this.loadingIds = [];
     }
 
     public beginLoading(): number {

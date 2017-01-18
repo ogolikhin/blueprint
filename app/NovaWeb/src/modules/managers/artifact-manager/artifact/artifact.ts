@@ -9,9 +9,9 @@ import {MetaData} from "../metadata";
 import {IDispose} from "../../models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {IDialogSettings} from "../../../shared";
-import {IApplicationError, ApplicationError} from "../../../core/error/applicationError";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {ErrorCode} from "../../../core/error/error-code";
+import {IApplicationError, ApplicationError} from "../../../shell/error/applicationError";
+import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
+import {ErrorCode} from "../../../shell/error/error-code";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties

@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import "../../main";
 import {Models} from "../../main/models";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
@@ -17,7 +17,7 @@ import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ItemStateController} from "./item-state.controller";
 import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {MessageType, Message} from "../../core/messages/message";
 

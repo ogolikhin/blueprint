@@ -1,7 +1,7 @@
 import "angular";
 import "lodash";
 import "angular-mocks";
-import {SettingsService, ISettingsService} from "./settings";
+import {SettingsService, ISettingsService} from "./settings.service";
 
 describe("Settings", () => {
     let settings: ISettingsService;

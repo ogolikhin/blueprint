@@ -9,12 +9,12 @@ import "../../../";
 import {DiscardAction} from "./discard-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 
 describe("DiscardAction", () => {
     let $scope: ng.IScope;
@@ -38,7 +38,7 @@ describe("DiscardAction", () => {
     }));
 
     beforeEach(inject((
-        $rootScope: ng.IRootScopeService, 
+        $rootScope: ng.IRootScopeService,
         _$q_: ng.IQService,
         _statefulArtifactFactory_: IStatefulArtifactFactory,
         _localization_: ILocalizationService,

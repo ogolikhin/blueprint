@@ -6,14 +6,14 @@ import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {UserStoryServiceMock} from "../../../services/user-story.svc.mock";
 import {MessageServiceMock} from "../../../../../core/messages/message.mock";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {CommunicationManager} from "../../../";
 import {RolePermissions, LockedByEnum, ReuseSettings} from "../../../../../main/models/enums";
 import {ProcessEvents, IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
 import * as TestShapes from "../../../models/test-shape-factory";
-import {ErrorCode} from "../../../../../core/error/error-code";
-import {LoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
+import {ErrorCode} from "../../../../../shell/error/error-code";
+import {LoadingOverlayService} from "../../../../../core/loadingOverlay/loadingOverlay.service";
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
@@ -119,7 +119,7 @@ describe("GenerateUserStoriesAction", () => {
 
             // assert
             expect(generateFromTask.disabled).toBe(true);
-        });        
+        });
 
         it("is disabled when no shape is selected", () => {
             // arrange
@@ -452,11 +452,11 @@ describe("GenerateUserStoriesAction", () => {
             createAndSelectUserTask(userTaskId);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const openDialogSpy = spyOn(dialogService, "open").and.callThrough();
-            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {                    
+            const generateSpy = spyOn(action, "generateUserStories").and.callFake(() => {
                     return $q.resolve();
                 } );
-            spyOn(process, "publish").and.callFake(() => {                    
-                    return $q.resolve();                    
+            spyOn(process, "publish").and.callFake(() => {
+                    return $q.resolve();
                 });
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
@@ -483,7 +483,7 @@ describe("GenerateUserStoriesAction", () => {
             createAndSelectUserTask(userTaskId);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
-                    return $q.reject();                    
+                    return $q.reject();
                 });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
@@ -509,7 +509,7 @@ describe("GenerateUserStoriesAction", () => {
             createAndSelectUserTask(userTaskId);
             const canExecuteSpy = spyOn(action, "canExecuteGenerateFromTask").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
-                    return $q.reject({errorCode: ErrorCode.ArtifactNotPublished});                    
+                    return $q.reject({errorCode: ErrorCode.ArtifactNotPublished});
                 });
             const errorMessageSpy = spyOn(messageService, "addError").and.callFake(() => {/* no op */});
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
@@ -578,7 +578,7 @@ describe("GenerateUserStoriesAction", () => {
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
             const projectManagerRefreshSpy = spyOn(projectManager, "refresh").and.callThrough();
-            const projectManagertriggerProjectCollectionRefreshSpy = spyOn(projectManager, "triggerProjectCollectionRefresh");            
+            const projectManagertriggerProjectCollectionRefreshSpy = spyOn(projectManager, "triggerProjectCollectionRefresh");
 
             // act
             generateFromTask.execute();

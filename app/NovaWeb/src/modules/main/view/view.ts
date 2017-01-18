@@ -4,9 +4,9 @@ import {Models, Enums} from "../models";
 import {IProjectManager} from "../../managers/project-manager";
 import {IArtifactManager, IStatefulArtifact} from "../../managers/artifact-manager";
 import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
-import {ILocalStorageService} from "../../core/local-storage/local-storage.svc";
+import {ILocalStorageService} from "../../core/localStorage/localStorage.service";
 import {IDialogService, IDialogSettings} from "../../shared";
 import {BPTourController} from "../components/dialogs/bp-tour/bp-tour";
 
@@ -62,8 +62,8 @@ export class MainViewController {
             //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
             this.windowVisibility.visibilityObservable.distinctUntilChanged()
-                .subscribeOnNext(this.onVisibilityChanged, this)           
-        ]; 
+                .subscribeOnNext(this.onVisibilityChanged, this)
+        ];
 
         this.openTourFirstTime();
     }

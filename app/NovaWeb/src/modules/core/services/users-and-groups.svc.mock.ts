@@ -1,5 +1,5 @@
 ﻿import {IUserOrGroupInfo, IUsersAndGroupsService} from "./users-and-groups.svc";
-import {HttpStatusCode} from "../http/http-status-code";
+import {HttpStatusCode} from "../httpInterceptor/http-status-code";
 export class UserOrGroupInfo implements IUserOrGroupInfo {
     constructor(public name: string,
                 public email: string,

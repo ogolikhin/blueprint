@@ -26,9 +26,9 @@ import {
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
 import {IValidationService} from "../validation/validation.svc";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {StatefulProjectArtifact} from "../project/project-artifact";
 import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";

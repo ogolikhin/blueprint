@@ -1,5 +1,5 @@
 import {ISystemTask} from "../diagram/presentation/graph/models/";
-import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {IFileUploadService, IFileResult} from "../../../../core/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
 
 export interface IUploadImageScope extends ng.IScope {

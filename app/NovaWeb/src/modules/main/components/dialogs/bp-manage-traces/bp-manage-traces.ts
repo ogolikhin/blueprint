@@ -4,7 +4,7 @@ import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker
 import {Relationships, Models, AdminStoreModels, TreeModels} from "../../../models";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import {IStatefulItem, IArtifactRelationships} from "../../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 
 export interface IArtifactSelectedArtifactMap {
     [artifactId: number]: Relationships.IRelationshipView[];

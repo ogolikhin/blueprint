@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IQuickSearchService, ISearchMetadata, ISearchItem, ISearchResult} from "./quickSearchService";
 
 export class QuickSearchModalController {

@@ -1,8 +1,8 @@
 import {BPButtonAction} from "../../../../shared";
 import {IDialogService} from "../../../../shared";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IArtifact, IPublishResultSet} from "../../../models/models";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";
@@ -50,22 +50,22 @@ export class DiscardArtifactsAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this.artifactList 
+        return !this.artifactList
         || !this.artifactList.length;
     }
 
     public execute(): void {
         const artifactIds = this.artifactList.map(artifact => artifact.id);
-        const message = artifactIds.length === 1 ? 
-        this.localization.get("Discard_Single_Artifact_Confirm") : 
+        const message = artifactIds.length === 1 ?
+        this.localization.get("Discard_Single_Artifact_Confirm") :
         this.localization.get("Discard_Multiple_Artifacts_Confirm").replace("{0}", artifactIds.length.toString());
         this.dialogService.alert(message, "Confirm Discard", "Discard", "Cancel").then(() => {
             const overlayId: number = this.loadingOverlayService.beginLoading();
-            
+
             this.publishService.discardArtifacts(artifactIds)
             .then((result: IPublishResultSet) => {
                 this.messageService.addInfo("Discard_All_Success_Message", result.artifacts.length);
-                
+
                 if (this.projectManager.projectCollection.getValue().length > 0) {
                     this.projectManager.refreshAll();
                 }

@@ -7,7 +7,7 @@ import {IProjectManager} from "../../../managers/project-manager";
 import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 
 describe("BpArtifactPicker", () => {

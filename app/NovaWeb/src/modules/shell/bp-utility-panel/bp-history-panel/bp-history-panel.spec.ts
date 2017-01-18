@@ -7,7 +7,7 @@ import "../../../main";
 import "../../../shell";
 import {ComponentTest} from "../../../util/component.test";
 import {BPHistoryPanelController} from "./bp-history-panel";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
 import {ArtifactHistoryMock} from "./artifact-history.mock";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";

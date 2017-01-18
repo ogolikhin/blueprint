@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "lodash";
 import "angular-mocks";
 import "angular-sanitize";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {IPropertyDescriptorBuilder, PropertyDescriptorBuilder} from "./property-descriptor-builder";
 import {PropertyTypePredefined, PropertyLookupEnum, ItemTypePredefined, PrimitiveType} from "../../main/models/enums";
 import {IPropertyValue} from "../../main/models/models";

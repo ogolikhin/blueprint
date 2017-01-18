@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import {BPCollapsible} from "./bp-collapsible";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 
 describe("BPCollapsible Directive", () => {
     beforeEach(angular.mock.module(($compileProvider: ng.ICompileProvider, $provide: ng.auto.IProvideService) => {

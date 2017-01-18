@@ -6,7 +6,7 @@ import {BpArtifactDetailsEditorController} from "./bp-details-editor";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {ArtifactManagerMock} from "./../../managers/artifact-manager/artifact-manager.mock";
 import {WindowManagerMock} from "./../../main/services/window-manager.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {PropertyDescriptorBuilderMock} from "./../configuration/property-descriptor-builder.mock";
 import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "./../configuration/property-descriptor-builder";
 import {IArtifactManager} from "./../../managers/artifact-manager";

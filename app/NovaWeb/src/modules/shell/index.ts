@@ -3,7 +3,6 @@ import "../core";
 import {AppComponent} from "./app.component";
 import {AuthSvc, IUser} from "./login/auth.svc";
 import {SessionSvc, ISession} from "./login/session.svc";
-import {HttpErrorInterceptor} from "./error/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
@@ -46,7 +45,6 @@ angular.module("app.shell", [
     .service("auth", AuthSvc)
     .service("session", SessionSvc)
     .service("sessionTokenInterceptor", SessionTokenInterceptor)
-    .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
     .service("relationshipDetailsService", RelationshipDetailsService)

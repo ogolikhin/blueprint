@@ -1,8 +1,8 @@
 ﻿import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {IArtifactHistory, IArtifactHistoryVersion, ArtifactHistory} from "./artifact-history.svc";
 import {Models} from "../../../main";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
 
 describe("Artifact History Service", () => {
 

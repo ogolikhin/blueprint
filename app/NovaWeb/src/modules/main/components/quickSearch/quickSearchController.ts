@@ -1,5 +1,5 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IQuickSearchService} from "./quickSearchService";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 

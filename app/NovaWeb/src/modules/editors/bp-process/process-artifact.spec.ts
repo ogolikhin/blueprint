@@ -18,7 +18,7 @@ import {
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {ArtifactAttachmentsMock} from "../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";

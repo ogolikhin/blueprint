@@ -15,7 +15,7 @@ import {NodeType, IProcessLink} from "../diagram/presentation/graph/models/";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {UserTaskDialogModel, SystemTaskDialogModel, IPersonaOption} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IArtifactReference} from "../../models/process-models";
 
 export class SubArtifactEditorModalOpener {
@@ -49,7 +49,7 @@ export class SubArtifactEditorModalOpener {
             // TODO: NEED TO REMOVE WINDOW.CONSOLE.LOG, TEMP LOW-RISK FIX
             if (window && window.console) {
                 window.console.log(err);
-            }            
+            }
         }
     };
 

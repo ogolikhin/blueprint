@@ -1,14 +1,14 @@
 import "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {IProjectMeta, IItemType, IPropertyType} from "./../../../main/models/models";
 import {IStatefulArtifact} from "./../artifact/artifact";
 import {MetaDataService, IMetaDataService, ProjectMetaData} from "./metadata.svc";
 import {MetaDataServiceMock} from "./metadata.svc.mock";
 import {StatefulArtifactFactoryMock} from "../../artifact-manager/artifact/artifact.factory.mock";
 
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
 import {Enums} from "../../../main/models";
 
 

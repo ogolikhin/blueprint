@@ -1,7 +1,7 @@
 import {PropertyTypePredefined, PropertyLookupEnum, ItemTypePredefined} from "../../main/models/enums";
 import {IPropertyType, IPropertyValue, IChoicePropertyValue, IOption, PrimitiveType} from "../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 
 export interface IPropertyDescriptorBuilder {
     createArtifactPropertyDescriptors(artifact: IStatefulArtifact): ng.IPromise<IPropertyDescriptor[]>;

@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import "../../shell";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
 import {ProjectManager, IProjectManager, IArtifactNode} from "./project-manager";
 import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
@@ -11,13 +11,13 @@ import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact
 import {MessageType} from "../../core/messages/message";
 import {MessageServiceMock} from "../../core/messages/message.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
+import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ProjectServiceMock} from "./project-service.mock";
 import {ArtifactManagerMock} from "../artifact-manager/artifact-manager.mock";
 import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
 import {ProjectServiceStatusCode} from "./project-service";
-import {HttpStatusCode} from "../../core/http/http-status-code";
+import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 
 describe("Project Manager Test", () => {

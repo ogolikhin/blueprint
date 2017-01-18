@@ -17,7 +17,7 @@ import {
     BPFieldImage,
     BPFieldInheritFrom
 } from "./types";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 export function formlyConfig(formlyConfig: AngularFormly.IFormlyConfig,

@@ -4,7 +4,7 @@ import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager";
 import {IMessageService} from "../../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../core/localization/localization.service";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";
@@ -39,7 +39,7 @@ export class PreviewCenterController {
         "$state",
         "statefulArtifactFactory",
         "messageService",
-        "localization",        
+        "localization",
         "communicationManager"
     ];
 

@@ -7,8 +7,8 @@ import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 
 export class ProjectExplorer implements ng.IComponentOptions {

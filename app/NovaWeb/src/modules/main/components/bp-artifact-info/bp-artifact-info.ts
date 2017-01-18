@@ -30,9 +30,9 @@ import {
     MoveCopyAction,
     AddToCollectionAction
 } from "./actions";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";

@@ -1,6 +1,6 @@
 import "angular-formly";
 import {BPFieldBaseController} from "../base-controller";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IPropertyDescriptor} from "./../../property-descriptor-builder";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
@@ -34,7 +34,7 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
     static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
-    private propertyDescriptor: IPropertyDescriptor; 
+    private propertyDescriptor: IPropertyDescriptor;
     constructor(private $scope: AngularFormly.ITemplateScope,
                      private localization: ILocalizationService,
                      private $timeout: ng.ITimeoutService,

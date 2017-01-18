@@ -5,13 +5,13 @@ import "../../..";
 import {DecisionEditorModel} from "./decision-editor-model";
 import {DecisionEditorController} from "./decision-editor-controller";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ICondition, IDecision, IDiagramLink, IDiagramNode, IProcessGraph, IUserTask, NodeType} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../core/localization/localization.service";
 
 describe("DecisionEditorController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -331,9 +331,9 @@ describe("DecisionEditorController", () => {
             expect(scrollSpy).toHaveBeenCalled();
 
         });
-        
+
         it("defaults the merge node to be the one passed in the dialogModel", () => {
-            // arrange            
+            // arrange
             const mergingUserTask = <IUserTask>{
                 model: {id: 5}
             };
@@ -344,7 +344,7 @@ describe("DecisionEditorController", () => {
 
             // act
             controller.addCondition();
-            
+
             // assert
             const lastAddedCondition = model.conditions[model.conditions.length - 1];
             expect(lastAddedCondition.mergeNode).toBeDefined();

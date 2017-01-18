@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 import {ValidationService, IValidationService} from "./validation.svc";
-import {LocalizationService} from "../../../core/localization/localizationService";
+import {LocalizationService} from "../../../core/localization/localization.service";
 
 describe("date validation tests - ", () => {
     let validationService: IValidationService;
@@ -80,7 +80,7 @@ describe("date validation tests - ", () => {
             expect(result).toBe(false);
         });
 
-        
+
     });
 
     describe("minDate -", () => {
@@ -135,7 +135,7 @@ describe("date validation tests - ", () => {
         });
 
     });
-    
+
     describe("minDateSQL -", () => {
 
         it("null date - success", () => {
@@ -148,7 +148,7 @@ describe("date validation tests - ", () => {
 
         it("exact min sql date - success", () => {
             // arrange
-            const date = new  Date(1753, 0, 1); 
+            const date = new  Date(1753, 0, 1);
             // act
             const result = validationService.dateValidation.minDateSQL(date);
 
@@ -157,7 +157,7 @@ describe("date validation tests - ", () => {
         });
         it("less than min sql date - fails", () => {
             // arrange
-            const date = new  Date(1752, 11, 31); 
+            const date = new  Date(1752, 11, 31);
             // act
             const result = validationService.dateValidation.minDateSQL(date);
 

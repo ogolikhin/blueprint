@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 import {ValidationService, IValidationService} from "./validation.svc";
-import {LocalizationService} from "../../../core/localization/localizationService";
+import {LocalizationService} from "../../../core/localization/localization.service";
 
 describe("text validation tests - ", () => {
     let validationService: IValidationService;

@@ -9,7 +9,7 @@ import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {IFileUploadService, FileUploadService} from "../../../../core/file-upload/fileUploadService";
+import {IFileUploadService, FileUploadService} from "../../../../core/fileUpload/fileUpload.service";
 
 describe("UploadImage Directive", () => {
     let element: ng.IAugmentedJQuery;

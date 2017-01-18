@@ -17,11 +17,11 @@ import {
     IStatefulSubArtifact,
     IArtifactAttachment
 } from "../../../managers/artifact-manager";
-import {ISettingsService} from "../../../core/configuration/settings";
+import {ISettingsService} from "../../../core/configuration/settings.service";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {IFileUploadService, IFileResult} from "../../../core/file-upload/fileUploadService";
+import {IFileUploadService, IFileResult} from "../../../core/fileUpload/fileUpload.service";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");

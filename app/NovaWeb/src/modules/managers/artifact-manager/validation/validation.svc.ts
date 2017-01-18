@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 import {INumberValidation, NumberValidation} from "./number-validation";
 import {IDateValidation, DateValidation} from "./date-validation";
 import {ISelectValidation, SelectValidation, IMultiSelectValidation, MultiSelectValidation} from "./select-validation";
@@ -34,7 +34,7 @@ export class ValidationService implements IValidationService {
         this.dateValidation = new DateValidation(localization);
         this.selectValidation = new SelectValidation();
         this.multiSelectValidation = new MultiSelectValidation();
-        this.textRtfValidation = new TextRtfValidation(); 
+        this.textRtfValidation = new TextRtfValidation();
         this.userPickerValidation = new UserPickerValidation();
         this.textValidation = new TextValidation();
         this.systemValidation = new SystemValidation();

@@ -1,4 +1,5 @@
-﻿import {IHttpInterceptorConfig} from "../http/http-interceptor-config";
+﻿import {IHttpInterceptorConfig} from "../httpInterceptor";
+
 export interface IHttpError {
     message: string;
     statusCode: number; // client side only

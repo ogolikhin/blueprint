@@ -1,8 +1,8 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 
 export class PublishAction extends BPButtonAction {
     constructor(
@@ -35,7 +35,7 @@ export class PublishAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this.artifact 
+        return !this.artifact
             || !this.artifact.canBePublished();
     }
 

@@ -11,7 +11,7 @@ import {IStatefulArtifactFactory} from "../../../../../managers/artifact-manager
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {MessageServiceMock} from "../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../core/messages/message.svc";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
 
 describe("PreviewCenter Directive", () => {
 
@@ -64,7 +64,7 @@ describe("PreviewCenter Directive", () => {
                     return;
                 }
             } as ISelectionManager;
-            
+
             scope["systemTaskModel"] = ShapeModelMock.instance().SystemTaskMock();
             scope["userTaskModel"] = ShapeModelMock.instance().UserTaskMock();
             // tslint:disable-next-line: max-line-length

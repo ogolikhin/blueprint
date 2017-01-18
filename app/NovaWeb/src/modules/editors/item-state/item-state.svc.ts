@@ -1,7 +1,7 @@
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../core/messages/message.svc";
-import {HttpStatusCode} from "../../core/http/http-status-code";
+import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 
 export interface IItemStateService {

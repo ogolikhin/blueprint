@@ -11,7 +11,7 @@ import {IStatefulDiagramArtifact} from "./diagram-artifact";
 import {IMessageService} from "../../core/messages/message.svc";
 import {MessageType, Message} from "../../core/messages/message";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {BpBaseEditor} from "../bp-base-editor";
 import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {INavigationService, INavigationParams} from "../../core/navigation/navigation.svc";

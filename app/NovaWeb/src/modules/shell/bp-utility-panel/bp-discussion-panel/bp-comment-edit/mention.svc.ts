@@ -1,6 +1,6 @@
 ﻿import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core/services/users-and-groups.svc";
 import {Helper} from "../../../../shared/utils/helper";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 
 // TinyMCE mention plugin interface - https://github.com/CogniStreamer/tinyMCE-mention
 export interface ITinyMceMentionOptions<T> {

@@ -1,6 +1,6 @@
-import {IApplicationError} from "../../../../core/error/applicationerror";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {IApplicationError} from "../../../../shell/error/applicationError";
+import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {Message, MessageType} from "../../../../core/messages/message";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
@@ -140,7 +140,7 @@ export class DeleteAction extends BPButtonAction {
     }
 
     protected hasDesiredPermissions(permissions: RolePermissions): boolean {
-        return this.artifact 
+        return this.artifact
             && ((this.artifact.permissions & permissions) === permissions);
     }
 
@@ -154,7 +154,7 @@ export class DeleteAction extends BPButtonAction {
         } else {
             this.artifact.refresh();
         }
-        
+
         const message = new Message(
             MessageType.Info,
             deletedArtifacts.length > 1 ? "Delete_Artifact_All_Success_Message" : "Delete_Artifact_Single_Success_Message",

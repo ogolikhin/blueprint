@@ -4,7 +4,7 @@ import {IDialogService, IDialogSettings} from "../../shared";
 import {IMetaDataService} from "./metadata";
 import {IStatefulArtifact, IArtifactService} from "./artifact";
 import {IDispose} from "../models";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 
 export interface IArtifactManager extends IDispose {
     collectionChangeObservable: Rx.Observable<IStatefulArtifact>;

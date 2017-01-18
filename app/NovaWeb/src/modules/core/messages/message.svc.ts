@@ -1,5 +1,5 @@
 ﻿import {Message, MessageType, IMessage} from "./message";
-import {ISettingsService} from "../configuration/settings";
+import {ISettingsService} from "../configuration/settings.service";
 
 export interface IMessageService {
 

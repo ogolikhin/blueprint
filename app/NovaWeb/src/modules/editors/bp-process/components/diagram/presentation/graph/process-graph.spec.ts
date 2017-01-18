@@ -17,14 +17,14 @@ import {NodeChange, NodeType} from "./models/";
 import {ProcessValidator} from "./process-graph-validator";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../core/localization/localization.service.mock";
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import * as TestModels from "../../../../models/test-model-factory";
 import * as TestShapes from "../../../../models/test-shape-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {FileUploadServiceMock} from "../../../../../../core/file-upload/file-upload.svc.mock";
+import {FileUploadServiceMock} from "../../../../../../core/fileUpload/fileUpload.service.mock";
 import {MessageType, Message} from "../../../../../../core/messages/message";
 
 describe("ProcessGraph", () => {
@@ -80,13 +80,13 @@ describe("ProcessGraph", () => {
             "ST_Delete_CannotDelete_UD_AtleastTwoConditions": "Decision points should have at least two conditions",
             "ST_Add_CannotAdd_MaximumConditionsReached": "Cannot add any more conditions because the maximum number of conditions has been reached.",
             "ST_Auto_Insert_Task": "The task and its associated shapes have been moved. Another task has been created at the old location.",
-            "ST_Eighty_Percent_of_Shape_Limit_Reached": 
+            "ST_Eighty_Percent_of_Shape_Limit_Reached":
                 "The Process now has {0} of the maximum {1} shapes. Please consider refactoring it to move more detailed tasks to included Processes.",
-            "ST_Shape_Limit_Exceeded": 
+            "ST_Shape_Limit_Exceeded":
              "The shape cannot be added. The Process will exceed the maximum {0} shapes. Please refactor it and move more detailed tasks to included Processes."
         };
         $rootScope["config"].settings = {
-            StorytellerShapeLimit: "100", 
+            StorytellerShapeLimit: "100",
             StorytellerIsSMB: "false"
         };
 
@@ -639,7 +639,7 @@ describe("ProcessGraph", () => {
 
             //Act
             let result = ProcessDeleteHelper.deleteUserTask(userTaskShapeDiagramNode.model.id, null, graph);
-            
+
             //Assert
             expect(processModel.shapes.length).toEqual(shapeLengthBeforeDelete); //5
             expect(processModel.links.length).toEqual(linkLengthBeforeDelete);  //4
@@ -797,7 +797,7 @@ describe("ProcessGraph", () => {
             expect(processModel.getNextShapeIds(ST5).length).toBe(1);
             expect(processModel.getNextShapeIds(ST5)[0]).toBe(END);
         });
-        //Bug 1086 
+        //Bug 1086
         it("infinite loops, different decisions, delete task in loop, success", () => {
             //Arrange
             let testModel = TestModels.createInfiniteLoopFromDifferentDecisions();
@@ -1191,7 +1191,7 @@ describe("ProcessGraph", () => {
                     const condition1 = new Condition(decisionId, 999, 0, "", mergeNode, []);
                     const condition2 = new Condition(decisionId, 999, 0, "", mergeNode, []);
                     const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
-                    const messageText = 
+                    const messageText =
                         "The Process now has 14 of the maximum 14 shapes. Please consider refactoring it to move more detailed tasks to included Processes.";
                     const message = new Message(MessageType.Warning, messageText);
                     const addMessageSpy = spyOn(messageServiceMock, "addMessage").and.callThrough();
@@ -1222,7 +1222,7 @@ describe("ProcessGraph", () => {
                     const condition2 = new Condition(decisionId, 999, 0, "", mergeNode, []);
                     const condition3 = new Condition(decisionId, 999, 0, "", mergeNode, []);
                     const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
-                    const messageText = 
+                    const messageText =
             "The shape cannot be added. The Process will exceed the maximum 14 shapes. Please refactor it and move more detailed tasks to included Processes.";
                     const message = new Message(MessageType.Error, messageText);
                     const addMessageSpy = spyOn(messageServiceMock, "addMessage").and.callThrough();
@@ -1599,7 +1599,7 @@ describe("ProcessGraph", () => {
         beforeEach(() => {
             /*
              start -> pre - ud -> ut1 -> st1 ->                  ut5 -> st5 ->  end
-             -> ut2 -> st2 -> ut6 -> st6 -> 
+             -> ut2 -> st2 -> ut6 -> st6 ->
              -> ut3 -> st3 ->
              -> ut4 -> st4 ->
              */
@@ -1673,7 +1673,7 @@ describe("ProcessGraph", () => {
              UDPATED->
 
              start -> pre - ud -> ut1 -> st1 ----------------> ut5 -> st5 ->  end
-             -> ut2 -> st2 -> ut6 -> st6 -> 
+             -> ut2 -> st2 -> ut6 -> st6 ->
              -> ut3 -> st3 ----------------------------->
              -> ut4 -> st4-------------- ->
              */
@@ -1894,7 +1894,7 @@ describe("ProcessGraph", () => {
         spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
         spyOn(viewModel, "addToSubArtifactCollection").and.returnValue(null);
         return new ProcessGraph(
-            rootScope, localScope, container, viewModel, dialogService, localization, 
+            rootScope, localScope, container, viewModel, dialogService, localization,
             shapesFactory, messageService, null, statefulArtifactFactory
         );
     }

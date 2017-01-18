@@ -8,15 +8,15 @@ import "ui-select";
 import "angular-formly";
 import "tinymce";
 
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {BPFieldImageController} from "./field-image";
 import {ActorImagePickerDialogServiceMock} from "./actor-image-choose-window.mock";
-import {SettingsService, ISettingsService} from "../../../../core/configuration/settings";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {SettingsService, ISettingsService} from "../../../../core/configuration/settings.service";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
+import {FileUploadServiceMock} from "../../../../core/fileUpload/fileUpload.service.mock";
 
 describe("Actor image controller tests", () => {
 

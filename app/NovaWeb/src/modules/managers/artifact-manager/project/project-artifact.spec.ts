@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "../../../shell";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {Models, Enums} from "../../../main/models";
 import {IStatefulArtifact} from "../artifact";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";

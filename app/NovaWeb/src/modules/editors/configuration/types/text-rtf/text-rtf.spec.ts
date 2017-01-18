@@ -18,7 +18,7 @@ import {IValidationService} from "../../../../managers/artifact-manager/validati
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
+import {FileUploadServiceMock} from "../../../../core/fileUpload/fileUpload.service.mock";
 import {SettingsServiceMock} from "../../../../core/configuration/settings.mock";
 
 describe("Formly Text RTF", () => {

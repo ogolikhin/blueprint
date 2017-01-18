@@ -3,7 +3,7 @@ import "angular-mocks";
 import "script!mxClient";
 import {CopyAction} from "./copy-action";
 import {CommunicationManager} from "../../../services/communication-manager";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import * as TestShapes from "../../../models/test-shape-factory";

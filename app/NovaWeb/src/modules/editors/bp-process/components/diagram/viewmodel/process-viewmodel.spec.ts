@@ -13,7 +13,7 @@ import {
     StatefulArtifactServices,
     StatefulProcessArtifactServices
 } from "../../../../../managers/artifact-manager/services";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../../core/loadingOverlay/loadingOverlay.service";
 import {ProcessShapeType} from "../../../models/enums";
 
 describe("ProcessViewModel", () => {

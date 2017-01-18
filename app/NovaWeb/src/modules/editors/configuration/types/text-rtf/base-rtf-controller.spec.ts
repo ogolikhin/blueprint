@@ -5,7 +5,7 @@ import "lodash";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";

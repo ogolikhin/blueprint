@@ -4,7 +4,7 @@ import "angular-sanitize";
 import "../../../";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPDocumentItemController} from "./bp-document-item";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {IArtifactAttachmentsService} from "../../../../managers/artifact-manager";
 import {ArtifactAttachmentsMock} from "../../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {IMessageService} from "../../../../core/messages/message.svc";

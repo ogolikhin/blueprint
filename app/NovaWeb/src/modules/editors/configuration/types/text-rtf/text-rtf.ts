@@ -3,7 +3,7 @@ import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
@@ -14,8 +14,8 @@ import {
     BpFileUploadStatusController,
     IUploadStatusDialogData, IUploadStatusResult
 } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import {ISettingsService} from "../../../../core/configuration/settings";
-import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {ISettingsService} from "../../../../core/configuration/settings.service";
+import {IFileUploadService, IFileResult} from "../../../../core/fileUpload/fileUpload.service";
 import {Helper} from "../../../../shared/utils/helper";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {

@@ -1,4 +1,4 @@
-﻿import {ILoadingOverlayService} from "./../../core/loading-overlay/loading-overlay.svc";
+﻿import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {ICommunicationManager} from "./";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
@@ -13,10 +13,10 @@ import {IStatefulProcessSubArtifact} from "./process-subartifact";
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "./services/clipboard.svc";
-import {IFileUploadService} from "../../core/file-upload/fileUploadService";
+import {IFileUploadService} from "../../core/fileUpload/fileUpload.service";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");
@@ -84,7 +84,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 .subscribeOnNext(this.onWidthResized, this),
         );
     }
-    
+
     protected onArtifactReady() {
         // when this method is called the process artifact should
         // be loaded and assigned to the base class' artifact

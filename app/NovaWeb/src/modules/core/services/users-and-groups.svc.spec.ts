@@ -1,7 +1,7 @@
 ﻿import "angular-mocks";
 import {UserOrGroupInfo} from "./users-and-groups.svc.mock";
 import {IUserOrGroupInfo, UsersAndGroupsService} from "./users-and-groups.svc";
-import {HttpStatusCode} from "../http/http-status-code";
+import {HttpStatusCode} from "../httpInterceptor/http-status-code";
 
 describe("Users And Groups Service", () => {
 

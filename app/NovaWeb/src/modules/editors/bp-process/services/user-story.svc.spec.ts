@@ -4,7 +4,7 @@ require("script!mxClient");
 import {IUserStoryService, UserStoryService} from "./user-story.svc";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {IUserStory} from "../models/process-models";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {CommunicationManager} from "../";
 
 interface IHttpError {

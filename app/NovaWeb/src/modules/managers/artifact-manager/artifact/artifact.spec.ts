@@ -2,7 +2,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {Models, Enums} from "../../../main/models";
 import {IStatefulArtifact} from "./artifact";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
@@ -19,17 +19,17 @@ import {
     StatefulArtifactFactory,
     MetaDataService
 } from "../../../managers/artifact-manager";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
 import {IMessageService} from "../../../core/messages/message.svc";
 import {MessageType} from "../../../core/messages/message";
-import {ApplicationError} from "../../../core/error/applicationError";
+import {ApplicationError} from "../../../shell/error/applicationError";
 import {ValidationServiceMock} from "../validation/validation.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
-import {ErrorCode} from "../../../core/error/error-code";
+import {ErrorCode} from "../../../shell/error/error-code";
 import {SessionSvcMock} from "./../../../shell/login/mocks.spec";
 import {ItemInfoServiceMock} from "./../../../core/navigation/item-info.svc.mock";
-import {LoadingOverlayServiceMock} from "./../../../core/loading-overlay/loading-overlay.svc.mock";
+import {LoadingOverlayServiceMock} from "../../../core/loadingOverlay/loadingOverlay.service.mock";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
@@ -638,7 +638,7 @@ describe("Artifact", () => {
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Error);
         }));
-        
+
         it("discards changes and resolves promise when no changes error is thrown from server",
             inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                messageService: IMessageService, $q: ng.IQService) => {
@@ -663,7 +663,7 @@ describe("Artifact", () => {
 
             // assert
             expect(messageService.messages.length).toEqual(1);
-            expect(spyDiscard).toHaveBeenCalled();  
+            expect(spyDiscard).toHaveBeenCalled();
             expect(isResolved).toBe(true);
         }));
     });
@@ -923,7 +923,7 @@ describe("Artifact", () => {
             artifact.move(newParentId).catch((err) => { error = err; });
             $rootScope.$digest();
             // assert
-            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);
         }));
     });
 
@@ -971,10 +971,10 @@ describe("Artifact", () => {
             artifact.copy(newParentId).catch((err) => { error = err; });
             $rootScope.$digest();
             // assert
-            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);
         }));
     });
-    
+
     describe("Load", () => {
         it("error is deleted", inject(($rootScope: ng.IRootScopeService) => {
             // arrange

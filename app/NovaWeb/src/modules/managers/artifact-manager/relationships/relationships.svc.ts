@@ -1,5 +1,5 @@
 import {Relationships} from "../../../main";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 
 export interface IArtifactRelationshipsService {
     getRelationships(artifactId: number,

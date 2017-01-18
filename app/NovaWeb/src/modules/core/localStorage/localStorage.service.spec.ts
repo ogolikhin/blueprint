@@ -2,7 +2,7 @@
 import "lodash";
 import "angular-mocks";
 import "angular-ui-router";
-import {LocalStorageService, ILocalStorageService} from "./local-storage.svc";
+import {LocalStorageService, ILocalStorageService} from "./localStorage.service";
 
 describe("LocalStorage", () => {
 

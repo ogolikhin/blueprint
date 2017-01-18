@@ -1,4 +1,4 @@
-﻿import {ILocalizationService} from "../../../../core/localization/localizationService";
+﻿import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {ArtifactStateEnum} from "../../../../main/models/models";
 
 export class BPArtifactHistoryItem implements ng.IComponentOptions {

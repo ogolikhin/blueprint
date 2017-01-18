@@ -3,7 +3,7 @@ import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessType} from "../../../models/enums";
 import {ReuseSettings} from "../../../../../main/models/enums";
 import {IToolbarCommunication} from "../toolbar-communication";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../core/localization/localization.service";
 
 export class ToggleProcessTypeAction extends BPToggleAction {
     private subscribers: Rx.IDisposable[];
@@ -32,9 +32,9 @@ export class ToggleProcessTypeAction extends BPToggleAction {
                 toolbarCommunication.toggleProcessType(value);
             },
             () => {
-                return this.loaded && 
-                        process && 
-                        process.artifactState && 
+                return this.loaded &&
+                        process &&
+                        process.artifactState &&
                         !process.artifactState.readonly &&
                         //artifact is selected and selective readonly is set
                         !process.isReuseSettingSRO(ReuseSettings.Subartifacts);

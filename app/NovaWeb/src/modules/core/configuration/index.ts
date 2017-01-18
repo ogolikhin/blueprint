@@ -1,6 +1,11 @@
-﻿import {SettingsService} from "./settings";
-import {DebugConfig} from "./debugConfig";
+﻿import {SettingsService} from "./settings.service";
+import {DebugConfig} from "./debug.config";
 
-angular.module("bp.core.configuration", [])
+export const ConfigurationModule = angular.module("configuration", [])
     .service("settings", SettingsService)
-    .config(DebugConfig);
+    .config(DebugConfig)
+    .name;
+
+export {
+    ISettingsService
+} from "./settings.service";

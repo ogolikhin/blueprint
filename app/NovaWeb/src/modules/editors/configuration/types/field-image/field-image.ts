@@ -4,8 +4,8 @@ import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-u
 import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
 import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {IFileUploadService, IFileResult} from "../../../../core/fileUpload/fileUpload.service";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";

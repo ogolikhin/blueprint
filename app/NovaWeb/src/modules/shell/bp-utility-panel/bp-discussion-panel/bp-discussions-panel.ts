@@ -8,7 +8,7 @@ import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Message, MessageType} from "../../../core/messages/message";
 import {Helper} from "../../../shared/utils/helper";
 import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");

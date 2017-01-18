@@ -13,7 +13,7 @@ import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
 import {MessageServiceMock} from "../../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../../core/messages/message.svc";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.service.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
 import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";

@@ -6,7 +6,7 @@ import {ComponentTest} from "../../../util/component.test";
 import {PageContentCtrl} from "./bp-page-content";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "./mainbreadcrumb.svc.mock";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {IArtifactManager, ISelection, IStatefulArtifactFactory, StatefulArtifactFactory, ArtifactManager} from "../../../managers/artifact-manager";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";

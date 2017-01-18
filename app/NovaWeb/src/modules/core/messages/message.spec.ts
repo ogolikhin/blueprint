@@ -2,7 +2,7 @@
 import "angular-mocks";
 import {MessageService} from "./message.svc";
 import {MessageComponent} from "./message";
-import {SettingsService} from "../configuration/settings";
+import {SettingsService} from "../configuration/settings.service";
 
 describe("message directive", () => {
     let element: JQuery;

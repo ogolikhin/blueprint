@@ -1,9 +1,9 @@
 import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";

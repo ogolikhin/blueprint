@@ -2,7 +2,7 @@
 
 import {Shapes, ShapeProps, ArrowHeads, UIMockupShapes} from "./utils/constants";
 import {MxFactory, MathExtensions, DiagramHelper} from "./utils/helpers";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
 
 
 /*

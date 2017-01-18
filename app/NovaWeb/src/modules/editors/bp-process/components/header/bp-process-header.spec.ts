@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import {BpProcessHeaderController} from "./bp-process-header";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
@@ -25,7 +25,7 @@ import {ProjectManager} from "../../../../managers/project-manager/project-manag
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ItemInfoService} from "../../../../core/navigation/item-info.svc";
-import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {CollectionServiceMock} from "../../../bp-collection/collection.svc.mock";
 
 describe("BpProcessHeader", () => {
@@ -55,7 +55,7 @@ describe("BpProcessHeader", () => {
             $provide.service("artifactAttachments", ArtifactAttachmentsService);
             $provide.service("artifactRelationships", ArtifactRelationshipsService);
             $provide.service("itemInfoService", ItemInfoService);
-            $provide.service("projectManager", ProjectManager);            
+            $provide.service("projectManager", ProjectManager);
             $provide.service("projectService", ProjectService);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
             $provide.service("collectionService", CollectionServiceMock);

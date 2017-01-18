@@ -1,5 +1,5 @@
 import {IArtifact} from "../../main/models/models";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 
 export interface IGlossaryService {
     getGlossary(id: number): ng.IPromise<IArtifact>;

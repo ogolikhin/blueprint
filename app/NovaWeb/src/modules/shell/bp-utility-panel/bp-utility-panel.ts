@@ -8,7 +8,7 @@ import {
 } from "../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 import {PanelType, IUtilityPanelContext, IUtilityPanelController, UtilityPanelService} from "./utility-panel.svc";
 
 export class BPUtilityPanel implements ng.IComponentOptions {

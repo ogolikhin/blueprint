@@ -7,7 +7,7 @@ import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import * as TestModels from "../../../../models/test-model-factory";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../core/localization/localization.service.mock";
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import {ShapesFactory} from "./shapes/shapes-factory";

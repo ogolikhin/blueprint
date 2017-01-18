@@ -4,7 +4,7 @@ import "script!mxClient";
 import ".";
 import {BpProcessEditorController} from "./bp-process-editor";
 import {MessageServiceMock} from "../../core/messages/message.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";

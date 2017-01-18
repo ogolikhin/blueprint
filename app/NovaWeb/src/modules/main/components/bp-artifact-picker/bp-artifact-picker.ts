@@ -6,7 +6,7 @@ import {IProjectManager} from "../../../managers/project-manager";
 import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../core/localization/localization.service";
 
 /**
  * Usage:

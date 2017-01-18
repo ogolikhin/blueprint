@@ -8,10 +8,10 @@ import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
 import {IMessageService} from "../../core/messages/message.svc";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IItemStateService} from "./item-state.svc";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
+import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {MessageServiceMock} from "../../core/messages/message.mock";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
+import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
 
 describe("Item State Service tests", () => {
     let $timeout: ng.ITimeoutService,

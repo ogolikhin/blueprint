@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
-import {LoadingOverlayServiceMock} from "../../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {LoadingOverlayServiceMock} from "../../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
 import {ArtifactManagerMock} from "../../../../../managers/artifact-manager/artifact-manager.mock";
 import {ProcessDeleteAction} from "./process-delete-action";
@@ -10,7 +10,7 @@ import {MessageServiceMock} from "../../../../../core/messages/message.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
 import {CommunicationManager} from "../../../services/communication-manager";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
 import {StatefulProcessArtifact, IStatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ItemTypePredefined, RolePermissions} from "../../../../../main/models/enums";

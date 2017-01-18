@@ -6,7 +6,7 @@ import {
 } from "./bp-artifact-editor";
 import {IMessageService} from "../../core/messages/message.svc";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../core/localization/localization.service";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");

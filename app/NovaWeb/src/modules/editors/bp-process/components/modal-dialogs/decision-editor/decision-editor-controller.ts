@@ -6,7 +6,7 @@ import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-dele
 import {Condition} from "../../diagram/presentation/graph/shapes";
 import {NodeType, IDiagramNode, IDiagramLink, ICondition} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../core/localization/localization.service";
 
 export class DecisionEditorController extends BaseModalDialogController<DecisionEditorModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 512;

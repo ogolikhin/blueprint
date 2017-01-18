@@ -1,7 +1,7 @@
 ﻿import {IArtifactAttachment} from "../../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../../managers";
 import {FiletypeParser} from "../../../../shared/utils/filetypeParser";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../core/localization/localization.service";
 
 export class BPAttachmentItem implements ng.IComponentOptions {
     public template: string = require("./bp-attachment-item.html");

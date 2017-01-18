@@ -54,7 +54,7 @@ export class BPDiagramController extends BpBaseEditor {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private navigationService: INavigationService,
                 private itemInfoService: IItemInfoService) {
-        super(messageService, artifactManager);
+        super(messageService, artifactManager.selection);
         new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 

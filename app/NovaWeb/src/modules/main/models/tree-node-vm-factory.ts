@@ -1,7 +1,7 @@
-import {Models, AdminStoreModels} from "./";
-import {ITreeNode} from "../../shared/widgets/bp-tree-view";
+import {IStatefulArtifact, IStatefulArtifactFactory} from "../../managers/artifact-manager";
 import {IProjectService} from "../../managers/project-manager/project-service";
-import {IArtifactManager, IStatefulArtifactFactory, IStatefulArtifact} from "../../managers/artifact-manager";
+import {ITreeNode} from "../../shared/widgets/bp-tree-view";
+import {AdminStoreModels, Models} from "./";
 
 export interface ITreeNodeVM<T> extends Models.IViewModel<T>, ITreeNode {
     getCellClass(): string[];
@@ -40,7 +40,6 @@ abstract class TreeNodeVM<T> implements ITreeNodeVM<T>, ITreeNode {
 
 export class TreeNodeVMFactory {
     constructor(public projectService: IProjectService,
-                public artifactManager: IArtifactManager,
                 public statefulArtifactFactory: IStatefulArtifactFactory,
                 public timeout?: ng.IPromise<void>,
                 public isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,

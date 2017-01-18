@@ -1,9 +1,11 @@
-﻿import {Models, Enums} from "../../main";
-import {BpArtifactEditor, IArtifactManager, IWindowManager} from "./bp-artifact-editor";
+﻿import {ILocalizationService} from "../../core/localization/localizationService";
 import {IMessageService} from "../../core/messages/message.svc";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {Enums, Models} from "../../main";
+import {IWindowManager} from "../../main/services/window-manager";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
+import {BpArtifactEditor} from "./bp-artifact-editor";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");
@@ -14,7 +16,7 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
         "$window",
         "messageService",
-        "artifactManager",
+        "selectionManager",
         "windowManager",
         "localization",
         "propertyDescriptorBuilder",
@@ -23,12 +25,12 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
 
     constructor($window: ng.IWindowService,
                 messageService: IMessageService,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
                 validationService: IValidationService) {
-        super($window, messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super($window, messageService, selectionManager, windowManager, localization, propertyDescriptorBuilder);
         this.validationService = validationService;
     }
 

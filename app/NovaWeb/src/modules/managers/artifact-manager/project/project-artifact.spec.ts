@@ -1,26 +1,19 @@
-import * as angular from "angular";
 import "angular-mocks";
-import "../../../shell";
 import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {Models, Enums} from "../../../main/models";
-import {IStatefulArtifact} from "../artifact";
-import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
-import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
-import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {SelectionManager} from "../../selection-manager/selection-manager";
 import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {
-    ArtifactManager,
-    IStatefulArtifactFactory,
-    StatefulArtifactFactory,
-    MetaDataService
-} from "../../../managers/artifact-manager";
-import {ValidationService} from "../validation/validation.svc";
+import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-
+import {Enums, Models} from "../../../main/models";
+import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {SelectionManager} from "../../selection-manager/selection-manager";
+import {IStatefulArtifact} from "../artifact";
+import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
+import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
+import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
+import {ValidationService} from "../validation/validation.svc";
+import * as angular from "angular";
 
 describe("Project", () => {
     let project: IStatefulArtifact;
@@ -35,7 +28,6 @@ describe("Project", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.service("artifactManager", ArtifactManager);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);

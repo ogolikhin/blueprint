@@ -1,35 +1,30 @@
 /* tslint:disable:max-file-line-count */
-import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {Models, Enums} from "../../../main/models";
-import {IStatefulArtifact} from "./artifact";
-import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
-import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
-import {ArtifactServiceMock} from "./artifact.svc.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {SelectionManager} from "../../selection-manager/selection-manager";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
-import {
-    ArtifactManager,
-    IStatefulArtifactFactory,
-    StatefulArtifactFactory,
-    MetaDataService
-} from "../../../managers/artifact-manager";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {MessageType} from "../../../core/messages/message";
 import {ApplicationError} from "../../../core/error/applicationError";
-import {ValidationServiceMock} from "../validation/validation.mock";
-import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {ErrorCode} from "../../../core/error/error-code";
-import {SessionSvcMock} from "./../../../shell/login/mocks.spec";
-import {ItemInfoServiceMock} from "./../../../core/navigation/item-info.svc.mock";
-import {LoadingOverlayServiceMock} from "./../../../core/loading-overlay/loading-overlay.svc.mock";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-overlay.svc.mock";
+import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {MessageType} from "../../../core/messages/message";
+import {MessageServiceMock} from "../../../core/messages/message.mock";
+import {IMessageService} from "../../../core/messages/message.svc";
+import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
+import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
+import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
+import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {Enums, Models} from "../../../main/models";
+import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {SessionSvcMock} from "../../../shell/login/mocks.spec";
+import {SelectionManager} from "../../selection-manager/selection-manager";
+import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
+import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
+import {ValidationServiceMock} from "../validation/validation.mock";
+import {IStatefulArtifact} from "./artifact";
+import {ArtifactServiceMock} from "./artifact.svc.mock";
+import * as angular from "angular";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
@@ -44,7 +39,6 @@ describe("Artifact", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.service("artifactManager", ArtifactManager);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
@@ -638,7 +632,7 @@ describe("Artifact", () => {
             expect(messageService.messages.length).toEqual(1);
             expect(messageService.messages[0].messageType).toEqual(MessageType.Error);
         }));
-        
+
         it("discards changes and resolves promise when no changes error is thrown from server",
             inject((publishService: IUnpublishedArtifactsService, $rootScope: ng.IRootScopeService,
                                                messageService: IMessageService, $q: ng.IQService) => {
@@ -663,7 +657,7 @@ describe("Artifact", () => {
 
             // assert
             expect(messageService.messages.length).toEqual(1);
-            expect(spyDiscard).toHaveBeenCalled();  
+            expect(spyDiscard).toHaveBeenCalled();
             expect(isResolved).toBe(true);
         }));
     });
@@ -923,7 +917,7 @@ describe("Artifact", () => {
             artifact.move(newParentId).catch((err) => { error = err; });
             $rootScope.$digest();
             // assert
-            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);
         }));
     });
 
@@ -971,10 +965,10 @@ describe("Artifact", () => {
             artifact.copy(newParentId).catch((err) => { error = err; });
             $rootScope.$digest();
             // assert
-            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);            
+            expect(error.statusCode).toEqual(HttpStatusCode.Conflict);
         }));
     });
-    
+
     describe("Load", () => {
         it("error is deleted", inject(($rootScope: ng.IRootScopeService) => {
             // arrange

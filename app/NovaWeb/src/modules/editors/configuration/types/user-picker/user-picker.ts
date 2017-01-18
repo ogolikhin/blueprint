@@ -53,13 +53,14 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldUserPickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "usersAndGroupsService", "$compile", "validationService"];
+    static $inject: [string] = ["$document", "$scope", "localization", "usersAndGroupsService", "$compile", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private usersAndGroupsService: IUsersAndGroupsService,
                 private $compile: ng.ICompileService, private validationService: IValidationService) {
-        super();
+        super($document);
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),

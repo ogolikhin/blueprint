@@ -18,10 +18,12 @@ export class BPFieldText implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldTextController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "validationService"];
+    static $inject: [string] = ["$document", "$scope", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, private validationService: IValidationService) {
-        super();
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
+                private validationService: IValidationService) {
+        super($document);
 
         let validators = {
             requiredCustom: {

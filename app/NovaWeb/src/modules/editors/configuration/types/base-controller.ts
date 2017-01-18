@@ -7,6 +7,11 @@ export interface IBPFieldBaseController {
 }
 
 export class BPFieldBaseController implements IBPFieldBaseController {
+    static $inject = ["$document"];
+
+    constructor(protected $document: ng.IDocumentService) {
+    }
+
     public blurOnKey = (event: KeyboardEvent, keyCode?: number | number[]): void => {
         let _keyCode: number[];
         if (!keyCode) {
@@ -32,20 +37,15 @@ export class BPFieldBaseController implements IBPFieldBaseController {
     };
 
     public closeDropdownOnTab = (event: KeyboardEvent): void => {
-        let key = event.keyCode || event.which;
+        const key = event.keyCode || event.which;
         if (key === 9) { // 9 = Tab
-            let escKey = document.createEvent("Events");
-            escKey.initEvent("keydown", true, true);
-            escKey["which"] = 27; // 27 = Escape
-            escKey["keyCode"] = 27;
-            event.target.dispatchEvent(escKey);
-
+            this.fireEscKeydown(event);
             this.blurOnKey(event, 9);
         }
     };
 
-    private dropdownBlurHandler = (event) => {
-        const escKey = document.createEvent("Events");
+    private fireEscKeydown = (event) => {
+        const escKey = this.$document[0].createEvent("Events");
         escKey.initEvent("keydown", true, true);
         escKey["which"] = 27; // 27 = Escape
         escKey["keyCode"] = 27;
@@ -54,9 +54,9 @@ export class BPFieldBaseController implements IBPFieldBaseController {
 
     public closeDropdownOnBlur = (isDropdownOpen: boolean, searchInput: ng.IAugmentedJQuery): void => {
         if (isDropdownOpen) {
-            searchInput.on("blur", this.dropdownBlurHandler);
+            searchInput.on("blur", this.fireEscKeydown);
         } else {
-            searchInput.off("blur", this.dropdownBlurHandler);
+            searchInput.off("blur", this.fireEscKeydown);
         }
     };
 

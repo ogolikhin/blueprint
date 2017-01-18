@@ -27,15 +27,16 @@ interface ISelectItem {
 }
 
 export class BpFieldSelectController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "validationService"];
+    static $inject: [string] = ["$document", "$scope", "localization", "validationService"];
     private propertyDescriptor: IPropertyDescriptor;
     private allowsCustomValues: boolean;
     private customValue: ISelectItem;
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private validationService: IValidationService) {
-        super();
+        super($document);
         this.propertyDescriptor = $scope.options["data"];
 
         this.allowsCustomValues = !this.propertyDescriptor.isValidated;

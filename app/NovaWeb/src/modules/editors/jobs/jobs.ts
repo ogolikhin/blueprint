@@ -71,6 +71,7 @@ export class JobsController {
         switch (job.status) {
             case JobStatus.Completed:
                 switch (job.jobType) {
+                    case JobType.GenerateProcessTests:
                     case JobType.ProjectExport:
                         jobAction = JobAction.Download;
                         break;

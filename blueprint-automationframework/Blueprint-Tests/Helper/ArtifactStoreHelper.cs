@@ -787,7 +787,8 @@ namespace Helper
         /// <param name="contentType">The MIME Content-Type.</param>
         /// <returns>The random image file.</returns>
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
-        public static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
+        public static IFile CreateRandomImageFile(int width = 300, int height = 100, ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg")
         {
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
             string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
@@ -811,10 +812,10 @@ namespace Helper
         #endregion Image Functions
 
         /// <summary>
-        /// Gets Embedded Image Id from html of the artifact rich text property
+        /// Gets Inline Image Id from html of the artifact rich text property
         /// </summary>
         /// <returns>Guid string, empty string if no guids were found</returns>
-        public static string GetEmbeddedImageId(string richTextProperty)
+        public static string GetInlineImageId(string richTextProperty)
         {
             var guidString = Regex.Match(richTextProperty, @"[0-9a-f]{8}[-]([0-9a-f]{4}[-]){3}[0-9a-f]{12}");
             return guidString.Value;

@@ -1,35 +1,33 @@
-﻿import "angular";
-import "lodash";
+﻿import "./";
 import "angular-mocks";
-import "angular-ui-router";
 import {LocalStorageService, ILocalStorageService} from "./localStorage.service";
 
 describe("LocalStorage", () => {
 
-    let localizationStorageService: ILocalStorageService;
+    beforeEach(angular.mock.module("localStorage"));
 
-    beforeEach(inject(($log: ng.ILogService) => {
-        localizationStorageService = new LocalStorageService($log);
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("localStorageService", LocalStorageService);
     }));
 
     describe("LocalStorage", () => {
 
-        it("is created", () => {
+        it("is created", inject((localStorageService:ILocalStorageService) => {
             // Assert
-            expect(localizationStorageService).not.toBeNull();
-        });
+            expect(localStorageService).not.toBeNull();
+        }));
 
-        it("read null", () => {
+        it("read null", inject((localStorageService:ILocalStorageService) => {
             spyOn(localStorage, "getItem").and.callFake((key: string): String => {
                 return null;
             });
 
-            const readResult = localizationStorageService.read(null);
+            const readResult = localStorageService.read(null);
             // Assert
             expect(readResult).toBeNull();
-        });
+        }));
 
-        it("read not null", () => {
+        it("read not null", inject((localStorageService:ILocalStorageService) => {
             const customKey = "key";
             const customValue = "value";
             spyOn(localStorage, "getItem").and.callFake((key: string): String => {
@@ -39,12 +37,12 @@ describe("LocalStorage", () => {
                 return null;
             });
 
-            const readResult = localizationStorageService.read(customKey);
+            const readResult = localStorageService.read(customKey);
             // Assert
             expect(readResult).toEqual(customValue);
-        });
+        }));
 
-        it("read object", () => {
+        it("read object", inject((localStorageService:ILocalStorageService) => {
             const customKey = "key";
             const customValue = {
                 a: "a",
@@ -57,24 +55,24 @@ describe("LocalStorage", () => {
                 return null;
             });
 
-            const readResult = localizationStorageService.readObject(customKey);
+            const readResult = localStorageService.readObject(customKey);
             // Assert
             expect(readResult).toEqual(customValue);
-        });
+        }));
 
-        it("write item", () => {
+        it("write item", inject((localStorageService:ILocalStorageService) => {
             const customKey = "key";
             const customValue = "value";
             const setItemSpy = spyOn(localStorage, "setItem").and.callFake((key: string, data: string): void => {
                 //
             });
 
-            localizationStorageService.write(customKey, customValue);
+            localStorageService.write(customKey, customValue);
             // Assert
             expect(setItemSpy).toHaveBeenCalledWith(customKey, customValue);
-        });
+        }));
 
-        it("write object", () => {
+        it("write object", inject((localStorageService:ILocalStorageService) => {
             const customKey = "key";
             const customValue = {
                 a: "a",
@@ -84,30 +82,30 @@ describe("LocalStorage", () => {
                 //
             });
 
-            localizationStorageService.writeObject(customKey, customValue);
+            localStorageService.writeObject(customKey, customValue);
             // Assert
             expect(setItemSpy).toHaveBeenCalledWith(customKey, JSON.stringify(customValue));
-        });
+        }));
 
-        it("remove item", () => {
+        it("remove item", inject((localStorageService:ILocalStorageService) => {
             const customKey = "key";
             const removeSpy = spyOn(localStorage, "removeItem").and.callFake((path: string): void => {
                 //
             });
 
-            localizationStorageService.remove(customKey);
+            localStorageService.remove(customKey);
             // Assert
             expect(removeSpy).toHaveBeenCalledWith(customKey);
-        });
+        }));
 
-        it("clear", () => {
+        it("clear", inject((localStorageService:ILocalStorageService) => {
             const clearSpy = spyOn(localStorage, "clear").and.callFake((): void => {
                 //
             });
 
-            localizationStorageService.clear();
+            localStorageService.clear();
             // Assert
             expect(clearSpy).toHaveBeenCalled();
-        });
+        }));
     });
 });

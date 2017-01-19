@@ -1,10 +1,10 @@
-import "angular";
-import "lodash";
+import './';
 import "angular-mocks";
 import {SettingsService, ISettingsService} from "./settings.service";
-
 describe("Settings", () => {
     let settings: ISettingsService;
+
+    beforeEach(angular.mock.module("configuration"));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService) => {
         settings = new SettingsService($rootScope);

@@ -1,11 +1,14 @@
+import "./"; //imports the index.ts file with module and dependencies
 import "angular-mocks";
 import {Helper} from "../../shared";
 import {HttpStatusCode} from "../httpInterceptor/http-status-code";
-import {IFileUploadService, IFileResult, FileUploadService} from "./fileUpload.service";
+import {IFileUploadService, IFileResult} from "./";
 
 describe("File Upload", () => {
+    beforeEach(angular.mock.module("fileUpload"));
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("fileUploadService", FileUploadService);
+
     }));
 
     describe("uploadToFileStore", () => {

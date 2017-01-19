@@ -1,5 +1,4 @@
-﻿import "../../main/";
-import * as angular from "angular";
+﻿import "./";
 import "angular-mocks";
 import {ComponentTest} from "../../util/component.test";
 import {LoadingOverlayService, ILoadingOverlayService} from "./loadingOverlay.service";

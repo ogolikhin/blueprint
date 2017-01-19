@@ -1,9 +1,11 @@
-import "angular-mocks";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {IProjectManager} from "../../../managers/project-manager";
-import {Models} from "../../models";
-import {IQuickSearchService} from "./quickSearchService";
+import "../../";
 import * as angular from "angular";
+import "angular-mocks";
+import {IQuickSearchService} from "./quickSearchService";
+import {Models} from "../../models";
+import {IProjectManager} from "../../../managers/project-manager";
+import {IStatefulArtifact} from "../../../managers/artifact-manager";
+import {HttpStatusCode} from "../../../core/http/http-status-code";
 
 describe("Service: Quick Search", () => {
     let service: IQuickSearchService;
@@ -15,7 +17,7 @@ describe("Service: Quick Search", () => {
     // Provide any mocks needed
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         const projectManager = {
-            projectCollection: new Rx.BehaviorSubject<Models.IViewModel<Models.IArtifact>[]>([])
+            projectCollection: new Rx.BehaviorSubject<Models.IViewModel<IStatefulArtifact>[]>([])
         } as IProjectManager;
         $provide.service("projectManager", () => projectManager);
         $provide.service("projectManager", () => projectManager);
@@ -37,14 +39,14 @@ describe("Service: Quick Search", () => {
 
     it("search is only enabled if you have at least one open project", () => {
         expect(service.canSearch()).toBe(true);
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         expect(service.canSearch()).toBe(false);
     });
 
     it("searchmetadata - no parameters", () => {
         // arrange
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         const data = {
             "Query": "abc",
@@ -72,7 +74,7 @@ describe("Service: Quick Search", () => {
 
     it("searchmetadata - with pageSize", () => {
         // arrange
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         const pageSize = 10;
         const data = {
@@ -101,7 +103,7 @@ describe("Service: Quick Search", () => {
 
     it("searchmetadata - with page and page size", () => {
         // arrange
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         const page = 1;
         const pageSize = 10;
@@ -132,7 +134,7 @@ describe("Service: Quick Search", () => {
 
     it("search - no parameters", () => {
         // arrange
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         const data = {
             "Query": "abc",
@@ -161,7 +163,7 @@ describe("Service: Quick Search", () => {
 
     it("search - with page and page size", () => {
         // arrange
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         const page = 1;
         const pageSize = 10;
@@ -192,7 +194,7 @@ describe("Service: Quick Search", () => {
 
     it("search - with page", () => {
         // arrange
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         const page = 1;
         const data = {
@@ -222,7 +224,7 @@ describe("Service: Quick Search", () => {
 
     xit("search - with pageSize", () => {
         // arrange
-        const project = {model: {id: 123}} as Models.IViewModel<Models.IArtifact>;
+        const project = {model: {id: 123}} as Models.IViewModel<IStatefulArtifact>;
         projectManager.projectCollection.getValue().push(project);
         const pageSize = 10;
         const data = {

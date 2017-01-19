@@ -1,6 +1,7 @@
 import "angular";
 import "angular-mocks";
 import "rx";
+import {IStatefulArtifactFactory, StatefulArtifact} from "../../managers/artifact-manager";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {AdminStoreModels, Models} from "../models";
 import {ArtifactNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
@@ -12,20 +13,22 @@ describe("TreeNodeVMFactory", () => {
 
     beforeEach(() => {
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
-        factory = new TreeNodeVMFactory(projectService);
+        const statefulArtifactFactory = jasmine.createSpyObj("statefulArtifactFactory", ["createStatefulArtifact"]) as IStatefulArtifactFactory;
+        (statefulArtifactFactory.createStatefulArtifact as jasmine.Spy).and.callFake(model => new StatefulArtifact(model, undefined));
+        factory = new TreeNodeVMFactory(projectService, statefulArtifactFactory);
         project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
     });
 
-    describe("ExplorerNodeVM", () => {
+    describe("StatefulArtifactNodeVM", () => {
         it("constructor sets correct property values", () => {
             // Arrange
-            const model = {
+            const model = new StatefulArtifact({
                 id: 999,
                 hasChildren: false
-            } as Models.IArtifact;
+            }, undefined);
 
             // Act
-            const vm = factory.createExplorerNodeVM(model);
+            const vm = factory.createStatefulArtifactNodeVM(model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -38,13 +41,13 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when a collection folder, returns correct result", () => {
             // Arrange
-            const model = {
+            const model = new StatefulArtifact({
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.Collections,
                 itemTypeId: Models.ItemTypePredefined.CollectionFolder,
                 hasChildren: true
-            } as Models.IArtifact;
-            const vm = factory.createExplorerNodeVM(model);
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
 
             // Act
             const result = vm.getCellClass();
@@ -55,12 +58,12 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when a use case, returns correct result", () => {
             // Arrange
-            const model = {
+            const model = new StatefulArtifact({
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.UseCase,
                 hasChildren: true
-            } as Models.IArtifact;
-            const vm = factory.createExplorerNodeVM(model);
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
 
             // Act
             const result = vm.getCellClass();
@@ -71,12 +74,12 @@ describe("TreeNodeVMFactory", () => {
 
         it("getIcon, when custom icon, returns correct result", () => {
             // Arrange
-            const model = {
+            const model = new StatefulArtifact({
                 id: 1,
                 itemTypeIconId: 456,
                 itemTypeId: 123
-            } as Models.IArtifact;
-            const vm = factory.createExplorerNodeVM(model);
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
 
             // Act
             const result = vm.getIcon();
@@ -87,8 +90,8 @@ describe("TreeNodeVMFactory", () => {
 
         it("getIcon, when no custom icon, returns correct result", () => {
             // Arrange
-            const model = {id: 1} as Models.IArtifact;
-            const vm = factory.createExplorerNodeVM(model);
+            const model = new StatefulArtifact({id: 1}, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
 
             // Act
             const result = vm.getIcon();
@@ -99,11 +102,11 @@ describe("TreeNodeVMFactory", () => {
 
         it("getLabel returns correct result", () => {
             // Arrange
-            const model = {
+            const model = new StatefulArtifact({
                 id: 999,
                 name: "name"
-            } as Models.IArtifact;
-            const vm = factory.createExplorerNodeVM(model);
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
 
             // Act
             const result = vm.getLabel();
@@ -114,13 +117,13 @@ describe("TreeNodeVMFactory", () => {
 
         it("unloadChildren, when unloading children it removes children", () => {
             // Arrange
-            const model = {
+            const model = new StatefulArtifact({
                 id: 1,
                 itemTypeIconId: 456,
                 itemTypeId: 123,
                 children: [{id: 123}, {id: 456}]
-            } as Models.IArtifact;
-            const vm = factory.createExplorerNodeVM(model);
+            }, undefined);
+            const vm = factory.createStatefulArtifactNodeVM(model);
 
 
             // Act
@@ -135,19 +138,19 @@ describe("TreeNodeVMFactory", () => {
                     // Arrange
                     const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                    const model = {
+                    const model = new StatefulArtifact({
                         id: 123,
                         name: "parent",
                         predefinedType: Models.ItemTypePredefined.GenericDiagram,
                         artifactPath: ["project"]
-                    } as Models.IArtifact;
-                    const vm = factory.createExplorerNodeVM(model);
+                    }, undefined);
+                    const vm = factory.createStatefulArtifactNodeVM(model);
 
                     // Act
                     vm.loadChildrenAsync().then(result => {
 
                         // Assert
-                        expect(result).toEqual(children.map(child => factory.createExplorerNodeVM(child)));
+                        expect(result).toEqual(children.map(child => factory.createStatefulArtifactNodeVM(new StatefulArtifact(child, undefined))));
                         done();
                     }).catch(done.fail);
                     $rootScope.$digest(); // Resolves promises
@@ -452,12 +455,12 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when a collection folder, returns correct result", () => {
             // Arrange
-            const model = {
+            const model = new StatefulArtifact({
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.Collections,
                 itemTypeId: Models.ItemTypePredefined.CollectionFolder,
                 hasChildren: true
-            } as Models.IArtifact;
+            }, undefined);
             const vm = factory.createArtifactNodeVM(project, model);
 
             // Act

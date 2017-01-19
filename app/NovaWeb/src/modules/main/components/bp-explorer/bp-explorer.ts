@@ -20,7 +20,7 @@ export class ProjectExplorer implements ng.IComponentOptions {
 export interface IProjectExplorerController {
     // BpTree bindings
     treeApi: IBPTreeViewControllerApi;
-    projects: TreeModels.ExplorerNodeVM[];
+    projects: TreeModels.StatefulArtifactNodeVM[];
     columns: any[];
     onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
     onGridReset: (isExpanding: boolean) => void;
@@ -115,15 +115,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
         } else {
             this.treeApi.deselectAll();
         }
-
-        //Dispose of old subscriber and subscribe to new artifact.
-        if (this.selectedArtifactSubscriber) {
-            this.selectedArtifactSubscriber.dispose();
-        }
-
-        this.selectedArtifactSubscriber = artifact.getProperyObservable()
-            .distinctUntilChanged(changes => changes.item && changes.item.name)
-            .subscribeOnNext(this.onSelectedArtifactChange);
     }
 
     private _selected: TreeModels.ITreeNodeVM<any>;
@@ -133,12 +124,23 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     private set selected(value: TreeModels.ITreeNodeVM<any>) {
         this._selected = value;
-   }
+
+        //Dispose of old subscriber and subscribe to new artifact.
+        if (this.selectedArtifactSubscriber) {
+            this.selectedArtifactSubscriber.dispose();
+        }
+
+        if (value) {
+            this.selectedArtifactSubscriber = value.model.getProperyObservable()
+                .distinctUntilChanged(changes => changes.item && changes.item.name)
+                .subscribeOnNext(this.onSelectedArtifactChange);
+        }
+    }
 
     private isLoading: boolean;
     private pendingSelectedArtifactId: number;
 
-    private onLoadProject = (projects: TreeModels.ExplorerNodeVM[]) => {
+    private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
     }
@@ -209,23 +211,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private onSelectedArtifactChange = (changes: IItemChangeSet) => {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
-        if (changes.item && changes.change) {
-            this.treeApi.refreshRows((vm: TreeModels.ITreeNodeVM<any>) => {
-                if (vm.model.id === changes.item.id) {
-                    if (changes.change.key in vm.model) {
-                        vm.model[changes.change.key] = changes.change.value;
-                    }
-                    return true;
-                }
-                return false;
-            });
+        if (changes.item) {
+            this.treeApi.refreshRows((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === changes.item.id);
         }
     };
 
     // BpTree bindings
 
     public treeApi: IBPTreeViewControllerApi;
-    public projects: TreeModels.ExplorerNodeVM[];
+    public projects: TreeModels.StatefulArtifactNodeVM[];
     public columns: IColumn[] = [{
         cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
         isGroup: true,

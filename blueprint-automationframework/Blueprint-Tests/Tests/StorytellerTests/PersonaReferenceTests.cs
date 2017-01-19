@@ -109,6 +109,36 @@ namespace StorytellerTests
 
         #endregion 200 OK Tests
 
+        #region 400 Bad Request Tests
+
+        // TODO: update and enable this test cases once the TFS Bug 4823 gets updated
+        [Explicit(IgnoreReasons.ProductBug)]
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(227361)]
+        [Description("Add non-actor artifact as a persona reference to a process artifact task. Verify that 400 Bad Request is returned.")]
+        public void PersonaReference_AddNonActorAsReferenceToTask_400BadRequest(string taskName)
+        {
+            // Setup:
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _authorFullAccess);
+
+            var process = Helper.Storyteller.GetProcess(_authorFullAccess, addedProcessArtifact.Id);
+            
+            AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project, BaseArtifactType.Document);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http500InternalServerErrorException>(() => StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess),
+                "Update process call should return 400 Bad Request when using with invalid non-actor persona reference!");
+
+            // Validation: Verify that error code returned from the error response
+            // TODO: update the expectedExceptionMessage and ValidateServiceError part after the bug is updated
+            string expectedExceptionMessage = "";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.InvalidCredentials, expectedExceptionMessage);
+
+        }
+
+        #endregion 400 Bad Request Tests
+
         #region Tests
 
         [TestCase(Process.DefaultUserTaskName)]
@@ -493,11 +523,12 @@ namespace StorytellerTests
         /// <param name="process">The process containing the task </param>
         /// <param name="user">The user that will create the actor artifact.</param>
         /// <param name="project">The project containing the actor artifact.</param>
+        /// <param name="baseType">The baseArtifactType for PersonaReference, if not specified, Actor baseArtifactType will be used.</param>
         /// <returns>The created persona reference</returns>
-        private ArtifactReference AddPersonaReferenceToTask(string taskName, IProcess process, IUser user, IProject project)
+        private ArtifactReference AddPersonaReferenceToTask(string taskName, IProcess process, IUser user, IProject project, BaseArtifactType? baseType = null)
         {
             // Create actor for persona reference
-            var actor = Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Actor);
+            var actor = Helper.CreateAndPublishArtifact(project, user, baseType ?? BaseArtifactType.Actor);
 
             Helper.Storyteller.Artifacts.Add(actor);
 

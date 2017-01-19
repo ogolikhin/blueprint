@@ -876,12 +876,12 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
-            string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
+            string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
 
             // Verify:
-            Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactEmbeddedImageId,
+            Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactInlineImageId,
                 "ImageId in the copied artifact should be different from the ImageId from source artifact.");
-            var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactEmbeddedImageId);
+            var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: expectedVersion, skipDescription: true);
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
@@ -895,20 +895,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType);
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
-
-            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
-
-            var addedFile = Helper.ArtifactStore.AddImage(_user, imageFile);
-
-            string propertyContent = ArtifactStoreHelper.CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
-
-            CSharpUtilities.SetProperty("Description", propertyContent, sourceArtifactDetails);
-
             sourceArtifact.Lock(_user);
-            Artifact.UpdateArtifact(sourceArtifact, _user, sourceArtifactDetails, address: Helper.BlueprintServer.Address);
+            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user, Helper.ArtifactStore);
+
             CSharpUtilities.SetProperty("Description", string.Empty, sourceArtifactDetails);
-            Artifact.UpdateArtifact(sourceArtifact, _user, sourceArtifactDetails, address: Helper.BlueprintServer.Address);
+            Artifact.UpdateArtifact(sourceArtifact, _user, (NovaArtifactDetails)sourceArtifactDetails, address: Helper.BlueprintServer.Address);
             sourceArtifact.Publish(_user);
 
             sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
@@ -919,15 +910,12 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
-            string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
-
-            Assert.AreNotEqual(addedFile.EmbeddedImageId, copiedArtifactEmbeddedImageId,
-                "ImageId in the copied artifact should be different from the ImageId from source artifact.");
+            string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: expectedVersion);
-            Assert.IsEmpty(copiedArtifactEmbeddedImageId, "Copied artifact description shouldn't have inline image, but it has.");
+            Assert.IsEmpty(copiedArtifactInlineImageId, "Copied artifact description shouldn't have inline image, but it has.");
         }
 
         [TestCase]
@@ -961,11 +949,11 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
-            string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, propertyName));
+            string copiedArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, propertyName));
 
-            Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactEmbeddedImageId,
+            Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactInlineImageId,
                 "ImageId in the copied artifact should be different from the ImageId from source artifact.");
-            var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactEmbeddedImageId);
+            var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user);

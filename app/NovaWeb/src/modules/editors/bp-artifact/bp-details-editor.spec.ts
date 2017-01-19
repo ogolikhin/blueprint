@@ -3,17 +3,17 @@ import "angular-mocks";
 import "../";
 import {ComponentTest} from "../../util/component.test";
 import {BpArtifactDetailsEditorController} from "./bp-details-editor";
-import {MessageServiceMock} from "../../core/messages/message.mock";
-import {ArtifactManagerMock} from "./../../managers/artifact-manager/artifact-manager.mock";
-import {WindowManagerMock} from "./../../main/services/window-manager.mock";
+import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
+import {WindowManagerMock} from "../../main/services/window-manager.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
-import {PropertyDescriptorBuilderMock} from "./../configuration/property-descriptor-builder.mock";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "./../configuration/property-descriptor-builder";
+import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
+import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../configuration/property-descriptor-builder";
 import {IArtifactManager} from "./../../managers/artifact-manager";
-import {ISelectionManager} from "./../../managers/selection-manager/selection-manager";
-import {IStatefulArtifact} from "./../../managers/artifact-manager/artifact/artifact";
-import {ValidationServiceMock} from "./../../managers/artifact-manager/validation/validation.mock";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
+import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {Enums, Models} from "./../../main";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("Component BpArtifactDetailsEditor", () => {
     let componentTest: ComponentTest<BpArtifactDetailsEditorController>;

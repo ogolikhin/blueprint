@@ -12,11 +12,11 @@ import {ShapesFactory} from "./shapes/shapes-factory";
 import {SystemTask, UserTask, UserDecision, SystemDecision} from "./shapes/";
 import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
 import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/process-models";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {Models} from "../../../../../../main";
 import {IFileUploadService, ICopyImageResult} from "../../../../../../core/fileUpload";
 import {HttpStatusCode} from "../../../../../../core/httpInterceptor/http-status-code";
 import {IUserTask, IDecision} from "./models/process-graph-interfaces";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 
 enum PreprocessorNodeType {
     UserTask,

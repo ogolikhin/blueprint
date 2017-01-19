@@ -1,7 +1,7 @@
 import {IArtifactManager, IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {BpBaseEditor} from "../bp-base-editor";
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 export class BpGlossary implements ng.IComponentOptions {
     public template: string = require("./bp-glossary.html");

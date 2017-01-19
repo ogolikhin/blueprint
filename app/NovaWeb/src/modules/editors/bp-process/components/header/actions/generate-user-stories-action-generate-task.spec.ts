@@ -3,9 +3,7 @@ import "angular-mocks";
 import "script!mxClient";
 import {GenerateUserStoriesAction} from "./generate-user-stories-action";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {UserStoryServiceMock} from "../../../services/user-story.svc.mock";
-import {MessageServiceMock} from "../../../../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {CommunicationManager} from "../../../";
@@ -14,9 +12,9 @@ import {ProcessEvents, IProcessDiagramCommunication} from "../../diagram/process
 import * as TestShapes from "../../../models/test-shape-factory";
 import {ErrorCode} from "../../../../../shell/error/error-code";
 import {LoadingOverlayService} from "../../../../../core/loadingOverlay/loadingOverlay.service";
-import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 
 describe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;

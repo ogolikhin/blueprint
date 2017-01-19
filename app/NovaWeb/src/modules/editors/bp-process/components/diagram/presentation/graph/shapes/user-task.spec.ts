@@ -7,11 +7,8 @@ import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {createSystemDecisionForAddBranchTestModel} from "../../../../../models/test-model-factory";
 import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {ShapeModelMock, ArtifactReferenceLinkMock} from "./shape-model.mock";
-import {DiagramNodeElement} from "./diagram-element";
-import {NodeType, ElementType, IUserTaskShape} from "../models/";
+import {NodeType, IUserTaskShape} from "../models/";
 import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
-import {MessageServiceMock} from "../../../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../../../core/messages/message.svc";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.service.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
@@ -22,6 +19,8 @@ import {StatefulProcessArtifact} from "../../../../../process-artifact";
 import {Models} from "../../../../../../../main/models/";
 import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ItemTypePredefined} from "../../../../../../../main/models/enums";
+import {IMessageService} from "../../../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../../../main/components/messages/message.mock";
 
 describe("UserTask test", () => {
     const LABEL_EDIT_MAXLENGTH = 40;

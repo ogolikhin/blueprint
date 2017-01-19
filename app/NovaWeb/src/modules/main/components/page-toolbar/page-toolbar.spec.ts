@@ -5,7 +5,6 @@ import "angular-ui-router";
 import "rx";
 import {PageToolbarController} from "./page-toolbar";
 import {IDialogService} from "../../../shared";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
@@ -19,6 +18,7 @@ import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
+import {IMessageService} from "../messages/message.svc";
 
 describe("Page Toolbar:", () => {
     let _$q: ng.IQService;

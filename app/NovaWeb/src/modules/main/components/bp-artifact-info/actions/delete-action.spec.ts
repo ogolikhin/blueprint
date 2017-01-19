@@ -10,16 +10,16 @@ import {
 } from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IDialogService} from "../../../../shared";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
+import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {MessageServiceMock} from "../../messages/message.mock";
+import {IMessageService} from "../../messages/message.svc";
 
 describe("DeleteAction", () => {
     let $q_: ng.IQService;

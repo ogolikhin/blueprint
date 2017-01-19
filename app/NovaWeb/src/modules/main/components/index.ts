@@ -10,8 +10,10 @@ import "./momentDateFilter";
 import "./momentDateTimeFilter";
 import "./pagination";
 import "./dialogs/open-project";
+import "./messages";
 
 angular.module("bp.components", [
+    "bp.components.messages",
     "bp.components.momentDateFilter",
     "bp.components.momentDateTimeFilter",
     "bp.components.accordion",

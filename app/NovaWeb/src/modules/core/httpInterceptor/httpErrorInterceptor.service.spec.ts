@@ -3,9 +3,9 @@ import "angular-mocks";
 import {IHttpInterceptorConfig} from "./";
 import {HttpErrorInterceptor} from "./httpErrorInterceptor.service";
 import {SessionSvcMock} from "../../shell/login/mocks.spec";
-import {MessageServiceMock} from "../messages/message.mock";
 import {HttpStatusCode} from "./http-status-code";
 import {ApplicationError} from "../../shell/error/applicationError";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("Service: HttpErrorInterceptor", () => {
     beforeEach(angular.mock.module("httpInterceptor"));

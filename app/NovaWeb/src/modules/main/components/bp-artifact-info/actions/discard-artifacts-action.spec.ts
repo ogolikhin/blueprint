@@ -2,9 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "rx";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {
@@ -17,6 +15,8 @@ import {ProjectManagerMock} from "../../../../managers/project-manager/project-m
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {IDialogService} from "../../../../shared/";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {IMessageService} from "../../messages/message.svc";
+import {MessageServiceMock} from "../../messages/message.mock";
 
 describe("DiscardArtifactsAction", () => {
     let $q: ng.IQService;

@@ -3,8 +3,6 @@ import * as TestModels from "../../models/test-model-factory";
 import {ExecutionEnvironmentDetectorMock} from "../../../../core/services/execution-environment-detector.mock";
 import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ProcessDiagram} from "./process-diagram";
@@ -21,6 +19,8 @@ import {IClipboardService, ClipboardService} from "../../services/clipboard.svc"
 import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IArtifactManager} from "./../../../../managers/artifact-manager";
 import {FileUploadServiceMock} from "../../../../core/fileUpload/fileUpload.service.mock";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("ProcessDiagram Tests", () => {
     let rootScope: ng.IRootScopeService,

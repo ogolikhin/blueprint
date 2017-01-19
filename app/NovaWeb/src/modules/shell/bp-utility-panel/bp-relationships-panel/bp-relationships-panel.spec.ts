@@ -9,7 +9,6 @@ import {ComponentTest} from "../../../util/component.test";
 import {BPRelationshipsPanelController} from "./bp-relationships-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
@@ -26,6 +25,7 @@ import {ValidationServiceMock} from "../../../managers/artifact-manager/validati
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 describe("Component BPRelationshipsPanel", () => {
 

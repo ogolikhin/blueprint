@@ -3,18 +3,18 @@ import "angular-mocks";
 import "script!mxClient";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {LocalizationServiceMock} from "../../../../../../core/localization/localization.service.mock";
-import {DialogServiceMock} from "./../../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {DialogServiceMock} from "../../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessGraph} from "./models/process-graph-interfaces";
-import {ProcessType} from "./../../../../models/enums";
-import {IProcess} from "./../../../../models/process-models";
-import {MessageServiceMock} from "./../../../../../../core/messages/message.mock";
-import {CommunicationManager} from "./../../../../services/communication-manager";
-import {ProcessViewModel} from "./../../viewmodel/process-viewmodel";
+import {ProcessType} from "../../../../models/enums";
+import {IProcess} from "../../../../models/process-models";
+import {CommunicationManager} from "../../../../services/communication-manager";
+import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {ProcessGraph} from "./process-graph";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
-import {StatefulArtifactFactoryMock} from "./../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
+import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
 import * as TestModels from "../../../../models/test-model-factory";
+import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 
 describe("ProcessGraphSelectionHelper", () => {
     let $rootScope: ng.IRootScopeService;

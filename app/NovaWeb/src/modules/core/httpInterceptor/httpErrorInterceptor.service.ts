@@ -2,7 +2,7 @@
 import {SessionTokenHelper} from "../../shell/login/session.token.helper";
 import {IApplicationError, ApplicationError} from "../../shell/error/applicationError";
 import {HttpStatusCode} from "./http-status-code";
-import {IMessageService} from "../messages/message.svc";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 
 export interface IHttpInterceptorConfig extends ng.IRequestConfig {

@@ -4,8 +4,6 @@ import "rx";
 require("script!mxClient");
 import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
-import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {NodeType} from "./models/";
 import * as TestModels from "../../../../models/test-model-factory";
@@ -25,6 +23,8 @@ import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-mana
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
 import {ChangeSetCollector} from "../../../../../../managers/artifact-manager/changeset";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 
 describe("Layout test", () => {
     let msgService: IMessageService,

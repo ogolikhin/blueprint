@@ -1,7 +1,7 @@
 ﻿import {IArtifactManager, IProjectManager} from "../managers";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {Models, Enums} from "../main/models";
-import {IMessageService} from "../core/messages/message.svc";
+import {IMessageService} from "../main/components/messages/message.svc";
 
 export {IArtifactManager, IProjectManager, IStatefulArtifact, Models, Enums}
 

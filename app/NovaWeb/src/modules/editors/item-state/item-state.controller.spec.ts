@@ -4,7 +4,6 @@ import "angular-sanitize";
 import "../../main";
 import {Models} from "../../main/models";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
@@ -16,10 +15,11 @@ import {ProjectManagerMock} from "../../managers/project-manager/project-manager
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ItemStateController} from "./item-state.controller";
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {INavigationService} from "../../core/navigation/navigation.svc";
-import {MessageType, Message} from "../../core/messages/message";
+import {Message, MessageType} from "../../main/components/messages/message";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("Item State Controller tests", () => {
     let $stateParams: ng.ui.IStateParamsService,

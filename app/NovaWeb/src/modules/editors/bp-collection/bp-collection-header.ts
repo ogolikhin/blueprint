@@ -9,11 +9,11 @@ import {IStatefulCollectionArtifact} from "./collection-artifact";
 import {INavigationService} from "../../core/navigation/navigation.svc";
 import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
 import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "./collection.svc";
 import {IItemInfoService} from "../../core/navigation/item-info.svc";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");

@@ -5,12 +5,12 @@ import "lodash";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {IJobsService} from "./jobs.svc";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobsController} from "./jobs";
 import {JobsServiceMock} from "./jobs.svc.mock";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("Controller: Jobs", () => {
     let controller: JobsController;

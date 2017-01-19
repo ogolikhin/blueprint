@@ -10,7 +10,6 @@ import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {SelectionManager} from "../../selection-manager/selection-manager";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {
     ArtifactManager,
     IStatefulArtifactFactory,
@@ -20,6 +19,7 @@ import {
 import {ValidationService} from "../validation/validation.svc";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 
 describe("Project", () => {

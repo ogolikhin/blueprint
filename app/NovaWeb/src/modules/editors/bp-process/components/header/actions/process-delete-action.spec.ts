@@ -6,7 +6,6 @@ import {ProjectManagerMock} from "../../../../../managers/project-manager/projec
 import {ArtifactManagerMock} from "../../../../../managers/artifact-manager/artifact-manager.mock";
 import {ProcessDeleteAction} from "./process-delete-action";
 import {NavigationServiceMock} from "../../../../../core/navigation/navigation.svc.mock";
-import {MessageServiceMock} from "../../../../../core/messages/message.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
 import {CommunicationManager} from "../../../services/communication-manager";
@@ -17,6 +16,7 @@ import {ItemTypePredefined, RolePermissions} from "../../../../../main/models/en
 import {IToolbarCommunication} from "../toolbar-communication";
 import * as TestShapes from "../../../models/test-shape-factory";
 import * as TestModels from "../../../models/test-model-factory";
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 
 describe("ProcessDeleteAction", () => {
     let $rootScope: ng.IRootScopeService;

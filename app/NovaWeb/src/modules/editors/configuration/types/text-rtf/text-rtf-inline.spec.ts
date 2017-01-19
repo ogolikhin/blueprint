@@ -15,9 +15,9 @@ import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("Formly Text RTF Inline", () => {
     const fieldsDefinition = [

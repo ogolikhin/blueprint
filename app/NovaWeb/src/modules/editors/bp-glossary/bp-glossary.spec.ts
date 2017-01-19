@@ -6,7 +6,6 @@ import {ComponentTest} from "../../util/component.test";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {BpGlossaryController} from "./bp-glossary";
 import {GlossaryServiceMock} from "./glossary.svc.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
 import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -14,7 +13,7 @@ import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/arti
 import {StatefulArtifactServices} from "../../managers/artifact-manager/services";
 import {StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {ItemTypePredefined} from "../../main/models/enums";
-import {ISubArtifact} from "../../main/models/models";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("Component BP Glossary", () => {
 

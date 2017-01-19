@@ -5,15 +5,15 @@ import "rx/dist/rx.lite";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../managers/selection-manager/selection-manager.mock";
 import {MainStateController, LogoutStateController} from "./app.router";
-import {IMessageService} from "../core/messages/message.svc";
-import {MessageServiceMock} from "../core/messages/message.mock";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
 import {IClipboardService} from "../editors/bp-process/services/clipboard.svc";
 import {IProjectManager} from "../managers/project-manager/project-manager";
 import {ISession} from "./login/session.svc";
 import {SessionSvcMock} from "./login/mocks.spec";
-import {MessageType} from "../core/messages/message";
+import {IMessageService} from "../main/components/messages/message.svc";
+import {MessageServiceMock} from "../main/components/messages/message.mock";
+import {MessageType} from "../main/components/messages/message";
 
 describe("AppRouter", () => {
     let $rootScope: ng.IRootScopeService,

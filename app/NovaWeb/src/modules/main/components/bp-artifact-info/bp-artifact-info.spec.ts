@@ -6,7 +6,6 @@ import {IWindowManager, IMainWindow} from "../../services/window-manager";
 import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
 import {LoadingOverlayServiceMock} from "../../../core/loadingOverlay/loadingOverlay.service.mock";
@@ -22,6 +21,7 @@ import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
 import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
+import {MessageServiceMock} from "../messages/message.mock";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;

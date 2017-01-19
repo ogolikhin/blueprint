@@ -8,8 +8,8 @@ import {
 
 import {PropertyEditor} from "./bp-property-editor";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 export {
     IArtifactManager,

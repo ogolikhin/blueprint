@@ -3,7 +3,6 @@ import "angular-mocks";
 import "rx";
 import {UnpublishedController} from "./unpublished";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {UnpublishedArtifactsServiceMock} from "./unpublished.svc.mock";
 import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
@@ -13,6 +12,7 @@ import createSpy = jasmine.createSpy;
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 
 describe("Controller: Unpublished", () => {

@@ -2,8 +2,6 @@ import * as angular from "angular";
 require("script!mxClient");
 import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
-import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import * as TestModels from "../../../../models/test-model-factory";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
@@ -16,6 +14,8 @@ import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-m
 import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
 import {ChangeSetCollector} from "../../../../../../managers/artifact-manager/changeset";
 import {ProcessEvents} from "../../process-diagram-communication";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 
 describe("DragDropHandler test", () => {
     let msgService: IMessageService,

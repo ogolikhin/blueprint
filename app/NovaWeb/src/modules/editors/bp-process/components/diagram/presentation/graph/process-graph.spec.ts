@@ -2,13 +2,11 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
-import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import * as Enums from "../../../../models/enums";
 import * as ProcessModels from "../../../../models/process-models";
-import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {IProcessViewModel, ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {IProcessGraphModel, ProcessGraphModel} from "../../viewmodel/process-graph-model";
 import {IProcessGraph, IDiagramNode} from "./models/";
@@ -21,11 +19,12 @@ import {LocalizationServiceMock} from "../../../../../../core/localization/local
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import * as TestModels from "../../../../models/test-model-factory";
-import * as TestShapes from "../../../../models/test-shape-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {FileUploadServiceMock} from "../../../../../../core/fileUpload/fileUpload.service.mock";
-import {MessageType, Message} from "../../../../../../core/messages/message";
+import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
+import {Message, MessageType} from "../../../../../../main/components/messages/message";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;

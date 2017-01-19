@@ -7,7 +7,8 @@ import {BPDocumentItemController} from "./bp-document-item";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {IArtifactAttachmentsService} from "../../../../managers/artifact-manager";
 import {ArtifactAttachmentsMock} from "../../../../managers/artifact-manager/attachments/attachments.svc.mock";
-import {IMessageService} from "../../../../core/messages/message.svc";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("Component BP Artifact Document Item", () => {
     const template = `<bp-document-item doc-ref-info="document" delete-item="delete()"></bp-document-item>`;
@@ -18,6 +19,7 @@ describe("Component BP Artifact Document Item", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
     }));
 

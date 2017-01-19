@@ -5,7 +5,6 @@ import ".";
 import "rx/dist/rx.lite.js";
 
 import {BpProcessEditorController} from "./bp-process-editor";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
@@ -17,6 +16,7 @@ import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {IFileUploadService} from "../../core/fileUpload/";
 import {ILoadingOverlayService} from "../../core/loadingOverlay/";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("BpProcessEditor", () => {
     let $q: ng.IQService;

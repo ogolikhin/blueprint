@@ -10,11 +10,11 @@ import {DiscardAction} from "./discard-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {IMessageService} from "../../messages/message.svc";
+import {MessageServiceMock} from "../../messages/message.mock";
 
 describe("DiscardAction", () => {
     let $scope: ng.IScope;

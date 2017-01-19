@@ -3,7 +3,6 @@ import "angular-mocks";
 import {BpProcessHeaderController} from "./bp-process-header";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {IBreadcrumbService} from "../../services/breadcrumb.svc";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
@@ -27,6 +26,7 @@ import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-con
 import {ItemInfoService} from "../../../../core/navigation/item-info.svc";
 import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {CollectionServiceMock} from "../../../bp-collection/collection.svc.mock";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;

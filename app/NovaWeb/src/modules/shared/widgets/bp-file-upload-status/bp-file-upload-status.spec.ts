@@ -4,7 +4,7 @@ import {BpFileUploadStatusController, IUploadStatusDialogData} from "./bp-file-u
 import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../bp-dialog/bp-dialog.mock";
 import {SettingsService} from "../../../core/configuration/settings.service";
-import {MessageService} from "../../../core/messages/message.svc";
+import {MessageService} from "../../../main/components/messages/message.svc";
 
 class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
     public close(result?: any): void {

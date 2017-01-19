@@ -11,7 +11,6 @@ import {ArtifactServiceMock} from "./artifact.svc.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {SelectionManager} from "../../selection-manager/selection-manager";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {
     ArtifactManager,
@@ -20,16 +19,17 @@ import {
     MetaDataService
 } from "../../../managers/artifact-manager";
 import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {MessageType} from "../../../core/messages/message";
 import {ApplicationError} from "../../../shell/error/applicationError";
 import {ValidationServiceMock} from "../validation/validation.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {ErrorCode} from "../../../shell/error/error-code";
-import {SessionSvcMock} from "./../../../shell/login/mocks.spec";
-import {ItemInfoServiceMock} from "./../../../core/navigation/item-info.svc.mock";
+import {SessionSvcMock} from "../../../shell/login/mocks.spec";
+import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
 import {LoadingOverlayServiceMock} from "../../../core/loadingOverlay/loadingOverlay.service.mock";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {MessageType} from "../../../main/components/messages/message";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;

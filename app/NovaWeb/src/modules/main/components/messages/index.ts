@@ -7,7 +7,7 @@ import {MessageContainerComponent} from "./message-container";
 //internal CSS/SCSS for this module
 require("./messages.scss");
 
-angular.module("bp.core.messages", [])
+angular.module("bp.components.messages", [])
     .service("messageService", MessageService)
     .component("message", new MessageComponent())
     .component("messagesContainer", new MessageContainerComponent());

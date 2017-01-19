@@ -8,8 +8,6 @@ import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
 import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
 import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";
 import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact.factory.mock";
-import {MessageType} from "../../core/messages/message";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
@@ -19,6 +17,8 @@ import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
 import {ProjectServiceStatusCode} from "./project-service";
 import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {MessageType} from "../../main/components/messages/message";
 
 describe("Project Manager Test", () => {
 

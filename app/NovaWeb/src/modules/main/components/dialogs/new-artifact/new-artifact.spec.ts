@@ -4,11 +4,11 @@ import "angular-mocks";
 import {CreateNewArtifactController} from "./new-artifact";
 import {ModalServiceInstanceMock} from "../../../../shell/login/mocks.spec";
 import {DialogSettingsMock, DataMock} from "./new-artifact.mock";
-import {ItemTypePredefined} from "../../../../main/models/enums";
-import {IItemType} from "../../../../main/models/models";
+import {ItemTypePredefined} from "../../../models/enums";
+import {IItemType} from "../../../models/models";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {MetaDataServiceMock} from "../../../../managers/artifact-manager/metadata/metadata.svc.mock";
+import {MessageServiceMock} from "../../messages/message.mock";
 
 describe("CreateNewArtifactController", () => {
 

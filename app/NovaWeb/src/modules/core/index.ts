@@ -1,5 +1,4 @@
 import "./configuration";
-import "./messages";
 import "./navigation";
 import "./services";
 
@@ -16,7 +15,6 @@ angular.module("bp.core", [
     FileUpload,
     LoadingOverlay,
     Localization,
-    "bp.core.messages",
     "bp.core.navigation",
     "bp.core.services",
     LocalStorage,

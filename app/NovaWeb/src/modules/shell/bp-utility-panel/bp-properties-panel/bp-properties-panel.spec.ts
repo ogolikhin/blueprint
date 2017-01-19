@@ -13,10 +13,8 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.moc
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {Enums, Models} from "../../../main";
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
-import {IStatefulSubArtifact, IIStatefulSubArtifact} from "./../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {
     IArtifactManager,
     ArtifactManager,
@@ -26,9 +24,10 @@ import {
 } from "../../../managers/artifact-manager";
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 import {createDefaultProcessModel} from "../../../editors/bp-process/models/test-model-factory";
 import {INovaProcess} from "../../../editors/bp-process/process-artifact";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 describe("Component BPPropertiesPanel", () => {
 

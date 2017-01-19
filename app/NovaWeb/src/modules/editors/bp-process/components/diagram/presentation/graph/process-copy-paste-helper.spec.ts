@@ -11,8 +11,6 @@ import {ProcessCopyPasteHelper} from "./process-copy-paste-helper";
 import {IProcessViewModel, ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {IProcessGraphModel, ProcessGraphModel} from "../../viewmodel/process-graph-model";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
-import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {LocalizationServiceMock} from "../../../../../../core/localization/localization.service.mock";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
@@ -28,6 +26,8 @@ import * as ProcessModels from "../../../../models/process-models";
 import * as ProcessEnums from "../../../../models/enums";
 import * as TestModels from "../../../../models/test-model-factory";
 import * as TestShapes from "../../../../models/test-shape-factory";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 
 describe("ProcessCopyPasteHelper tests", () => {
     let localScope, timeout, wrapper, container;

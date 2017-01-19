@@ -2,9 +2,9 @@ import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOve
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
 import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph, ISelectionListener, IUserStory} from "./presentation/graph/models/";
+import {IProcessGraph, IUserStory} from "./presentation/graph/models/";
 import {IArtifactManager} from "./../../../../managers/artifact-manager";
-import {IStatefulProcessSubArtifact} from "./../../process-subartifact";
+import {IStatefulProcessSubArtifact} from "../../process-subartifact";
 import {IStatefulProcessArtifact} from "../../process-artifact";
 import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {IDiagramNode} from "./presentation/graph/models/process-graph-interfaces";
@@ -16,13 +16,12 @@ import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {MessageType, Message} from "../../../../core/messages/message";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IFileUploadService} from "../../../../core/fileUpload/fileUpload.service";
 import {PanelType, IUtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "../../services/clipboard.svc";
-import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
+import {Message, MessageType} from "../../../../main/components/messages/message";
 
 export class ProcessDiagram {
 

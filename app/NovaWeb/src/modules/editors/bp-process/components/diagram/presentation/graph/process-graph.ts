@@ -1,12 +1,10 @@
 ﻿/* tslint:disable max-file-line-count */
-import {IDecision} from "./models/process-graph-interfaces";
 import {ILoadingOverlayService} from "../../../../../../core/loadingOverlay/loadingOverlay.service";
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement, IProcessShape, IProcessLink} from "./models/";
 import {SourcesAndDestinations, ProcessShapeType, NodeType, NodeChange} from "./models/";
-import {ISelectionListener} from "./models/";
 import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {BpMxGraphModel} from "./bp-mxgraph-model";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -19,16 +17,16 @@ import {NodeLabelEditor} from "./node-label-editor";
 import {ProcessDeleteHelper} from "./process-delete-helper";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessCopyPasteHelper} from "./process-copy-paste-helper";
-import {IDialogSettings, IDialogService} from "../../../../../../shared";
+import {IDialogService} from "../../../../../../shared";
 import {NodePopupMenu} from "./popup-menu/node-popup-menu";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager";
 import {ProcessEvents, IProcessDiagramCommunication} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../../core/localization/localization.service";
 import {IClipboardService} from "../../../../services/clipboard.svc";
 import {IFileUploadService} from "../../../../../../core/fileUpload/fileUpload.service";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;

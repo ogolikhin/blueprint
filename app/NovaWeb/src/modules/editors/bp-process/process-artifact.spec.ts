@@ -14,7 +14,6 @@ import {
     MetaDataService
 } from "../../managers/artifact-manager";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {ArtifactAttachmentsMock} from "../../managers/artifact-manager/attachments/attachments.svc.mock";
@@ -29,6 +28,7 @@ import {AuthSvc} from "../../shell/login/auth.svc";
 import {SettingsMock} from "../../shell/login/mocks.spec";
 import {ItemInfoService} from "../../core/navigation/item-info.svc";
 import {LoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("StatefulProcessArtifact", () => {
 

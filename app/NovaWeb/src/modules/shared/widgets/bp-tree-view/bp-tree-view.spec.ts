@@ -8,8 +8,8 @@ import {BPTreeViewComponent, BPTreeViewController, ITreeNode, IColumn} from "./b
 import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
 import {IWindowManager, WindowManager} from "../../../main/services/window-manager";
 import {WindowResize} from "../../../core/services/window-resize";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 
 describe("BPTreeViewComponent", () => {
     angular.module("bp.widgets.treeView", [])
@@ -23,7 +23,7 @@ describe("BPTreeViewComponent", () => {
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
-        $provide.factory("$stateParams",  () => {
+        $provide.factory("$stateParams", () => {
             return stateParams;
         });
     }));
@@ -122,7 +122,7 @@ describe("BPTreeViewController", () => {
                        $timeout: ng.ITimeoutService,
                        windowManager: IWindowManager,
                        messageService: IMessageService,
-                       $stateParams:ng.ui.IStateParamsService,
+                       $stateParams: ng.ui.IStateParamsService,
                        $log: ng.ILogService) => {
         const element = angular.element(`<bp-tree-view />`);
         controller = new BPTreeViewController($q,
@@ -592,25 +592,26 @@ describe("BPTreeViewController", () => {
             expect(controller.resetGridAsync).toHaveBeenCalledWith(true);
         }));
 
-        it("onRowGroupOpened, when asynchronous load fails, calls addError correctly", inject(($rootScope: ng.IRootScopeService,
-                                                                                               $q: ng.IQService,
-                                                                                               messageService: IMessageService) => {
-            // Arrange
-            messageService.addError = jasmine.createSpy("addError");
-            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeNode;
-            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("error"));
-            vm.group = true;
-            vm.expanded = true;
-            const node = {data: vm, expanded: true} as agGrid.RowNode;
+        it("onRowGroupOpened, when asynchronous load fails, calls addError correctly",
+            inject(($rootScope: ng.IRootScopeService,
+                    $q: ng.IQService,
+                    messageService: IMessageService) => {
+                // Arrange
+                messageService.addError = jasmine.createSpy("addError");
+                const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeNode;
+                (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("error"));
+                vm.group = true;
+                vm.expanded = true;
+                const node = {data: vm, expanded: true} as agGrid.RowNode;
 
-            // Act
-            controller.onRowGroupOpened({node: node});
+                // Act
+                controller.onRowGroupOpened({node: node});
 
-            // Assert
-            expect(vm.loadChildrenAsync).toHaveBeenCalled();
-            $rootScope.$digest(); // Resolves promises
-            expect(messageService.addError).toHaveBeenCalledWith("error");
-        }));
+                // Assert
+                expect(vm.loadChildrenAsync).toHaveBeenCalled();
+                $rootScope.$digest(); // Resolves promises
+                expect(messageService.addError).toHaveBeenCalledWith("error");
+            }));
 
         it("onRowGroupOpened, when not group, does not set expanded", () => {
             // Arrange

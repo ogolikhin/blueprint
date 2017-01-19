@@ -22,9 +22,9 @@ import {StatefulArtifact} from "../../../managers/artifact-manager/artifact/arti
 import {LicenseServiceMock} from "../../license/license.svc.mock";
 import {LoadingOverlayServiceMock} from "../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {SettingsServiceMock} from "../../../core/configuration/settings.mock";
-import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 describe("Component BP Attachments Panel", () => {
 

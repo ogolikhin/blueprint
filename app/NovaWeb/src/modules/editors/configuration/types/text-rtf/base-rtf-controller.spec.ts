@@ -14,6 +14,7 @@ import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifac
 describe("Formly Base RTF Controller", () => {
     let $rootScope: ng.IRootScopeService;
     let $scope: ng.IScope;
+    let $q: ng.IQService;
     let formlyScope: AngularFormly.ITemplateScope;
     let controller: BPFieldBaseRTFController;
 
@@ -47,13 +48,14 @@ describe("Formly Base RTF Controller", () => {
 
     beforeEach(
         inject(
-            ($rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
+            ($rootScope: ng.IRootScopeService, _$q_: ng.IQService, $controller: ng.IControllerService) => {
                 $scope = $rootScope.$new();
                 $scope.$on = function() {
                     return function() {
                         //
                     };
                 };
+                $q = _$q_;
 
                 formlyScope = {
                     options: {
@@ -86,7 +88,7 @@ describe("Formly Base RTF Controller", () => {
         )
     );
 
-    xdescribe("handleClick", () => {
+    describe("handleClick", () => {
         it("click on a link opens a new window", () => {
             const aTag: HTMLElement = angular.element("a")[0];
             const mouseEvent: MouseEvent = createMouseEvent();
@@ -107,7 +109,7 @@ describe("Formly Base RTF Controller", () => {
             const mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(controller.navigationService, "navigateTo");
+            spyOn(controller.navigationService, "navigateTo").and.callFake(() => $q.resolve());
 
             aTag.dispatchEvent(mouseEvent);
 

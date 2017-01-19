@@ -825,7 +825,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Actor)]
         [TestRail(227354)]
-        [Description("Create and publish a source artifact. Add random inline image to source artifact description. Copy the source artifact into the same parent.  " +
+        [Description("Create and save a source artifact. Add random inline image to source artifact description. Copy the source artifact into the same parent.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, except inline image. Copying should create new entry for inline image.")]
         public void CopyArtifact_SavedArtifactWithInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
         {
@@ -878,11 +878,10 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
             string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetInlineImageId(copyResult.Artifact.Description);
 
+            // Verify:
             Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactEmbeddedImageId,
                 "ImageId in the copied artifact should be different from the ImageId from source artifact.");
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactEmbeddedImageId);
-
-            // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: expectedVersion, skipDescription: true);
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
@@ -890,8 +889,8 @@ namespace ArtifactStoreTests
 
         [TestCase(BaseArtifactType.Process)]
         [TestRail(227356)]
-        [Description("Create and publish a source artifact. Add random inline image to source artifact description. Copy the source artifact into the same parent.  " +
-            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, except inline image. Copying should create new entry for inline image.")]
+        [Description("Create and publish a source artifact. Add random inline image to source artifact description, delete inline image and save changes. " +
+            "Copy the source artifact into the same parent.  Verify the source artifact is unchanged and the new artifact is identical to the source artifact.")]
         public void CopyArtifact_PublishedArtifactWithDeletedInlineImageInDescription_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType)
         {
             // Setup:
@@ -931,46 +930,49 @@ namespace ArtifactStoreTests
             Assert.IsEmpty(copiedArtifactEmbeddedImageId, "Copied artifact description shouldn't have inline image, but it has.");
         }
 
-        #endregion 201 Created tests
-
-        [TestCase(ItemTypePredefined.Actor)]
+        [TestCase]
         [TestRail(227358)]
         [Description("Create and publish a source artifact. Add random inline image to source artifact custom property. Copy the source artifact into the same parent.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, except inline image. Copying should create new entry for inline image.")]
-        public void CopyArtifact_PublishedArtifactWithInlineImageInRichText_ToProjectRoot_ReturnsNewArtifact(ItemTypePredefined itemType)
+        public void CopyArtifact_PublishedArtifactWithInlineImageInRichText_ToProjectRoot_ReturnsNewArtifact()
         {
             // Setup:
-            string customPropertyName = "Std-Text-Required-RT-Multi-HasDefault";
-            IProject project = Helper.GetProject(TestHelper.GoldenDataProject.CustomData, _user);
-            IArtifact sourceArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, _user, itemType);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            const string artifactTypeName = "ST-User Story";
+            const string propertyName = "ST-Acceptance Criteria";
+            //IProject project = Helper.GetProject(TestHelper.GoldenDataProject.CustomData, _user);
+            IArtifact sourceArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.TextualRequirement,
+                artifactTypeName: artifactTypeName);
             sourceArtifact.Lock(_user);
-            
-            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user,
-                Helper.ArtifactStore, propertyName: customPropertyName);
 
-            Func<INovaArtifactDetails, string, string> GetCustomPropertyStringValueByName = (details, propertyName) =>
+            var sourceArtifactDetails = ArtifactStoreHelper.AddRandomImageToArtifactProperty(sourceArtifact, _user,
+                Helper.ArtifactStore, propertyName: propertyName);
+
+            Func<INovaArtifactDetails, string, string> GetCustomPropertyStringValueByName = (details, customPropertyName) =>
             {
-                return details.CustomPropertyValues.Find(p => p.Name == propertyName).CustomPropertyValue.ToString();
+                return details.CustomPropertyValues.Find(p => p.Name == customPropertyName).CustomPropertyValue.ToString();
             };
 
-            string sourceArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(sourceArtifactDetails, customPropertyName));
+            string sourceArtifactInlineImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(sourceArtifactDetails, propertyName));
             var sourceArtifactImageFile = Helper.ArtifactStore.GetImage(_user, sourceArtifactInlineImageId);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, project.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
-            string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, customPropertyName));
+            string copiedArtifactEmbeddedImageId = ArtifactStoreHelper.GetInlineImageId(GetCustomPropertyStringValueByName(copyResult.Artifact, propertyName));
 
             Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactEmbeddedImageId,
                 "ImageId in the copied artifact should be different from the ImageId from source artifact.");
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactEmbeddedImageId);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user, skipDescription: true);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user);
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
         }
+
+        #endregion 201 Created tests
 
         #region 400 Bad Request tests
 

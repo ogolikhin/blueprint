@@ -1,8 +1,7 @@
 import {IItem} from "../../main/models/models";
-import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
-import {IDispose} from "../models";
 import {IDialogSettings} from "../../shared";
-
+import {IDispose} from "../models";
+import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
 
 export interface ISelectionManager extends IDispose {
     artifactObservable: Rx.Observable<IStatefulArtifact>;
@@ -63,7 +62,7 @@ export class SelectionManager implements ISelectionManager {
 
     public get explorerArtifactObservable() {
         return this.explorerArtifactSelectionSubject
-            .distinctUntilChanged(this.distinctById)
+            //.distinctUntilChanged(this.distinctById)
             .asObservable();
     }
 

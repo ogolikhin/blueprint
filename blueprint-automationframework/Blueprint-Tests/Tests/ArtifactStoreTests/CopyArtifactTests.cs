@@ -976,8 +976,6 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             OpenApiArtifact.PostRaptorDiscussion(artifact.Address, artifact.Id, commentText, author);
-            artifact.Save(author);
-            artifact.Publish(author);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 discussion!");
@@ -993,9 +991,8 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            const int expectedVersionOfOriginalArtifact = 2;
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
-                skipCreatedBy: true, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact);
+                skipCreatedBy: true);
 
             // Verify the Discussions of source artifact didn't change.
             var sourceDiscussionsAfterCopy = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);

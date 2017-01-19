@@ -58,11 +58,11 @@ export class BPFieldBaseController implements IBPFieldBaseController {
     };
 
     public closeDropdownOnBlur = (isDropdownOpen: boolean, searchInput: ng.IAugmentedJQuery): void => {
-        if (isDropdownOpen) {
-            searchInput.on("blur", this.fireEscKeydown);
-        } else {
-            searchInput.off("blur", this.fireEscKeydown);
-        }
+        // if (isDropdownOpen) {
+        //     searchInput.on("blur", this.fireEscKeydown);
+        // } else {
+        //     searchInput.off("blur", this.fireEscKeydown);
+        // }
     };
 
     public scrollIntoView = (event): void => {

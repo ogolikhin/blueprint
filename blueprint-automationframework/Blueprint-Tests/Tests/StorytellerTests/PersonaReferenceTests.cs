@@ -22,7 +22,6 @@ namespace StorytellerTests
     {
         private IUser _adminUser;
         private IUser _authorFullAccess;
-        private IProject _projectCustomData;
         private IProject _project;
 
         #region Setup and Cleanup
@@ -33,7 +32,6 @@ namespace StorytellerTests
             Helper = new TestHelper();
 
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             _project = ProjectFactory.GetProject(_adminUser);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
             _authorFullAccess = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -55,7 +53,7 @@ namespace StorytellerTests
         [Description("Add a persona reference to a Process artifact task. Move the persona reference into folder. Verify that no change on persona referance after the move.")]
         public void PersonaReference_MoveReferenceInTask_VerifyNoChangeInPersonaReference(string taskName)
         {
-            // Setup: Create and the default process and update with the added persona reference
+            // Setup: Create a default process and update with the added persona reference
             var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _authorFullAccess);
             
             var process = Helper.Storyteller.GetProcess(_authorFullAccess, addedProcessArtifact.Id);
@@ -65,7 +63,13 @@ namespace StorytellerTests
             var folderArtifact = Helper.CreateAndPublishArtifact(_project, _authorFullAccess, BaseArtifactType.PrimitiveFolder);
 
             // Execution: Move the persona referece and update the process
-            Helper.ArtifactStore.MoveArtifact(addedProcessArtifact, folderArtifact, _authorFullAccess);
+            var personaReference = Helper.ArtifactStore.GetArtifactDetails(_adminUser, addedPersonaReference.Id);
+
+            var personaReferenceArtifact = Helper.WrapNovaArtifact(personaReference, _project, _authorFullAccess);
+
+            personaReferenceArtifact.Lock(_authorFullAccess);
+            
+            Helper.ArtifactStore.MoveArtifact(personaReferenceArtifact, folderArtifact, _authorFullAccess);
 
             var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
 
@@ -83,12 +87,14 @@ namespace StorytellerTests
         [Description("Add a persona reference from different project to a Process artifact task. Verify that no change on persona reference after the update.")]
         public void PersonaReference_AddReferenceFromDifferentProjectToTask_VerifyNoChangeInPersonaReference(string taskName)
         {
-            // Setup: Create a default process and update with the added persona reference from differnt project
-            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _adminUser);
+            // Setup: Create a default process and update with the added persona reference from different project
+            var projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2);
+
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(projects[0], _adminUser);
 
             var process= Helper.Storyteller.GetProcess(_adminUser, addedProcessArtifact.Id);
 
-            var addedPersonaReferenceFromDifferentProject = AddPersonaReferenceToTask(taskName, process, _adminUser, _projectCustomData);
+            var addedPersonaReferenceFromDifferentProject = AddPersonaReferenceToTask(taskName, process, _adminUser, projects[1]);
 
             // Execution: update the process with addedPersonaReference from different project
             var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _adminUser);

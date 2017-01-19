@@ -14,7 +14,6 @@ import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ProjectServiceMock} from "./project-service.mock";
-import {ArtifactManagerMock} from "../artifact-manager/artifact-manager.mock";
 import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
 import {ProjectServiceStatusCode} from "./project-service";
 import {HttpStatusCode} from "../../core/http/http-status-code";
@@ -32,7 +31,6 @@ describe("Project Manager Test", () => {
         $provide.service("metadataService", MetaDataServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("projectManager", ProjectManager);
         $provide.service("projectService", ProjectServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
@@ -53,9 +51,8 @@ describe("Project Manager Test", () => {
     } as AdminStoreModels.IInstanceItem;
 
     beforeEach(inject(($q: ng.IQService, $compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
-                       selectionManager: SelectionManagerMock, statefulArtifactFactory: StatefulArtifactFactoryMock, artifactManager: ArtifactManagerMock,
+                       selectionManager: SelectionManagerMock, statefulArtifactFactory: StatefulArtifactFactoryMock,
                        projectService: ProjectServiceMock) => {
-        artifactManager.selection = selectionManager;
         const artifact = new StatefulArtifactMock($q);
         artifact.id = 20;
         artifact.projectId = 10;

@@ -1,6 +1,7 @@
 import {IItem} from "../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact-manager";
 import {IDispose} from "../models";
+import {IDialogSettings} from "../../shared";
 
 
 export interface ISelectionManager extends IDispose {
@@ -17,7 +18,7 @@ export interface ISelectionManager extends IDispose {
 
     getSubArtifact(): IStatefulSubArtifact;
     setSubArtifact(subArtifact: IStatefulSubArtifact, multiSelect?: boolean);
-
+    autosave(showConfirm?: boolean): ng.IPromise<any>;
     clearAll();
     clearSubArtifact();
 }
@@ -33,7 +34,13 @@ export class SelectionManager implements ISelectionManager {
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
-    constructor() {
+    static $inject: [string] = [
+        "$q",
+        "dialogService",
+        "loadingOverlayService"
+    ];
+
+    constructor(private $q, private dialogService, private loadingOverlayService) {
         const selection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined,
@@ -129,7 +136,7 @@ export class SelectionManager implements ISelectionManager {
         const emptyselection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined,
-            multiSelect: undefined 
+            multiSelect: undefined
         };
         this.setExplorerArtifact(undefined);
         this.setSelectionSubject(emptyselection);
@@ -140,7 +147,7 @@ export class SelectionManager implements ISelectionManager {
         const selection = <ISelection>{
             artifact: val.artifact,
             subArtifact: undefined,
-            multiSelect: undefined 
+            multiSelect: undefined
         };
 
         this.setSelectionSubject(selection);
@@ -168,5 +175,27 @@ export class SelectionManager implements ISelectionManager {
     private setSelectionSubject(selection: ISelection) {
         this.unsubscribe(selection);
         this.selectionSubject.onNext(selection);
+    }
+
+    public autosave(showConfirm: boolean = true): ng.IPromise<any> {
+        const artifact = this.getArtifact();
+        if (artifact) {
+            let autosaveId = this.loadingOverlayService.beginLoading();
+            return artifact.save(true).catch((error) => {
+                if (showConfirm) {
+                    return this.dialogService.open(<IDialogSettings>{
+                        okButton: "App_Button_Proceed",
+                        message: "App_Save_Auto_Confirm",
+                        header: "App_DialogTitle_Alert",
+                        css: "modal-alert nova-messaging"
+                    }).then(() => {
+                        artifact.discard();
+                    });
+                } else {
+                    return this.$q.reject(error);
+                }
+            }).finally(() => this.loadingOverlayService.endLoading(autosaveId));
+        }
+        return this.$q.resolve();
     }
 }

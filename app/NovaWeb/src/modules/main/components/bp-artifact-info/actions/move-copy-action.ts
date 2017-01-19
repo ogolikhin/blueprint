@@ -1,7 +1,6 @@
 import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {
     MoveCopyArtifactPickerDialogController,
@@ -14,6 +13,7 @@ import {Models, Enums} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IMessageService} from "../../messages/message.svc";
 
 export class MoveCopyAction extends BPDropdownAction {
     private actionType: MoveCopyActionType;

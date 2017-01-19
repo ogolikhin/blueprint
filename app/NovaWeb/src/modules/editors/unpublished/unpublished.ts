@@ -1,4 +1,3 @@
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
@@ -11,6 +10,7 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IDialogService} from "../../shared/";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 
 export class UnpublishedComponent implements ng.IComponentOptions {

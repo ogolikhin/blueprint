@@ -9,7 +9,6 @@ import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dia
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {
     BpFileUploadStatusController,
     IUploadStatusDialogData, IUploadStatusResult
@@ -17,6 +16,7 @@ import {
 import {ISettingsService} from "../../../../core/configuration/settings.service";
 import {IFileUploadService, IFileResult} from "../../../../core/fileUpload/fileUpload.service";
 import {Helper} from "../../../../shared/utils/helper";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";

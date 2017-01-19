@@ -1,18 +1,17 @@
-import {IProcessDiagramCommunication} from "./../../diagram/process-diagram-communication";
-import {IDiagramNode} from "./../../diagram/presentation/graph/models/process-graph-interfaces";
-import {NodeType} from "./../../diagram/presentation/graph/models/process-graph-constants";
-import {INavigationService} from "./../../../../../core/navigation/navigation.svc";
-import {IDialogService} from "./../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
+import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
+import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
+import {INavigationService} from "../../../../../core/navigation/navigation.svc";
+import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ILoadingOverlayService} from "../../../../../core/loadingOverlay/loadingOverlay.service";
-import {IProjectManager} from "./../../../../../managers/project-manager/project-manager";
-import {IArtifactManager} from "./../../../../../managers/artifact-manager/artifact-manager";
-import {IMessageService} from "./../../../../../core/messages/message.svc";
+import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
+import {IArtifactManager} from "../../../../../managers/artifact-manager/artifact-manager";
 import {ILocalizationService} from "../../../../../core/localization/localization.service";
-import {IStatefulProcessArtifact} from "./../../../process-artifact";
-import {StatefulProcessSubArtifact} from "./../../../process-subartifact";
-import {DeleteAction} from "./../../../../../main/components/bp-artifact-info/actions/delete-action";
+import {IStatefulProcessArtifact} from "../../../process-artifact";
+import {DeleteAction} from "../../../../../main/components/bp-artifact-info/actions/delete-action";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;

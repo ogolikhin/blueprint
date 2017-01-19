@@ -3,12 +3,12 @@ import {IUser, ISession} from "../../shell";
 import {Models, Enums} from "../models";
 import {IProjectManager} from "../../managers/project-manager";
 import {IArtifactManager, IStatefulArtifact} from "../../managers/artifact-manager";
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {ILocalStorageService} from "../../core/localStorage/localStorage.service";
 import {IDialogService, IDialogSettings} from "../../shared";
 import {BPTourController} from "../components/dialogs/bp-tour/bp-tour";
+import {IMessageService} from "../components/messages/message.svc";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");

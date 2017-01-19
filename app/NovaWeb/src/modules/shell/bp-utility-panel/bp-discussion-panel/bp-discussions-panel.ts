@@ -5,10 +5,10 @@
 import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from "./artifact-discussions.svc";
 import {IDialogService} from "../../../shared";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {Message, MessageType} from "../../../core/messages/message";
 import {Helper} from "../../../shared/utils/helper";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localization.service";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {Message, MessageType} from "../../../main/components/messages/message";
 
 export class BPDiscussionPanel implements ng.IComponentOptions {
     public template: string = require("./bp-discussions-panel.html");

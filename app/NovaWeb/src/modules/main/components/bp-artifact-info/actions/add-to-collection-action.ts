@@ -1,20 +1,19 @@
-import {BPButtonAction, IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
+import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {
     AddArtifactToCollectionDialogController,
     IAddArtifactToCollectionResult
 } from "../../../../main/components/dialogs/add-artifact-to-collection";
 
-import {Models, Enums} from "../../../../main/models";
-import {ItemTypePredefined} from "../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
 import {ErrorCode} from "../../../../shell/error/error-code";
 import {IItemInfoService, IItemInfoResult} from "../../../../core/navigation/item-info.svc";
+import {IMessageService} from "../../messages/message.svc";
 
 export class AddToCollectionAction extends BPDropdownAction {
 

@@ -1,23 +1,19 @@
 import {BPDropdownAction, BPDropdownItemAction} from "../../../../../shared/widgets/bp-toolbar/actions";
 import {IDialogService, IDialogSettings} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IUserStoryService} from "../../../services/user-story.svc";
-import {IProjectManager, ProjectManager} from "../../../../../managers/project-manager/project-manager";
-import {ISelectionManager} from "../../../../../managers/selection-manager";
-import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
+import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {IUserStory} from "../../../models/process-models";
-import {ProcessShapeType} from "../../../models/enums";
-import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {ReuseSettings} from "../../../../../main/models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError} from "../../../../../shell/error/applicationError";
 import {ErrorCode} from "../../../../../shell/error/error-code";
 import {ILoadingOverlayService} from "../../../../../core/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../core/localization/localization.service";
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private selectionChangedHandle: string;

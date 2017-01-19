@@ -1,18 +1,14 @@
 import {IPaginationData} from "../../main/components/pagination/model";
 import moment = require("moment");
-import {IMessageService} from "../../core/messages/message.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
-import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {IArtifact, IPublishResultSet} from "../../main/models/models";
 import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
-import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {INavigationService} from "../../core/navigation/navigation.svc";
-import {ItemTypePredefined} from "../../main/models/enums";
 import {IJobsService} from "./jobs.svc";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 export class JobsComponent implements ng.IComponentOptions {
     public template: string = require("./jobs.html");

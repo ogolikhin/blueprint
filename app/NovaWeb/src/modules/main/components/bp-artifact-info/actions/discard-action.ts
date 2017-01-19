@@ -2,9 +2,9 @@ import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IMessageService} from "../../messages/message.svc";
 
 export class DiscardAction extends BPButtonAction {
     constructor(

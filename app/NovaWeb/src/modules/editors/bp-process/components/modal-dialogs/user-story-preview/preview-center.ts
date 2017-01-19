@@ -3,8 +3,8 @@ import {UserStoryProperties} from "../../diagram/presentation/graph/shapes/user-
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
 import {IArtifactManager} from "../../../../../managers";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager";
-import {IMessageService} from "../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../core/localization/localization.service";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
 
 export class PreviewCenterController {
     private userStoryTitle: string = "ST-Title";

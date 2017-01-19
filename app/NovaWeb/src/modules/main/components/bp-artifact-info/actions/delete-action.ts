@@ -1,15 +1,15 @@
 import {IApplicationError} from "../../../../shell/error/applicationError";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {Message, MessageType} from "../../../../core/messages/message";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ConfirmDeleteController} from "../../../../main/components/dialogs/bp-confirm-delete";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
+import {ConfirmDeleteController} from "../../dialogs/bp-confirm-delete/bp-confirm-delete";
+import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {IArtifactManager, IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {BPButtonAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {IArtifact, IArtifactWithProject} from "../../../models/models";
+import {IMessageService} from "../../messages/message.svc";
+import {Message, MessageType} from "../../messages/message";
 
 export class DeleteAction extends BPButtonAction {
     constructor(

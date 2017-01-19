@@ -12,12 +12,12 @@ import {
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localization.service";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IApplicationError} from "../../../shell/error/applicationError";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
+import {IMessageService} from "../messages/message.svc";
 
 
 export class PageToolbar implements ng.IComponentOptions {

@@ -31,12 +31,12 @@ import {
     AddToCollectionAction
 } from "./actions";
 import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
 import {IItemInfoService} from "../../../core/navigation/item-info.svc";
+import {IMessageService} from "../messages/message.svc";
 
 enum InfoBannerEnum {
     None = 0,

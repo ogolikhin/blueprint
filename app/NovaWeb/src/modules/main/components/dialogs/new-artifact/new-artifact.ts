@@ -1,9 +1,9 @@
 import {IDialogSettings, BaseDialogController} from "../../../../shared";
 import {IMetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
-import {ItemTypePredefined} from "../../../../main/models/enums";
-import {IProjectMeta, IItemType} from "../../../../main/models/models";
+import {ItemTypePredefined} from "../../../models/enums";
+import {IProjectMeta, IItemType} from "../../../models/models";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {IMessageService} from "../../../../core/messages/message.svc";
+import {IMessageService} from "../../messages/message.svc";
 
 export interface ICreateNewArtifactDialogData {
     projectId: number;

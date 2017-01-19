@@ -8,7 +8,6 @@ import {IArtifactManager} from "../../managers";
 import {IMetaDataService} from "../artifact-manager/metadata";
 import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
-import {IMessageService} from "../../core/messages/message.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
@@ -16,6 +15,7 @@ import {ILocalizationService} from "../../core/localization/localization.service
 import {IApplicationError} from "../../shell/error/applicationError";
 import {IInstanceItem} from "../../main/models/admin-store-models";
 import {IItemInfoResult} from "../../core/navigation/item-info.svc";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 export interface IArtifactNode extends Models.IViewModel<IStatefulArtifact> {
     children?: this[];

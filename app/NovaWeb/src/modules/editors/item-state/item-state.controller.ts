@@ -6,10 +6,10 @@ import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info
 import {IApplicationError} from "../../shell/error/applicationError";
 import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
 import {INavigationService} from "../../core/navigation/navigation.svc";
-import {IMessageService} from "../../core/messages/message.svc";
-import {MessageType} from "../../core/messages/message";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {ItemTypePredefined} from "../../main/models/enums";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {MessageType} from "../../main/components/messages/message";
 
 export class ItemStateController {
 

@@ -1,7 +1,6 @@
 import {ICommunicationManager} from "../../";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
@@ -19,6 +18,7 @@ import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-ana
 import {ProcessDeleteAction} from "./actions/process-delete-action";
 import {ICollectionService} from "../../../bp-collection/collection.svc";
 import {IItemInfoService} from "../../../../core/navigation/item-info.svc";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");

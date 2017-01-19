@@ -1,18 +1,15 @@
 import {Models} from "../../../main";
 import {
-    ISelectionManager,
     IStatefulArtifact,
     IStatefulSubArtifact,
     IStatefulItem
 } from "../../../managers/artifact-manager";
-import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {PropertyEditor} from "../../../editors/bp-artifact/bp-property-editor";
 import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 import {PropertyLookupEnum} from "../../../main/models/enums";
 import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 
@@ -129,10 +126,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     private shouldRenewFields(item: IStatefulItem): boolean {
-        if (item.artifactState.readonly || !this.hasFields()) {
-            return true;
-        }
-        return false;
+        return item.artifactState.readonly || !this.hasFields();
+
     }
 
     private clearFields() {

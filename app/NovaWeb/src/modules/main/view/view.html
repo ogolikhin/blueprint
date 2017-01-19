@@ -1,20 +1,38 @@
-<page-toolbar ng-if="$main.currentUser"></page-toolbar>
-<bp-sidebar-layout left-panel-title="{{$main.localization.get('App_Sidebar_Left')}}"
-                   right-panel-title="{{$main.localization.get('App_Sidebar_Right')}}"
-                   ng-if="$main.currentUser"
-                   toggle-panel="$main.toggle(id)"
-                   is-left-toggled="$main.isLeftToggled"
-                   is-right-toggled="$main.isRightToggled">
-    <bp-sidebar-layout-content-left>
-        <bp-project-explorer class="explorer"></bp-project-explorer>
-    </bp-sidebar-layout-content-left>
+<page-toolbar ng-if="$ctrl.currentUser"></page-toolbar>
 
-    <bp-sidebar-layout-content-center>
+<div ng-if="$ctrl.currentUser" class="bp-sidebar-wrapper"
+     ng-class="{'left-panel-visible': $ctrl.isLeftToggled, 'right-panel-visible': $ctrl.isRightToggled}">
+
+    <div class="sidebar left-panel" ng-class="{'left-panel-expanded': $ctrl.isLeftPanelExpanded}">
+        <button class="sidebar-toggle hamburger hamburger--collapse" ng-class="{'is-active': $ctrl.isLeftToggled}"
+                type="button" ng-click="$ctrl.toggleLeft()" bp-tooltip="{{::$ctrl.localization.get('App_Sidebar_Left')}}">
+			<span class="hamburger-box">
+				<span class="hamburger-inner"></span>
+			</span>
+        </button>
+        <button class="btn btn-link btn-sidebar-expand" ng-click="$ctrl.toggleExpandLeft()">
+            <span class="fonticon2-expand"></span>
+        </button>
+        <div class="sidebar-title">{{::$ctrl.localization.get('App_Sidebar_Left')}}</div>
+        <div class="sidebar-content">
+            <bp-project-explorer class="explorer"></bp-project-explorer>
+        </div>
+    </div>
+
+    <div class="content-center">
         <pagecontent></pagecontent>
-    </bp-sidebar-layout-content-center>
+    </div>
 
-    <bp-sidebar-layout-content-right>
-        <bp-utility-panel></bp-utility-panel>
-    </bp-sidebar-layout-content-right>
-
-</bp-sidebar-layout>
+    <div class="sidebar right-panel">
+        <button class="sidebar-toggle hamburger hamburger--collapse" ng-class="{'is-active': $ctrl.isRightToggled}"
+                type="button" ng-click="$ctrl.toggleRight()" bp-tooltip="{{::$ctrl.localization.get('App_Sidebar_Right')}}">
+			<span class="hamburger-box">
+				<span class="hamburger-inner"></span>
+			</span>
+        </button>
+        <div class="sidebar-title">{{::$ctrl.localization.get('App_Sidebar_Right')}}</div>
+        <div class="sidebar-content">
+            <bp-utility-panel></bp-utility-panel>
+        </div>
+    </div>
+</div>

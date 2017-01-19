@@ -32,6 +32,10 @@ import {LoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.se
 
 describe("StatefulProcessArtifact", () => {
 
+    beforeEach(angular.mock.module("ui.bootstrap"));
+
+
+
     let $q: ng.IQService;
     let $log: ng.ILogService;
     let $rootScope: ng.IRootScopeService;
@@ -57,9 +61,7 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("session", SessionSvc);
         $provide.service("auth", AuthSvc);
         $provide.service("settings", SettingsMock);
-        $provide.service("$uibModal", () =>{
 
-        });
         $provide.service("itemInfoService", ItemInfoService);
         $provide.service("loadingOverlayService", LoadingOverlayService);
 

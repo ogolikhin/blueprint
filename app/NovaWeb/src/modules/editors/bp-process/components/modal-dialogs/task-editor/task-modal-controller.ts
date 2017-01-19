@@ -1,6 +1,8 @@
+import {ICreateArtifactService} from "../../../../../main/components/page-toolbar/create-artifact.svc";
+import {IStatefulArtifact} from "../../../../../managers/artifact-manager/artifact";
 import {IDialogSettings, IDialogService} from "../../../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
-import {Models} from "../../../../../main/models";
+import {Models, Enums} from "../../../../../main/models";
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
 import {IModalDialogModel} from "../models/modal-dialog-model-interface";
@@ -24,13 +26,16 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     protected abstract getDefaultPersonaReference(): IArtifactReference;
     protected abstract populateTaskChanges();
     protected abstract getModel(): Models.IArtifact;
+    protected abstract getNewArtifactName(): string;
+    protected abstract getItemTypeId(): number;
 
     public static $inject = [
         "$scope",
         "$rootScope",
         "$timeout",
         "dialogService",
-        "localization"
+        "localization",
+        "createArtifactService"
     ];
 
     constructor(
@@ -39,6 +44,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         private $timeout: ng.ITimeoutService,
         private dialogService: IDialogService,
         protected localization: ILocalizationService,
+        protected createArtifactService: ICreateArtifactService,
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: T
     ) {
@@ -164,6 +170,15 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.openArtifactPicker(dialogSettings, dialogOption, this.postIncludePickerAction);
     }
 
+    public createNewArtifact = (useModal: boolean): void => {
+        this.createArtifactService.createNewArtifact(
+            this.dialogModel.artifactId,
+            false,
+            this.getNewArtifactName(),
+            this.getItemTypeId(),
+            this.setInclude);
+    };
+
     public openActorPicker() {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Open"),
@@ -197,21 +212,26 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     private postActorPickerAction = (artifactReference: ArtifactReference): void => {
         this.setPersonaReference(artifactReference);
     }
+
     private openArtifactPicker(dialogSettings: IDialogSettings,
         dialogOptions: IArtifactPickerOptions,
         postArtifactPickerAction: (artifactReference: ArtifactReference) => void) {
 
         this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
             if (items.length === 1) {
-                const artifactReference = new ArtifactReference();
-                artifactReference.baseItemTypePredefined = items[0].predefinedType;
-                artifactReference.id = items[0].id;
-                artifactReference.name = items[0].name;
-                artifactReference.typePrefix = items[0].prefix;
-                postArtifactPickerAction(artifactReference);
+                this.setInclude(items[0]);
             }
         });
     }
+
+    private setInclude = ((item: Models.IItem) => {
+        const artifactReference = new ArtifactReference();
+        artifactReference.baseItemTypePredefined = item.predefinedType;
+        artifactReference.id = item.id;
+        artifactReference.name = item.name;
+        artifactReference.typePrefix = item.prefix;
+        this.postIncludePickerAction(artifactReference);
+    });
 
     private canCleanField(): boolean {
         return !this.dialogModel.isReadonly;

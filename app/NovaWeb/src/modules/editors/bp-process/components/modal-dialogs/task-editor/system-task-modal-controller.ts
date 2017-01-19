@@ -1,3 +1,4 @@
+import {ICreateArtifactService} from "../../../../../main/components/page-toolbar/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
@@ -17,10 +18,18 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         $timeout: ng.ITimeoutService,
         dialogService: IDialogService,
         localization: ILocalizationService,
+        createArtifactService: ICreateArtifactService,
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: SystemTaskDialogModel
     ) {
-        super($scope, $rootScope, $timeout, dialogService, localization, $uibModalInstance, dialogModel);
+        super($scope,
+        $rootScope,
+        $timeout,
+        dialogService,
+        localization,
+        createArtifactService,
+        $uibModalInstance,
+        dialogModel);
     }
 
     public nameOnFocus() {
@@ -70,6 +79,14 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         } else {
             this.dialogModel.personaReference = this.getDefaultPersonaReference();
         }
+    }
+
+    protected getNewArtifactName(): string {
+        return this.dialogModel.label;
+    }
+
+    protected getItemTypeId(): number {
+        return this.dialogModel.itemTypeId;
     }
 
     protected populateTaskChanges() {

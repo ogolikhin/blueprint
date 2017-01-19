@@ -21,6 +21,7 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     isHistorical: boolean;
     isReadonly: boolean;
     isChanged: boolean;
+    itemTypeId: number;
     isUserToSystemProcess: boolean;
     licenseType: Enums.LicenseTypeEnum;
     isSpa: boolean;
@@ -165,6 +166,10 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public updateProcessGraphModel(process: ProcessModels.IProcess) {
         this.processGraphModel = new ProcessGraphModel(process);
+    }
+
+    public get itemTypeId () {
+        return this.process.itemTypeId;  
     }
 
     public get processType(): ProcessEnums.ProcessType {

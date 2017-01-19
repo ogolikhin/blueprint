@@ -48,30 +48,42 @@
                             data-image-uploaded="imageUploaded"></upload-image>
         </div>
 
-
-                    <div class="nova-form-group">
-
-                        <div ng-if="!$ctrl.isIncludeResultsVisible">
-                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
-                                <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
-                            </button>
-                        </div>
-                        <div ng-if="$ctrl.isIncludeResultsVisible">
-                            <div class="label-divider">
-                                <label class="process-dividing-label"><i class="fonticon2-link"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}:</label>
-                            </div>
-                            <div class="storyteller-include_container">
-                                <div class="storyteller-include">
-                                    {{$ctrl.includeArtifactName}}
-                                     <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()"  ng-class="{'fonticon2__action--disabled':$ctrl.isReadonly}"></i>
-                                </div>
-                                <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
-                                        <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
-                                </button>
-                            </div>
-                        </div>
-                        <label class="nova-label" ng-if="$ctrl.isIncludeError">{{::$root.config.labels['ST_Cannot_Include_Parent_Process']}}</label>
+        <div class="nova-form-group">
+            <div ng-if="!$ctrl.isIncludeResultsVisible">
+                <div class="btn-group" uib-dropdown>
+                    <button class="btn btn-primary btn-small storyteller-include_btn" type="button" uib-dropdown-toggle ng-disabled="$ctrl.isReadonly">
+                        <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}} <span class="caret"></span>
+                    </button>
+                    <ul uib-dropdown-menu>
+                        <li class="toolbar-menu__item">
+                            <a class="toolbar-menu__action" ng-click="$ctrl.createNewArtifact()" style="cursor:pointer" ng-disabled="$ctrl.isReadonly">
+                                {{::$root.config.labels['ST_Include_New_Process_Label']}}
+                            </a>
+                        </li>
+                        <li class="toolbar-menu__item">
+                            <a class="toolbar-menu__action" ng-click="$ctrl.openIncludePicker()" style="cursor:pointer" ng-disabled="$ctrl.isReadonly">
+                                {{::$root.config.labels['ST_Include_Existing_Artifact_Label']}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div ng-if="$ctrl.isIncludeResultsVisible">
+                <div class="label-divider">
+                    <label class="process-dividing-label"><i class="fonticon2-link"></i>{{::$root.config.labels['ST_Include_Tab_Label']}}:</label>
+                </div>
+                <div class="storyteller-include_container">
+                    <div class="storyteller-include">
+                        {{$ctrl.includeArtifactName}}
+                        <i class="fonticon2-delete storyteller-include_clear" ng-click="$ctrl.cleanIncludeField()" ng-class="{'fonticon2__action--disabled':$ctrl.isReadonly}"></i>
                     </div>
+                    <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
+                        <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Browse_Include_Label']}}
+                    </button>
+                </div>
+            </div>
+            <label class="nova-label" ng-if="$ctrl.isIncludeError">{{::$root.config.labels['ST_Cannot_Include_Parent_Process']}}</label>
+        </div>
     </form>
 
     <script type="text/ng-template" id="artifactTypesDropdown.html">

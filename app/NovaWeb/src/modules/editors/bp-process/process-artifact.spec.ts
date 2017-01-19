@@ -1,14 +1,12 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "../../shell";
-import {IProcessUpdateResult} from "./services/process.svc";
 import {ProcessServiceMock} from "./services/process.svc.mock";
 import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {Models} from "../../main/models";
 import * as TestModels from "./models/test-model-factory";
 import {IProcess} from "./models/process-models";
-import {ShapeModelMock} from "./components/diagram/presentation/graph/shapes/shape-model.mock";
 import {
     ArtifactManager,
     IStatefulArtifactFactory,
@@ -26,6 +24,11 @@ import {SelectionManager} from "../../managers/selection-manager/selection-manag
 import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.svc.mock";
 import {IArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
+import {SessionSvc} from "../../shell/login/session.svc";
+import {AuthSvc} from "../../shell/login/auth.svc";
+import {SettingsMock} from "../../shell/login/mocks.spec";
+import {ItemInfoService} from "../../core/navigation/item-info.svc";
+import {LoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 
 describe("StatefulProcessArtifact", () => {
 
@@ -36,7 +39,6 @@ describe("StatefulProcessArtifact", () => {
     let getArtifactModelSpy: jasmine.Spy;
     let artifactServiceMock: IArtifactService;
 
-    beforeEach(angular.mock.module("app.shell"));
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
         $provide.service("localization", LocalizationServiceMock);
@@ -52,13 +54,21 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
+        $provide.service("session", SessionSvc);
+        $provide.service("auth", AuthSvc);
+        $provide.service("settings", SettingsMock);
+        $provide.service("$uibModal", () =>{
+
+        });
+        $provide.service("itemInfoService", ItemInfoService);
+        $provide.service("loadingOverlayService", LoadingOverlayService);
+
     }));
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
-        _$q_: ng.IQService,
-        _$log_: ng.ILogService,
-        _statefulArtifactFactory_: IStatefulArtifactFactory,
-        artifactService: ArtifactServiceMock
-    ) => {
+                       _$q_: ng.IQService,
+                       _$log_: ng.ILogService,
+                       _statefulArtifactFactory_: IStatefulArtifactFactory,
+                       artifactService: ArtifactServiceMock) => {
 
         statefulArtifactFactory = _statefulArtifactFactory_;
 
@@ -69,8 +79,7 @@ describe("StatefulProcessArtifact", () => {
 
         const processArtifactReturn: INovaProcess = ArtifactServiceMock.createArtifact(1);
         processArtifactReturn.process = TestModels.createDefaultProcessModel();
-        getArtifactModelSpy = spyOn(artifactService, "getArtifactModel").
-            and.returnValue($q.when(processArtifactReturn));
+        getArtifactModelSpy = spyOn(artifactService, "getArtifactModel").and.returnValue($q.when(processArtifactReturn));
     }));
 
     describe("Load -", () => {
@@ -118,7 +127,7 @@ describe("StatefulProcessArtifact", () => {
         });
 
         it("getArtifactModel is called with process load url", () => {
-             const artifact = {
+            const artifact = {
                 id: 1,
                 name: "",
                 projectId: 1,
@@ -216,7 +225,7 @@ describe("StatefulProcessArtifact", () => {
 
     describe("Save -", () => {
         it("updateArtifact is called with process save url and contains process model", () => {
-             const artifact = {
+            const artifact = {
                 id: 1,
                 name: "",
                 projectId: 1,

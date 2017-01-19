@@ -544,7 +544,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         event.preventDefault();
         const itemId = Number(target.getAttribute("subartifactid")) || Number(target.getAttribute("artifactid"));
         if (itemId) {
-            if (this.mceEditor) {
+            const isValid = _.toLower(target.getAttribute("isvalid")) === "true";
+            if (this.mceEditor && isValid) {
                 this.mceEditor.destroy(false);
             }
             navigationService.navigateTo({id: itemId});

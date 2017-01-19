@@ -525,10 +525,10 @@ namespace StorytellerTests
         /// <param name="project">The project containing the actor artifact.</param>
         /// <param name="baseType">The baseArtifactType for PersonaReference, if not specified, Actor baseArtifactType will be used.</param>
         /// <returns>The created persona reference</returns>
-        private ArtifactReference AddPersonaReferenceToTask(string taskName, IProcess process, IUser user, IProject project, BaseArtifactType? baseType = null)
+        private ArtifactReference AddPersonaReferenceToTask(string taskName, IProcess process, IUser user, IProject project, BaseArtifactType baseType = BaseArtifactType.Actor)
         {
             // Create actor for persona reference
-            var actor = Helper.CreateAndPublishArtifact(project, user, baseType ?? BaseArtifactType.Actor);
+            var actor = Helper.CreateAndPublishArtifact(project, user, baseType);
 
             Helper.Storyteller.Artifacts.Add(actor);
 

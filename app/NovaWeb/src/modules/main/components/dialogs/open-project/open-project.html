@@ -2,21 +2,21 @@
     <h3 class="modal-title">{{::$root.config.labels["App_Project_Open"]}}</h3>
 </div>
 <div class="modal-body">
-    <div class="project-wrapper">
-        <div class="project-tree-container">
+    <div class="open-project__wrapper">
+        <div class="open-project__tree">
             <bp-artifact-picker show-artifacts="false"
                                 on-selection-changed="$ctrl.onSelectionChanged(selectedVMs)"
                                 on-double-click="$ctrl.onDoubleClick(vm)">
             </bp-artifact-picker>
         </div>
-        <div class="project-data">
+        <div class="open-project__data">
             <span class="block">{{::$root.config.labels["App_Project_Name"]}}</span>
-            <div class="project-name">{{$ctrl.selectedName}}</div>
+            <div class="open-project__name">{{$ctrl.selectedName}}</div>
 
             <span class="block">{{::$root.config.labels["App_Project_Description"]}}</span>
-            <div class="project-description-wrapper">
-                <div class="project-description">
-                    <span class="line-clamp line-clamp-3" ng-bind="$ctrl.selectedDescription"></span>
+            <div class="open-project__description-wrapper">
+                <div class="open-project__description-clipper">
+                    <span class="open-project__description" ng-bind="$ctrl.selectedDescription"></span>
                 </div>
             </div>
 

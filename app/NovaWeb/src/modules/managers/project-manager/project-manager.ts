@@ -220,6 +220,7 @@ export class ProjectManager implements IProjectManager {
     }
 
     private doRefresh(projectId: number, expandToArtifact: IStatefulArtifact, forceOpen?: boolean): ng.IPromise<void> {
+        let refreshId = this.loadingOverlayService.beginLoading();
         const project = this.getProject(projectId);
 
         let selectedArtifactNode = this.getArtifactNode(expandToArtifact ? expandToArtifact.id : project.model.id);
@@ -283,6 +284,8 @@ export class ProjectManager implements IProjectManager {
             this.messageService.addError(error.message);
             this.clearProject(project);
             return this.$q.reject();
+        }).finally(() => {
+            this.loadingOverlayService.endLoading(refreshId);
         });
     }
 

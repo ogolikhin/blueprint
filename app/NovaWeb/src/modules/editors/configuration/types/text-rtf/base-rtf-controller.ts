@@ -379,8 +379,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected pastePostProcess = (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-        this.normalizeHtml(args.node, !this.isSingleLine);
-        Helper.removeAttributeFromNode(args.node, "id");
+        const clonedContent = args.node.cloneNode(true);
+        Helper.stripExternalImages(clonedContent);
+        const filteredClonedContent = clonedContent.outerHTML;
+
+        if (Helper.hasNonTextTags(filteredClonedContent) || Helper.tagsContainText(filteredClonedContent)) {
+            this.normalizeHtml(args.node, !this.isSingleLine);
+            Helper.stripExternalImages(args.node);
+            Helper.removeAttributeFromNode(args.node, "id");
+        } else {
+            args.preventDefault();
+        }
     };
 
     protected pastePreProcess(plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
@@ -535,10 +544,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         event.preventDefault();
         const itemId = Number(target.getAttribute("subartifactid")) || Number(target.getAttribute("artifactid"));
         if (itemId) {
-            if (this.mceEditor) {
-                this.mceEditor.destroy(false);
-            }
-            navigationService.navigateTo({id: itemId});
+            navigationService.navigateTo({id: itemId})
+                .then(() => {
+                    if (this.mceEditor) {
+                        this.mceEditor.destroy(false);
+                    }
+                });
         } else {
             window.open(target.getAttribute("href"), "_blank");
         }

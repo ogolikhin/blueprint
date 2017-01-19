@@ -1,5 +1,4 @@
 import {Models} from "../../main/models";
-import {IArtifactManager, IProjectManager} from "../../managers";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
@@ -10,6 +9,8 @@ import {IMessageService} from "../../core/messages/message.svc";
 import {MessageType} from "../../core/messages/message";
 import {ILocalizationService} from "../../core/localization/localizationService";
 import {ItemTypePredefined} from "../../main/models/enums";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IProjectManager} from "../../managers/project-manager/project-manager";
 
 export class ItemStateController {
 
@@ -17,7 +18,7 @@ export class ItemStateController {
 
     public static $inject = [
         "$stateParams",
-        "artifactManager",
+        "selectionManager",
         "projectManager",
         "messageService",
         "localization",
@@ -29,7 +30,7 @@ export class ItemStateController {
     ];
 
     constructor(private $stateParams: ng.ui.IStateParamsService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
@@ -40,12 +41,6 @@ export class ItemStateController {
                 private itemInfo: IItemInfoResult) {
 
         const version = parseInt($stateParams["version"], 10);
-
-        // TODO: remove ArtifactManager caching in future US
-        const artifact = artifactManager.get(itemInfo.id);
-        if (artifact && !artifact.artifactState.deleted && !version) {
-            artifact.unload();
-        }
 
         this.activeEditor = null;
         this.clearStickyMessages();
@@ -60,7 +55,7 @@ export class ItemStateController {
         } else if (this.itemInfoService.isProject(itemInfo)) {
             itemInfo.predefinedType = ItemTypePredefined.Project;
 
-            this.projectManager.openProject(itemInfo.id).then(() => {
+            this.projectManager.openProject(itemInfo).then(() => {
                 const project = this.createArtifact(itemInfo);
                 project.itemTypeId = ItemTypePredefined.Project;
                 project.itemTypeName = "Project";
@@ -134,7 +129,8 @@ export class ItemStateController {
 
     private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
-            if (!message.canBeClosedManually && message.messageType !== MessageType.Info) {
+            if (!message.canBeClosedManually && message.messageType !== MessageType.Info
+                 && message.messageType !== MessageType.LinkInfo) {
                 this.messageService.deleteMessageById(message.id);
             }
         });
@@ -143,10 +139,10 @@ export class ItemStateController {
     private setSelectedArtifact(artifact: IStatefulArtifact) {
         // do not select artifact in explorer if navigated from another artifact
         if (!this.$stateParams["path"]) {
-            this.artifactManager.selection.setExplorerArtifact(artifact);
+            this.selectionManager.setExplorerArtifact(artifact);
         }
 
-        this.artifactManager.selection.setArtifact(artifact);
+        this.selectionManager.setArtifact(artifact);
         artifact.errorObservable().subscribeOnNext(this.onArtifactError, this);
     }
 
@@ -168,9 +164,7 @@ export class ItemStateController {
                 this.activeEditor = "general";
                 break;
             case Models.ItemTypePredefined.CollectionFolder:
-                // Temporary decision while collections root description is not editable.
-                // if artifact is Collections root node
-                if (artifact.itemTypeId === ItemTypePredefined.Collections) {
+                if (artifact.parentId === artifact.projectId) {
                     this.activeEditor = "general";
                 } else {
                     this.activeEditor = "details";

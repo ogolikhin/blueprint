@@ -2,7 +2,7 @@
 import * as angular from "angular";
 import "rx";
 require("script!mxClient");
-import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
 import {ProcessGraph} from "./process-graph";
 import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
 import {IMessageService} from "../../../../../../core/messages/message.svc";
@@ -20,7 +20,7 @@ import {LocalizationServiceMock} from "../../../../../../core/localization/local
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import {ProcessAddHelper} from "./process-add-helper";
-import {ShapesFactory, ShapesFactoryMock} from "./shapes/shapes-factory";
+import {ShapesFactory} from "./shapes/shapes-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
@@ -80,8 +80,7 @@ describe("Layout test", () => {
                        _dialogService_: DialogService,
                        _localization_: LocalizationServiceMock,
                        _statefulArtifactFactory_: IStatefulArtifactFactory,
-                       _shapesFactory_: ShapesFactory
-    ) => {
+                       _shapesFactory_: ShapesFactory) => {
         rootScope = $rootScope;
         msgService = messageService;
         wrapper = document.createElement("DIV");
@@ -1179,7 +1178,7 @@ describe("Layout test", () => {
 
         beforeEach(() => {
             let elements = document.getElementsByClassName("process-graph__bridge");
-            while(elements.length > 0){
+            while (elements.length > 0) {
                 elements[0].parentNode.removeChild(elements[0]);
             }
         });
@@ -1228,11 +1227,11 @@ describe("Layout test", () => {
             const bridge = <HTMLImageElement>document.getElementsByClassName("process-graph__bridge")[0];
             const index = bridge.innerHTML.indexOf(".st2{fill:#");
             const color = bridge.innerHTML.substr(index + 10, 7);
-            
+
             //Assert
             expect(color).toBe(mxConstants.EDGE_SELECTION_COLOR);
         });
 
     });
-    
+
 });

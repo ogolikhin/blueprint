@@ -1,44 +1,43 @@
-import {ILoadingOverlayService} from "./../../../../core/loading-overlay/loading-overlay.svc";
+import {IFileUploadService} from "../../../../core/file-upload/fileUploadService";
+import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
+import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {Message, MessageType} from "../../../../core/messages/message";
+import {IMessageService} from "../../../../core/messages/message.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IDialogService} from "../../../../shared";
+import {IUtilityPanelService, PanelType} from "../../../../shell/bp-utility-panel/utility-panel.svc";
+import {ICommunicationManager} from "../../../bp-process";
 import {ProcessType} from "../../models/enums";
 import {IProcess} from "../../models/process-models";
-import {ProcessViewModel, IProcessViewModel} from "./viewmodel/process-viewmodel";
-import {IProcessGraph, ISelectionListener, IUserStory} from "./presentation/graph/models/";
-import {IArtifactManager} from "./../../../../managers/artifact-manager";
-import {IStatefulProcessSubArtifact} from "./../../process-subartifact";
 import {IStatefulProcessArtifact} from "../../process-artifact";
-import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
-import {IDiagramNode} from "./presentation/graph/models/process-graph-interfaces";
-import {SystemTask} from "./presentation/graph/shapes";
-import {ProcessGraph} from "./presentation/graph/process-graph";
-import {ICommunicationManager} from "../../../bp-process";
-import {IDialogService} from "../../../../shared";
-import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
-import {ProcessEvents} from "./process-diagram-communication";
-import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {MessageType, Message} from "../../../../core/messages/message";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IFileUploadService} from "../../../../core/file-upload/fileUploadService";
-import {PanelType, IUtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
+import {IStatefulProcessSubArtifact} from "../../process-subartifact";
 import {IClipboardService} from "../../services/clipboard.svc";
-import {ProcessCopyPasteHelper} from "./presentation/graph/process-copy-paste-helper";
+import {IProcessGraph, IUserStory} from "./presentation/graph/models/";
+import {IDiagramNode} from "./presentation/graph/models/process-graph-interfaces";
+import {ProcessGraph} from "./presentation/graph/process-graph";
+import {SystemTask} from "./presentation/graph/shapes";
+import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
+import {ProcessEvents} from "./process-diagram-communication";
+import {IProcessViewModel, ProcessViewModel} from "./viewmodel/process-viewmodel";
 
 export class ProcessDiagram {
-    
+
     public processModel: IProcess = null;
     public processViewModel: IProcessViewModel = null;
     private processArtifact: IStatefulProcessArtifact = null;
     private graph: IProcessGraph = null;
     private htmlElement: HTMLElement;
     private toggleProcessTypeHandler: string;
-    private copySelectionHandler: string; 
+    private copySelectionHandler: string;
     private modelUpdateHandler: string;
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
     private openUtilityPanelHandler: string;
     private selectionChangedHandler: string;
- 
+
     constructor(private $rootScope: ng.IRootScopeService,
                 private $scope: ng.IScope,
                 private $timeout: ng.ITimeoutService,
@@ -53,12 +52,12 @@ export class ProcessDiagram {
                 private shapesFactory: ShapesFactory,
                 private utilityPanelService: IUtilityPanelService,
                 private clipboard: IClipboardService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private fileUploadService: IFileUploadService,
                 private loadingOverlayService: ILoadingOverlayService) {
 
         this.processModel = null;
-       
+
     }
 
     public createDiagram(process: any, htmlElement: HTMLElement) {
@@ -68,7 +67,7 @@ export class ProcessDiagram {
         this.processModel = <IProcess>process;
         this.processArtifact = <IStatefulProcessArtifact>process;
         // #DEBUG
-        //this.artifactManager.selection.subArtifactObservable
+        //this.selectionManager.subArtifactObservable
         //    .subscribeOnNext(this.onSubArtifactChanged, this);
 
         this.onLoad(this.processModel);
@@ -96,7 +95,7 @@ export class ProcessDiagram {
         let processViewModel = this.createProcessViewModel(process);
         // set isSpa flag to true. Note: this flag may no longer be needed.
         processViewModel.isSpa = true;
-   
+
         this.createProcessGraph(processViewModel, useAutolayout, selectedNodeId);
     }
 
@@ -119,7 +118,7 @@ export class ProcessDiagram {
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
-          
+
         }
 
         this.toggleProcessTypeHandler = this.processViewModel.communicationManager.toolbarCommunicationManager
@@ -155,22 +154,20 @@ export class ProcessDiagram {
 
     private copySelection = () => {
         this.graph.copySelectedShapes();
-    }
+    };
 
     private modelUpdate = (selectedNodeId: number) => {
         this.recreateProcessGraph(selectedNodeId);
     };
 
     private navigateToAssociatedArtifact = (info: any) => {
-        if (!!info && info.isAccessible) {
+        if (!!info) {
             const options = {
                 id: info.id,
                 version: info.version,
                 enableTracking: info.enableTracking
             };
             this.navigationService.navigateTo(options);
-        } else {
-            this.messageService.addError(this.localization.get("HttpError_Forbidden"));
         }
     };
 
@@ -208,7 +205,7 @@ export class ProcessDiagram {
                 this.$q,
                 this.loadingOverlayService
             );
-             
+
         } catch (err) {
             this.handleInitProcessGraphFailed(processViewModel.id, err);
         }
@@ -220,17 +217,17 @@ export class ProcessDiagram {
             this.handleRenderProcessGraphFailed(processViewModel.id, err);
         }
     }
-   
+
     private resetBeforeLoad() {
         if (this.graph != null) {
             this.graph.destroy();
             this.graph = null;
         }
-        // clear any subartifact that may still be selected 
+        // clear any subartifact that may still be selected
         // by selection manager and/or utility panel
 
-        if (this.artifactManager && this.artifactManager.selection) {
-            this.artifactManager.selection.clearSubArtifact();
+        if (this.selectionManager) {
+            this.selectionManager.clearSubArtifact();
         }
     }
 
@@ -243,7 +240,7 @@ export class ProcessDiagram {
     private onDiagramSelectionChanged = (elements: IDiagramNode[]) => {
         // Note: need to trigger an angular $digest so that bindings will
         // work in other components
-        
+
         if (elements.length === 1) {
             // single-selection
             const subArtifactId: number = elements[0].model.id;
@@ -261,7 +258,7 @@ export class ProcessDiagram {
             // empty selection
             this.$rootScope.$applyAsync(() => {
                 if (this.canChangeSelection()) {
-                    this.artifactManager.selection.clearSubArtifact();
+                    this.selectionManager.clearSubArtifact();
                 }
             });
         }
@@ -270,22 +267,22 @@ export class ProcessDiagram {
     private setSubArtifactSelectionAsync(subArtifact: IStatefulSubArtifact, multiSelect: boolean = false) {
         this.$rootScope.$applyAsync(() => {
             if (this.canChangeSelection()) {
-                this.artifactManager.selection.setSubArtifact(subArtifact, multiSelect);
+                this.selectionManager.setSubArtifact(subArtifact, multiSelect);
             }
         });
     }
 
     private canChangeSelection() {
         //'this.graph' is used as isDestroyed flag, since this.graph set to undefined in 'destroy()' method
-        if (!this.graph || !this.artifactManager) {
+        if (!this.graph || !this.selectionManager) {
             return false;
         }
-        const selectedArtifact = this.artifactManager.selection.getArtifact();
+        const selectedArtifact = this.selectionManager.getArtifact();
         const selectedArtifactId = selectedArtifact ? selectedArtifact.id : NaN;
         const processArtifactId = this.processArtifact ? this.processArtifact.id : NaN;
         return selectedArtifactId === processArtifactId;
     }
-    
+
     private handleInitProcessGraphFailed(processId: number, err: any) {
         this.messageService.addMessage(new Message(
             MessageType.Error, "There was an error initializing the process graph."));
@@ -306,8 +303,8 @@ export class ProcessDiagram {
         }
     }
 
-    public destroy() { 
-        
+    public destroy() {
+
         // tear down persistent objects and event handlers
         if (this.communicationManager) {
             if (this.communicationManager.toolbarCommunicationManager) {
@@ -340,6 +337,6 @@ export class ProcessDiagram {
             this.processViewModel.destroy();
             this.processViewModel = undefined;
         }
-        
+
     }
 }

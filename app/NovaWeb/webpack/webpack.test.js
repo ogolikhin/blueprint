@@ -20,9 +20,12 @@ var postLoaders = [
 ];
 var preLoaders = [
     {
-        test: /\.ts$/,
+        test: [
+            /\.spec.ts$/,
+            /\.mock.ts$/
+        ],
         loader: 'tslint-loader',
-        exclude: [/node_modules/, /storyteller/],
+        exclude: [/node_modules/],
         include: [
             path.join(__dirname, "../src")
         ]
@@ -53,12 +56,20 @@ module.exports = {
             mxClient: path.resolve(__dirname, '../libs/mxClient/js/mxClient.js')
         }
     },
-    tslint: {
-        emitErrors: true,
-        failOnHint: true
-    },
     resolveLoader: {
         modulesDirectories: ["node_modules"]
+    },
+    tslint: {
+        emitErrors: true,
+        failOnHint: true,
+        configuration: {
+            rules: {
+                "only-arrow-functions": false,
+                "no-empty": false,
+                "max-file-line-count": false,
+                "max-line-length": false
+            }
+        }
     },
     devtool: sourceMap,
     bail: true,

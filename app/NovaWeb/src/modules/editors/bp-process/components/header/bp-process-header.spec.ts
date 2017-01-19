@@ -10,7 +10,6 @@ import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.
 import {WindowManager} from "../../../../main";
 import {CommunicationManager} from "../../";
 import {
-    ArtifactManager,
     ArtifactService,
     MetaDataService,
     ArtifactAttachmentsService,
@@ -25,9 +24,8 @@ import {ProjectManager} from "../../../../managers/project-manager/project-manag
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ItemInfoService} from "../../../../core/navigation/item-info.svc";
-import {AnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
-import {CollectionServiceMock} from "../../../../editors/bp-collection/collection.svc.mock";
+import {CollectionServiceMock} from "../../../bp-collection/collection.svc.mock";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -38,7 +36,7 @@ describe("BpProcessHeader", () => {
     let breadcrumbService: IBreadcrumbService;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
-            $provide.service("artifactManager", ArtifactManager);
+            $provide.service("selectionManager", SelectionManager);
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("messageService", MessageServiceMock);
             $provide.service("dialogService", DialogServiceMock);
@@ -48,7 +46,6 @@ describe("BpProcessHeader", () => {
             $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
             $provide.service("navigationService", NavigationServiceMock);
             $provide.service("breadcrumbService", BreadcrumbServiceMock);
-            $provide.service("selectionManager", SelectionManager);
             $provide.service("metadataService", MetaDataService);
             $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
             $provide.service("session", SessionSvcMock);
@@ -56,11 +53,10 @@ describe("BpProcessHeader", () => {
             $provide.service("artifactAttachments", ArtifactAttachmentsService);
             $provide.service("artifactRelationships", ArtifactRelationshipsService);
             $provide.service("itemInfoService", ItemInfoService);
-            $provide.service("projectManager", ProjectManager);            
+            $provide.service("projectManager", ProjectManager);
             $provide.service("projectService", ProjectService);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
-            $provide.provider("analytics", AnalyticsProvider); 
-            $provide.service("collectionService", CollectionServiceMock);                                  
+            $provide.service("collectionService", CollectionServiceMock);
         }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,

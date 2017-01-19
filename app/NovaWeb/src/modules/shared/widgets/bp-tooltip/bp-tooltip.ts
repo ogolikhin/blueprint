@@ -29,15 +29,19 @@ export class BPTooltip implements ng.IDirective {
                 tooltip.style.left = (e.clientX - 15) + "px";
                 angular.element(tooltip).removeClass("bp-tooltip-right-tip").addClass("bp-tooltip-left-tip");
             }
-            const rect = tooltip.getBoundingClientRect();
-            if (rect.height < e.clientY - 20) {
-                tooltip.style.top = "";
-                tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
-                angular.element(tooltip).removeClass("bp-tooltip-top-tip").addClass("bp-tooltip-bottom-tip");
-            } else {
-                tooltip.style.bottom = "";
-                tooltip.style.top = e.clientY + 30 + "px";
-                angular.element(tooltip).removeClass("bp-tooltip-bottom-tip").addClass("bp-tooltip-top-tip");
+            // we make sure the tooltip has been added to the DOM before calling getBoundingClientRect to avoid this IE bug:
+            // https://connect.microsoft.com/IE/feedback/details/829392
+            if (tooltip.parentElement) {
+                const rect = tooltip.getBoundingClientRect();
+                if (rect.height < e.clientY - 20) {
+                    tooltip.style.top = "";
+                    tooltip.style.bottom = (document.body.clientHeight - (e.clientY - 20)) + "px";
+                    angular.element(tooltip).removeClass("bp-tooltip-top-tip").addClass("bp-tooltip-bottom-tip");
+                } else {
+                    tooltip.style.bottom = "";
+                    tooltip.style.top = e.clientY + 30 + "px";
+                    angular.element(tooltip).removeClass("bp-tooltip-bottom-tip").addClass("bp-tooltip-top-tip");
+                }
             }
         }
 
@@ -97,10 +101,10 @@ export class BPTooltip implements ng.IDirective {
                 const elem = $element[0];
 
                 let clientRect = elem.getBoundingClientRect();
-                const width = _.round(clientRect.width);
-                const height = _.ceil(clientRect.height);
+                const width = clientRect.width;
+                const height = _.ceil(clientRect.height) + 1; // to account for the different ways browsers calculate/approximate font heights
                 // this allows to deal with inline elements, whose scrollWidth/Height is 0
-                let scrollWidth = _.max([elem.scrollWidth, width]);
+                let scrollWidth = _.max([elem.scrollWidth, _.round(width)]);
                 let scrollHeight = _.max([elem.scrollHeight, height]);
 
                 if (!isTriggerJustAWrapper(elem) &&
@@ -111,12 +115,12 @@ export class BPTooltip implements ng.IDirective {
                 if (isTriggerJustAWrapper(elem)) {
                     const child = elem.firstElementChild as HTMLElement;
                     const computedStyle = window.getComputedStyle(child);
-                    const availableWidth = width - parseFloat(computedStyle.marginLeft) - parseFloat(computedStyle.marginRight);
+                    const availableWidth = _.round(width) - parseFloat(computedStyle.marginLeft) - parseFloat(computedStyle.marginRight);
                     const availableHeight = height - parseFloat(computedStyle.marginTop) - parseFloat(computedStyle.marginBottom);
 
                     clientRect = child.getBoundingClientRect();
-                    scrollWidth = _.max([child.scrollWidth, _.round(clientRect.width)]);
-                    scrollHeight = _.max([child.scrollHeight, _.ceil(clientRect.height)]);
+                    scrollWidth = _.max([scrollWidth, child.scrollWidth, _.round(clientRect.width)]);
+                    scrollHeight = _.max([scrollHeight, child.scrollHeight, _.ceil(clientRect.height)]);
 
                     return availableWidth < scrollWidth || availableHeight < scrollHeight;
                 }

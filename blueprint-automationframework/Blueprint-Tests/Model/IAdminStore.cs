@@ -109,10 +109,10 @@ namespace Model
         /// Checks if the AdminStore service is ready for operation.
         /// (Runs: GET /status)
         /// </summary>
-        /// <param name="preAuthorizedKey">(optional) The pre-authorized key to use for authentication.  Defaults to a valid key.</param>
+        /// <param name="preAuthorizedKey">(optional) The pre-authorized key to use for authentication.  Defaults to null.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A JSON structure containing the status of this service and its dependent services.</returns>
-        string GetStatus(string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus, List<HttpStatusCode> expectedStatusCodes = null);
+        string GetStatus(string preAuthorizedKey = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.
@@ -267,5 +267,13 @@ namespace Model
         /// <returns>The file that was requested</returns>
         IFile GetJobResultFile(IUser user, int jobId, List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Schedules a job for test generation from the provided processes
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="processTestJobParametersRequest">parameter form required for adding process test generation job</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 201 Created is expected</param>
+        /// <returns>AddJobResult</returns>
+        AddJobResult QueueGenerateProcessTestsJob(IUser user, GenerateProcessTestsJobParameters processTestJobParametersRequest, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

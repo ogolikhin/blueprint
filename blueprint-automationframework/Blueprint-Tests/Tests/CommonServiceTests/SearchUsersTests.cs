@@ -544,7 +544,7 @@ namespace CommonServiceTests
 
         [TestCase("")]
         [TestCase(BlueprintToken.NO_TOKEN)]
-        [TestCase("00000000-0000-0000-0000-000000000000")]
+        [TestCase(CommonConstants.InvalidToken)]
         [TestRail(157163)]
         [Description("FindUserOrGroup with a bad or missing token.  Verify it returns 401 Unauthorized.")]
         public void FindUserOrGroup_BadOrMissingToken_401Unauthorized(string token)

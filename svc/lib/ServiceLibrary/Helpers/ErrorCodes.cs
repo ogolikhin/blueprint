@@ -39,5 +39,9 @@
         public const int PageSizeNullOrOutOfRange= 8001;
         public const int JobNotCompleted = 8002;
         public const int ResultFileNotSupported = 8003;
+        public const int QueueJobProcessesInvalid = 8004;
+        public const int QueueJobProjectIdInvalid = 8005;
+        public const int QueueJobProjectNameEmpty = 8006;
+        public const int QueueJobEmptyRequest = 8007;
     }
 }

@@ -79,7 +79,7 @@ bp-properties-panel {
                 }
             }
 
-            label {
+            .formly-label {
                 font-weight: 600;
                 width: $property-input-width;
                 margin-top: 0px;
@@ -139,21 +139,6 @@ bp-properties-panel {
                 }
             }
 
-            .read-only-input {
-
-                &.simple,
-                &.multiple {
-                    max-width: 100%;
-                    width: 100%;
-                }
-
-                &.richtext {
-                    min-width: 100%;
-                    max-width: 100%;
-                    padding: 0 $property-padding-default;
-                }
-            }
-
             .form-tinymce {
                 //min-width: $property-input-width;
             }
@@ -197,15 +182,6 @@ bp-properties-panel {
     .tab-pane {
         .formly {
             min-width: 100%;
-        }
-    }
-
-    .uib-datepicker-popup {
-
-        table.uib-daypicker,
-        table.uib-monthpicker,
-        table.uib-yearpicker {
-            width: $property-input-width;
         }
     }
 

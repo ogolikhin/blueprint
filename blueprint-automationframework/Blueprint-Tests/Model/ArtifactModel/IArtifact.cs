@@ -132,35 +132,35 @@ namespace Model.ArtifactModel
         /// Creates new discussion for the specified artifact/subartifact using Raptor REST API.
         /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
         /// </summary>
-        /// <param name="discussionsText">text for the new discussion</param>
+        /// <param name="comment">The comment for the new discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        IRaptorComment PostRaptorDiscussions(string discussionsText,
+        IRaptorDiscussion PostRaptorDiscussion(string comment,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Updates the specified comment.
+        /// Updates the specified discussion.
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
         /// </summary>
-        /// <param name="discussionText">new text for discussion</param>
+        /// <param name="comment">The new comment for discussion.</param>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="commentToUpdate">comment to update</param>
+        /// <param name="discussionToUpdate">The discussion to update.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        IRaptorComment UpdateRaptorDiscussions(string discussionText,
-            IUser user, IRaptorComment commentToUpdate,
+        IRaptorDiscussion UpdateRaptorDiscussion(string comment,
+            IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Deletes the specified comment using Raptor REST API.
+        /// Deletes the specified discussion using Raptor REST API.
         /// (Runs: DELETE /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToDeleteId})
         /// </summary>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="commentToDelete">comment to delete</param>
+        /// <param name="discussionToDelete">The discussion to delete.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>updated RaptorDiscussion</returns>
-        string DeleteRaptorDiscussion(IUser user, IRaptorComment commentToDelete,
+        /// <returns>A success or failure message.</returns>
+        string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion discussionToDelete,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

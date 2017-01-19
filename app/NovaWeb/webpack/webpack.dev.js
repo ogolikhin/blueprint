@@ -117,7 +117,10 @@ module.exports = {
             {
                 test: /\.ts$/,
                 loader: 'tslint-loader',
-                exclude: ['../node_modules']
+                exclude: [
+                    '../node_modules',
+                    /\.spec.ts$/
+                ]
             }
         ]
     },
@@ -133,5 +136,5 @@ module.exports = {
             lowerCaseAttributeNames: false
         }
     },
-    devtool: 'source-map'
+    devtool: 'cheap-module-source-map'
 };

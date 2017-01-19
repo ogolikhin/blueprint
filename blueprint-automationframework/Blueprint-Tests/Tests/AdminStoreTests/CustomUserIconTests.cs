@@ -121,7 +121,7 @@ namespace AdminStoreTests
 
         #region Negative tests
 
-        [TestCase("00000000-0000-0000-0000-000000000000", "Token is invalid.")]
+        [TestCase(CommonConstants.InvalidToken, "Token is invalid.")]
         [TestCase(null, "Token is missing or malformed.")]
         [TestRail(211707)]
         [Description("Create user with bad token.  User tries to get user icon.  Verify response returns code 401 Unauthorized.")]

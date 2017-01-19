@@ -1,5 +1,5 @@
 import {ISession} from "./login/session.svc";
-import {IProjectManager, IArtifactManager, ISelectionManager} from "../managers";
+import {IProjectManager, ISelectionManager} from "../managers";
 import {INavigationService} from "../core/navigation/navigation.svc";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
@@ -28,6 +28,9 @@ export class AppRoutes {
             },
             decode: (item: string): string[] => {
                 return _.isString(item) ? item.split(",") : [];
+            },
+            equals: (val1, val2) => {
+                return _.isEqual(val1, val2);
             },
             is: (item) => {
                 return _.isObject(item);
@@ -60,7 +63,7 @@ export class AppRoutes {
             .state("logout", {
                 controller: LogoutStateController,
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => { return am.autosave(); }]                    }
+                    saved: ["selectionManager", (sm: ISelectionManager) => { return sm.autosave(); }]                    }
             })
             .state("error", {
                 url: "/error",

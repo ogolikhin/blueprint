@@ -1,25 +1,24 @@
-﻿import * as angular from "angular";
+﻿import "../../../";
+import "../../../../main";
 import "angular-mocks";
 import "angular-sanitize";
 import "angular-ui-router";
-import "../../../";
-import "../../../../main";
-import {ComponentTest} from "../../../../util/component.test";
-import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
-import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
-import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {Helper} from "../../../../shared";
 import {HttpStatusCode} from "../../../../core/http/http-status-code";
-import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
-import {ArtifactManager} from "../../../../managers/artifact-manager/artifact-manager";
-import {MetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
+import {IRelationship} from "../../../../main/models/relationshipModels";
 import {StatefulArtifactFactory} from "../../../../managers/artifact-manager/artifact/artifact.factory";
 import {ArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactAttachmentsService} from "../../../../managers/artifact-manager/attachments/attachments.svc";
-import {IRelationship} from "../../../../main/models/relationshipModels";
+import {MetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
+import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
+import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {Helper} from "../../../../shared";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ComponentTest} from "../../../../util/component.test";
+import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
+import * as angular from "angular";
 
 describe("BPArtifactRelationshipItem", () => {
 
@@ -29,7 +28,6 @@ describe("BPArtifactRelationshipItem", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("artifactManager", ArtifactManager);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
@@ -68,20 +66,20 @@ describe("BPArtifactRelationshipItem", () => {
     it("action panel should be visible if item is manual trace and user has access to it",
         inject(($rootScope: ng.IRootScopeService) => {
 
-        //Arrange
-        let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
-        let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
-            new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
-        let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
+            //Arrange
+            let component = `<bp-artifact-relationship-item relationship="::artifact" selectable="true"></bp-artifact-relationship-item>`;
+            let directiveTest2: ComponentTest<BPArtifactRelationshipItemController> =
+                new ComponentTest<BPArtifactRelationshipItemController>(component, "bp-artifact-relationship-item");
+            let vm2: BPArtifactRelationshipItemController = directiveTest2.createComponent({});
 
-        vm2.canModifyItem = () => true;
-        vm2.showActionsPanel = true;
+            vm2.canModifyItem = () => true;
+            vm2.showActionsPanel = true;
 
-        $rootScope.$digest();
+            $rootScope.$digest();
 
-        //Assert
-        expect(directiveTest2.element.find(".icons").length).toBe(1);
-    }));
+            //Assert
+            expect(directiveTest2.element.find(".icons").length).toBe(1);
+        }));
 
     it("expanded view",
         inject(($httpBackend: ng.IHttpBackendService) => {
@@ -146,9 +144,10 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, replace Image tag with [Image] text if string more then 100 chars", () => {
         //Arrange
         const expectedResult = "test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678" + Helper.ELLIPSIS_SYMBOL;
-
+        const limitCharsResult = "test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111" +
+            "<img src=\"test.jpg\"/>";
         //Act
-        let result = vm.limitChars("test fffasdasfaffffffffrrffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111<img src=\"test.jpg\"/>");
+        let result = vm.limitChars(limitCharsResult);
 
         //Assert
         expect(result).toBe(expectedResult);
@@ -157,9 +156,12 @@ describe("BPArtifactRelationshipItem", () => {
     it("limitChars, replace Image tag with [Image] text if string more then 100 chars and image in range of the between 0 and 100 chars", () => {
         //Arrange
         const expectedResult = "test fffasdasfaffffffffrr [Image] fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff" + Helper.ELLIPSIS_SYMBOL;
-
+        const limitCharsResult = "test fffasdasfaffffffffrr" +
+            "<img src=\"test.jpg\"/>" +
+            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111" +
+            "<img src=\"test.jpg\"/>";
         //Act
-        let result = vm.limitChars("test fffasdasfaffffffffrr<img src=\"test.jpg\"/>ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff12345678911111<img src=\"test.jpg\"/>");
+        let result = vm.limitChars(limitCharsResult);
 
         //Assert
         expect(result).toBe(expectedResult);

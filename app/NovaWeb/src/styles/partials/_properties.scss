@@ -1,24 +1,5 @@
 @import "../settings/colors";
-
-$properties-min-width: $page-body-min-width - 40px - 30px - 2px;
-$property-min-height: 28px;
-$property-multiple-height: 98px;
-$property-horiz-spacing: 10px;
-$property-label-width: 100px;
-$property-width: $properties-min-width + $property-label-width - 2 * $property-horiz-spacing - 2px;
-$property-input-width: $property-width - 2 * $property-horiz-spacing - $property-label-width;
-$property-input-icon-width: 40px;
-$property-input-with-icon-width: $property-input-width - $property-input-icon-width;
-$property-content-min-width: $property-input-width + 3 * $property-horiz-spacing; // should be 4 * ...
-$property-padding-default: 6px;
-$property-select-background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAABCAIAAAATs2rlAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjg4QzNENTgzNDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1IiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjg4QzNENTg0NDQ0MjExRTY5RDA5RjY5NDY2Qzk4NEI1Ij4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6ODhDM0Q1ODE0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6ODhDM0Q1ODI0NDQyMTFFNjlEMDlGNjk0NjZDOTg0QjUiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz72Ya4LAAAAKUlEQVR42mJ88eIFLy8vAwPD////gSQjIyMDGAC5yGxcUsgKqAgAAgwAL9YR3iDzIXQAAAAASUVORK5CYII=');
-$property-choice-height: 24px;
-
-$richtext-fontcolor: #000;
-$richtext-linkcolor: #00f;
-$richtext-min-height: 150px;
-$richtext-fontsize: 12pt;
-$richtext-fontfamily: $font-family-base;
+@import "../../modules/editors/configuration/formly-config.scss";
 
 pagecontent, bp-properties-panel {
     .properties {
@@ -577,102 +558,6 @@ pagecontent, bp-properties-panel {
                 }
             }
 
-            .read-only-input {
-                box-sizing: border-box;
-                color: $gray-dark;
-                font-size: $font-size-normal;
-                font-weight: 400;
-                background: $gray-lightest;
-
-                &.simple,
-                &.multiple {
-                    border: solid 1px transparent;
-                    max-width: $property-input-width;
-                    overflow: hidden;
-                    padding: 0 $property-padding-default;
-                    width: $property-input-width;
-                }
-
-                &.simple {
-                    height: $property-min-height;
-                    line-height: $property-min-height;
-                    text-overflow: ellipsis;
-                    white-space: pre;
-                }
-
-                &.multiple {
-                    margin-top: 5px;
-                    max-height: #{2.5 * $property-min-height};
-                    min-height: #{$property-min-height - 5px};
-                    overflow: auto;
-                    padding-bottom: 4px;
-
-                    .choice {
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: pre;
-                    }
-                }
-
-                &.inline,
-                &.richtext {
-                    color: $richtext-fontcolor;
-                    font-family: $richtext-fontfamily;
-                    font-size: $richtext-fontsize;
-                    padding: 0;
-
-                    a {
-                        color: $richtext-linkcolor;
-                        cursor: pointer;
-                        text-decoration: underline;
-                    }
-
-                    p {
-                        color: $richtext-fontcolor;
-                        font-family: $richtext-fontfamily;
-                        font-size: $richtext-fontsize;
-                    }
-                }
-
-                &.richtext {
-                    max-height: 350px;
-                    min-height: $richtext-min-height;
-                    min-width: $property-input-width;
-                    overflow: auto;
-
-                    table {
-                        border-collapse: collapse;
-                        border-color: $richtext-fontcolor;
-                        border-style: solid;
-                        border-width: 1px;
-                        width: 90%;
-
-                        td {
-                            border-color: $richtext-fontcolor;
-                            border-style: solid;
-                            border-width: 1px;
-                            padding: 0 7px;
-                        }
-                    }
-                }
-
-                &.inline {
-                    line-height: $property-min-height;
-                    max-height: $property-min-height;
-                    min-height: $property-min-height;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    width: $property-input-width;
-
-                    * {
-                        overflow: auto !important;
-                        text-overflow: ellipsis !important;
-                        white-space: nowrap !important;
-                    }
-                }
-            }
-
             .input-file__container {
                 width: 100%;
             }
@@ -1029,17 +914,6 @@ pagecontent, bp-properties-panel {
             }
         }
 
-        .formly-field-bpFieldDatepicker {
-            .btn {
-                border-radius: 0;
-                z-index: initial;
-            }
-
-            .has-error button {
-                border-bottom-color: $brand-error !important;
-            }
-        }
-
         .formly-field-bpFieldImage {
             width: #{$property-width * .4};
 
@@ -1340,10 +1214,6 @@ pagecontent, bp-properties-panel {
 
             .input-group {
                 display: block;
-
-                .richtext-body {
-                    display: inline-block;
-                }
             }
         }
     }
@@ -1391,154 +1261,5 @@ pagecontent {
         padding: 8px 25px;
         font-size: $font-size-normal;
         color: $gray-light;
-    }
-}
-
-.uib-datepicker-popup {
-    border-color: $brand-secondary;
-    border-radius: 0;
-    padding: 0 0 7px;
-
-    li > .uib-datepicker {
-        margin-top: -1px;
-    }
-
-    table.uib-daypicker,
-    table.uib-monthpicker,
-    table.uib-yearpicker {
-        margin: 0 -1px;
-        outline: none;
-        width: $property-input-width;
-
-        thead tr:first-child th {
-            button {
-                border-color: $brand-secondary;
-            }
-
-            &:first-child button {
-                border-right: 0;
-                color: $brand-secondary;
-            }
-
-            &:last-child button {
-                border-left: 0;
-                color: $brand-secondary;
-            }
-        }
-    }
-
-    table.uib-yearpicker {
-        tbody tr:first-child td {
-            padding-top: 8px;
-        }
-
-        tbody td {
-            border: solid 1px transparent;
-            width: 52px;
-
-            &:first-child {
-                padding-left: 5px;
-                width: 57px;
-            }
-
-            &:last-child {
-                padding-right: 6px;
-                width: 58px;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-    }
-
-    table.uib-monthpicker {
-        tbody tr:first-child td {
-            padding-top: 8px;
-        }
-
-        tbody td {
-            border: solid 1px transparent;
-            width: 87px;
-
-            &:first-child {
-                padding-left: 5px;
-                width: 92px;
-            }
-
-            &:last-child {
-                padding-right: 6px;
-                width: 93px;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-    }
-
-    table.uib-daypicker {
-        thead tr:last-child th,
-        tbody td {
-            border: solid 1px transparent;
-            line-height: 28px;
-            width: 37px;
-
-            &:first-child {
-                padding-left: 6px;
-                width: 43px;
-            }
-
-            &:last-child {
-                padding-right: 7px;
-                width: 44px;
-            }
-        }
-    }
-
-    .btn {
-        border-radius: 0 !important;
-        color: $gray-dark;
-        min-width: 36px;
-        outline: none;
-        padding: 5px 10px;
-
-        &:active,
-        &:hover {
-            background: $blue-lightest;
-            border-color: $brand-secondary;
-            box-shadow: none;
-        }
-
-        &.active {
-            background: $brand-secondary !important;
-            box-shadow: none;
-            color: $white;
-        }
-
-        span {
-            color: inherit;
-        }
-        .btn-bp-small {
-            margin-left: 5px;
-            padding: 5px 9px;
-            min-width: 20px;
-            &.disabled {
-                background-color: $disabled-color;
-            }
-        }
-    }
-
-    .uib-button-bar {
-        padding: 10px 6px 0;
-
-        .btn-info,
-        .btn-danger,
-        .btn-success {
-            background: $white;
-            border-color: $gray-lighter;
-            border-radius: 4px !important;
-            float: none;
-        }
     }
 }

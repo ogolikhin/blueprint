@@ -20,6 +20,7 @@ import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loadin
 describe("MoveCopyAction", () => {
     let $scope: ng.IScope;
     let $q: ng.IQService;
+    let $timeout: ng.ITimeoutService;
 
     beforeEach(angular.mock.module("app.main"));
 
@@ -33,9 +34,10 @@ describe("MoveCopyAction", () => {
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
     }));
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService, _$timeout_: ng.ITimeoutService) => {
         $scope = $rootScope.$new();
         $q = _$q_;
+        $timeout = _$timeout_;
     }));
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
@@ -48,7 +50,7 @@ describe("MoveCopyAction", () => {
 
         // act
         try {
-            new MoveCopyAction($q, artifact, localization, messageService, projectManager, dialogService, navigationService, loadingOverlayService);
+            new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager, dialogService, navigationService, loadingOverlayService);
         } catch (exception) {
             error = exception;
         }
@@ -67,7 +69,7 @@ describe("MoveCopyAction", () => {
 
         // act
         try {
-            new MoveCopyAction($q, artifact, localization, messageService, null, dialogService, navigationService, loadingOverlayService);
+            new MoveCopyAction($q, $timeout, artifact, localization, messageService, null, dialogService, navigationService, loadingOverlayService);
         } catch (exception) {
             error = exception;
         }
@@ -86,7 +88,7 @@ describe("MoveCopyAction", () => {
 
         // act
         try {
-            new MoveCopyAction($q, artifact, localization, messageService, projectManager, null, navigationService, loadingOverlayService);
+            new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager, null, navigationService, loadingOverlayService);
         } catch (exception) {
             error = exception;
         }
@@ -103,7 +105,27 @@ describe("MoveCopyAction", () => {
         const artifact: IStatefulArtifact = null;
 
         // act
-        const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+        const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+            dialogService, navigationService, loadingOverlayService);
+
+        // assert
+        expect(moveAction.disabled).toBe(true);
+    }));
+
+    it("is disabled when artifact is historical", inject((
+        statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
+        messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+        navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.TextualRequirement
+            });
+        artifact.artifactState.historical = true;
+
+        // act
+        const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
             dialogService, navigationService, loadingOverlayService);
 
         // assert
@@ -123,7 +145,7 @@ describe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -143,7 +165,7 @@ describe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -167,7 +189,7 @@ describe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -193,7 +215,7 @@ describe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -219,7 +241,7 @@ describe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -243,7 +265,7 @@ describe("MoveCopyAction", () => {
                     permissions: RolePermissions.Edit
                 });
             const copySpy = spyOn(artifact, "copy").and.callFake(() => $q.reject(null));
-            const copyAction = new MoveCopyAction($q, artifact, localization, messageService,
+            const copyAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService,
                 projectManager, dialogService, navigationService, loadingOverlayService);
             spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveCopyArtifactResult[] = [
@@ -284,7 +306,7 @@ describe("MoveCopyAction", () => {
                     permissions: RolePermissions.Edit
                 });
             const moveSpy = spyOn(artifact, "move").and.callFake(() => $q.reject(null));
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService,
                 projectManager, dialogService, navigationService, loadingOverlayService);
             spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveCopyArtifactResult[] = [
@@ -326,7 +348,7 @@ describe("MoveCopyAction", () => {
                 });
             artifact.artifactState.dirty = true;
             spyOn(artifact, "move").and.callFake(() => $q.resolve());
-            const moveAction = new MoveCopyAction($q, artifact, localization, messageService,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService,
                 projectManager, dialogService, navigationService, loadingOverlayService);
             spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveCopyArtifactResult[] = [
@@ -368,7 +390,7 @@ describe("MoveCopyAction", () => {
                     permissions: RolePermissions.Edit
                 });
             spyOn(artifact, "copy").and.callFake(() => $q.resolve(<Models.ICopyResultSet>{artifact: {id: 1}}));
-            const copyAction = new MoveCopyAction($q, artifact, localization, messageService,
+            const copyAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService,
                 projectManager, dialogService, navigationService, loadingOverlayService);
             spyOn(dialogService, "open").and.callFake(() => {
                 let result: MoveCopyArtifactResult[] = [
@@ -384,13 +406,12 @@ describe("MoveCopyAction", () => {
                 ];
                 return $q.resolve(result);
             });
-            //spyOn(artifact, "save").and.callFake(() => $q.resolve());
-            //spyOn(projectManager, "refresh").and.callFake(() => $q.resolve());
             const navigateToSpy = spyOn(navigationService, "navigateTo").and.callFake(() => $q.resolve());
 
             // act
             copyAction.executeCopy();
             $scope.$digest();
+            $timeout.flush();
 
             // assert
             expect(navigateToSpy).toHaveBeenCalled();

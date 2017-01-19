@@ -267,7 +267,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAccessControl.GetLicenseUsage(int?, int?, List{HttpStatusCode})"/>
-        public IList<LicenseUsage> GetLicenseUsage(int? month = null, int? year = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<LicenseUsage> GetLicenseUsage(int? year = null, int? month = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             RestApiFacade restApi = new RestApiFacade(Address);
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;

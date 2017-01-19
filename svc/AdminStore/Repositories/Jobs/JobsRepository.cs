@@ -117,12 +117,34 @@ namespace AdminStore.Repositories.Jobs
                     }
 
                     var projectExportResult = SerializationHelper.FromXml<ProjectExportTaskStatus>(job.Result);
-                    var fileId = projectExportResult.Details.FileGuid;
-                    return await fileRepository.GetFileAsync(fileId);
+                    return await fileRepository.GetFileAsync(projectExportResult.Details.FileGuid);
+
+                case JobType.GenerateProcessTests:
+                    if (fileRepository == null)
+                    {
+                        throw new ArgumentNullException(nameof(fileRepository));
+                    }
+
+                    var processTestGenResult = SerializationHelper.FromXml<ProcessTestGenTaskResult>(job.Result);
+                    return await fileRepository.GetFileAsync(processTestGenResult.CsvFileGuid);
 
                 default:
                     throw new BadRequestException("Job doesn't support downloadable result files", ErrorCodes.ResultFileNotSupported);
             }
+        }
+
+        public async Task<int?> AddJobMessage(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+            int? projectId, string projectLabel, int userId, string userName, string hostUri)
+        {
+            var jobMessage = await AddJobMessageQuery(type, hidden, parameters, 
+                receiverJobServiceId, projectId, projectLabel, userId, userName, hostUri);
+
+            if (jobMessage == null)
+            {
+                return null;
+            }
+
+            return jobMessage.JobMessageId;
         }
 
         #endregion
@@ -213,13 +235,13 @@ namespace AdminStore.Repositories.Jobs
                 JobEndDateTime = jobMessage.EndTimestamp == null ? jobMessage.EndTimestamp : DateTime.SpecifyKind(jobMessage.EndTimestamp.Value, DateTimeKind.Utc),
                 JobType = jobMessage.Type,
                 Progress = jobMessage.Progress,
-                Project = jobMessage.ProjectId.HasValue ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel,
+                Project = jobMessage.ProjectId.HasValue && projectNameMap != null ? projectNameMap[jobMessage.ProjectId.Value] : jobMessage.ProjectLabel,
                 Server = jobMessage.ExecutorJobServiceId,
                 Status = jobMessage.Status.Value,
                 UserId = jobMessage.UserId,
                 Output = jobMessage.StatusDescription,
                 StatusChanged = jobMessage.StatusChangedTimestamp != null,
-                HasCancelJob = systemMessageMap.ContainsKey(jobMessage.JobMessageId),
+                HasCancelJob = systemMessageMap != null ? systemMessageMap.ContainsKey(jobMessage.JobMessageId) : false,
                 ProjectId = jobMessage.ProjectId,
                 Result = jobMessage.Result
             };
@@ -276,6 +298,40 @@ namespace AdminStore.Repositories.Jobs
 
             return projectNameIdDictionary;
         }
+
+        private async Task<DJobMessage> AddJobMessageQuery(JobType type, bool hidden, string parameters, string receiverJobServiceId,
+            int? projectId, string projectLabel, int userId, string userName, string hostUri)
+        {
+
+            var param = new DynamicParameters();
+
+            param.Add("@type", (long)type);
+            param.Add("@hidden", hidden);
+            param.Add("@parameters", parameters);
+            param.Add("@receiverJobServiceId", receiverJobServiceId);
+            param.Add("@userId", userId);
+            param.Add("@userLogin", userName);
+            param.Add("@projectId", projectId);
+            param.Add("@projectLabel", projectLabel);
+            param.Add("@hostUri", hostUri);
+
+            try
+            {
+                return (await ConnectionWrapper.QueryAsync<DJobMessage>("AddJobMessage", param, commandType: CommandType.StoredProcedure)).SingleOrDefault();
+            }
+            catch (SqlException sqlException)
+            {
+                switch (sqlException.Number)
+                {
+                    //Sql timeout error
+                    case ErrorCodes.SqlTimeoutNumber:
+                        throw new SqlTimeoutException("Server did not respond with a response in the allocated time. Please try again later.", ErrorCodes.Timeout);
+                }
+
+                throw;
+            }
+        }
+
 
         #endregion
     }

@@ -3,11 +3,10 @@ import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-o
 import {ILocalizationService} from "../../../../core/localization/localizationService";
 import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {IAnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IWindowManager} from "../../../../main/services";
-import {IArtifactManager, IProjectManager} from "../../../../managers";
+import {IProjectManager} from "../../../../managers";
 import {IMetaDataService} from "../../../../managers/artifact-manager";
 import {BPButtonOrDropdownSeparator, IDialogService} from "../../../../shared";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
@@ -18,8 +17,9 @@ import {IUserStoryService} from "../../services/user-story.svc";
 import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
-import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
+import {ICollectionService} from "../../../bp-collection/collection.svc";
 import {IItemInfoService} from "../../../../core/navigation/item-info.svc";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -31,7 +31,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "$q",
         "$scope",
         "$element",
-        "artifactManager",
+        "$timeout",
+        "selectionManager",
         "localization",
         "messageService",
         "dialogService",
@@ -41,7 +42,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics",
         "communicationManager",
         "breadcrumbService",
         "userStoryService",
@@ -52,7 +52,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
     constructor($q: ng.IQService,
                 $scope: ng.IScope,
                 $element: ng.IAugmentedJQuery,
-                artifactManager: IArtifactManager,
+                $timeout: ng.ITimeoutService,
+                selectionManager: ISelectionManager,
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 dialogService: IDialogService,
@@ -62,7 +63,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                analytics: IAnalyticsProvider,
                 private communicationManager: ICommunicationManager,
                 private breadcrumbService: IBreadcrumbService,
                 private userStoryService: IUserStoryService,
@@ -72,7 +72,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             $q,
             $scope,
             $element,
-            artifactManager,
+            $timeout,
+            selectionManager,
             localization,
             messageService,
             dialogService,
@@ -82,7 +83,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            analytics,
             collectionService,
             itemInfoService
         );
@@ -150,7 +150,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
 
         const processDeleteAction = new ProcessDeleteAction(
-            processArtifact, this.localization, this.messageService, this.artifactManager, this.projectManager,
+            processArtifact, this.localization, this.messageService, this.selectionManager, this.projectManager,
             this.loadingOverlayService, this.dialogService, this.navigationService, this.communicationManager.processDiagramCommunication);
         const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
             processArtifact,

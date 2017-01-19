@@ -67,7 +67,7 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, nameof(NovaArtifactDetails.Description), "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5), author);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -88,7 +88,7 @@ namespace ArtifactStoreTests
             string description = StringUtilities.WrapInHTML("NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
 
             // Execute:
-            UpdateArtifact_CanGetArtifact(artifact, artifactType, "Description", description, author);
+            UpdateArtifact_CanGetArtifact(artifact, artifactType, nameof(NovaArtifactDetails.Description), description, author);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
@@ -125,33 +125,33 @@ namespace ArtifactStoreTests
         #region Artifact Properties tests
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Date, "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]   // Add now + 1 day, 1 hour, 1 min & 13 seconds.
-        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Date, "Std-Date-Required-Validated-Min-Max-HasDefault","2016-12-24T00:00:00")]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Date, "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]
-        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Date, "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]
-        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Date, "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]
-        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
-        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 5)]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -5)]
-        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -3)]
-        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Number, "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 0)]
-        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Text, "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
-        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Text, "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Text, "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
-        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Text, "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
-        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Text, "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
-        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Blue" })]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green" })]
-        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow" })]
-        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Purple" })]
-        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Orange" })]
-        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green", "Blue" })]
-        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice, "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow", "Orange", "Purple" })]
-        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User", "")] // newValue not used here, so pass empty string.
-        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
-        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
-        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
-        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.User, "Std-User-Required-HasDefault-User")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Date,                 "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]   // Add now + 1 day, 1 hour, 1 min & 13 seconds.
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Date,               "Std-Date-Required-Validated-Min-Max-HasDefault","2016-12-24T00:00:00")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Date,       "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]
+        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Date,              "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]
+        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Date,    "Std-Date-Required-Validated-Min-Max-HasDefault", "2016-12-24T00:00:00")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Number,               "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 4.2)]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Number,             "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 5)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Number,     "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -5)]
+        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Number,            "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", -3)]
+        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Number,  "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 0)]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Text,                 "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Text,               "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Text,       "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Text,              "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Text,    "Std-Text-Required-RT-Multi-HasDefault", "This is the new text")]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice,               "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Blue" })]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.Choice,     "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green" })]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.Choice,               "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow" })]
+        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.Choice,            "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Purple" })]
+        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.Choice,  "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Orange" })]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice,             "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Green", "Blue" })]
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Choice,             "Std-Choice-Required-AllowMultiple-DefaultValue", new[] { "Yellow", "Orange", "Purple" })]
+        [TestCase(ItemTypePredefined.Actor, PropertyPrimitiveType.User,                 "Std-User-Required-HasDefault-User", "")] // newValue not used here, so pass empty string.
+        [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.User,               "Std-User-Required-HasDefault-User", "")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, PropertyPrimitiveType.User,       "Std-User-Required-HasDefault-User", "")]
+        [TestCase(ItemTypePredefined.Document, PropertyPrimitiveType.User,              "Std-User-Required-HasDefault-User", "")]
+        [TestCase(ItemTypePredefined.TextualRequirement, PropertyPrimitiveType.User,    "Std-User-Required-HasDefault-User", "")]
         [TestRail(191102)]
         [Description("Create and publish an artifact (that has custom properties). Change custom property. Verify the saved artifact has " +
                      "expected custom property change.")]

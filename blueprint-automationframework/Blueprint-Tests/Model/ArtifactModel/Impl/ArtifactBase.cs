@@ -547,7 +547,7 @@ namespace Model.ArtifactModel.Impl
 
             // Now set the list of Property objects.
             AddOrReplaceTextOrChoiceValueProperty("Name", Name, project, user, skipNullValues);
-            AddOrReplaceTextOrChoiceValueProperty("Description", sourceArtifact.Description, project, user, skipNullValues);
+            AddOrReplaceTextOrChoiceValueProperty(nameof(NovaArtifactDetails.Description), sourceArtifact.Description, project, user, skipNullValues);
 
             // TODO: There is also an "ID" property to set which has a value of <prefix> + <Id>.  Ex. "AC1503".
 

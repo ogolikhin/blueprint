@@ -2,83 +2,81 @@
 using NUnit.Framework;
 using CustomAttributes;
 using Helper;
+using Model;
+using TestCommon;
 using Utilities;
 
 namespace AdminStoreTests
 {
     [TestFixture]
     [Category(Categories.AdminStore)]
-    public static class StatusTests
+    public class StatusTests : TestBase
     {
+        private readonly string preAuthorizedKey = CommonConstants.PreAuthorizedKeyForStatus;
+
+        [SetUp]
+        public void SetUp()
+        {
+            Helper = new TestHelper();
+        }
+
         [TestCase]
         [TestRail(146323)]
         [Description("Calls the /status endpoint for AdminStore with a valid preAuthorizedKey and verifies that it returns 200 OK and returns detailed info about AdminStore.")]
-        public static void StatusWithPreAuthorizedKey_ValidKey_ReturnsDetailedStatus()
+        public void GetStatus_WithPreAuthorizedKey_ReturnsDetailedStatus()
         {
-            using (TestHelper helper = new TestHelper())
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
             {
-                string content = null;
+                content = Helper.AdminStore.GetStatus(preAuthorizedKey: preAuthorizedKey);
+            }, "The GET /status endpoint should return 200 OK!");
 
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.AdminStore.GetStatus();
-                }, "The GET /status endpoint should return 200 OK!");
+            var extraExpectedStrings = new List<string> {"AdminStore", "AdminStorage", "RaptorDB", "data source"};
 
-                var extraExpectedStrings = new List<string> {"AdminStore", "AdminStorage", "RaptorDB", "\"accessInfo\":\"data source="};
-
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-            }
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
         }
 
         [TestCase]
         [TestRail(166142)]
         [Description("Calls the /status endpoint for AdminStore with no preAuthorizedKey and verifies that it returns 200 OK and returns basic info about AdminStore.")]
-        public static void Status_NoPreAuthorizedKey_ReturnsBasicStatus()
+        public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
         {
-            using (TestHelper helper = new TestHelper())
+            string content = null;
+
+            Assert.DoesNotThrow(() =>
             {
-                string content = null;
+                content = Helper.AdminStore.GetStatus(preAuthorizedKey: null);
+            }, "The GET /status endpoint should return 200 OK!");
 
-                Assert.DoesNotThrow(() =>
-                {
-                    content = helper.AdminStore.GetStatus(preAuthorizedKey: null);
-                }, "The GET /status endpoint should return 200 OK!");
+            var extraExpectedStrings = new List<string> { "AdminStore", "AdminStorage", "RaptorDB" };
 
-                var extraExpectedStrings = new List<string> { "AdminStore", "AdminStorage", "RaptorDB" };
+            CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
 
-                CommonServiceHelper.ValidateStatusResponseContent(content, extraExpectedStrings);
-
-                // Verify secure info isn't returned:
-                Assert.IsFalse(content.Contains("accessInfo=data source"), "Connection string info was returned without a pre-authorized key!");
-            }
+            // Verify secure info isn't returned:
+            Assert.IsFalse(content.Contains("data source"), "Connection string info was returned without a pre-authorized key!");
         }
 
         [TestCase("ABCDEFG123456")]
         [TestRail(146324)]
         [Description("Calls the /status endpoint for AdminStore and passes invalid preAuthorizedKey values.  Verifies that it returns a 401 Unauthorized error.")]
-        public static void StatusWithBadKeys_Expect401Unauthorized(string preAuthorizedKey)
+        public void GetStatus_InvalidPreAuthorizedKey_UnauthorizedException(string invalidPreAuthorizedKey)
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    helper.AdminStore.GetStatus(preAuthorizedKey);
-                }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
-            }
+                Helper.AdminStore.GetStatus(preAuthorizedKey: invalidPreAuthorizedKey);
+            }, "The GET /status endpoint should return 401 Unauthorized when we pass an invalid or missing preAuthorizedKey!");
         }
 
         [TestCase]
         [TestRail(146325)]
         [Description("Calls the /status/upcheck endpoint for AdminStore and verifies that it returns 200 OK.")]
-        public static void GetStatusUpcheck_OK()
+        public void GetStatus_UpcheckOnly_OK()
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.DoesNotThrow(() =>
             {
-                Assert.DoesNotThrow(() =>
-                {
-                    helper.AdminStore.GetStatusUpcheck();
-                }, "'GET /status/upcheck' should return 200 OK.");
-            }
+                Helper.AdminStore.GetStatusUpcheck();
+            }, "'GET /status/upcheck' should return 200 OK.");
         }
     }
 }

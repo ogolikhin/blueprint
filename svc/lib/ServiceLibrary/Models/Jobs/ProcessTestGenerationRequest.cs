@@ -1,18 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
 namespace ServiceLibrary.Models.Jobs
 {
-    public class ProcessTestGenerationRequest
+    [Serializable]
+    public class GenerateProcessTestsJobParameters
     {
+        [JsonProperty]
         public int ProjectId { get; set; }
-
+        
+        [JsonProperty]
         public string ProjectName { get; set; }
 
-        public IEnumerable<ProcessTestGenInfo> Processes { get; set; } 
+        private List<GenerateProcessTestInfo> _processes = new List<GenerateProcessTestInfo>();
+
+        [JsonProperty]
+        public List<GenerateProcessTestInfo> Processes => _processes;
     }
 
-    public class ProcessTestGenInfo
+    [Serializable]
+    public class GenerateProcessTestInfo
     {
+        [JsonProperty]
         public int ProcessId { get; set; }
     }
 }

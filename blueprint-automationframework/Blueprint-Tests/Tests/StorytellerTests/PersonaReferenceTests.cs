@@ -107,6 +107,41 @@ namespace StorytellerTests
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
 
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(230660)]
+        [Description("Add an inaccessible persona reference to a process artifact task. Verify that default persona reference is used after the update.")]
+        public void PersonaReference_AddInaccessibleReferenceToTask_VerifyDefaultPersonaReferenceAfterUpdate(string taskName)
+        {
+            // Setup: Create a default process and update it with an inaccessible persona reference to the user 
+            var userWithoutPermissionToPersonaReference = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, userWithoutPermissionToPersonaReference);
+            var process = Helper.Storyteller.GetProcess(userWithoutPermissionToPersonaReference, addedProcessArtifact.Id);
+
+            var defaultPersonaReference = GetPersonaReferenceFromTask(taskName, process);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+
+            var personaReference = Helper.ArtifactStore.GetArtifactDetails(_adminUser, addedPersonaReference.Id);
+            var personaReferenceArtifact = Helper.WrapNovaArtifact(personaReference, _project, _authorFullAccess);
+
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissionToPersonaReference, TestHelper.ProjectRole.None, _project, personaReferenceArtifact);
+
+            // Execute: Update the process with inaccessible persona reference
+            Helper.Storyteller.UpdateProcess(userWithoutPermissionToPersonaReference, process);
+            IProcess savedProcess = null;
+            Assert.DoesNotThrow(() => savedProcess = Helper.Storyteller.UpdateProcess(userWithoutPermissionToPersonaReference, process),
+                "PATCH process call failed when using process whose Id is {0}!", process.Id);
+
+            // Validation: Verify that persona reference from updated process is default persona
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(defaultPersonaReference, savedPersonaReference);
+
+            Assert.AreEqual(defaultPersonaReference.Name, savedPersonaReference.Name,
+                "The persona reference name from savedProcess {0} should be the same as default persona reference {1}!",
+                savedPersonaReference.Name, defaultPersonaReference.Name);
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
@@ -134,7 +169,6 @@ namespace StorytellerTests
             // TODO: update the expectedExceptionMessage and ValidateServiceError part after the bug is updated
             string expectedExceptionMessage = "";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.InvalidCredentials, expectedExceptionMessage);
-
         }
 
         #endregion 400 Bad Request Tests

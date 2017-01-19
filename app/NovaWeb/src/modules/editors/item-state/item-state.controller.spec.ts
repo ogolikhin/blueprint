@@ -257,7 +257,7 @@ describe("Item State Controller tests", () => {
 
                 // act
                 ctrl = getItemStateController(itemInfo);
-                $timeout.flush();
+                //$timeout.flush();
 
                 // assert
                 expect(navigationSpy).toHaveBeenCalled();
@@ -418,7 +418,7 @@ describe("Item State Controller tests", () => {
 
                 // act
                 ctrl = getItemStateController(itemInfo, version.toString());
-                $timeout.flush();
+                //$timeout.flush();
 
                 // assert
                 const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
@@ -468,7 +468,7 @@ describe("Item State Controller tests", () => {
 
             // act
             ctrl = getItemStateController(itemInfo);
-            $timeout.flush();
+            //$timeout.flush();
 
             // assert
             expect(unloadSpy).toHaveBeenCalled();
@@ -487,7 +487,7 @@ describe("Item State Controller tests", () => {
 
             // act
             ctrl = getItemStateController(itemInfo);
-            $timeout.flush();
+            //$timeout.flush();
 
             // assert
             expect(unloadSpy).not.toHaveBeenCalled();

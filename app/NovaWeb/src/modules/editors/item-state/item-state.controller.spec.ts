@@ -19,6 +19,7 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {MessageType, Message} from "../../core/messages/message";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 
 describe("Item State Controller tests", () => {
     let $stateParams: ng.ui.IStateParamsService,
@@ -117,5 +118,318 @@ describe("Item State Controller tests", () => {
         // assert
         expect(deleteMessageSpy).toHaveBeenCalled();
         expect(deleteMessageSpy).toHaveBeenCalledWith(message.id);
+    });
+
+    describe("state changes", () => {
+        let artifactId, itemInfoSpy;
+
+        beforeEach(() => {
+            artifactId = 10;
+        });
+
+        afterEach(() => {
+            itemInfoSpy = undefined;
+        });
+
+        describe("state changes to artifact", () => {
+            let isArtifactSpy;
+
+            beforeEach(() => {
+                isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+            });
+
+            afterEach(() => {
+                isArtifactSpy = undefined;
+            });
+
+            it("diagram", () => {
+                // arrange
+                const expectedEditor = "diagram";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.GenericDiagram
+                } as IItemInfoResult;
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(ctrl.activeEditor).toBe(expectedEditor);
+            });
+
+            it("glossary", () => {
+                // arrange
+                const expectedEditor = "glossary";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Glossary
+                } as IItemInfoResult;
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(ctrl.activeEditor).toBe(expectedEditor);
+            });
+
+            it("general", () => {
+                // arrange
+                const expectedEditor = "general";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Project
+                } as IItemInfoResult;
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(ctrl.activeEditor).toBe(expectedEditor);
+            });
+
+            it("collection", () => {
+                // arrange
+                const expectedEditor = "collection";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.ArtifactCollection
+                } as IItemInfoResult;
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(ctrl.activeEditor).toBe(expectedEditor);
+            });
+
+            it("process", () => {
+                // arrange
+                const expectedEditor = "process";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Process
+                } as IItemInfoResult;
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(ctrl.activeEditor).toBe(expectedEditor);
+            });
+
+            it("details", () => {
+                // arrange
+                const expectedEditor = "details";
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 11,
+                    predefinedType: Models.ItemTypePredefined.Actor
+                } as IItemInfoResult;
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(ctrl.activeEditor).toBe(expectedEditor);
+            });
+        });
+
+        describe("state changes to non-artifact", () => {
+            it("should redirect to artifact", () => {
+                // arrange
+                const artifactId = 10;
+                const itemInfo = {
+                    id: artifactId,
+                    subArtifactId: 123
+                } as any as IItemInfoResult;
+
+                const isSubArtifactSpy = spyOn(itemInfoService, "isSubArtifact").and.callFake(() => true);
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(navigationSpy).toHaveBeenCalled();
+                expect(navigationSpy).toHaveBeenCalledWith({id: artifactId, redirect: true});
+            });
+
+            it("should navigate to a project", () => {
+                // arrange
+                const artifactId = 10;
+                const isProjectSpy = spyOn(itemInfoService, "isProject").and.callFake(() => true);
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: artifactId
+                } as any as IItemInfoResult;
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => $q.resolve());
+                const reloadNavigationSpy = spyOn(navigationService, "reloadCurrentState");
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(isProjectSpy).toHaveBeenCalled();
+                expect(projectManagerSpy).toHaveBeenCalled();
+                expect(projectManagerSpy).toHaveBeenCalledWith({
+                    id: artifactId,
+                    projectId: artifactId,
+                    predefinedType: -1
+                });
+                expect(reloadNavigationSpy).not.toHaveBeenCalled();
+            });
+        });
+
+        describe("artifact is deleted", () => {
+            it("should show a historical version of artifact", () => {
+                // arrange
+                const artifactId = 10;
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.Actor,
+                    isDeleted: true,
+                    deletedByUser: {}
+                } as any as IItemInfoResult;
+
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.artifactState.deleted).toBe(true);
+            });
+
+            it("should show a historical version if deleted artifact is an Artifact Collection", () => {
+                // arrange
+                const artifactId = 10;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.ArtifactCollection,
+                    isDeleted: true,
+                    deletedByUser: {}
+                } as any as IItemInfoResult;
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(ctrl.activeEditor).toBe("collection");
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.artifactState.deleted).toBe(true);
+            });
+
+            it("should redirect to a historical version if deleted artifact is a Collection Folder", () => {
+                // arrange
+                const artifactId = 10;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfo = {
+                    id: artifactId,
+                    projectId: 1,
+                    parentId: 3,
+                    predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                    isDeleted: true,
+                    deletedByUser: {}
+                } as any as IItemInfoResult;
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(itemInfo);
+                $timeout.flush();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(ctrl.activeEditor).toBe("details");
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.artifactState.deleted).toBe(true);
+            });
+        });
+
+        describe("historical artifact", () => {
+            it("should navigate to a historical version of artifact", () => {
+                // arrange
+                const artifactId = 10;
+                const version = 5;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.Actor,
+                    versionCount: 20
+                } as any as IItemInfoResult;
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(itemInfo, version.toString());
+                $timeout.flush();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(selectionSpy).toHaveBeenCalled();
+                expect(selectedArtifact.artifactState.historical).toBe(true);
+                expect(selectedArtifact.getEffectiveVersion()).toBe(5);
+            });
+
+            it("should navigate to main and display error because version greater than version number", () => {
+                // arrange
+                const artifactId = 10;
+                const version = 25;
+                const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
+                const itemInfo = {
+                    id: artifactId,
+                    predefinedType: Models.ItemTypePredefined.Actor,
+                    versionCount: 20
+                } as any as IItemInfoResult;
+                const navigationSpy = spyOn(navigationService, "navigateTo");
+                const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
+                const messageSpy = spyOn(messageService, "addError").and.callFake(message => void (0));
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
+
+                // act
+                ctrl = getItemStateController(itemInfo, version.toString());
+                $timeout.flush();
+
+                // assert
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
+                expect(navigationSpy).not.toHaveBeenCalled();
+                expect(navigateToMainSpy).toHaveBeenCalled();
+                expect(selectionSpy).not.toHaveBeenCalled();
+                expect(messageSpy).toHaveBeenCalled();
+                expect(selectedArtifact).toBeUndefined();
+            });
+        });
     });
 });

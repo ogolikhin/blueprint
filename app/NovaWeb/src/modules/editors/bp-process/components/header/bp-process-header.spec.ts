@@ -46,7 +46,6 @@ describe("BpProcessHeader", () => {
             $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
             $provide.service("navigationService", NavigationServiceMock);
             $provide.service("breadcrumbService", BreadcrumbServiceMock);
-            $provide.service("selectionManager", SelectionManager);
             $provide.service("metadataService", MetaDataService);
             $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
             $provide.service("session", SessionSvcMock);

@@ -36,11 +36,17 @@
     background: $gray-lightest;
     border-radius: $border-radius-amount;
     margin-top: 10px;
-    max-height: 139px;
-    min-height: 36px;
-    overflow: auto;
+    padding: 8px 15px;
+}
+
+.open-project__description-clipper {
+    box-sizing: content-box;
+    max-height: calc(1em * 1.2 * 3);
+    min-height: calc(1em * 1.2 * 1);
+    overflow: hidden;
 }
 
 .open-project__description {
-    padding: 8px 15px;
+    display: block;
+    line-height: 1.2;
 }

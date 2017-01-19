@@ -8,13 +8,17 @@ describe("OpenProjectController", () => {
     let $sce: ng.ISCEService;
     let controller: OpenProjectController;
     let $scope: ng.IScope;
+    let $document: ng.IDocumentService;
+    let $timeout: ng.ITimeoutService;
 
-    beforeEach(inject(($rootScope: ng.IRootScopeService, _$sce_: ng.ISCEService) => {
+    beforeEach(inject(($rootScope: ng.IRootScopeService, _$sce_: ng.ISCEService, _$document_: ng.IDocumentService, _$timeout_: ng.ITimeoutService) => {
         $scope = $rootScope.$new();
         const $uibModalInstance = {} as ng.ui.bootstrap.IModalServiceInstance;
         const dialogSettings = {} as IDialogSettings;
         $sce = _$sce_;
-        controller = new OpenProjectController($scope, $uibModalInstance, dialogSettings, $sce);
+        $document = _$document_;
+        $timeout = _$timeout_;
+        controller = new OpenProjectController($document, $scope, $uibModalInstance, dialogSettings, $sce, $timeout);
     }));
 
     it("onSelect, when selected project, sets selection", inject(() => {

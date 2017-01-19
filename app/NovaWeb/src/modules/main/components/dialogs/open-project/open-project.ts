@@ -14,16 +14,20 @@ export class OpenProjectController extends BaseDialogController {
     selectedDescription: string;
 
     static $inject = [
+        "$document",
         "$scope",
         "$uibModalInstance",
         "dialogSettings",
-        "$sce"
+        "$sce",
+        "$timeout"
     ];
 
-    constructor(private $scope: ng.IScope,
+    constructor(private $document: ng.IDocumentService,
+                private $scope: ng.IScope,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                private $sce: ng.ISCEService) {
+                private $sce: ng.ISCEService,
+                private $timeout: ng.ITimeoutService) {
         super($uibModalInstance, dialogSettings);
     };
 
@@ -37,10 +41,13 @@ export class OpenProjectController extends BaseDialogController {
     }
 
     private setSelectedItem(vm: OpenProjectVM) {
+        const doc = this.$document[0];
+
         this._returnValue = undefined;
+
         let description = vm ? vm.model.description : undefined;
         if (description) {
-            const virtualDiv = window.document.createElement("DIV");
+            const virtualDiv = doc.createElement("DIV");
             virtualDiv.innerHTML = description.replace(/<\/p>/gi, "</p>\n\r");
             description = virtualDiv.innerText.replace(/(?:\r\n|\r|\n|\u00a0|\ufeff|\u200b)/g, " ").trim();
         }
@@ -49,6 +56,22 @@ export class OpenProjectController extends BaseDialogController {
         this.selectedDescription = description;
         if (vm && vm.model) {
             this._returnValue = vm.model;
+        }
+
+        const descriptionDiv = doc.querySelector(".open-project__description");
+        if (descriptionDiv) {
+            const clampClasses = ["line-clamp", "line-clamp-3", "line-clamp--gray-lightest"];
+            clampClasses.forEach((clampClass) => {
+                descriptionDiv.classList.remove(clampClass);
+            });
+
+            this.$timeout(() => {
+                if (descriptionDiv.scrollHeight > 47) {
+                    clampClasses.forEach((clampClass) => {
+                        descriptionDiv.classList.add(clampClass);
+                    });
+                }
+            });
         }
     }
 

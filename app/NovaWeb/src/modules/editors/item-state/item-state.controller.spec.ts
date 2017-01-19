@@ -36,7 +36,7 @@ describe("Item State Controller tests", () => {
         ctrl: ItemStateController;
 
     beforeEach(angular.mock.module("ui.router"));
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("bp.editors"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
@@ -96,10 +96,6 @@ describe("Item State Controller tests", () => {
             $timeout,
             itemInfo);
     }
-
-    it("respond to url", inject(($state: ng.ui.IStateService) => {
-        expect($state.href("main.item", {id: 1})).toEqual("#/main/1");
-    }));
 
     it("clears locked messages", () => {
         // arrange

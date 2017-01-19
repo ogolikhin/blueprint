@@ -22,7 +22,7 @@ export interface IProjectExplorerController {
     treeApi: IBPTreeViewControllerApi;
     projects: TreeModels.ExplorerNodeVM[];
     columns: any[];
-    onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
+    onSelect: (vm: TreeModels.ExplorerNodeVM, isSelected: boolean) => void;
     onGridReset: (isExpanding: boolean) => void;
 }
 
@@ -110,8 +110,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         const artifactId = artifact.id;
         if (this.isLoading) {
             this.pendingSelectedArtifactId = artifactId;
-        } else if (this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === artifactId)) {
-            this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === artifactId);
+        } else if (this.treeApi.setSelected((vm: TreeModels.ExplorerNodeVM) => vm.model.id === artifactId)) {
+            this.treeApi.ensureNodeVisible((vm: TreeModels.ExplorerNodeVM) => vm.model.id === artifactId);
         } else {
             this.treeApi.deselectAll();
         }
@@ -126,12 +126,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
             .subscribeOnNext(this.onSelectedArtifactChange);
     }
 
-    private _selected: TreeModels.ITreeNodeVM<any>;
-    private get selected() {
+    private _selected: TreeModels.ExplorerNodeVM;
+    private get selected(): TreeModels.ExplorerNodeVM {
         return this._selected;
     }
 
-    private set selected(value: TreeModels.ITreeNodeVM<any>) {
+    private set selected(value: TreeModels.ExplorerNodeVM) {
         this._selected = value;
    }
 
@@ -194,12 +194,12 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
         if (_.isFinite(navigateToId)) {
             if (navigateToId !== selectedArtifactId) {
-                this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
+                this.treeApi.setSelected((vm: TreeModels.ExplorerNodeVM) => vm.model.id === navigateToId);
             } else {
                 this.navigationService.reloadCurrentState();
             }
 
-            this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
+            this.treeApi.ensureNodeVisible((vm: TreeModels.ExplorerNodeVM) => vm.model.id === navigateToId);
         } else {
             this.treeApi.deselectAll();
             this.selected = undefined;
@@ -210,7 +210,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item && changes.change) {
-            this.treeApi.refreshRows((vm: TreeModels.ITreeNodeVM<any>) => {
+            this.treeApi.refreshRows((vm: TreeModels.ExplorerNodeVM) => {
                 if (vm.model.id === changes.item.id) {
                     if (changes.change.key in vm.model) {
                         vm.model[changes.change.key] = changes.change.value;
@@ -227,10 +227,10 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public treeApi: IBPTreeViewControllerApi;
     public projects: TreeModels.ExplorerNodeVM[];
     public columns: IColumn[] = [{
-        cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
+        cellClass: (vm: TreeModels.ExplorerNodeVM) => vm.getCellClass(),
         isGroup: true,
         cellRenderer: (params: IColumnRendererParams) => {
-            const vm = params.data as TreeModels.ITreeNodeVM<any>;
+            const vm = params.data as TreeModels.ExplorerNodeVM;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
             return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
@@ -240,7 +240,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     private resettingSelection: boolean;
 
-    public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
+    public onSelect = (vm: TreeModels.ExplorerNodeVM, isSelected: boolean): void => {
         if (!this.resettingSelection && isSelected) {
             //Following has to be a const to restore current selection in case of faling navigation
             const prevSelected = this.selected;

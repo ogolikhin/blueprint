@@ -19,9 +19,6 @@ import {ProjectServiceStatusCode} from "./project-service";
 import {ProjectServiceMock} from "./project-service.mock";
 
 describe("Project Manager Test", () => {
-
-    //beforeEach(angular.mock.module("app.shell"));
-
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);

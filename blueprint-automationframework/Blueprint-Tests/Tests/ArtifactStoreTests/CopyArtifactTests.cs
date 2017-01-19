@@ -16,6 +16,7 @@ using Common;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using System;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -958,6 +959,52 @@ namespace ArtifactStoreTests
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user);
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
+        }
+
+        [TestCase]
+        [TestRail(230661)]
+        [Description("Create and publish an artifact and a folder.  Add a discussion to the artifact.  Copy the artifact into the folder.  " +
+            "Verify the source artifact is unchanged and the new artifact is identical to the source artifact, but the discussion wasn't copied.")]
+        public void CopyArtifact_SinglePublishedArtifactWithDiscussion_ToNewFolder_ReturnsNewArtifactWithoutDiscussion()
+        {
+            // Setup:
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.UseCase);
+            var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            // Add the discussion to the artifact.
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+
+            OpenApiArtifact.PostRaptorDiscussion(artifact.Address, artifact.Id, commentText, author);
+
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
+            Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 discussion!");
+
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+
+            // Execute:
+            CopyNovaArtifactResultSet copyResult = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                copyResult = CopyArtifactAndWrap(artifact, targetFolder.Id, author);
+            }, "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify:
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
+                skipCreatedBy: true);
+
+            // Verify the Discussions of source artifact didn't change.
+            var sourceDiscussionsAfterCopy = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
+            Assert.AreEqual(1, sourceDiscussionsAfterCopy.Discussions.Count, "There should be 1 discussion in the source artifact!");
+
+            // Publish the copied artifact so we can try to get discussions for it.
+            var copiedArtifact = Helper.Artifacts.Find(a => a.Id == copyResult.Artifact.Id);
+            copiedArtifact.Publish();
+
+            // Verify the copied artifact has no Discussions.
+            var copiedArtifactDiscussions = Helper.ArtifactStore.GetArtifactDiscussions(copyResult.Artifact.Id, author);
+            Assert.IsEmpty(copiedArtifactDiscussions.Discussions, "There should be no discussion in the copied artifact!");
         }
 
         #endregion 201 Created tests

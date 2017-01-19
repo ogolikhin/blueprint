@@ -138,8 +138,6 @@ describe("BpArtifactInfo", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
-            console.log("test");
-            console.log(selectionManager);
             const spy = spyOn(selectionManager.artifactObservable, "subscribeOnNext").and.callThrough();
 
             // act

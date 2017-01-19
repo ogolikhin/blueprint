@@ -10,11 +10,13 @@ type OpenProjectVM = TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
 export class OpenProjectController extends BaseDialogController {
     public hasCloseButton: boolean = true;
     private _returnValue: IInstanceItem | IProjectSearchResult;
+    private _descriptionMaxHeight: number;
+
     selectedName: string;
     selectedDescription: string;
 
     static $inject = [
-        "$document",
+        "$window",
         "$scope",
         "$uibModalInstance",
         "dialogSettings",
@@ -22,7 +24,7 @@ export class OpenProjectController extends BaseDialogController {
         "$timeout"
     ];
 
-    constructor(private $document: ng.IDocumentService,
+    constructor(private $window: ng.IWindowService,
                 private $scope: ng.IScope,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
@@ -41,7 +43,7 @@ export class OpenProjectController extends BaseDialogController {
     }
 
     private setSelectedItem(vm: OpenProjectVM) {
-        const doc = this.$document[0];
+        const doc = this.$window.document;
 
         this._returnValue = undefined;
 
@@ -58,17 +60,24 @@ export class OpenProjectController extends BaseDialogController {
             this._returnValue = vm.model;
         }
 
-        const descriptionDiv = doc.querySelector(".open-project__description");
-        if (descriptionDiv) {
+        const descriptionElement = doc.querySelector(".open-project__description");
+        if (descriptionElement) {
             const clampClasses = ["line-clamp", "line-clamp-3", "line-clamp--gray-lightest"];
             clampClasses.forEach((clampClass) => {
-                descriptionDiv.classList.remove(clampClass);
+                descriptionElement.classList.remove(clampClass);
             });
 
             this.$timeout(() => {
-                if (descriptionDiv.scrollHeight > 47) {
+                if (!this._descriptionMaxHeight) { // we calculate it only the first time
+                    const styles = this.$window.getComputedStyle(descriptionElement);
+                    // returns the resolved/computed value: https://developer.mozilla.org/en-US/docs/Web/CSS/resolved_value
+                    const lineHeight = styles.getPropertyValue("line-height");
+                    // if line-height is not in px, we use a backup value. we want up to 3 lines
+                    this._descriptionMaxHeight = (lineHeight.indexOf("px") === lineHeight.length - 2 ? parseFloat(lineHeight) : 16) * 3;
+                }
+                if (descriptionElement.scrollHeight > this._descriptionMaxHeight) {
                     clampClasses.forEach((clampClass) => {
-                        descriptionDiv.classList.add(clampClass);
+                        descriptionElement.classList.add(clampClass);
                     });
                 }
             });

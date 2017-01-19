@@ -1,5 +1,6 @@
 // from http://stackoverflow.com/questions/31942788/angular-ui-datepicker-format-day-header-format-with-with-2-letters
 import {LocalizationService} from "./localization.service";
+import * as moment from "moment";
 
 LocaleConfig.$inject = ["$provide"];
 export function LocaleConfig($provide: ng.auto.IProvideService): void {

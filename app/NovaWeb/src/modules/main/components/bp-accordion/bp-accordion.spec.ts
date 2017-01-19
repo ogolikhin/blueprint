@@ -12,7 +12,6 @@ describe("Component BpAccordion", () => {
 
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-            $provide.service("localization", LocalizationServiceMock);
         })
     );
 

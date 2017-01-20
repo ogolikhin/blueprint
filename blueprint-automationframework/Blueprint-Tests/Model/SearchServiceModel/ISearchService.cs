@@ -10,26 +10,29 @@ namespace Model.SearchServiceModel
         /// Returns a subset of search results based upon the page index that was requested.
         /// </summary>
         /// <param name="user">The user performing the search.</param>
-        /// <param name="searchCriteria">The criteria for the search request. (i.e. "search", 
-        /// "search phrase", "search ph*)</param>
-        /// <param name="page">(optional)An index to a subset of search results the length of which is determined 
-        /// by the pageSize argument</param>
+        /// <param name="searchCriteria">The criteria for the search request. (i.e. "search", "search phrase", "search ph*)</param>
+        /// <param name="page">(optional)An index to a subset of search results the length of which is determined by the pageSize argument</param>
         /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The subset of search results.</returns>
-        FullTextSearchResult FullTextSearch(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
+        FullTextSearchResult FullTextSearch(IUser user,
+            FullTextSearchCriteria searchCriteria,
+            int? page = null,
+            int? pageSize = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Returns the search result metadata indicating what would be returned if the full search 
-        /// were performed.
+        /// Returns the search result metadata indicating what would be returned if the full search were performed.
         /// </summary>
         /// <param name="user">The user performing the search.</param>
-        /// <param name="searchCriteria">The criteria for the search request. (i.e. "search", 
-        /// "search phrase", "search ph*)</param>
+        /// <param name="searchCriteria">The criteria for the search request. (i.e. "search", "search phrase", "search ph*)</param>
         /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The search result metadata.</returns>
-        FullTextSearchMetaDataResult FullTextSearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
+        FullTextSearchMetaDataResult FullTextSearchMetaData(IUser user,
+            FullTextSearchCriteria searchCriteria,
+            int? pageSize = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets the current status of the SearchService service.
@@ -38,7 +41,8 @@ namespace Model.SearchServiceModel
         /// <param name="preAuthorizedKey">(optional) The pre-authorized key to use for authentication.  Defaults to null.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A JSON structure containing the status of this service and its dependent services.</returns>
-        string GetStatus(string preAuthorizedKey = null, List<HttpStatusCode> expectedStatusCodes = null);
+        string GetStatus(string preAuthorizedKey = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets the current status of the SearchService service.
@@ -58,7 +62,10 @@ namespace Model.SearchServiceModel
         /// <param name="separatorString">(optional) String to use as separator in artifact path. Default is '\'</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Returns a list of projects that have names that match the searchText.</returns>
-        List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
+        List<ProjectSearchResult> SearchProjects(IUser user,
+            string searchText,
+            int? resultCount = null,
+            string separatorString = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -67,11 +74,14 @@ namespace Model.SearchServiceModel
         /// <param name="user">The user performing the search.</param>
         /// <param name="searchCriteria">Text to search, list of projects(Ids), list of ItemTypes(Ids)</param>
         /// <param name="startOffset">(optional)An index to a subset of search results the length of which is determined 
-        /// by the pageSize argument.</param>
+        ///     by the pageSize argument.</param>
         /// <param name="pageSize">(optional)The number of search results to return in a single request.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Returns the ItemNameSearchResultSet that match the searchCriteria.</returns>
-        ItemNameSearchResultSet SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
-            int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null);
+        ItemNameSearchResultSet SearchItems(IUser user,
+            ItemNameSearchCriteria searchCriteria,
+            int? startOffset = null,
+            int? pageSize = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

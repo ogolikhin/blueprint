@@ -1,38 +1,31 @@
 ﻿import "angular";
 import "angular-mocks";
-import "../../shell";
+import "rx/dist/rx.lite.js";
+import {HttpStatusCode} from "../../core/http/http-status-code";
+import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
-import {ProjectManager, IProjectManager, IArtifactNode} from "./project-manager";
-import {Models, AdminStoreModels, Enums, TreeModels} from "../../main/models";
-import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
-import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";
-import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact.factory.mock";
 import {MessageType} from "../../core/messages/message";
 import {MessageServiceMock} from "../../core/messages/message.mock";
-import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
+import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
-import {ProjectServiceMock} from "./project-service.mock";
-import {ArtifactManagerMock} from "../artifact-manager/artifact-manager.mock";
-import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
-import {ProjectServiceStatusCode} from "./project-service";
-import {HttpStatusCode} from "../../core/http/http-status-code";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
+import {AdminStoreModels, Enums, Models, TreeModels} from "../../main/models";
+import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
+import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";
+import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
+import {IArtifactNode, IProjectManager, ProjectManager} from "./project-manager";
+import {ProjectServiceStatusCode} from "./project-service";
+import {ProjectServiceMock} from "./project-service.mock";
 
 describe("Project Manager Test", () => {
-
-    beforeEach(angular.mock.module("app.shell"));
-
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
-        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("metadataService", MetaDataServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("projectManager", ProjectManager);
         $provide.service("projectService", ProjectServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
@@ -53,21 +46,17 @@ describe("Project Manager Test", () => {
     } as AdminStoreModels.IInstanceItem;
 
     beforeEach(inject(($q: ng.IQService, $compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
-                       selectionManager: SelectionManagerMock, statefulArtifactFactory: StatefulArtifactFactoryMock, artifactManager: ArtifactManagerMock,
-                       projectService: ProjectServiceMock) => {
-        artifactManager.selection = selectionManager;
+                       selectionManager: SelectionManagerMock, projectService: ProjectServiceMock) => {
         const artifact = new StatefulArtifactMock($q);
         artifact.id = 20;
         artifact.projectId = 10;
         artifact.parentId = 10;
         selectionManager.setArtifact(artifact);
         projectManager.initialize();
-        let factory = new TreeModels.TreeNodeVMFactory(projectService, statefulArtifactFactory);
+        let factory = new TreeModels.TreeNodeVMFactory(projectService);
 
 
-        const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(starterProject);
-        statefulArtifact.children = [artifact];
-        let projectNode = factory.createStatefulArtifactNodeVM(statefulArtifact, true);
+        let projectNode = factory.createExplorerNodeVM(starterProject, true);
 
         projectManager.projectCollection.getValue().unshift(projectNode);
     }));
@@ -176,8 +165,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("get descendants to be deleted", () => {
-        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectService: ProjectServiceMock,
-                               statefulArtifactFactory: StatefulArtifactFactoryMock) => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectService: ProjectServiceMock) => {
             // Arrange
             spyOn(projectService, "getProject").and.callFake(() => {
                 return $q.resolve(<AdminStoreModels.IInstanceItem>{
@@ -195,12 +183,11 @@ describe("Project Manager Test", () => {
                 id: 25,
                 projectId: 10
             };
-            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
 
             //Act
             let error: Error;
             let result: Models.IArtifactWithProject[];
-            projectManager.getDescendantsToBeDeleted(statefulArtifact)
+            projectManager.getDescendantsToBeDeleted(artifact)
                 .then((res: Models.IArtifactWithProject[]) => result = res)
                 .catch((err) => error = err);
             $rootScope.$digest();
@@ -229,10 +216,9 @@ describe("Project Manager Test", () => {
         it("all success", (inject(($rootScope: ng.IRootScopeService,
                                    projectManager: ProjectManager,
                                    projectService: ProjectServiceMock,
-                                   selectionManager: SelectionManagerMock,
-                                   statefulArtifactFactory: StatefulArtifactFactoryMock) => {
+                                   selectionManager: SelectionManagerMock) => {
             // Arrange
-            let factory = new TreeModels.TreeNodeVMFactory(projectService, statefulArtifactFactory);
+            let factory = new TreeModels.TreeNodeVMFactory(projectService);
             const project = {
                 id: 12,
                 name: "oldName 2",
@@ -245,8 +231,7 @@ describe("Project Manager Test", () => {
                 itemTypeName: "Project",
                 predefinedType: Enums.ItemTypePredefined.Project
             } as AdminStoreModels.IInstanceItem;
-            const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(project);
-            let projectNode = factory.createStatefulArtifactNodeVM(statefulArtifact, true);
+            let projectNode = factory.createExplorerNodeVM(project, true);
 
             projectManager.projectCollection.getValue().unshift(projectNode);
 

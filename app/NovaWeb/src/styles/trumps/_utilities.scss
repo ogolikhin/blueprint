@@ -23,6 +23,10 @@
     height     : calc(1em * 1.2);
     background : linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 75%);
 }
+.line-clamp--gray-lightest:after
+{
+    background : linear-gradient(to right, rgba($gray-lightest, 0), rgba($gray-lightest, 1) 75%);
+}
 @supports (-webkit-line-clamp: 1)
 {
     .line-clamp:after

@@ -20,7 +20,6 @@ import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
-import {IArtifactManager} from "./../../../../managers/artifact-manager";
 import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
 
 describe("ProcessDiagram Tests", () => {

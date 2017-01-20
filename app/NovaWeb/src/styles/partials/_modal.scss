@@ -2,6 +2,8 @@ $modal-side-clearance: 8px;
 
 .modal-open .modal {
     background-color: rgba(0, 0, 0, 0.5);
+    overflow-x: hidden; // possibly fix some graphic corruption in IE
+    overflow-y: hidden;
 }
 
 .modal-open .modal.nova-login {

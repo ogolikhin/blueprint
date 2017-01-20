@@ -12,13 +12,12 @@ import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {LoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
-import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
-import {IArtifactManager} from "../../../managers/artifact-manager/artifact-manager";
 import {SessionSvc, ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
+import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 
 describe("Page Toolbar:", () => {
     let _$q: ng.IQService;
@@ -58,7 +57,7 @@ describe("Page Toolbar:", () => {
                 }
             };
         });
-        $provide.service("artifactManager", ArtifactManagerMock);
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("messageService", () => {
             return {
@@ -82,7 +81,7 @@ describe("Page Toolbar:", () => {
                        localization: LocalizationServiceMock,
                        dialogService: IDialogService,
                        projectManager: IProjectManager,
-                       artifactManager: ArtifactManagerMock,
+                       selectionManager: SelectionManagerMock,
                        publishService: UnpublishedArtifactsServiceMock,
                        messageService: IMessageService,
                        navigationService: NavigationServiceMock,
@@ -105,17 +104,9 @@ describe("Page Toolbar:", () => {
             discard: () => { }
         };
         toolbarCtrl = new PageToolbarController($q, _$state, $timeout, localization,
-            dialogService, projectManager, artifactManager, publishService,
-            messageService, navigationService, artifactService, loadingOverlayService, jobsService);
-        artifactManager.selection = {
-            getArtifact: () => {
-                return;
-            },
-            clearAll: () => {
-                return;
-            }
-        } as ISelectionManager;
-        spyOn(artifactManager, "autosave").and.callFake(() => { return $q.resolve(); });
+            dialogService, projectManager, selectionManager, publishService,
+            messageService, navigationService, artifactService, loadingOverlayService, null);
+        spyOn(selectionManager, "autosave").and.callFake(() => { return $q.resolve(); });
 
     }));
 
@@ -137,11 +128,11 @@ describe("Page Toolbar:", () => {
         }));
 
         it("refresh successful: no opened project, but artifact is selected",
-            inject((artifactManager: IArtifactManager, projectManager: IProjectManager) => {
+            inject((selectionManager: ISelectionManager, projectManager: IProjectManager) => {
             // Arrange
             const refreshAllSpy = spyOn(artifact, "refresh").and.callFake(() => { return _$q.resolve(); });
             spyOn(projectManager.projectCollection, "getValue").and.returnValue([]);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            spyOn(selectionManager, "getArtifact").and.returnValue(artifact);
 
             // Act
             toolbarCtrl.refreshAll();
@@ -152,13 +143,13 @@ describe("Page Toolbar:", () => {
         }));
 
         it("refresh unsuccessful: no opened project or selected artifact",
-            inject((artifactManager: IArtifactManager, projectManager: IProjectManager) => {
+            inject((selectionManager: ISelectionManager, projectManager: IProjectManager) => {
             // Arrange
             const refreshArtifactSpy = spyOn(artifact, "refresh").and.callFake(() => { return _$q.resolve(); });
             const refreshAllSpy = spyOn(projectManager, "refreshAll").and.callFake(() => { return _$q.resolve(); });
 
             spyOn(projectManager.projectCollection, "getValue").and.returnValue([]);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
+            spyOn(selectionManager, "getArtifact").and.returnValue(undefined);
 
             // Act
             toolbarCtrl.refreshAll();
@@ -171,9 +162,9 @@ describe("Page Toolbar:", () => {
 
     });
     describe("publish all ->", () => {
-        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager) => {
+        beforeEach(inject((projectManager: IProjectManager, selectionManager: ISelectionManager) => {
             spyOn(projectManager, "getSelectedProjectId").and.returnValue(1);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            spyOn(selectionManager, "getArtifact").and.returnValue(artifact);
             stateSpy = spyOn(_$state, "go");
         }));
 
@@ -230,9 +221,9 @@ describe("Page Toolbar:", () => {
     });
 
     describe("discard all ->", () => {
-        beforeEach(inject((projectManager: IProjectManager, artifactManager: IArtifactManager) => {
+        beforeEach(inject((projectManager: IProjectManager, selectionManager: ISelectionManager) => {
             spyOn(projectManager, "getSelectedProjectId").and.returnValue(1);
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            spyOn(selectionManager, "getArtifact").and.returnValue(artifact);
             spyOn(projectManager.projectCollection, "getValue").and.returnValue([{}]);
         }));
 
@@ -240,7 +231,7 @@ describe("Page Toolbar:", () => {
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 projectManager: IProjectManager,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 dialogService: IDialogService,
                 messageService: IMessageService
                 ) => {
@@ -267,7 +258,7 @@ describe("Page Toolbar:", () => {
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 projectManager: IProjectManager,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 dialogService: IDialogService,
                 messageService: IMessageService
                 ) => {
@@ -293,7 +284,7 @@ describe("Page Toolbar:", () => {
             inject((
                 publishService: UnpublishedArtifactsServiceMock,
                 projectManager: IProjectManager,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 dialogService: IDialogService,
                 messageService: IMessageService
                 ) => {
@@ -321,7 +312,7 @@ describe("Page Toolbar:", () => {
     describe("close project->", () => {
 
         it("does nothing, no artifact selected", inject((navigationService: INavigationService,
-                                                         artifactManager: IArtifactManager,
+                                                         selectionManager: ISelectionManager,
                                                          projectManager: IProjectManager) => {
             // Arrange
             const evt = {
@@ -333,7 +324,7 @@ describe("Page Toolbar:", () => {
                 }
             };
 
-            spyOn(artifactManager.selection, "getArtifact").and.returnValue(undefined);
+            spyOn(selectionManager, "getArtifact").and.returnValue(undefined);
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove");
@@ -349,7 +340,7 @@ describe("Page Toolbar:", () => {
         }));
 
         it("navigates to main state, one project is opened and selected artifact belongs to the project", inject((navigationService: INavigationService,
-                                                                                                                  artifactManager: IArtifactManager,
+                                                                                                                  selectionManager: ISelectionManager,
                                                                                                                   projectManager: IProjectManager) => {
             // Arrange
             const evt = {
@@ -363,7 +354,7 @@ describe("Page Toolbar:", () => {
             const openedProjects = [{model: {id: 1}}];
 
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-            const selectionSpy = spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            const selectionSpy = spyOn(selectionManager, "getArtifact").and.returnValue(artifact);
 
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
@@ -382,7 +373,7 @@ describe("Page Toolbar:", () => {
         }));
 
         it("navigates to project, selected artifact does not belong to the project", inject((navigationService: INavigationService,
-                                                                                             artifactManager: IArtifactManager,
+                                                                                             selectionManager: ISelectionManager,
                                                                                              projectManager: IProjectManager,
                                                                                              $rootScope: ng.IRootScopeService) => {
             // Arrange
@@ -398,7 +389,7 @@ describe("Page Toolbar:", () => {
             artifact.projectId = 555;
 
             spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-            const selectionSpy = spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+            const selectionSpy = spyOn(selectionManager, "getArtifact").and.returnValue(artifact);
             const navigateToSpy = spyOn(navigationService, "navigateTo");
             const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
             const removeProjectSpy = spyOn(projectManager, "remove");
@@ -418,7 +409,7 @@ describe("Page Toolbar:", () => {
 
         it("navigates to project, selected artifact belongs to the project, but more than one project is opened",
             inject((navigationService: INavigationService,
-                    artifactManager: IArtifactManager,
+                    selectionManager: ISelectionManager,
                     projectManager: IProjectManager) => {
                 // Arrange
                 const evt = {
@@ -432,7 +423,7 @@ describe("Page Toolbar:", () => {
                 const openedProjects = [{model: {id: 2}}, {model: {id: 1}}];
 
                 spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-                spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+                spyOn(selectionManager, "getArtifact").and.returnValue(artifact);
 
 
                 const navigateToSpy = spyOn(navigationService, "navigateTo");
@@ -455,7 +446,7 @@ describe("Page Toolbar:", () => {
     describe("close all projects->", () => {
         it("navigates to main",
             inject((navigationService: INavigationService,
-                    artifactManager: IArtifactManager,
+                    selectionManager: ISelectionManager,
                     projectManager: IProjectManager) => {
                 // Arrange
                 const evt = {
@@ -470,14 +461,14 @@ describe("Page Toolbar:", () => {
 
 
                 spyOn(projectManager.projectCollection, "getValue").and.returnValue(openedProjects);
-                spyOn(artifactManager.selection, "getArtifact").and.returnValue(artifact);
+                spyOn(selectionManager, "getArtifact").and.returnValue(artifact);
 
                 const navigateToSpy = spyOn(navigationService, "navigateTo");
                 const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
                 const removeAllProjectSpy = spyOn(projectManager, "removeAll").and.callFake(() => {
                     return;
                 });
-                const clearAllSpy = spyOn(artifactManager.selection, "clearAll");
+                const clearAllSpy = spyOn(selectionManager, "clearAll");
                 const clearStickyMessagesSpy = spyOn(toolbarCtrl, "clearStickyMessages");
 
                 // Act

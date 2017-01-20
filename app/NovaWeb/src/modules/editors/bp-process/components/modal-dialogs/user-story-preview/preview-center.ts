@@ -1,7 +1,6 @@
 import {ICommunicationManager} from "./../../../services/communication-manager";
 import {UserStoryProperties} from "../../diagram/presentation/graph/shapes/user-task";
 import {IDiagramNode} from "../../diagram/presentation/graph/models";
-import {IArtifactManager} from "../../../../../managers";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager";
 import {IMessageService} from "../../../../../core/messages/message.svc";
 import {ILocalizationService} from "../../../../../core/localization/localizationService";
@@ -35,11 +34,10 @@ export class PreviewCenterController {
         "$scope",
         "$rootScope",
         "$sce",
-        "artifactManager",
         "$state",
         "statefulArtifactFactory",
         "messageService",
-        "localization",        
+        "localization",
         "communicationManager"
     ];
 
@@ -133,7 +131,6 @@ export class PreviewCenterController {
                 private $scope: ng.IScope,
                 private $rootScope: ng.IRootScopeService,
                 private $sce: ng.ISCEService,
-                private artifactManager: IArtifactManager,
                 private $state: angular.ui.IStateService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private messageService: IMessageService,
@@ -181,12 +178,8 @@ export class PreviewCenterController {
 
     private loadUserStory(userStoryId: number) {
         if (userStoryId) {
-            const artifact = this.artifactManager.get(userStoryId);
-            if (artifact) {
-                this.statefulUserStoryArtifact = artifact;
-            } else {
-                this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({id: userStoryId});
-            }
+            this.statefulUserStoryArtifact = this.statefulArtifactFactory.createStatefulArtifact({id: userStoryId});
+
             const stateObserver = this.statefulUserStoryArtifact.artifactState.onStateChange.debounce(100).subscribe(
                 (state) => {
                     if (state && state.deleted) {

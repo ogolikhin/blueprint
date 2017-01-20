@@ -3,7 +3,6 @@ import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {
     IArtifactState,
-    IArtifactManager,
     IStatefulArtifact,
     IMetaDataService,
     IItemChangeSet
@@ -37,6 +36,7 @@ import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
 import {IItemInfoService} from "../../../core/navigation/item-info.svc";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
 enum InfoBannerEnum {
     None = 0,
@@ -57,7 +57,7 @@ export class BpArtifactInfoController {
         "$scope",
         "$element",
         "$timeout",
-        "artifactManager",
+        "selectionManager",
         "localization",
         "messageService",
         "dialogService",
@@ -103,7 +103,7 @@ export class BpArtifactInfoController {
                 public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
                 private $timeout: ng.ITimeoutService,
-                protected artifactManager: IArtifactManager,
+                protected selectionManager: ISelectionManager,
                 protected localization: ILocalizationService,
                 protected messageService: IMessageService,
                 protected dialogService: IDialogService,
@@ -121,7 +121,7 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-        this.artifact = this.artifactManager.selection.getArtifact();
+        this.artifact = this.selectionManager.getArtifact();
 
         if (this.artifact) {
             this.createToolbarActions();
@@ -365,7 +365,7 @@ export class BpArtifactInfoController {
 
     protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
             this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
 
         if (buttonGroup) {

@@ -90,7 +90,7 @@ export class MoveCopyAction extends BPDropdownAction {
             ItemTypePredefined.Collections
         ];
 
-        return (invalidTypes.indexOf(this.artifact.itemTypeId) === -1);
+        return !this.artifact.artifactState.historical && (invalidTypes.indexOf(this.artifact.itemTypeId) === -1);
     }
 
     public executeMove() {

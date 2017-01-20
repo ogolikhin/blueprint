@@ -544,10 +544,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         event.preventDefault();
         const itemId = Number(target.getAttribute("subartifactid")) || Number(target.getAttribute("artifactid"));
         if (itemId) {
-            if (this.mceEditor) {
-                this.mceEditor.destroy(false);
-            }
-            navigationService.navigateTo({id: itemId});
+            navigationService.navigateTo({id: itemId})
+                .then(() => {
+                    if (this.mceEditor) {
+                        this.mceEditor.destroy(false);
+                    }
+                });
         } else {
             window.open(target.getAttribute("href"), "_blank");
         }

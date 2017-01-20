@@ -1,5 +1,4 @@
 ﻿import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
@@ -148,7 +147,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "selectionManager",
         "projectManager",
         "projectService",
-        "statefulArtifactFactory",
         "metadataService"
     ];
 
@@ -158,7 +156,6 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 private selectionManager: ISelectionManager,
                 private projectManager: IProjectManager,
                 private projectService: IProjectService,
-                private statefulArtifactFactory: IStatefulArtifactFactory,
                 private metadataService: IMetaDataService) {
 
         /*todo: refactor much of this 'setup' into the onInit lifecycle hook*/
@@ -199,8 +196,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.filterItemType = null;
 
         this.canceller = this.$q.defer<any>();
-        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.statefulArtifactFactory, this.canceller.promise,
-            this.isItemSelectable, this.selectableItemTypes, this.showArtifacts, this.showCollections, this.showSubArtifacts);
+        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.canceller.promise, this.isItemSelectable,
+            this.selectableItemTypes, this.showArtifacts, this.showCollections, this.showSubArtifacts);
         this._selectedVMs = [];
         this._previousSelectedVMs = [];
     };

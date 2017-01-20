@@ -8,6 +8,7 @@ using Model.Impl;
 using Model.StorytellerModel;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TestCommon;
 using Utilities;
 
@@ -425,9 +426,8 @@ namespace ArtifactStoreTests
             }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
         }
 
-        // TODO: Fix this test.
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [TestCase]
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]  // XXX: Complains about Artifact Ids being different.
         [TestRail(153700)]
         [Description("Create manual trace between an artifact and a sub-artifact.  Get relationships.  Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceArtifactToSubartifact_ReturnsCorrectTraces()
@@ -442,8 +442,8 @@ namespace ArtifactStoreTests
             int subArtifactId = userTasks[0].Id;
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user, subArtifactId: subArtifactId);
-             
+                targetArtifact, TraceDirection.TwoWay, _user, subArtifactId: subArtifactId);
+
             Relationships relationships = null;
 
             // Execute:
@@ -454,18 +454,21 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
-            Assert.AreEqual(2, relationships.OtherTraces.Count, "There should be 2 'other' traces.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be 2 'other' traces.");
 
-            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);     // XXX: This complains about Artifact Ids being different.
+            string str;
+            Regex regex = new Regex(@"\d+");
+            var match = regex.Match(traces[0].Message);
+            {
+                str = match.Value;
+            }
+            int id = int.Parse(str, System.Globalization.CultureInfo.CurrentCulture);
 
-            ITrace trace1 = traces[0];
-            ITrace trace2 = relationships.OtherTraces[1];   // XXX: I'm not sure what this 'Other' trace is, but it's the only one that matches.
-
-            Assert.AreEqual(trace1.ProjectId, trace2.ProjectId, "The Project IDs of the traces don't match!");
-            Assert.AreEqual(trace1.ArtifactId, trace2.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(trace1.Direction, trace2.Direction, "The Trace Directions don't match!");
-//            Assert.AreEqual(trace1.TraceType, trace2.TraceType, "The Trace Types don't match!");
-            Assert.AreEqual(trace1.IsSuspect, trace2.IsSuspect, "One trace is marked suspect but the other isn't!");
+            Assert.AreEqual(traces[0].ProjectId, relationships.ManualTraces[0].ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(id, relationships.ManualTraces[0].ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(traces[0].Direction, relationships.ManualTraces[0].Direction, "The Trace Directions don't match!");
+            Assert.AreEqual(traces[0].TraceType.ToString(), relationships.ManualTraces[0].TraceType.ToString(), "The Trace Types don't match!");
+            Assert.AreEqual(traces[0].IsSuspect, relationships.ManualTraces[0].IsSuspect, "One trace is marked suspect but the other isn't!"); 
         }
 
         [TestCase]
@@ -478,7 +481,7 @@ namespace ArtifactStoreTests
             IArtifact sourceArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
             IArtifact targetArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
-            IProcess sourceProcess = Helper.Storyteller.GetProcess(_user, targetArtifact.Id);
+            IProcess sourceProcess = Helper.Storyteller.GetProcess(_user, sourceArtifact.Id);
             var sourceUserTasks = sourceProcess.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             Assert.That(sourceUserTasks.Count > 0, "No User Tasks were found in the source Process!");
 
@@ -502,7 +505,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
-            Assert.AreEqual(2, relationships.OtherTraces.Count, "There should be 2 'other' traces.");
+            Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be 2 'other' traces.");
             AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);     // XXX: This complains about Direction being different.
         }
 

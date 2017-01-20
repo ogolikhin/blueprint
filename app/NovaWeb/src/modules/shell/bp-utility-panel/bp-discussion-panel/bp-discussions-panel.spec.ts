@@ -1,4 +1,5 @@
-﻿import "angular-mocks";
+﻿import * as angular from "angular";
+import "angular-mocks";
 import "angular-sanitize";
 import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
 import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
@@ -12,14 +13,12 @@ import {StatefulSubArtifact} from "../../../managers/artifact-manager/sub-artifa
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {Helper} from "../../../shared/utils/helper";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {ComponentTest} from "../../../util/component.test";
-import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
 import {IDiscussion, IReply} from "./artifact-discussions.svc";
 import {BPDiscussionPanelController} from "./bp-discussions-panel";
-import * as angular from "angular";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 
 let setInitialArtifact = ($q: ng.IQService, artifactService: ArtifactServiceMock): IStatefulArtifact => {
     const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);

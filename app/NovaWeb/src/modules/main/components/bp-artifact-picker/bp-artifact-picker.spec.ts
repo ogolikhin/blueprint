@@ -1,5 +1,4 @@
 ﻿import "angular-mocks";
-import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";

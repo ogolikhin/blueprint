@@ -1,6 +1,5 @@
 import "angular-mocks";
 import "angular-sanitize";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
 import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
 import {Models} from "../../../main";
 import {IStatefulArtifactFactory, StatefulArtifactFactory} from "../../../managers/artifact-manager";

@@ -1,13 +1,11 @@
-﻿import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
-import {ILocalizationService} from "../../core/localization/localization.service";
-import {IMessageService} from "../../core/messages/message.svc";
+﻿import {ILocalizationService} from "../../core/localization/localization.service";
 import {Enums, Models} from "../../main";
 import {IWindowManager} from "../../main/services/window-manager";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
-import {IMessageService} from "../../main/components/messages/message.svc";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {BpArtifactEditor} from "./bp-artifact-editor";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../configuration/property-descriptor-builder";
 
 export class BpArtifactDetailsEditor implements ng.IComponentOptions {
     public template: string = require("./bp-details-editor.html");

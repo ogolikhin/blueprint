@@ -17,8 +17,8 @@ import {ArtifactPickerDialogServiceMock} from "./artifact-picker-dialog.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
-import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
+import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 
 describe("Actor Inheritance controller", () => {
 

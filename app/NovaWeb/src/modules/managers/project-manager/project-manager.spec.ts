@@ -2,8 +2,6 @@
 import "angular-mocks";
 import "rx/dist/rx.lite.js";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
 import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
@@ -14,10 +12,11 @@ import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.moc
 import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
 import {IArtifactNode, IProjectManager, ProjectManager} from "./project-manager";
 import {ProjectServiceStatusCode} from "./project-service";
-import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
 import {ProjectServiceMock} from "./project-service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {MessageType} from "../../main/components/messages/message";
+import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
+import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
 
 describe("Project Manager Test", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

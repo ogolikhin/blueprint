@@ -1,16 +1,15 @@
 import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../core/localization/localization.service";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IProjectManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
-import {IMessageService} from "../messages/message.svc";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {Helper} from "../../../shared";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
 import {TreeModels} from "../../models";
+import {IMessageService} from "../messages/message.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");

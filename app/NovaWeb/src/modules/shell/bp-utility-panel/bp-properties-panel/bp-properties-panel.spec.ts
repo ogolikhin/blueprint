@@ -1,3 +1,4 @@
+import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
@@ -8,7 +9,6 @@ import {ProcessServiceMock} from "../../../editors/bp-process/services/process.s
 import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 import {Enums, Models} from "../../../main";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
@@ -21,7 +21,6 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.moc
 import {ComponentTest} from "../../../util/component.test";
 import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {BPPropertiesController} from "./bp-properties-panel";
-import * as angular from "angular";
 
 describe("Component BPPropertiesPanel", () => {
 

@@ -1,11 +1,8 @@
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
 import {Models} from "../../main/models";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../managers/artifact-manager";
 import {IArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {ArtifactAttachmentsMock} from "../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
@@ -24,6 +21,7 @@ import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
 import {ProcessServiceMock} from "./services/process.svc.mock";
 import * as angular from "angular";
 import {LoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("StatefulProcessArtifact", () => {

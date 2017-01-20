@@ -1,14 +1,8 @@
-import {IApplicationError} from "../../core/error/applicationError";
-import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
 import {IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
-import {ILocalizationService} from "../../core/localization/localization.service";
-import {IApplicationError} from "../../shell/error/applicationError";
 import {AdminStoreModels, Enums, Models, TreeModels} from "../../main/models";
 import {IInstanceItem} from "../../main/models/admin-store-models";
 import {IDialogService, IDialogSettings} from "../../shared";
@@ -18,6 +12,9 @@ import {IMetaDataService} from "../artifact-manager/metadata";
 import {IDispose} from "../models";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
+import {IApplicationError} from "../../shell/error/applicationError";
+import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../core/localization/localization.service";
 
 export interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
     children?: this[];

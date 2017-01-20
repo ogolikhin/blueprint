@@ -1,8 +1,3 @@
-import {IFileUploadService} from "../../../../core/file-upload/fileUploadService";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {Message, MessageType} from "../../../../core/messages/message";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {INavigationService} from "../../../../core/navigation/navigation.svc";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
@@ -11,14 +6,10 @@ import {IDialogService} from "../../../../shared";
 import {IUtilityPanelService, PanelType} from "../../../../shell/bp-utility-panel/utility-panel.svc";
 import {ICommunicationManager} from "../../../bp-process";
 import {ProcessType} from "../../models/enums";
-import {IProcess} from "../../models/process-models";
-import {IProcessGraph, IUserStory} from "./presentation/graph/models/";
-import {IStatefulProcessSubArtifact} from "../../process-subartifact";
+import {IProcess, IUserStory} from "../../models/process-models";
 import {IStatefulProcessArtifact} from "../../process-artifact";
-import {IStatefulProcessSubArtifact} from "../../process-subartifact";
 import {IClipboardService} from "../../services/clipboard.svc";
-import {IProcessGraph, IUserStory} from "./presentation/graph/models/";
-import {IDiagramNode} from "./presentation/graph/models/process-graph-interfaces";
+import {IDiagramNode, IProcessGraph} from "./presentation/graph/models/process-graph-interfaces";
 import {ProcessGraph} from "./presentation/graph/process-graph";
 import {SystemTask} from "./presentation/graph/shapes";
 import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
@@ -28,6 +19,8 @@ import {IFileUploadService} from "../../../../core/fileUpload/fileUpload.service
 import {IProcessViewModel, ProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {Message, MessageType} from "../../../../main/components/messages/message";
+import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
+import {IStatefulProcessSubArtifact} from "../../process-subartifact";
 
 export class ProcessDiagram {
 

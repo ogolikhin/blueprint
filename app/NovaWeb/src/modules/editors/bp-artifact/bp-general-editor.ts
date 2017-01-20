@@ -1,4 +1,3 @@
-import {ILocalizationService} from "../../core/localization/localizationService";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {Enums, Models} from "../../main/models";
 import {IWindowManager} from "../../main/services/window-manager";

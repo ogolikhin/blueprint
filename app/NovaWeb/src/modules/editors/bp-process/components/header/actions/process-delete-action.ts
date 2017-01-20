@@ -5,7 +5,6 @@ import {INavigationService} from "../../../../../core/navigation/navigation.svc"
 import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ILoadingOverlayService} from "../../../../../core/loadingOverlay/loadingOverlay.service";
 import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
-import {IArtifactManager} from "../../../../../managers/artifact-manager/artifact-manager";
 import {ILocalizationService} from "../../../../../core/localization/localization.service";
 import {IStatefulProcessArtifact} from "../../../process-artifact";
 import {DeleteAction} from "../../../../../main/components/bp-artifact-info/actions/delete-action";
@@ -75,11 +74,9 @@ export class ProcessDeleteAction extends DeleteAction {
             NodeType.SystemDecision
         ];
 
-        if (validNodeTypes.indexOf(selectedNode.getNodeType()) < 0) {
-            return false;
-        }
+        return validNodeTypes.indexOf(selectedNode.getNodeType()) >= 0;
 
-        return true;
+
     }
 
     protected hasRequiredPermissions(): boolean {

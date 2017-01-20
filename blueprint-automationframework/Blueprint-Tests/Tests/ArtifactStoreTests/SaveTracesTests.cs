@@ -39,6 +39,7 @@ namespace ArtifactStoreTests
         }
 
         #region Positive Tests
+
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.TwoWay)]
@@ -75,7 +76,7 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifact.Lock(_authorUser);
 
@@ -245,12 +246,12 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifact.Lock(_authorUser);
 
             novaSubArtifacts[0].Traces = new List<NovaTrace> { new NovaTrace(targetArtifact1) };
-            novaSubArtifacts[1].Traces = new List<NovaTrace> { new NovaTrace(targetArtifact2, TraceDirection.To) };
+            novaSubArtifacts[1].Traces = new List<NovaTrace> { new NovaTrace(targetArtifact2, targetSubArtifactId: null, direction: TraceDirection.To) };
 
             artifactDetails.SubArtifacts = novaSubArtifacts;
             artifactDetails.Traces = new List<NovaTrace>();
@@ -289,7 +290,7 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifact.Lock(_authorUser);
 
@@ -332,7 +333,7 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifact.Lock(_authorUser);
 
@@ -444,7 +445,7 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifactWithNoSubArtifactSupport.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifactWithNoSubArtifactSupport.Lock(_authorUser);
 
@@ -607,7 +608,7 @@ namespace ArtifactStoreTests
             {
                 Assert.AreEqual(traceTarget.Id, traceTargetSubArtifact.ParentId, "...");
             }
-            NovaTrace traceToCreate = new NovaTrace(traceTarget, traceDirection, changeType: changeType);
+            NovaTrace traceToCreate = new NovaTrace(traceTarget, targetSubArtifactId: null, direction: traceDirection, changeType: changeType);
             traceToCreate.ItemId = traceTargetSubArtifact?.Id ?? traceTarget.Id;
 
             List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
@@ -615,28 +616,6 @@ namespace ArtifactStoreTests
             artifactDetails.Traces = updatedTraces;
 
             return artifactDetails;
-        }
-
-        /// <summary>
-        /// Gets all details for all the sub-artifacts passed in.
-        /// </summary>
-        /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
-        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <returns>A list of NovaSubArtifacts.</returns>
-        private List<NovaSubArtifact> GetDetailsForAllSubArtifacts(IArtifact artifact, List<SubArtifact> subArtifacts, IUser user)
-        {
-            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
-
-            var subArtifactDetailsList = new List<NovaSubArtifact>();
-
-            foreach (var subArtifact in subArtifacts)
-            {
-                var subArtifactDetails = Helper.ArtifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
-                subArtifactDetailsList.Add(subArtifactDetails);
-            }
-
-            return subArtifactDetailsList;
         }
 
         /// <summary>

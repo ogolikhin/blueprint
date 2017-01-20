@@ -842,6 +842,30 @@ namespace Helper
         }
 
         /// <summary>
+        /// Gets all details for all the sub-artifacts passed in.
+        /// </summary>
+        /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
+        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>A list of NovaSubArtifacts.</returns>
+        public static List<NovaSubArtifact> GetDetailsForAllSubArtifacts(IArtifactStore artifactStore, IArtifactBase artifact, List<SubArtifact> subArtifacts, IUser user)
+        {
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
+
+            var subArtifactDetailsList = new List<NovaSubArtifact>();
+
+            foreach (var subArtifact in subArtifacts)
+            {
+                var subArtifactDetails = artifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
+                subArtifactDetailsList.Add(subArtifactDetails);
+            }
+
+            return subArtifactDetailsList;
+        }
+
+        /// <summary>
         /// Updates the specified custom property of the artifact with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
         /// The caller is responsible for locking, saving & publishing the artifact.
         /// </summary>

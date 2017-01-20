@@ -223,7 +223,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             },
             scrollIntoView: this.scrollIntoView,
-            closeDropdownOnBlur: this.closeDropdownOnBlur,
+            closeDropdownOnClick: this.closeDropdownOnClick,
             resetSettings: function () {
                 this.currentState = null;
                 this.currentLimit = this.minLimit;
@@ -341,7 +341,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
-                this.closeDropdownOnBlur(isOpen, $select.searchInput);
+                this.closeDropdownOnClick(isOpen, $select);
 
                 $select.items = [];
                 $scope.to.options = [];

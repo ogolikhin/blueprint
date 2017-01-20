@@ -56,44 +56,6 @@ namespace ArtifactStoreTests
         #region Private Functions
 
         /// <summary>
-        /// Compares an OpenApiTrace to a Nova Relationship and asserts that each of their properties are equal.
-        /// </summary>
-        /// <param name="openApiTrace">The OpenAPI Trace to compare.</param>
-        /// <param name="relationship">The Nova Relationship to compare.</param>
-        /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
-        private static void AssertTracesAreEqual(OpenApiTrace openApiTrace, Relationship relationship, bool checkDirection=true)
-        {
-            Assert.AreEqual(openApiTrace.ProjectId, relationship.ProjectId, "The Project IDs of the traces don't match!");
-            Assert.AreEqual(openApiTrace.ArtifactId, relationship.ArtifactId, "The Artifact IDs of the traces don't match!");
-            StringAssert.Contains(openApiTrace.TraceType.ToString(), relationship.TraceType.ToString(), "The Trace Types don't match!");
-            Assert.AreEqual(openApiTrace.IsSuspect, relationship.IsSuspect, "One trace is marked suspect but the other isn't!");
-
-            if (checkDirection)
-            {
-                Assert.AreEqual(openApiTrace.Direction, relationship.Direction, "The Trace Directions don't match!");
-            }
-        }
-
-        /// <summary>
-        /// Compares an NovaTrace to a Nova Relationship and asserts that each of their properties are equal.
-        /// </summary>
-        /// <param name="Nova trace">The Nova Trace to compare.</param>
-        /// <param name="relationship">The Nova Relationship to compare.</param>
-        /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
-        private static void AssertTracesAreEqual(NovaTrace novaTrace, Relationship relationship, bool checkDirection = true)
-        {
-            Assert.AreEqual(novaTrace.ProjectId, relationship.ProjectId, "The Project IDs of the traces don't match!");
-            Assert.AreEqual(novaTrace.ArtifactId, relationship.ArtifactId, "The Artifact IDs of the traces don't match!");
-            StringAssert.Contains(novaTrace.TraceType.ToString(), relationship.TraceType.ToString(), "The Trace Types don't match!");
-            Assert.AreEqual(novaTrace.IsSuspect, relationship.IsSuspect, "One trace is marked suspect but the other isn't!");
-
-            if (checkDirection)
-            {
-                Assert.AreEqual(novaTrace.Direction, relationship.Direction, "The Trace Directions don't match!");
-            }
-        }
-
-        /// <summary>
         /// Validates traces with traces from relationship to verify their properties are equal.
         /// </summary>
         /// <param name="relationship">relationship to validate</param>
@@ -114,7 +76,7 @@ namespace ArtifactStoreTests
                 IArtifact foundArtifact = null;
                 Assert.NotNull(foundArtifact = artifacts.Find(a => a.Id.Equals(manualTraceId)),"Could not find matching arifact from artifacts {0}", artifacts);
                 var foundArtifactName = foundArtifact.Name;
-                AssertTracesAreEqual(traces[i], relationship.ManualTraces[i]);
+                ArtifactStoreHelper.AssertTracesAreEqual(traces[i], relationship.ManualTraces[i]);
                 Assert.That(relationship.ManualTraces[i].ArtifactName.Equals(foundArtifactName), "Name '{0}' from target artifact does not match with Name '{1}' from manual trace of relationships.", foundArtifactName, relationship.ManualTraces[i].ArtifactName);
             }
         }
@@ -192,7 +154,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
-            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
         }
 
         [TestCase(true)]
@@ -222,7 +184,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
-            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
         }
 
         [TestCase]
@@ -322,13 +284,13 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
 
-            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
         }
 
         [TestCase]
         [TestRail(153700)]
         [Description("Create manual trace between an artifact and a sub-artifact.  Get relationships.  Verify that returned trace has expected value.")]
-        public void GetRelationships_ManualTraceArtifactToSubartifact_ReturnsCorrectTraces()
+        public void GetRelationships_ManualTraceArtifactToSubartifactInDifferentArtifact_ReturnsCorrectTraces()
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -360,13 +322,13 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
 
-            AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
         }
 
         [TestCase]
         [TestRail(153741)]
         [Description("Create manual trace between two sub-artifacts.  Get relationships.  Verify that returned trace has expected value.")]
-        public void GetRelationships_ManualTraceBetweenTwoSubArtifacts_ReturnsCorrectTraces()
+        public void GetRelationships_ManualTraceBetweenTwoSubArtifactsInDifferentArtifacts_ReturnsCorrectTraces()
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -402,7 +364,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
 
-            AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
         }
 
         [TestCase]
@@ -433,8 +395,8 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(2, relationships.ManualTraces.Count, "There should be 2 manual traces!");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be 0 other traces!");
-            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
-            AssertTracesAreEqual(traces[1], relationships.ManualTraces[1]);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[1], relationships.ManualTraces[1]);
         }
 
         [TestCase]
@@ -489,8 +451,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(2, relationships.ManualTraces.Count, "There should be 2 manual traces!");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be 0 other traces!");
-            AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
-            AssertTracesAreEqual(traces[1], relationships.ManualTraces[1], checkDirection: false);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[1], relationships.ManualTraces[1], checkDirection: false);
             Assert.AreEqual(TraceDirection.From, relationships.ManualTraces[1].Direction,
                 "The 2nd manual trace should be 'From' the third artifact!");
         }
@@ -525,7 +487,7 @@ namespace ArtifactStoreTests
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
-            AssertTracesAreEqual(traces[0], relationshipsForUserWithFullAccessToTargetArtifact.ManualTraces[0]);
+            ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationshipsForUserWithFullAccessToTargetArtifact.ManualTraces[0]);
 
             Assert.AreEqual(1, relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces.Count, "There should be 1 manual trace!");
             var trace = relationshipsForUserWithNoAccessToTargetArtifact.ManualTraces[0];

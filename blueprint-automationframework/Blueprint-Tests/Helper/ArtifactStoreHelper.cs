@@ -811,6 +811,44 @@ namespace Helper
 
         #endregion Image Functions
 
+        #region Collection Methods
+
+        /// <summary>
+        /// Creates empty collection and return corresponding IArtifact.
+        /// </summary>
+        /// <param name="helper">A TestHelper instance.</param>
+        /// <param name="project">Project to create collection.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="parentId">(optional) Id of artifact under which collection should be created (no check for valid location).</param>
+        /// <param name="name">(optional) The name of collection.</param>
+        /// <returns>IArtifact which corresponds to the created collection.</returns>
+        public static IArtifact CreateCollectionGetCollectionArtifact(
+            TestHelper helper,
+            IProject project,
+            IUser user, int? parentId = null, string name = null)
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var collectionFolder = project.GetDefaultCollectionFolder(helper.ArtifactStore.Address, user);
+            parentId = collectionFolder.Id;
+            // fake type as far as we don't have Collection in OpenApi
+            var collectionArtifact = helper.CreateWrapAndSaveNovaArtifact(project, user,
+                ItemTypePredefined.ArtifactCollection, parentId.Value, baseType: BaseArtifactType.PrimitiveFolder,
+                name: name);
+
+            Collection collection = null;
+            Assert.DoesNotThrow(() =>
+                collection = helper.ArtifactStore.GetCollection(user, collectionArtifact.Id),
+                "GetCollection shouldn't throw no error.");
+            Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");
+            Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
+
+            return collectionArtifact;
+        }
+
+        #endregion Collection Methods
+
         /// <summary>
         /// Gets Inline Image Id from html of the artifact rich text property
         /// </summary>

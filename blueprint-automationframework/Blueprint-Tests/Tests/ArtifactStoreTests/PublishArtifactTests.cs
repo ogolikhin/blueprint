@@ -17,6 +17,7 @@ using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class PublishArtifactTests : TestBase
@@ -32,6 +33,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
         }
 
         [TearDown]
@@ -41,6 +43,95 @@ namespace ArtifactStoreTests
         }
 
         #region 200 OK Tests
+
+        #region Publish Collection Artifact Tests
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase(1)]
+        [TestCase(3)]
+        [TestRail(000)]
+        [Description("Publish a collection that contains publishedArtifacts. Verify Collection gets published.")]
+        public void PublishArtifact_PublishCollectionContainsPublishedArtifacts_VerifyCollection(int numberOfArtifacts)
+        {
+            // Setup: Create a collection and add published artifacts
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, author);
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, BaseArtifactType.Actor, numberOfArtifacts);
+            publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(author, artifact.Id, collectionArtifact.Id));
+
+            // Execution: Publish the collection that contains published artifacts
+            // Execute: GetJobs with page and pageSize parameters
+            INovaArtifactsAndProjectsResponse publishedResponse = null;
+            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, author),
+                "POST {0} call failed when using it with collection (Id: {1}) contains published artifacts!",
+                PUBLISH_PATH, collectionArtifact.Id);
+
+            // Validation: Verify that collection response
+            var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
+
+            Assert.IsNotNull(publishedResponse, "Testing Assertion");
+            Assert.IsNotNull(collection, "Testing Assertion");
+
+            //Delete collection
+            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase(1)]
+        [TestCase(3)]
+        [TestRail(000)]
+        [Description("Publish a collection that contains savedArtifacts. Verify Collection gets published.")]
+        public void PublishArtifact_PublishCollectionContainsSavedArtifacts_VerifyCollection(int numberOfArtifacts)
+        {
+            // Setup: Create a collection and add saved artifacts
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, author);
+            var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, author, BaseArtifactType.Actor, numberOfArtifacts);
+            savedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(author, artifact.Id, collectionArtifact.Id));
+
+            // Execute: Publish the collection that contains saved artifacts
+            INovaArtifactsAndProjectsResponse publishedResponse = null;
+            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, author),
+                "POST {0} call failed when using it with collection (Id: {1}) contains saved artifacts!",
+                PUBLISH_PATH, collectionArtifact.Id);
+
+            // Validate: Verify that collection response
+            var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
+
+            Assert.IsNotNull(publishedResponse, "Testing Assertion");
+            Assert.IsNotNull(collection, "Testing Assertion");
+
+            //Delete collection
+            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
+        }
+        /*
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase]
+        [TestRail(000)]
+        [Description("Publish a collection that contains inaccessibleArtifacts. Verify publish get rejected?.")]
+        public void PublishArtifact_PublishCollectionContainsInaccessibleArtifacts_VerifyCollection()
+        {
+            // Setup: Create a collection and add inaccessible artifacts
+
+            // Execution: Publish the collection
+
+            // Validation: Verify that collection response
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase]
+        [TestRail(000)]
+        [Description("Publish a collection that contains inaccessibleArtifacts. Verify publish get rejected?.")]
+        public void PublishArtifact_PublishCollectionContainsDeletedArtifacts_VerifyCollection()
+        {
+            // Setup: Create a collection and add deleted artifacts
+
+            // Execution: Publish the collection
+
+            // Validation: Verify that collection response
+        }
+        */
+        #endregion Publish Collection Artifact Tests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(165856)]

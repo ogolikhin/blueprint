@@ -17,6 +17,7 @@ import {ArtifactPickerDialogServiceMock} from "./artifact-picker-dialog.mock";
 import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 describe("Actor Inheritance controller", () => {
@@ -33,6 +34,7 @@ describe("Actor Inheritance controller", () => {
         $provide.service("dialogService", ArtifactPickerDialogServiceMock);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
     }));
 
     beforeEach(

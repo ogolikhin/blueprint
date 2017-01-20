@@ -16,6 +16,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -253,10 +254,11 @@ namespace Helper
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
+        /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
             bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false,
-            bool skipPublishedProperties = false, bool skipPermissions = false)
+            bool skipPublishedProperties = false, bool skipPermissions = false, bool skipDescription = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -296,8 +298,12 @@ namespace Helper
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
             }
 
+            if (!skipDescription)
+            {
+                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
+            }
+
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
@@ -676,7 +682,7 @@ namespace Helper
         };
 
         /// <summary>
-        /// Creates a random image and adds it to a property of the specified artifact.  Artifact will be locked and saved.
+        /// Creates a random image and adds it to a property of the specified artifact. Artifact should be locked. It will be saved.
         /// </summary>
         /// <param name="artifact">The artifact where the image will be embedded.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -708,7 +714,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a random image and adds it to a property of the specified artifact.  Artifact will be locked and saved.
+        /// Creates a random image and adds it to a property of the specified artifact. Artifact should be locked. It will be saved.
         /// NOTE: This function will first search for a top-level property with the specified name, then if not found it will
         /// look in the CustomPropertyValues and then SpecificPropertyValues.
         /// </summary>
@@ -781,7 +787,8 @@ namespace Helper
         /// <param name="contentType">The MIME Content-Type.</param>
         /// <returns>The random image file.</returns>
         [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
-        public static IFile CreateRandomImageFile(int width, int height, ImageType imageType, string contentType)
+        public static IFile CreateRandomImageFile(int width = 300, int height = 100, ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg")
         {
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
             string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
@@ -803,6 +810,16 @@ namespace Helper
         }
 
         #endregion Image Functions
+
+        /// <summary>
+        /// Gets Inline Image Id from html of the artifact rich text property
+        /// </summary>
+        /// <returns>Guid string, empty string if no guids were found</returns>
+        public static string GetInlineImageId(string richTextProperty)
+        {
+            var guidString = Regex.Match(richTextProperty, @"[0-9a-f]{8}[-]([0-9a-f]{4}[-]){3}[0-9a-f]{12}");
+            return guidString.Value;
+        }
 
         /// <summary>
         /// Gets the custom data project.

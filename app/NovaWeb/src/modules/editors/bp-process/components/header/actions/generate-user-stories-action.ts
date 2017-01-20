@@ -176,7 +176,8 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 type: DialogTypeEnum.Confirm,
                 header: this.localization.get("App_DialogTitle_Confirmation"),
                 message: this.localization.get("ST_US_Generate_Confirm_Publish"),
-                okButton: this.localization.get("App_Button_PublishAndContinue")
+                okButton: this.localization.get("App_Button_PublishAndContinue"),
+                css: "nova-messaging"
             };
 
             this.dialogService.open(settings)

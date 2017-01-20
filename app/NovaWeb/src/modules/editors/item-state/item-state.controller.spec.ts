@@ -7,10 +7,7 @@ import {LocalizationServiceMock} from "../../core/localization/localization.serv
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
-import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
-import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -20,13 +17,16 @@ import {INavigationService} from "../../core/navigation/navigation.svc";
 import {Message, MessageType} from "../../main/components/messages/message";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 
 describe("Item State Controller tests", () => {
     let $stateParams: ng.ui.IStateParamsService,
         $timeout: ng.ITimeoutService,
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
-        artifactManager: IArtifactManager,
+        selectionManager: ISelectionManager,
         projectManager: IProjectManager,
         localization: ILocalizationService,
         messageService: IMessageService,
@@ -42,7 +42,7 @@ describe("Item State Controller tests", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("projectManager", ProjectManagerMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
@@ -53,7 +53,7 @@ describe("Item State Controller tests", () => {
         _$timeout_: ng.ITimeoutService,
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
-        _artifactManager_: IArtifactManager,
+        _selectionManager_: ISelectionManager,
         _projectManager_: IProjectManager,
         _localization_: ILocalizationService,
         _messageService_: IMessageService,
@@ -65,7 +65,7 @@ describe("Item State Controller tests", () => {
         $timeout = _$timeout_;
         $rootScope = _$rootScope_;
         $q = _$q_;
-        artifactManager = _artifactManager_;
+        selectionManager = _selectionManager_;
         projectManager = _projectManager_;
         localization = _localization_;
         messageService = _messageService_;
@@ -75,8 +75,8 @@ describe("Item State Controller tests", () => {
     }));
 
     beforeEach(() => {
-        artifactManager.selection.setExplorerArtifact = (artifact) => null;
-        artifactManager.selection.setArtifact = (artifact) => null;
+        selectionManager.setExplorerArtifact = (artifact) => null;
+        selectionManager.setArtifact = (artifact) => null;
     });
 
     function getItemStateController(itemInfo: IItemInfoResult, version?: string): ItemStateController {
@@ -86,7 +86,7 @@ describe("Item State Controller tests", () => {
 
         return new ItemStateController(
             $stateParams,
-            artifactManager,
+            selectionManager,
             projectManager,
             messageService,
             localization,
@@ -116,16 +116,14 @@ describe("Item State Controller tests", () => {
         expect(deleteMessageSpy).toHaveBeenCalledWith(message.id);
     });
 
-    describe("when not in artifact manager", () => {
-        let artifactId, artifactManagerSpy, itemInfoSpy;
+    describe("state changes", () => {
+        let artifactId, itemInfoSpy;
 
         beforeEach(() => {
             artifactId = 10;
-            artifactManagerSpy = spyOn(artifactManager, "get").and.returnValue(null);
         });
 
         afterEach(() => {
-            artifactManagerSpy = undefined;
             itemInfoSpy = undefined;
         });
 
@@ -306,14 +304,14 @@ describe("Item State Controller tests", () => {
 
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
 
                 // act
                 ctrl = getItemStateController(itemInfo);
                 $timeout.flush();
 
                 // assert
-                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
                 expect(selectedArtifact.artifactState.historical).toBe(true);
@@ -331,14 +329,14 @@ describe("Item State Controller tests", () => {
                     deletedByUser: {}
                 } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
 
                 // act
                 ctrl = getItemStateController(itemInfo);
                 $timeout.flush();
 
                 // assert
-                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
                 expect(ctrl.activeEditor).toBe("collection");
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
@@ -359,14 +357,14 @@ describe("Item State Controller tests", () => {
                     deletedByUser: {}
                 } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
 
                 // act
                 ctrl = getItemStateController(itemInfo);
                 $timeout.flush();
 
                 // assert
-                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
                 expect(ctrl.activeEditor).toBe("details");
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
@@ -387,14 +385,14 @@ describe("Item State Controller tests", () => {
                     versionCount: 20
                 } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
 
                 // act
                 ctrl = getItemStateController(itemInfo, version.toString());
                 $timeout.flush();
 
                 // assert
-                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(selectionSpy).toHaveBeenCalled();
                 expect(selectedArtifact.artifactState.historical).toBe(true);
@@ -414,83 +412,20 @@ describe("Item State Controller tests", () => {
                 const navigationSpy = spyOn(navigationService, "navigateTo");
                 const navigateToMainSpy = spyOn(navigationService, "navigateToMain");
                 const messageSpy = spyOn(messageService, "addError").and.callFake(message => void (0));
-                const selectionSpy = spyOn(artifactManager.selection, "setExplorerArtifact");
+                const selectionSpy = spyOn(selectionManager, "setExplorerArtifact");
 
                 // act
                 ctrl = getItemStateController(itemInfo, version.toString());
                 //$timeout.flush();
 
                 // assert
-                const selectedArtifact: IStatefulArtifact = artifactManager.selection.setExplorerArtifact["calls"].argsFor(0)[0];
+                const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];
                 expect(navigationSpy).not.toHaveBeenCalled();
                 expect(navigateToMainSpy).toHaveBeenCalled();
                 expect(selectionSpy).not.toHaveBeenCalled();
                 expect(messageSpy).toHaveBeenCalled();
                 expect(selectedArtifact).toBeUndefined();
             });
-        });
-    });
-
-    describe("when in artifact manager", () => {
-        let artifactId: number,
-            statefulArtifact,
-            artifactManagerSpy: jasmine.Spy;
-
-        beforeEach(() => {
-            artifactId = 10;
-            statefulArtifact = {
-                id: artifactId,
-                predefinedType: Models.ItemTypePredefined.Process,
-                artifactState: {
-                    deleted: false
-                },
-                unload: () => void(0),
-                errorObservable: () => {
-                    return {
-                        subscribeOnNext: () => void(0)
-                    };
-                }
-            };
-            artifactManagerSpy = spyOn(artifactManager, "get").and.returnValue(statefulArtifact);
-        });
-
-        afterEach(() => {
-            artifactManagerSpy = undefined;
-        });
-
-        it("should unload existing artifact and go to main.item.process state", () => {
-            // arrange
-            const itemInfo = {
-                id: artifactId,
-                predefinedType: Models.ItemTypePredefined.Actor
-            } as any as IItemInfoResult;
-            const unloadSpy = spyOn(statefulArtifact, "unload");
-
-            // act
-            ctrl = getItemStateController(itemInfo);
-            //$timeout.flush();
-
-            // assert
-            expect(unloadSpy).toHaveBeenCalled();
-        });
-
-        it("should not use artifact from artifact manager if it's deleted", () => {
-            // arrange
-            statefulArtifact.artifactState.deleted = true;
-            const itemInfo = {
-                id: artifactId,
-                predefinedType: Models.ItemTypePredefined.Actor,
-                isDeleted: true,
-                deletedByUser: {}
-            } as any as IItemInfoResult;
-            const unloadSpy = spyOn(statefulArtifact, "unload");
-
-            // act
-            ctrl = getItemStateController(itemInfo);
-            //$timeout.flush();
-
-            // assert
-            expect(unloadSpy).not.toHaveBeenCalled();
         });
     });
 });

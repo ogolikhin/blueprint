@@ -2,7 +2,7 @@ import {IJobsService} from "../../../editors/jobs/jobs.svc";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
-import {IArtifactManager, IProjectManager} from "../../../managers";
+import {IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {
@@ -18,6 +18,7 @@ import {IApplicationError} from "../../../shell/error/applicationError";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {IMessageService} from "../messages/message.svc";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
 
 export class PageToolbar implements ng.IComponentOptions {
@@ -42,7 +43,7 @@ export class PageToolbarController {
         "localization",
         "dialogService",
         "projectManager",
-        "artifactManager",
+        "selectionManager",
         "publishService",
         "messageService",
         "navigationService",
@@ -57,7 +58,7 @@ export class PageToolbarController {
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private publishService: IUnpublishedArtifactsService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
@@ -67,7 +68,7 @@ export class PageToolbarController {
     }
 
     public $onInit() {
-        const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
+        const artifactStateSubscriber = this.selectionManager.artifactObservable
             .subscribe(this.setCurrentArtifact);
 
         this._subscribers = [artifactStateSubscriber];
@@ -99,8 +100,8 @@ export class PageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.artifactManager.autosave().then(() => {
-            const artifact = this.artifactManager.selection.getArtifact();
+        this.selectionManager.autosave().then(() => {
+            const artifact = this.selectionManager.getArtifact();
             if (artifact) {
                 return this.closeProjectInternal(artifact.projectId);
             }
@@ -117,7 +118,7 @@ export class PageToolbarController {
             evt.preventDefault();
         }
 
-        this.artifactManager.autosave()
+        this.selectionManager.autosave()
             .then(this.getProjectsWithUnpublishedArtifacts)
             .then((projectsWithUnpublishedArtifacts) => {
                 const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
@@ -220,7 +221,7 @@ export class PageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.artifactManager.autosave().then(() => {
+        this.selectionManager.autosave().then(() => {
             const getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
             //get a list of unpublished artifacts
             this.publishService.getUnpublishedArtifacts()
@@ -318,7 +319,7 @@ export class PageToolbarController {
         let artifact: IStatefulArtifact;
         if (this.isProjectOpened) {
             promise = this.projectManager.refreshAll();
-        } else if (artifact = this.artifactManager.selection.getArtifact()) {
+        } else if (artifact = this.selectionManager.getArtifact()) {
             promise = artifact.refresh();
         }
         if (promise) {
@@ -440,7 +441,6 @@ export class PageToolbarController {
     }
 
     private getProjectsWithUnpublishedArtifacts = (): ng.IPromise<number[]> => {
-        //We can't use artifactManager.list() because lock state is lazy-loaded
         return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);
             //We don't use _.uniq because we care about the count of artifacts.
@@ -453,7 +453,7 @@ export class PageToolbarController {
         //perform publish all
         this.publishService.publishAll()
             .then(() => {
-                let artifact = this.artifactManager.selection.getArtifact();
+                let artifact = this.selectionManager.getArtifact();
                 //remove lock on current artifact
                 if (artifact) {
                     artifact.artifactState.unlock();
@@ -479,7 +479,7 @@ export class PageToolbarController {
         //perform publish all
         this.publishService.discardAll()
             .then(() => {
-                const statefulArtifact = this.artifactManager.selection.getArtifact();
+                const statefulArtifact = this.selectionManager.getArtifact();
                 if (statefulArtifact) {
                     statefulArtifact.discard();
                 }

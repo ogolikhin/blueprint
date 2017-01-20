@@ -1,18 +1,20 @@
 ﻿import "angular";
 import "angular-mocks";
-import "../";
-import {ComponentTest} from "../../util/component.test";
-import {BpGeneralArtifactEditorController} from "./bp-general-editor";
-import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
+import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {MessageServiceMock} from "../../core/messages/message.mock";
+import {Enums, Models} from "../../main";
 import {WindowManagerMock} from "../../main/services/window-manager.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
+import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
+import {ComponentTest} from "../../util/component.test";
 import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../configuration/property-descriptor-builder";
-import {IArtifactManager} from "./../../managers/artifact-manager";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
+import {BpGeneralArtifactEditorController} from "./bp-general-editor";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
-import {Enums, Models} from "./../../main";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("Component BpGeneralEditorInfo", () => {
@@ -20,7 +22,7 @@ describe("Component BpGeneralEditorInfo", () => {
     let template = `<bp-artifact-general-editor context="artifact"></bp-artifact-general-editor>`;
     let ctrl: BpGeneralArtifactEditorController;
 
-    let _artifactManager: IArtifactManager;
+    let _selectionManager: ISelectionManager;
     let _propertyDescriptorBuilder: IPropertyDescriptorBuilder;
     let _$q: ng.IQService;
     let descriptor: IPropertyDescriptor;
@@ -30,15 +32,15 @@ describe("Component BpGeneralEditorInfo", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("windowManager", WindowManagerMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
         $provide.service("validationService", ValidationServiceMock);
     }));
 
-    beforeEach(inject((artifactManager: IArtifactManager, propertyDescriptorBuilder: IPropertyDescriptorBuilder, $q: ng.IQService) => {
-        _artifactManager = artifactManager;
+    beforeEach(inject((selectionManager: ISelectionManager, propertyDescriptorBuilder: IPropertyDescriptorBuilder, $q: ng.IQService) => {
+        _selectionManager = selectionManager;
         _propertyDescriptorBuilder = propertyDescriptorBuilder;
         _$q = $q;
 
@@ -83,18 +85,16 @@ describe("Component BpGeneralEditorInfo", () => {
             modelPropertyName: itemtypeId
         };
 
-        //artifactManager.selection.getArtifact(); -> Needs to return an artifact that has getObservable()
-        artifactManager.selection = {
-            getArtifact: () => {
-                return {
-                    getObservable: () => new Rx.BehaviorSubject<IStatefulArtifact>(this).asObservable(),
-                    artifactState: {readonly: false} as any,
-                    customProperties: {
-                        get: (() => propertyValue)
-                    }
-                } as any;
-            }
-        } as ISelectionManager;
+        //selectionManager.getArtifact(); -> Needs to return an artifact that has getObservable()
+        selectionManager.getArtifact = () => {
+            return {
+                getObservable: () => new Rx.BehaviorSubject<IStatefulArtifact>(this).asObservable(),
+                artifactState: {readonly: false} as any,
+                customProperties: {
+                    get: (() => propertyValue)
+                }
+            } as any;
+        };
     }));
 
     beforeEach(() => {

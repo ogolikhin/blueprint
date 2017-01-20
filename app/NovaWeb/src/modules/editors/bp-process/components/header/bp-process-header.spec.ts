@@ -9,7 +9,6 @@ import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.
 import {WindowManager} from "../../../../main";
 import {CommunicationManager} from "../../";
 import {
-    ArtifactManager,
     ArtifactService,
     MetaDataService,
     ArtifactAttachmentsService,
@@ -37,7 +36,7 @@ describe("BpProcessHeader", () => {
     let breadcrumbService: IBreadcrumbService;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
-            $provide.service("artifactManager", ArtifactManager);
+            $provide.service("selectionManager", SelectionManager);
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("messageService", MessageServiceMock);
             $provide.service("dialogService", DialogServiceMock);
@@ -47,7 +46,6 @@ describe("BpProcessHeader", () => {
             $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
             $provide.service("navigationService", NavigationServiceMock);
             $provide.service("breadcrumbService", BreadcrumbServiceMock);
-            $provide.service("selectionManager", SelectionManager);
             $provide.service("metadataService", MetaDataService);
             $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
             $provide.service("session", SessionSvcMock);

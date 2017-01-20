@@ -112,6 +112,26 @@ describe("MoveCopyAction", () => {
         expect(moveAction.disabled).toBe(true);
     }));
 
+    it("is disabled when artifact is historical", inject((
+        statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
+        messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+        navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.TextualRequirement
+            });
+        artifact.artifactState.historical = true;
+
+        // act
+        const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+            dialogService, navigationService, loadingOverlayService);
+
+        // assert
+        expect(moveAction.disabled).toBe(true);
+    }));
+
     it("is disabled when artifact is Project",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,

@@ -1,25 +1,25 @@
-﻿import * as angular from "angular";
+﻿import "../../../";
+import "../../../../main";
 import "angular-mocks";
 import "angular-sanitize";
 import "angular-ui-router";
-import "../../../";
-import "../../../../main";
-import {ComponentTest} from "../../../../util/component.test";
-import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
-import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
-import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
-import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {Helper} from "../../../../shared";
 import {HttpStatusCode} from "../../../../core/httpInterceptor/http-status-code";
-import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
-import {ArtifactManager} from "../../../../managers/artifact-manager/artifact-manager";
-import {MetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
+import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
+import {IRelationship} from "../../../../main/models/relationshipModels";
 import {StatefulArtifactFactory} from "../../../../managers/artifact-manager/artifact/artifact.factory";
 import {ArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactAttachmentsService} from "../../../../managers/artifact-manager/attachments/attachments.svc";
-import {IRelationship} from "../../../../main/models/relationshipModels";
+import {MetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
+import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
+import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {Helper} from "../../../../shared";
+import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ComponentTest} from "../../../../util/component.test";
+import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
+import * as angular from "angular";
 
 describe("BPArtifactRelationshipItem", () => {
 
@@ -29,7 +29,6 @@ describe("BPArtifactRelationshipItem", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("artifactManager", ArtifactManager);
         $provide.service("selectionManager", SelectionManager);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);

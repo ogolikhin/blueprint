@@ -1,18 +1,16 @@
+import {ISettingsService} from "../../../core/configuration/settings";
+import {IFileResult, IFileUploadService} from "../../../core/file-upload/fileUploadService";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IMessageService} from "../../../core/messages/message.svc";
 import {Enums, Models} from "../../../main";
-import {ISession} from "../../../shell";
-import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {IDialogSettings, IDialogService} from "../../../shared";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {IArtifactAttachment, IArtifactDocRef, IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../../managers/artifact-manager";
+import {IDialogService, IDialogSettings} from "../../../shared";
+import {Helper} from "../../../shared/utils/helper";
 import {IUploadStatusDialogData} from "../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import {Helper} from "../../../shared/utils/helper";
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
-import {
-    IArtifactDocRef,
-    IStatefulItem,
-    IStatefulArtifact,
-    IStatefulSubArtifact,
-    IArtifactAttachment
-} from "../../../managers/artifact-manager";
+import {ISession} from "../../../shell";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {ISettingsService} from "../../../core/configuration/settings.service";
 import {ILocalizationService} from "../../../core/localization/localization.service";
 import {IFileUploadService, IFileResult} from "../../../core/fileUpload/fileUpload.service";

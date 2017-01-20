@@ -12,6 +12,7 @@ import {DeleteAction} from "../../../../../main/components/bp-artifact-info/acti
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
@@ -22,14 +23,14 @@ export class ProcessDeleteAction extends DeleteAction {
         private process: IStatefulProcessArtifact,
         localization: ILocalizationService,
         messageService: IMessageService,
-        artifactManager: IArtifactManager,
+        selectionManager: ISelectionManager,
         projectManager: IProjectManager,
         loadingOverlayService: ILoadingOverlayService,
         dialogService: IDialogService,
         navigationService: INavigationService,
         private communication: IProcessDiagramCommunication
     ) {
-        super(process, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
+        super(process, localization, messageService, selectionManager, projectManager, loadingOverlayService, dialogService, navigationService);
 
         if (!this.communication) {
             throw new Error("Process diagram communication is not provided or is null");

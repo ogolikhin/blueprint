@@ -1,23 +1,12 @@
-import {IWindowManager, IMainWindow} from "../../main/services/window-manager";
-import {
-    Models, Enums,
-    IArtifactManager,
-    IStatefulArtifact,
-    BpBaseEditor
-} from "../bp-base-editor";
-
-import {PropertyEditor} from "./bp-property-editor";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {IMessageService} from "../../main/components/messages/message.svc";
-
-export {
-    IArtifactManager,
-    IStatefulArtifact,
-    IWindowManager,
-    Models,
-    Enums
-}
+import {IMessageService} from "../../core/messages/message.svc";
+import {Enums} from "../../main/models";
+import {IMainWindow, IWindowManager} from "../../main/services/window-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {BpBaseEditor} from "../bp-base-editor";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
+import {PropertyEditor} from "./bp-property-editor";
 
 export abstract class BpArtifactEditor extends BpBaseEditor {
 
@@ -30,11 +19,11 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
 
     constructor(protected $window: ng.IWindowService,
                 public messageService: IMessageService,
-                public artifactManager: IArtifactManager,
+                public selectionManager: ISelectionManager,
                 public windowManager: IWindowManager,
                 public localization: ILocalizationService,
                 public propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
-        super(messageService, artifactManager);
+        super(messageService, selectionManager);
         this.activeTab = 0;
     }
 

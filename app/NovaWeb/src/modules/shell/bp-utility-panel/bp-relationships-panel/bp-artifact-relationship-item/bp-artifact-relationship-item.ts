@@ -1,8 +1,7 @@
-﻿import {Helper, IDialogService} from "../../../../shared";
+﻿import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {Relationships} from "../../../../main";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {IArtifactManager} from "../../../../managers/artifact-manager/artifact-manager";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {Helper, IDialogService} from "../../../../shared";
 import {IRelationshipDetailsService} from "./relationship-details.svc";
 
 export class BPArtifactRelationshipItem implements ng.IComponentOptions {
@@ -29,7 +28,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
     public static $inject: [string] = [
         "localization",
         "relationshipDetailsService",
-        "artifactManager",
+        "selectionManager",
         "dialogService"
     ];
 
@@ -49,7 +48,7 @@ export class BPArtifactRelationshipItemController implements IBPArtifactRelation
 
     constructor(private localization: ILocalizationService,
                 private relationshipDetailsService: IRelationshipDetailsService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private dialogService: IDialogService) {
     }
 

@@ -1,15 +1,19 @@
-﻿import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+﻿import {IFileUploadService} from "../../core/file-upload/fileUploadService";
+import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {ILocalizationService} from "../../core/localization/localizationService";
+import {IMessageService} from "../../core/messages/message.svc";
+import {INavigationService} from "../../core/navigation/navigation.svc";
+import {IMainWindow, IWindowManager, ResizeCause} from "../../main/services/window-manager";
+import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IDialogService} from "../../shared/widgets/bp-dialog/bp-dialog";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
+import {BpBaseEditor} from "../bp-base-editor";
 import {ICommunicationManager} from "./";
+import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
-import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
-import {BpBaseEditor, IArtifactManager} from "../bp-base-editor";
-import {IDialogService} from "../../shared/widgets/bp-dialog/bp-dialog";
-import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
-import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
-import {INavigationService} from "../../core/navigation/navigation.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
-import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {IClipboardService} from "./services/clipboard.svc";
 import {IFileUploadService} from "../../core/fileUpload/fileUpload.service";
 import {IMessageService} from "../../main/components/messages/message.svc";
@@ -25,7 +29,7 @@ export class BpProcessEditorController extends BpBaseEditor {
 
     public static $inject: [string] = [
         "messageService",
-        "artifactManager",
+        "selectionManager",
         "windowManager",
         "$rootScope",
         "$scope",
@@ -47,7 +51,7 @@ export class BpProcessEditorController extends BpBaseEditor {
     ];
 
     constructor(messageService: IMessageService,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 private windowManager: IWindowManager,
                 private $rootScope: ng.IRootScopeService,
                 private $scope: ng.IScope,
@@ -66,7 +70,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private clipboard: IClipboardService = null,
                 private fileUploadService: IFileUploadService = null,
                 private loadingOverlayService: ILoadingOverlayService = null) {
-        super(messageService, artifactManager);
+        super(messageService, selectionManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
             $uibModal, communicationManager.modalDialogManager, localization);
@@ -113,7 +117,7 @@ export class BpProcessEditorController extends BpBaseEditor {
             this.shapesFactory,
             this.utilityPanelService,
             this.clipboard,
-            this.artifactManager,
+            this.selectionManager,
             this.fileUploadService,
             this.loadingOverlayService
         );

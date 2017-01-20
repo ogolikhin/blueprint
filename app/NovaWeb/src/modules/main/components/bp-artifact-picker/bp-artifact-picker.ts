@@ -1,12 +1,13 @@
-﻿import {IColumn, IColumnRendererParams, IBPTreeViewControllerApi} from "../../../shared/widgets/bp-tree-view/";
-import {Helper} from "../../../shared/";
-import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
-import {Models, AdminStoreModels, SearchServiceModels, TreeModels} from "../../models";
-import {IProjectManager} from "../../../managers/project-manager";
-import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
+﻿import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
+import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {Helper} from "../../../shared/";
+import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
+import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
+import {ArtifactSearchResultVM, ProjectSearchResultVM, SearchResultVM} from "./search-result-vm";
 
 /**
  * Usage:
@@ -144,20 +145,18 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "$q",
         "$scope",
         "localization",
-        "artifactManager",
+        "selectionManager",
         "projectManager",
         "projectService",
-        "statefulArtifactFactory",
         "metadataService"
     ];
 
     constructor(private $q: ng.IQService,
                 private $scope: ng.IScope,
                 public localization: ILocalizationService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private projectManager: IProjectManager,
                 private projectService: IProjectService,
-                private statefulArtifactFactory: IStatefulArtifactFactory,
                 private metadataService: IMetaDataService) {
 
         /*todo: refactor much of this 'setup' into the onInit lifecycle hook*/
@@ -198,8 +197,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.filterItemType = null;
 
         this.canceller = this.$q.defer<any>();
-        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.artifactManager, this.statefulArtifactFactory,
-            this.canceller.promise, this.isItemSelectable, this.selectableItemTypes, this.showArtifacts, this.showCollections, this.showSubArtifacts);
+        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.canceller.promise, this.isItemSelectable,
+            this.selectableItemTypes, this.showArtifacts, this.showCollections, this.showSubArtifacts);
         this._selectedVMs = [];
         this._previousSelectedVMs = [];
     };
@@ -207,7 +206,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public $onInit(): void {
         let project: AdminStoreModels.IInstanceItem | ng.IPromise<AdminStoreModels.IInstanceItem>;
         if (this.showArtifacts || this.showCollections) {
-            const selectedArtifact = this.artifactManager.selection.getArtifact();
+            const selectedArtifact = this.selectionManager.getArtifact();
             const projectId = selectedArtifact ? selectedArtifact.projectId : undefined;
             if (projectId) {
                 const projectVM = this.projectManager.getProject(projectId);

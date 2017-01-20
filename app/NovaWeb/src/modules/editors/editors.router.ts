@@ -1,6 +1,6 @@
 import {ItemStateController} from "./item-state/item-state.controller";
-import {IArtifactManager} from "../managers";
 import {IItemStateService} from "./item-state/item-state.svc";
+import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 
 export class ArtifactRoutes {
 
@@ -20,14 +20,14 @@ export class ArtifactRoutes {
                 url: "/unpublished",
                 template: "<unpublished></unpublished>",
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => am.autosave()]
+                    saved: ["selectionManager", (sm: ISelectionManager) => sm.autosave()]
                 }
             })
             .state("main.jobs", <ng.ui.IState>{
                 url: "/jobs",
                 template: "<jobs></jobs>",
                 resolve: {
-                    saved: ["artifactManager", (am: IArtifactManager) => am.autosave()]
+                    saved: ["selectionManager", (sm: ISelectionManager) => sm.autosave()]
                 }
             })
             .state("main.item", <ng.ui.IState>{
@@ -46,7 +46,7 @@ export class ArtifactRoutes {
                         const id = parseInt($stateParams["id"], 10);
                         return itemStateService.getItemInfoResult(id);
                     }],
-                    saved: ["artifactManager", (am: IArtifactManager) => am.autosave()]
+                    saved: ["selectionManager", (sm: ISelectionManager) => sm.autosave()]
                 }
             });
     }

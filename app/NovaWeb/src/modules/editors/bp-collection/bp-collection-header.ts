@@ -3,7 +3,7 @@ import {DeleteAction} from "../../main/components/bp-artifact-info/actions/delet
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
 import {IDialogService, BPButtonOrDropdownSeparator} from "../../shared";
-import {IArtifactManager, IProjectManager} from "../../managers";
+import {IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "./collection-artifact";
 import {INavigationService} from "../../core/navigation/navigation.svc";
@@ -14,6 +14,7 @@ import {IMainBreadcrumbService} from "../../main/components/bp-page-content/main
 import {ICollectionService} from "./collection.svc";
 import {IItemInfoService} from "../../core/navigation/item-info.svc";
 import {IMessageService} from "../../main/components/messages/message.svc";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -27,7 +28,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "$scope",
         "$element",
         "$timeout",
-        "artifactManager",
+        "selectionManager",
         "localization",
         "messageService",
         "dialogService",
@@ -45,7 +46,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 $scope: ng.IScope,
                 $element: ng.IAugmentedJQuery,
                 $timeout: ng.ITimeoutService,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 dialogService: IDialogService,
@@ -62,7 +63,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             $scope,
             $element,
             $timeout,
-            artifactManager,
+            selectionManager,
             localization,
             messageService,
             dialogService,
@@ -84,7 +85,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
             this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
         const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);

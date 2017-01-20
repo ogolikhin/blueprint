@@ -1,15 +1,11 @@
+import {ILocalizationService} from "../../core/localization/localizationService";
 import {Models} from "../../main";
-import {
-    IArtifactManager,
-    ISelection,
-    IStatefulItem,
-    IItemChangeSet,
-    StatefulArtifact
-} from "../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../main/models/enums";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 import {ILocalizationService} from "../../core/localization/localization.service";
-import {PanelType, IUtilityPanelContext, IUtilityPanelController, UtilityPanelService} from "./utility-panel.svc";
+import {ItemTypePredefined} from "../../main/models/enums";
+import {IItemChangeSet, ISelection, IStatefulItem, StatefulArtifact} from "../../managers/artifact-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IUtilityPanelContext, IUtilityPanelController, PanelType, UtilityPanelService} from "./utility-panel.svc";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -24,7 +20,7 @@ interface IActivePanel {
 export class BPUtilityPanelController implements IUtilityPanelController {
     public static $inject: [string] = [
         "localization",
-        "artifactManager",
+        "selectionManager",
         "$element",
         "utilityPanelService"
     ];
@@ -42,7 +38,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
 
 
     constructor(private localization: ILocalizationService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private $element: ng.IAugmentedJQuery,
                 private utilityPanelService: UtilityPanelService) {
         this.isAnyPanelVisible = true;
@@ -52,7 +48,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $postLink() {
-        const selectionObservable = this.artifactManager.selection.selectionObservable
+        const selectionObservable = this.selectionManager.selectionObservable
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
@@ -229,7 +225,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
 
     private togglePropertiesPanel(selection: ISelection) {
         const artifact = selection.artifact;
-        const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
+        const explorerArtifact = this.selectionManager.getExplorerArtifact();
 
         if (artifact && (selection.subArtifact
             || artifact.predefinedType === ItemTypePredefined.Glossary

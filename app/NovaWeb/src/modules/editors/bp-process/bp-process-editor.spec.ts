@@ -10,7 +10,7 @@ import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
-import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
@@ -23,7 +23,7 @@ describe("BpProcessEditor", () => {
     let $compile: ng.ICompileService;
     let $rootScope: ng.IRootScopeService;
     let windowManager: IWindowManager;
-    let artifactManager: IArtifactManager;
+    let selectionManager: ISelectionManager;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
     let subArtifactSubject: Rx.BehaviorSubject<IStatefulSubArtifact>;
@@ -42,17 +42,15 @@ describe("BpProcessEditor", () => {
             mainWindow: mainWindowSubject.asObservable()
         };
 
-        artifactManager = <IArtifactManager>{
-            selection: {
-                subArtifactObservable: subArtifactSubject.asObservable(),
-                getArtifact: () => <IStatefulArtifact>{
-                    id: 1,
-                    getObservable: () => artifactSubject.asObservable(),
-                    subArtifactCollection: {get: (id: number) => { /* no op */ }}
-                },
-                setSubArtifact: (subArtifact: IStatefulSubArtifact) => { /* no op */ },
-                clearSubArtifact: () => { /* no op */ }
-            }
+        selectionManager = <ISelectionManager>{
+            subArtifactObservable: subArtifactSubject.asObservable(),
+            getArtifact: () => <IStatefulArtifact>{
+                id: 1,
+                getObservable: () => artifactSubject.asObservable(),
+                subArtifactCollection: {get: (id: number) => { /* no op */ }}
+            },
+            setSubArtifact: (subArtifact: IStatefulSubArtifact) => { /* no op */ },
+            clearSubArtifact: () => { /* no op */ }
         };
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
@@ -60,7 +58,7 @@ describe("BpProcessEditor", () => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("windowManager", () => windowManager);
-        $provide.service("artifactManager", () => artifactManager);
+        $provide.service("selectionManager", () => selectionManager);
         $provide.service("utilityPanelService", () => utilityPanelService);
         $provide.service("fileUploadService", () => fileUploadService);
         $provide.service("loadingOverlayService", () => loadingOverlayService);

@@ -1,24 +1,21 @@
+import {ILocalizationService} from "../../core/localization/localizationService";
+import {IMessageService} from "../../core/messages/message.svc";
 import {Models} from "../../main";
-import {
-    IColumn,
-    ITreeNode,
-    IColumnRendererParams,
-    IHeaderCellRendererParams,
-    IBPTreeViewControllerApi
-} from "../../shared/widgets/bp-tree-view/";
-import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
-import {ICollectionService} from "./collection.svc";
-import {IStatefulCollectionArtifact, ICollectionArtifact} from "./collection-artifact";
-import {Helper, IDialogService} from "../../shared";
+import {Enums} from "../../main/models";
+import {IWindowManager} from "../../main/services/window-manager";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {ILocalizationService} from "../../core/localization/localization.service";
-import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
-import {IWindowManager} from "../../main/services/window-manager";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
-import {Enums} from "../../main/models";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {Helper, IDialogService} from "../../shared";
 import {IMessageService} from "../../main/components/messages/message.svc";
+import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRendererParams, ITreeNode} from "../../shared/widgets/bp-tree-view/";
+import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
+import {IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
+import {ICollectionArtifact, IStatefulCollectionArtifact} from "./collection-artifact";
+import {ICollectionService} from "./collection.svc";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");
@@ -29,7 +26,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
     public static $inject: [string] = [
         "$state",
         "messageService",
-        "artifactManager",
+        "selectionManager",
         "windowManager",
         "localization",
         "propertyDescriptorBuilder",
@@ -54,7 +51,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
 
     constructor(private $state: ng.ui.IStateService,
                 messageService: IMessageService,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder,
@@ -65,7 +62,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private $location: ng.ILocationService,
                 protected $window: ng.IWindowService,
                 private $scope: ng.IScope) {
-        super($window, messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder, validationService);
+        super($window, messageService, selectionManager, windowManager, localization, propertyDescriptorBuilder, validationService);
     }
 
     public get reviewUrl(): string {

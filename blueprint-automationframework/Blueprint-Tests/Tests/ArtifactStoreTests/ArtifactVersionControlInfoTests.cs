@@ -681,7 +681,7 @@ namespace ArtifactStoreTests
 
         [TestRail(182858)]
         [TestCase(BaseArtifactType.Actor, "")]
-        [TestCase(BaseArtifactType.Actor, "00000000-0000-0000-0000-000000000000")]
+        [TestCase(BaseArtifactType.Actor, CommonConstants.InvalidToken)]
         [Description("Create & publish an artifact.  Send invalid token in the request.  Verify 401 Unauthorized is returned.")]
         public void VersionControlInfoWithArtifactId_PublishedArtifact_InvalidTokenHeader_401Unauthorized(BaseArtifactType artifactType, string invalidToken)
         {

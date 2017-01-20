@@ -11,8 +11,8 @@ import {IStatefulDiagramArtifact} from "./diagram-artifact";
 import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {BpBaseEditor} from "../bp-base-editor";
-import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
 import {INavigationService} from "../../core/navigation/navigation.svc";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {MessageType, Message} from "../../main/components/messages/message";
 
@@ -26,7 +26,7 @@ export class BPDiagramController extends BpBaseEditor {
 
     public static $inject: [string] = [
         "messageService",
-        "artifactManager",
+        "selectionManager",
         "$element",
         "$q",
         "stencilService",
@@ -44,7 +44,7 @@ export class BPDiagramController extends BpBaseEditor {
     private selectedElementId: number;
 
     constructor(public messageService: IMessageService,
-                public artifactManager: IArtifactManager,
+                public selectionManager: ISelectionManager,
                 private $element: ng.IAugmentedJQuery,
                 private $q: ng.IQService,
                 private stencilService: IStencilService,
@@ -54,7 +54,7 @@ export class BPDiagramController extends BpBaseEditor {
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private navigationService: INavigationService,
                 private itemInfoService: IItemInfoService) {
-        super(messageService, artifactManager);
+        super(messageService, selectionManager);
         new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
 
@@ -64,7 +64,7 @@ export class BPDiagramController extends BpBaseEditor {
         //use context reference as the last parameter on subscribe...
         this.subscribers.push(
             //subscribe for current artifact change (need to distinct artifact)
-            this.artifactManager.selection.selectionObservable
+            this.selectionManager.selectionObservable
                 .filter(this.clearSelectionFilter)
                 .subscribeOnNext(this.clearSelection, this)
         );
@@ -150,18 +150,18 @@ export class BPDiagramController extends BpBaseEditor {
                         if (artifactPromise) {
                             artifactPromise.then((artifact) => {
                                 artifact.unload();
-                                this.artifactManager.selection.setArtifact(artifact);
+                                this.selectionManager.setArtifact(artifact);
                             });
                         }
                     });
                 } else {
                     this.selectedElementId = element.id;
                     const subArtifact = this.artifact.subArtifactCollection.get(element.id);
-                    this.artifactManager.selection.setSubArtifact(subArtifact);
+                    this.selectionManager.setSubArtifact(subArtifact);
                 }
             } else {
                 this.selectedElementId = undefined;
-                this.artifactManager.selection.setArtifact(this.artifact);
+                this.selectionManager.setArtifact(this.artifact);
             }
         });
     };
@@ -169,12 +169,7 @@ export class BPDiagramController extends BpBaseEditor {
     private getUseCaseDiagramArtifact(shape: IShape): ng.IPromise<IStatefulArtifact> {
         const artifactId = parseInt(ShapeExtensions.getPropertyByName(shape, ShapeProps.ARTIFACT_ID), 10);
         if (isFinite(artifactId)) {
-            const artifact = this.artifactManager.get(artifactId);
-            if (artifact) {
-                return this.$q.resolve(artifact);
-            } else {
-                return this.statefulArtifactFactory.createStatefulArtifactFromId(artifactId);
-            }
+            return this.statefulArtifactFactory.createStatefulArtifactFromId(artifactId);
         }
         return undefined;
     }

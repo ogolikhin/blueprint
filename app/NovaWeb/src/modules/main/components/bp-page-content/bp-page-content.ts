@@ -1,11 +1,13 @@
-import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {IArtifactManager, ISelection} from "../../../managers/artifact-manager";
+import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ISelection} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
-import {ItemTypePredefined} from "../../models/enums";
-import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {IProjectManager} from "../../../managers/project-manager";
 import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
+import {ItemTypePredefined} from "../../models/enums";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
+import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -18,7 +20,7 @@ export class PageContentCtrl {
 
     public static $inject: [string] = [
         "dialogService",
-        "artifactManager",
+        "selectionManager",
         "mainbreadcrumbService",
         "$state",
         "projectManager",
@@ -26,7 +28,7 @@ export class PageContentCtrl {
     ];
 
     constructor(private dialogService: IDialogService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private mainBreadcrumbService: IMainBreadcrumbService,
                 private $state: ng.ui.IStateService,
                 private projectManager: IProjectManager,
@@ -34,7 +36,7 @@ export class PageContentCtrl {
     }
 
     public $onInit() {
-        const selectionObservable = this.artifactManager.selection.selectionObservable
+        const selectionObservable = this.selectionManager.selectionObservable
             .distinctUntilChanged()
             .subscribe(this.onSelectionChanged);
 
@@ -72,7 +74,7 @@ export class PageContentCtrl {
             return;
         }
         // When the selected artifact is subartifact inside UseCase diagram
-        const explorerArtifact = this.artifactManager.selection.getExplorerArtifact();
+        const explorerArtifact = this.selectionManager.getExplorerArtifact();
         if (explorerArtifact &&
             explorerArtifact.predefinedType === ItemTypePredefined.UseCaseDiagram &&
             explorerArtifact !== selection.artifact) {

@@ -1,7 +1,6 @@
-import {Models, AdminStoreModels} from "./";
-import {ITreeNode} from "../../shared/widgets/bp-tree-view";
 import {IProjectService} from "../../managers/project-manager/project-service";
-import {IArtifactManager, IStatefulArtifactFactory, IStatefulArtifact} from "../../managers/artifact-manager";
+import {ITreeNode} from "../../shared/widgets/bp-tree-view";
+import {AdminStoreModels, Models} from "./";
 
 export interface ITreeNodeVM<T> extends Models.IViewModel<T>, ITreeNode {
     getCellClass(): string[];
@@ -40,8 +39,6 @@ abstract class TreeNodeVM<T> implements ITreeNodeVM<T>, ITreeNode {
 
 export class TreeNodeVMFactory {
     constructor(public projectService: IProjectService,
-                public artifactManager: IArtifactManager,
-                public statefulArtifactFactory: IStatefulArtifactFactory,
                 public timeout?: ng.IPromise<void>,
                 public isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,
                 public selectableItemTypes?: Models.ItemTypePredefined[],
@@ -50,8 +47,8 @@ export class TreeNodeVMFactory {
                 public showSubArtifacts: boolean = false) {
     }
 
-    public createStatefulArtifactNodeVM(model: IStatefulArtifact, expanded: boolean = false): StatefulArtifactNodeVM {
-        return new StatefulArtifactNodeVM(this, model, expanded);
+    public createExplorerNodeVM(model: Models.IArtifact, expanded: boolean = false): ExplorerNodeVM {
+        return new ExplorerNodeVM(this, model, expanded);
     }
 
     public createInstanceItemNodeVM(model: AdminStoreModels.IInstanceItem, expanded: boolean = false): InstanceItemNodeVM {
@@ -128,9 +125,9 @@ abstract class HomogeneousTreeNodeVM<T> extends TreeNodeVM<T> {
     };
 }
 
-export class StatefulArtifactNodeVM extends HomogeneousTreeNodeVM<IStatefulArtifact> {
+export class ExplorerNodeVM extends HomogeneousTreeNodeVM<Models.IArtifact> {
     constructor(private factory: TreeNodeVMFactory,
-                model: IStatefulArtifact,
+                model: Models.IArtifact,
                 expanded: boolean = false) {
         super(model, String(model.id), model.hasChildren, expanded, true);
     }
@@ -165,9 +162,7 @@ export class StatefulArtifactNodeVM extends HomogeneousTreeNodeVM<IStatefulArtif
     public loadChildrenAsync(): ng.IPromise<ITreeNode[]> {
         return this.factory.projectService.getArtifacts(this.model.projectId, this.model.id, this.factory.timeout).then((children: Models.IArtifact[]) => {
             return children.map((it: Models.IArtifact) => {
-                const statefulArtifact = this.factory.statefulArtifactFactory.createStatefulArtifact(it);
-                //this.factory.artifactManager.add(statefulArtifact);
-                return this.factory.createStatefulArtifactNodeVM(statefulArtifact);
+                return this.factory.createExplorerNodeVM(it);
             });
         });
     }

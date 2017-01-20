@@ -1,12 +1,11 @@
-import {
-    Models, Enums,
-    BpArtifactEditor,
-    IArtifactManager,
-    IWindowManager
-} from "./bp-artifact-editor";
+import {ILocalizationService} from "../../core/localization/localizationService";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
+import {Enums, Models} from "../../main/models";
+import {IWindowManager} from "../../main/services/window-manager";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {IMessageService} from "../../main/components/messages/message.svc";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {BpArtifactEditor} from "./bp-artifact-editor";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {
     public template: string = require("./bp-general-editor.html");
@@ -17,7 +16,7 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
         "$window",
         "messageService",
-        "artifactManager",
+        "selectionManager",
         "windowManager",
         "localization",
         "propertyDescriptorBuilder"
@@ -25,11 +24,11 @@ export class BpGeneralArtifactEditorController extends BpArtifactEditor {
 
     constructor($window: ng.IWindowService,
                 messageService: IMessageService,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 windowManager: IWindowManager,
                 localization: ILocalizationService,
                 propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
-        super($window, messageService, artifactManager, windowManager, localization, propertyDescriptorBuilder);
+        super($window, messageService, selectionManager, windowManager, localization, propertyDescriptorBuilder);
     }
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];

@@ -1,33 +1,27 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
-import "../../";
-import {ComponentTest} from "../../../util/component.test";
-import {BPPropertiesController} from "./bp-properties-panel";
 import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
-import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
-import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {Enums, Models} from "../../../main";
-import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
-import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
-import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
-import {
-    IArtifactManager,
-    ArtifactManager,
-    IStatefulArtifactFactory,
-    StatefulArtifactFactory,
-    MetaDataService
-} from "../../../managers/artifact-manager";
-import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
-import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 import {createDefaultProcessModel} from "../../../editors/bp-process/models/test-model-factory";
 import {INovaProcess} from "../../../editors/bp-process/process-artifact";
+import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
+import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
+import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {Enums, Models} from "../../../main";
+import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
+import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
+import {ISelectionManager, SelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ComponentTest} from "../../../util/component.test";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {BPPropertiesController} from "./bp-properties-panel";
+import * as angular from "angular";
 
 describe("Component BPPropertiesPanel", () => {
 
@@ -49,7 +43,6 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.service("artifactManager", ArtifactManager);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
@@ -296,7 +289,7 @@ describe("Component BPPropertiesPanel", () => {
         inject(($q: ng.IQService,
                 $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 artifactService: ArtifactServiceMock,
                 metadataService: MetaDataService) => {
             //Arrange
@@ -332,9 +325,9 @@ describe("Component BPPropertiesPanel", () => {
             const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
 
             // Act
-            artifactManager.selection.setArtifact(artifact);
+            selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-            artifactManager.selection.setSubArtifact(subArtifact);
+            selectionManager.setSubArtifact(subArtifact);
             $rootScope.$digest();
 
             // Assert
@@ -349,7 +342,7 @@ describe("Component BPPropertiesPanel", () => {
         inject(($q: ng.IQService,
                 $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 artifactService: ArtifactServiceMock,
                 metadataService: MetaDataService) => {
             //Arrange
@@ -406,9 +399,9 @@ describe("Component BPPropertiesPanel", () => {
             const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
 
             // Act
-            artifactManager.selection.setArtifact(artifact);
+            selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-            artifactManager.selection.setSubArtifact(subArtifact);
+            selectionManager.setSubArtifact(subArtifact);
             $rootScope.$digest();
 
             // Assert
@@ -427,7 +420,7 @@ describe("Component BPPropertiesPanel", () => {
         inject(($q: ng.IQService,
                 $rootScope: ng.IRootScopeService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
-                artifactManager: IArtifactManager,
+                selectionManager: ISelectionManager,
                 artifactService: ArtifactServiceMock,
                 metadataService: MetaDataService) => {
             //Arrange
@@ -483,9 +476,9 @@ describe("Component BPPropertiesPanel", () => {
             const subArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifactModel);
 
             // Act
-            artifactManager.selection.setArtifact(artifact);
+            selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-            artifactManager.selection.setSubArtifact(subArtifact);
+            selectionManager.setSubArtifact(subArtifact);
             $rootScope.$digest();
 
             // Assert

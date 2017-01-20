@@ -147,28 +147,36 @@ namespace ArtifactStoreTests
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact});
         }
 
-        [TestCase]
+        [TestCase(true, 2)]
+        [TestCase(false, 1)]
         [TestRail(230663)]
         [Description("Create new collection, publish new artifact with child artifact, add artifact to collection," + 
         "check collection content - artifact with its child should be added.")]
-        public void AddArtifactToCollection_PublishedArtifactWithChild_ValidateCollectionContent()
+        public void AddArtifactToCollection_PublishedArtifactWithChild_ValidateCollectionContent(bool includeDescendants,
+            int expectedNumberOfAddedArtifacts)
         {
             // Setup:
             var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor, artifact);
 
+            List<IArtifact> addedArtifacts = new List<IArtifact> { artifact };
+            if (includeDescendants)
+            {
+                addedArtifacts.Add(childArtifact);
+            }
+
             int numberOfAddedArtifacts = 0;
 
             // Execute:
             Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
-                artifact.Id, collectionArtifact.Id, includeDescendants: true); }, "Adding artifact to collection shouldn't throw an error.");
+                artifact.Id, collectionArtifact.Id, includeDescendants: includeDescendants); }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(2, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            Assert.AreEqual(expectedNumberOfAddedArtifacts, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
-            Assert.AreEqual(2, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact, childArtifact });
+            Assert.AreEqual(expectedNumberOfAddedArtifacts, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, addedArtifacts);
         }
 
         [TestCase]

@@ -621,6 +621,21 @@ namespace Model.Impl
             return collection;
         }
 
+        /// <seealso cref="IArtifactStore.AddArtifactToCollection(IUser, int, int, bool, List{HttpStatusCode})"/>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider")]
+        public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.COLLECTION_id_ADD, collectionId, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            string requestBody = includeDescendants.ToString().ToLowerInvariant();
+            var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.POST, requestBody,
+                contentType: "application/json", expectedStatusCodes: expectedStatusCodes);
+            return I18NHelper.ToInt32Invariant(response.Content);
+            //return Int32.Parse(response.Content);
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable

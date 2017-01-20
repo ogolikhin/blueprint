@@ -966,12 +966,12 @@ namespace Helper
 
                     if (validValues.Count > 0)
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = validValues };
+                        property.CustomPropertyValue = new ChoiceValues { ValidValues = validValues };
                     }
 
                     if (!string.IsNullOrEmpty(customValue))
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { CustomValue = customValue };
+                        property.CustomPropertyValue = new ChoiceValues { CustomValue = customValue };
                     }
                     break;
                 case PropertyPrimitiveType.Date:
@@ -1001,11 +1001,36 @@ namespace Helper
                     var newUserPropertyValue = new List<Identification> { newIdentification };
 
                     // Change custom property user value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues { UsersGroups = newUserPropertyValue };
+                    property.CustomPropertyValue = new UserGroupValues { UsersGroups = newUserPropertyValue };
                     break;
                 default:
                     Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
                     break;
+            }
+
+            return property;
+        }
+
+        /// <summary>
+        /// Updates the specified custom property with a null value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <param name="customProperties">The list of custom properties.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateCustomPropertyWithNull(List<CustomProperty> customProperties, string propertyName)
+        {
+            ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
+
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            if (property.PrimitiveType == (int) PropertyPrimitiveType.User)
+            {
+                property.CustomPropertyValue = new UserGroupValues { UsersGroups = null };
+            }
+            else
+            {
+                property.CustomPropertyValue = null;
             }
 
             return property;

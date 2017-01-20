@@ -57,12 +57,24 @@ export class BPFieldBaseController implements IBPFieldBaseController {
         event.target.dispatchEvent(escKey);
     };
 
-    public closeDropdownOnBlur = (isDropdownOpen: boolean, searchInput: ng.IAugmentedJQuery): void => {
-        // if (isDropdownOpen) {
-        //     searchInput.on("blur", this.fireEscKeydown);
-        // } else {
-        //     searchInput.off("blur", this.fireEscKeydown);
-        // }
+    private iframeClickListener: EventListener; // used to store a reference to allow removal of event listener
+    public closeDropdownOnClick = (isDropdownOpen: boolean, $select): void => {
+        if (!$select) {
+            return;
+        }
+
+        const iframes = this.$document[0].querySelectorAll("iframe");
+        for (let i = 0; i < iframes.length; i++) {
+            const iframedDocument = iframes[i].contentWindow.document;
+            iframedDocument.removeEventListener("click", this.iframeClickListener);
+            this.iframeClickListener = (event: Event) => {
+                $select.open = false;
+            };
+
+            if (isDropdownOpen) {
+                iframedDocument.addEventListener("click", this.iframeClickListener);
+            }
+        }
     };
 
     public scrollIntoView = (event): void => {

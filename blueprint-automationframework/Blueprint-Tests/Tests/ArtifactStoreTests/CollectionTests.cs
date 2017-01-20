@@ -2,12 +2,15 @@
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
+using Common;
 
 namespace ArtifactStoreTests
 {
@@ -34,6 +37,8 @@ namespace ArtifactStoreTests
         {
             Helper?.Dispose();
         }
+
+        #region Positive Tests
 
         [TestCase()]
         [TestRail(195436)]
@@ -165,6 +170,37 @@ namespace ArtifactStoreTests
             Assert.AreEqual(2, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact, childArtifact });
         }
+
+        #endregion Positive Tests
+
+        #region 409 tests
+
+        [TestCase]
+        [TestRail(230664)]
+        [Description("Create new collection, ," +
+        ".")]
+        public void AddArtifactToCollection_CollectionLockedByOtherUser_Returns409()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser);
+            collectionArtifact.Lock(_adminUser);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => { Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id, includeDescendants: true);
+            }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            string messageText = I18NHelper.FormatInvariant("Failed to lock Collection: {0}.", collectionArtifact.Id);
+            Assert.AreEqual(InternalApiErrorCodes.LockedByOtherUser, serviceErrorMessage.ErrorCode, "Error code should have expected value.");
+            Assert.AreEqual(messageText, serviceErrorMessage.Message, "Error text should have expected value.");
+        }
+
+        #endregion 409 tests
 
         /// <summary>
         /// Creates empty collection and return corresponding IArtifact.

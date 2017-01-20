@@ -47,9 +47,6 @@ namespace Model.ArtifactModel.Impl
             ChangeType = changeType;
             Direction = direction;
             IsSuspect = isSuspect;
-
-            targetSubArtifactId = targetSubArtifactId ?? targetSubArtifactId;
-
             ItemId = targetSubArtifactId ?? targetArtifact.Id;
             ProjectId = targetArtifact.ProjectId;
             TraceType = TraceType.Manual;

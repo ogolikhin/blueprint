@@ -65,7 +65,7 @@ namespace ArtifactStoreTests
         {
             Assert.AreEqual(openApiTrace.ProjectId, relationship.ProjectId, "The Project IDs of the traces don't match!");
             Assert.AreEqual(openApiTrace.ArtifactId, relationship.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(openApiTrace.TraceType.ToString(), relationship.TraceType.ToString(), "The Trace Types don't match!");
+            StringAssert.Contains(openApiTrace.TraceType.ToString(), relationship.TraceType.ToString(), "The Trace Types don't match!");
             Assert.AreEqual(openApiTrace.IsSuspect, relationship.IsSuspect, "One trace is marked suspect but the other isn't!");
 
             if (checkDirection)
@@ -84,7 +84,7 @@ namespace ArtifactStoreTests
         {
             Assert.AreEqual(novaTrace.ProjectId, relationship.ProjectId, "The Project IDs of the traces don't match!");
             Assert.AreEqual(novaTrace.ArtifactId, relationship.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(novaTrace.TraceType.ToString(), relationship.TraceType.ToString(), "The Trace Types don't match!");
+            StringAssert.Contains(novaTrace.TraceType.ToString(), relationship.TraceType.ToString(), "The Trace Types don't match!");
             Assert.AreEqual(novaTrace.IsSuspect, relationship.IsSuspect, "One trace is marked suspect but the other isn't!");
 
             if (checkDirection)

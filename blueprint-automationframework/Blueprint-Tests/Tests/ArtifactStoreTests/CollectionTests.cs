@@ -29,7 +29,7 @@ namespace ArtifactStoreTests
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
-            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
         }
 
         [TearDown]
@@ -171,14 +171,63 @@ namespace ArtifactStoreTests
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact, childArtifact });
         }
 
+        [TestCase]
+        [TestRail(230673)]
+        [Description("Create new collection, create and save new artifact, add artifact to collection, check collection content.")]
+        public void AddArtifactToCollection_SavedArtifact_ValidateCollectionContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Process);
+
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact });
+        }
+
+        [TestCase]
+        [TestRail(230674)]
+        [Description("Create new collection, create and save new artifact, add artifact to collection," + 
+            "check artifact's description from collection content.")]
+        public void AddArtifactToCollection_SavedArtifact_CheckDescriptionFromCollectionContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+            const string descriptionText = "Description";
+            ArtifactStoreHelper.SetArtifactTextProperty(artifactDetails, _authorUser, Helper.ArtifactStore, descriptionText);
+
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact });
+            StringAssert.AreEqualIgnoringCase(descriptionText, collection.Artifacts[0].Description, "Description should have expected value.");
+        }
+
         #endregion Positive Tests
 
-        #region 409 tests
+        #region 40x tests
 
         [TestCase]
         [TestRail(230664)]
-        [Description("Create new collection, ," +
-        ".")]
+        [Description("Create and publish new collection, lock collection by other user," +
+        "try to add artifact to collection. 409 exception should be returned. Check error message.")]
         public void AddArtifactToCollection_CollectionLockedByOtherUser_Returns409()
         {
             // Setup:
@@ -200,7 +249,32 @@ namespace ArtifactStoreTests
             Assert.AreEqual(messageText, serviceErrorMessage.Message, "Error text should have expected value.");
         }
 
-        #endregion 409 tests
+        [TestCase]
+        [TestRail(230675)]
+        [Description("Create new collection, delete published artifact (don't publish information about deletion)," +
+        "add this artifact to collection - 404 exception should be returned. Check exception message.")]
+        public void AddArtifactToCollection_ArtifactScheduledToDelete_Returns404()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser);
+            
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            artifact.Delete(_authorUser);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => {
+                Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id, 
+                    includeDescendants: true); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            const string messageText = "You have attempted to access an artifact that does not exist or has been deleted.";
+            Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code should have expected value.");
+            Assert.AreEqual(messageText, serviceErrorMessage.Message, "Error text should have expected value.");
+        }
+
+        #endregion 40x tests
 
         /// <summary>
         /// Creates empty collection and return corresponding IArtifact.

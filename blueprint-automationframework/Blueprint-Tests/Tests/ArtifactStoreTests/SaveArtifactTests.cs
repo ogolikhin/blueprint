@@ -181,7 +181,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(author, project, (NovaArtifactDetails)artifactDetailsChangeset);
+            Helper.ArtifactStore.UpdateArtifact(author, (NovaArtifactDetails)artifactDetailsChangeset);
             artifact.Save();
 
             // Verify:
@@ -239,7 +239,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(author, project, (NovaArtifactDetails)artifactDetailsChangeset);
+            Helper.ArtifactStore.UpdateArtifact(author, (NovaArtifactDetails)artifactDetailsChangeset);
             artifact.Save();
 
             // Verify:
@@ -278,7 +278,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
@@ -321,7 +321,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
@@ -359,7 +359,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
@@ -402,7 +402,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
@@ -444,7 +444,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
@@ -482,7 +482,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
             Helper.ArtifactStore.PublishArtifact(artifact, author);
 
             // Verify:
@@ -741,7 +741,7 @@ namespace ArtifactStoreTests
 
             // Execute:Attempt to update the target sub artifact with empty content
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetailsChangeSet);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetailsChangeSet);
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author), "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
@@ -780,7 +780,7 @@ namespace ArtifactStoreTests
 
             // Execute: Attempt to update the target sub artifact with empty content
             artifact.Lock(author);
-            Helper.ArtifactStore.UpdateArtifact(author, projectCustomData, artifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
 
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author),
                 "'POST {0}' should return 409 Conflict if the artifact containing invalid change!",

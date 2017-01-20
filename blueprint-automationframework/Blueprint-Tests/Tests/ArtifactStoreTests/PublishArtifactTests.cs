@@ -893,7 +893,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.Document, "Document - Required Choice", "Std-Choice-Required-AllowCustom")]
         [TestCase(ItemTypePredefined.TextualRequirement, "Requirement - Required User", "Std-User-Required")]
         [TestRail(230671)]
-        [Description("Create an artifact (that has custom properties). Remove required value from custom property and save artifact. " +
+        [Description("Create an artifact (that has custom properties). Remove required value from custom property. Save and publish artifact. " +
                      "Verify 409 Conflict is returned due to validation errors.")]
         public void PublishArtifact_RemoveRequiredPropertyValueAndPublish_409Conflict(ItemTypePredefined itemType,
             string artifactTypeName, string propertyName)

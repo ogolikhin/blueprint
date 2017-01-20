@@ -921,13 +921,13 @@ namespace Helper
             ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            CustomProperty property = null;
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
 
             switch (propertyType)
             {
                 case PropertyPrimitiveType.Choice:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
 
@@ -975,26 +975,14 @@ namespace Helper
                     }
                     break;
                 case PropertyPrimitiveType.Date:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property date value
-                    property.CustomPropertyValue = newValue;
-                    break;
                 case PropertyPrimitiveType.Number:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property number value
                     property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Text:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     // Change custom property text value
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
                 case PropertyPrimitiveType.User:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     IUser user = (IUser)newValue;
 
                     var newIdentification = new Identification { DisplayName = user.DisplayName, Id = user.Id };
@@ -1023,6 +1011,8 @@ namespace Helper
             ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
 
             var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
 
             if (property.PrimitiveType == (int) PropertyPrimitiveType.User)
             {

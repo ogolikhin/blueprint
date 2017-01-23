@@ -1,4 +1,4 @@
-import {INavigationService} from "../../../core/navigation/navigation.service";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 export interface IBpLinksHelper {
     hasExternalLink($element: ng.IAugmentedJQuery): boolean;
     hasBlueprintLink($element: ng.IAugmentedJQuery): boolean;

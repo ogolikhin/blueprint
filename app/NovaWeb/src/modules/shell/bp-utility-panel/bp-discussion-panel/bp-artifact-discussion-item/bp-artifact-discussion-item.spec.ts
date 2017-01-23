@@ -4,10 +4,10 @@ import "angular-sanitize";
 import {ComponentTest} from "../../../../util/component.test";
 import {IDiscussion} from "../artifact-discussions.svc";
 import {BPArtifactDiscussionItemController} from "./bp-artifact-discussion-item";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {ArtifactDiscussionsMock} from "../artifact-discussions.mock";
 import {DialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
-import {HttpStatusCode} from "../../../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../../../commonModule/httpInterceptor/http-status-code";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("Component BPArtifactDiscussionItem", () => {

@@ -1,11 +1,11 @@
 import {Models} from "../../main/models";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
-import {IItemInfoService, IItemInfoResult} from "../../core/itemInfo/itemInfo.service";
+import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
 import {IApplicationError} from "../../shell/error/applicationError";
-import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
-import {INavigationService} from "../../core/navigation/navigation.service";
-import {ILocalizationService} from "../../core/localization/localization.service";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {MessageType} from "../../main/components/messages/message";

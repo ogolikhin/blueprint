@@ -1,8 +1,8 @@
 ﻿import "angular-mocks";
 import {IAuth, IUser, AuthSvc} from "./auth.svc";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {SettingsMock, WindowMock} from "./mocks.spec";
-import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 
 describe("AuthSvc", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

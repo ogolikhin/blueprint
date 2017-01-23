@@ -6,7 +6,7 @@ import {IArtifactDiscussions, IDiscussionResultSet, IDiscussion, IReply} from ".
 import {IDialogService} from "../../../shared";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Helper} from "../../../shared/utils/helper";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {Message, MessageType} from "../../../main/components/messages/message";
 

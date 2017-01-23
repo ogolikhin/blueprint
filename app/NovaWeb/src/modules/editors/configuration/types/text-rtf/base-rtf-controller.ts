@@ -1,8 +1,8 @@
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
-import {INavigationService} from "../../../../core/navigation/navigation.service";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {Helper} from "../../../../shared/utils/helper";
 import {IDialogSettings, IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";

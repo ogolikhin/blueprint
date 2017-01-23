@@ -8,13 +8,13 @@ import "ui-select";
 import "angular-formly";
 import "tinymce";
 
-import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {BPFieldImageController} from "./field-image";
 import {ActorImagePickerDialogServiceMock} from "./actor-image-choose-window.mock";
-import {SettingsService, ISettingsService} from "../../../../core/configuration/settings.service";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {FileUploadServiceMock} from "../../../../core/fileUpload/fileUpload.service.mock";
+import {SettingsService, ISettingsService} from "../../../../commonModule/configuration/settings.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {FileUploadServiceMock} from "../../../../commonModule/fileUpload/fileUpload.service.mock";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 

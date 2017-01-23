@@ -5,9 +5,9 @@ import {IDialogSettings, IDialogService} from "../../../../shared";
 import {IUploadStatusDialogData} from "../../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {BPFieldBaseController} from "../base-controller";
-import {ISettingsService} from "../../../../core/configuration/settings.service";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {IFileResult, IFileUploadService} from "../../../../core/fileUpload/fileUpload.service";
+import {ISettingsService} from "../../../../commonModule/configuration/settings.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IFileResult, IFileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {

@@ -9,12 +9,12 @@ import {
     MetaDataService
 } from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
 import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {MainBreadcrumbServiceMock} from "../../bp-page-content/mainbreadcrumb.svc.mock";
 import {MainBreadcrumbService, IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 

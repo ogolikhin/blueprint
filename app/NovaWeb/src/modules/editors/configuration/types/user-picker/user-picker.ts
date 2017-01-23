@@ -2,9 +2,9 @@ import "angular-formly";
 import {Models} from "../../../../main/models";
 import {IPropertyDescriptor} from "../../property-descriptor-builder";
 import {BPFieldBaseController} from "../base-controller";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
-import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core/services/usersAndGroups.service";
+import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../commonModule/services/usersAndGroups.service";
 
 export interface IUserGroup extends Models.IUserGroup {
     isImported?: boolean;

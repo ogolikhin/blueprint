@@ -1,5 +1,5 @@
-import {INavigationService} from "../../../../core/navigation/navigation.service";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
@@ -9,10 +9,10 @@ import "../../../";
 import {DiscardAction} from "./discard-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../messages/message.svc";
 import {MessageServiceMock} from "../../messages/message.mock";
 

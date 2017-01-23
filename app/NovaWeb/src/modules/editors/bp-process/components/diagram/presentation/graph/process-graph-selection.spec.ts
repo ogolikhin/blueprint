@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {LocalizationServiceMock} from "../../../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../../../commonModule/localization/localization.service.mock";
 import {DialogServiceMock} from "../../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessGraph} from "./models/process-graph-interfaces";
 import {ProcessType} from "../../../../models/enums";
@@ -12,7 +12,7 @@ import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {ProcessGraph} from "./process-graph";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/executionEnvironmentDetector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../commonModule/services/executionEnvironmentDetector.mock";
 import * as TestModels from "../../../../models/test-model-factory";
 import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 

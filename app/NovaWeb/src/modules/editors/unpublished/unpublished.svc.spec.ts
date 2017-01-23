@@ -1,8 +1,8 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
-import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 import {UnpublishedArtifactsService, IUnpublishedArtifactsService} from "./unpublished.svc";
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
 import {ApplicationError} from "../../shell/error/applicationError";

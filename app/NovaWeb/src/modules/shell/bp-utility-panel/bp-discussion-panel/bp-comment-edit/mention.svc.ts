@@ -1,6 +1,6 @@
-﻿import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core/services/usersAndGroups.service";
+﻿import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../commonModule/services/usersAndGroups.service";
 import {Helper} from "../../../../shared/utils/helper";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 
 // TinyMCE mention plugin interface - https://github.com/CogniStreamer/tinyMCE-mention
 export interface ITinyMceMentionOptions<T> {

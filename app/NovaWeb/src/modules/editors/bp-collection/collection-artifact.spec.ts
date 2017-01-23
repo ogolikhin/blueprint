@@ -6,7 +6,7 @@ import {Models} from "../../main/models";
 import {StatefulCollectionArtifact, ICollection} from "./collection-artifact";
 import {IArtifactService} from "../../managers/artifact-manager/";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {
     StatefulArtifactServices
 } from "../../managers/artifact-manager/services";

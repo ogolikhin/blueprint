@@ -8,7 +8,7 @@ import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILayout} from "./../models/";
 import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/localization.service";
+import {ILocalizationService, LocalizationService} from "../../../../../../../commonModule/localization/localization.service";
 import {IClipboardService, ClipboardService} from "../../../../../services/clipboard.svc";
 
 describe("Popup Menu", () => {

@@ -3,7 +3,7 @@ import "angular-mocks";
 import "rx";
 import {JobsService} from "./jobs.svc";
 import {IJobInfo, JobStatus, JobType} from "./model/models";
-import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 
 describe("Jobs Service", () => {
     let service: JobsService, httpBackend;

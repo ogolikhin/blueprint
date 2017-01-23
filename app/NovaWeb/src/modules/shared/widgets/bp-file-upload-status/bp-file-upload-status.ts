@@ -1,7 +1,7 @@
 import {IDialogSettings, BaseDialogController} from "../bp-dialog";
 import {FiletypeParser} from "../../utils/filetypeParser";
-import {IFileResult} from "../../../core/fileUpload/fileUpload.service";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {IFileResult} from "../../../commonModule/fileUpload/fileUpload.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 export interface IUploadStatusDialogData {
     files: File[];

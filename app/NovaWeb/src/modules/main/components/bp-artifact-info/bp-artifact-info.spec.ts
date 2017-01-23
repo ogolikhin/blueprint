@@ -4,11 +4,11 @@ import ".";
 import {BpArtifactInfoController} from "./bp-artifact-info";
 import {IWindowManager, IMainWindow} from "../../services/window-manager";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
-import {LoadingOverlayServiceMock} from "../../../core/loadingOverlay/loadingOverlay.service.mock";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.service.mock";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {ProjectManagerMock} from "../../../managers/project-manager/project-manager.mock";
 import {MetaDataServiceMock} from "../../../managers/artifact-manager/metadata/metadata.svc.mock";
 import {MainBreadcrumbServiceMock} from "../bp-page-content/mainbreadcrumb.svc.mock";
@@ -19,7 +19,7 @@ import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/chang
 import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
-import {ItemInfoServiceMock} from "../../../core/itemInfo/itemInfo.service.mock";
+import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
 import {MessageServiceMock} from "../messages/message.mock";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 

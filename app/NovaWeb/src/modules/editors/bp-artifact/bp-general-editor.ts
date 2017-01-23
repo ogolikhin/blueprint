@@ -1,7 +1,7 @@
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {Enums, Models} from "../../main/models";
 import {IWindowManager} from "../../main/services/window-manager";
-import {ILocalizationService} from "../../core/localization/localization.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {BpArtifactEditor} from "./bp-artifact-editor";

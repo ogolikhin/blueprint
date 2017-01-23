@@ -6,7 +6,7 @@ import {ModalServiceInstanceMock} from "../../../../shell/login/mocks.spec";
 import {DialogSettingsMock, DataMock} from "./new-artifact.mock";
 import {ItemTypePredefined} from "../../../models/enums";
 import {IItemType} from "../../../models/models";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {MetaDataServiceMock} from "../../../../managers/artifact-manager/metadata/metadata.svc.mock";
 import {MessageServiceMock} from "../../messages/message.mock";
 

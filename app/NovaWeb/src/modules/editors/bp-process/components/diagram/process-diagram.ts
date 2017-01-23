@@ -1,4 +1,4 @@
-import {INavigationService} from "../../../../core/navigation/navigation.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
@@ -14,12 +14,12 @@ import {ProcessGraph} from "./presentation/graph/process-graph";
 import {SystemTask} from "./presentation/graph/shapes";
 import {ShapesFactory} from "./presentation/graph/shapes/shapes-factory";
 import {ProcessEvents} from "./process-diagram-communication";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {IFileUploadService} from "../../../../core/fileUpload/fileUpload.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IFileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {IProcessViewModel, ProcessViewModel} from "./viewmodel/process-viewmodel";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {Message, MessageType} from "../../../../main/components/messages/message";
-import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IStatefulProcessSubArtifact} from "../../process-subartifact";
 
 export class ProcessDiagram {

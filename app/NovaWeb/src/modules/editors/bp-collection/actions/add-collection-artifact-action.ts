@@ -4,7 +4,7 @@ import {IStatefulCollectionArtifact} from "../collection-artifact";
 import {Models} from "../../../main/models";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 export class AddCollectionArtifactAction extends BPButtonAction {
     constructor(

@@ -1,5 +1,5 @@
 import {IBreadcrumbLink} from "./breadcrumb-link";
-import {INavigationService, INavigationState} from "../../../core/navigation/navigation.service";
+import {INavigationService, INavigationState} from "../../../commonModule/navigation/navigation.service";
 
 export class BPBreadcrumbComponent implements ng.IComponentOptions {
     public template: string = require("./bp-breadcrumb.html");

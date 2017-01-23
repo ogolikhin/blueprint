@@ -1,10 +1,10 @@
 import {IPaginationData} from "../../main/components/pagination/model";
 import moment = require("moment");
-import {ILocalizationService} from "../../core/localization/localization.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
-import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
-import {INavigationService} from "../../core/navigation/navigation.service";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IJobsService} from "./jobs.svc";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";

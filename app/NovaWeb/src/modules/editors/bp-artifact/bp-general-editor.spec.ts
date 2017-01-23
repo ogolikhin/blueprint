@@ -9,7 +9,7 @@ import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/
 import {BpGeneralArtifactEditorController} from "./bp-general-editor";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 

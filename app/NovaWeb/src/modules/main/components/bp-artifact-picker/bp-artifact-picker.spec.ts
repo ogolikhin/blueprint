@@ -4,7 +4,7 @@ import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";

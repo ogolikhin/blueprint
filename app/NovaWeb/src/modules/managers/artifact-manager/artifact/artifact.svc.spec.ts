@@ -1,9 +1,9 @@
 import * as angular from "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {Models, IArtifactService, ArtifactService} from "./artifact.svc";
 import {ArtifactServiceMock} from "./artifact.svc.mock";
-import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {ApplicationError} from "../../../shell/error/applicationError";
 
 describe("Artifact Repository", () => {

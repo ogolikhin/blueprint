@@ -7,15 +7,15 @@ import {
     IStatefulArtifactFactory
 } from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {IDialogService} from "../../../../shared";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
-import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
-import {INavigationService} from "../../../../core/navigation/navigation.service";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {SelectionManager, ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IMessageService} from "../../messages/message.svc";

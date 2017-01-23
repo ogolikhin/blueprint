@@ -3,7 +3,7 @@ import "angular-mocks";
 import {ISession, SessionSvc} from "./session.svc";
 import {ILoginInfo} from "./login.ctrl";
 import {IAuth} from "./auth.svc";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {AuthSvcMock, ModalServiceMock} from "./mocks.spec";
 import {DialogService} from "../../shared/widgets/bp-dialog/bp-dialog";
 

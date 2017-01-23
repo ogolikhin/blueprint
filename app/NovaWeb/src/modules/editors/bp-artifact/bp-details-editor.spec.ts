@@ -8,7 +8,7 @@ import {ISelectionManager} from "../../managers/selection-manager/selection-mana
 import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../configuration/property-descriptor-builder";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {WindowManagerMock} from "../../main/services/window-manager.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {PropertyDescriptorBuilderMock} from "../configuration/property-descriptor-builder.mock";
 import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";

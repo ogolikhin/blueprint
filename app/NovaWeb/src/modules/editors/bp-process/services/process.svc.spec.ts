@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import {ProcessService, IProcessService} from "./process.svc";
 import {createDefaultProcessModel} from "../models/test-model-factory";
-import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 describe("Get process data model from the process model service", () => {

@@ -1,7 +1,7 @@
 ﻿import "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IStatefulArtifactFactory, StatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {ArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";

@@ -7,7 +7,7 @@ import {ISystemTaskShape} from "../../models/process-models";
 import {UploadImageDirective} from "./upload-image";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {IFileUploadService, FileUploadService} from "../../../../core/fileUpload/fileUpload.service";
+import {IFileUploadService, FileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 

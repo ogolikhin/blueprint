@@ -6,7 +6,7 @@ import {Helper} from "../../../shared/";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
 import {ArtifactSearchResultVM, ProjectSearchResultVM, SearchResultVM} from "./search-result-vm";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 /**
  * Usage:

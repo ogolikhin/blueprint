@@ -8,7 +8,7 @@ import {
     IItemChangeSet
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
-import {INavigationService} from "../../../core/navigation/navigation.service";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {
     IDialogService,
     IBPAction,
@@ -29,12 +29,12 @@ import {
     MoveCopyAction,
     AddToCollectionAction
 } from "./actions";
-import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
-import {IItemInfoService} from "../../../core/itemInfo/itemInfo.service";
+import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 

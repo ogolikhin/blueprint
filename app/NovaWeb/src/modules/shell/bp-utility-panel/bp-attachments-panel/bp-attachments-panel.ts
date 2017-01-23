@@ -7,10 +7,10 @@ import {IUploadStatusDialogData} from "../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {ISession} from "../../../shell";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {ILocalizationService} from "../../../core/localization/localization.service";
-import {ISettingsService} from "../../../core/configuration/settings.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {ISettingsService} from "../../../commonModule/configuration/settings.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
-import {IFileUploadService, IFileResult} from "../../../core/fileUpload/fileUpload.service";
+import {IFileUploadService, IFileResult} from "../../../commonModule/fileUpload/fileUpload.service";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");

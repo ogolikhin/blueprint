@@ -10,7 +10,7 @@ import {ShapeModelMock, ArtifactReferenceLinkMock} from "./shape-model.mock";
 import {NodeType, IUserTaskShape} from "../models/";
 import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../../../../commonModule/localization/localization.service.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
 import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";

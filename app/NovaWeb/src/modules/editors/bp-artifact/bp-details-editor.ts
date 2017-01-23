@@ -1,4 +1,4 @@
-﻿import {ILocalizationService} from "../../core/localization/localization.service";
+﻿import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {Enums, Models} from "../../main";
 import {IWindowManager} from "../../main/services/window-manager";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";

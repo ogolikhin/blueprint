@@ -15,7 +15,7 @@ import {NodeType, IProcessLink} from "../diagram/presentation/graph/models/";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {UserTaskDialogModel, SystemTaskDialogModel, IPersonaOption} from "./task-editor/sub-artifact-dialog-model";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IArtifactReference} from "../../models/process-models";
 
 export class SubArtifactEditorModalOpener {

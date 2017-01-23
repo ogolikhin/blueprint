@@ -1,5 +1,5 @@
 ﻿/* tslint:disable max-file-line-count */
-import {ILoadingOverlayService} from "../../../../../../core/loadingOverlay/loadingOverlay.service";
+import {ILoadingOverlayService} from "../../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
@@ -23,9 +23,9 @@ import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager";
 import {ProcessEvents, IProcessDiagramCommunication} from "../../process-diagram-communication";
 import {IDragDropHandler, DragDropHandler} from "./drag-drop-handler";
-import {ILocalizationService} from "../../../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../../../commonModule/localization/localization.service";
 import {IClipboardService} from "../../../../services/clipboard.svc";
-import {IFileUploadService} from "../../../../../../core/fileUpload/fileUpload.service";
+import {IFileUploadService} from "../../../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 
 export class ProcessGraph implements IProcessGraph {

@@ -5,17 +5,17 @@ import ".";
 import "rx/dist/rx.lite.js";
 
 import {BpProcessEditorController} from "./bp-process-editor";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {NavigationServiceMock} from "../../core/navigation/navigation.service.mock";
+import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
-import {IFileUploadService} from "../../core/fileUpload/";
-import {ILoadingOverlayService} from "../../core/loadingOverlay/";
+import {IFileUploadService} from "../../commonModule/fileUpload/";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("BpProcessEditor", () => {

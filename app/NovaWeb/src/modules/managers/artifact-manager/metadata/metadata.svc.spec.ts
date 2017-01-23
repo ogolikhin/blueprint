@@ -1,10 +1,10 @@
 import "angular";
 import "angular-mocks";
 import "lodash";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {IProjectMeta} from "./../../../main/models/models";
 import {MetaDataService, IMetaDataService, ProjectMetaData} from "./metadata.svc";
-import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {Enums} from "../../../main/models";
 
 

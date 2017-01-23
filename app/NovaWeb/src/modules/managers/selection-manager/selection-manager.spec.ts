@@ -7,8 +7,8 @@ import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact
 import {SelectionManager,  ISelection} from "./selection-manager";
 import {DialogService} from "../../shared/widgets/bp-dialog/bp-dialog";
 import {ModalServiceMock} from "../../shell/login/mocks.spec";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
-import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 
 describe("Selection Manager", () => {
     let $scope: ng.IScope;

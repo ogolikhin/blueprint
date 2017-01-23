@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface INumberValidation extends IBaseValidation {

@@ -1,7 +1,7 @@
 import {BPButtonAction} from "../../../../shared";
 import {IDialogService} from "../../../../shared";
-import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IArtifact, IPublishResultSet} from "../../../models/models";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";

@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../core/localization/localization.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";

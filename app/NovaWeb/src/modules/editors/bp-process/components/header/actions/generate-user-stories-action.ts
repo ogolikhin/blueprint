@@ -9,8 +9,8 @@ import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IApplicationError} from "../../../../../shell/error/applicationError";
 import {ErrorCode} from "../../../../../shell/error/error-code";
-import {ILoadingOverlayService} from "../../../../../core/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../../core/localization/localization.service";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";

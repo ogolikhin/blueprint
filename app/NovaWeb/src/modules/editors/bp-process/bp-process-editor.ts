@@ -1,4 +1,4 @@
-﻿import {INavigationService} from "../../core/navigation/navigation.service";
+﻿import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IMainWindow, IWindowManager, ResizeCause} from "../../main/services/window-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
@@ -11,9 +11,9 @@ import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IClipboardService} from "./services/clipboard.svc";
 import {IMessageService} from "../../main/components/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localization.service";
-import {IFileUploadService} from "../../core/fileUpload/fileUpload.service";
-import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {IFileUploadService} from "../../commonModule/fileUpload/fileUpload.service";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");

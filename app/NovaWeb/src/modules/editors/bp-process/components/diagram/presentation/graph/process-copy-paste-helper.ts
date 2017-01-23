@@ -1,6 +1,6 @@
-import {ILocalizationService} from "../../../../../../core/localization/localization.service";
-import {IHttpError} from "../../../../../../core/services/usersAndGroups.service";
-import {ILoadingOverlayService} from "../../../../../../core/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../../../commonModule/localization/localization.service";
+import {IHttpError} from "../../../../../../commonModule/services/usersAndGroups.service";
+import {ILoadingOverlayService} from "../../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {
     IDiagramNode, IProcessShape,
     ProcessShapeType, IProcessLink,
@@ -13,8 +13,8 @@ import {SystemTask, UserTask, UserDecision, SystemDecision} from "./shapes/";
 import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
 import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/process-models";
 import {Models} from "../../../../../../main";
-import {IFileUploadService, ICopyImageResult} from "../../../../../../core/fileUpload";
-import {HttpStatusCode} from "../../../../../../core/httpInterceptor/http-status-code";
+import {IFileUploadService, ICopyImageResult} from "../../../../../../commonModule/fileUpload";
+import {HttpStatusCode} from "../../../../../../commonModule/httpInterceptor/http-status-code";
 import {IUserTask, IDecision} from "./models/process-graph-interfaces";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 

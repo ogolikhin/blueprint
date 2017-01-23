@@ -6,7 +6,7 @@
         ProcessClipboardData
 } from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
-import {ILocalizationService} from "../../../../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../../../../commonModule/localization/localization.service";
 import {IClipboardService, ClipboardDataType} from "../../../../../services/clipboard.svc";
 
 export class NodePopupMenu {

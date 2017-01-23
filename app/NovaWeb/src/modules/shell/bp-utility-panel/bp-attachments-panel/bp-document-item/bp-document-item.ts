@@ -3,7 +3,7 @@
     IArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
 } from "../../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPDocumentItem implements ng.IComponentOptions {

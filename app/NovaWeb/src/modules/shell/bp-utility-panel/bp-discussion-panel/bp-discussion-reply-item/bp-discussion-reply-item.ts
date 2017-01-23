@@ -1,5 +1,5 @@
 ﻿import {IReply, IArtifactDiscussions} from "../artifact-discussions.svc";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPDiscussionReplyItem implements ng.IComponentOptions {

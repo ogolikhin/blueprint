@@ -2,7 +2,7 @@
 import * as angular from "angular";
 import "rx";
 require("script!mxClient");
-import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/executionEnvironmentDetector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../commonModule/services/executionEnvironmentDetector.mock";
 import {ProcessGraph} from "./process-graph";
 import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {NodeType} from "./models/";
@@ -14,7 +14,7 @@ import {ProcessLinkModel} from "../../../../models/process-models";
 import {DiagramLink} from "./shapes/";
 import {ProcessValidator} from "./process-graph-validator";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../../../commonModule/localization/localization.service.mock";
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import {ProcessAddHelper} from "./process-add-helper";

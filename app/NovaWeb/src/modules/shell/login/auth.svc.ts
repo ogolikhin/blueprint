@@ -1,11 +1,11 @@
 ﻿import {SessionTokenHelper} from "./session.token.helper";
 import {Helper} from "../../shared";
-import {ISettingsService} from "../../core/configuration/settings.service";
+import {ISettingsService} from "../../commonModule/configuration/settings.service";
 import {LicenseTypeEnum} from "../../main/models/enums";
 import {ApplicationError} from "../error/applicationError";
-import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
-import {ILocalizationService} from "../../core/localization/localization.service";
-import {IHttpInterceptorConfig} from "../../core/httpInterceptor";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {IHttpInterceptorConfig} from "../../commonModule/httpInterceptor";
 
 export interface IUser {
     id: number;

@@ -3,7 +3,7 @@ import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessType} from "../../../models/enums";
 import {ReuseSettings} from "../../../../../main/models/enums";
 import {IToolbarCommunication} from "../toolbar-communication";
-import {ILocalizationService} from "../../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 
 export class ToggleProcessTypeAction extends BPToggleAction {
     private subscribers: Rx.IDisposable[];

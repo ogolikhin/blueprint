@@ -4,7 +4,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../../util/component.test";
 import {BpAccordionCtrl} from "./bp-accordion";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 
 describe("Component BpAccordion", () => {
 

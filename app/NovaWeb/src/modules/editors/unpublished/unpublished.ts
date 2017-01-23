@@ -1,12 +1,12 @@
-import {ILocalizationService} from "../../core/localization/localization.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
-import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
-import {INavigationService} from "../../core/navigation/navigation.service";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IDialogService} from "../../shared/";

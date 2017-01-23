@@ -1,5 +1,5 @@
-import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
-import {IItemInfoResult} from "../../core/itemInfo/itemInfo.service";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
@@ -13,8 +13,8 @@ import {IDispose} from "../models";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 import {IApplicationError} from "../../shell/error/applicationError";
-import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../core/localization/localization.service";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
     children?: this[];

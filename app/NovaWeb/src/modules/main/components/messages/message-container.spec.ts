@@ -4,8 +4,8 @@ import "lodash";
 import {IMessageService, MessageService} from "./message.svc";
 import {Message, MessageType} from "./message";
 import {MessageContainerController, MessageContainerComponent} from "./message-container";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
-import {SettingsService} from "../../../core/configuration/settings.service";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
+import {SettingsService} from "../../../commonModule/configuration/settings.service";
 
 
 describe("messages container directive", () => {

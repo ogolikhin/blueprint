@@ -2,7 +2,7 @@
 import "angular-mocks";
 import {IMessageService, MessageService} from "./message.svc";
 import {Message, MessageType} from "./message";
-import {SettingsService} from "../../../core/configuration/settings.service";
+import {SettingsService} from "../../../commonModule/configuration/settings.service";
 
 describe("messageService", () => {
 

@@ -4,7 +4,7 @@ import "../../../../main";
 import "angular-mocks";
 import "angular-sanitize";
 import "angular-ui-router";
-import {HttpStatusCode} from "../../../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../../../commonModule/httpInterceptor/http-status-code";
 import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
 import {IRelationship} from "../../../../main/models/relationshipModels";
 import {StatefulArtifactFactory} from "../../../../managers/artifact-manager/artifact/artifact.factory";
@@ -18,7 +18,7 @@ import {Helper} from "../../../../shared";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPArtifactRelationshipItemController} from "./bp-artifact-relationship-item";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 
 describe("BPArtifactRelationshipItem", () => {
 

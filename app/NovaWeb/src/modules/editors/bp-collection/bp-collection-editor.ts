@@ -12,7 +12,7 @@ import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-edito
 import {IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {ICollectionArtifact, IStatefulCollectionArtifact} from "./collection-artifact";
 import {ICollectionService} from "./collection.svc";
-import {ILocalizationService} from "../../core/localization/localization.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");

@@ -15,13 +15,13 @@ import {IProcess} from "./models/process-models";
 import {SessionSvc} from "../../shell/login/session.svc";
 import {AuthSvc} from "../../shell/login/auth.svc";
 import {SettingsMock} from "../../shell/login/mocks.spec";
-import {ItemInfoService} from "../../core/itemInfo/itemInfo.service";
+import {ItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
 import * as TestModels from "./models/test-model-factory";
 import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
 import {ProcessServiceMock} from "./services/process.svc.mock";
 import * as angular from "angular";
-import {LoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
-import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
+import {LoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("StatefulProcessArtifact", () => {

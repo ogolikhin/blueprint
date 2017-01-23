@@ -1,8 +1,8 @@
 ﻿import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
+import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {IProcessService} from "../../../editors/bp-process/services/process.svc";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";

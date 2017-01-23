@@ -4,7 +4,7 @@ import "angular-mocks";
 import {QuickSearchModalController} from "./quickSearchModalController";
 import {QuickSearchService} from "./quickSearchService";
 import {QuickSearchServiceMock} from "./quickSearchService.mock";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 
 
 describe("Controller: Quick Search Modal", () => {

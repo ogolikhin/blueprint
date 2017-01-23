@@ -1,12 +1,12 @@
 import * as angular from "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {
     IArtifactAttachmentsService,
     ArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
 } from "./attachments.svc";
-import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 
 describe("Artifact Attachments Service", () => {
 

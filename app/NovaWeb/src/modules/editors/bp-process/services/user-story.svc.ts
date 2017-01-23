@@ -1,5 +1,5 @@
 import {IUserStory} from "../models/process-models";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 
 export interface IUserStoryService {

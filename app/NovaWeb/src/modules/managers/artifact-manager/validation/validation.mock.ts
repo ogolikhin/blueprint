@@ -1,5 +1,5 @@
 import {IValidationService} from "./validation.svc";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Models} from "../../../main/models";
 import {INumberValidation, NumberValidation} from "./number-validation";
 import {IDateValidation, DateValidation} from "./date-validation";

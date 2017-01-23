@@ -1,4 +1,4 @@
-import {INavigationService, INavigationState} from "../../../core/navigation/navigation.service";
+import {INavigationService, INavigationState} from "../../../commonModule/navigation/navigation.service";
 
 export interface IPathItem {
     id: number;

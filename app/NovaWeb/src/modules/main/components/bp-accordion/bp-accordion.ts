@@ -19,7 +19,7 @@
  </bp-accordion>
  */
 
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 export interface IBpAccordionController {
     accordionId?: string;
     accordionHeadingHeight?: number;

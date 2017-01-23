@@ -1,6 +1,6 @@
 /*This folder will become root*/
 import "rx/dist/rx.lite.js";
-import "../core";
+import "./.";
 import {AppComponent} from "./app.component";
 import {AuthSvc, IUser} from "./login/auth.svc";
 import {SessionSvc, ISession} from "./login/session.svc";
@@ -32,7 +32,7 @@ import {AppRoutes} from "./app.router";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
 import {ILicenseService, LicenseService} from "./license/license.svc";
-import {CommonModule} from "../core";
+import {CommonModule} from "./../commonModule";
 
 export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
 export {IServerLogger} from "./log/server-logger.svc";

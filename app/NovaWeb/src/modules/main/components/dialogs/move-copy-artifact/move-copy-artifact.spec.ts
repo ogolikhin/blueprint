@@ -1,5 +1,5 @@
 import {IDialogSettings} from "../../../../shared/";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {
     MoveCopyArtifactPickerDialogController,
     IMoveCopyArtifactPickerOptions,

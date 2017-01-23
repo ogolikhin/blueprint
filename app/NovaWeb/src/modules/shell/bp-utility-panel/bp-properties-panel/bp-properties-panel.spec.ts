@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {createDefaultProcessModel} from "../../../editors/bp-process/models/test-model-factory";
 import {INovaProcess} from "../../../editors/bp-process/process-artifact";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";

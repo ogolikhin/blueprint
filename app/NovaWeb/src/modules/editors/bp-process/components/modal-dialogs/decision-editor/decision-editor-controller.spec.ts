@@ -5,13 +5,13 @@ import "../../..";
 import {DecisionEditorModel} from "./decision-editor-model";
 import {DecisionEditorController} from "./decision-editor-controller";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ICondition, IDecision, IDiagramLink, IDiagramNode, IProcessGraph, IUserTask, NodeType} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
-import {ILocalizationService} from "../../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 
 describe("DecisionEditorController", () => {
     let $rootScope: ng.IRootScopeService;

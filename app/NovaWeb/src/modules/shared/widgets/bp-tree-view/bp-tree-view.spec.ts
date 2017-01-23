@@ -5,9 +5,9 @@ import "lodash";
 import "rx/dist/rx.lite";
 import * as agGrid from "ag-grid/main";
 import {BPTreeViewComponent, BPTreeViewController, ITreeNode, IColumn} from "./bp-tree-view";
-import {LocalizationServiceMock} from "../../../core/localization/localization.service.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {IWindowManager, WindowManager} from "../../../main/services/window-manager";
-import {WindowResize} from "../../../core/services/windowResize";
+import {WindowResize} from "../../../commonModule/services/windowResize";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 

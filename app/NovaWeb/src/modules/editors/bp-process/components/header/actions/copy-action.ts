@@ -1,5 +1,5 @@
 import {BPButtonAction} from "../../../../../shared";
-import {ILocalizationService} from "../../../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ICommunicationManager} from "../../../services/communication-manager";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";

@@ -10,7 +10,7 @@ import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editors/
 import {PropertyLookupEnum} from "../../../main/models/enums";
 import {Helper} from "../../../shared/utils/helper";
 import {PropertyEditorFilters} from "./bp-properties-panel-filters";
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {

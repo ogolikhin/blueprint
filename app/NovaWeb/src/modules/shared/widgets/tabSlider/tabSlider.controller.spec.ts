@@ -5,7 +5,7 @@ import "rx/dist/rx.lite";
 import {TabSliderComponent} from "./tabSlider";
 import {TabSliderController} from "./tabSlider.controller";
 import {IWindowManager, WindowManager} from "../../../main/services/window-manager";
-import {WindowResize} from "../../../core/services/windowResize";
+import {WindowResize} from "../../../commonModule/services/windowResize";
 
 describe("TabSliderController", () => {
     angular.module("bp.widgets.tabSlider", [])

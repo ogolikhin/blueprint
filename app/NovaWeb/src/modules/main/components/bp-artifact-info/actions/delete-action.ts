@@ -1,7 +1,7 @@
 import {IApplicationError} from "../../../../shell/error/applicationError";
-import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../core/localization/localization.service";
-import {INavigationService} from "../../../../core/navigation/navigation.service";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {ConfirmDeleteController} from "../../dialogs/bp-confirm-delete/bp-confirm-delete";
 import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";

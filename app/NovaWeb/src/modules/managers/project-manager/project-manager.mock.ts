@@ -2,7 +2,7 @@ import {IProjectManager} from "./project-manager";
 import {IViewModel, IArtifact, IArtifactWithProject} from "../../main/models/models";
 import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
-import {IItemInfoResult} from "../../core/itemInfo/itemInfo.service";
+import {IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
 import {AdminStoreModels} from "../../main/models";
 
 

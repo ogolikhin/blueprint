@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../../core/localization/localization.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 class BPCollapsibleCtrl {
     static $inject = ["$timeout", "$compile", "localization"];
     private element: HTMLElement;

@@ -144,57 +144,6 @@ namespace ArtifactStoreTests
             TraceValidation(relationshipsV2, tracesV2, new List<IArtifact> { targetArtifact2 });
         }
 
-        #endregion 200 OK Tests
-
-        #region 400 Bad Request Tests
-
-        [TestCase]
-        [TestRail(183571)]
-        [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with invalid versionId returns 400 Bad Request.")]
-        public void GetRelationships_GetRelationshipsWithInvalidVersionId_400BadRequest()
-        {
-            // Setup: Create and Publish a srouce artifact
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-
-            // Execute: Execute GetRelationships with invalid version ID of the source artifact (less than 1)
-            Assert.Throws<Http400BadRequestException>(() =>
-                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: INVALID_VERSIONID),
-                "Calling GET {0} with invalid version ID should return 400 Bad Request!",
-                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
-        }
-
-        #endregion 400 Bad Request Tests
-
-        #region 404 Not Found Tests
-
-        [TestCase(NONEXSITING_VERSIONID)]
-        [TestCase(10)]
-        [TestRail(183563)]
-        [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]
-        public void GetRelationships_GetRelationshipsWithNonExistingVersionId_404NotFound(int nonExistingVersionId)
-        {
-            // Setup: Create and Publish a srouce artifact
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-
-            // Execute: Execute GetRelationships with non-existing version ID of the source artifact
-            var ex = Assert.Throws<Http404NotFoundException>(() =>
-                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId),
-                "Calling GET {0} with non-existing version ID should return 404 NotFound!",
-                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
-
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-
-            // Validation: Exception should contain proper errorCode in the response content.
-            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound),
-                "GetRelationships with non-existing versionId should return {0} errorCode but {1} is returned",
-                ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
-        }
-
-        #endregion 404 Not Found Tests
-
-
-        // TODO: Sort existing test cases inside of this file based on test type e.g. 200 OK test etc..
-
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.TwoWay)]
@@ -254,28 +203,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
             AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
-        }
-
-        [TestCase]
-        [TestRail(153702)]
-        [Description("Create manual trace between 2 artifacts, delete the source artifact, get relationships.  Verify 404 Not Found is returned.")]
-        public void GetRelationships_DeleteSourceArtifact_404NotFound()
-        {
-            // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
-
-            sourceArtifact.Delete(_user);
-            sourceArtifact.Publish(_user);
-
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
-            {
-                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
-            }, "GetArtifactRelationships should return a 404 Not Found when given a deleted artifact.");
         }
 
         [TestCase]
@@ -379,54 +306,6 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(153904)]
-        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with the 'addDrafts=false' query parameter).  " +
-            "Verify it returns 404 Not Found.")]
-        public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsFalse_404NotFound()
-        {
-            // Setup:
-            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            sourceArtifact.Save(_user);
-            targetArtifact.Save(_user);
-
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
-
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
-            {
-                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, addDrafts: false);
-            }, "GetArtifactRelationships should return 404 Not Found when given a valid Unpublished Draft artifact and addDrafts=false.");
-        }
-
-        [TestCase]
-        [TestRail(153691)]
-        [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to the artifacts.  " +
-            "Verify that returned trace has expected value.")]
-        public void GetRelationships_ManualTraceUserHasNoAccessToTarget_403Forbidden()
-        {
-            // Setup:
-            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.BlueprintAnalytics);
-
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
-
-            Assert.AreEqual(false, traces[0].IsSuspect,
-                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
-
-            // Execute & Verify:
-            Assert.Throws<Http403ForbiddenException>(() =>
-            {
-                Helper.ArtifactStore.GetRelationships(user2, sourceArtifact);
-            }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
-        }
-
-        // TODO: Fix this test.
-        [TestCase]
         [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]  // XXX: Complains about Artifact Ids being different.
         [TestRail(153700)]
         [Description("Create manual trace between an artifact and a sub-artifact.  Get relationships.  Verify that returned trace has expected value.")]
@@ -464,7 +343,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(trace1.ProjectId, trace2.ProjectId, "The Project IDs of the traces don't match!");
             Assert.AreEqual(trace1.ArtifactId, trace2.ArtifactId, "The Artifact IDs of the traces don't match!");
             Assert.AreEqual(trace1.Direction, trace2.Direction, "The Trace Directions don't match!");
-//            Assert.AreEqual(trace1.TraceType, trace2.TraceType, "The Trace Types don't match!");
+            //            Assert.AreEqual(trace1.TraceType, trace2.TraceType, "The Trace Types don't match!");
             Assert.AreEqual(trace1.IsSuspect, trace2.IsSuspect, "One trace is marked suspect but the other isn't!");
         }
 
@@ -487,7 +366,7 @@ namespace ArtifactStoreTests
             Assert.That(targetUserTasks.Count > 0, "No User Tasks were found in the target Process!");
 
             int sourceSubArtifactId = sourceUserTasks[0].Id;    // TODO: Is it possible to create Traces between two sub-artifacts with OpenAPI?
-//            int targetSubArtifactId = targetUserTasks[0].Id;
+                                                                //            int targetSubArtifactId = targetUserTasks[0].Id;
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.To, _user, subArtifactId: sourceSubArtifactId);
@@ -504,87 +383,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(2, relationships.OtherTraces.Count, "There should be 2 'other' traces.");
             AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);     // XXX: This complains about Direction being different.
-        }
-
-        [TestCase(0)]
-        [TestCase(int.MaxValue)]
-        [TestRail(153840)]
-        [Description("Try to Get Relationships for an artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
-        public void GetRelationships_InvalidArtifactId_404NotFound(int fakeArtifactId)
-        {
-            // Setup:
-            // Hack: Create a fake artifact to wrap the subArtifact ID.
-            var sourceArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor, fakeArtifactId);
-
-            // Verify the artifact doesn't exist.
-            Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, sourceArtifact.Id, _user),
-                "An artifact with ID: {0} was found, but it shouldn't exist!", sourceArtifact.Id);
-
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
-            {
-                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
-            }, "GetArtifactRelationships should return 404 Not Found if the artifact ID doesn't exist.");
-        }
-
-        [TestCase(0)]
-        [TestRail(153841)]
-        [Description("Try to Get Relationships for a invalid sub-artifact ID .  Verify 400 Bad Request is returned.")]
-        public void GetRelationships_InvalidSubArtifactId_400BadRequest(int fakeSubArtifactId)
-        {
-            // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            // Execute & Verify:
-            Assert.Throws<Http400BadRequestException>(() =>
-            {
-                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, subArtifactId: fakeSubArtifactId);
-            }, "GetArtifactRelationships should return 400 BadRequest if the sub-artifact ID is invalid.");
-        }
-
-        [TestCase(int.MaxValue)]
-        [TestRail(153595)]
-        [Description("Try to Get Relationships for a sub-artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
-        public void GetRelationships_NonExstingSubArtifactId_404NotFound(int fakeSubArtifactId)
-        {
-            // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-
-            // Verify the artifact doesn't exist.
-            Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, fakeSubArtifactId, _user),
-                "A sub-artifact with ID: {0} was found, but it shouldn't exist!", fakeSubArtifactId);
-
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
-            {
-                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, subArtifactId: fakeSubArtifactId);
-            }, "GetArtifactRelationships should return 404 Not Found if the sub-artifact ID doesn't exist.");
-        }
-
-        [TestCase(true)]
-        [TestCase(false)]
-        [TestRail(153842)]
-        [Description("Try to Get Relationships for an unpublished artifact ID that was created by a different user.  Verify 404 Not Found is returned.")]
-        public void GetRelationships_UnpublishedArtifactByOtherUser_404NotFound(bool addDrafts)
-        {
-            // Setup:
-            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            sourceArtifact.Save();
-            targetArtifact.Save();
-
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
-
-            Assert.That(traces.Count > 0, "No traces were added!");
-
-            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
-            {
-                Helper.ArtifactStore.GetRelationships(user2, sourceArtifact, addDrafts: addDrafts);
-            }, "GetArtifactRelationships should return 404 Not Found for unpublished artifacts created by different users.");
         }
 
         [TestCase]
@@ -695,7 +493,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(false, traces[0].IsSuspect,
                 "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
             Helper.AdminStore.AddSession(_userWithLimitedAccess);
-            
+
             Relationships relationshipsForUserWithFullAccessToTargetArtifact = null;
             Relationships relationshipsForUserWithNoAccessToTargetArtifact = null;
 
@@ -754,7 +552,7 @@ namespace ArtifactStoreTests
             IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, parent: parentArtifact);
 
             TraceDetails traceDetails = null;
-            
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {
@@ -765,6 +563,208 @@ namespace ArtifactStoreTests
             Assert.AreEqual(5, traceDetails.PathToProject.Count, "PathToProject must have 5 items.");
             Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
         }
+
+        #endregion 200 OK Tests
+
+        #region 400 Bad Request Tests
+
+        [TestCase]
+        [TestRail(183571)]
+        [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with invalid versionId returns 400 Bad Request.")]
+        public void GetRelationships_GetRelationshipsWithInvalidVersionId_400BadRequest()
+        {
+            // Setup: Create and Publish a srouce artifact
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Execute: Execute GetRelationships with invalid version ID of the source artifact (less than 1)
+            Assert.Throws<Http400BadRequestException>(() =>
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: INVALID_VERSIONID),
+                "Calling GET {0} with invalid version ID should return 400 Bad Request!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+        }
+
+        [TestCase(0)]
+        [TestRail(153841)]
+        [Description("Try to Get Relationships for a invalid sub-artifact ID .  Verify 400 Bad Request is returned.")]
+        public void GetRelationships_InvalidSubArtifactId_400BadRequest(int fakeSubArtifactId)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            // Execute & Verify:
+            Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, subArtifactId: fakeSubArtifactId);
+            }, "GetArtifactRelationships should return 400 BadRequest if the sub-artifact ID is invalid.");
+        }
+
+        #endregion 400 Bad Request Tests
+
+        #region 403 Forbidden Tests
+
+        [TestCase]
+        [TestRail(153691)]
+        [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to the artifacts.  " +
+            "Verify that returned trace has expected value.")]
+        public void GetRelationships_ManualTraceUserHasNoAccessToTarget_403Forbidden()
+        {
+            // Setup:
+            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, InstanceAdminRole.BlueprintAnalytics);
+
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.To, _user);
+
+            Assert.AreEqual(false, traces[0].IsSuspect,
+                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+
+            // Execute & Verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(user2, sourceArtifact);
+            }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
+        }
+
+        #endregion 403 Forbidden Tets
+
+        #region 404 Not Found Tests
+
+        [TestCase(NONEXSITING_VERSIONID)]
+        [TestCase(10)]
+        [TestRail(183563)]
+        [Description("Create and publish artifact with a trace to target. Verify that GetRelationships with non-existing versionId returns 404 Not Found.")]
+        public void GetRelationships_GetRelationshipsWithNonExistingVersionId_404NotFound(int nonExistingVersionId)
+        {
+            // Setup: Create and Publish a srouce artifact
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            // Execute: Execute GetRelationships with non-existing version ID of the source artifact
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId),
+                "Calling GET {0} with non-existing version ID should return 404 NotFound!",
+                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+
+            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+
+            // Validation: Exception should contain proper errorCode in the response content.
+            Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound),
+                "GetRelationships with non-existing versionId should return {0} errorCode but {1} is returned",
+                ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
+        }
+
+        [TestCase]
+        [TestRail(153702)]
+        [Description("Create manual trace between 2 artifacts, delete the source artifact, get relationships.  Verify 404 Not Found is returned.")]
+        public void GetRelationships_DeleteSourceArtifact_404NotFound()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.From, _user);
+
+            sourceArtifact.Delete(_user);
+            sourceArtifact.Publish(_user);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships should return a 404 Not Found when given a deleted artifact.");
+        }
+
+        [TestCase]
+        [TestRail(153904)]
+        [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with the 'addDrafts=false' query parameter).  " +
+            "Verify it returns 404 Not Found.")]
+        public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsFalse_404NotFound()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            sourceArtifact.Save(_user);
+            targetArtifact.Save(_user);
+
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.From, _user);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, addDrafts: false);
+            }, "GetArtifactRelationships should return 404 Not Found when given a valid Unpublished Draft artifact and addDrafts=false.");
+        }
+
+        [TestCase(0)]
+        [TestCase(int.MaxValue)]
+        [TestRail(153840)]
+        [Description("Try to Get Relationships for an artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
+        public void GetRelationships_InvalidArtifactId_404NotFound(int fakeArtifactId)
+        {
+            // Setup:
+            // Hack: Create a fake artifact to wrap the subArtifact ID.
+            var sourceArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor, fakeArtifactId);
+
+            // Verify the artifact doesn't exist.
+            Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, sourceArtifact.Id, _user),
+                "An artifact with ID: {0} was found, but it shouldn't exist!", sourceArtifact.Id);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+            }, "GetArtifactRelationships should return 404 Not Found if the artifact ID doesn't exist.");
+        }
+
+        [TestCase(int.MaxValue)]
+        [TestRail(153595)]
+        [Description("Try to Get Relationships for a sub-artifact ID that doesn't exist.  Verify 404 Not Found is returned.")]
+        public void GetRelationships_NonExstingSubArtifactId_404NotFound(int fakeSubArtifactId)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+
+            // Verify the artifact doesn't exist.
+            Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, fakeSubArtifactId, _user),
+                "A sub-artifact with ID: {0} was found, but it shouldn't exist!", fakeSubArtifactId);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, subArtifactId: fakeSubArtifactId);
+            }, "GetArtifactRelationships should return 404 Not Found if the sub-artifact ID doesn't exist.");
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        [TestRail(153842)]
+        [Description("Try to Get Relationships for an unpublished artifact ID that was created by a different user.  Verify 404 Not Found is returned.")]
+        public void GetRelationships_UnpublishedArtifactByOtherUser_404NotFound(bool addDrafts)
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            sourceArtifact.Save();
+            targetArtifact.Save();
+
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.To, _user);
+
+            Assert.That(traces.Count > 0, "No traces were added!");
+
+            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationships(user2, sourceArtifact, addDrafts: addDrafts);
+            }, "GetArtifactRelationships should return 404 Not Found for unpublished artifacts created by different users.");
+        }
+
+        #endregion 404 Not Found Tests
 
         // TODO: Test with "Other" traces.
         // TODO: Test with 2 users; user1 creates artifacts & traces; user2 only has permission to see one of the artifacts and tries to GetRelationships for each artifact.

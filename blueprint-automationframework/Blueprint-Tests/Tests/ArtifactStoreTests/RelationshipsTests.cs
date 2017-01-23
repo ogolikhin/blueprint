@@ -96,6 +96,8 @@ namespace ArtifactStoreTests
             // Setup: Create and Publish Two target artifacts: target artifact 1 and target artifact 2
             // Create and publish artifact with outgoing trace to target artifact 1
             // Update and publish the same artifact with outgoing tract to target artifact 2
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             var bpServerAddress = Helper.BlueprintServer.Address;
             var targetArtifact1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var targetArtifact2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UIMockup);
@@ -118,7 +120,7 @@ namespace ArtifactStoreTests
             Relationships relationshipsV2 = null;
             Assert.DoesNotThrow(() =>
             {
-                relationshipsV2 = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: 2);
+                relationshipsV2 = Helper.ArtifactStore.GetRelationships(viewer, sourceArtifact, versionId: 2);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Validation: Validates trace properties from relationships for each version
@@ -134,6 +136,8 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceDirection_ReturnsCorrectTraces(TraceDirection direction)
         {
             // Setup:
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
@@ -145,10 +149,12 @@ namespace ArtifactStoreTests
 
             Relationships relationships = null;
 
+            sourceArtifact.Publish(_user);
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -164,6 +170,8 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceHasSuspect_ReturnsCorrectTraces(bool suspected)
         {
             // Setup:
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
@@ -175,10 +183,11 @@ namespace ArtifactStoreTests
 
             Relationships relationships = null;
 
+            sourceArtifact.Publish(_user);
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -193,6 +202,8 @@ namespace ArtifactStoreTests
         public void GetRelationships_DeleteTargetArtifact_ReturnsNoTraces()
         {
             // Setup:
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
@@ -207,7 +218,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -221,6 +232,8 @@ namespace ArtifactStoreTests
         public void GetRelationships_DeleteSubArtifact_ReturnsNoTraces()
         {
             // Setup:
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IProcess process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
 
@@ -247,7 +260,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid sub-artifact.");
 
             // Verify:
@@ -293,29 +306,29 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceArtifactToSubartifactInDifferentArtifact_ReturnsCorrectTraces()
         {
             // Setup:
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Process);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(author, targetArtifact.Id);
+            var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, targetArtifact.Id);
 
-            sourceArtifact.Lock(author);
+            sourceArtifact.Lock(_user);
 
             NovaTrace trace = new NovaTrace(targetArtifact, targetSubArtifacts[0].Id);
 
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             artifactDetails.Traces = new List<NovaTrace> { trace };
 
-            Artifact.UpdateArtifact(sourceArtifact, author, artifactDetails);
+            Artifact.UpdateArtifact(sourceArtifact, _user, artifactDetails);
 
             Relationships relationships = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(author, sourceArtifact, addDrafts: true);
+                relationships = Helper.ArtifactStore.GetRelationships(viewer, sourceArtifact, addDrafts: true);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid sub-artifact.");
 
             // VerifY:

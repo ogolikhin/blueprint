@@ -2,17 +2,18 @@
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Factories;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace StorytellerTests
 {
@@ -50,7 +51,7 @@ namespace StorytellerTests
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
         [TestRail(227359)]
-        [Description("Add a persona reference to a Process artifact task. Move the persona reference into folder. Verify that no change on persona referance after the move.")]
+        [Description("Add a persona reference to a Process task. Move the persona reference into folder. Verify that no change on persona referance after the move.")]
         public void PersonaReference_MoveReferenceInTask_VerifyNoChangeInPersonaReference(string taskName)
         {
             // Setup: Create a default process and update with the added persona reference
@@ -58,17 +59,15 @@ namespace StorytellerTests
             
             var process = Helper.Storyteller.GetProcess(_authorFullAccess, addedProcessArtifact.Id);
 
-            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-
             var folderArtifact = Helper.CreateAndPublishArtifact(_project, _authorFullAccess, BaseArtifactType.PrimitiveFolder);
 
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+
+            var personaReferenceArtifact = (IArtifact)Helper.Artifacts.Find(a=>a.Id.Equals(addedPersonaReference.Id));
+
             // Execution: Move the persona referece and update the process
-            var personaReference = Helper.ArtifactStore.GetArtifactDetails(_adminUser, addedPersonaReference.Id);
-
-            var personaReferenceArtifact = Helper.WrapNovaArtifact(personaReference, _project, _authorFullAccess);
-
             personaReferenceArtifact.Lock(_authorFullAccess);
-            
+
             Helper.ArtifactStore.MoveArtifact(personaReferenceArtifact, folderArtifact, _authorFullAccess);
 
             var savedProcess = StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess);
@@ -84,7 +83,7 @@ namespace StorytellerTests
         [TestCase(Process.DefaultUserTaskName)]
         [TestCase(Process.DefaultSystemTaskName)]
         [TestRail(227360)]
-        [Description("Add a persona reference from different project to a Process artifact task. Verify that no change on persona reference after the update.")]
+        [Description("Add a persona reference from different project to a Process task. Verify that no change on persona reference after the update.")]
         public void PersonaReference_AddReferenceFromDifferentProjectToTask_VerifyNoChangeInPersonaReference(string taskName)
         {
             // Setup: Create a default process and update with the added persona reference from different project
@@ -107,6 +106,89 @@ namespace StorytellerTests
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
 
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(230660)]
+        [Description("Update a default process with an inaccessible persona reference. Verify that default persona reference is used after the update.")]
+        public void PersonaReference_UpdateDefaultProcessWithInaccessibleReference_VerifyDefaultPersonaReference(string taskName)
+        {
+            // Setup: Create a default process and add an inaccessible persona reference 
+            var userWithoutPermissionToPersonaReference = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, userWithoutPermissionToPersonaReference);
+            var process = Helper.Storyteller.GetProcess(userWithoutPermissionToPersonaReference, addedProcessArtifact.Id);
+
+            var defaultPersonaReference = GetPersonaReferenceFromTask(taskName, process);
+            var addedPersonaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+
+            var personaReferenceArtifact = Helper.Artifacts.Find(a => a.Id.Equals(addedPersonaReference.Id));
+
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermissionToPersonaReference, TestHelper.ProjectRole.None, _project, personaReferenceArtifact);
+
+            // Execute: Update the process with inaccessible persona reference
+            IProcess savedProcess = null;
+            Assert.DoesNotThrow(() => savedProcess = Helper.Storyteller.UpdateProcess(userWithoutPermissionToPersonaReference, process),
+                "PATCH process call failed when using process whose Id is {0}!", process.Id);
+
+            // Validation: Verify that persona reference from updated process is default persona
+            var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(defaultPersonaReference, savedPersonaReference);
+
+            Assert.AreEqual(defaultPersonaReference.Name, savedPersonaReference.Name,
+                "The persona reference name from savedProcess {0} should be the same as default persona reference {1}!",
+                savedPersonaReference.Name, defaultPersonaReference.Name);
+        }
+
+        [TestCase(Process.DefaultUserTaskName)]
+        [TestCase(Process.DefaultSystemTaskName)]
+        [TestRail(230672)]
+        [Description("Set up a process with inaccessible persona reference to a process task. Publish the process with user that doesn't" +
+            "have a permission to the persona reference. Verify that retrieved persona refence with both users with and without permission to" + 
+            "the persona reference on the process and make sure it's not updated from last published.")]
+        public void PersonaReference_PublishProcessContainingInaccessibleReferenceForUser_VerifyPersonaReferenceWithPermissionBasedUsers(string taskName)
+        {
+            // Setup: Create and publish the process with a persona reference
+            var userWithoutPermission= Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _authorFullAccess);
+
+            var process = Helper.Storyteller.GetProcess(_authorFullAccess, addedProcessArtifact.Id);
+
+            var personaReferenceToBePublished = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
+
+            var personaReferenceArtifact = Helper.Artifacts.Find(a => a.Id.Equals(personaReferenceToBePublished.Id));
+
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, personaReferenceArtifact);
+
+            var publishedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
+
+            var personaReferencBeforeUpdate = GetPersonaReferenceFromTask(taskName, publishedProcess);
+
+            var anotherPersonaReference = AddPersonaReferenceToTask(taskName, publishedProcess, _authorFullAccess, _project);
+
+            var anotherPersonaReferenceArtifact = Helper.Artifacts.Find(a => a.Id.Equals(anotherPersonaReference.Id));
+
+            Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, anotherPersonaReferenceArtifact);
+
+            // Execute: update and publish process with user that doesn't have permission to the persona reference.
+            Helper.Storyteller.UpdateProcess(userWithoutPermission, publishedProcess);
+
+            Assert.DoesNotThrow(() => Helper.Storyteller.PublishProcess(userWithoutPermission, publishedProcess),
+                "POST process call failed when using process whose Id is {0}!", publishedProcess.Id);
+
+            // Validation: Get persona references with users with and without permission to the persona reference
+            var processWithoutPermission = Helper.Storyteller.GetProcess(userWithoutPermission, publishedProcess.Id);
+            var personaReferenceWithoutPermission = GetPersonaReferenceFromTask(taskName, processWithoutPermission);
+            var processWithPermission = Helper.Storyteller.GetProcess(_authorFullAccess, publishedProcess.Id);
+            var personaReferenceWithPermission = GetPersonaReferenceFromTask(taskName, processWithPermission);
+
+            var inaccessiblePersonaReference = CreateInaccessiblePersonaReference(personaReferenceArtifact);
+
+            // Validation: Verify that persona reference from the updated process using the users with and without permission to the persona reference
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(inaccessiblePersonaReference, personaReferenceWithoutPermission);
+            StorytellerTestHelper.AssertArtifactReferencesAreEqual(personaReferencBeforeUpdate, personaReferenceWithPermission);
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
@@ -119,14 +201,14 @@ namespace StorytellerTests
         [Description("Add non-actor artifact as a persona reference to a process artifact task. Verify that 400 Bad Request is returned.")]
         public void PersonaReference_AddNonActorAsReferenceToTask_400BadRequest(string taskName)
         {
-            // Setup:
+            // Setup: Create a process and add non-actor artifact as a persona reference to a process artifact task
             var addedProcessArtifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _authorFullAccess);
 
             var process = Helper.Storyteller.GetProcess(_authorFullAccess, addedProcessArtifact.Id);
             
             AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project, BaseArtifactType.Document);
 
-            // Execute & Verify:
+            // Execute: Update the process with non-actor artifact as a persona reference
             var ex = Assert.Throws<Http500InternalServerErrorException>(() => StorytellerTestHelper.UpdateAndVerifyProcess(process, Helper.Storyteller, _authorFullAccess),
                 "Update process call should return 400 Bad Request when using with invalid non-actor persona reference!");
 
@@ -134,7 +216,6 @@ namespace StorytellerTests
             // TODO: update the expectedExceptionMessage and ValidateServiceError part after the bug is updated
             string expectedExceptionMessage = "";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.InvalidCredentials, expectedExceptionMessage);
-
         }
 
         #endregion 400 Bad Request Tests
@@ -257,7 +338,7 @@ namespace StorytellerTests
             // Publish actor with new name
             var actorArtifact = Helper.WrapNovaArtifact(actorArtifactDetails, _project, _authorFullAccess);
             actorArtifact.Lock(_authorFullAccess);
-            Helper.UpdateNovaArtifact(_project, _authorFullAccess, actorArtifactDetails);
+            Helper.UpdateNovaArtifact(_authorFullAccess, actorArtifactDetails);
 
             // Verify:
             var updatedProcess = Helper.Storyteller.GetProcess(_authorFullAccess, process.Id);
@@ -592,6 +673,26 @@ namespace StorytellerTests
                 personaPropertyValue);
         }
 
-        #endregion
+        /// <summary>
+        /// Create an inaccessible persona reference
+        /// </summary>
+        /// <param name="artifact">artifact that represent the inaccessible persona refence</param>
+        /// <returns>inaccesible persona reference</returns>
+        private static ArtifactReference CreateInaccessiblePersonaReference(IArtifactBase artifact)
+        {
+            var inaccessiblePersonaReference = new ArtifactReference()
+            {
+                Id = -4,
+                Link = null,
+                Name = "Inaccessible Actor",
+                ProjectId = artifact.ProjectId,
+                TypePrefix = "<Inaccessible>",
+                BaseItemTypePredefined = ItemTypePredefined.Actor,
+                Version = null
+            };
+            return inaccessiblePersonaReference;
+        } 
+
+        #endregion Private Methods
     }
 }

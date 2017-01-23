@@ -24,7 +24,12 @@ namespace Model.SearchServiceModel.Impl
 
         #region Members inherited from ISearchService
 
-        public FullTextSearchResult FullTextSearch(IUser user, FullTextSearchCriteria searchCriteria, int? page = null, int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="ISearchService.FullTextSearch(IUser, FullTextSearchCriteria, int?, int?, List{HttpStatusCode})"/>
+        public FullTextSearchResult FullTextSearch(IUser user,
+            FullTextSearchCriteria searchCriteria,
+            int? page = null,
+            int? pageSize = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SearchService), nameof(FullTextSearch));
 
@@ -46,7 +51,8 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}", nameof(SearchService), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3}",
+                nameof(SearchService), searchCriteria.ProjectIds, searchCriteria.ItemTypeIds, searchCriteria.Query);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FULLTEXTSEARCH,
@@ -58,7 +64,11 @@ namespace Model.SearchServiceModel.Impl
             return restResponse;
         }
 
-        public FullTextSearchMetaDataResult FullTextSearchMetaData(IUser user, FullTextSearchCriteria searchCriteria, int? pageSize, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="ISearchService.FullTextSearchMetaData(IUser, FullTextSearchCriteria, int?, List{HttpStatusCode})"/>
+        public FullTextSearchMetaDataResult FullTextSearchMetaData(IUser user,
+            FullTextSearchCriteria searchCriteria,
+            int? pageSize,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SearchService), nameof(FullTextSearchMetaData));
 
@@ -75,7 +85,8 @@ namespace Model.SearchServiceModel.Impl
 
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}", nameof(SearchService), searchCriteria?.ProjectIds, searchCriteria?.ItemTypeIds, searchCriteria?.Query, pageSize);
+            Logger.WriteInfo("{0} Projects: {1} Item Types: {2} Search criteria: {3} Page Size: {4}",
+                nameof(SearchService), searchCriteria?.ProjectIds, searchCriteria?.ItemTypeIds, searchCriteria?.Query, pageSize);
 
             var restResponse = restApi.SendRequestAndDeserializeObject<FullTextSearchMetaDataResult, FullTextSearchCriteria>(
                 RestPaths.Svc.SearchService.FullTextSearch.METADATA,
@@ -88,9 +99,12 @@ namespace Model.SearchServiceModel.Impl
             return restResponse;
         }
 
-        /// <seealso cref="ISearchService.SearchProjects(IUser,string,Nullable{int},string,System.Collections.Generic.List{System.Net.HttpStatusCode})"/>
-        public List<ProjectSearchResult> SearchProjects(IUser user, string searchText, int? resultCount = null, string separatorString = null,
-            List < HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="ISearchService.SearchProjects(IUser, string, int?, string, List{HttpStatusCode})"/>
+        public List<ProjectSearchResult> SearchProjects(IUser user,
+            string searchText,
+            int? resultCount = null,
+            string separatorString = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -130,9 +144,12 @@ namespace Model.SearchServiceModel.Impl
             return projectSearchResult.Items;
         }
 
-        /// <seealso cref="ISearchService.SearchItems(IUser,ItemNameSearchCriteria,Nullable{int},Nullable{int},System.Collections.Generic.List{System.Net.HttpStatusCode})"/>
-        public ItemNameSearchResultSet SearchItems(IUser user, ItemNameSearchCriteria searchCriteria, int? startOffset = null,
-            int? pageSize = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="ISearchService.SearchItems(IUser, ItemNameSearchCriteria, int?, int?, List{HttpStatusCode})"/>
+        public ItemNameSearchResultSet SearchItems(IUser user,
+            ItemNameSearchCriteria searchCriteria,
+            int? startOffset = null,
+            int? pageSize = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(searchCriteria, nameof(searchCriteria));

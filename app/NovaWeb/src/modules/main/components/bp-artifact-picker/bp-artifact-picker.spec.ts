@@ -1,6 +1,5 @@
 ﻿import "angular-mocks";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
@@ -28,7 +27,6 @@ describe("BpArtifactPicker", () => {
         $provide.service("projectService", () => ({
             abort: () => undefined
         }));
-        $provide.service("statefulArtifactFactory", () => undefined);
         $provide.service("metadataService", () => ({
             get: (projectId: number) => undefined
         }));
@@ -109,11 +107,10 @@ describe("BpArtifactPickerController", () => {
         const projectManager = jasmine.createSpyObj("projectManager", ["getProject"]) as IProjectManager;
         (projectManager.getProject as jasmine.Spy).and.returnValue(project);
         projectService = jasmine.createSpyObj("projectService", ["abort", "searchItemNames", "searchProjects"]) as IProjectService;
-        const statefulArtifactFactory = {} as IStatefulArtifactFactory;
         metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
         (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
         controller = new BpArtifactPickerController($q, $scope, localization, selectionManager,
-            projectManager, projectService, statefulArtifactFactory, metadataService);
+            projectManager, projectService, metadataService);
     }));
 
     it("$onInit sets selected project", inject(($rootScope: ng.IRootScopeService) => {

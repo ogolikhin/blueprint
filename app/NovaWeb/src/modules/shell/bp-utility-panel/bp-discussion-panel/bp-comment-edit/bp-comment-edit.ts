@@ -17,9 +17,16 @@ export class BPCommentEdit implements ng.IComponentOptions {
 }
 
 export class BPCommentEditController {
-    static $inject: [string] = ["$q", "mentionService"];
+    static $inject: [string] = [
+        "$q",
+        "mentionService",
+        "$window"
+    ];
 
-    constructor(private $q: ng.IQService, private mentionService: IMentionService) {
+    constructor(
+        private $q: ng.IQService,
+        private mentionService: IMentionService,
+        private $window: ng.IWindowService) {
     }
 
     private commentEditor: TinyMceEditor;
@@ -229,5 +236,23 @@ export class BPCommentEditController {
         this.tinymceOptions.setup = null;
         this.tinymceOptions.init_instance_callback = null;
         this.tinymceOptions = null;
+
+        // the following is to avoid TFS BUG 4776
+        // The bug is caused by IE9-11 not being able to focus on other INPUT elements if the focus was
+        // on a destroyed/removed from DOM element before. See also:
+        // http://stackoverflow.com/questions/19581464
+        // http://stackoverflow.com/questions/8978235
+        let isIE11 = false;
+        if (this.$window.navigator) {
+            const ua = this.$window.navigator.userAgent;
+            isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
+        }
+        if (isIE11) {
+            const focusCatcher = this.$window.document.body.querySelector("input[type='text']") as HTMLElement;
+            if (focusCatcher) {
+                focusCatcher.focus();
+                focusCatcher.blur();
+            }
+        }
     }
 }

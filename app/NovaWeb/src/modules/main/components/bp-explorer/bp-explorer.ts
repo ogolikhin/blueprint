@@ -1,11 +1,8 @@
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IProjectManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
-import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {Helper} from "../../../shared";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
@@ -14,21 +11,19 @@ import {TreeModels} from "../../models";
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = ProjectExplorerController;
-    public transclude: boolean = true;
 }
 
 export interface IProjectExplorerController {
     // BpTree bindings
     treeApi: IBPTreeViewControllerApi;
-    projects: TreeModels.StatefulArtifactNodeVM[];
+    projects: TreeModels.ExplorerNodeVM[];
     columns: any[];
-    onSelect: (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean) => void;
+    onSelect: (vm: TreeModels.ExplorerNodeVM, isSelected: boolean) => void;
     onGridReset: (isExpanding: boolean) => void;
 }
 
 export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
-    private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
 
     public static $inject: [string] = [
@@ -36,9 +31,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "projectManager",
         "navigationService",
         "selectionManager",
-        "messageService",
-        "projectService",
-        "loadingOverlayService",
         "$state",
         "localization"
     ];
@@ -47,32 +39,29 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private projectManager: IProjectManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
-                private messageService: IMessageService,
-                private projectService: IProjectService,
-                private loadingOverlayService: ILoadingOverlayService,
                 private $state: ng.ui.IStateService,
                 public localization: ILocalizationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-        //use context reference as the last parameter on subscribe...
         this.subscribers = [
-            //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            this.selectionManager.explorerArtifactObservable.subscribeOnNext(this.setSelectedNode, this)
+            this.selectionManager.explorerArtifactObservable
+                .distinctUntilChanged(item => item ? item.id : -1)
+                .subscribeOnNext(this.setSelectedNode, this),
+            this.selectionManager.explorerArtifactObservable
+                .filter(artifact => !!artifact)
+                .flatMap((artifact: IStatefulArtifact) => artifact.getProperyObservable())
+                .subscribeOnNext(this.onSelectedArtifactChange, this)
         ];
     }
 
     public $onDestroy() {
-        //dispose all subscribers
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => {
             it.dispose();
             return false;
         });
-        if (this.selectedArtifactSubscriber) {
-            this.selectedArtifactSubscriber.dispose();
-        }
     }
 
     public navigateToUnpublishedChanges() {
@@ -110,37 +99,27 @@ export class ProjectExplorerController implements IProjectExplorerController {
         const artifactId = artifact.id;
         if (this.isLoading) {
             this.pendingSelectedArtifactId = artifactId;
-        } else if (this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === artifactId)) {
-            this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === artifactId);
+        } else if (this.treeApi.setSelected((vm: TreeModels.ExplorerNodeVM) => vm.model.id === artifactId)) {
+            this.treeApi.ensureNodeVisible((vm: TreeModels.ExplorerNodeVM) => vm.model.id === artifactId);
         } else {
             this.treeApi.deselectAll();
         }
     }
 
-    private _selected: TreeModels.ITreeNodeVM<any>;
-    private get selected() {
+
+    private _selected: TreeModels.ExplorerNodeVM;
+    private get selected(): TreeModels.ExplorerNodeVM {
         return this._selected;
     }
 
-    private set selected(value: TreeModels.ITreeNodeVM<any>) {
+    private set selected(value: TreeModels.ExplorerNodeVM) {
         this._selected = value;
-
-        //Dispose of old subscriber and subscribe to new artifact.
-        if (this.selectedArtifactSubscriber) {
-            this.selectedArtifactSubscriber.dispose();
-        }
-
-        if (value) {
-            this.selectedArtifactSubscriber = value.model.getProperyObservable()
-                .distinctUntilChanged(changes => changes.item && changes.item.name)
-                .subscribeOnNext(this.onSelectedArtifactChange);
-        }
-    }
+   }
 
     private isLoading: boolean;
     private pendingSelectedArtifactId: number;
 
-    private onLoadProject = (projects: TreeModels.StatefulArtifactNodeVM[]) => {
+    private onLoadProject(projects: TreeModels.ExplorerNodeVM[]) {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
     }
@@ -155,12 +134,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
+        const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
 
         if (isExpanding) {
+            if (selectedArtifactId) {
+                this.treeApi.setSelected((vm: TreeModels.ExplorerNodeVM) => vm.model.id === selectedArtifactId);
+            }
             return;
         }
 
-        const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
         let navigateToId: number;
         if (this.projects && this.projects.length > 0) {
             if (this.pendingSelectedArtifactId) {
@@ -196,35 +178,43 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
         if (_.isFinite(navigateToId)) {
             if (navigateToId !== selectedArtifactId) {
-                this.treeApi.setSelected((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
+                this.treeApi.setSelected((vm: TreeModels.ExplorerNodeVM) => vm.model.id === navigateToId);
             } else {
                 this.navigationService.reloadCurrentState();
             }
 
-            this.treeApi.ensureNodeVisible((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === navigateToId);
+            this.treeApi.ensureNodeVisible((vm: TreeModels.ExplorerNodeVM) => vm.model.id === navigateToId);
         } else {
             this.treeApi.deselectAll();
             this.selected = undefined;
         }
     };
 
-    private onSelectedArtifactChange = (changes: IItemChangeSet) => {
+    private onSelectedArtifactChange(changes: IItemChangeSet) {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
-        if (changes.item) {
-            this.treeApi.refreshRows((vm: TreeModels.ITreeNodeVM<any>) => vm.model.id === changes.item.id);
+        if (changes.item && changes.change) {
+            this.treeApi.refreshRows((vm: TreeModels.ExplorerNodeVM) => {
+                if (vm.model.id === changes.item.id) {
+                    if (changes.change.key in vm.model) {
+                        vm.model[changes.change.key] = changes.change.value;
+                    }
+                    return true;
+                }
+                return false;
+            });
         }
-    };
+    }
 
     // BpTree bindings
 
     public treeApi: IBPTreeViewControllerApi;
-    public projects: TreeModels.StatefulArtifactNodeVM[];
+    public projects: TreeModels.ExplorerNodeVM[];
     public columns: IColumn[] = [{
-        cellClass: (vm: TreeModels.ITreeNodeVM<any>) => vm.getCellClass(),
+        cellClass: (vm: TreeModels.ExplorerNodeVM) => vm.getCellClass(),
         isGroup: true,
         cellRenderer: (params: IColumnRendererParams) => {
-            const vm = params.data as TreeModels.ITreeNodeVM<any>;
+            const vm = params.data as TreeModels.ExplorerNodeVM;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
             return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
@@ -234,7 +224,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     private resettingSelection: boolean;
 
-    public onSelect = (vm: TreeModels.ITreeNodeVM<any>, isSelected: boolean): void => {
+    public onSelect = (vm: TreeModels.ExplorerNodeVM, isSelected: boolean): void => {
         if (!this.resettingSelection && isSelected) {
             //Following has to be a const to restore current selection in case of faling navigation
             const prevSelected = this.selected;

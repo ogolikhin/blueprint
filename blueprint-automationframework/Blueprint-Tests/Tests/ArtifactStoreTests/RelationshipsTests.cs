@@ -296,32 +296,32 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
-
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
         }
 
         [TestCase]
         [TestRail(153700)]
-        [Description("Create manual trace between an artifact and a sub-artifact.  Get relationships.  Verify that returned trace has expected value.")]
+        [Description("Create manual trace between an artifact and a sub-artifact from a different artifact.  Get relationships. " +  
+            "Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceArtifactToSubartifactInDifferentArtifact_ReturnsCorrectTraces()
         {
             // Setup:
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, targetArtifact.Id);
 
             sourceArtifact.Lock(_user);
 
-            NovaTrace trace = new NovaTrace(targetArtifact, targetSubArtifacts[0].Id);
+            var trace = new NovaTrace(targetArtifact, targetSubArtifacts[0].Id);
 
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
-            artifactDetails.Traces = new List<NovaTrace> { trace };
+            sourceArtifactDetails.Traces = new List<NovaTrace> { trace };
 
-            Artifact.UpdateArtifact(sourceArtifact, _user, artifactDetails);
+            Artifact.UpdateArtifact(sourceArtifact, _user, sourceArtifactDetails);
 
             Relationships relationships = null;
 
@@ -334,34 +334,34 @@ namespace ArtifactStoreTests
             // VerifY:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
-
             ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
         }
 
         [TestCase]
         [TestRail(153741)]
-        [Description("Create manual trace between two sub-artifacts.  Get relationships.  Verify that returned trace has expected value.")]
+        [Description("Create manual trace between two sub-artifacts from different artifacts.  Get relationships. " +
+            "Verify that returned trace has expected value.")]
         public void GetRelationships_ManualTraceBetweenTwoSubArtifactsInDifferentArtifacts_ReturnsCorrectTraces()
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.UseCase);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.UseCase);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Process);
 
             var sourceSubArtifacts = Helper.ArtifactStore.GetSubartifacts(author, sourceArtifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
-            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, sourceArtifact, sourceSubArtifacts, author);
+            var sourceNovaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, sourceArtifact, sourceSubArtifacts, author);
 
             var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(author, targetArtifact.Id);
 
             sourceArtifact.Lock(author);
 
-            NovaTrace trace = new NovaTrace(targetArtifact, targetSubArtifacts[0].Id);
+            var trace = new NovaTrace(targetArtifact, targetSubArtifacts[0].Id);
 
-            novaSubArtifacts[0].Traces = new List<NovaTrace> { trace };
+            sourceNovaSubArtifacts[0].Traces = new List<NovaTrace> { trace };
 
-            artifactDetails.SubArtifacts = novaSubArtifacts;
+            artifactDetails.SubArtifacts = sourceNovaSubArtifacts;
 
             Artifact.UpdateArtifact(sourceArtifact, author, artifactDetails);
 
@@ -375,6 +375,7 @@ namespace ArtifactStoreTests
 
             // VerifY:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
 
             ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);

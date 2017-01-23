@@ -418,7 +418,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             sourceArtifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(_user, _project, sourceArtifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(_user, sourceArtifactDetails);
             Helper.ArtifactStore.PublishArtifact(sourceArtifact, _user);
 
             sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);

@@ -911,7 +911,7 @@ namespace ArtifactStoreTests
 
             // Save artifact with empty required property (No validation on save)
             artifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(_user, project, (NovaArtifactDetails)artifactDetailsChangeset);
+            Helper.ArtifactStore.UpdateArtifact(_user, (NovaArtifactDetails)artifactDetailsChangeset);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),

@@ -174,7 +174,7 @@ export class Layout implements ILayout {
             this.bridgesHandler.addConnectorBridges();
 
             if (useAutolayout) {
-                if (selectedNodeId != null) {
+                if (selectedNodeId != null && selectedNodeId !== 0) {
                     this.postRender(selectedNodeId);
                 }
             }

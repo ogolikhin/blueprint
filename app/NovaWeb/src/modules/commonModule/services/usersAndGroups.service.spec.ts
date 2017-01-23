@@ -8,7 +8,6 @@ describe("Users And Groups Service", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("usersAndGroupsService", UsersAndGroupsService);
-        //$provide.service("localization", LocalizationServiceMock);
     }));
 
     it("Search for users, user returned", inject(($httpBackend: ng.IHttpBackendService, usersAndGroupsService: UsersAndGroupsService) => {

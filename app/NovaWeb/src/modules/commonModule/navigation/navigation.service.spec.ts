@@ -14,10 +14,6 @@ describe("NavigationService", () => {
 
     beforeEach(angular.mock.module("navigation"));
 
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-
-    }));
-
     beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService, _$state_: ng.ui.IStateService) => {
         $q = _$q_;
         $scope = $rootScope.$new();

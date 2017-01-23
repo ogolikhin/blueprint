@@ -7,10 +7,6 @@ import {IFileUploadService, IFileResult} from "./";
 describe("File Upload", () => {
     beforeEach(angular.mock.module("fileUpload"));
 
-    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-
-    }));
-
     describe("uploadToFileStore", () => {
         it("calls server and returns result when expirationDate is specified",
             inject(($httpBackend: ng.IHttpBackendService, fileUploadService: IFileUploadService) => {

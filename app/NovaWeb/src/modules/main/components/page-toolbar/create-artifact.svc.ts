@@ -12,10 +12,13 @@ import {IApplicationError} from "../../../core/error/applicationError";
 export interface ICreateArtifactService {
     createNewArtifact(
         artifactId: number,
+        artifact: IStatefulArtifact,
         useModal: boolean,
         artifactName?: string,
         artifactTypeId?: number,
-        postCreationAction?: (artifact: IItem) => void): void;
+        postCreationAction?: (artifactId: number) => void,
+        ErrorHandler?: (error: IApplicationError) => void): void;
+    getArtifactById(artifactId: number, artifact?: IStatefulArtifact): ng.IPromise<IStatefulArtifact>;
 }
 
 export class CreateArtifactService implements ICreateArtifactService {
@@ -41,23 +44,27 @@ export class CreateArtifactService implements ICreateArtifactService {
         // empty
     }
 
-    private getArtifactById(artifactId: number): ng.IPromise<IStatefulArtifact> {
+    public getArtifactById(artifactId: number, artifact?: IStatefulArtifact): ng.IPromise<IStatefulArtifact> {
+        if (!!artifact) {
+            return this.$q.resolve(artifact);
+        }
         return this.statefulArtifactFactory.createStatefulArtifactFromId(artifactId);
     }
 
     public createNewArtifact = (
         artifactId: number,
+        artifact?: IStatefulArtifact,
         useModal: boolean = true,
         artifactName?: string,
         artifactTypeId?: number,
-        postCreationAction?: (artifact: IItem) => void): void => {
+        postCreationAction?: (artifactId: number) => void,
+        ErrorHandler?: (error: IApplicationError) => void): void => {
 
         let createNewArtifactLoadingId: number;
-        let newArtifact: IStatefulArtifact;
         let projectId: number;
         let parentId: number;
 
-        this.getArtifactById(artifactId)
+        this.getArtifactById(artifactId, artifact)
         .then((parentArtifact: IStatefulArtifact) => {
             projectId = parentArtifact.projectId;
             parentId = parentArtifact.predefinedType !== ItemTypePredefined.ArtifactCollection ? parentArtifact.id : parentArtifact.parentId;
@@ -83,37 +90,24 @@ export class CreateArtifactService implements ICreateArtifactService {
                 }
             })
             .then((result: ICreateNewArtifactReturn) => {
-                createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
-                // if canceled:
-                if (!result.artifactTypeId) {
-                    return this.$q.reject();
-                }
                 const itemTypeId = result.artifactTypeId;
                 const name = result.artifactName;
+                createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
                 return this.artifactService.create(name, projectId, parentId, itemTypeId);
             })
             .then((data: IArtifact) => {
-                return this.getArtifactById(data.id);
-            })
-            .then((artifact: IStatefulArtifact) => {
-                newArtifact = artifact;
-                // save and publish
-                return newArtifact.publish();
-            })
-            .then (() => {
-                postCreationAction(newArtifact);
+                if (!!postCreationAction) {
+                    return postCreationAction(data.id);
+                } else {
+                    return this.$q.resolve();
+                }
             })
             .catch((error: IApplicationError) => {
-                if (error.statusCode === 404 && error.errorCode === 102) {
-                    this.messageService.addError("Create_New_Artifact_Error_404_102", true);
-                } else if (error.statusCode === 404 && error.errorCode === 101) {
-                    // parent not found, we refresh the single project and move to the root
-                    this.messageService.addError("Create_New_Artifact_Error_404_101", true);
-                } else if (error.statusCode === 404 && error.errorCode === 109) {
-                    // artifact type not found, we refresh the single project
-                    this.messageService.addError("Create_New_Artifact_Error_404_109", true);
-                } else if (!error.handled) {
+                if (!!ErrorHandler) {
+                    return ErrorHandler(error);
+                } else {
                     this.messageService.addError("Create_New_Artifact_Error_Generic");
+                    return this.$q.reject();
                 }
             }).finally(() => {
                     if (!!createNewArtifactLoadingId) {

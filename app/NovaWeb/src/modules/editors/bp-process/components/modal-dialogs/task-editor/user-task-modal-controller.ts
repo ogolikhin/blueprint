@@ -1,3 +1,6 @@
+import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
+import {IMessageService} from "../../../../../core/messages/message.svc";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {ICreateArtifactService} from "../../../../../main/components/page-toolbar/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";
 import {IModalScope} from "../base-modal-dialog-controller";
@@ -17,8 +20,13 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         $rootScope: ng.IRootScopeService,
         $timeout: ng.ITimeoutService,
         dialogService: IDialogService,
+        $q: ng.IQService,
         localization: ILocalizationService,
         createArtifactService: ICreateArtifactService,
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        messageService: IMessageService,
+        artifactService: IArtifactService,
+        loadingOverlayService: ILoadingOverlayService,
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: UserTaskDialogModel
     ) {
@@ -26,8 +34,13 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         $rootScope,
         $timeout,
         dialogService,
+        $q,
         localization,
         createArtifactService,
+        statefulArtifactFactory,
+        messageService,
+        artifactService,
+        loadingOverlayService,
         $uibModalInstance,
         dialogModel);
     }

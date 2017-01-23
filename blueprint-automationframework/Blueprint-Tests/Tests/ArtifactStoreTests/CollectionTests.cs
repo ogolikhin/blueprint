@@ -87,7 +87,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             collection.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove.Id });
-            
+
             Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection); },
                 "Updating collection content should throw no error.");
 
@@ -125,26 +125,27 @@ namespace ArtifactStoreTests
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, artifactsToAdd);
         }
 
-        [TestCase]
+        [TestCase, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(230662)]
         [Description("Create new collection, publish new artifact, add artifact to collection, check collection content.")]
-        public void AddArtifactToCollection_PublishedArtifact_ValidateCollectionContent()
+        public void AddArtifactToCollection_PublishedArtifact_ValidateCollectionContent(BaseArtifactType artifactTypeToAdd)
         {
             // Setup:
             var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
-            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Process);
-
-            int numberOfAddedArtifacts = 0;
+            var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactTypeToAdd);
             
-            // Execute:
-            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
-                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+            int numberOfAddedArtifacts = 0;
 
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                    numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifactToAdd.Id,
+                        collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+            
             // Verify:
             Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
             Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact});
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd});
         }
 
         [TestCase(true, 2)]
@@ -225,7 +226,7 @@ namespace ArtifactStoreTests
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
             Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact });
-            StringAssert.AreEqualIgnoringCase(descriptionText, collection.Artifacts[0].Description, "Description should have expected value.");
+            Assert.AreEqual(descriptionText, collection.Artifacts[0].Description, "Description should have expected value.");
         }
 
         #endregion Positive Tests
@@ -251,17 +252,15 @@ namespace ArtifactStoreTests
             }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             string messageText = I18NHelper.FormatInvariant("Failed to lock Collection: {0}.", collectionArtifact.Id);
-            Assert.AreEqual(InternalApiErrorCodes.LockedByOtherUser, serviceErrorMessage.ErrorCode, "Error code should have expected value.");
-            Assert.AreEqual(messageText, serviceErrorMessage.Message, "Error text should have expected value.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, messageText);
         }
 
         [TestCase]
         [TestRail(230675)]
         [Description("Create new collection, delete published artifact (don't publish information about deletion)," +
         "add this artifact to collection - 404 exception should be returned. Check exception message.")]
-        public void AddArtifactToCollection_ArtifactScheduledToDelete_Returns404()
+        public void AddArtifactToCollection_ArtifactMarkedForDeletion_Returns404()
         {
             // Setup:
             var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
@@ -276,10 +275,8 @@ namespace ArtifactStoreTests
                     includeDescendants: true); }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             const string messageText = "You have attempted to access an artifact that does not exist or has been deleted.";
-            Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code should have expected value.");
-            Assert.AreEqual(messageText, serviceErrorMessage.Message, "Error text should have expected value.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, messageText);
         }
 
         #endregion 40x tests

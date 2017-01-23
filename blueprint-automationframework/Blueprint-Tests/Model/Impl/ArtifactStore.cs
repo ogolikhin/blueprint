@@ -109,7 +109,7 @@ namespace Model.Impl
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, IProject, NovaArtifactDetails, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, NovaArtifactDetails, List{HttpStatusCode})"/>
         public INovaArtifactDetails UpdateArtifact(IUser user,
             NovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -622,7 +622,6 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.AddArtifactToCollection(IUser, int, int, bool, List{HttpStatusCode})"/>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider")]
         public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -632,7 +631,6 @@ namespace Model.Impl
             var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.POST, requestBody,
                 contentType: "application/json", expectedStatusCodes: expectedStatusCodes);
             return I18NHelper.ToInt32Invariant(response.Content);
-            //return Int32.Parse(response.Content);
         }
 
         #endregion Members inherited from IArtifactStore

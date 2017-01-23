@@ -461,7 +461,7 @@ namespace Model
 
         /// <summary>
         /// Adds artifact to the collection
-        /// Runs svc/bpartifactstore/collection/{0}/add/{1}
+        /// Runs POST svc/bpartifactstore/collection/{0}/add/{1}
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of Artifact to add.</param>

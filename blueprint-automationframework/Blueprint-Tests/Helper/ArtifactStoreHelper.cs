@@ -753,27 +753,7 @@ namespace Helper
 
             string propertyContent = string.Join("<br/>", imageTags);
 
-            if (artifactDetails.GetType().GetProperty(propertyName) != null)
-            {
-                CSharpUtilities.SetProperty(propertyName, propertyContent, artifactDetails);
-            }
-            else if (artifactDetails.CustomPropertyValues.Exists(p => p.Name == propertyName))
-            {
-                var property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
-                property.CustomPropertyValue = propertyContent;
-            }
-            else if (artifactDetails.SpecificPropertyValues.Exists(p => p.Name == propertyName))
-            {
-                var property = artifactDetails.SpecificPropertyValues.Find(p => p.Name == propertyName);
-                property.CustomPropertyValue = propertyContent;
-            }
-            else
-            {
-                Assert.Fail("No property named '{0}' was found in artifact ID: {1}!", propertyName, artifactDetails.Id);
-            }
-
-            artifactStore.UpdateArtifact(user, artifactDetails);
-            return artifactStore.GetArtifactDetails(user, artifactDetails.Id);
+            return SetArtifactTextProperty(artifactDetails, user, artifactStore, propertyContent, propertyName);
         }
 
         /// <summary>

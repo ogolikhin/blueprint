@@ -14,18 +14,15 @@ import {IMessageService} from "../../../main/components/messages/message.svc";
 describe("BPTreeViewComponent", () => {
     angular.module("bp.widgets.treeView", [])
         .component("bpTreeView", new BPTreeViewComponent());
-    const stateParams = {
-        id: "22"
-    };
 
     beforeEach(angular.mock.module("bp.widgets.treeView", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
-        $provide.factory("$stateParams", () => {
+$provide.factory("$stateParams", () => {
             return stateParams;
-        });
+        })
     }));
 
     //This is not a needed/valid test as this is testing that component bindings work which is covered in core angular
@@ -103,18 +100,12 @@ describe("BPTreeViewComponent", () => {
 
 describe("BPTreeViewController", () => {
     let controller: BPTreeViewController;
-    const stateParams = {
-        id: "22"
-    };
 
     beforeEach(angular.mock.module("bp.widgets.treeView", ($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
-        $provide.factory("$stateParams", () => {
-            return stateParams;
-        });
     }));
 
     beforeEach(inject(($q: ng.IQService,
@@ -131,7 +122,6 @@ describe("BPTreeViewController", () => {
             $timeout,
             windowManager,
             messageService,
-            $stateParams,
             $log);
         controller.options = {
             api: jasmine.createSpyObj("api", [

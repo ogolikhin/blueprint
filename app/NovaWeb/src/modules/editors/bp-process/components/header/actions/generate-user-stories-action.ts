@@ -243,6 +243,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                         case ErrorCode.ArtifactNotPublished:
                             message = this.localization.get("ST_US_Generate_LockedByOtherUser_Failure_Message");
                             break;
+                        case ErrorCode.UserStoryArtifactTypeNotFound:
+                            message = reason.message;
+                            break;
+
                     }
                 }
 

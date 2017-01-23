@@ -921,13 +921,13 @@ namespace Helper
             ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            CustomProperty property = null;
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
 
             switch (propertyType)
             {
                 case PropertyPrimitiveType.Choice:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
 
@@ -966,46 +966,61 @@ namespace Helper
 
                     if (validValues.Count > 0)
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = validValues };
+                        property.CustomPropertyValue = new ChoiceValues { ValidValues = validValues };
                     }
 
                     if (!string.IsNullOrEmpty(customValue))
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { CustomValue = customValue };
+                        property.CustomPropertyValue = new ChoiceValues { CustomValue = customValue };
                     }
                     break;
                 case PropertyPrimitiveType.Date:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property date value
-                    property.CustomPropertyValue = newValue;
-                    break;
                 case PropertyPrimitiveType.Number:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property number value
                     property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Text:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     // Change custom property text value
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
                 case PropertyPrimitiveType.User:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     IUser user = (IUser)newValue;
 
                     var newIdentification = new Identification { DisplayName = user.DisplayName, Id = user.Id };
                     var newUserPropertyValue = new List<Identification> { newIdentification };
 
                     // Change custom property user value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues { UsersGroups = newUserPropertyValue };
+                    property.CustomPropertyValue = new UserGroupValues { UsersGroups = newUserPropertyValue };
                     break;
                 default:
                     Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
                     break;
+            }
+
+            return property;
+        }
+
+        /// <summary>
+        /// Updates the specified custom property with a null value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <param name="customProperties">The list of custom properties.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateCustomPropertyWithNull(List<CustomProperty> customProperties, string propertyName)
+        {
+            ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
+
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
+
+            if (property.PrimitiveType == (int) PropertyPrimitiveType.User)
+            {
+                property.CustomPropertyValue = new UserGroupValues { UsersGroups = null };
+            }
+            else
+            {
+                property.CustomPropertyValue = null;
             }
 
             return property;

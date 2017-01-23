@@ -70,7 +70,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
 
         $scope["bpFieldSelect"] = {
             closeDropdownOnTab: this.closeDropdownOnTab,
-            closeDropdownOnBlur: this.closeDropdownOnBlur,
+            closeDropdownOnClick: this.closeDropdownOnClick,
             labels: {
                 noMatch: localization.get("Property_No_Matching_Options")
             },
@@ -118,7 +118,7 @@ export class BpFieldSelectController extends BPFieldBaseController {
     };
 
     private onOpenClose = ($select, isOpen: boolean) => {
-        this.closeDropdownOnBlur(isOpen, $select.searchInput);
+        this.closeDropdownOnClick(isOpen, $select);
 
         if (!isOpen) {
             $select.items = this.refreshOptions();

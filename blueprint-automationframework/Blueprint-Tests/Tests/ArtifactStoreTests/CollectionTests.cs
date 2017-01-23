@@ -120,6 +120,52 @@ namespace ArtifactStoreTests
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, artifactsToAdd);
         }
 
+        [TestCase]
+        [TestRail(230662)]
+        [Description("Create new collection, publish new artifact, add artifact to collection, check collection content.")]
+        public void AddArtifactToCollection_PublishedArtifact_ValidateCollectionContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Process);
+
+            int numberOfAddedArtifacts = 0;
+            
+            // Execute:
+            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact});
+        }
+
+        [TestCase]
+        [TestRail(230663)]
+        [Description("Create new collection, publish new artifact with child artifact, add artifact to collection," + 
+        "check collection content - artifact with its child should be added.")]
+        public void AddArtifactToCollection_PublishedArtifactWithChild_ValidateCollectionContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor, artifact);
+
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id, includeDescendants: true); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(2, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(2, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact, childArtifact });
+        }
+
         /// <summary>
         /// Creates empty collection and return corresponding IArtifact.
         /// </summary>

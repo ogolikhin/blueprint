@@ -139,7 +139,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
             },
             closeDropdownOnTab: this.closeDropdownOnTab,
-            closeDropdownOnBlur: this.closeDropdownOnBlur,
+            closeDropdownOnClick: this.closeDropdownOnClick,
             scrollIntoView: this.scrollIntoView,
             setFocus: function () {
                 if ($scope["uiSelectContainer"]) {
@@ -236,7 +236,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 selectMulti.isScrolling = true;
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
-                this.closeDropdownOnBlur(isOpen, $select.searchInput);
+                this.closeDropdownOnClick(isOpen, $select);
 
                 this.isOpen = isOpen;
                 this.items = options;

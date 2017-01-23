@@ -39,7 +39,7 @@ namespace Model.ArtifactModel.Impl
         public NovaTrace()
         { }
 
-        public NovaTrace(IArtifactBase targetArtifact, TraceDirection direction = TraceDirection.From, bool isSuspect = false,
+        public NovaTrace(IArtifactBase targetArtifact, int? targetSubArtifactId = null, TraceDirection direction = TraceDirection.From, bool isSuspect = false,
             ChangeType changeType = Enums.ChangeType.Create)
         {
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
@@ -47,7 +47,7 @@ namespace Model.ArtifactModel.Impl
             ChangeType = changeType;
             Direction = direction;
             IsSuspect = isSuspect;
-            ItemId = targetArtifact.Id;
+            ItemId = targetSubArtifactId ?? targetArtifact.Id;
             ProjectId = targetArtifact.ProjectId;
             TraceType = TraceType.Manual;
         }

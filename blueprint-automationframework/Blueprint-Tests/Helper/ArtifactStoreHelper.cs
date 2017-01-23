@@ -661,6 +661,27 @@ namespace Helper
             Assert.AreEqual(expectedAttachment.UserName, actualAttachment.UserName, "The attachment UserName values do not match!");
         }
 
+        /// <summary>
+        /// Compares traces and asserts that each of their properties are equal.
+        /// </summary>
+        /// <param name="expectedArtifactTrace">The expected trace.</param>
+        /// <param name="expectedArtifactTrace">The resulted trace.</param>
+        /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
+        public static void AssertTracesAreEqual(ITrace expectedArtifactTrace, ITrace resultedArtifactTrace, bool checkDirection = true)
+        {
+            ThrowIf.ArgumentNull(expectedArtifactTrace, nameof(expectedArtifactTrace));
+            ThrowIf.ArgumentNull(resultedArtifactTrace, nameof(resultedArtifactTrace));
+
+            Assert.AreEqual(expectedArtifactTrace.ProjectId, resultedArtifactTrace.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.ArtifactId, resultedArtifactTrace.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.IsSuspect, resultedArtifactTrace.IsSuspect, "One trace is marked suspect but the other isn't!");
+
+            if (checkDirection)
+            {
+                Assert.AreEqual(expectedArtifactTrace.Direction, resultedArtifactTrace.Direction, "The Trace Directions don't match!");
+            }
+        }
+
         #endregion Custom Asserts
 
         public enum ImageType
@@ -817,6 +838,30 @@ namespace Helper
             projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
 
             return projectCustomData;
+        }
+
+        /// <summary>
+        /// Gets all details for all the sub-artifacts passed in.
+        /// </summary>
+        /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
+        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>A list of NovaSubArtifacts.</returns>
+        public static List<NovaSubArtifact> GetDetailsForAllSubArtifacts(IArtifactStore artifactStore, IArtifactBase artifact, List<SubArtifact> subArtifacts, IUser user)
+        {
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
+
+            var subArtifactDetailsList = new List<NovaSubArtifact>();
+
+            foreach (var subArtifact in subArtifacts)
+            {
+                var subArtifactDetails = artifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
+                subArtifactDetailsList.Add(subArtifactDetails);
+            }
+
+            return subArtifactDetailsList;
         }
 
         /// <summary>

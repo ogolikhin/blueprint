@@ -1,7 +1,6 @@
 //3rd party(external) library dependencies used for this module
 import "angular";
 import "angular-ui-router";
-
 //internal dependencies used for this module
 import {ItemInfoService} from "./itemInfo.service";
 export const ItemInfo = angular.module("itemInfo", ["ui.router"])

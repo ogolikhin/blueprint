@@ -1,3 +1,4 @@
+import "angular";
 import {ConfigurationModule} from "./configuration";
 import {HttpInterceptorModule} from "./httpInterceptor";
 import {FileUpload} from "./fileUpload";
@@ -7,10 +8,11 @@ import {Localization} from "./localization";
 import {ItemInfo} from "./itemInfo";
 import {Navigation} from "./navigation";
 import {CoreServices} from "./services/index";
+import * as uiBootstrap from "angular-ui-bootstrap";
 
-angular.module("bp.core", [
+export const CommonModule = angular.module("commonModule", [
     "ui.router",
-    "ui.bootstrap",
+    uiBootstrap,
     Navigation,
     ItemInfo,
     FileUpload,
@@ -20,4 +22,5 @@ angular.module("bp.core", [
     LocalStorage,
     ConfigurationModule,
     HttpInterceptorModule
-]);
+])
+    .name;

@@ -38,6 +38,7 @@ export class BPArtifactListController implements IBPArtifactListController {
         this.limitTo = this.initialLimit;
 
         this._sortedList = [];
+
         this.artifactList.forEach((artifact) => {
             let item = artifact as Models.IArtifactWithProject;
             if (this.projectList) {

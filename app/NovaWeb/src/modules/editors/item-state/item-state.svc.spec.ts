@@ -24,7 +24,7 @@ describe("Item State Service tests", () => {
         loadingOverlayService: ILoadingOverlayService;
 
     beforeEach(angular.mock.module("ui.router"));
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("bp.editors"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
@@ -126,7 +126,6 @@ describe("Item State Service tests", () => {
 
         // act
         itemStateService.getItemInfoResult(null);
-        $timeout.flush();
 
         // assert
         expect(navigationSpy).toHaveBeenCalled();

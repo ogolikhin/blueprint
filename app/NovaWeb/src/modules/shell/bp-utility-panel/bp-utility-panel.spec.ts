@@ -1,4 +1,5 @@
-﻿import "angular-mocks";
+﻿import "angular";
+import "angular-mocks";
 import "angular-sanitize";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {ItemTypePredefined} from "../../main/models/enums";
@@ -19,6 +20,7 @@ describe("Component BPUtilityPanel", () => {
     let template = `<bp-utility-panel></bp-utility-panel>`;
     let vm: BPUtilityPanelController;
 
+    //todo: when refactor you should only bootstrap one app. module not both as this is creating dependancy no needed
     beforeEach(angular.mock.module("app.shell"));
     beforeEach(angular.mock.module("app.main"));
 

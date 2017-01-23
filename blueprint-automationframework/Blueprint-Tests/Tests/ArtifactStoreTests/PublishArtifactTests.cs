@@ -78,7 +78,7 @@ namespace ArtifactStoreTests
 
             var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
 
-            ValidateGetCollection(collection, publishedArtifacts);
+            ArtifactStoreHelper.ValidateCollection(collection, publishedArtifacts);
 
             //Temporary disposal call for collection: Delete collection
             Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
@@ -116,7 +116,7 @@ namespace ArtifactStoreTests
 
             var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
 
-            ValidateGetCollection(collection, savedArtifacts);
+            ArtifactStoreHelper.ValidateCollection(collection, savedArtifacts);
 
             //Temporary disposal call for collection: Delete collection
             Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
@@ -155,13 +155,13 @@ namespace ArtifactStoreTests
 
             var collectionRetrievedByUserWithoutPermission = Helper.ArtifactStore.GetCollection(authorWithoutPermission, collectionArtifact.Id);
 
-            ValidateGetCollection(collectionRetrievedByUserWithoutPermission, new List<IArtifactBase>());
+            ArtifactStoreHelper.ValidateCollection(collectionRetrievedByUserWithoutPermission, new List<IArtifactBase>());
 
             var collectionRetrivedByUserWithPermission = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
 
             var publishedArtifactList = new List<IArtifactBase> { publishedArtifact };
 
-            ValidateGetCollection(collectionRetrivedByUserWithPermission, publishedArtifactList);
+            ArtifactStoreHelper.ValidateCollection(collectionRetrivedByUserWithPermission, publishedArtifactList);
 
             //Temporary disposal call for collection: Delete collection
             Helper.ArtifactStore.DeleteArtifact(collectionArtifact, authorWithoutPermission);
@@ -203,7 +203,7 @@ namespace ArtifactStoreTests
 
             var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
 
-            ValidateGetCollection(collection, new List<IArtifactBase>());
+            ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase>());
 
             //Temporary disposal call for collection: Delete collection
             Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
@@ -1156,29 +1156,6 @@ namespace ArtifactStoreTests
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
             var artifactChain = Helper.CreateSavedArtifactChain(_project, _user, artifactTypes);
             return artifactChain;
-        }
-
-        /// <summary>
-        /// Validate Collection contents by comparing with the expected artifact list
-        /// </summary>
-        /// <param name="collection">collection returned from get collection call</param>
-        /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
-        private static void ValidateGetCollection(Collection collection, List<IArtifactBase> artifactList)
-        {
-            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
-                "{0} artifacts are expected from collection but {1} are returned.",
-                artifactList.Count(), collection.Artifacts.Count());
-
-            if (artifactList.Any())
-            {
-                foreach (var artifact in artifactList)
-                {
-                    var collectionArtifact = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id));
-                    Assert.AreEqual(artifact.Name, collectionArtifact.Name);
-                    Assert.AreEqual(artifact.ArtifactTypeId, collectionArtifact.ItemTypeId);
-                    Assert.AreEqual(artifact.BaseArtifactType.ToItemTypePredefined(), collectionArtifact.ItemTypePredefined);
-                }
-            }
         }
 
         #endregion Private functions

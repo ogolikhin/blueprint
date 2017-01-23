@@ -824,17 +824,23 @@ namespace Helper
         public static IArtifact CreateCollectionGetCollectionArtifact(
             TestHelper helper,
             IProject project,
-            IUser user, int? parentId = null, string name = null)
+            IUser user,
+            int? parentId = null,
+            string name = null
+            )
         {
             ThrowIf.ArgumentNull(helper, nameof(helper));
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             var collectionFolder = project.GetDefaultCollectionFolder(helper.ArtifactStore.Address, user);
             parentId = collectionFolder.Id;
+            
             // fake type as far as we don't have Collection in OpenApi
             var collectionArtifact = helper.CreateWrapAndSaveNovaArtifact(project, user,
                 ItemTypePredefined.ArtifactCollection, parentId.Value, baseType: BaseArtifactType.PrimitiveFolder,
                 name: name);
+            
             // TODO better way to set specific artifactTypeId value for the collection artifact?
             //Set ArtifactTypeIDcall for collection: Delete collection
             collectionArtifact.ArtifactTypeId = 83;
@@ -847,6 +853,33 @@ namespace Helper
             Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
 
             return collectionArtifact;
+        }
+
+        /// <summary>
+        /// Validate Collection contents by comparing with the expected artifact list
+        /// </summary>
+        /// <param name="collection">collection returned from get collection call</param>
+        /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
+        public static void ValidateCollection(Collection collection, List<IArtifactBase> artifactList)
+        {
+            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
+
+            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
+                "{0} artifacts are expected from collection but {1} are returned.",
+                artifactList.Count(), collection.Artifacts.Count());
+
+            if (artifactList.Any())
+            {
+                foreach (var artifact in artifactList)
+                {
+                    CollectionItem collectionArtifact = null;
+                    Assert.DoesNotThrow(() => collectionArtifact = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id)),
+                        "expected artifact with Id {0} is not found from the returned collection!", artifact.Id);
+                    Assert.AreEqual(artifact.Name, collectionArtifact.Name);
+                    Assert.AreEqual(artifact.ArtifactTypeId, collectionArtifact.ItemTypeId);
+                    Assert.AreEqual(artifact.BaseArtifactType.ToItemTypePredefined(), collectionArtifact.ItemTypePredefined);
+                }
+            }
         }
 
         #endregion Collection Methods

@@ -122,12 +122,10 @@ namespace Model
         /// Updates a Nova artifact.
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="project">The project containing the artifact to be updated.</param>
         /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
-        INovaArtifactDetails UpdateArtifact(IUser user, IProject project,
-            NovaArtifactDetails novaArtifactDetails,
+        INovaArtifactDetails UpdateArtifact(IUser user, NovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -463,7 +461,7 @@ namespace Model
 
         /// <summary>
         /// Adds artifact to the collection
-        /// Runs svc/bpartifactstore/collection/{0}/add/{1}
+        /// Runs POST svc/bpartifactstore/collection/{0}/add/{1}
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of Artifact to add.</param>

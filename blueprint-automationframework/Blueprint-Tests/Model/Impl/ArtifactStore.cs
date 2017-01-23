@@ -109,13 +109,12 @@ namespace Model.Impl
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, IProject, NovaArtifactDetails, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, NovaArtifactDetails, List{HttpStatusCode})"/>
         public INovaArtifactDetails UpdateArtifact(IUser user,
-            IProject project,
             NovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return UpdateArtifact(Address, user, project, novaArtifactDetails);
+            return UpdateArtifact(Address, user, novaArtifactDetails);
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
@@ -623,7 +622,6 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.AddArtifactToCollection(IUser, int, int, bool, List{HttpStatusCode})"/>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider")]
         public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -633,7 +631,6 @@ namespace Model.Impl
             var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.POST, requestBody,
                 contentType: "application/json", expectedStatusCodes: expectedStatusCodes);
             return I18NHelper.ToInt32Invariant(response.Content);
-            //return Int32.Parse(response.Content);
         }
 
         #endregion Members inherited from IArtifactStore
@@ -942,15 +939,13 @@ namespace Model.Impl
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="project">The project containing the artifact to be updated.</param>
         /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
-        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, IProject project, NovaArtifactDetails novaArtifactDetails,
+        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, NovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(novaArtifactDetails, nameof(novaArtifactDetails));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaArtifactDetails.Id);

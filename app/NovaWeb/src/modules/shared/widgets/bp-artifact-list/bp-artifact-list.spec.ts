@@ -1,5 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "lodash";
 import {BPArtifactListComponent, BPArtifactListController} from "./bp-artifact-list";
 
 describe("BPArtifactListComponent", () => {

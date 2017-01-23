@@ -54,15 +54,10 @@ export class BPArtifactListController implements IBPArtifactListController {
         });
         this._sortedList.sort(this.sortList);
 
-        let projectId: number;
-        let numberOfProject = 0;
-        for (let index = 0; index < this._sortedList.length && index < this.initialLimit; index++) {
-            if (projectId !== this._sortedList[index].projectId) {
-                numberOfProject++;
-                projectId = this._sortedList[index].projectId;
-            }
-        }
-        this.initialRows = numberOfProject + (this._sortedList.length < this.initialLimit ? this._sortedList.length : this.initialLimit);
+        const initialArtifacts = _.slice(this._sortedList, 0, this.initialLimit);
+        const initialProjects = initialArtifacts.map(artifact => artifact.projectName);
+        const numberOfDistinctProjects = Object.keys(_.countBy(initialProjects)).length;
+        this.initialRows = numberOfDistinctProjects + (this._sortedList.length < this.initialLimit ? this._sortedList.length : this.initialLimit);
 
         this.listHeight = _.toString(this.initialRows * this.itemHeight) + "px";
     };
@@ -75,12 +70,25 @@ export class BPArtifactListController implements IBPArtifactListController {
         return this.limitTo !== this.initialLimit;
     };
 
+    public showProject = (artifact: Models.IArtifactWithProject, index?: number): boolean => {
+        if (!artifact.projectName) {
+            return false;
+        }
+
+        return index === 0
+            || this._sortedList[index].projectName !== this._sortedList[index - 1].projectName;
+    };
+
     public noMoreItems = (): boolean => {
         return this.sortedList.length <= this.limitTo;
     };
 
     public loadMore = () => {
         this.limitTo = this.limit;
+    };
+
+    public showLoadMore = (): boolean => {
+        return this.limitTo === this.initialLimit && !this.noMoreItems();
     };
 
     public itemLabel = (artifact: Models.IArtifactWithProject): string => {

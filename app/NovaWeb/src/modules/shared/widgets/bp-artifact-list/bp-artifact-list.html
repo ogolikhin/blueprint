@@ -7,7 +7,7 @@
     }">
     <li class="bp-artifact-list__item" ng-repeat="artifact in $ctrl.sortedList | limitTo: $ctrl.limitTo track by artifact.id">
         <div class="bp-artifact-list__project"
-             ng-if="artifact.projectName && ($index === 0 || $ctrl.sortedList[$index].projectName !== $ctrl.sortedList[$index - 1].projectName)"
+             ng-if="$ctrl.showProject(artifact, $index + startIndex)"
              bp-tooltip="{{::artifact.projectName}}" bp-tooltip-truncated="true">
             <span class="bp-artifact-list__icon"><i class="bp-artifact-list__icon icon icon-project"></i></span>{{::artifact.projectName}}
         </div>
@@ -22,7 +22,6 @@
 </ul>
 <div class="bp-artifact-list__counter" ng-if="$ctrl.sortedList.length > $ctrl.limitTo">
     {{$root.config.labels["Artifact_List_Show_First_N_Results"] | bpFormat:$ctrl.limitTo}}<br/>
-    <a class="bp-artifact-list__load-more" href="javascript://"
-       ng-if="$ctrl.limitTo === $ctrl.initialLimit && $ctrl.sortedList.length > $ctrl.limitTo"
-       ng-click="$ctrl.loadMore()">{{::$root.config.labels["Artifact_List_Show_More"]}}</a>
+    <button class="bp-artifact-list__load-more btn-link" ng-if="$ctrl.showLoadMore()"
+       ng-click="$ctrl.loadMore()">{{::$root.config.labels["Artifact_List_Show_More"]}}</button>
 </div>

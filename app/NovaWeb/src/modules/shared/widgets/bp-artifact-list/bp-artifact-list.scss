@@ -7,6 +7,12 @@
     margin: 0;
     padding: 0;
 
+    .vs-repeat-before-content,
+    .vs-repeat-after-content {
+        height: 0;
+        list-style: none;
+    }
+
     .item-icon__fallback {
         vertical-align: top;
     }
@@ -20,15 +26,15 @@
     &__icon {
         display: inline-block;
         font-size: $font-size-big;
-        margin-right: 4px;
-        width: 20px;
         height: 20px;
+        margin-right: 4px;
         text-align: center;
+        width: 20px;
 
         img {
             background: $white;
-            width: 14px;
             position: relative;
+            width: 14px;
         }
     }
 

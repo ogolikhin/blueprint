@@ -26,10 +26,15 @@ export class BPArtifactListController implements IBPArtifactListController {
     public limitTo: number;
     public initialRows: number;
 
+    public itemHeight: number;
+    public listHeight: string;
+
     private _sortedList: Models.IArtifactWithProject[];
     private initialLimit: number;
 
     public $onInit = () => {
+        this.itemHeight = 21;
+
         // limit set on the component
         if (!this.limit) {
             this.limit = 100; // if no limit is set, default to 100
@@ -37,15 +42,15 @@ export class BPArtifactListController implements IBPArtifactListController {
         this.initialLimit = 10; // limit of the initial list
         this.limitTo = this.initialLimit;
 
-        this._sortedList = [];
-        this.artifactList.forEach((artifact) => {
-            let item = artifact as Models.IArtifactWithProject;
+        this._sortedList = this.artifactList.map((artifact) => {
+            const item = artifact as Models.IArtifactWithProject;
             if (this.projectList) {
-                item.projectName = this.projectList.filter((project) => {
-                    return project.id === artifact.projectId;
-                })[0].name;
+                const project = _.find(this.projectList, (project) => {
+                    return item.projectId === project.id;
+                });
+                item.projectName = project ? project.name : undefined;
             }
-            this._sortedList.push(item);
+            return item;
         });
         this._sortedList.sort(this.sortList);
 
@@ -58,11 +63,21 @@ export class BPArtifactListController implements IBPArtifactListController {
             }
         }
         this.initialRows = numberOfProject + (this._sortedList.length < this.initialLimit ? this._sortedList.length : this.initialLimit);
+
+        this.listHeight = _.toString(this.initialRows * this.itemHeight) + "px";
     };
 
     public get sortedList(): Models.IArtifactWithProject[] {
         return this._sortedList;
     }
+
+    public showOverflow = (): boolean => {
+        return this.limitTo !== this.initialLimit;
+    };
+
+    public noMoreItems = (): boolean => {
+        return this.sortedList.length <= this.limitTo;
+    };
 
     public loadMore = () => {
         this.limitTo = this.limit;

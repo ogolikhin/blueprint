@@ -271,7 +271,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
         }
 
-        [TestCase, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182550)]
         [Description("Create two artifacts: main and inline trace on different project. - Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission for the inline trace artifact")]
         public void GetArtifactDetails_GetArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTraceLink(

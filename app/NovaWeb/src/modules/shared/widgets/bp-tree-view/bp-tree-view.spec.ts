@@ -11,6 +11,10 @@ import {WindowResize} from "../../../core/services/window-resize";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 
+const stateParamsMock = () => {
+    return {id: "22"}
+};
+
 describe("BPTreeViewComponent", () => {
     angular.module("bp.widgets.treeView", [])
         .component("bpTreeView", new BPTreeViewComponent());
@@ -20,9 +24,7 @@ describe("BPTreeViewComponent", () => {
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
-$provide.factory("$stateParams", () => {
-            return stateParams;
-        })
+        $provide.factory("$stateParams", stateParamsMock);
     }));
 
     //This is not a needed/valid test as this is testing that component bindings work which is covered in core angular
@@ -106,6 +108,7 @@ describe("BPTreeViewController", () => {
         $provide.service("windowManager", WindowManager);
         $provide.service("windowResize", WindowResize);
         $provide.service("messageService", MessageServiceMock);
+        $provide.factory("$stateParams", stateParamsMock)
     }));
 
     beforeEach(inject(($q: ng.IQService,

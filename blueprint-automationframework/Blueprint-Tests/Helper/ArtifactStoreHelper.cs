@@ -661,6 +661,27 @@ namespace Helper
             Assert.AreEqual(expectedAttachment.UserName, actualAttachment.UserName, "The attachment UserName values do not match!");
         }
 
+        /// <summary>
+        /// Compares traces and asserts that each of their properties are equal.
+        /// </summary>
+        /// <param name="expectedArtifactTrace">The expected trace.</param>
+        /// <param name="expectedArtifactTrace">The resulted trace.</param>
+        /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
+        public static void AssertTracesAreEqual(ITrace expectedArtifactTrace, ITrace resultedArtifactTrace, bool checkDirection = true)
+        {
+            ThrowIf.ArgumentNull(expectedArtifactTrace, nameof(expectedArtifactTrace));
+            ThrowIf.ArgumentNull(resultedArtifactTrace, nameof(resultedArtifactTrace));
+
+            Assert.AreEqual(expectedArtifactTrace.ProjectId, resultedArtifactTrace.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.ArtifactId, resultedArtifactTrace.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.IsSuspect, resultedArtifactTrace.IsSuspect, "One trace is marked suspect but the other isn't!");
+
+            if (checkDirection)
+            {
+                Assert.AreEqual(expectedArtifactTrace.Direction, resultedArtifactTrace.Direction, "The Trace Directions don't match!");
+            }
+        }
+
         #endregion Custom Asserts
 
         public enum ImageType
@@ -709,7 +730,7 @@ namespace Helper
 
             var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
 
-            return AddRandomImageToArtifactProperty(artifactDetails, artifact.Project, user, artifactStore,
+            return AddRandomImageToArtifactProperty(artifactDetails, user, artifactStore,
                 width, height, imageType, contentType, propertyName, numberOfImagesToAdd);
         }
 
@@ -719,7 +740,6 @@ namespace Helper
         /// look in the CustomPropertyValues and then SpecificPropertyValues.
         /// </summary>
         /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
-        /// <param name="project">The project where the artifact exists.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactStore">An ArtifactStore instance.</param>
         /// <param name="width">(optional) The image width.</param>
@@ -730,7 +750,6 @@ namespace Helper
         /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
         public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
-            IProject project,
             IUser user,
             IArtifactStore artifactStore,
             int width = 100,
@@ -755,27 +774,7 @@ namespace Helper
 
             string propertyContent = string.Join("<br/>", imageTags);
 
-            if (artifactDetails.GetType().GetProperty(propertyName) != null)
-            {
-                CSharpUtilities.SetProperty(propertyName, propertyContent, artifactDetails);
-            }
-            else if (artifactDetails.CustomPropertyValues.Exists(p => p.Name == propertyName))
-            {
-                var property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
-                property.CustomPropertyValue = propertyContent;
-            }
-            else if (artifactDetails.SpecificPropertyValues.Exists(p => p.Name == propertyName))
-            {
-                var property = artifactDetails.SpecificPropertyValues.Find(p => p.Name == propertyName);
-                property.CustomPropertyValue = propertyContent;
-            }
-            else
-            {
-                Assert.Fail("No property named '{0}' was found in artifact ID: {1}!", propertyName, artifactDetails.Id);
-            }
-
-            artifactStore.UpdateArtifact(user, project, artifactDetails);
-            return artifactStore.GetArtifactDetails(user, artifactDetails.Id);
+            return SetArtifactTextProperty(artifactDetails, user, artifactStore, propertyContent, propertyName);
         }
 
         /// <summary>
@@ -883,6 +882,30 @@ namespace Helper
         }
 
         /// <summary>
+        /// Gets all details for all the sub-artifacts passed in.
+        /// </summary>
+        /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
+        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>A list of NovaSubArtifacts.</returns>
+        public static List<NovaSubArtifact> GetDetailsForAllSubArtifacts(IArtifactStore artifactStore, IArtifactBase artifact, List<SubArtifact> subArtifacts, IUser user)
+        {
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
+
+            var subArtifactDetailsList = new List<NovaSubArtifact>();
+
+            foreach (var subArtifact in subArtifacts)
+            {
+                var subArtifactDetails = artifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
+                subArtifactDetailsList.Add(subArtifactDetails);
+            }
+
+            return subArtifactDetailsList;
+        }
+
+        /// <summary>
         /// Updates the specified custom property of the artifact with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
         /// The caller is responsible for locking, saving & publishing the artifact.
         /// </summary>
@@ -962,13 +985,13 @@ namespace Helper
             ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            CustomProperty property = null;
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
 
             switch (propertyType)
             {
                 case PropertyPrimitiveType.Choice:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
 
@@ -1007,46 +1030,61 @@ namespace Helper
 
                     if (validValues.Count > 0)
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = validValues };
+                        property.CustomPropertyValue = new ChoiceValues { ValidValues = validValues };
                     }
 
                     if (!string.IsNullOrEmpty(customValue))
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { CustomValue = customValue };
+                        property.CustomPropertyValue = new ChoiceValues { CustomValue = customValue };
                     }
                     break;
                 case PropertyPrimitiveType.Date:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property date value
-                    property.CustomPropertyValue = newValue;
-                    break;
                 case PropertyPrimitiveType.Number:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property number value
                     property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Text:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     // Change custom property text value
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
                 case PropertyPrimitiveType.User:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     IUser user = (IUser)newValue;
 
                     var newIdentification = new Identification { DisplayName = user.DisplayName, Id = user.Id };
                     var newUserPropertyValue = new List<Identification> { newIdentification };
 
                     // Change custom property user value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues { UsersGroups = newUserPropertyValue };
+                    property.CustomPropertyValue = new UserGroupValues { UsersGroups = newUserPropertyValue };
                     break;
                 default:
                     Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
                     break;
+            }
+
+            return property;
+        }
+
+        /// <summary>
+        /// Updates the specified custom property with a null value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <param name="customProperties">The list of custom properties.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateCustomPropertyWithNull(List<CustomProperty> customProperties, string propertyName)
+        {
+            ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
+
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
+
+            if (property.PrimitiveType == (int) PropertyPrimitiveType.User)
+            {
+                property.CustomPropertyValue = new UserGroupValues { UsersGroups = null };
+            }
+            else
+            {
+                property.CustomPropertyValue = null;
             }
 
             return property;
@@ -1633,6 +1671,44 @@ namespace Helper
             }
 
             return I18NHelper.FormatInvariant("{0}{1}", artifactTypeNameBase, artifactTypeSuffix);
+        }
+
+        /// <summary>
+        /// Updates text property of the specified artifact. Artifact should be locked by the user. It will be saved.
+        /// NOTE: This function will first search for a top-level property with the specified name, then if not found it will
+        /// look in the CustomPropertyValues.
+        /// </summary>
+        /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
+        /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
+        public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,
+            IUser user,
+            IArtifactStore artifactStore,
+            string text,
+            string propertyName = nameof(NovaArtifactDetails.Description))
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            
+            if (artifactDetails.GetType().GetProperty(propertyName) != null)
+            {
+                CSharpUtilities.SetProperty(propertyName, text, artifactDetails);
+            }
+            else if (artifactDetails.CustomPropertyValues.Exists(p => p.Name == propertyName))
+            {
+                var property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                property.CustomPropertyValue = text;
+            }
+            else
+            {
+                Assert.Fail("No property named '{0}' was found in artifact ID: {1}!", propertyName, artifactDetails.Id);
+            }
+
+            artifactStore.UpdateArtifact(user, artifactDetails);
+            return artifactStore.GetArtifactDetails(user, artifactDetails.Id);
         }
 
         public class ChoiceValues

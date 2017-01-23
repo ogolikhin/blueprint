@@ -39,6 +39,7 @@ namespace ArtifactStoreTests
         }
 
         #region Positive Tests
+
         [TestCase(TraceDirection.From)]
         [TestCase(TraceDirection.To)]
         [TestCase(TraceDirection.TwoWay)]
@@ -75,7 +76,7 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifact.Lock(_authorUser);
 
@@ -245,12 +246,12 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifact.Lock(_authorUser);
 
             novaSubArtifacts[0].Traces = new List<NovaTrace> { new NovaTrace(targetArtifact1) };
-            novaSubArtifacts[1].Traces = new List<NovaTrace> { new NovaTrace(targetArtifact2, TraceDirection.To) };
+            novaSubArtifacts[1].Traces = new List<NovaTrace> { new NovaTrace(targetArtifact2, direction: TraceDirection.To) };
 
             artifactDetails.SubArtifacts = novaSubArtifacts;
             artifactDetails.Traces = new List<NovaTrace>();
@@ -284,14 +285,14 @@ namespace ArtifactStoreTests
         [Description("Create trace between 2 SubArtifacts, Artifact and other Artifact, check that operation throw no errors.")]
         public void AddTrace_Between2SubArtifactsArtifactAndArtifact_TracesWereCreated()
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
 
-            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, sourceArtifact.Id);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, sourceArtifact, subArtifacts, _authorUser);
 
-            artifact.Lock(_authorUser);
+            sourceArtifact.Lock(_authorUser);
 
             NovaTrace trace = new NovaTrace(targetArtifact);
             trace.TraceType = TraceType.ActorInherits;
@@ -299,20 +300,20 @@ namespace ArtifactStoreTests
             novaSubArtifacts[0].Traces = new List<NovaTrace> { trace };
             novaSubArtifacts[1].Traces = new List<NovaTrace> { trace };
 
-            artifactDetails.SubArtifacts = novaSubArtifacts;
+            sourceArtifactDetails.SubArtifacts = novaSubArtifacts;
 
-            var updatedArtifactdetails = AddArtifactTraceToArtifactDetails(artifactDetails, targetArtifact, TraceDirection.TwoWay,
+            var updatedArtifactdetails = AddArtifactTraceToArtifactDetails(sourceArtifactDetails, targetArtifact, TraceDirection.TwoWay,
                 changeType: ChangeType.Create);
 
-            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(artifact, _authorUser, updatedArtifactdetails); },
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(sourceArtifact, _authorUser, updatedArtifactdetails); },
                 "trace creation shouldn't throw any error.");
-            Relationships subArtifact1Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[0].Id,
+            Relationships subArtifact1Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, subArtifacts[0].Id,
                 addDrafts: true);
-            Relationships subArtifact2Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[1].Id,
+            Relationships subArtifact2Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, subArtifacts[1].Id,
                 addDrafts: true);
-            Relationships subArtifact3Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, subArtifacts[2].Id,
+            Relationships subArtifact3Relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, subArtifacts[2].Id,
                 addDrafts: true);
-            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             Assert.AreEqual(1, subArtifact1Relationships.ManualTraces.Count, "1 manual trace should be created.");
             ArtifactStoreHelper.ValidateTrace(subArtifact1Relationships.ManualTraces[0], targetArtifact);
             Assert.AreEqual(1, subArtifact2Relationships.ManualTraces.Count, "1 manual trace should be created.");
@@ -332,7 +333,7 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifact.Lock(_authorUser);
 
@@ -359,24 +360,24 @@ namespace ArtifactStoreTests
         public void AddTrace_TraceTargetLockedByOtherUser_TraceWasCreated()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
 
             targetArtifact.Lock(_adminUser);
             
             // Execute:
             Assert.DoesNotThrow(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
                     changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.TwoWay);
             }, "Trace adding shouldn't throw any error.");
-            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
 
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Relationships should have 1 manual traces.");
             ArtifactStoreHelper.ValidateTrace(relationships.ManualTraces[0], targetArtifact);
-            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], artifact);
+            ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
         }
         #endregion Positive Tests
 
@@ -386,7 +387,7 @@ namespace ArtifactStoreTests
         public void AddTrace_BetweenArtifactAndDeletedArtifact_Returns409()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             Helper.ArtifactStore.DeleteArtifact(targetArtifact, _adminUser);
             Helper.ArtifactStore.PublishArtifact(targetArtifact, _adminUser);
@@ -394,12 +395,12 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() =>
             {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
                     traceDirection: TraceDirection.TwoWay, changeType: 0, artifactStore: Helper.ArtifactStore);
             }, "Adding a trace to a deleted artifact should return 409 Conflict!");
 
             // Verify:
-            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
+            Relationships relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies,
                 "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.");
@@ -444,7 +445,7 @@ namespace ArtifactStoreTests
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_authorUser, artifact.Id);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifactWithNoSubArtifactSupport.Id);
-            var novaSubArtifacts = GetDetailsForAllSubArtifacts(artifact, subArtifacts, _authorUser);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, artifact, subArtifacts, _authorUser);
 
             artifactWithNoSubArtifactSupport.Lock(_authorUser);
 
@@ -607,7 +608,7 @@ namespace ArtifactStoreTests
             {
                 Assert.AreEqual(traceTarget.Id, traceTargetSubArtifact.ParentId, "...");
             }
-            NovaTrace traceToCreate = new NovaTrace(traceTarget, traceDirection, changeType: changeType);
+            NovaTrace traceToCreate = new NovaTrace(traceTarget, direction: traceDirection, changeType: changeType);
             traceToCreate.ItemId = traceTargetSubArtifact?.Id ?? traceTarget.Id;
 
             List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
@@ -615,28 +616,6 @@ namespace ArtifactStoreTests
             artifactDetails.Traces = updatedTraces;
 
             return artifactDetails;
-        }
-
-        /// <summary>
-        /// Gets all details for all the sub-artifacts passed in.
-        /// </summary>
-        /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
-        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <returns>A list of NovaSubArtifacts.</returns>
-        private List<NovaSubArtifact> GetDetailsForAllSubArtifacts(IArtifact artifact, List<SubArtifact> subArtifacts, IUser user)
-        {
-            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
-
-            var subArtifactDetailsList = new List<NovaSubArtifact>();
-
-            foreach (var subArtifact in subArtifacts)
-            {
-                var subArtifactDetails = Helper.ArtifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
-                subArtifactDetailsList.Add(subArtifactDetails);
-            }
-
-            return subArtifactDetailsList;
         }
 
         /// <summary>

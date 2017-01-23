@@ -1,11 +1,8 @@
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
 import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {INavigationService} from "../../../core/navigation/navigation.svc";
 import {IProjectManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
-import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {Helper} from "../../../shared";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
@@ -14,7 +11,6 @@ import {TreeModels} from "../../models";
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = ProjectExplorerController;
-    public transclude: boolean = true;
 }
 
 export interface IProjectExplorerController {
@@ -28,7 +24,6 @@ export interface IProjectExplorerController {
 
 export class ProjectExplorerController implements IProjectExplorerController {
     private subscribers: Rx.IDisposable[];
-    private selectedArtifactSubscriber: Rx.IDisposable;
     private numberOfProjectsOnLastLoad: number;
 
     public static $inject: [string] = [
@@ -36,9 +31,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
         "projectManager",
         "navigationService",
         "selectionManager",
-        "messageService",
-        "projectService",
-        "loadingOverlayService",
         "$state",
         "localization"
     ];
@@ -47,32 +39,29 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 private projectManager: IProjectManager,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
-                private messageService: IMessageService,
-                private projectService: IProjectService,
-                private loadingOverlayService: ILoadingOverlayService,
                 private $state: ng.ui.IStateService,
                 public localization: ILocalizationService) {
     }
 
     //all subscribers need to be created here in order to unsubscribe (dispose) them later on component destroy life circle step
     public $onInit() {
-        //use context reference as the last parameter on subscribe...
         this.subscribers = [
-            //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            this.selectionManager.explorerArtifactObservable.subscribeOnNext(this.setSelectedNode, this)
+            this.selectionManager.explorerArtifactObservable
+                .distinctUntilChanged(item => item ? item.id : -1)
+                .subscribeOnNext(this.setSelectedNode, this),
+            this.selectionManager.explorerArtifactObservable
+                .filter(artifact => !!artifact)
+                .flatMap((artifact: IStatefulArtifact) => artifact.getProperyObservable())
+                .subscribeOnNext(this.onSelectedArtifactChange, this)
         ];
     }
 
     public $onDestroy() {
-        //dispose all subscribers
         this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => {
             it.dispose();
             return false;
         });
-        if (this.selectedArtifactSubscriber) {
-            this.selectedArtifactSubscriber.dispose();
-        }
     }
 
     public navigateToUnpublishedChanges() {
@@ -115,16 +104,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
         } else {
             this.treeApi.deselectAll();
         }
-
-        //Dispose of old subscriber and subscribe to new artifact.
-        if (this.selectedArtifactSubscriber) {
-            this.selectedArtifactSubscriber.dispose();
-        }
-
-        this.selectedArtifactSubscriber = artifact.getProperyObservable()
-            .distinctUntilChanged(changes => changes.item && changes.item.name)
-            .subscribeOnNext(this.onSelectedArtifactChange);
     }
+
 
     private _selected: TreeModels.ExplorerNodeVM;
     private get selected(): TreeModels.ExplorerNodeVM {
@@ -138,7 +119,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private isLoading: boolean;
     private pendingSelectedArtifactId: number;
 
-    private onLoadProject = (projects: TreeModels.ExplorerNodeVM[]) => {
+    private onLoadProject(projects: TreeModels.ExplorerNodeVM[]) {
         this.isLoading = true;
         this.projects = projects.slice(0); // create a copy
     }
@@ -153,12 +134,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
+        const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
 
         if (isExpanding) {
+            if (selectedArtifactId) {
+                this.treeApi.setSelected((vm: TreeModels.ExplorerNodeVM) => vm.model.id === selectedArtifactId);
+            }
             return;
         }
 
-        const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
         let navigateToId: number;
         if (this.projects && this.projects.length > 0) {
             if (this.pendingSelectedArtifactId) {
@@ -206,7 +190,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     };
 
-    private onSelectedArtifactChange = (changes: IItemChangeSet) => {
+    private onSelectedArtifactChange(changes: IItemChangeSet) {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item && changes.change) {
@@ -220,7 +204,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 return false;
             });
         }
-    };
+    }
 
     // BpTree bindings
 

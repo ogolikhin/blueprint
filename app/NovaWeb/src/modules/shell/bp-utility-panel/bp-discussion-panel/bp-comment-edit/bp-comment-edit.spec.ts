@@ -7,6 +7,7 @@ import {BPCommentEditController} from "./bp-comment-edit";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import "angular-ui-tinymce";
 import "tinymce";
+import {UsersAndGroupsService} from "../../../../core/services/usersAndGroups.service";
 
 describe("Component BPCommentEdit", () => {
 
@@ -15,6 +16,7 @@ describe("Component BPCommentEdit", () => {
     beforeEach(angular.mock.module("app.shell"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("usersAndGroupsService", UsersAndGroupsService);
         $provide.service("localization", LocalizationServiceMock);
     }));
 

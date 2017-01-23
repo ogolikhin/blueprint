@@ -1,4 +1,4 @@
-﻿import * as angular from "angular";
+﻿import "../..";
 import "angular-mocks";
 import "angular-sanitize";
 import {HttpStatusCode} from "../../../core/httpInterceptor/http-status-code";
@@ -493,7 +493,7 @@ describe("Component BPDiscussionPanel", () => {
             //Act
             vm.$onChanges(onChangesObj);
             vm.deleteReply(discussion, reply);
-            $rootScope.$digest();
+            //$rootScope.$digest();
             //Assert
             expect(discussion.replies[0].replyId).toBe(2);
         }));

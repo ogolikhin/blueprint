@@ -28,7 +28,6 @@ import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-d
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
 import {ErrorComponent} from "./error/error.component";
 import {AppRoutes} from "./app.router";
-import {UsersAndGroupsService} from "../core/services/users-and-groups.svc";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
 import {ILicenseService, LicenseService} from "./license/license.svc";
@@ -50,7 +49,6 @@ angular.module("app.shell", [
     .service("relationshipDetailsService", RelationshipDetailsService)
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("mentionService", MentionService)
-    .service("usersAndGroupsService", UsersAndGroupsService)
     .service("licenseService", LicenseService)
     .service("utilityPanelService", UtilityPanelService)
     .component("bpUtilityPanel", new BPUtilityPanel())

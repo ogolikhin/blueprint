@@ -2,7 +2,7 @@
 import * as angular from "angular";
 import "rx";
 require("script!mxClient");
-import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/executionEnvironmentDetector.mock";
 import {ProcessGraph} from "./process-graph";
 import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {NodeType} from "./models/";

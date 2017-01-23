@@ -12,7 +12,7 @@ import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {ProcessGraph} from "./process-graph";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/executionEnvironmentDetector.mock";
 import * as TestModels from "../../../../models/test-model-factory";
 import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 

@@ -1,4 +1,4 @@
-﻿import {IWindowVisibility, VisibilityStatus} from "../../core/services/window-visibility";
+﻿import {IWindowVisibility, VisibilityStatus} from "../../core/services/windowVisibility";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IProjectManager} from "../../managers/project-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";

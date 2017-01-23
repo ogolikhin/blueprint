@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "rx";
 import "angular-mocks";
 import "script!mxClient";
-import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/executionEnvironmentDetector.mock";
 import {ArtifactReference} from "../../../../models/process-models";
 import {ProcessGraph} from "./process-graph";
 import {IProcessGraph} from "./models/";
@@ -21,7 +21,7 @@ import {IFileUploadService, ICopyImageResult} from "../../../../../../core/fileU
 import {FileUploadServiceMock} from "../../../../../../core/fileUpload/fileUpload.service.mock";
 import {ILoadingOverlayService} from "../../../../../../core/loadingOverlay/loadingOverlay.service";
 import {LoadingOverlayServiceMock} from "../../../../../../core/loadingOverlay/loadingOverlay.service.mock";
-import {IHttpError} from "../../../../../../core/services/users-and-groups.svc";
+import {IHttpError} from "../../../../../../core/services/usersAndGroups.service";
 import * as ProcessModels from "../../../../models/process-models";
 import * as ProcessEnums from "../../../../models/enums";
 import * as TestModels from "../../../../models/test-model-factory";

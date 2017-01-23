@@ -1,7 +1,7 @@
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import * as angular from "angular";
 import * as TestModels from "../../models/test-model-factory";
-import {ExecutionEnvironmentDetectorMock} from "../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../core/services/executionEnvironmentDetector.mock";
 import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
 import {INavigationService} from "../../../../core/navigation/navigation.service";

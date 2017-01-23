@@ -1,4 +1,4 @@
-﻿import {IUserOrGroupInfo, IUsersAndGroupsService} from "./users-and-groups.svc";
+﻿import {IUserOrGroupInfo, IUsersAndGroupsService} from "./usersAndGroups.service";
 import {HttpStatusCode} from "../httpInterceptor/http-status-code";
 export class UserOrGroupInfo implements IUserOrGroupInfo {
     constructor(public name: string,

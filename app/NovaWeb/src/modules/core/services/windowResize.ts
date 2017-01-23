@@ -1,4 +1,6 @@
-﻿export interface IWindowResize {
+﻿import "rx/dist/rx.lite.js";
+
+export interface IWindowResize {
     isResizing: Rx.Observable<boolean>;
     width: Rx.Observable<number>;
     height: Rx.Observable<number>;

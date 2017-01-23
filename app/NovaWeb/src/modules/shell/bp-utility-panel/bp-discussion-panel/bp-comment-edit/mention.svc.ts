@@ -1,4 +1,4 @@
-﻿import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core/services/users-and-groups.svc";
+﻿import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core/services/usersAndGroups.service";
 import {Helper} from "../../../../shared/utils/helper";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 

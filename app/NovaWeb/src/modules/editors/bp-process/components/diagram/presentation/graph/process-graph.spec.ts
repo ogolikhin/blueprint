@@ -2,7 +2,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
-import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/executionEnvironmentDetector.mock";
 import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import * as Enums from "../../../../models/enums";

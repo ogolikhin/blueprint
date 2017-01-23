@@ -1,5 +1,5 @@
 import * as angular from "angular";
-import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../core/services/executionEnvironmentDetector.mock";
 import {NodeLabelEditor} from "./node-label-editor";
 import {Label, LabelStyle, LabelType, ILabel} from "./labels/label";
 import {Helper} from "../../../../../../shared/utils/helper";
@@ -36,7 +36,7 @@ describe("Node Label Editor test", () => {
         let elem = angular.element(document.getElementsByClassName("processEditorCustomLabel")[0]);
         elem.trigger(e);
     }
-     
+
 
     function addLabel(): ILabel {
         let labelStyle: LabelStyle = new LabelStyle(
@@ -64,7 +64,7 @@ describe("Node Label Editor test", () => {
             false);
 
         textLabel.onTextChange = (value) => {
-            labelText = value; 
+            labelText = value;
         };
 
         return textLabel;

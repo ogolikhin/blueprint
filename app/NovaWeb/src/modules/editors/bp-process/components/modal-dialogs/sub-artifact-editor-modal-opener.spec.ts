@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 require("script!mxClient");
-import {ExecutionEnvironmentDetectorMock} from "./../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../core/services/executionEnvironmentDetector.mock";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager";

@@ -9,7 +9,6 @@ export interface IWindowVisibility {
     visibilityObservable: Rx.Observable<VisibilityStatus>;
 }
 
-
 export class WindowVisibility implements IWindowVisibility {
 
     static $inject: [string] = [
@@ -46,7 +45,7 @@ export class WindowVisibility implements IWindowVisibility {
         this.$window.addEventListener("blur", this.windowBlurHandler);
     };
 
-    public dispose() { 
+    public dispose() {
         this._subject.dispose();
 
         this.$document.off("visibilitychange", this.windowVisibilityHandler);
@@ -82,7 +81,7 @@ export class WindowVisibility implements IWindowVisibility {
         };
         let status: boolean;
         evt = evt || window.event;
-        
+
         if (evt.type in eventMap) {
             status = eventMap[evt.type];
         } else {

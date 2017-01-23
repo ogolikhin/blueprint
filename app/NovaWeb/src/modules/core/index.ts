@@ -1,6 +1,3 @@
-import "./configuration";
-import "./services";
-
 import {ConfigurationModule} from "./configuration";
 import {HttpInterceptorModule} from "./httpInterceptor";
 import {FileUpload} from "./fileUpload";
@@ -9,6 +6,7 @@ import {LocalStorage} from "./localStorage";
 import {Localization} from "./localization";
 import {ItemInfo} from "./itemInfo";
 import {Navigation} from "./navigation";
+import {CoreServices} from "./services/index";
 
 angular.module("bp.core", [
     "ui.router",
@@ -18,17 +16,8 @@ angular.module("bp.core", [
     FileUpload,
     LoadingOverlay,
     Localization,
-    "bp.core.services",
+    CoreServices,
     LocalStorage,
     ConfigurationModule,
     HttpInterceptorModule
 ]);
-
-export {
-    IWindowResize,
-    IWindowVisibility,
-    IUserOrGroupInfo,
-    IUsersAndGroupsService,
-    UsersAndGroupsService
-} from "./services";
-

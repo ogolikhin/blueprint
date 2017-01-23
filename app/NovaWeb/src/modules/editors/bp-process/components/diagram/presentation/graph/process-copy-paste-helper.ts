@@ -1,5 +1,5 @@
 import {ILocalizationService} from "../../../../../../core/localization/localization.service";
-import {IHttpError} from "../../../../../../core/services/users-and-groups.svc";
+import {IHttpError} from "../../../../../../core/services/usersAndGroups.service";
 import {ILoadingOverlayService} from "../../../../../../core/loadingOverlay/loadingOverlay.service";
 import {
     IDiagramNode, IProcessShape,

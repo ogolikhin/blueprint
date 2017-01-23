@@ -18,7 +18,7 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {SessionSvcMock} from "../../../../shell/login/mocks.spec";
-import {WindowResize} from "../../../../core/services/window-resize";
+import {WindowResize} from "../../../../core/services/windowResize";
 import {ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";

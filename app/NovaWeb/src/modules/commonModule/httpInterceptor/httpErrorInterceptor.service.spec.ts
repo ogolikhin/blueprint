@@ -12,7 +12,6 @@ describe("Service: HttpErrorInterceptor", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("session", SessionSvcMock);
-        //$provide.service("httpErrorInterceptor", HttpErrorInterceptor);
         $provide.service("messageService", MessageServiceMock);
     }));
 

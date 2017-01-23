@@ -283,7 +283,6 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
-
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
         }
 
@@ -321,7 +320,6 @@ namespace ArtifactStoreTests
             // VerifY:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
-
             ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
         }
 
@@ -362,6 +360,7 @@ namespace ArtifactStoreTests
 
             // VerifY:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
+
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
 
             ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);

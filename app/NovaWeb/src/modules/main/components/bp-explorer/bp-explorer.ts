@@ -134,12 +134,15 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     public onGridReset(isExpanding: boolean): void {
         this.isLoading = false;
+        const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
 
         if (isExpanding) {
+            if (selectedArtifactId) {
+                this.treeApi.setSelected((vm: TreeModels.ExplorerNodeVM) => vm.model.id === selectedArtifactId);
+            }
             return;
         }
 
-        const selectedArtifactId = this.selected ? this.selected.model.id : undefined;
         let navigateToId: number;
         if (this.projects && this.projects.length > 0) {
             if (this.pendingSelectedArtifactId) {

@@ -1,5 +1,5 @@
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {INavigationService} from "../../../../core/navigation/navigation.service";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";

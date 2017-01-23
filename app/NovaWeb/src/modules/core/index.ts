@@ -1,5 +1,4 @@
 import "./configuration";
-import "./navigation";
 import "./services";
 
 import {ConfigurationModule} from "./configuration";
@@ -8,14 +7,17 @@ import {FileUpload} from "./fileUpload";
 import {LoadingOverlay} from "./loadingOverlay";
 import {LocalStorage} from "./localStorage";
 import {Localization} from "./localization";
+import {ItemInfo} from "./itemInfo";
+import {Navigation} from "./navigation";
 
 angular.module("bp.core", [
     "ui.router",
     "ui.bootstrap",
+    Navigation,
+    ItemInfo,
     FileUpload,
     LoadingOverlay,
     Localization,
-    "bp.core.navigation",
     "bp.core.services",
     LocalStorage,
     ConfigurationModule,

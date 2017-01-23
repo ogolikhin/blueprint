@@ -8,7 +8,7 @@ import {
     IItemChangeSet
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../core/navigation/navigation.service";
 import {
     IDialogService,
     IBPAction,
@@ -34,7 +34,7 @@ import {ILocalizationService} from "../../../core/localization/localization.serv
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
-import {IItemInfoService} from "../../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../../core/itemInfo/itemInfo.service";
 import {IMessageService} from "../messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 

@@ -1,4 +1,4 @@
-﻿import {INavigationService} from "../../core/navigation/navigation.svc";
+﻿import {INavigationService} from "../../core/navigation/navigation.service";
 import {IMainWindow, IWindowManager, ResizeCause} from "../../main/services/window-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";

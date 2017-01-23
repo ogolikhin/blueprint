@@ -5,7 +5,7 @@ import {UnpublishedController} from "./unpublished";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {UnpublishedArtifactsServiceMock} from "./unpublished.svc.mock";
 import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
-import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../core/navigation/navigation.service.mock";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import createSpy = jasmine.createSpy;

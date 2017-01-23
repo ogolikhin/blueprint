@@ -1,4 +1,4 @@
-import {IItemInfoService, IItemInfoResult} from "../../../core/navigation/item-info.svc";
+import {IItemInfoService, IItemInfoResult} from "../../../core/itemInfo/itemInfo.service";
 import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";
 import {IProcessService} from "../../../editors/bp-process/services/process.svc";

@@ -1,7 +1,6 @@
-import * as angular from "angular";
+import "./";
 import "angular-mocks";
-import "angular-ui-router";
-import {ItemInfoService, IItemInfoService, IItemInfoResult} from "./item-info.svc";
+import {ItemInfoService, IItemInfoService, IItemInfoResult} from "./itemInfo.service";
 import {HttpStatusCode} from "../httpInterceptor/http-status-code";
 
 describe("Item Info Service", () => {
@@ -9,6 +8,8 @@ describe("Item Info Service", () => {
     let $scope: ng.IScope;
     let itemInfoService: IItemInfoService;
     let $httpBackend: ng.IHttpBackendService;
+
+    beforeEach(angular.mock.module("itemInfo"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("itemInfoService", ItemInfoService);

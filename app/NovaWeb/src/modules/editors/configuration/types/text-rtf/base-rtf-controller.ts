@@ -1,7 +1,7 @@
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.service";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {Helper} from "../../../../shared/utils/helper";

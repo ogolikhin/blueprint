@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "rx";
 import "lodash";
-import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../core/navigation/navigation.service.mock";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {LoadingOverlayServiceMock} from "../../core/loadingOverlay/loadingOverlay.service.mock";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";

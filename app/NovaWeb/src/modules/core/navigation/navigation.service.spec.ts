@@ -1,8 +1,6 @@
-import "angular";
-import "lodash";
+import "./";
 import "angular-mocks";
-import "angular-ui-router";
-import {INavigationService, NavigationService} from "./navigation.svc";
+import {INavigationService, NavigationService} from "./navigation.service";
 
 describe("NavigationService", () => {
     let $q: ng.IQService;
@@ -14,7 +12,11 @@ describe("NavigationService", () => {
     let logoutState = "logout";
     let artifactState = "main.item";
 
-    beforeEach(angular.mock.module("ui.router"));
+    beforeEach(angular.mock.module("navigation"));
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+
+    }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService, _$state_: ng.ui.IStateService) => {
         $q = _$q_;
@@ -22,6 +24,18 @@ describe("NavigationService", () => {
         $state = _$state_;
         navigationService = new NavigationService($q, $state);
     }));
+
+    describe("reloadCurrentState", () => {
+        //fixme: add test as public method not covered
+    });
+
+    describe("reloadParentState", () => {
+        //fixme: add test as public method not covered
+    });
+
+    describe("getNavigationState", () => {
+        //fixme: add test as public method not covered
+    });
 
     describe("navigateToMain", () => {
         it("initiates state transition to main state from main state", () => {
@@ -35,23 +49,6 @@ describe("NavigationService", () => {
 
             // act
             navigationService.navigateToMain();
-
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
-            expect($state.current.params).toBeUndefined();
-        });
-
-        it("initiates state transition to main state from main state", () => {
-            // arrange
-            const expectedState = logoutState;
-            const expectedParams = {};
-            const expectedOptions = {location: true};
-            const stateGoSpy = spyOn($state, "go");
-
-            $state.current.name = "main";
-
-            // act
-            navigationService.navigateToLogout();
 
             // assert
             expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -76,41 +73,20 @@ describe("NavigationService", () => {
             expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
             expect($state.current.params).toBeUndefined();
         });
+    });
 
-        it("initiates state transition to main state from another artifact", () => {
+    describe("navigateToLogout",() =>{
+        it("initiates state transition to logout state", () => {
             // arrange
-            const sourceArtifactId: number = 54;
-            const expectedState = mainState;
+            const expectedState = logoutState;
             const expectedParams = {};
             const expectedOptions = {location: true};
             const stateGoSpy = spyOn($state, "go");
 
-            $state.params["id"] = sourceArtifactId.toString();
-            $state.current.name = "main.item";
+            $state.current.name = "main";
 
             // act
-            navigationService.navigateToMain();
-
-            // assert
-            expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
-            expect($state.current.params).toBeUndefined();
-        });
-
-        it("initiates state transition to main state from an artifact that has already been navigated to", () => {
-            // arrange
-            let predecessorArtifactId: number = 11;
-            let sourceArtifactId: number = 54;
-            const expectedState = mainState;
-            const expectedParams = {};
-            const expectedOptions = {location: true};
-            const stateGoSpy = spyOn($state, "go");
-
-            $state.params["id"] = sourceArtifactId.toString();
-            $state.params["path"] = predecessorArtifactId.toString();
-            $state.current.name = "main.item";
-
-            // act
-            navigationService.navigateToMain();
+            navigationService.navigateToLogout();
 
             // assert
             expect(stateGoSpy).toHaveBeenCalledWith(expectedState, expectedParams, expectedOptions);
@@ -118,7 +94,13 @@ describe("NavigationService", () => {
         });
     });
 
-    describe("navigateToArtifact", () => {
+    describe("navigateTo", () => {
+        /*fixme: tests don't seam to cover properly or maybe poor descriptions
+        * test should check both ways for the following:
+        * isTheSameRoute
+        * check if enableTracking and currentState.id
+        * check if finite
+        * */
         let targetArtifactId: number;
 
         beforeEach(() => {
@@ -147,6 +129,7 @@ describe("NavigationService", () => {
                 const expectedOptions = {inherit: false, location: true};
 
                 // act
+
                 navigationService.navigateTo({id: targetArtifactId});
 
                 // assert
@@ -405,7 +388,7 @@ describe("NavigationService", () => {
             expect(stateGoSpy).not.toHaveBeenCalled();
         });
 
-        it("doesn't transition if path index is out of range (below the maximum)", () => {
+        it("doesn't transition if path index is out of range (below the minimum)", () => {
             // arrange
             const pathIndex = -1;
             const stateGoSpy = spyOn($state, "go");
@@ -430,5 +413,9 @@ describe("NavigationService", () => {
             // assert
             expect(stateGoSpy).toHaveBeenCalledWith(artifactState, expectedParams, expectedOptions);
         });
+    });
+
+    describe("getNavigateBackRouterPath", () => {
+        //fixme: add test as public method not covered
     });
 });

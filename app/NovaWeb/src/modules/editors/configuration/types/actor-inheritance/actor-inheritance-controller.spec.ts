@@ -14,7 +14,7 @@ import {IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager, SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {BPFieldInheritFromController} from "./actor-inheritance";
 import {ArtifactPickerDialogServiceMock} from "./artifact-picker-dialog.mock";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 import {IMessageService} from "../../../../main/components/messages/message.svc";

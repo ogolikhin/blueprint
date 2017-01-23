@@ -2,7 +2,7 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.service";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";

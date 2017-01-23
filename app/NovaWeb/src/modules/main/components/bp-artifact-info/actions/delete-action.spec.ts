@@ -14,8 +14,8 @@ import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.
 import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ILoadingOverlayService, LoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
+import {INavigationService} from "../../../../core/navigation/navigation.service";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {SelectionManager, ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IMessageService} from "../../messages/message.svc";

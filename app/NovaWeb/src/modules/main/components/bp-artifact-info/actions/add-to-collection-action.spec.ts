@@ -8,12 +8,12 @@ import {ItemTypePredefined} from "../../../models/enums";
 import {ILocalizationService} from "../../../../core/localization/localization.service";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
 import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {AddToCollectionAction} from "./add-to-collection-action";
 import {BPDropdownItemAction} from "../../../../shared/widgets/bp-toolbar/actions/bp-dropdown-action";
 import {CollectionServiceMock} from "../../../../editors/bp-collection/collection.svc.mock";
-import {ItemInfoServiceMock} from "../../../../core/navigation/item-info.svc.mock";
+import {ItemInfoServiceMock} from "../../../../core/itemInfo/itemInfo.service.mock";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
 

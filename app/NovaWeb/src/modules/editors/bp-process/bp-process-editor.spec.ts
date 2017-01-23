@@ -7,7 +7,7 @@ import "rx/dist/rx.lite.js";
 import {BpProcessEditorController} from "./bp-process-editor";
 import {LocalizationServiceMock} from "../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../core/navigation/navigation.service.mock";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";

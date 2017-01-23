@@ -1,7 +1,7 @@
 ﻿import {IStatefulArtifact, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IArtifactHistory, IArtifactHistoryVersion} from "./artifact-history.svc";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../core/navigation/navigation.service";
 import {ILocalizationService} from "../../../core/localization/localization.service";
 import {ArtifactStateEnum} from "../../../main/models/models";
 import {Helper} from "../../../shared/utils/helper";

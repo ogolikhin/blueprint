@@ -3,7 +3,7 @@ import {IUser} from "./login/auth.svc";
 import {LoginCtrl, ILoginModalDialogData} from "./login/login.ctrl";
 import {ISelectionManager} from "./../managers/selection-manager";
 import {ISettingsService} from "../core/configuration/settings.service";
-import {INavigationService} from "../core/navigation/navigation.svc";
+import {INavigationService} from "../core/navigation/navigation.service";
 import {ILocalizationService} from "../core/localization/localization.service";
 import {ILoadingOverlayService} from "../core/loadingOverlay/loadingOverlay.service";
 import {IDialogService, IDialogSettings} from "../shared";

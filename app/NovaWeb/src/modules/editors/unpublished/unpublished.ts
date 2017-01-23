@@ -6,7 +6,7 @@ import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.s
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {INavigationService} from "../../core/navigation/navigation.service";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IDialogService} from "../../shared/";

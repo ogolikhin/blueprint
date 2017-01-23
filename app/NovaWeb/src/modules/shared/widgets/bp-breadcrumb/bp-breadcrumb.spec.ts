@@ -3,7 +3,7 @@ import "angular-mocks";
 import "angular-ui-router";
 import ".";
 import {BPBreadcrumbController} from "./bp-breadcrumb";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../core/navigation/navigation.service.mock";
 
 describe("BPBreadcrumbComponent", () => {
     let $compile: ng.ICompileService;

@@ -1,4 +1,4 @@
-import {IItemInfoService, IItemInfoResult} from "./item-info.svc";
+import {IItemInfoService, IItemInfoResult} from "./itemInfo.service";
 
 export class ItemInfoServiceMock implements IItemInfoService {
     public static $inject: [string] = ["$q"];

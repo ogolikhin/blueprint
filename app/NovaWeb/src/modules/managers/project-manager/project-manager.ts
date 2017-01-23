@@ -1,5 +1,5 @@
 import {HttpStatusCode} from "../../core/httpInterceptor/http-status-code";
-import {IItemInfoResult} from "../../core/navigation/item-info.svc";
+import {IItemInfoResult} from "../../core/itemInfo/itemInfo.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";

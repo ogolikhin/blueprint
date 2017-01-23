@@ -9,10 +9,10 @@ import {
 
 import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.service";
 import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
 import {ErrorCode} from "../../../../shell/error/error-code";
-import {IItemInfoService, IItemInfoResult} from "../../../../core/navigation/item-info.svc";
+import {IItemInfoService, IItemInfoResult} from "../../../../core/itemInfo/itemInfo.service";
 import {IMessageService} from "../../messages/message.svc";
 
 export class AddToCollectionAction extends BPDropdownAction {

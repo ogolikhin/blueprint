@@ -6,13 +6,13 @@ import {IDialogService, BPButtonOrDropdownSeparator} from "../../shared";
 import {IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "./collection-artifact";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {INavigationService} from "../../core/navigation/navigation.service";
 import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
 import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../core/localization/localization.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "./collection.svc";
-import {IItemInfoService} from "../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../core/itemInfo/itemInfo.service";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 

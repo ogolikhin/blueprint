@@ -1,6 +1,6 @@
 import {ILoadingOverlayService} from "../../../core/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../core/localization/localization.service";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../core/navigation/navigation.service";
 import {IProjectManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";

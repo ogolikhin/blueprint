@@ -1,4 +1,13 @@
-import {INavigationPathItem, INavigationState} from "./navigation-state";
+export interface INavigationPathItem {
+    id: number;
+    version?: number;
+}
+
+export interface INavigationState {
+    id?: number;
+    version?: number;
+    path?: INavigationPathItem[];
+}
 
 export interface INavigationService {
     getNavigationState(): INavigationState;

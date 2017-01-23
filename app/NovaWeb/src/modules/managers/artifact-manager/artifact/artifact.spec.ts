@@ -22,7 +22,7 @@ import {ApplicationError} from "../../../shell/error/applicationError";
 import {MessageType} from "../../../main/components/messages/message";
 import {ErrorCode} from "../../../shell/error/error-code";
 import {LoadingOverlayServiceMock} from "../../../core/loadingOverlay/loadingOverlay.service.mock";
-import {ItemInfoServiceMock} from "../../../core/navigation/item-info.svc.mock";
+import {ItemInfoServiceMock} from "../../../core/itemInfo/itemInfo.service.mock";
 import {SessionSvcMock} from "../../../shell/login/mocks.spec";
 
 describe("Artifact", () => {

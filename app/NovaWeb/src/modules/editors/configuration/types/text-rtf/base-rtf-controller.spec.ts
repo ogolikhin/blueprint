@@ -3,7 +3,7 @@ import "angular-mocks";
 import "lodash";
 
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
 import {LocalizationServiceMock} from "../../../../core/localization/localization.service.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";

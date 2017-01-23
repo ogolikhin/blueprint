@@ -4,7 +4,7 @@ import {ILocalizationService} from "../../core/localization/localization.service
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {ILoadingOverlayService} from "../../core/loadingOverlay/loadingOverlay.service";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {INavigationService} from "../../core/navigation/navigation.service";
 import {IJobsService} from "./jobs.svc";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";

@@ -4,7 +4,7 @@ import "script!mxClient";
 import {LoadingOverlayServiceMock} from "../../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
 import {ProcessDeleteAction} from "./process-delete-action";
-import {NavigationServiceMock} from "../../../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../../../core/navigation/navigation.service.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
 import {CommunicationManager} from "../../../services/communication-manager";

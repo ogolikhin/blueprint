@@ -1,4 +1,4 @@
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.service";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";

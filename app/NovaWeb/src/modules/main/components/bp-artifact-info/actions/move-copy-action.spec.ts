@@ -11,7 +11,7 @@ import {ProjectManagerMock} from "../../../../managers/project-manager/project-m
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {MoveCopyArtifactResult, MoveCopyArtifactInsertMethod} from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {Enums, Models} from "../../../../main/models";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../../core/navigation/navigation.service.mock";
 import {LoadingOverlayServiceMock} from "../../../../core/loadingOverlay/loadingOverlay.service.mock";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";

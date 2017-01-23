@@ -15,7 +15,7 @@ import {IProcess} from "./models/process-models";
 import {SessionSvc} from "../../shell/login/session.svc";
 import {AuthSvc} from "../../shell/login/auth.svc";
 import {SettingsMock} from "../../shell/login/mocks.spec";
-import {ItemInfoService} from "../../core/navigation/item-info.svc";
+import {ItemInfoService} from "../../core/itemInfo/itemInfo.service";
 import * as TestModels from "./models/test-model-factory";
 import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
 import {ProcessServiceMock} from "./services/process.svc.mock";

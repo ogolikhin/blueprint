@@ -12,7 +12,7 @@ import {
 import {Models, Enums} from "../../../../main/models";
 import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../core/loadingOverlay/loadingOverlay.service";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../../core/navigation/navigation.service";
 import {IMessageService} from "../../messages/message.svc";
 
 export class MoveCopyAction extends BPDropdownAction {

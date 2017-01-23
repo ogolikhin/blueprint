@@ -338,7 +338,7 @@ namespace StorytellerTests
             // Publish actor with new name
             var actorArtifact = Helper.WrapNovaArtifact(actorArtifactDetails, _project, _authorFullAccess);
             actorArtifact.Lock(_authorFullAccess);
-            Helper.UpdateNovaArtifact(_project, _authorFullAccess, actorArtifactDetails);
+            Helper.UpdateNovaArtifact(_authorFullAccess, actorArtifactDetails);
 
             // Verify:
             var updatedProcess = Helper.Storyteller.GetProcess(_authorFullAccess, process.Id);

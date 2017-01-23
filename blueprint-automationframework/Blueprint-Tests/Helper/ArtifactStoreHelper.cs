@@ -836,6 +836,9 @@ namespace Helper
             var collectionArtifact = helper.CreateWrapAndSaveNovaArtifact(project, user,
                 ItemTypePredefined.ArtifactCollection, parentId.Value, baseType: BaseArtifactType.PrimitiveFolder,
                 name: name);
+            // TODO better way to set specific artifactTypeId value for the collection artifact?
+            //Set ArtifactTypeIDcall for collection: Delete collection
+            collectionArtifact.ArtifactTypeId = 83;
 
             Collection collection = null;
             Assert.DoesNotThrow(() =>

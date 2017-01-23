@@ -362,7 +362,7 @@ namespace Helper
             var collection = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
                 itemType, name, project, artifactTypeName, parentId, orderIndex);
 
-            return WrapNovaArtifact(collection, project, user, baseType);
+            return WrapNovaArtifact(collection, project, user, baseType, name);
         }
 
         /// <summary>
@@ -608,11 +608,13 @@ namespace Helper
         /// <param name="user">The user that created this artifact.</param>
         /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
         ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
+        /// <param name="name">(optional) Artifact's name.</param>
         /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
         public IArtifact WrapNovaArtifact(INovaArtifactDetails novaArtifact,
             IProject project,
             IUser user,
-            BaseArtifactType? baseType = null)
+            BaseArtifactType? baseType = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
 
@@ -629,7 +631,8 @@ namespace Helper
                 user,
                 baseType.Value,
                 novaArtifact.Id,
-                fakeParent);
+                fakeParent,
+                name);
 
             artifact.IsSaved = true;
             Artifacts.Add(artifact);

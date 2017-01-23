@@ -923,27 +923,26 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
 
-        [Explicit (IgnoreReasons.UnderDevelopmentDev)]
+        [Explicit (IgnoreReasons.UnderDevelopmentDev)]  // User Story 4657:[Validation] Validate Process Sub-Artifacts
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Process", "Std-Date-Required-HasDefault")]
-        [TestCase(ItemTypePredefined.Process, "Process", "Std-Number-Required-HasDefault")]
-        [TestCase(ItemTypePredefined.Process, "Process", "Std-Text-Required-HasDefault")]
-        [TestCase(ItemTypePredefined.Process, "Process", "Std-Choice-Required-HasDefault")]
-        [TestCase(ItemTypePredefined.Process, "Process", "Std-User-Required-HasDefault")]
+        [TestCase("Std-Date-Required-HasDefault")]
+        [TestCase("Std-Number-Required-HasDefault")]
+        [TestCase("Std-Text-Required-HasDefault")]
+        [TestCase("Std-Choice-Required-HasDefault")]
+        [TestCase("Std-User-Required-HasDefault")]
         [TestRail(234306)]
         [Description("Create a Process artifact that has subartifact custom properties. Remove required value from subartifact custom property. " +
                      "Save and publish artifact. Verify 409 Conflict is returned due to validation errors.")]
-        public void PublishArtifact_RemoveSubArtifactRequiredPropertyValueAndPublish_409Conflict(ItemTypePredefined itemType,
-            string artifactTypeName, string propertyName)
+        public void PublishArtifact_RemoveSubArtifactRequiredPropertyValueAndPublish_409Conflict(string propertyName)
         {
             // Setup:
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
-            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, itemType, artifactTypeName: artifactTypeName);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
 
             // Get nova subartifact
             var novaProcess = Helper.Storyteller.GetNovaProcess(_user, artifact.Id);
-            var processShape = novaProcess.Process.Shapes.Find(s => s.Name == Process.DefaultUserTaskName);
+            var processShape = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, processShape.Id);
 
             // Update custom property in subartifact.

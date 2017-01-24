@@ -11,6 +11,7 @@ import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobsController} from "./jobs";
 import {JobsServiceMock} from "./jobs.svc.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {DownloadServiceMock} from "../../commonModule/download/download.service.mock";
 
 describe("Controller: Jobs", () => {
     let controller: JobsController;
@@ -27,6 +28,7 @@ describe("Controller: Jobs", () => {
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("downloadService", DownloadServiceMock);
     }));
 
     beforeEach(inject(($controller: ng.IControllerService,

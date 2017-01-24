@@ -64,7 +64,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.HEAD, accessControlError);
@@ -84,7 +84,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -104,7 +104,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -125,7 +125,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -164,7 +164,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 // Get the expected exception type that matches the HttpStatusCode error we're injecting.
                 Type expectedException = WebExceptionFactory.Create((int)accessControlError, accessControlError.ToString()).GetType();
@@ -184,7 +184,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
@@ -202,7 +202,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
@@ -304,7 +304,7 @@ namespace AdminStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+                var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 

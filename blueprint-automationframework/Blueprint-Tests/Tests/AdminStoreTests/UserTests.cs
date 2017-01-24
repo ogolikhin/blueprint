@@ -58,7 +58,7 @@ namespace AdminStoreTests
         {
             // Setup: generate a valid password.
             string newPassword = CreateValidPassword(MinPasswordLength);
-            IUser missingUser = UserFactory.CreateUserOnly();
+            var missingUser = UserFactory.CreateUserOnly();
 
             // Execute & Verify: try to change the user's password.
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
@@ -79,7 +79,7 @@ namespace AdminStoreTests
         {
             // Setup: generate a valid password.
             string newPassword = CreateValidPassword(MinPasswordLength);
-            IUser userWithNullPassword = UserFactory.CreateCopyOfUser(_user);
+            var userWithNullPassword = UserFactory.CreateCopyOfUser(_user);
             userWithNullPassword.Password = null;
 
             // Execute & Verify: try to change the user's password.
@@ -107,7 +107,7 @@ namespace AdminStoreTests
         {
             // Setup: generate a valid password.
             string newPassword = CreateValidPassword(MinPasswordLength);
-            IUser userWithBadPassword = UserFactory.CreateCopyOfUser(_user);
+            var userWithBadPassword = UserFactory.CreateCopyOfUser(_user);
             string wrongPassword = CreateValidPassword(MinPasswordLength);
             userWithBadPassword.Password = wrongPassword;
 
@@ -238,7 +238,7 @@ namespace AdminStoreTests
         [TestRail(146185)]
         public void GetLogedinUser_ValidSession_ReturnsCorrectUser()
         {
-            ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+            var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
             IUser loggedinUser = null;
 
             Assert.DoesNotThrow(() =>
@@ -254,11 +254,9 @@ namespace AdminStoreTests
         [TestRail(146289)]
         public void GetLogedinUser_InvalidSession_401Unauthorized()
         {
-            string badToken = (new Guid()).ToString();
-
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.AdminStore.GetLoginUser(badToken);
+                Helper.AdminStore.GetLoginUser(CommonConstants.InvalidToken);
             }, "GetLoginUser() should return 401 Unauthorized for an invalid session token!");
         }
 

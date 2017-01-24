@@ -16,6 +16,7 @@ namespace AdminStoreTests
         private IServiceErrorMessage _expectedServiceMessage2000 = ServiceErrorMessageFactory.CreateServiceErrorMessage(2000,
             "Invalid username or password");
 
+        // TODO: Replace with calls to TestHelper.ValidateServiceError().
         private static IServiceErrorMessage expectedServiceMessage2001(IUser user)
         {
             return ServiceErrorMessageFactory.CreateServiceErrorMessage(2001,
@@ -94,7 +95,7 @@ namespace AdminStoreTests
         [TestRail(146292)]
         public void Login_ValidUserNullOrEmptyPassword_Verify401Error(string password)
         {
-            IServiceErrorMessage expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2003,
+            var expectedServiceErrorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(2003,
                 "Username and password cannot be empty");
 
             Assert.Throws<Http401UnauthorizedException>(() =>
@@ -120,7 +121,7 @@ namespace AdminStoreTests
         public void Login_LockedUser_Verify401Error()
         {
             // Setup: Create a locked user.
-            IUser user = UserFactory.CreateUserOnly();
+            var user = UserFactory.CreateUserOnly();
             user.Enabled = false;
             user.CreateUser();
 
@@ -237,7 +238,7 @@ namespace AdminStoreTests
         public void Delete_ValidSession_VerifySessionIsDeleted()
         {
             // Setup:
-            ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+            var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -257,7 +258,7 @@ namespace AdminStoreTests
         [Description("Delete a valid session twice.  Verify a 401 Unauthorized error is returned.")]
         public void Delete_ValidSessionTwice_Verify401Error()
         {
-            ISession session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+            var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
             Helper.AdminStore.DeleteSession(session);
 
             Assert.Throws<Http401UnauthorizedException>(() =>

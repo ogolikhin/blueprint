@@ -106,6 +106,7 @@ namespace AdminStoreTests
             // Execute: Execute GetJobs with page and pageSize
             var returnedJobCount = 0;
             var pageCount = 1;
+
             while ( pageCount <= expectedPageCount)
             {
                 // Execute GetJobs with page and pageSize
@@ -155,7 +156,8 @@ namespace AdminStoreTests
 
         [TestCase(2, 1, 1)]
         [TestRail(227084)]
-        [Description("GET Jobs using the author user (author1) after creating jobs with different author (author2). Verify that the returned jobResult contains jobs that belong to the user which should be empty.")]
+        [Description("GET Jobs using the author user (author1) after creating jobs with different author (author2).  " +
+            "Verify that the returned jobResult contains jobs that belong to the user which should be empty.")]
         public void GetJobs_GetJobsWithUserWithNoAccessToJobsCreatedByAnotherAuthor_VerifyEmtpyJobResult(
             int numberOfJobsToBeCreated,
             int page,
@@ -330,7 +332,7 @@ namespace AdminStoreTests
         public void GetJob_GetJobWithInvalidSessionToken_401Unauthorized(int jobId)
         {
             // Setup: Not required
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute: Execute GetJob using the user with invalid session token and dummy job Id
             var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetJob(user: userWithBadToken, jobId: jobId),
@@ -372,7 +374,8 @@ namespace AdminStoreTests
         /// <returns>AddJobResultList representing the job list decending ordered by Job Id</returns>
         private static List<AddJobResult> ExtractAddJobResultsFromAddJobResultStack(Stack<AddJobResult> addJobResultStack, int pageSize)
         {
-            List<AddJobResult> pagedAddJobResultList = new List<AddJobResult>();
+            var pagedAddJobResultList = new List<AddJobResult>();
+
             for (int i = 0; i < pageSize; i++)
             {
                 if (addJobResultStack.Any())

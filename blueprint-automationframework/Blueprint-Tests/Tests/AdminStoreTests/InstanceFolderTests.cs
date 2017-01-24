@@ -14,7 +14,6 @@ namespace AdminStoreTests
     {
         private const int DEFAULT_FOLDER_ID = 1;
         private const int NON_EXISTING_FOLDER_ID = int.MaxValue;
-        private readonly string UNAUTHORIZED_TOKEN = new Guid().ToString();
 
         private IUser _user = null;
 
@@ -90,7 +89,7 @@ namespace AdminStoreTests
         [Description("Gets the folder using an unauthorized token and verifies '401 Unauthorized' is returned.")]
         public void GetFolderById_SendUnauthorizedToken_Unauthorized()
         {
-            _user.SetToken(UNAUTHORIZED_TOKEN);
+            _user.SetToken(CommonConstants.InvalidToken);
 
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
@@ -106,7 +105,7 @@ namespace AdminStoreTests
         public void GetFolderChildrenByFolderId_SendUnauthorizedToken_Unauthorized()
         {
             // Get a valid Access Control token for the user (for the new REST calls).
-            _user.SetToken(UNAUTHORIZED_TOKEN);
+            _user.SetToken(CommonConstants.InvalidToken);
 
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
@@ -119,33 +118,27 @@ namespace AdminStoreTests
         [TestCase]
         [TestRail(119385)]
         [Description("Gets the folder without sending any token header and verifies '401 Unauthorized' is returned.")]
-        public static void GetFolderById_NoTokenHeader_401Unauthorized()
+        public void GetFolderById_NoTokenHeader_401Unauthorized()
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    /*Executes get folder REST call and returns HTTP code*/
-                    /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                    helper.AdminStore.GetFolderById(DEFAULT_FOLDER_ID);
-                }, "AdminStore should return a 401 Unauthorized error when trying to send a malformed request");
-            }
+                /*Executes get folder REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderById(DEFAULT_FOLDER_ID);
+            }, "AdminStore should return a 401 Unauthorized error when trying to send a malformed request");
         }
 
         [TestCase]
         [TestRail(145864)]
         [Description("Gets the children of a folder without sending any token header and verifies '401 Unauthorized' is returned.")]
-        public static void GetFolderChildrenByFolderId_NoTokenHeader_401Unauthorized()
+        public void GetFolderChildrenByFolderId_NoTokenHeader_401Unauthorized()
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    /*Executes get folder children REST call and returns HTTP code*/
-                    /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
-                    helper.AdminStore.GetFolderChildrenByFolderId(DEFAULT_FOLDER_ID);
-                }, "AdminStore should return a 401 Unauthorized error when trying to send a malformed request");
-            }
+                /*Executes get folder children REST call and returns HTTP code*/
+                /*CURRENTLY, DUE TO INABILITY TO CREATE INSTANCE FOLDERS ONLY ROOT (BLUEPRINT) FOLDER USED WITH ONLY ONE PROJECT IN IT*/
+                Helper.AdminStore.GetFolderChildrenByFolderId(DEFAULT_FOLDER_ID);
+            }, "AdminStore should return a 401 Unauthorized error when trying to send a malformed request");
         }
     }
 }

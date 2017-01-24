@@ -682,6 +682,21 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Compare expected artifact with actual collection item
+        /// </summary>
+        /// <param name="expectedArtifact">The expected artifact</param>
+        /// <param name="actualCollectionItem">The actual collection item</param>
+        public static void AssertAreEqual(IArtifactBase expectedArtifact, CollectionItem actualCollectionItem)
+        {
+            ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
+            ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
+
+            Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
+            Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
+            Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
+        }
+
         #endregion Custom Asserts
 
         public enum ImageType
@@ -834,7 +849,7 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var collectionFolder = project.GetDefaultCollectionFolder(helper.ArtifactStore.Address, user);
-            parentId = collectionFolder.Id;
+            parentId = parentId ?? collectionFolder.Id;
             
             // fake type as far as we don't have Collection in OpenApi
             var collectionArtifact = helper.CreateWrapAndSaveNovaArtifact(project, user,
@@ -862,6 +877,7 @@ namespace Helper
         /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
         public static void ValidateCollection(Collection collection, List<IArtifactBase> artifactList)
         {
+            ThrowIf.ArgumentNull(collection, nameof(collection));
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
 
             Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
@@ -872,12 +888,8 @@ namespace Helper
             {
                 foreach (var artifact in artifactList)
                 {
-                    CollectionItem collectionArtifact = null;
-                    Assert.DoesNotThrow(() => collectionArtifact = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id)),
-                        "expected artifact with Id {0} is not found from the returned collection!", artifact.Id);
-                    Assert.AreEqual(artifact.Name, collectionArtifact.Name);
-                    Assert.AreEqual(artifact.ArtifactTypeId, collectionArtifact.ItemTypeId);
-                    Assert.AreEqual(artifact.BaseArtifactType.ToItemTypePredefined(), collectionArtifact.ItemTypePredefined);
+                    var collectionItem = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id));
+                    AssertAreEqual(artifact, collectionItem);
                 }
             }
         }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Common;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
@@ -8,11 +6,13 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
-using Newtonsoft.Json;
-using Model.Impl;
 using Utilities.Factories;
 
 namespace ArtifactStoreTests
@@ -25,6 +25,7 @@ namespace ArtifactStoreTests
         const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
 
         private IUser _user = null;
+        private IUser _authorUser = null;
         private IProject _project = null;
 
         [SetUp]
@@ -34,6 +35,7 @@ namespace ArtifactStoreTests
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
         }
 
         [TearDown]
@@ -46,25 +48,33 @@ namespace ArtifactStoreTests
 
         #region Publish Collection Artifact Tests
 
-        [TestCase(1)]
-        [TestCase(3)]
+        [TestCase(1, BaseArtifactType.Actor, true)]
+        [TestCase(2, BaseArtifactType.Glossary, false)]
+        [TestCase(3, BaseArtifactType.Document, true)]
+        [TestCase(4, BaseArtifactType.Process, false)]
         [TestRail(230691)]
-        [Description("Publish a collection that contains published artifact(s). Verify contents of the published collection.")]
-        public void PublishArtifact_PublishCollectionContainingPublishedArtifacts_VerifyCollectionContents(int numberOfArtifacts)
+        [Description("Publish a collection that contains either saved or published artifact(s). Verify contents of the published collection.")]
+        public void PublishArtifact_PublishCollectionContainingSavedOrPublishedArtifacts_VerifyCollectionContents(
+            int numberOfArtifacts,
+            BaseArtifactType includingArtifactType,
+            bool shouldPublishIncludingArtifacts)
         {
             // Setup: Create a collection and add published artifacts
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, _authorUser);
 
-            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, author);
+            var savedOrPublishedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _authorUser, includingArtifactType, numberOfArtifacts);
 
-            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, BaseArtifactType.Actor, numberOfArtifacts);
+            if(shouldPublishIncludingArtifacts)
+            {
+                savedOrPublishedArtifacts.ForEach(a => a.Publish());
+            }
 
-            publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(author, artifact.Id, collectionArtifact.Id));
+            savedOrPublishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id));
 
             // Execution: Publish the collection that contains published artifacts
             INovaArtifactsAndProjectsResponse publishedResponse = null;
 
-            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, author),
+            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser),
                 "POST {0} call failed when using it with collection (Id: {1}) contains published artifacts!",
                 PUBLISH_PATH, collectionArtifact.Id);
 
@@ -76,55 +86,17 @@ namespace ArtifactStoreTests
                 collectionArtifactList
                 );
 
-            var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
-            ArtifactStoreHelper.ValidateCollection(collection, publishedArtifacts);
-
-            //Temporary disposal call for collection: Delete collection
-            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
-        }
-
-        [TestCase(1)]
-        [TestCase(3)]
-        [TestRail(230692)]
-        [Description("Publish a collection that contains saved artifact(s). Verify contents of the published collection.")]
-        public void PublishArtifact_PublishCollectionContainingSavedArtifacts_VerifyCollectionContents(int numberOfArtifacts)
-        {
-            // Setup: Create a collection and add saved artifacts
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, author);
-
-            var savedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, author, BaseArtifactType.Actor, numberOfArtifacts);
-
-            savedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(author, artifact.Id, collectionArtifact.Id));
-
-            // Execute: Publish the collection that contains saved artifacts
-            INovaArtifactsAndProjectsResponse publishedResponse = null;
-
-            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, author),
-                "POST {0} call failed when using it with collection (Id: {1}) contains saved artifacts!",
-                PUBLISH_PATH, collectionArtifact.Id);
-
-            // Validate: Verify that published collection contains valid data added  
-            var collectionArtifactList = new List<IArtifactBase> { collectionArtifact };
-
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
-                publishedResponse,
-                collectionArtifactList
-                );
-
-            var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
-
-            ArtifactStoreHelper.ValidateCollection(collection, savedArtifacts);
+            ArtifactStoreHelper.ValidateCollection(collection, savedOrPublishedArtifacts);
 
             //Temporary disposal call for collection: Delete collection
-            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
+            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, _authorUser);
         }
 
         [TestCase]
         [TestRail(230693)]
-        [Description("Publish a collection with a user doesn't have permission to its publshed artifact. Verify the content of published collection with different permissione based users.")]
+        [Description("Publish a collection with a user doesn't have permission to its publshed artifact. Verify the content of published collection with different permission based users.")]
         public void PublishArtifact_PublishCollectionWithUserWithNoPermissionToItsPublishedArtifact_VerifyCollectionWithDifferentPermissionBasedUsers()
         {
             // Setup: Create a collection which contains inaccessible published artifact to the user
@@ -174,22 +146,20 @@ namespace ArtifactStoreTests
         public void PublishArtifact_PublishCollectionContainingDeletedArtifacts_VerifyCollection(int numberOfArtifacts)
         {
             // Setup: Create a collection and add artifacts in it
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, _authorUser);
 
-            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, author);
-
-            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, author, BaseArtifactType.Actor, numberOfArtifacts);
+            var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _authorUser, BaseArtifactType.Actor, numberOfArtifacts);
             
-            publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(author, artifact.Id, collectionArtifact.Id));
+            publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id));
 
             // Execution: Publish the collection with deleted artifacts
             List<INovaArtifactResponse> deletedArtifacts = new List<INovaArtifactResponse>();
 
-            publishedArtifacts.ForEach(artifact => deletedArtifacts.AddRange(Helper.ArtifactStore.DeleteArtifact(artifact, author)));
+            publishedArtifacts.ForEach(artifact => deletedArtifacts.AddRange(Helper.ArtifactStore.DeleteArtifact(artifact, _authorUser)));
 
             INovaArtifactsAndProjectsResponse publishedResponse = null;
 
-            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, author),
+            Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser),
                 "POST {0} call failed when using it with collection (Id: {1}) contains deleted artifacts!",
                 PUBLISH_PATH, collectionArtifact.Id);
 
@@ -201,12 +171,12 @@ namespace ArtifactStoreTests
                 collectionArtifactList
                 );
 
-            var collection = Helper.ArtifactStore.GetCollection(author, collectionArtifact.Id);
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
             ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase>());
 
             //Temporary disposal call for collection: Delete collection
-            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, author);
+            Helper.ArtifactStore.DeleteArtifact(collectionArtifact, _authorUser);
         }
 
         #endregion Publish Collection Artifact Tests
@@ -712,8 +682,6 @@ namespace ArtifactStoreTests
         public void PublishArtifact_CollectionOrCollectionFolder_ReturnsPublishedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
@@ -743,8 +711,6 @@ namespace ArtifactStoreTests
         public void PublishAllArtifacts_CollectionAndCollectionFolder_ReturnsPublishedArtifact()
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
@@ -777,8 +743,6 @@ namespace ArtifactStoreTests
         public void PublishArtifact_UpdateCollectionOrCollectionFolder_ReturnsPublishedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
@@ -816,8 +780,6 @@ namespace ArtifactStoreTests
         public void PublishArtifact_UpdateDefaultCollectionFolder_ReturnsPublishedArtifact()
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);

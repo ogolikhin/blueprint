@@ -1,3 +1,4 @@
+import {IProjectSearchResult} from "../../main/models/search-service-models";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 import {IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
@@ -41,7 +42,7 @@ export interface IProjectManager extends IDispose {
     triggerProjectCollectionRefresh(): void;
     getDescendantsToBeDeleted(artifact: Models.IArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
     calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
-    openProject(project: AdminStoreModels.IInstanceItem | IItemInfoResult): ng.IPromise<void>;
+    openProject(project: AdminStoreModels.IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
 }
 
 export class ProjectManager implements IProjectManager {
@@ -169,20 +170,25 @@ export class ProjectManager implements IProjectManager {
             template: require("../../main/components/dialogs/open-project/open-project.html"),
             controller: OpenProjectController,
             css: "nova-open-project" // removed modal-resize-both as resizing the modal causes too many artifacts with ag-grid
-        }).then((project) => {
+        }).then((project: AdminStoreModels.IInstanceItem | IProjectSearchResult) => {
             this.openProject(project);
         });
     }
 
-    public openProject(project: AdminStoreModels.IInstanceItem | IItemInfoResult): ng.IPromise<void> { // opens and selects project
-        if (!project.hasOwnProperty("id")) {
-            throw new Error("project does not have id");
+    public openProject(project: AdminStoreModels.IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void> { // opens and selects project
+        let projectId: number;
+        if (project.hasOwnProperty("id")) {
+            projectId = (project as {id: number}).id;
+        } else if (project.hasOwnProperty("itemId")) {
+            projectId = (project as {itemId: number}).itemId;
+        } else {
+            throw new Error("project does not have id or itemId");
         }
         /*fixme: this function should change.
          what it needs to do is just to insert the project into the tree as a root node. Expanding it shall be done else-ware*/
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
         //let openProjects = _.map(this.projectCollection.getValue(), "model.id");
-        return this.add(project.id).finally(() => {
+        return this.add(projectId).finally(() => {
             /*const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
             this.analytics.trackEvent("open", "project", label, project.id, {
                 openProjects: openProjects

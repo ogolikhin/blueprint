@@ -1,3 +1,7 @@
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
@@ -11,24 +15,34 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
     public actionPlaceHolderText: string;
     private _idGenerator = new IdGenerator();
 
-    public static $inject = [
-        "$scope",
-        "$rootScope",
-        "$timeout",
-        "dialogService",
-        "localization"
-    ];
-
     constructor(
         $scope: IModalScope,
         $rootScope: ng.IRootScopeService,
         $timeout: ng.ITimeoutService,
         dialogService: IDialogService,
+        $q: ng.IQService,
         localization: ILocalizationService,
+        createArtifactService: ICreateArtifactService,
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        messageService: IMessageService,
+        artifactService: IArtifactService,
+        loadingOverlayService: ILoadingOverlayService,
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: UserTaskDialogModel
     ) {
-        super($scope, $rootScope, $timeout, dialogService, localization, $uibModalInstance, dialogModel);
+        super($scope,
+        $rootScope,
+        $timeout,
+        dialogService,
+        $q,
+        localization,
+        createArtifactService,
+        statefulArtifactFactory,
+        messageService,
+        artifactService,
+        loadingOverlayService,
+        $uibModalInstance,
+        dialogModel);
     }
 
     public nameOnFocus() {
@@ -77,6 +91,14 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
         } else {
             this.dialogModel.personaReference = this.getDefaultPersonaReference();
         }
+    }
+
+    protected getNewArtifactName(): string {
+        return this.dialogModel.label;
+    }
+
+    protected getItemTypeId(): number {
+        return this.dialogModel.itemTypeId;
     }
 
     protected populateTaskChanges() {

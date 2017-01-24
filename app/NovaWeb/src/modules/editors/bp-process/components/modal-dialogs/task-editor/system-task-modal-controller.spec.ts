@@ -1,3 +1,9 @@
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import * as angular from "angular";
 import "angular-mocks";
 import "../../..";
@@ -22,12 +28,20 @@ require("script!mxClient");
 import {ProcessViewModel, IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
 import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
     let $timeout: ng.ITimeoutService;
     let $anchorScroll: ng.IAnchorScrollService;
     let localization: ILocalizationService;
+    let $q: ng.IQService;
+    let createArtifactService: ICreateArtifactService;
+    let statefulArtifactFactory: IStatefulArtifactFactory;
+    let messageService: IMessageService;
+    let artifactService: IArtifactService;
+    let loadingOverlayService: ILoadingOverlayService;
+
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let dialogService: IDialogService;
     let communicationManager: ICommunicationManager;
@@ -36,6 +50,12 @@ describe("SystemTaskModalController", () => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("communicationManager", CommunicationManager);
+        $provide.service("dialogService", DialogServiceMock);
+        $provide.service("createArtifactService", CreateArtifactService);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
+        $provide.service("messageService", MessageServiceMock);
+        $provide.service("artifactService", ArtifactServiceMock);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
@@ -43,11 +63,23 @@ describe("SystemTaskModalController", () => {
                        _$location_: ng.ILocationService,
                        _localization_: ILocalizationService,
                        _communicationManager_: ICommunicationManager,
+                       _$q_: ng.IQService,
+                       _createArtifactService_: ICreateArtifactService,
+                       _statefulArtifactFactory_: IStatefulArtifactFactory,
+                       _messageService_: IMessageService,
+                       _artifactService_: IArtifactService,
+                       _loadingOverlayService_: ILoadingOverlayService,
                        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance) => {
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
         localization = _localization_;
         communicationManager = _communicationManager_;
+        $q = _$q_;
+        createArtifactService = _createArtifactService_;
+        statefulArtifactFactory = _statefulArtifactFactory_;
+        messageService = _messageService_;
+        artifactService = _artifactService_;
+        loadingOverlayService = _loadingOverlayService_;
         $uibModalInstance = _$uibModalInstance_;
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
@@ -77,11 +109,18 @@ describe("SystemTaskModalController", () => {
 
             const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
+
             const controller = new SystemTaskModalController($scope,
                 $rootScope,
                 $timeout,
                 dialogService,
+                $q,
                 localization,
+                createArtifactService,
+                statefulArtifactFactory,
+                messageService,
+                artifactService,
+                loadingOverlayService,
                 $uibModalInstance,
                 model);
 
@@ -108,7 +147,13 @@ describe("SystemTaskModalController", () => {
                 $rootScope,
                 $timeout,
                 dialogService,
+                $q,
                 localization,
+                createArtifactService,
+                statefulArtifactFactory,
+                messageService,
+                artifactService,
+                loadingOverlayService,
                 $uibModalInstance,
                 model);
             const artifactReference: IArtifactReference = <IArtifactReference>{
@@ -136,7 +181,13 @@ describe("SystemTaskModalController", () => {
                 $rootScope,
                 $timeout,
                 dialogService,
+                $q,
                 localization,
+                createArtifactService,
+                statefulArtifactFactory,
+                messageService,
+                artifactService,
+                loadingOverlayService,
                 $uibModalInstance,
                 model);
 
@@ -173,7 +224,13 @@ describe("SystemTaskModalController", () => {
                 $rootScope,
                 $timeout,
                 dialogService,
+                $q,
                 localization,
+                createArtifactService,
+                statefulArtifactFactory,
+                messageService,
+                artifactService,
+                loadingOverlayService,
                 $uibModalInstance,
                 model);
 
@@ -220,7 +277,13 @@ describe("SystemTaskModalController", () => {
                 $rootScope,
                 $timeout,
                 dialogService,
+                $q,
                 localization,
+                createArtifactService,
+                statefulArtifactFactory,
+                messageService,
+                artifactService,
+                loadingOverlayService,
                 $uibModalInstance,
                 model);
 
@@ -301,12 +364,18 @@ describe("SystemTaskModalController", () => {
                 const $scope = <IModalScope>$rootScope.$new();
                 const localizationSpy = spyOn(localization, "get");
                 controller = new SystemTaskModalController($scope,
-                    $rootScope,
-                    $timeout,
-                    dialogService,
-                    localization,
-                    $uibModalInstance,
-                    model);
+                $rootScope,
+                $timeout,
+                dialogService,
+                $q,
+                localization,
+                createArtifactService,
+                statefulArtifactFactory,
+                messageService,
+                artifactService,
+                loadingOverlayService,
+                $uibModalInstance,
+                model);
             });
 
 

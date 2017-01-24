@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Model.ArtifactModel.Impl.PredefinedProperties;
 using Newtonsoft.Json;
 using System.Linq;
@@ -21,7 +20,7 @@ namespace Model.ArtifactModel.Impl
             get
             {
                 // Finding ActorInheritence among other properties
-                CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
+                var actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
                 if ((actorInheritanceProperty == null) || (actorInheritanceProperty.CustomPropertyValue == null))
                 {
@@ -38,7 +37,7 @@ namespace Model.ArtifactModel.Impl
 
             set
             {
-                CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
+                var actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
 
                 if (actorInheritanceProperty != null)   // TODO: Should this throw an exception instead?

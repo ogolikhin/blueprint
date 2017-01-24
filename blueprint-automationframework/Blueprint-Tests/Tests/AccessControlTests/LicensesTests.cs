@@ -47,7 +47,7 @@ namespace AccessControlTests
         private ISession AddSessionToAccessControl(ISession session)
         {
             // POST the new session.
-            ISession createdSession = Helper.AccessControl.AddSession(session);
+            var createdSession = Helper.AccessControl.AddSession(session);
 
             // Verify that the POST returned the expected session.
             Assert.True(session.Equals(createdSession),
@@ -63,7 +63,7 @@ namespace AccessControlTests
         /// <returns>The session that was added including the session token.</returns>
         private ISession CreateAndAddSessionToAccessControl()
         {
-            ISession session = SessionFactory.CreateSession(_user);
+            var session = SessionFactory.CreateSession(_user);
 
             // POST the new session.
             return AddSessionToAccessControl(session);
@@ -90,7 +90,7 @@ namespace AccessControlTests
         [Description("Check that GET locked licenses info returns 200 OK")]
         public void GetLockedLicensesInfo_200OK()
         {
-            ISession session = CreateAndAddSessionToAccessControl();
+            var session = CreateAndAddSessionToAccessControl();
 
             // TODO: add expected results
             Assert.DoesNotThrow(() =>
@@ -109,7 +109,7 @@ namespace AccessControlTests
         public void GetLicenseTransactionsInfo_200OK()
         {
             // Setup: Create a session for test.
-            ISession session = CreateAndAddSessionToAccessControl();
+            var session = CreateAndAddSessionToAccessControl();
             int numberOfDays = 1;
 
             // In our test environment we have only transactions related to consumerType = 1 - regular client

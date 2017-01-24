@@ -42,7 +42,7 @@ export class BPArtifactListController implements IBPArtifactListController {
         this.initialLimit = 10; // limit of the initial list
         this.limitTo = this.initialLimit;
 
-        this._sortedList = this.artifactList.map((artifact) => {
+        const artifactsWithProjectNames = this.artifactList.map((artifact) => {
             const item = artifact as Models.IArtifactWithProject;
             if (this.projectList) {
                 const project = _.find(this.projectList, (project) => {
@@ -52,7 +52,12 @@ export class BPArtifactListController implements IBPArtifactListController {
             }
             return item;
         });
-        this._sortedList.sort(this.sortList);
+        this._sortedList = _.sortBy(artifactsWithProjectNames,
+            artifact => artifact.projectId !== this.selectedProject, // put the selected project first
+            artifact => artifact.projectName, // then order by project name
+            artifact => artifact.name, // then by artifact name
+            artifact => artifact.id // and finally by id
+        );
 
         const initialArtifacts = _.slice(this._sortedList, 0, this.initialLimit);
         const initialProjects = initialArtifacts.map(artifact => artifact.projectName);
@@ -93,31 +98,5 @@ export class BPArtifactListController implements IBPArtifactListController {
 
     public itemLabel = (artifact: Models.IArtifactWithProject): string => {
         return artifact.prefix + artifact.id + " - " + artifact.name;
-    };
-
-    private sortList = (a, b) => {
-        // put selected project first
-        if (a.projectId === this.selectedProject && b.projectId !== this.selectedProject) {
-            return -1;
-        } else if (b.projectId === this.selectedProject && a.projectId !== this.selectedProject) {
-            return 1;
-        }
-
-        // otherwise sort by project name
-        if (a.projectName < b.projectName) {
-            return -1;
-        } else if (a.projectName > b.projectName) {
-            return 1;
-        } else {
-            // then by artifact name
-            if (a.name < b.name) {
-                return -1;
-            } else if (a.name > b.name) {
-                return 1;
-            } else {
-                // and finally by artifact ID
-                return a.id > b.id ? 1 : -1;
-            }
-        }
     };
 }

@@ -14,6 +14,7 @@ export abstract class SubArtifactTaskDialogModel implements IModalDialogModel {
     subArtifactId: number;
     isHistoricalVersion: boolean;
     isReadonly: boolean;
+    itemTypeId: number;
 }
 
 export class UserTaskDialogModel extends SubArtifactTaskDialogModel {

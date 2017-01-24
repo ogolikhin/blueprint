@@ -1,3 +1,5 @@
+import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {CreateArtifactService, ICreateArtifactService} from "../projectControls/create-artifact.svc";
 import {JobsServiceMock} from "../../../editors/jobs/jobs.svc.mock";
 import "angular";
 import "angular-mocks";
@@ -26,7 +28,7 @@ describe("Page Toolbar:", () => {
     let toolbarCtrl: PageToolbarController;
     let artifact: any;
     let stateSpy: any;
-
+    let createArtifactService: ICreateArtifactService;
 
     beforeEach(angular.mock.module("ui.router"));
 
@@ -71,6 +73,8 @@ describe("Page Toolbar:", () => {
         $provide.service("session", SessionSvc);
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("jobsService", JobsServiceMock);
+        $provide.service("createArtifactService", CreateArtifactService);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
 
@@ -88,6 +92,7 @@ describe("Page Toolbar:", () => {
                        artifactService: IArtifactService,
                        loadingOverlayService: LoadingOverlayService,
                        jobsService: JobsServiceMock,
+                       createArtifactService: ICreateArtifactService,
                        session: ISession) => {
         $scope = $rootScope.$new();
         _$q = $q;
@@ -101,11 +106,22 @@ describe("Page Toolbar:", () => {
             artifactState : {
                 unlock: () => {return; }
             },
-            discard: () => { }
+            discard: () => { return; }
         };
-        toolbarCtrl = new PageToolbarController($q, _$state, $timeout, localization,
-            dialogService, projectManager, selectionManager, publishService,
-            messageService, navigationService, artifactService, loadingOverlayService, null);
+        toolbarCtrl = new PageToolbarController($q,
+        _$state,
+        $timeout,
+        localization,
+        dialogService,
+        projectManager,
+        selectionManager,
+        publishService,
+        messageService,
+        navigationService,
+        artifactService,
+        loadingOverlayService,
+        null,
+        createArtifactService);
         spyOn(selectionManager, "autosave").and.callFake(() => { return $q.resolve(); });
 
     }));

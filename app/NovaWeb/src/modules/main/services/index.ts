@@ -5,5 +5,8 @@ angular.module("bp.main.services", [])
     .service("windowManager", WindowManager);
 
 export {
-    IWindowManager, WindowManager, IMainWindow, ResizeCause
+    IWindowManager,
+    WindowManager,
+    IMainWindow,
+    ResizeCause
 }

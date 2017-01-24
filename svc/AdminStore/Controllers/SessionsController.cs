@@ -241,6 +241,7 @@ namespace AdminStore.Controllers
         /// Returns 200 OK. Used to check if session is alive.
         /// </remarks>
         /// <response code="200">OK.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         [HttpGet, NoCache]
         [Route("alive"), SessionRequired]
         public IHttpActionResult IsSessionAlive()

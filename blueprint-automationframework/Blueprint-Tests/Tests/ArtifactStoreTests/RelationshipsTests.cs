@@ -19,11 +19,8 @@ namespace ArtifactStoreTests
     public class RelationshipsTests : TestBase
     {
         private IUser _user = null;
-        private IUser _userWithLimitedAccess = null;
         private IUser _viewer = null;
         private IProject _project = null;
-        private IGroup _authorsGroup = null;
-        private IProjectRole _viewerRole = null;
 
         private const int INVALID_VERSIONID = -1;
         private const int NONEXSITING_VERSIONID = int.MaxValue;
@@ -34,16 +31,8 @@ namespace ArtifactStoreTests
         public void SetUp()
         {
             Helper = new TestHelper();
-
-            _authorsGroup = Helper.CreateGroupAndAddToDatabase();
-
-            _userWithLimitedAccess = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _authorsGroup.AddUser(_userWithLimitedAccess);
-
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            _viewerRole = ProjectRoleFactory.GetDeployedProjectRole(ProjectRoleFactory.DeployedProjectRole.Viewer);
             _viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
     }
 
@@ -478,16 +467,16 @@ namespace ArtifactStoreTests
             // Setup:
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            _authorsGroup.AssignRoleToProjectOrArtifact(_project, _viewerRole, sourceArtifact);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.From, _user);
 
-            targetArtifact.Publish(_user);
+            sourceArtifact.Publish(_user);
 
             Assert.AreEqual(false, traces[0].IsSuspect,
                 "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
-            Helper.AdminStore.AddSession(_userWithLimitedAccess);
+
+            Helper.AssignProjectRolePermissionsToUser(_viewer, TestHelper.ProjectRole.None, _project, targetArtifact);
 
             Relationships relationshipsForUserWithFullAccessToTargetArtifact = null;
             Relationships relationshipsForUserWithNoAccessToTargetArtifact = null;
@@ -495,8 +484,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationshipsForUserWithNoAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_userWithLimitedAccess, sourceArtifact);
-                relationshipsForUserWithFullAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
+                relationshipsForUserWithNoAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
+                relationshipsForUserWithFullAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:

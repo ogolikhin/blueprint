@@ -5,68 +5,84 @@
                 <div class="icon-container">
                     <i class="fonticon fonticon2-project"></i><b class="caret"></b>
                 </div>
-                <span>{{::$root.config.labels["App_Toolbar_Project"]}}</span>
+                <span>{{::$root.config.labels['App_Toolbar_Project']}}</span>
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <button type="button" class="btn btn-link" g-click="$ctrl.openProject($event)">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</button>
+                    <button type="button"
+                            class="btn btn-link"
+                            ng-click="$ctrl.openProject($event)"
+                            title="{{::$root.config.labels['App_Toolbar_Open_Project']}}">
+                        {{::$root.config.labels['App_Toolbar_Open_Project']}}
+                    </button>
                 </li>
                 <li>
-                    <button type="button" class="btn btn-link" ng-disabled="!$ctrl.isArtifactSelected" ng-click="$ctrl.closeProject($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</button>
+                    <button type="button"
+                            class="btn btn-link"
+                            title="{{::$root.config.labels['App_Toolbar_Close_Project']}}"
+                            ng-disabled="!$ctrl.isArtifactSelected"
+                            ng-click="$ctrl.closeProject($event)">
+                        {{::$root.config.labels['App_Toolbar_Close_Project']}}
+                    </button>
                 </li>
                 <li>
-                    <button type="button" class="btn btn-link" ng-disabled="!$ctrl.isProjectOpened" ng-click="$ctrl.closeAllProjects($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</button>
+                    <button type="button"
+                            class="btn btn-link"
+                            ng-disabled="!$ctrl.isProjectOpened"
+                            title="{{::$root.config.labels['App_Toolbar_Close_All_Projects']}}"
+                            ng-click="$ctrl.closeAllProjects($event)">
+                        {{::$root.config.labels['App_Toolbar_Close_All_Projects']}}
+                    </button>
                 </li>
             </ul>
         </li>
         <li class="separator"></li>
         <li>
-            <a href="#" ng-class="{disabled: !$ctrl.canCreateNew}" ng-click="$ctrl.createNewArtifact($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-new"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_New"]}}</span>
-            </a>
-        </li>
-        <li>
-            <button title='{{::$root.config.labels["App_Toolbar_New"]}}' type="button" class="btn btn-link" ng-disabled="!$ctrl.canCreateNew" ng-click="$ctrl.createNewArtifact($event)">
+            <button type="button"
+                    class="btn btn-link"
+                    title="{{::$root.config.labels['App_Toolbar_New']}}"
+                    ng-click="$ctrl.createNewArtifact($event)"
+                    ng-disabled="!$ctrl.canCreateNew">
                 <i class="fonticon fonticon2-new"></i>
-                <span class="icon-label">{{::$root.config.labels["App_Toolbar_New"]}}</span>
+                <span class="icon-label">{{::$root.config.labels['App_Toolbar_New']}}</span>
             </button>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.publishAll($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-publish-line"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_Publish_All"]}}</span>
-            </a>
+            <button type="button"
+                    class="btn btn-link"
+                    ng-click="$ctrl.publishAll($event)"
+                    title="{{::$root.config.labels['App_Toolbar_Publish_All']}}">
+                <i class="fonticon fonticon2-publish-line"></i>
+                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Publish_All']}}</span>
+            </button>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.discardAll($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-discard-line"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_Discard_All"]}}</span>
-            </a>
+            <button type="button"
+                    class="btn btn-link"
+                    title="{{::$root.config.labels['App_Toolbar_Discard_All']}}"
+                    ng-click="$ctrl.discardAll($event)">
+                <i class="fonticon fonticon2-discard-line"></i>
+                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Discard_All']}}</span>
+            </button>
         </li>
         <li>
-            <a href="#" ng-click="$ctrl.refreshAll($event)">
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-refresh-line"></i>
-                </div>
-                <span>{{::$root.config.labels["App_Toolbar_Refresh_All"]}}</span>
-            </a>
+            <button type="button"
+                    class="btn btn-link"
+                    title="{{::$root.config.labels['App_Toolbar_Refresh_All']}}"
+                    ng-click="$ctrl.refreshAll($event)">
+                <i class="fonticon fonticon2-refresh-line"></i>
+                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Refresh_All']}}</span>
+            </button>
         </li>
         <li uib-dropdown>
-            <a href="#" ng-class="{disabled: !$ctrl.canGenerateTestCases}"  uib-dropdown-toggle>
+            <a href="#" ng-class="{disabled: !$ctrl.canGenerateTestCases}" uib-dropdown-toggle>
                 <div class="icon-container">
                     <i class="fonticon2-generate navbar-generate-icon"></i><b class="caret"></b>
                 </div>
-                <span>{{::$root.config.labels["App_Toolbar_Generate"]}}</span>
+                <span>{{::$root.config.labels['App_Toolbar_Generate']}}</span>
             </a>
             <ul class="dropdown-menu">
-                <li><a href="#" ng-click="$ctrl.generateTestCases($event)">{{::$root.config.labels["App_Toolbar_Generate_Test_Cases"]}}</a>
+                <li><a href="#" ng-click="$ctrl.generateTestCases($event)">{{::$root.config.labels['App_Toolbar_Generate_Test_Cases']}}</a>
                 </li>
             </ul>
         </li>
@@ -79,7 +95,5 @@
         <li class="full-height">
             <quick-search class="full-height block"></quick-search>
         </li>
-
-
     </ul>
 </div>

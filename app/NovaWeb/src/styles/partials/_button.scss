@@ -44,8 +44,7 @@
  Custom Button
 
  .btn-primary             - Primary Action Button
- .btn-promoted-action     - Button used on login modal
- .btn-cancel              - Cancel button?
+ .btn-promoted-action     - Button used on login modcur
  .btn-secondary           - Secondary action button
  .btn__icon               - another button with an icon?
  .btn-dropdown-toggle     - a drop down toggle
@@ -307,16 +306,20 @@ Helper classes
     text-decoration: underline;
     &:hover {
         color: white;
-        opacity: 80%;
+        opacity: .80;
     }
 }
 
-.btn-link{
-    padding:0;
-    text-align:inherit;
+.btn-link {
+    padding: 0;
+    text-align: inherit;
+    border: none!important;
     &:hover,
-    &:focus{
-        text-decoration:none;
+    &:focus {
+        text-decoration: none;
+    }
+    &[disabled] {
+        cursor: not-allowed;
     }
 }
 

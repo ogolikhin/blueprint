@@ -37,7 +37,7 @@ page-toolbar {
                 text-align: center;
                 > .fonticon {
                     display: block;
-                    margin: -.2em 0 0;
+                    //margin: -.2em 0 0;
                     &::before {
                         font-size: 1.6em;
                         margin: 0;
@@ -58,6 +58,7 @@ page-toolbar {
                     pointer-events: none;
                 }
                 span {
+                    white-space: initial;
                     display: block;
                     font-size: $font-size-smaller;
                     line-height: 0.9rem;
@@ -118,25 +119,8 @@ page-toolbar {
             margin: 0;
             padding: 0;
             position: absolute !important;
-            button {
-                width: 100%;
-                border-radius: 0;
+            > li {
                 background: $gray-lightest;
-                border: 0;
-                color: $text-color;
-                line-height: inherit;
-                padding: 6px 20px;
-                &:hover:not([disabled]) {
-                    background: $brand-secondary;
-                    color: $white;
-                }
-                &[disabled] {
-                    &:hover {
-                        background: $gray-lightest;
-                    }
-                    cursor: not-allowed;
-                    color: $gray-light !important;
-                }
             }
             a {
                 background: $gray-lightest;

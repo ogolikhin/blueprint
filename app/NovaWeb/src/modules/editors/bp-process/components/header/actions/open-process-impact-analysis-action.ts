@@ -1,6 +1,6 @@
 import {OpenImpactAnalysisAction} from "../../../../../main/components/bp-artifact-info/actions/open-impact-analysis-action";
 import {IStatefulProcessArtifact} from "../../../process-artifact";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {IDiagramNode} from "./../../diagram/presentation/graph/models/process-graph-interfaces";
 
@@ -30,7 +30,7 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
         if (!super.canOpenImpactAnalysis()) {
             return false;
         }
-        
+
         if (!this.selectedNodes || !this.selectedNodes.length) {
             return true;
         }
@@ -46,7 +46,7 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
         if (!this.canOpenImpactAnalysis()) {
             return;
         }
-        
+
         if (!this.selectedNodes || !this.selectedNodes.length) {
             super.openImpactAnalysis();
         } else {

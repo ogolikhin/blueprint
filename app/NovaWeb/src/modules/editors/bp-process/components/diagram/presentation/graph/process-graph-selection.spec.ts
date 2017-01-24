@@ -2,19 +2,19 @@ import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
 import {ShapesFactory} from "./shapes/shapes-factory";
-import {LocalizationServiceMock} from "./../../../../../../core/localization/localization.mock";
-import {DialogServiceMock} from "./../../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {LocalizationServiceMock} from "../../../../../../commonModule/localization/localization.service.mock";
+import {DialogServiceMock} from "../../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IProcessGraph} from "./models/process-graph-interfaces";
-import {ProcessType} from "./../../../../models/enums";
-import {IProcess} from "./../../../../models/process-models";
-import {MessageServiceMock} from "./../../../../../../core/messages/message.mock";
-import {CommunicationManager} from "./../../../../services/communication-manager";
-import {ProcessViewModel} from "./../../viewmodel/process-viewmodel";
+import {ProcessType} from "../../../../models/enums";
+import {IProcess} from "../../../../models/process-models";
+import {CommunicationManager} from "../../../../services/communication-manager";
+import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {ProcessGraph} from "./process-graph";
 import {ProcessGraphSelectionHelper} from "./process-graph-selection";
-import {StatefulArtifactFactoryMock} from "./../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
+import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../commonModule/services/executionEnvironmentDetector.mock";
 import * as TestModels from "../../../../models/test-model-factory";
+import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 
 describe("ProcessGraphSelectionHelper", () => {
     let $rootScope: ng.IRootScopeService;
@@ -54,9 +54,9 @@ describe("ProcessGraphSelectionHelper", () => {
         shapesFactory = _shapesFactory_;
 
         $rootScope["config"] = {
-            labels: [], 
+            labels: [],
             settings: {
-                StorytellerShapeLimit: "100", 
+                StorytellerShapeLimit: "100",
                 StorytellerIsSMB: "false"
             }
         };
@@ -685,7 +685,7 @@ describe("ProcessGraphSelectionHelper", () => {
 
         // act
         graph.getMxGraph().setSelectionCells([
-            start, preCondition, userTask1, systemTask2, userDecision, userTask2, 
+            start, preCondition, userTask1, systemTask2, userDecision, userTask2,
             systemTask3, userTask3, systemTask4, mergingPoint, end
         ]);
 

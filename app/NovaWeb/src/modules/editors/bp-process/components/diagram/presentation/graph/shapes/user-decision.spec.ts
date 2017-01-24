@@ -6,7 +6,7 @@ import * as ProcessModels from "../../../../../models/process-models";
 import {UserDecision} from "./";
 import {NodeChange, IDecision} from "../models/";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../../commonModule/localization/localization.service.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
 import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";

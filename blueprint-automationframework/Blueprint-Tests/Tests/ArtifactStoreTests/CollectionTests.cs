@@ -2,12 +2,15 @@
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
+using Utilities;
+using Common;
 
 namespace ArtifactStoreTests
 {
@@ -26,7 +29,7 @@ namespace ArtifactStoreTests
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
-            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
         }
 
         [TearDown]
@@ -34,6 +37,8 @@ namespace ArtifactStoreTests
         {
             Helper?.Dispose();
         }
+
+        #region Positive Tests
 
         [TestCase()]
         [TestRail(195436)]
@@ -82,7 +87,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             collection.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove.Id });
-            
+
             Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection); },
                 "Updating collection content should throw no error.");
 
@@ -119,6 +124,162 @@ namespace ArtifactStoreTests
             Assert.AreEqual(artifactsNumber, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, artifactsToAdd);
         }
+
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [TestRail(230662)]
+        [Description("Create new collection, publish new artifact, add artifact to collection, check collection content.")]
+        public void AddArtifactToCollection_PublishedArtifact_ValidateCollectionContent(BaseArtifactType artifactTypeToAdd)
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactTypeToAdd);
+            
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                    numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifactToAdd.Id,
+                        collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+            
+            // Verify:
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd});
+        }
+
+        [TestCase(true, 2)]
+        [TestCase(false, 1)]
+        [TestRail(230663)]
+        [Description("Create new collection, publish new artifact with child artifact, add artifact to collection," + 
+        "check collection content - artifact with its child should be added.")]
+        public void AddArtifactToCollection_PublishedArtifactWithChild_ValidateCollectionContent(bool includeDescendants,
+            int expectedNumberOfAddedArtifacts)
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor, artifact);
+
+            List<IArtifact> addedArtifacts = new List<IArtifact> { artifact };
+            if (includeDescendants)
+            {
+                addedArtifacts.Add(childArtifact);
+            }
+
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id, includeDescendants: includeDescendants); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(expectedNumberOfAddedArtifacts, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(expectedNumberOfAddedArtifacts, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, addedArtifacts);
+        }
+
+        [TestCase]
+        [TestRail(230673)]
+        [Description("Create new collection, create and save new artifact, add artifact to collection, check collection content.")]
+        public void AddArtifactToCollection_SavedArtifact_ValidateCollectionContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Process);
+
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact });
+        }
+
+        [TestCase]
+        [TestRail(230674)]
+        [Description("Create new collection, create and save new artifact, add artifact to collection," + 
+            "check artifact's description from collection content.")]
+        public void AddArtifactToCollection_SavedArtifact_CheckDescriptionFromCollectionContent()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
+            const string descriptionText = "Description";
+            ArtifactStoreHelper.SetArtifactTextProperty(artifactDetails, _authorUser, Helper.ArtifactStore, descriptionText);
+
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
+            var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
+            Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
+            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact });
+            Assert.AreEqual(descriptionText, collection.Artifacts[0].Description, "Description should have expected value.");
+        }
+
+        #endregion Positive Tests
+
+        #region 40x tests
+
+        [TestCase]
+        [TestRail(230664)]
+        [Description("Create and publish new collection, lock collection by other user," +
+        "try to add artifact to collection. 409 exception should be returned. Check error message.")]
+        public void AddArtifactToCollection_CollectionLockedByOtherUser_Returns409()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser);
+            collectionArtifact.Lock(_adminUser);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => { Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
+                artifact.Id, collectionArtifact.Id, includeDescendants: true);
+            }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            string messageText = I18NHelper.FormatInvariant("Failed to lock Collection: {0}.", collectionArtifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, messageText);
+        }
+
+        [TestCase]
+        [TestRail(230675)]
+        [Description("Create new collection, delete published artifact (don't publish information about deletion)," +
+        "add this artifact to collection - 404 exception should be returned. Check exception message.")]
+        public void AddArtifactToCollection_ArtifactMarkedForDeletion_Returns404()
+        {
+            // Setup:
+            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser);
+            
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            artifact.Delete(_authorUser);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => {
+                Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id, 
+                    includeDescendants: true); }, "Adding artifact to collection shouldn't throw an error.");
+
+            // Verify:
+            const string messageText = "You have attempted to access an artifact that does not exist or has been deleted.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, messageText);
+        }
+
+        #endregion 40x tests
 
         /// <summary>
         /// Creates empty collection and return corresponding IArtifact.

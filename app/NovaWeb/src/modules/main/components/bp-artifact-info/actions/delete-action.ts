@@ -1,16 +1,16 @@
-import {IApplicationError} from "../../../../core/error/applicationerror";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {Message, MessageType} from "../../../../core/messages/message";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ConfirmDeleteController} from "../../../../main/components/dialogs/bp-confirm-delete";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
+import {IApplicationError} from "../../../../shell/error/applicationError";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {ConfirmDeleteController} from "../../dialogs/bp-confirm-delete/bp-confirm-delete";
+import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {BPButtonAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {IArtifact, IArtifactWithProject} from "../../../models/models";
+import {IMessageService} from "../../messages/message.svc";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {Message, MessageType} from "../../messages/message";
 
 export class DeleteAction extends BPButtonAction {
     constructor(

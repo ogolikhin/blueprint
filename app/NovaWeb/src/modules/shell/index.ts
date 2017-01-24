@@ -1,9 +1,9 @@
+/*This folder will become root*/
 import "rx/dist/rx.lite.js";
-import "../core";
+import "./.";
 import {AppComponent} from "./app.component";
 import {AuthSvc, IUser} from "./login/auth.svc";
 import {SessionSvc, ISession} from "./login/session.svc";
-import {HttpErrorInterceptor} from "./error/http-error-interceptor";
 import {ServerLoggerSvc} from "./log/server-logger.svc";
 import {Logger} from "./log/logger";
 import {SessionTokenInterceptor} from "./login/session-token-interceptor";
@@ -29,30 +29,28 @@ import {BPDiscussionReplyItem} from "./bp-utility-panel/bp-discussion-panel/bp-d
 import {BPCommentEdit} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/bp-comment-edit";
 import {ErrorComponent} from "./error/error.component";
 import {AppRoutes} from "./app.router";
-import {UsersAndGroupsService} from "../core/services/users-and-groups.svc";
 import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-edit/mention.svc";
 import "../shared/filters";
 import {ILicenseService, LicenseService} from "./license/license.svc";
+import {CommonModule} from "./../commonModule";
 
 export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
 export {IServerLogger} from "./log/server-logger.svc";
 export {ILicenseService, LicenseService} from "./license/license.svc";
 
 angular.module("app.shell", [
-        "bp.core",
-        "bp.filters"
-    ])
+    "bp.filters",
+    CommonModule
+])
     .component("app", new AppComponent())
     .service("auth", AuthSvc)
     .service("session", SessionSvc)
     .service("sessionTokenInterceptor", SessionTokenInterceptor)
-    .service("httpErrorInterceptor", HttpErrorInterceptor)
     .service("serverLogger", ServerLoggerSvc)
     .service("artifactHistory", ArtifactHistory)
     .service("relationshipDetailsService", RelationshipDetailsService)
     .service("artifactDiscussions", ArtifactDiscussions)
     .service("mentionService", MentionService)
-    .service("usersAndGroupsService", UsersAndGroupsService)
     .service("licenseService", LicenseService)
     .service("utilityPanelService", UtilityPanelService)
     .component("bpUtilityPanel", new BPUtilityPanel())

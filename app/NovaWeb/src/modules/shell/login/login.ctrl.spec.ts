@@ -1,9 +1,9 @@
 ﻿import "angular-mocks";
 import {SessionSvc} from "./session.svc";
 import {LoginCtrl, LoginState} from "./login.ctrl";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {SettingsMock, ModalServiceMock, ModalServiceInstanceMock, SessionSvcMock} from "./mocks.spec";
-import {HttpStatusCode} from "../../core/http/http-status-code";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 import {DialogSettingsMock, DataMock} from "./login.ctrl.mock";
 
 describe("LoginCtrl", () => {

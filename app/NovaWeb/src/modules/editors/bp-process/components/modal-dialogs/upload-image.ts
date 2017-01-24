@@ -1,6 +1,6 @@
 import {ISystemTask} from "../diagram/presentation/graph/models/";
-import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
-import {IMessageService} from "../../../../core/messages/message.svc";
+import {IFileUploadService, IFileResult} from "../../../../commonModule/fileUpload/fileUpload.service";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export interface IUploadImageScope extends ng.IScope {
     uploadImage: () => void;

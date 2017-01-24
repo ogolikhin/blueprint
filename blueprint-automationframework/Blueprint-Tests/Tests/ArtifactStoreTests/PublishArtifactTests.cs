@@ -13,10 +13,12 @@ using TestCommon;
 using Utilities;
 using Newtonsoft.Json;
 using Model.Impl;
+using Model.StorytellerModel.Impl;
 using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class PublishArtifactTests : TestBase
@@ -884,7 +886,87 @@ namespace ArtifactStoreTests
             string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifactList[index].Id);
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
-    
+
+        [Category(Categories.CustomData)]
+        [TestCase(ItemTypePredefined.Actor, "Actor - Required Date", "Std-Date-Required")]
+        [TestCase(ItemTypePredefined.Process, "Process - Required Number", "Std-Number-Required")]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, "Folder - Required Text", "Std-Text-Required")]
+        [TestCase(ItemTypePredefined.Document, "Document - Required Choice", "Std-Choice-Required-AllowCustom")]
+        [TestCase(ItemTypePredefined.TextualRequirement, "Requirement - Required User", "Std-User-Required")]
+        [TestRail(230671)]
+        [Description("Create an artifact that has custom properties. Remove required value from custom property. Save and publish artifact. " +
+                     "Verify 409 Conflict is returned due to validation errors.")]
+        public void PublishArtifact_RemoveRequiredPropertyValueAndPublish_409Conflict(ItemTypePredefined itemType,
+            string artifactTypeName, string propertyName)
+        {
+            // Setup:
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.Default, _user);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, itemType, artifactTypeName: artifactTypeName);
+
+            // Update custom property in artifact.
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+
+            var property = ArtifactStoreHelper.UpdateCustomPropertyWithNull(artifactDetails.CustomPropertyValues, propertyName);
+
+            var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
+
+            // Save artifact with empty required property (No validation on save)
+            artifact.Lock();
+            Helper.ArtifactStore.UpdateArtifact(_user, (NovaArtifactDetails)artifactDetailsChangeset);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
+                "'POST {0}' should return 409 Conflict if the Artifact has required properties that have no values!", PUBLISH_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
+        }
+
+        [Explicit (IgnoreReasons.UnderDevelopmentDev)]  // User Story 4657:[Validation] Validate Process Sub-Artifacts
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [Category(Categories.CustomData)]
+        [TestCase("Std-Date-Required-HasDefault")]
+        [TestCase("Std-Number-Required-HasDefault")]
+        [TestCase("Std-Text-Required-HasDefault")]
+        [TestCase("Std-Choice-Required-HasDefault")]
+        [TestCase("Std-User-Required-HasDefault")]
+        [TestRail(234306)]
+        [Description("Create a Process artifact that has subartifact custom properties. Remove required value from subartifact custom property. " +
+                     "Save and publish artifact. Verify 409 Conflict is returned due to validation errors.")]
+        public void PublishArtifact_RemoveSubArtifactRequiredPropertyValueAndPublish_409Conflict(string propertyName)
+        {
+            // Setup:
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+
+            // Get nova subartifact
+            var novaProcess = Helper.Storyteller.GetNovaProcess(_user, artifact.Id);
+            var processShape = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, processShape.Id);
+
+            // Update custom property in subartifact.
+            var property = ArtifactStoreHelper.UpdateCustomPropertyWithNull(novaSubArtifact.CustomPropertyValues, propertyName);
+
+            // Add subartifact changeset to NovaProcess
+            var subArtifactChangeSet = TestHelper.CreateSubArtifactChangeSet(novaSubArtifact, customProperty: property);
+            novaProcess.SubArtifacts = new List<NovaSubArtifact> { subArtifactChangeSet };
+
+            // Save artifact with empty required property (No validation on save)
+            artifact.Lock();
+
+            // Update(save) Nova process
+            Helper.Storyteller.UpdateNovaProcess(_user, novaProcess);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
+                "'POST {0}' should return 409 Conflict if the Artifact has required properties that have no values!", PUBLISH_PATH);
+
+            // Verify:
+            string expectedExceptionMessage = I18NHelper.FormatInvariant("Artifact with ID {0} has validation errors.", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
+        }
+
         #endregion Custom data tests
 
         #endregion 409 Conflict tests

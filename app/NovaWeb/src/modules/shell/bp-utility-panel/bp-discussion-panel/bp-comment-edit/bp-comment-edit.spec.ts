@@ -4,9 +4,10 @@ import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPCommentEditController} from "./bp-comment-edit";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import "angular-ui-tinymce";
 import "tinymce";
+import {UsersAndGroupsService} from "../../../../commonModule/services/usersAndGroups.service";
 
 describe("Component BPCommentEdit", () => {
 
@@ -15,6 +16,7 @@ describe("Component BPCommentEdit", () => {
     beforeEach(angular.mock.module("app.shell"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        $provide.service("usersAndGroupsService", UsersAndGroupsService);
         $provide.service("localization", LocalizationServiceMock);
     }));
 

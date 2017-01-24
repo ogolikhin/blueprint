@@ -1,7 +1,6 @@
 import "angular-mocks";
 import "angular-sanitize";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {Models} from "../../../main";
 import {IStatefulArtifactFactory, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {ISelectionManager, SelectionManager} from "../../../managers/selection-manager/selection-manager";
@@ -9,7 +8,7 @@ import {ComponentTest} from "../../../util/component.test";
 import {PageContentCtrl} from "./bp-page-content";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "./mainbreadcrumb.svc.mock";
-import * as angular from "angular";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 
 describe("Component BPPageContent", () => {
 

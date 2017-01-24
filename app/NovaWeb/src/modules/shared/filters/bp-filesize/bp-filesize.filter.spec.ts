@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "../";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 
 describe("The test filter", () => {
     let $filter;

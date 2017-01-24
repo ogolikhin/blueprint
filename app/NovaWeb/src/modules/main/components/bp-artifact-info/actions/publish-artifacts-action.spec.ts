@@ -1,12 +1,10 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {PublishArtifactsAction} from "./publish-artifacts-action";
 import {
     UnpublishedArtifactsService,
@@ -15,6 +13,8 @@ import {
 import {IArtifact} from "../../../models/models";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IDialogService} from "../../../../shared";
+import {IMessageService} from "../../messages/message.svc";
+import {MessageServiceMock} from "../../messages/message.mock";
 
 describe("PublishArtifactsAction", () => {
     let $q: ng.IQService;
@@ -47,7 +47,7 @@ describe("PublishArtifactsAction", () => {
         publishService = _publishService_;
         loadingOverlayService = _loadingOverlayService_;
         dialogService = _dialogService_;
-        
+
     }));
 
     it("throws exception when localization is null", () => {

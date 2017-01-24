@@ -1,12 +1,12 @@
 import * as angular from "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {ProjectServiceMock} from "../../../managers/project-manager/project-service.mock";
 import {ProjectService} from "../../../managers/project-manager/project-service";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {IArtifactService, ArtifactService} from "../../../managers/artifact-manager";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {ApplicationError} from "../../../core/error/applicationError";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
+import {ApplicationError} from "../../../shell/error/applicationError";
 import {Models} from "../../../main/models";
 import {MainBreadcrumbService, IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";

@@ -3,7 +3,7 @@ import "angular-mocks";
 import {Models, AdminStoreModels, SearchServiceModels} from "../../main/models";
 import {IProjectService, ProjectService} from "./project-service";
 import {ProjectServiceMock} from "./project-service.mock";
-import {HttpStatusCode} from "../../core/http/http-status-code";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 
 describe("Project Repository", () => {
 

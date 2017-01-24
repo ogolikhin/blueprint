@@ -9,7 +9,7 @@ import {IRelationship, LinkType, IDialogRelationshipItem} from "../../../main/mo
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Helper} from "../../../shared/utils/helper";
 import {ManageTracesDialogController} from "../../../main/components/dialogs/bp-manage-traces";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 interface IOptions {
     value: string;

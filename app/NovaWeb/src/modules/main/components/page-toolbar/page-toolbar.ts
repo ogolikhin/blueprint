@@ -11,13 +11,13 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IApplicationError} from "../../../core/error/applicationError";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {IApplicationError} from "../../../shell/error/applicationError";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
+import {IMessageService} from "../messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
 

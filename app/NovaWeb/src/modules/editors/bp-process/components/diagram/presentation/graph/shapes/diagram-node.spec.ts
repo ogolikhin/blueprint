@@ -13,7 +13,7 @@ import {DiagramNode, SystemTask} from "./";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
 import {NodeChange, IDiagramNode, ISystemTaskShape} from "../models/";
 import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../../commonModule/localization/localization.service.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
 import {IStatefulArtifact} from "../../../../../../../managers/artifact-manager/";

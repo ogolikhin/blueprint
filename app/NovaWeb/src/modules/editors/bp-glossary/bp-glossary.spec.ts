@@ -1,7 +1,6 @@
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -9,7 +8,9 @@ import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/arti
 import {StatefulArtifactServices} from "../../managers/artifact-manager/services";
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
 import {ComponentTest} from "../../util/component.test";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {BpGlossaryController} from "./bp-glossary";
+import {ISubArtifact} from "../../main/models/models";
 import {GlossaryServiceMock} from "./glossary.svc.mock";
 import * as angular from "angular";
 

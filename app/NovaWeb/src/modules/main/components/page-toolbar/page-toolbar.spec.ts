@@ -5,18 +5,18 @@ import "angular-ui-router";
 import "rx";
 import {PageToolbarController} from "./page-toolbar";
 import {IDialogService} from "../../../shared";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
-import {LoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
+import {LoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {SessionSvc, ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
+import {IMessageService} from "../messages/message.svc";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 
 describe("Page Toolbar:", () => {

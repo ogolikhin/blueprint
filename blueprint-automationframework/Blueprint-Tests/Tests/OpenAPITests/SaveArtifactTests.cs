@@ -248,7 +248,7 @@ namespace OpenAPITests
             // Add some text after the image.
             const string textToAppend = "<p>Appending some text here</p>";
             artifactDetails.Description = artifactDetails.Description.Replace("</html>", textToAppend + "</html>");
-            Helper.ArtifactStore.UpdateArtifact(_authorUser, _project, artifactDetails as NovaArtifactDetails);
+            Helper.ArtifactStore.UpdateArtifact(_authorUser, artifactDetails as NovaArtifactDetails);
 
             var openApiArtifact = OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, artifact.Id, _authorUser);
             var description = openApiArtifact.Properties.Find(p => p.Name == nameof(NovaArtifactDetails.Description));

@@ -64,6 +64,10 @@ namespace CommonServiceTests
             //Create artifacts with distinct available artifactTypes 
             var baseArtifactTypes = _project.ArtifactTypes.ConvertAll(o => o.BaseArtifactType);
 
+            // Because of HTTP path size limits, we need to make sure we don't create more artifacts that can fit in the path.
+            int artifactCounter = 0;
+            const int MAX_ARTIFACTS_IN_PATH = 27;
+
             foreach (var baseArtifactType in baseArtifactTypes)
             {
                 var artifact = Helper.CreateArtifact(_project, _primaryUser, baseArtifactType);
@@ -71,6 +75,11 @@ namespace CommonServiceTests
 
                 //Add an artifact to artifact list for navigation call
                 _artifacts.Add(artifact);
+
+                if (++artifactCounter >= MAX_ARTIFACTS_IN_PATH)
+                {
+                    break;
+                }
             }
 
             // Execute:

@@ -1,7 +1,7 @@
 import * as agGrid from "ag-grid/main";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 
 /**
  * Usage:
@@ -117,7 +117,7 @@ export interface IBPTreeViewControllerApi {
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$stateParams", "$log"];
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$log"];
 
     // BPTreeViewComponent bindings
     public gridClass: string;
@@ -144,7 +144,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                 private $timeout: ng.ITimeoutService,
                 private windowManager: IWindowManager,
                 private messageService: IMessageService,
-                private $stateParams,
                 private $log: ng.ILogService) {
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
@@ -429,17 +428,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                         if (row) {
                             row.classList.remove("ag-row-loading");
                         }
-                        this.$timeout(() => {
-                            this.$log.debug(node);
-                            const currentNode = _.find((node as any).rowModel.rowsToDisplay, (item: any) => {
-                                if (item.data && item.data.key === this.$stateParams.id.toString()) {
-                                    return item;
-                                }
-                            });
-                            if (currentNode) {
-                                currentNode.selectThisNode(true);
-                            }
-                        });
                     });
             }
             if (!vm.expanded) {

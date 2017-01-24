@@ -2,16 +2,16 @@ import * as angular from "angular";
 import "angular-mocks";
 import "angular-ui-router";
 import "../../main";
-import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
-import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
-import {IMessageService} from "../../core/messages/message.svc";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
+import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
+import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IItemStateService} from "./item-state.svc";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {MessageServiceMock} from "../../core/messages/message.mock";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("Item State Service tests", () => {
     let $timeout: ng.ITimeoutService,
@@ -24,7 +24,7 @@ describe("Item State Service tests", () => {
         loadingOverlayService: ILoadingOverlayService;
 
     beforeEach(angular.mock.module("ui.router"));
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("bp.editors"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("navigationService", NavigationServiceMock);
@@ -126,7 +126,6 @@ describe("Item State Service tests", () => {
 
         // act
         itemStateService.getItemInfoResult(null);
-        $timeout.flush();
 
         // assert
         expect(navigationSpy).toHaveBeenCalled();

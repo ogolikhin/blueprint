@@ -1,9 +1,9 @@
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {IMessageService} from "../../core/messages/message.svc";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {Enums, Models} from "../../main/models";
 import {IWindowManager} from "../../main/services/window-manager";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {IMessageService} from "../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
-import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "./../configuration/property-descriptor-builder";
 import {BpArtifactEditor} from "./bp-artifact-editor";
 
 export class BpArtifactGeneralEditor implements ng.IComponentOptions {

@@ -1,6 +1,6 @@
 require("./bp-goto.scss");
 import * as angular from "angular";
 import {BPGotoComponent} from "./bp-goto";
-
-angular.module("bp.widgets.goto", ["bp.widgets.filtered-input", "bp.core.navigation"])
+import {Navigation}  from "../../../commonModule/navigation";
+angular.module("bp.widgets.goto", ["bp.widgets.filtered-input", Navigation])
     .component("bpGoto", new BPGotoComponent());

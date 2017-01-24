@@ -53,12 +53,14 @@ namespace AccessControl.Repositories
             return _connectionWrapper.QueryAsync<LicenseTransaction>("GetLicenseTransactions", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public Task<IEnumerable<LicenseUsage>> GetLicenseUsage(int? month, int? year)
+        public Task<Tuple<IEnumerable<LicenseUsage>,IEnumerable<LicenseUserActivity>>> GetLicenseUsage(int? month, int? year)
         {
+            
             var prm = new DynamicParameters();
             prm.Add("@month", month);
             prm.Add("@year", year);
-            return _connectionWrapper.QueryAsync<LicenseUsage>("GetLicenseUsage", prm, commandType: CommandType.StoredProcedure);
+            return  _connectionWrapper.QueryMultipleAsync<LicenseUsage, LicenseUserActivity>("GetLicenseUsage", prm, commandType: CommandType.StoredProcedure);
         }
+
     }
 }

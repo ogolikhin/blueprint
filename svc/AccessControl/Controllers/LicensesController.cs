@@ -182,7 +182,11 @@ namespace AccessControl.Controllers
                 //NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
                 var usage = await _repo.GetLicenseUsage(month - 1, year);
 
-                var response = Request.CreateResponse(HttpStatusCode.OK, usage);
+                var response = Request.CreateResponse(HttpStatusCode.OK, new {
+                    LicenseUsage =  usage.Item1,
+                    LicenseActivity = usage.Item2
+                    
+                });
                 return ResponseMessage(response);
             }
             catch (Exception ex)

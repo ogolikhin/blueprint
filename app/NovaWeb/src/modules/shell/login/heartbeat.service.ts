@@ -4,10 +4,9 @@ export interface IHeartbeatService {
 
 export class HeartbeatService implements IHeartbeatService {
 
-    static $inject: [string] = ["$q", "$log", "$http"];
+    static $inject: [string] = ["$q", "$http"];
 
     constructor(private $q: ng.IQService,
-                private $log: ng.ILogService,
                 private $http: ng.IHttpService) {
         // Nothing
     }

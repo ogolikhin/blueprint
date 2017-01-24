@@ -154,11 +154,11 @@ namespace Model.Impl
         /// <param name="value">Icon row data</param>
         public void SetUserIcon(int userId, byte[] value)
         {
-            string query = "INSERT INTO [Blueprint].[dbo].[Images] (Content) VALUES (@Content)";
+            string query = "INSERT INTO [dbo].[Images] (Content) VALUES (@Content)";
             int rowsAffected = ExecuteInsertBinarySqlQuery(query, value);
             Assert.IsTrue(rowsAffected == 1, "The record was not inserted!");
 
-            query = "SELECT ImageId FROM [Blueprint].[dbo].[Images] WHERE Content = @Content";
+            query = "SELECT ImageId FROM [dbo].[Images] WHERE Content = @Content";
             int imageId = ExecuteSelectBinarySqlQuery(query, value);
             Assert.IsTrue(imageId > 0, "The record was not inserted!");
 
@@ -231,7 +231,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="insertQuery">SQL query to insert data</param>
         /// <param name="value">Actual binary data to insert</param>
-        /// <returns>Amount of records inserted<</returns>
+        /// <returns>Amount of records inserted.</returns>
         private static int ExecuteInsertBinarySqlQuery(string insertQuery, byte[] value)
         {
             using (var database = DatabaseFactory.CreateDatabase())
@@ -297,7 +297,7 @@ namespace Model.Impl
         /// Executes update query and returns number of rows affected
         /// Example: "UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}"
         /// </summary>
-        /// <param name="updatetQuery">SQL update query</param>
+        /// <param name="updateQuery">SQL update query</param>
         /// <returns>Amount of records affected</returns>
         public static int ExecuteUpdateBinarySqlQuery(string updateQuery)
         {

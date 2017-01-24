@@ -450,7 +450,7 @@ HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavaila
 HttpError_Forbidden, "The operation could not be completed because of privilege-related issues."
 HttpError_NotFound, "The artifact could not be found."
 HttpError_Collection_NotFound, "The Collection has been deleted."
-HttpError_InternalServer,"Sorry, but there is a problem with the Blueprint web server. Please contact your administrator for assistance."
+HttpError_InternalServer, "The operation could not be completed. Please try again later. If the problem continues, contact your administrator for assistance."
 
 Error_Page_Message1,"An error ocurred while loading the page."
 Error_Page_Message2,"Please try again."

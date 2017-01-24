@@ -1,5 +1,5 @@
-import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../../../core/messages/message.svc";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";

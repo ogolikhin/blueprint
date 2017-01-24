@@ -1,3 +1,8 @@
+import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IMessageService} from "../messages/message.svc";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
 import {IJobsService} from "../../../editors/jobs/jobs.svc";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
@@ -12,11 +17,6 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {ApplicationError, IApplicationError} from "../../../core/error/applicationError";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";

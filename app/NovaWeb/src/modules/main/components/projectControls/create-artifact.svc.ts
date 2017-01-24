@@ -1,13 +1,13 @@
+import {IMessageService} from "../messages/message.svc";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IApplicationError} from "../../../shell/error/applicationError";
 import {ItemTypePredefined} from "../../models/enums";
 import {IArtifact, IItem} from "../../models/models";
-import {ILocalizationService} from "../../../core/localization/localizationService";
 import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../managers/artifact-manager/artifact";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn} from "../dialogs/new-artifact/new-artifact";
 import {error} from "util";
-import {IApplicationError} from "../../../core/error/applicationError";
 
 export interface ICreateArtifactService {
     createNewArtifact(

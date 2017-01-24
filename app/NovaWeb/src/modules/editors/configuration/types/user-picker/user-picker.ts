@@ -226,7 +226,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
             closeDropdownOnClick: this.closeDropdownOnClick,
             resetSettings: function () {
                 this.currentState = null;
-                this.currentLimit = this.minLimit;
+                this.currentLimit = 1000;
                 this.showResultsCount = false;
                 this.showLoadMore = false;
                 if (this.listItemElement) {

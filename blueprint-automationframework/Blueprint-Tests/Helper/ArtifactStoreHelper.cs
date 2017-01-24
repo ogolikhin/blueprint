@@ -844,9 +844,10 @@ namespace Helper
 
             if (artifactList.Any())
             {
-                for (int i =0; i < artifactList.Count(); i++)
+                foreach (var artifact in artifactList)
                 {
-                    AssertAreEqual(artifactList[i], collection.Artifacts[i]);
+                    var collectionItem = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id));
+                    AssertAreEqual(artifact, collectionItem);
                 }
             }
         }

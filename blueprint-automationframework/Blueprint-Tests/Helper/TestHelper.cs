@@ -308,16 +308,6 @@ namespace Helper
             //Set ArtifactTypeId for collection: Delete collection
             collectionArtifact.ArtifactTypeId = 83;
 
-            Collection collection = null;
-            Assert.DoesNotThrow(() =>
-                collection = ArtifactStore.GetCollection(user, collectionArtifact.Id),
-                "Get Collection shouldn't throw no error.");
-
-            Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");
-
-            // IsCreated is a bolean parameter indicating if Rapid Review is created or not for the collection
-            Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
-
             return collectionArtifact;
         }
 

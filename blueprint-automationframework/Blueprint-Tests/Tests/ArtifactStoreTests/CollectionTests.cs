@@ -41,9 +41,22 @@ namespace ArtifactStoreTests
         [TestCase()]
         [TestRail(195436)]
         [Description("Create new collection, get collection content and validate it.")]
-        public void CreateEmptyCollection_GetCollectionContent_Validate()
+        public void GetCollection_CreateEmptyCollection_ValidateReturnedCollection()
         {
-            Helper.CreateAndSaveCollection(_project, _authorUser);
+            // Setup:
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+
+            // Execute: 
+            Collection collection = null;
+            Assert.DoesNotThrow(() =>
+                collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id),
+                "Get Collection shouldn't throw no error.");
+
+            // Verify: Collection is empty and rapid review should not be created for the collection
+            Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");
+
+            // IsCreated is a bolean parameter indicating if Rapid Review is created or not for the collection
+            Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
         }
 
         [TestCase()]

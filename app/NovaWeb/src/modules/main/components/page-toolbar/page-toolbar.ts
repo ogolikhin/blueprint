@@ -176,6 +176,9 @@ export class PageToolbarController {
     });
 
     private newArtifactCreationErrorHandler = ((error) => {
+        if (error === "cancel") {
+            return;
+        }
         const projectId = this._currentArtifact.projectId;
         if (error instanceof ApplicationError) {
             if (error.statusCode === 404 && error.errorCode === 102) {

@@ -37,6 +37,7 @@ import {CommonModule} from "./../commonModule";
 export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
 export {IServerLogger} from "./log/server-logger.svc";
 export {ILicenseService, LicenseService} from "./license/license.svc";
+import {HeartbeatService} from "./login/heartbeat.service";
 
 angular.module("app.shell", [
     "bp.filters",
@@ -53,6 +54,7 @@ angular.module("app.shell", [
     .service("mentionService", MentionService)
     .service("licenseService", LicenseService)
     .service("utilityPanelService", UtilityPanelService)
+    .service("heartbeatService", HeartbeatService)
     .component("bpUtilityPanel", new BPUtilityPanel())
     .component("bpHistoryPanel", new BPHistoryPanel())
     .component("bpPropertiesPanel", new BPPropertiesPanel())

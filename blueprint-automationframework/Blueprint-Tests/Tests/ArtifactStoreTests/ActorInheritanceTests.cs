@@ -55,7 +55,7 @@ namespace ArtifactStoreTests
         public void GetActorInheritance_CustomProject_ReturnsActorInheritance()
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, projectCustomData);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(viewer, inheritedActorId);
             ActorInheritanceValue actorInheritance = null;
@@ -76,8 +76,8 @@ namespace ArtifactStoreTests
         public void SetActorInheritance_Actor_ReturnsActorInheritance()
         {
             // Setup:
-            IArtifact baseActor= Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var baseActor= Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute & Verify:
@@ -92,8 +92,8 @@ namespace ArtifactStoreTests
         public void DeleteActorInheritance_ActorWithInheritance_ReturnsActorNoInheritance()
         {
             // Setup:
-            IArtifact baseActor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var baseActor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             SetActorInheritance(actor, baseActor, author);
 
@@ -113,8 +113,8 @@ namespace ArtifactStoreTests
         public void SetActor1Inheritance_Actor2InheritedFromActor1_Returns409CyclicReference()
         {
             // Setup:
-            IArtifact actor1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact actor2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var actor1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var actor2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             SetActorInheritance(actor2, actor1, author);
@@ -138,7 +138,7 @@ namespace ArtifactStoreTests
         {
             Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
 
-            ActorInheritanceValue actorInheritance = new ActorInheritanceValue();
+            var actorInheritance = new ActorInheritanceValue();
             actorInheritance.ActorId = baseActor.Id;
             actorDetails.ActorInheritance = actorInheritance;
 
@@ -198,7 +198,7 @@ namespace ArtifactStoreTests
         /// <param name="user">User to perform operation.</param>
         private void CheckActorHasExpectedTraces(IArtifact actor, IArtifact expectedBaseActor, IUser user)
         {
-            Relationships actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
+            var actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
             
             Assert.AreEqual(1, actorRelationships.OtherTraces.Count, "Actor should have 1 'other' trace, but it doesn't.");
             var actorInheritanceTrace = actorRelationships.OtherTraces[0];
@@ -221,7 +221,7 @@ namespace ArtifactStoreTests
         /// <param name="user">User to perform operation.</param>
         private void CheckActorHasNoOtherTraces(IArtifact actor, IUser user)
         {
-            Relationships actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
+            var actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
             Assert.AreEqual(0, actorRelationships.OtherTraces.Count, "Actor shouldn't have 'other' traces, but it has.");
         }
 

@@ -624,7 +624,7 @@ describe("BPTreeViewController", () => {
             expect(vm.expanded).toEqual(false);
         });
 
-        it("onRowGroupOpened, when try to call this function twice", inject(($rootScope) => {
+        it("onRowGroupOpened, when try to call this function one more time while promise is not resolved", inject(($rootScope) => {
             // Arrange
             const vm = {
                 group: true,
@@ -638,8 +638,11 @@ describe("BPTreeViewController", () => {
             // Act
             controller.onRowGroupOpened({node: node});
 
+            // Assert
+            //While promise is not resolved vm.group should be undefined
             expect(vm.group).toEqual(undefined);
 
+            // Act
             controller.onRowGroupOpened({node: node});
             $rootScope.$digest(); // Resolves promises
 

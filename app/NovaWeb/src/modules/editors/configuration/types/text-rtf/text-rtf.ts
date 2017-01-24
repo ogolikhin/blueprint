@@ -286,6 +286,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         const dialogData: IUploadStatusDialogData = {
             files: [file],
             maxAttachmentFilesize: filesize,
+            minAttachmentFilesize: 1,
             maxNumberAttachments: maxNumOfImages - numberOfExistingImages,
             maxNumberAttachmentsError: localeFormatFilter(localeMessage, maxNumOfImages),
             allowedExtentions: ["png", "jpeg", "jpg"],

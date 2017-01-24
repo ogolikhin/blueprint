@@ -16,19 +16,20 @@ describe("BPArtifactListComponent", () => {
     const artifactList = mockData.artifacts;
     const projectList = mockData.projects;
     const selectedProject = 70422;
+    const limit = 50;
+    const bindings = {
+        artifactList: artifactList,
+        projectList: projectList,
+        selectedProject: selectedProject,
+        limit: limit
+    } as IBPArtifactListController;
 
     let controller: BPArtifactListController;
 
     beforeEach(angular.mock.module("bp.widgets.artifactList"));
 
-    beforeEach(inject(($componentController) => {
-        const bindings = {
-            artifactList: artifactList,
-            projectList: projectList,
-            selectedProject: selectedProject,
-            limit: 50
-        } as IBPArtifactListController;
-        controller = $componentController("bpArtifactList", null, bindings);
+    beforeEach(inject(($componentController: ng.IComponentControllerService) => {
+        controller = <BPArtifactListController>$componentController("bpArtifactList", null, bindings);
     }));
 
     it("Values are bound", () => {
@@ -40,7 +41,7 @@ describe("BPArtifactListComponent", () => {
         expect(controller.artifactList).toEqual(artifactList);
         expect(controller.projectList).toEqual(projectList);
         expect(controller.selectedProject).toEqual(selectedProject);
-        expect(controller.limit).toEqual(50);
+        expect(controller.limit).toEqual(limit);
     });
 
     it("[Show more] button is initially visible if the artifact list is longer than limit", () => {

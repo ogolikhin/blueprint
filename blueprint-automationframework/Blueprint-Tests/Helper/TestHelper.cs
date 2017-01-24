@@ -280,9 +280,10 @@ namespace Helper
         ///     By default it creates the collection in the project's default collection folder.</param>
         /// <param name="orderIndex">(optional) The order index of this collection.
         ///     By default the order index should be after the last collection/folder.</param>
+        /// <param name="name">(optional) The name of collection.</param>
         /// <returns>The collection wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
         ///     because OpenAPI doesn't support collections.</returns>
-        public IArtifact CreateAndSaveCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        public IArtifact CreateAndSaveCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null, string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -292,7 +293,22 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            return CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+            // fake type as far as we don't have Collection in OpenApi
+            var collectionArtifact = CreateWrapAndSaveNovaArtifact(
+                project,
+                user,
+                ItemTypePredefined.ArtifactCollection,
+                parentId,
+                orderIndex,
+                BaseArtifactType.PrimitiveFolder,
+                name: name);
+
+            // TODO: better way to set specific artifactTypeId value for the collection artifact?
+            
+            //Set ArtifactTypeId for collection: Delete collection
+            collectionArtifact.ArtifactTypeId = 83;
+
+            return collectionArtifact;
         }
 
         /// <summary>

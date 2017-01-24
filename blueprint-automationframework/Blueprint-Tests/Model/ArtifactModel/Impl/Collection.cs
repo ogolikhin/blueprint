@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Model.ArtifactModel.Impl.PredefinedProperties;
+using System;
 using System.Collections.Generic;
-using Model.ArtifactModel.Impl.PredefinedProperties;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -13,6 +13,7 @@ namespace Model.ArtifactModel.Impl
 
         public DateTime? StartDate { get; set; }
 
+        // IsCreated is a bolean parameter indicating if Rapid Review is created or not for the collection
         public bool IsCreated { get; set; }
 
         public List<CollectionItem> Artifacts { get; set; }

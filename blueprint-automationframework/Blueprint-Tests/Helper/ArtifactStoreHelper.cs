@@ -692,6 +692,7 @@ namespace Helper
             ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
             ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
 
+            Assert.AreEqual(expectedArtifact.Id, actualCollectionItem.Id);
             Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
             Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
             Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
@@ -826,49 +827,6 @@ namespace Helper
         #endregion Image Functions
 
         #region Collection Methods
-
-        /// <summary>
-        /// Creates empty collection and return corresponding IArtifact.
-        /// </summary>
-        /// <param name="helper">A TestHelper instance.</param>
-        /// <param name="project">Project to create collection.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="parentId">(optional) Id of artifact under which collection should be created (no check for valid location).</param>
-        /// <param name="name">(optional) The name of collection.</param>
-        /// <returns>IArtifact which corresponds to the created collection.</returns>
-        public static IArtifact CreateCollectionGetCollectionArtifact(
-            TestHelper helper,
-            IProject project,
-            IUser user,
-            int? parentId = null,
-            string name = null
-            )
-        {
-            ThrowIf.ArgumentNull(helper, nameof(helper));
-            ThrowIf.ArgumentNull(project, nameof(project));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            var collectionFolder = project.GetDefaultCollectionFolder(helper.ArtifactStore.Address, user);
-            parentId = parentId ?? collectionFolder.Id;
-            
-            // fake type as far as we don't have Collection in OpenApi
-            var collectionArtifact = helper.CreateWrapAndSaveNovaArtifact(project, user,
-                ItemTypePredefined.ArtifactCollection, parentId.Value, baseType: BaseArtifactType.PrimitiveFolder,
-                name: name);
-            
-            // TODO better way to set specific artifactTypeId value for the collection artifact?
-            //Set ArtifactTypeIDcall for collection: Delete collection
-            collectionArtifact.ArtifactTypeId = 83;
-
-            Collection collection = null;
-            Assert.DoesNotThrow(() =>
-                collection = helper.ArtifactStore.GetCollection(user, collectionArtifact.Id),
-                "GetCollection shouldn't throw no error.");
-            Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");
-            Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
-
-            return collectionArtifact;
-        }
 
         /// <summary>
         /// Validate Collection contents by comparing with the expected artifact list

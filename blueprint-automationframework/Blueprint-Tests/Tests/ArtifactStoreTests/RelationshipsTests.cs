@@ -583,46 +583,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4860
-        [TestCase]
-        [TestRail(234310)]
-        [Description("Try to get relationships details using credentials of user which has no access to the target artifact.  " +
-            "Verify that relationships returns empty artifact name.")]
-        public void GetRelationshipsDetails_NoAccessToTargetArtifact_ReturnsRelationshipsWithHasAccessFalseAndNullName()
-        {
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
-
-            sourceArtifact.Publish(_user);
-
-            Assert.AreEqual(false, traces[0].IsSuspect,
-                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
-
-            TraceDetails traceDetailsForUserWithFullAccessToTargetArtifact = null;
-            TraceDetails traceDetailsForUserWithNoAccessToTargetArtifact = null;
-
-            var userWithNoAccessToTargetArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-            Helper.AssignProjectRolePermissionsToUser(userWithNoAccessToTargetArtifact, TestHelper.ProjectRole.None, _project, targetArtifact);
-
-            // Execute:
-            Assert.DoesNotThrow(() =>
-            {
-                traceDetailsForUserWithNoAccessToTargetArtifact = Helper.ArtifactStore.GetRelationshipsDetails(userWithNoAccessToTargetArtifact, sourceArtifact);
-                traceDetailsForUserWithFullAccessToTargetArtifact = Helper.ArtifactStore.GetRelationshipsDetails(_user, sourceArtifact);
-            }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
-
-            // Verify:
-            var targetArtifactInfo = traceDetailsForUserWithNoAccessToTargetArtifact.PathToProject[traceDetailsForUserWithNoAccessToTargetArtifact.PathToProject.Count - 1];
-
-            Assert.AreEqual(targetArtifact.Id, targetArtifactInfo.ItemId, "Target artifact id is not correct!");
-            Assert.IsNull(targetArtifactInfo.Name, "Artifact name should be null!");
-            Assert.AreEqual(targetArtifact.ParentId, targetArtifactInfo.ParentId, "Parent id is not correct!");
-            Assert.AreEqual(1, targetArtifactInfo.VersionProjectId, "Version should be 1!");
-        }
-
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests
@@ -693,9 +653,9 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(234312)]
-        [Description("Create manual trace between 2 artifacts, get relationship details with a user that doesn't have permission to source artifacts.  " +
+        [Description("Create manual trace between 2 artifacts, get relationship details with a user that doesn't have permission to target artifacts.  " +
             "Verify returns 403 Forbidden.")]
-        public void GetRelationshipsDetails_ManualTraceUserHasNoAccessToSourceArtifact_403Forbidden()
+        public void GetRelationshipsDetails_ManualTraceUserHasNoAccessToTargetArtifact_403Forbidden()
         {
             // Setup:
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -710,12 +670,12 @@ namespace ArtifactStoreTests
             sourceArtifact.Publish(_user);
 
             var userWithNoPermissionsToSourceArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-            Helper.AssignProjectRolePermissionsToUser(userWithNoPermissionsToSourceArtifact, TestHelper.ProjectRole.None, _project, sourceArtifact);
+            Helper.AssignProjectRolePermissionsToUser(userWithNoPermissionsToSourceArtifact, TestHelper.ProjectRole.None, _project, targetArtifact);
 
             // Execute & Verify:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetRelationshipsDetails(userWithNoPermissionsToSourceArtifact, sourceArtifact);
+                Helper.ArtifactStore.GetRelationshipsDetails(userWithNoPermissionsToSourceArtifact, targetArtifact);
             }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
 
             // TODO: Error code and error message verification - Not possible at the moment Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4859

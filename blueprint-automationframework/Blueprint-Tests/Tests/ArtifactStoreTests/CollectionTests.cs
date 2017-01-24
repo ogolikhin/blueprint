@@ -50,7 +50,7 @@ namespace ArtifactStoreTests
             Collection collection = null;
             Assert.DoesNotThrow(() =>
                 collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id),
-                "Get Collection shouldn't throw no error.");
+                "Get Collection shouldn't return an error.");
 
             // Verify: Collection is empty and rapid review should not be created for the collection
             Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");

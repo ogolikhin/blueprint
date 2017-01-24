@@ -1,4 +1,3 @@
-import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {IProjectManager} from "../../../managers";
@@ -8,7 +7,6 @@ import {ISelectionManager} from "../../../managers/selection-manager";
 import {Helper} from "../../../shared";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
 import {TreeModels} from "../../models";
-import {IMessageService} from "../messages/message.svc";
 
 export class ProjectExplorer implements ng.IComponentOptions {
     public template: string = require("./bp-explorer.html");
@@ -108,16 +106,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }
 
-
-    private _selected: TreeModels.ExplorerNodeVM;
-    private get selected(): TreeModels.ExplorerNodeVM {
-        return this._selected;
-    }
-
-    private set selected(value: TreeModels.ExplorerNodeVM) {
-        this._selected = value;
-   }
-
+    private selected: TreeModels.ExplorerNodeVM;
     private isLoading: boolean;
     private pendingSelectedArtifactId: number;
 

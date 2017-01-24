@@ -7,15 +7,13 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using Model.StorytellerModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using TestCommon;
 using Utilities;
-using Newtonsoft.Json;
-using Model.Impl;
-using Model.StorytellerModel.Impl;
 using Utilities.Factories;
 
 namespace ArtifactStoreTests

@@ -1,24 +1,16 @@
 export interface IHeartbeatService {
-    isSessionAlive(): ng.IPromise<void>;
+    isSessionAlive(): ng.IHttpPromise<void>;
 }
 
 export class HeartbeatService implements IHeartbeatService {
 
-    static $inject: [string] = ["$q", "$http"];
+    static $inject: [string] = ["$http"];
 
-    constructor(private $q: ng.IQService,
-                private $http: ng.IHttpService) {
+    constructor(private $http: ng.IHttpService) {
         // Nothing
     }
 
-    public isSessionAlive(): ng.IPromise<void> {
-        const deferred = this.$q.defer<void>();
-        this.$http.get<any>("/svc/adminstore/sessions/alive")
-            .then((result: ng.IHttpPromiseCallbackArg<void>) => {
-                deferred.resolve();
-            }, (result: ng.IHttpPromiseCallbackArg<any>) => {
-                deferred.reject(result.data);
-            });
-        return deferred.promise;
+    public isSessionAlive(): ng.IHttpPromise<void> {
+        return this.$http.get<any>("/svc/adminstore/sessions/alive");
     }
 }

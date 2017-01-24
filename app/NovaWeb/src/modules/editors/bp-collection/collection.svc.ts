@@ -1,5 +1,5 @@
 import {ICollection} from "./collection-artifact";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export interface ICollectionService {
     getCollection(id: number): ng.IPromise<ICollection>;
@@ -40,7 +40,7 @@ export class CollectionService implements ICollectionService {
             });
 
         return defer.promise;
-    }    
+    }
 
     public addArtifactToCollection(artifactId: number, collectionId: number, addChildren: boolean): ng.IPromise<number> {
         const url = `svc/bpartifactstore/collection/${collectionId}/add/${artifactId}`;

@@ -1,10 +1,10 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {IMessageService} from "../../messages/message.svc";
 
 export class DiscardAction extends BPButtonAction {
     constructor(
@@ -47,7 +47,7 @@ export class DiscardAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this.artifact 
+        return !this.artifact
             || !this.artifact.canBePublished();
     }
 

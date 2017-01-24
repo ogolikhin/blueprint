@@ -1,6 +1,6 @@
 import "angular-formly";
 import {BPFieldBaseController} from "../base-controller";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IPropertyDescriptor} from "./../../property-descriptor-builder";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 

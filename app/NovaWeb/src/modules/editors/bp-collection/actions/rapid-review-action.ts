@@ -3,7 +3,7 @@ import {BPButtonAction} from "../../../shared";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {Enums} from "../../../main/models";
 import {IStatefulCollectionArtifact} from "../collection-artifact";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IDialogService} from "../../../shared";
 
 export class RapidReviewAction extends BPButtonAction {

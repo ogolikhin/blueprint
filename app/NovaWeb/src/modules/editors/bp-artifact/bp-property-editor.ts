@@ -1,7 +1,7 @@
 import {Enums, Models} from "../../main";
 import {IStatefulItem, StatefulSubArtifact} from "../../managers/artifact-manager";
 import {Helper} from "../../shared/utils/helper";
-import {BPLocale, ILocalizationService} from "../../core/localization/localizationService";
+import {BPLocale, ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IPropertyDescriptor} from "../configuration/property-descriptor-builder";
 import {IUserGroup} from "../configuration/types/user-picker/user-picker";
 

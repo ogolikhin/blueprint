@@ -1,20 +1,20 @@
-import {IApplicationError} from "../../core/error/applicationError";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {IMessageService} from "../../core/messages/message.svc";
-import {IItemInfoResult} from "../../core/navigation/item-info.svc";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {OpenProjectController} from "../../main/components/dialogs/open-project/open-project";
 import {AdminStoreModels, Enums, Models, TreeModels} from "../../main/models";
 import {IInstanceItem} from "../../main/models/admin-store-models";
 import {IDialogService, IDialogSettings} from "../../shared";
+import {IMessageService} from "../../main/components/messages/message.svc";
 import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
 import {IMetaDataService} from "../artifact-manager/metadata";
 import {IDispose} from "../models";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
+import {IApplicationError} from "../../shell/error/applicationError";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
     children?: this[];

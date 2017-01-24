@@ -1,6 +1,6 @@
 import {IItemType, IPropertyType, IProjectMeta, IOption} from "../../../main/models/models";
 import {ItemTypePredefined, PropertyTypePredefined, PrimitiveType} from "../../../main/models/enums";
-import {ILocalizationService, BPLocale} from "../../../core/localization/localizationService";
+import {ILocalizationService, BPLocale} from "../../../commonModule/localization/localization.service";
 
 export interface IMetaDataService {
     get(projectId: number): ng.IPromise<ProjectMetaData>;

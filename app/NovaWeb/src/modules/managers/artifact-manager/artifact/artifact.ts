@@ -9,9 +9,9 @@ import {MetaData} from "../metadata";
 import {IDispose} from "../../models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {IDialogSettings} from "../../../shared";
-import {IApplicationError, ApplicationError} from "../../../core/error/applicationError";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {ErrorCode} from "../../../core/error/error-code";
+import {IApplicationError, ApplicationError} from "../../../shell/error/applicationError";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
+import {ErrorCode} from "../../../shell/error/error-code";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties
@@ -50,7 +50,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this.state = new ArtifactState(this);
         this._isDisposed = false;
     }
-    
+
     public get lastSaveInvalid(): boolean {
         return this.artifact.lastSaveInvalid;
     }
@@ -63,7 +63,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         this._isDisposed = true;
 
         super.dispose();
-        
+
         if (this.state) {
             this.state.dispose();
         }
@@ -104,7 +104,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     public getObservable(): Rx.Observable<IStatefulArtifact> {
         if (!this.isFullArtifactLoadedOrLoading() && !this.isHeadVersionDeleted()) {
             this.loadPromise = this.load();
-            
+
             this.loadPromise.then(() => {
                 this.subject.onNext(this);
                 this.propertyChange.onNext({item: this});
@@ -154,8 +154,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             })
             .catch((err) => {
                 if (err && err.statusCode === HttpStatusCode.Conflict) {
-                    if (err.errorCode === ErrorCode.NoChanges) {   
-                        this.discard();                     
+                    if (err.errorCode === ErrorCode.NoChanges) {
+                        this.discard();
                         this.services.messageService.addInfo("Discard_No_Changes");
                         deffered.resolve();
                     } else {
@@ -383,8 +383,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             delta.traces = this.relationships.changes();
         }
 
-        //do not get subartifact changes if selective readonly is enabled. 
-        //This is a hack for Jumanji as we need to ensure that the properties cannot be modified in client side in utility panel 
+        //do not get subartifact changes if selective readonly is enabled.
+        //This is a hack for Jumanji as we need to ensure that the properties cannot be modified in client side in utility panel
         if (this.canCollectSubartifactChanges()) {
             const subArtifactChanges = this.getSubArtifactChanges();
             if (!!subArtifactChanges) {
@@ -551,7 +551,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                     }
                     else if (err.errorCode === ErrorCode.CannotPublish) {
                         this.services.messageService.addError(err, true);
-                        this.refresh();                        
+                        this.refresh();
                     } else {
                         this.services.messageService.addError(err);
                     }
@@ -687,7 +687,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         }).finally(() => {
             this.services.loadingOverlayService.endLoading(copyOverlayId);
         });
-    }    
+    }
 
     //Hook for subclasses to do some post processing
     protected runPostGetObservable() {

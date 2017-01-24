@@ -1,6 +1,6 @@
 import * as _ from "lodash";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 export interface IBPGotoController {
     showOrDoSearch($event: MouseEvent);

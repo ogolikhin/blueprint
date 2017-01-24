@@ -1,10 +1,10 @@
-import {ILocalizationService} from "../../core/localization/localizationService";
 import {Models} from "../../main";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IItemChangeSet, ISelection, IStatefulItem, StatefulArtifact} from "../../managers/artifact-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IUtilityPanelContext, IUtilityPanelController, PanelType, UtilityPanelService} from "./utility-panel.svc";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");

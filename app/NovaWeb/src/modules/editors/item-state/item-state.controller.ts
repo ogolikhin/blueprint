@@ -1,14 +1,14 @@
 import {Models} from "../../main/models";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
-import {IApplicationError} from "../../core/error/applicationError";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {INavigationService} from "../../core/navigation/navigation.svc";
-import {IMessageService} from "../../core/messages/message.svc";
-import {MessageType} from "../../core/messages/message";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
+import {IApplicationError} from "../../shell/error/applicationError";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {ItemTypePredefined} from "../../main/models/enums";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {MessageType} from "../../main/components/messages/message";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 

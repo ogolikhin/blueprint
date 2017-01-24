@@ -6,7 +6,7 @@
         ProcessClipboardData
 } from "../models/";
 import {ShapesFactory} from "./../shapes/shapes-factory";
-import {ILocalizationService} from "../../../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../../../commonModule/localization/localization.service";
 import {IClipboardService, ClipboardDataType} from "../../../../../services/clipboard.svc";
 
 export class NodePopupMenu {
@@ -182,7 +182,7 @@ export class NodePopupMenu {
 
         // adjust the offsets of the popup menu to position it above
         // the insertion point
-        this.calcMenuOffsets(menu);     
+        this.calcMenuOffsets(menu);
     };
 
     private subscribeHidePopupEvents() {

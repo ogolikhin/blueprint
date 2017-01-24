@@ -1,9 +1,8 @@
 ﻿import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
+import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {IProcessService} from "../../../editors/bp-process/services/process.svc";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
@@ -21,6 +20,7 @@ import {ValidationServiceMock} from "../../../managers/artifact-manager/validati
 import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ComponentTest} from "../../../util/component.test";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {BPRelationshipsPanelController} from "./bp-relationships-panel";
 import * as angular from "angular";

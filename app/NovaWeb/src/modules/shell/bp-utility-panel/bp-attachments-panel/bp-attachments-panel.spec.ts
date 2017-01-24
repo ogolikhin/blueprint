@@ -1,10 +1,9 @@
-﻿import "angular-mocks";
+﻿import * as angular from "angular";
+import "angular-mocks";
 import "angular-sanitize";
-import {SettingsServiceMock} from "../../../core/configuration/settings.mock";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-overlay.svc.mock";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
+import {SettingsServiceMock} from "../../../commonModule/configuration/settings.mock";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {Models} from "../../../main";
 import {IArtifactAttachment, IArtifactAttachmentsResultSet, IArtifactDocRef} from "../../../managers/artifact-manager";
 import {StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
@@ -19,9 +18,10 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.moc
 import {ComponentTest} from "../../../util/component.test";
 import {LicenseServiceMock} from "../../license/license.svc.mock";
 import {SessionSvcMock} from "../../login/mocks.spec";
-import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {BPAttachmentsPanelController} from "./bp-attachments-panel";
-import * as angular from "angular";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 describe("Component BP Attachments Panel", () => {
 

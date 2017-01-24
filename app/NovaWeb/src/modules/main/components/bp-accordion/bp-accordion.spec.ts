@@ -4,21 +4,25 @@ import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../../util/component.test";
 import {BpAccordionCtrl} from "./bp-accordion";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 
 describe("Component BpAccordion", () => {
 
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("bp.components.accordion"));
+
+
+    beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
+        })
+    );
 
     let directiveTest: ComponentTest<BpAccordionCtrl>;
     let $timeout: ng.ITimeoutService;
-    /* tslint:disable:max-line-length */
     let layout = `
         <bp-accordion accordion-heading-height="33">
             <bp-accordion-panel accordion-panel-heading="Discussions" accordion-panel-class="utility-panel-discussions">Lorem ipsum dolor sit amet.</bp-accordion-panel>
             <bp-accordion-panel accordion-panel-heading="Properties" accordion-panel-id="my-panel">Mauris aliquet feugiat vulputate.</bp-accordion-panel>
             <bp-accordion-panel accordion-panel-heading="Relationships" accordion-panel-heading-height="66">Etiam eget urna ullamcorper.</bp-accordion-panel>
         </bp-accordion>`;
-    /* tslint:enable:max-line-length */
 
 
     beforeEach(inject((_$timeout_: ng.ITimeoutService) => {

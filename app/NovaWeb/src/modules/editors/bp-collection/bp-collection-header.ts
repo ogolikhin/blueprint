@@ -6,14 +6,14 @@ import {IDialogService, BPButtonOrDropdownSeparator} from "../../shared";
 import {IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "./collection-artifact";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "./collection.svc";
-import {IItemInfoService} from "../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
+import {IMessageService} from "../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 
 export class BpCollectionHeader implements ng.IComponentOptions {

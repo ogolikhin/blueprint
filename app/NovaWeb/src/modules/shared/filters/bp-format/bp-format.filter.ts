@@ -18,7 +18,7 @@ export class BpFormat {
     /// corresponding argument is undefined, the placeholder is not replaced. There is no syntax
     /// for escaping braces; if you need to output a valid placeholder string literally omit the
     /// corresponding argument or pass undefined.
-    public static filter:BpFormatFilterType = (input: string, ...args: any[]) => {
+    public static filter: BpFormatFilterType = (input: string, ...args: any[]) => {
         if (typeof input === "string") {
             return input.replace(/{(\d+)}/g, (match, number) =>
                 typeof args[number] === "undefined" ? match : args[number]);

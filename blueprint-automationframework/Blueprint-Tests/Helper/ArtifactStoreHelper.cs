@@ -682,6 +682,21 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Compare expected artifact with actual collection item
+        /// </summary>
+        /// <param name="expectedArtifact">The expected artifact</param>
+        /// <param name="actualCollectionItem">The actual collection item</param>
+        public static void AssertAreEqual(IArtifactBase expectedArtifact, CollectionItem actualCollectionItem)
+        {
+            ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
+            ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
+
+            Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
+            Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
+            Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
+        }
+
         #endregion Custom Asserts
 
         public enum ImageType
@@ -809,6 +824,77 @@ namespace Helper
         }
 
         #endregion Image Functions
+
+        #region Collection Methods
+
+        /// <summary>
+        /// Creates empty collection and return corresponding IArtifact.
+        /// </summary>
+        /// <param name="helper">A TestHelper instance.</param>
+        /// <param name="project">Project to create collection.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="parentId">(optional) Id of artifact under which collection should be created (no check for valid location).</param>
+        /// <param name="name">(optional) The name of collection.</param>
+        /// <returns>IArtifact which corresponds to the created collection.</returns>
+        public static IArtifact CreateCollectionGetCollectionArtifact(
+            TestHelper helper,
+            IProject project,
+            IUser user,
+            int? parentId = null,
+            string name = null
+            )
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var collectionFolder = project.GetDefaultCollectionFolder(helper.ArtifactStore.Address, user);
+            parentId = parentId ?? collectionFolder.Id;
+            
+            // fake type as far as we don't have Collection in OpenApi
+            var collectionArtifact = helper.CreateWrapAndSaveNovaArtifact(project, user,
+                ItemTypePredefined.ArtifactCollection, parentId.Value, baseType: BaseArtifactType.PrimitiveFolder,
+                name: name);
+            
+            // TODO better way to set specific artifactTypeId value for the collection artifact?
+            //Set ArtifactTypeIDcall for collection: Delete collection
+            collectionArtifact.ArtifactTypeId = 83;
+
+            Collection collection = null;
+            Assert.DoesNotThrow(() =>
+                collection = helper.ArtifactStore.GetCollection(user, collectionArtifact.Id),
+                "GetCollection shouldn't throw no error.");
+            Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");
+            Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
+
+            return collectionArtifact;
+        }
+
+        /// <summary>
+        /// Validate Collection contents by comparing with the expected artifact list
+        /// </summary>
+        /// <param name="collection">collection returned from get collection call</param>
+        /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
+        public static void ValidateCollection(Collection collection, List<IArtifactBase> artifactList)
+        {
+            ThrowIf.ArgumentNull(collection, nameof(collection));
+            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
+
+            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
+                "{0} artifacts are expected from collection but {1} are returned.",
+                artifactList.Count(), collection.Artifacts.Count());
+
+            if (artifactList.Any())
+            {
+                foreach (var artifact in artifactList)
+                {
+                    var collectionItem = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id));
+                    AssertAreEqual(artifact, collectionItem);
+                }
+            }
+        }
+
+        #endregion Collection Methods
 
         /// <summary>
         /// Gets Inline Image Id from html of the artifact rich text property

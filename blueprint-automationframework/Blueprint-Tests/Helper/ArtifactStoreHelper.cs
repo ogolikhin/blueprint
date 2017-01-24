@@ -665,20 +665,20 @@ namespace Helper
         /// Compares traces and asserts that each of their properties are equal.
         /// </summary>
         /// <param name="expectedArtifactTrace">The expected trace.</param>
-        /// <param name="expectedArtifactTrace">The resulted trace.</param>
+        /// <param name="actualArtifactTrace">The actual trace.</param>
         /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
-        public static void AssertTracesAreEqual(ITrace expectedArtifactTrace, ITrace resultedArtifactTrace, bool checkDirection = true)
+        public static void AssertTracesAreEqual(ITrace expectedArtifactTrace, ITrace actualArtifactTrace, bool checkDirection = true)
         {
             ThrowIf.ArgumentNull(expectedArtifactTrace, nameof(expectedArtifactTrace));
-            ThrowIf.ArgumentNull(resultedArtifactTrace, nameof(resultedArtifactTrace));
+            ThrowIf.ArgumentNull(actualArtifactTrace, nameof(actualArtifactTrace));
 
-            Assert.AreEqual(expectedArtifactTrace.ProjectId, resultedArtifactTrace.ProjectId, "The Project IDs of the traces don't match!");
-            Assert.AreEqual(expectedArtifactTrace.ArtifactId, resultedArtifactTrace.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(expectedArtifactTrace.IsSuspect, resultedArtifactTrace.IsSuspect, "One trace is marked suspect but the other isn't!");
+            Assert.AreEqual(expectedArtifactTrace.ProjectId, actualArtifactTrace.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.ArtifactId, actualArtifactTrace.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.IsSuspect, actualArtifactTrace.IsSuspect, "One trace is marked suspect but the other isn't!");
 
             if (checkDirection)
             {
-                Assert.AreEqual(expectedArtifactTrace.Direction, resultedArtifactTrace.Direction, "The Trace Directions don't match!");
+                Assert.AreEqual(expectedArtifactTrace.Direction, actualArtifactTrace.Direction, "The Trace Directions don't match!");
             }
         }
 
@@ -897,11 +897,16 @@ namespace Helper
         #endregion Collection Methods
 
         /// <summary>
-        /// Gets Inline Image Id from html of the artifact rich text property
+        /// Gets Inline Image Id from html of the artifact rich text property.
         /// </summary>
-        /// <returns>Guid string, empty string if no guids were found</returns>
+        /// <returns>Guid string, empty string if no guids were found.</returns>
         public static string GetInlineImageId(string richTextProperty)
         {
+            if (richTextProperty == null)
+            {
+                return string.Empty;
+            }
+
             var guidString = Regex.Match(richTextProperty, @"[0-9a-f]{8}[-]([0-9a-f]{4}[-]){3}[0-9a-f]{12}");
             return guidString.Value;
         }
@@ -929,6 +934,7 @@ namespace Helper
         /// <summary>
         /// Gets all details for all the sub-artifacts passed in.
         /// </summary>
+        /// <param name="artifactStore">An ArtifactStore instance.</param>
         /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
         /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -1726,6 +1732,7 @@ namespace Helper
         /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="text">The new text that will be set in the property.</param>
         /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
         public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,

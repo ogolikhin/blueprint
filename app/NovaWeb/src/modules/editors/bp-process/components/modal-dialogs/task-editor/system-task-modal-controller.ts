@@ -7,7 +7,7 @@ import {IModalScope} from "../base-modal-dialog-controller";
 import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
 import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {Models} from "../../../../../main/models";
 import {IdGenerator} from "../../diagram/presentation/graph/shapes/id-generator";
 

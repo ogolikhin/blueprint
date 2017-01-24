@@ -8,7 +8,7 @@ import {ShapesFactory} from "./../shapes/shapes-factory";
 import {ILayout} from "./../models/";
 import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService, LocalizationService} from "../../../../../../../core/localization/localizationService";
+import {ILocalizationService, LocalizationService} from "../../../../../../../commonModule/localization/localization.service";
 import {IClipboardService, ClipboardService} from "../../../../../services/clipboard.svc";
 
 describe("Popup Menu", () => {
@@ -111,7 +111,7 @@ describe("Popup Menu", () => {
         menu["div"] = document.createElement("div");
         menu["div"].className = "mxPopupMenu";
         menu["div"].style.left = "100px";
-        menu["div"].style.top = "100px";        
+        menu["div"].style.top = "100px";
 
         clipboard.setData(new ProcessClipboardData(null));
         clipboard["_data"].type = 999; // not a process data type

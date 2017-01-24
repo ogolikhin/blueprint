@@ -38,6 +38,7 @@ namespace Helper
             public const string CustomData = "Custom Data";
             public const string UIProject = "UI-Project";
             public const string EmptyProjectNonRequiredCustomPropertiesAssigned = "Empty Project With PropertyTypes - Non-Required Properties Assigned";
+            public const string EmptyProjectWithSubArtifactRequiredProperties = "Empty Project with SubArtifact Required Properties";
         }
 
         private bool _isDisposed = false;

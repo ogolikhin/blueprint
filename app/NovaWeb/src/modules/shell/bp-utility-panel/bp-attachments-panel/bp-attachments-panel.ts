@@ -1,7 +1,3 @@
-import {ISettingsService} from "../../../core/configuration/settings";
-import {IFileResult, IFileUploadService} from "../../../core/file-upload/fileUploadService";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IMessageService} from "../../../core/messages/message.svc";
 import {Enums, Models} from "../../../main";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {IArtifactAttachment, IArtifactDocRef, IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../../managers/artifact-manager";
@@ -11,6 +7,10 @@ import {IUploadStatusDialogData} from "../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {ISession} from "../../../shell";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {ISettingsService} from "../../../commonModule/configuration/settings.service";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {IFileUploadService, IFileResult} from "../../../commonModule/fileUpload/fileUpload.service";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");

@@ -125,7 +125,7 @@ namespace ArtifactStoreTests
             CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, artifactsToAdd);
         }
 
-        [TestCase, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(230662)]
         [Description("Create new collection, publish new artifact, add artifact to collection, check collection content.")]
         public void AddArtifactToCollection_PublishedArtifact_ValidateCollectionContent(BaseArtifactType artifactTypeToAdd)

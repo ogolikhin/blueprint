@@ -1,8 +1,4 @@
-﻿import {IFileUploadService} from "../../core/file-upload/fileUploadService";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {IMessageService} from "../../core/messages/message.svc";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+﻿import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IMainWindow, IWindowManager, ResizeCause} from "../../main/services/window-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
@@ -14,6 +10,10 @@ import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shap
 import {ProcessDiagram} from "./components/diagram/process-diagram";
 import {SubArtifactEditorModalOpener} from "./components/modal-dialogs/sub-artifact-editor-modal-opener";
 import {IClipboardService} from "./services/clipboard.svc";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {IFileUploadService} from "../../commonModule/fileUpload/fileUpload.service";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 
 export class BpProcessEditor implements ng.IComponentOptions {
     public template: string = require("./bp-process-editor.html");

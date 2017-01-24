@@ -4,17 +4,17 @@ import "../../../";
 import {MoveCopyAction} from "./move-copy-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {MoveCopyArtifactResult, MoveCopyArtifactInsertMethod} from "../../../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
+import {MoveCopyArtifactResult, MoveCopyArtifactInsertMethod} from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {Enums, Models} from "../../../../main/models";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
-import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {MessageServiceMock} from "../../messages/message.mock";
+import {IMessageService} from "../../messages/message.svc";
 
 
 describe("MoveCopyAction", () => {

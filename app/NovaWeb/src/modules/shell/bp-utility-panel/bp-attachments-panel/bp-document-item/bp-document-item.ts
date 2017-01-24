@@ -3,8 +3,8 @@
     IArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
 } from "../../../../managers/artifact-manager";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPDocumentItem implements ng.IComponentOptions {
     public template: string = require("./bp-document-item.html");
@@ -65,7 +65,7 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
     }
 
     private isHistoricalVersion(docRefInfo: IArtifactDocRef): boolean {
-        return _.isFinite(this.docRefInfo.versionId) 
+        return _.isFinite(this.docRefInfo.versionId)
             && _.isFinite(this.docRefInfo.versionsCount)
             && this.docRefInfo.versionId !== this.docRefInfo.versionsCount
             // not draft version

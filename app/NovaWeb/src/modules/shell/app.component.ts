@@ -2,10 +2,10 @@
 import {IUser} from "./login/auth.svc";
 import {LoginCtrl, ILoginModalDialogData} from "./login/login.ctrl";
 import {ISelectionManager} from "./../managers/selection-manager";
-import {ISettingsService} from "../core/configuration/settings";
-import {INavigationService} from "../core/navigation/navigation.svc";
-import {ILocalizationService} from "../core/localization/localizationService";
-import {ILoadingOverlayService} from "../core/loading-overlay/loading-overlay.svc";
+import {ISettingsService} from "../commonModule/configuration/settings.service";
+import {INavigationService} from "../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../commonModule/localization/localization.service";
+import {ILoadingOverlayService} from "../commonModule/loadingOverlay/loadingOverlay.service";
 import {IDialogService, IDialogSettings} from "../shared";
 import {IUnpublishedArtifactsService} from "../editors/unpublished/unpublished.svc";
 import {BPTourController} from "../main/components/dialogs/bp-tour/bp-tour";

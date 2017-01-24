@@ -8,7 +8,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "../../..";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {NodeType} from "../../diagram/presentation/graph/models";
 import {IDialogService} from "../../../../../shared";
@@ -23,7 +23,7 @@ import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-mana
 import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 require("script!mxClient");
 import {ProcessViewModel, IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
 import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";

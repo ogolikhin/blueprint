@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 import {ValidationService, IValidationService} from "./validation.svc";
-import {LocalizationService} from "../../../core/localization/localizationService";
+import {LocalizationService} from "../../../commonModule/localization/localization.service";
 
 describe("user picker validation tests - ", () => {
     let validationService: IValidationService;

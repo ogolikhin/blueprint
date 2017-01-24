@@ -1,17 +1,16 @@
-import {IProcessDiagramCommunication} from "./../../diagram/process-diagram-communication";
-import {IDiagramNode} from "./../../diagram/presentation/graph/models/process-graph-interfaces";
-import {NodeType} from "./../../diagram/presentation/graph/models/process-graph-constants";
-import {INavigationService} from "./../../../../../core/navigation/navigation.svc";
-import {IDialogService} from "./../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {ILoadingOverlayService} from "./../../../../../core/loading-overlay/loading-overlay.svc";
-import {IProjectManager} from "./../../../../../managers/project-manager/project-manager";
-import {IMessageService} from "./../../../../../core/messages/message.svc";
-import {ILocalizationService} from "./../../../../../core/localization/localizationService";
-import {IStatefulProcessArtifact} from "./../../../process-artifact";
-import {StatefulProcessSubArtifact} from "./../../../process-subartifact";
-import {DeleteAction} from "./../../../../../main/components/bp-artifact-info/actions/delete-action";
+import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
+import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
+import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
+import {INavigationService} from "../../../../../commonModule/navigation/navigation.service";
+import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
+import {IStatefulProcessArtifact} from "../../../process-artifact";
+import {DeleteAction} from "../../../../../main/components/bp-artifact-info/actions/delete-action";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
 
 export class ProcessDeleteAction extends DeleteAction {
@@ -75,11 +74,9 @@ export class ProcessDeleteAction extends DeleteAction {
             NodeType.SystemDecision
         ];
 
-        if (validNodeTypes.indexOf(selectedNode.getNodeType()) < 0) {
-            return false;
-        }
+        return validNodeTypes.indexOf(selectedNode.getNodeType()) >= 0;
 
-        return true;
+
     }
 
     protected hasRequiredPermissions(): boolean {

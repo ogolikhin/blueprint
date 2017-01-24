@@ -4,8 +4,8 @@ import "rx/dist/rx.lite";
 import {ICollectionService, CollectionService} from "./collection.svc";
 import {Models} from "../../main";
 import {ICollection} from "./collection-artifact";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {HttpStatusCode} from "../../core/http/http-status-code";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 
 describe("Collection Service", () => {
 

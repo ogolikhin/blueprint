@@ -1,6 +1,6 @@
 import {IUserStory} from "../models/process-models";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 
 export interface IUserStoryService {
     generateUserStories(projectId: number, processId: number, userTaskId?: number): ng.IPromise<IUserStory[]>;

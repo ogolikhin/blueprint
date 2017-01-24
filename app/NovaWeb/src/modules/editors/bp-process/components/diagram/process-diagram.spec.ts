@@ -1,16 +1,14 @@
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import * as angular from "angular";
 import * as TestModels from "../../models/test-model-factory";
-import {ExecutionEnvironmentDetectorMock} from "../../../../core/services/execution-environment-detector.mock";
-import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../commonModule/services/executionEnvironmentDetector.mock";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {ProcessDiagram} from "./process-diagram";
 import {ICommunicationManager, CommunicationManager} from "../../../bp-process";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {DialogService} from "../../../../shared/widgets/bp-dialog";
 import {ProcessType} from "../../models/enums";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
@@ -20,7 +18,9 @@ import {ProcessEvents} from "./process-diagram-communication";
 import {ShapesFactory, ShapesFactoryMock} from "./presentation/graph/shapes/shapes-factory";
 import {IClipboardService, ClipboardService} from "../../services/clipboard.svc";
 import {UtilityPanelService} from "../../../../shell/bp-utility-panel/utility-panel.svc";
-import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
+import {FileUploadServiceMock} from "../../../../commonModule/fileUpload/fileUpload.service.mock";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("ProcessDiagram Tests", () => {
     let rootScope: ng.IRootScopeService,

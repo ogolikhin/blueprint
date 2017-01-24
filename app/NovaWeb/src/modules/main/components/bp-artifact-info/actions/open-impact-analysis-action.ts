@@ -1,7 +1,7 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
     constructor(

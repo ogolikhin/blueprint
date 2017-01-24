@@ -10,7 +10,7 @@ import {Models, Enums} from "../../../../../main/models";
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
 import {IModalDialogModel} from "../models/modal-dialog-model-interface";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 
 export abstract class TaskModalController<T extends IModalDialogModel> extends BaseModalDialogController<T> {
     public includeArtifactName: string;

@@ -10,16 +10,16 @@ import "tinymce";
 import {Helper} from "../../../../shared";
 import {BpFieldTextRTFController} from "./text-rtf";
 import {createFormlyModule} from "../../formly-config.mock";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {FileUploadServiceMock} from "../../../../core/file-upload/file-upload.svc.mock";
-import {SettingsServiceMock} from "../../../../core/configuration/settings.mock";
+import {FileUploadServiceMock} from "../../../../commonModule/fileUpload/fileUpload.service.mock";
+import {SettingsServiceMock} from "../../../../commonModule/configuration/settings.mock";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("Formly Text RTF", () => {
     const fieldsDefinition = [

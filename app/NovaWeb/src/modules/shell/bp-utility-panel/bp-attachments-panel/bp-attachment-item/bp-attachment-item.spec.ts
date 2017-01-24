@@ -4,7 +4,7 @@ import "angular-sanitize";
 import "../../../";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPAttachmentItemController} from "./bp-attachment-item";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../../../managers/selection-manager/selection-manager.mock";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";

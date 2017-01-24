@@ -1,11 +1,11 @@
 import * as angular from "angular";
 import "angular-mocks";
 require("script!mxClient");
-import {ExecutionEnvironmentDetectorMock} from "./../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../commonModule/services/executionEnvironmentDetector.mock";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {CommunicationManager} from "../../../bp-process/services/communication-manager";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ModalServiceMock} from "../../../../shell/login/mocks.spec";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";

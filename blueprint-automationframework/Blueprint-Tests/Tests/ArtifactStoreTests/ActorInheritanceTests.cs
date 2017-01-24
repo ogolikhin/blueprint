@@ -61,7 +61,7 @@ namespace ArtifactStoreTests
             ActorInheritanceValue actorInheritance = null;
 
             // Execution & Verify:
-            actorInheritance = artifactDetails.ActorInheritance;
+            actorInheritance = ((Actor)artifactDetails).ActorInheritance;
             Assert.AreEqual(baseActorId, actorInheritance.ActorId, "Inherited From artifact should have id {0}, but it has id {1}", baseActorId, actorInheritance.ActorId);
             Assert.AreEqual(customDataProjectName, actorInheritance.PathToProject[0], "PathToProject[0] - name of project which contains Inherited From actor.");
         }
@@ -136,11 +136,12 @@ namespace ArtifactStoreTests
         /// <param name="user">User to perform operation.</param>
         private void SetActorInheritance(IArtifact actor, IArtifact baseActor, IUser user)
         {
-            var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
 
             ActorInheritanceValue actorInheritance = new ActorInheritanceValue();
             actorInheritance.ActorId = baseActor.Id;
             actorDetails.ActorInheritance = actorInheritance;
+
 
             actor.Lock(user);
             
@@ -154,7 +155,7 @@ namespace ArtifactStoreTests
         /// <param name="user">User to perform operation.</param>
         private void DeleteActorInheritance(IArtifact actor, IUser user)
         {
-            var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
 
             actorDetails.ActorInheritance = null;
 
@@ -170,7 +171,7 @@ namespace ArtifactStoreTests
         /// <param name="user">User to perform operation.</param>
         private void CheckActorHasNoActorInheritace(IArtifact actor, IUser user)
         {
-            var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
             Assert.IsNull(actorDetails.ActorInheritance, "ActorInheritance must be empty");
         }
 
@@ -182,7 +183,7 @@ namespace ArtifactStoreTests
         /// <param name="user">User to perform operation.</param>
         private void CheckActorHasExpectedActorInheritace(IArtifact actor, IArtifact expectedBaseActor, IUser user)
         {
-            var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
             Assert.IsNotNull(actorDetails.ActorInheritance, "Actor Inheritance shouldn't be null, but it does.");
             Assert.AreEqual(expectedBaseActor.Id, actorDetails.ActorInheritance.ActorId, "ArtifactId must be the same, but it isn't.");
             Assert.AreEqual(expectedBaseActor.Name, actorDetails.ActorInheritance.ActorName, "Name must be the same, but it isn't.");
@@ -207,7 +208,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(TraceDirection.To, actorInheritanceTrace.Direction, "Trace should have 'To' trace direction, but it doesn't.");
             Assert.AreEqual(expectedBaseActor.Name, actorInheritanceTrace.ArtifactName, "Trace should have expected Base Actor name, but it doesn't.");
 
-            var actorDetails = Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
             Assert.IsNotNull(actorDetails.ActorInheritance, "Actor Inheritance shouldn't be null, but it does.");
             Assert.AreEqual(actorDetails.ActorInheritance.HasAccess, actorInheritanceTrace.HasAccess, "Trace should have expected 'HasAccess' value, but it doesn't.");
             Assert.AreEqual(expectedBaseActor.Project.Name, actorInheritanceTrace.ProjectName, "Base Actor should have expected project name, but it doesn't.");

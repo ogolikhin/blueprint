@@ -3,15 +3,12 @@ import * as angular from "angular";
 import "angular-ui-router";
 import {PreviewCenterController, PreviewCenterComponent} from "./preview-center";
 import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
-import {SystemTask} from "../../diagram/presentation/graph/shapes/";
-import {IArtifactManager} from "../../../../../managers/artifact-manager/artifact-manager";
-import {ArtifactManagerMock} from "../../../../../managers/artifact-manager/artifact-manager.mock";
-import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
 import {IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {MessageServiceMock} from "../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../core/messages/message.svc";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
 
 describe("PreviewCenter Directive", () => {
 
@@ -31,7 +28,7 @@ describe("PreviewCenter Directive", () => {
     }));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-        $provide.service("artifactManager", ArtifactManagerMock);
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
@@ -42,7 +39,7 @@ describe("PreviewCenter Directive", () => {
         inject(($compile: ng.ICompileService,
             $rootScope: ng.IRootScopeService,
             $templateCache: ng.ITemplateCacheService,
-            artifactManager: ArtifactManagerMock,
+            selectionManager: SelectionManagerMock,
             _statefulArtifactFactory_: IStatefulArtifactFactory,
             _localization_: LocalizationServiceMock,
             messageService: IMessageService) => {
@@ -56,15 +53,6 @@ describe("PreviewCenter Directive", () => {
                 isReadonly: false
             };
 
-            artifactManager.selection = {
-                getArtifact: () => {
-                    return;
-                },
-                clearAll: () => {
-                    return;
-                }
-            } as ISelectionManager;
-            
             scope["systemTaskModel"] = ShapeModelMock.instance().SystemTaskMock();
             scope["userTaskModel"] = ShapeModelMock.instance().UserTaskMock();
             // tslint:disable-next-line: max-line-length

@@ -1,30 +1,27 @@
 ﻿import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
-import "../../";
-import {BPAttachmentsPanelController} from "./bp-attachments-panel";
-import {ComponentTest} from "../../../util/component.test";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
-import {IArtifactAttachmentsResultSet, IArtifactDocRef, IArtifactAttachment} from "../../../managers/artifact-manager";
+import {SettingsServiceMock} from "../../../commonModule/configuration/settings.mock";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {Models} from "../../../main";
+import {IArtifactAttachment, IArtifactAttachmentsResultSet, IArtifactDocRef} from "../../../managers/artifact-manager";
+import {StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
+import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {IArtifactAttachmentsService} from "../../../managers/artifact-manager/attachments";
+import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
+import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
-import {SessionSvcMock} from "../../login/mocks.spec";
-import {IArtifactManager} from "../../../managers";
-import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
-import {IArtifactAttachmentsService} from "../../../managers/artifact-manager/attachments";
-import {StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
+import {ComponentTest} from "../../../util/component.test";
 import {LicenseServiceMock} from "../../license/license.svc.mock";
-import {LoadingOverlayServiceMock} from "../../../core/loading-overlay/loading-overlay.svc.mock";
-import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {SettingsServiceMock} from "../../../core/configuration/settings.mock";
-import {IUtilityPanelContext, PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {SessionSvcMock} from "../../login/mocks.spec";
+import {BPAttachmentsPanelController} from "./bp-attachments-panel";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 describe("Component BP Attachments Panel", () => {
 
@@ -43,7 +40,6 @@ describe("Component BP Attachments Panel", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("session", SessionSvcMock);
         $provide.service("licenseService", LicenseServiceMock);
@@ -53,8 +49,7 @@ describe("Component BP Attachments Panel", () => {
         $provide.service("settings", SettingsServiceMock);
     }));
 
-    beforeEach(inject((artifactManager: IArtifactManager, selectionManager: ISelectionManager) => {
-        artifactManager.selection = selectionManager;
+    beforeEach(inject((selectionManager: ISelectionManager) => {
         componentTest = new ComponentTest<BPAttachmentsPanelController>(template, "bp-attachments-panel");
         vm = componentTest.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);
         onChangesObj = {

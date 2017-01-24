@@ -10,10 +10,10 @@
     <p class="explorer__empty-state-text">{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>
 </div>
 <div class="explorer__bottom-navbar">
-    <button class="explorer__bottom-navbar-button btn" ng-click="$ctrl.navigateToUnpublishedChanges()" bp-tooltip="{{$ctrl.localization.get('App_Explorer_BottomBar_UnpublishedChanges')}}">
+    <button class="explorer__bottom-navbar-button btn" ng-click="$ctrl.navigateToUnpublishedChanges()" bp-tooltip="{{::$ctrl.localization.get('App_Explorer_BottomBar_UnpublishedChanges')}}">
         <span class="explorer__bottom-navbar-icons fonticon2-unpublished"></span>
     </button>
-    <button class="explorer__bottom-navbar-button btn" ng-click="$ctrl.navigateToJobs()" bp-tooltip="{{$ctrl.localization.get('App_Explorer_BottomBar_Jobs')}}">
+    <button class="explorer__bottom-navbar-button btn" ng-click="$ctrl.navigateToJobs()" bp-tooltip="{{::$ctrl.localization.get('Jobs_Label')}}">
         <span class="explorer__bottom-navbar-icons fonticon2-jobs"></span>
     </button>
 </div>

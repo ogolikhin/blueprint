@@ -1,11 +1,12 @@
 import {IDialogSettings, BaseDialogController} from "../bp-dialog";
 import {FiletypeParser} from "../../utils/filetypeParser";
-import {IFileResult} from "../../../core/file-upload/fileUploadService";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {IFileResult} from "../../../commonModule/fileUpload/fileUpload.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 export interface IUploadStatusDialogData {
     files: File[];
     maxNumberAttachments: number;
+    maxNumberAttachmentsError?: string;
     maxAttachmentFilesize: number;
     allowedExtentions?: string[];
     fileUploadAction: (file: File,
@@ -84,7 +85,7 @@ export class BpFileUploadStatusController extends BaseDialogController {
             if (index > this.dialogData.maxNumberAttachments - 1) {
                 file.isFailed = true;
 
-                file.errorMessage =
+                file.errorMessage = this.dialogData.maxNumberAttachmentsError ||
                     this.localization.get("App_UP_Attachments_Upload_Max_Attachments_Error",
                         "The artifact has the maximum number of attachments.");
             } else if (this.dialogData.allowedExtentions && this.dialogData.allowedExtentions.length > 0 &&

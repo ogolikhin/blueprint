@@ -347,30 +347,30 @@ namespace Model.ArtifactModel.Impl
                 sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
-        /// <seealso cref="IArtifact.PostRaptorDiscussions(string, IUser, List{HttpStatusCode})"/>
-        public IRaptorDiscussion PostRaptorDiscussions(string discussionsText,
+        /// <seealso cref="IArtifact.PostRaptorDiscussion(string, IUser, List{HttpStatusCode})"/>
+        public IRaptorDiscussion PostRaptorDiscussion(string comment,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            return PostRaptorDiscussions(Address, Id, discussionsText, user, expectedStatusCodes);
+            return PostRaptorDiscussion(Address, Id, comment, user, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifact.UpdateRaptorDiscussions(string, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
-        public IRaptorDiscussion UpdateRaptorDiscussions(string discussionText,
-            IUser user, IRaptorDiscussion commentToUpdate,
+        /// <seealso cref="IArtifact.UpdateRaptorDiscussion(string, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
+        public IRaptorDiscussion UpdateRaptorDiscussion(string comment,
+            IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(commentToUpdate, nameof(commentToUpdate));
-            return UpdateRaptorDiscussion(Address, Id, commentToUpdate, discussionText, user, expectedStatusCodes);
+            ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
+            return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
-        public string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion commentToDelete,
+        public string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion discussionToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(commentToDelete, nameof(commentToDelete));
-            return DeleteRaptorDiscussion(Address, Id, commentToDelete, user, expectedStatusCodes);
+            ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
+            return DeleteRaptorDiscussion(Address, Id, discussionToDelete, user, expectedStatusCodes);
         }
 
         public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
@@ -475,6 +475,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             // Hack: This is a required hack because the REST call will now return a 501 Unimplemented if you pass the ItemTypeId in the JSON body.
+            int? itemTypeId = artifactChanges.ItemTypeId; //we need to restore ItemTypeId after server call
             artifactChanges.ItemTypeId = null;
 
             if (address == null)
@@ -519,7 +520,7 @@ namespace Model.ArtifactModel.Impl
                         artifactBaseToUpdate.Id = artifactToUpdate.Id;
                         artifactBaseToUpdate.ProjectId = artifactToUpdate.ProjectId;
                         artifactBaseToUpdate.Version = artifactToUpdate.Version;
-                        artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty("Description", artifactChanges.Description, project, user);
+                        artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty(nameof(NovaArtifactDetails.Description), artifactChanges.Description, project, user);
                     }
                     else
                     {
@@ -527,6 +528,7 @@ namespace Model.ArtifactModel.Impl
                     }
                 }
 
+                artifactChanges.ItemTypeId = itemTypeId; //restore ItemTypeId
                 return artifactChanges;
             }
 
@@ -861,22 +863,22 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="address">The base url of the API</param>
         /// <param name="itemId">id of artifact/subartifact</param>
-        /// <param name="discussionsText">text for the new discussion</param>
+        /// <param name="comment">The comment for the new discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created RaptorComment for artifact/subartifact</returns>
-        public static IRaptorDiscussion PostRaptorDiscussions(string address,
+        /// <returns>Newly created RaptorDiscussion for artifact/subartifact.</returns>
+        public static IRaptorDiscussion PostRaptorDiscussion(string address,
             int itemId,
-            string discussionsText,
+            string comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.PostRaptorDiscussion(address, itemId, discussionsText,
+            return OpenApiArtifact.PostRaptorDiscussion(address, itemId, comment,
                 user, expectedStatusCodes);
         }
 
         /// <summary>
-        /// Updates the specified comment using Raptor REST API.
+        /// Updates the specified discussion using Raptor REST API.
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{artifactId}/discussions/{discussionToUpdateId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
@@ -922,8 +924,8 @@ namespace Model.ArtifactModel.Impl
         /// <param name="comment">Comment for the new reply.</param>
         /// <param name="user">The user credentials to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created RaptorReply for artifact/subartifact comment</returns>
-        public static IRaptorReply PostRaptorDiscussionReply(string address,
+        /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
+        public static IReplyAdapter PostRaptorDiscussionReply(string address,
             IDiscussionAdaptor discussion,
             string comment,
             IUser user,
@@ -944,9 +946,9 @@ namespace Model.ArtifactModel.Impl
         /// <param name="comment">The new comment for reply.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>updated RaptorDiscussion</returns>
-        public static IRaptorReply UpdateRaptorDiscussionReply(string address,
-            int itemId, IDiscussionAdaptor discussion, IRaptorReply replyToUpdate,
+        /// <returns>The updated Reply.</returns>
+        public static IReplyAdapter UpdateRaptorDiscussionReply(string address,
+            int itemId, IDiscussionAdaptor discussion, IReplyAdapter replyToUpdate,
             string comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -961,12 +963,12 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
-        /// <param name="replyToDelete">comment to delete</param>
+        /// <param name="replyToDelete">The reply to delete.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
+        /// <returns>A success or failure message.</returns>
         public static string DeleteRaptorReply(string address,
-            int itemId, IRaptorReply replyToDelete,
+            int itemId, IReplyAdapter replyToDelete,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {

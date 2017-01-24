@@ -1,6 +1,6 @@
 import "angular-formly";
 import {BPFieldBaseController} from "../base-controller";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
 export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
@@ -66,10 +66,13 @@ export class BPFieldDatePicker implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldDatePickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "validationService"];
+    static $inject: [string] = ["$document", "$scope", "localization", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope, private localization: ILocalizationService, private validationService: IValidationService) {
-        super();
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
+                private localization: ILocalizationService,
+                private validationService: IValidationService) {
+        super($document);
 
         const to: AngularFormly.ITemplateOptions = {
             datepickerOptions: {

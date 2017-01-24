@@ -301,4 +301,12 @@ Helper classes
     border-radius: 0;
 }
 
+.btn-white-link {
+    color: white;
+    text-decoration: underline;
+    &:hover {
+        color: white;
+        opacity: 80%;
+    }
+}
 

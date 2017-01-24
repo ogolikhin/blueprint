@@ -5,11 +5,11 @@ import {IMetaDataService} from "../metadata";
 import {IArtifactAttachmentsService} from "../attachments";
 import {IArtifactRelationshipsService} from "../relationships";
 import {IValidationService} from "../validation/validation.svc";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 
 export interface IStatefulArtifactServices {
     getDeferred<T>(): ng.IDeferred<T>;

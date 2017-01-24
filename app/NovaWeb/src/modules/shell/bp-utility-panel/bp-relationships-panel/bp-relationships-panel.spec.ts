@@ -1,31 +1,29 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
-import "../../";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
+import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {IProcessService} from "../../../editors/bp-process/services/process.svc";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {ComponentTest} from "../../../util/component.test";
-import {BPRelationshipsPanelController} from "./bp-relationships-panel";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
-import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
-import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
-import {
-    ArtifactManager,
-    IArtifactRelationshipsService,
-    IStatefulArtifactFactory,
-    StatefulArtifactFactory,
-    MetaDataService,
-    ArtifactService,
-    ArtifactAttachmentsService
-} from "../../../managers/artifact-manager";
-import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
-import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
+import {
+    ArtifactAttachmentsService,
+    ArtifactService,
+    IArtifactRelationshipsService,
+    IStatefulArtifactFactory,
+    MetaDataService,
+    StatefulArtifactFactory
+} from "../../../managers/artifact-manager";
+import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
+import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
+import {SelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ComponentTest} from "../../../util/component.test";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {BPRelationshipsPanelController} from "./bp-relationships-panel";
+import * as angular from "angular";
 
 describe("Component BPRelationshipsPanel", () => {
 
@@ -48,7 +46,7 @@ describe("Component BPRelationshipsPanel", () => {
         $provide.service("selectionManager", SelectionManager);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactService);
-        $provide.service("artifactManager", ArtifactManager);
+        $provide.service("selectionManager", SelectionManager);
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);

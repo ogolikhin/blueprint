@@ -2,10 +2,10 @@ import * as angular from "angular";
 import "angular-mocks";
 require("script!mxClient");
 import {IUserStoryService, UserStoryService} from "./user-story.svc";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
 import {IUserStory} from "../models/process-models";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {CommunicationManager} from "../";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 
 interface IHttpError {
     message: string;

@@ -1,5 +1,10 @@
 import * as angular from "angular";
 
+interface IKeyboardEventWritable extends KeyboardEvent {
+    keyCode: number;
+    which: number;
+}
+
 export interface IBPFieldBaseController {
     blurOnKey(event: KeyboardEvent, keyCode?: number | number[]): void;
     closeDropdownOnTab(event: KeyboardEvent): void;
@@ -7,6 +12,11 @@ export interface IBPFieldBaseController {
 }
 
 export class BPFieldBaseController implements IBPFieldBaseController {
+    static $inject = ["$document"];
+
+    constructor(protected $document: ng.IDocumentService) {
+    }
+
     public blurOnKey = (event: KeyboardEvent, keyCode?: number | number[]): void => {
         let _keyCode: number[];
         if (!keyCode) {
@@ -32,15 +42,38 @@ export class BPFieldBaseController implements IBPFieldBaseController {
     };
 
     public closeDropdownOnTab = (event: KeyboardEvent): void => {
-        let key = event.keyCode || event.which;
+        const key = event.keyCode || event.which;
         if (key === 9) { // 9 = Tab
-            let escKey = document.createEvent("Events");
-            escKey.initEvent("keydown", true, true);
-            escKey["which"] = 27; // 27 = Escape
-            escKey["keyCode"] = 27;
-            event.target.dispatchEvent(escKey);
-
+            this.fireEscKeydown(event);
             this.blurOnKey(event, 9);
+        }
+    };
+
+    private fireEscKeydown = (event: Event) => {
+        const escKey = this.$document[0].createEvent("Events") as IKeyboardEventWritable;
+        escKey.initEvent("keydown", true, true);
+        escKey.which = 27; // 27 = Escape
+        escKey.keyCode = 27;
+        event.target.dispatchEvent(escKey);
+    };
+
+    private iframeClickListener: EventListener; // used to store a reference to allow removal of event listener
+    public closeDropdownOnClick = (isDropdownOpen: boolean, $select): void => {
+        if (!$select) {
+            return;
+        }
+
+        const iframes = this.$document[0].querySelectorAll("iframe");
+        for (let i = 0; i < iframes.length; i++) {
+            const iframedDocument = iframes[i].contentWindow.document;
+            iframedDocument.removeEventListener("click", this.iframeClickListener);
+            this.iframeClickListener = (event: Event) => {
+                $select.open = false;
+            };
+
+            if (isDropdownOpen) {
+                iframedDocument.addEventListener("click", this.iframeClickListener);
+            }
         }
     };
 

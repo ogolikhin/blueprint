@@ -1,6 +1,6 @@
 import "angular-formly";
 import {BPFieldBaseController} from "../base-controller";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IPropertyDescriptor} from "./../../property-descriptor-builder";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 
@@ -33,13 +33,14 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldSelectMultiController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "$timeout", "validationService"];
-    private propertyDescriptor: IPropertyDescriptor; 
-    constructor(private $scope: AngularFormly.ITemplateScope,
-                     private localization: ILocalizationService,
-                     private $timeout: ng.ITimeoutService,
-                     private validationService: IValidationService) {
-        super();
+    static $inject: [string] = ["$document", "$scope", "localization", "$timeout", "validationService"];
+    private propertyDescriptor: IPropertyDescriptor;
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
+                private localization: ILocalizationService,
+                private $timeout: ng.ITimeoutService,
+                private validationService: IValidationService) {
+        super($document);
         this.propertyDescriptor = $scope.options["data"];
 
         const to: AngularFormly.ITemplateOptions = {
@@ -138,6 +139,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
             },
             closeDropdownOnTab: this.closeDropdownOnTab,
+            closeDropdownOnClick: this.closeDropdownOnClick,
             scrollIntoView: this.scrollIntoView,
             setFocus: function () {
                 if ($scope["uiSelectContainer"]) {
@@ -234,6 +236,8 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 selectMulti.isScrolling = true;
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
+                this.closeDropdownOnClick(isOpen, $select);
+
                 this.isOpen = isOpen;
                 this.items = options;
                 this.$select = $select;

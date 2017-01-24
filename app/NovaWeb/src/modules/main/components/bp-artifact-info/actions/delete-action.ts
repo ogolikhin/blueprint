@@ -1,22 +1,23 @@
-import {IApplicationError} from "../../../../core/error/applicationerror";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {Message, MessageType} from "../../../../core/messages/message";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ConfirmDeleteController} from "../../../../main/components/dialogs/bp-confirm-delete";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {IArtifactManager, IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {IApplicationError} from "../../../../shell/error/applicationError";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {ConfirmDeleteController} from "../../dialogs/bp-confirm-delete/bp-confirm-delete";
+import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {BPButtonAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {IArtifact, IArtifactWithProject} from "../../../models/models";
+import {IMessageService} from "../../messages/message.svc";
+import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {Message, MessageType} from "../../messages/message";
 
 export class DeleteAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         protected localization: ILocalizationService,
         private messageService: IMessageService,
-        private artifactManager: IArtifactManager,
+        private selectionManager: ISelectionManager,
         private projectManager: IProjectManager,
         private loadingOverlayService: ILoadingOverlayService,
         private dialogService: IDialogService,
@@ -32,8 +33,8 @@ export class DeleteAction extends BPButtonAction {
             throw new Error("Message service not provided or is null");
         }
 
-        if (!this.artifactManager) {
-            throw new Error("Artifact manager not provided or is null");
+        if (!this.selectionManager) {
+            throw new Error("Selection manager not provided or is null");
         }
 
         if (!this.projectManager) {
@@ -140,21 +141,19 @@ export class DeleteAction extends BPButtonAction {
     }
 
     protected hasDesiredPermissions(permissions: RolePermissions): boolean {
-        return this.artifact 
+        return this.artifact
             && ((this.artifact.permissions & permissions) === permissions);
     }
 
     private complete(deletedArtifacts: IArtifact[]) {
-        const parentArtifact = this.artifactManager.get(this.artifact.parentId);
-
-        if (parentArtifact) {
-            this.navigationService.navigateTo({id: parentArtifact.id})
-                .then(() => this.projectManager.refresh(parentArtifact.projectId, parentArtifact.id, true))
+        if (this.artifact.parentId) {
+            this.navigationService.navigateTo({id: this.artifact.parentId})
+                .then(() => this.projectManager.refresh(this.artifact.projectId, this.artifact.parentId, true))
                 .then(() => this.projectManager.triggerProjectCollectionRefresh());
         } else {
             this.artifact.refresh();
         }
-        
+
         const message = new Message(
             MessageType.Info,
             deletedArtifacts.length > 1 ? "Delete_Artifact_All_Success_Message" : "Delete_Artifact_Single_Success_Message",

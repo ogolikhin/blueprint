@@ -1,10 +1,10 @@
 import "angular-formly";
-import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
 import {Models} from "../../../../main/models";
-import {IPropertyDescriptor} from "./../../property-descriptor-builder";
+import {IPropertyDescriptor} from "../../property-descriptor-builder";
 import {BPFieldBaseController} from "../base-controller";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
+import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../commonModule/services/usersAndGroups.service";
 
 export interface IUserGroup extends Models.IUserGroup {
     isImported?: boolean;
@@ -53,13 +53,14 @@ export class BPFieldUserPicker implements AngularFormly.ITypeOptions {
 }
 
 export class BpFieldUserPickerController extends BPFieldBaseController {
-    static $inject: [string] = ["$scope", "localization", "usersAndGroupsService", "$compile", "validationService"];
+    static $inject: [string] = ["$document", "$scope", "localization", "usersAndGroupsService", "$compile", "validationService"];
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private usersAndGroupsService: IUsersAndGroupsService,
                 private $compile: ng.ICompileService, private validationService: IValidationService) {
-        super();
+        super($document);
 
         const to: AngularFormly.ITemplateOptions = {
             placeholder: localization.get("Property_Placeholder_Select_Option"),
@@ -222,6 +223,7 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             },
             scrollIntoView: this.scrollIntoView,
+            closeDropdownOnClick: this.closeDropdownOnClick,
             resetSettings: function () {
                 this.currentState = null;
                 this.currentLimit = this.minLimit;
@@ -339,6 +341,8 @@ export class BpFieldUserPickerController extends BPFieldBaseController {
                 }
             },
             onOpenClose: function (isOpen: boolean, $select, options) {
+                this.closeDropdownOnClick(isOpen, $select);
+
                 $select.items = [];
                 $scope.to.options = [];
 

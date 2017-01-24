@@ -6,44 +6,44 @@ import {Models} from "../../main/models";
 import {StatefulCollectionArtifact, ICollection} from "./collection-artifact";
 import {IArtifactService} from "../../managers/artifact-manager/";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {   
-    StatefulArtifactServices    
+import {LoadingOverlayService, ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {
+    StatefulArtifactServices
 } from "../../managers/artifact-manager/services";
 
 describe("StatefulCollectionArtifact", () => {
 
     let artifactServices: StatefulArtifactServices;
-  
+
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
-       $provide.service("artifactService", ArtifactServiceMock); 
-       $provide.service("loadingOverlayService", LoadingOverlayService);             
-    }));   
+       $provide.service("artifactService", ArtifactServiceMock);
+       $provide.service("loadingOverlayService", LoadingOverlayService);
+    }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
                        _$q_: ng.IQService,
                        _$log_: ng.ILogService,
                        artifactService: IArtifactService,
-                       loadingOverlayService: ILoadingOverlayService) => {       
+                       loadingOverlayService: ILoadingOverlayService) => {
                             artifactServices = new StatefulArtifactServices(
                             _$q_,
-                            _$log_, 
-                            null, 
-                            null, 
-                            null, 
-                            null, 
-                            artifactService, 
-                            null, 
-                            null, 
-                            null, 
-                            loadingOverlayService, 
+                            _$log_,
+                            null,
+                            null,
+                            null,
+                            null,
+                            artifactService,
+                            null,
+                            null,
+                            null,
+                            loadingOverlayService,
                             null,
                             null,
                             null);
-    })); 
+    }));
 
 
-    it("Add artifacts to collection", () => {       
+    it("Add artifacts to collection", () => {
 
         const collection = <ICollection> {
             reviewName: "Review",
@@ -58,7 +58,7 @@ describe("StatefulCollectionArtifact", () => {
             predefinedType: Models.ItemTypePredefined.Actor
         } as Models.IArtifact;
 
-        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);             
+        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);
         collectionArtifact["initialize"](collection);
 
         // Act
@@ -67,10 +67,10 @@ describe("StatefulCollectionArtifact", () => {
         //Assert
         expect(collectionArtifact.artifacts.length === 1).toBeTruthy();
         expect(collectionArtifact.specialProperties.changes().length === 1).toBeTruthy();
-    });    
+    });
 
     it("Remove artifacts from collection", () => {
-                
+
         const artifact = {
             id: 1,
             name: "1",
@@ -80,20 +80,20 @@ describe("StatefulCollectionArtifact", () => {
 
         const collection = <ICollection> {
             reviewName: "Review",
-            isCreated: false,        
+            isCreated: false,
             artifacts: [artifact]
         };
 
-        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);      
-        collectionArtifact["initialize"](collection);          
+        let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);
+        collectionArtifact["initialize"](collection);
 
         // Act
         collectionArtifact.removeArtifacts([artifact]);
 
         //Assert
-        expect(collectionArtifact.artifacts.length === 0).toBeTruthy(); 
-        expect(collectionArtifact.specialProperties.changes().length === 1).toBeTruthy();     
-    });    
+        expect(collectionArtifact.artifacts.length === 0).toBeTruthy();
+        expect(collectionArtifact.specialProperties.changes().length === 1).toBeTruthy();
+    });
 
   });
 

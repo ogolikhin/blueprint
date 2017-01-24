@@ -3,17 +3,18 @@ import "angular-mocks";
 import "lodash";
 
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {ValidationServiceMock} from "../../../../managers/artifact-manager/validation/validation.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ArtifactRelationshipsMock} from "../../../../managers/artifact-manager/relationships/relationships.svc.mock";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
 import {ArtifactServiceMock} from "../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("Formly Base RTF Controller", () => {
     let $rootScope: ng.IRootScopeService;
     let $scope: ng.IScope;
+    let $q: ng.IQService;
     let formlyScope: AngularFormly.ITemplateScope;
     let controller: BPFieldBaseRTFController;
 
@@ -47,13 +48,14 @@ describe("Formly Base RTF Controller", () => {
 
     beforeEach(
         inject(
-            ($rootScope: ng.IRootScopeService, $controller: ng.IControllerService) => {
+            ($rootScope: ng.IRootScopeService, _$q_: ng.IQService, $controller: ng.IControllerService) => {
                 $scope = $rootScope.$new();
                 $scope.$on = function() {
                     return function() {
                         //
                     };
                 };
+                $q = _$q_;
 
                 formlyScope = {
                     options: {
@@ -107,7 +109,7 @@ describe("Formly Base RTF Controller", () => {
             const mouseEvent: MouseEvent = createMouseEvent();
             aTag.addEventListener("click", controller.handleClick);
 
-            spyOn(controller.navigationService, "navigateTo");
+            spyOn(controller.navigationService, "navigateTo").and.callFake(() => $q.resolve());
 
             aTag.dispatchEvent(mouseEvent);
 

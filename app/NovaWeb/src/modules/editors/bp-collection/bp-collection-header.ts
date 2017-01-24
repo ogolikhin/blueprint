@@ -1,20 +1,20 @@
-import {BPButtonGroupAction} from "./../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {DeleteAction} from "./../../main/components/bp-artifact-info/actions/delete-action";
+import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {DeleteAction} from "../../main/components/bp-artifact-info/actions/delete-action";
 import {IWindowManager} from "../../main/services";
 import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPMenuAction, BPButtonOrDropdownSeparator} from "../../shared";
-import {IArtifactManager, IProjectManager} from "../../managers";
+import {IDialogService, BPButtonOrDropdownSeparator} from "../../shared";
+import {IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
-import {IStatefulCollectionArtifact} from "../../editors/bp-collection/collection-artifact";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {IStatefulCollectionArtifact} from "./collection-artifact";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {IAnalyticsProvider} from "../../main/components/analytics/analyticsProvider";
-import {ICollectionService} from "../../editors/bp-collection/collection.svc";
-import {IItemInfoService} from "../../core/navigation/item-info.svc";
+import {ICollectionService} from "./collection.svc";
+import {IItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -27,7 +27,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "$q",
         "$scope",
         "$element",
-        "artifactManager",
+        "$timeout",
+        "selectionManager",
         "localization",
         "messageService",
         "dialogService",
@@ -37,7 +38,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics",
         "collectionService",
         "itemInfoService"
     ];
@@ -45,7 +45,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
     constructor($q: ng.IQService,
                 $scope: ng.IScope,
                 $element: ng.IAugmentedJQuery,
-                artifactManager: IArtifactManager,
+                $timeout: ng.ITimeoutService,
+                selectionManager: ISelectionManager,
                 localization: ILocalizationService,
                 messageService: IMessageService,
                 dialogService: IDialogService,
@@ -55,14 +56,14 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 projectManager: IProjectManager,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
-                analytics: IAnalyticsProvider,
                 collectionService: ICollectionService,
                 itemInfoService: IItemInfoService) {
         super(
             $q,
             $scope,
             $element,
-            artifactManager,
+            $timeout,
+            selectionManager,
             localization,
             messageService,
             dialogService,
@@ -72,7 +73,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             projectManager,
             metadataService,
             mainBreadcrumbService,
-            analytics,
             collectionService,
             itemInfoService
         );
@@ -85,7 +85,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
             this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
         const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);

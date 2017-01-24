@@ -1,25 +1,14 @@
 import "angular-formly";
 import "angular-sanitize";
 import {Models, Enums} from "../../../../main/models";
-import {IPropertyDescriptor} from "./../../property-descriptor-builder";
+import {IPropertyDescriptor} from "../../property-descriptor-builder";
 import {Helper} from "../../../../shared";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 
 export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldReadOnly";
     public template: string = require("./read-only.html");
     public wrapper: string = "bpFieldLabel";
-    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
-        $scope.$applyAsync(() => {
-            const data: any = $scope["options"].data;
-            if (data.isRichText && (data.isMultipleAllowed || Models.PropertyTypePredefined.Description === data.propertyTypePredefined)) {
-                let richtextBody = $element[0].querySelector(".richtext-body");
-                if (richtextBody) {
-                    Helper.autoLinkURLText(richtextBody);
-                }
-            }
-        });
-    };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldReadOnlyController;
 }
 
@@ -70,13 +59,17 @@ export class BpFieldReadOnlyController {
                 tooltip = newValue;
                 if (data) {
                     if (data.isRichText) {
-                        const defaultValue = data.stringDefaultValue || "";
-                        if (defaultValue.indexOf(newValue) !== -1) {
-                            // SL adds a <pre> tag around the default values for RTF
-                            newValue = Helper.stripHTMLTags(newValue);
-                        }
-                        newValue = this.$sce.trustAsHtml(Helper.stripWingdings(newValue));
+                        newValue = Helper.stripWingdings(newValue);
                         tooltip = Helper.stripHTMLTags(newValue);
+
+                        if (data.isMultipleAllowed || data.propertyTypePredefined === Models.PropertyTypePredefined.Description) {
+                            const node = angular.element("<div/>")[0];
+                            node.innerHTML = newValue;
+                            Helper.autoLinkURLText(node);
+                            newValue = node.innerHTML;
+                        }
+
+                        newValue = this.$sce.trustAsHtml(newValue);
                     } else if (data.isMultipleAllowed) {
                         newValue = this.$sce.trustAsHtml(_.escape(newValue).replace(/(?:\r\n|\r|\n)/g, "<br />"));
                     }
@@ -103,7 +96,7 @@ export class BpFieldReadOnlyController {
             case Enums.PrimitiveType.Choice:
                 newValue = this.currentModelVal || (data ? data.defaultValidValueId : null);
                 if (!data.isMultipleAllowed && data.validValues) {
-                    if (angular.isNumber(newValue)) {
+                    if (_.isNumber(newValue)) {
                         let values = data.validValues;
                         for (let key in values) {
                             if (values[key].id === newValue) {

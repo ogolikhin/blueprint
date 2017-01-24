@@ -1,12 +1,12 @@
-﻿import {IColumn, IColumnRendererParams, IBPTreeViewControllerApi} from "../../../shared/widgets/bp-tree-view/";
-import {Helper} from "../../../shared/";
-import {SearchResultVM, ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
-import {Models, AdminStoreModels, SearchServiceModels, TreeModels} from "../../models";
+﻿import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectManager} from "../../../managers/project-manager";
-import {IArtifactManager, IStatefulArtifactFactory} from "../../../managers/artifact-manager";
-import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {Helper} from "../../../shared/";
+import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
+import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
+import {ArtifactSearchResultVM, ProjectSearchResultVM, SearchResultVM} from "./search-result-vm";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 /**
  * Usage:
@@ -144,20 +144,18 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         "$q",
         "$scope",
         "localization",
-        "artifactManager",
+        "selectionManager",
         "projectManager",
         "projectService",
-        "statefulArtifactFactory",
         "metadataService"
     ];
 
     constructor(private $q: ng.IQService,
                 private $scope: ng.IScope,
                 public localization: ILocalizationService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private projectManager: IProjectManager,
                 private projectService: IProjectService,
-                private statefulArtifactFactory: IStatefulArtifactFactory,
                 private metadataService: IMetaDataService) {
 
         /*todo: refactor much of this 'setup' into the onInit lifecycle hook*/
@@ -198,8 +196,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.filterItemType = null;
 
         this.canceller = this.$q.defer<any>();
-        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.artifactManager, this.statefulArtifactFactory,
-            this.canceller.promise, this.isItemSelectable, this.selectableItemTypes, this.showArtifacts, this.showCollections, this.showSubArtifacts);
+        this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.canceller.promise, this.isItemSelectable,
+            this.selectableItemTypes, this.showArtifacts, this.showCollections, this.showSubArtifacts);
         this._selectedVMs = [];
         this._previousSelectedVMs = [];
     };
@@ -207,7 +205,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public $onInit(): void {
         let project: AdminStoreModels.IInstanceItem | ng.IPromise<AdminStoreModels.IInstanceItem>;
         if (this.showArtifacts || this.showCollections) {
-            const selectedArtifact = this.artifactManager.selection.getArtifact();
+            const selectedArtifact = this.selectionManager.getArtifact();
             const projectId = selectedArtifact ? selectedArtifact.projectId : undefined;
             if (projectId) {
                 const projectVM = this.projectManager.getProject(projectId);
@@ -259,31 +257,34 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     private populateItemTypes(projectId: number): void {
         this.metadataService.get(projectId).then((metaData) => {
-            let artifactTypes = metaData.data.artifactTypes;
-            if (this.selectableItemTypes) {
-                artifactTypes = artifactTypes.filter(a =>
-                    this.selectableItemTypes.indexOf(a.predefinedType) >= 0
-                        // The following check to make sure that the main Collections area is still excluded when
-                        // we pass selectableItemTypes containing ItemTypePredefined.CollectionFolder
-                        && (a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
-                            || (a.predefinedType === Models.ItemTypePredefined.CollectionFolder && a.id !== Models.ItemTypePredefined.Collections)
-                        )
-                );
-            } else {
-                artifactTypes = artifactTypes.filter(a =>
-                    a.predefinedType !== Models.ItemTypePredefined.Project
-                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactBaseline
-                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactCollection
-                    && a.predefinedType !== Models.ItemTypePredefined.ArtifactReviewPackage
-                    && a.predefinedType !== Models.ItemTypePredefined.Baseline
-                    && a.predefinedType !== Models.ItemTypePredefined.BaselineFolder
-                    // By specifying predefinedType !== Models.ItemTypePredefined.CollectionFolder we actually
-                    // exclude both the collection folders and the main Collections area
-                    && a.predefinedType !== Models.ItemTypePredefined.CollectionFolder
-                );
+            let itemTypes = [];
+
+            const artifactTypes = metaData.data.artifactTypes.filter(a => {
+                if ((a.predefinedType & Models.ItemTypePredefined.BaselineArtifactGroup) !== 0) {
+                    return false; // Baselines and Reviews are not currently supported
+                }
+                if ((a.predefinedType & Models.ItemTypePredefined.CollectionArtifactGroup) !== 0) {
+                    return this.showCollections &&
+                        a.id !== Models.ItemTypePredefined.Collections; // Exclude main Collection folder
+                }
+                return this.showArtifacts &&
+                    a.predefinedType !== Models.ItemTypePredefined.Project &&
+                    a.predefinedType !== Models.ItemTypePredefined.Baseline;
+            });
+            if (artifactTypes.length) {
+                itemTypes = artifactTypes;
             }
-            artifactTypes = _.sortBy(artifactTypes, type => type.name.toLowerCase());
-            this.itemTypes = this.itemTypes.concat(artifactTypes);
+
+            // TODO: re-enable the following once the search can return sub-artifacts as well
+            // if (this.showSubArtifacts && subArtifactTypes.length) {
+            //     itemTypes = _.concat(itemTypes, subArtifactTypes);
+            // }
+
+            if (this.selectableItemTypes) {
+                itemTypes = itemTypes.filter(a => this.selectableItemTypes.indexOf(a.predefinedType) >= 0);
+            }
+            itemTypes = _.sortBy(itemTypes, type => type.name.toLowerCase());
+            this.itemTypes = this.itemTypes.concat(itemTypes);
         });
     }
 

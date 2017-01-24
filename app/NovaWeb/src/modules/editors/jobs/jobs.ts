@@ -1,18 +1,14 @@
 import {IPaginationData} from "../../main/components/pagination/model";
 import moment = require("moment");
-import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
-import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {IArtifact, IPublishResultSet} from "../../main/models/models";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
-import {INavigationService} from "../../core/navigation/navigation.svc";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IJobsService} from "./jobs.svc";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 export class JobsComponent implements ng.IComponentOptions {
     public template: string = require("./jobs.html");
@@ -36,7 +32,7 @@ export class JobsController {
     public isLoading: boolean;
 
     public paginationData: IPaginationData;
-    
+
     constructor(
         private $log: ng.ILogService,
         private $window: ng.IWindowService,
@@ -53,7 +49,7 @@ export class JobsController {
             page: 1,
             pageSize: 10,
             total: 0,
-            maxVisiblePageCount: 10         
+            maxVisiblePageCount: 10
         };
     }
 
@@ -71,6 +67,7 @@ export class JobsController {
         switch (job.status) {
             case JobStatus.Completed:
                 switch (job.jobType) {
+                    case JobType.GenerateProcessTests:
                     case JobType.ProjectExport:
                         jobAction = JobAction.Download;
                         break;
@@ -108,7 +105,7 @@ export class JobsController {
 
         this.jobsService.getJob(job.jobId)
             .then((result: IJobInfo) => {
-                // refresh job does not return user display name in the stored procedure, so api returns this property as null. 
+                // refresh job does not return user display name in the stored procedure, so api returns this property as null.
                 // Returned value from server needs to be undefined for _.merge() to not overwrite the previous value.
                 result.userDisplayName = undefined;
                 _.merge(job, result);
@@ -206,6 +203,9 @@ export class JobsController {
                 return this.localization.get("Jobs_Type_ProjectExport");
             case JobType.GenerateTests:
                 return this.localization.get("Jobs_Type_GenerateTests");
+            case JobType.GenerateProcessTests:
+                return this.localization.get("Jobs_Type_GenerateProcessTests");
+
             default:
                 this.$log.error(`Unknown job type: '${typeId}'`);
                 return "Unknown";
@@ -223,7 +223,7 @@ export class JobsController {
         return this.jobs.length === 0;
     }
 
-    public canShowPagination(): boolean {        
+    public canShowPagination(): boolean {
         return !this.isLoading && (!this.isFirstPage() || this.containsMoreThanOnePage());
     }
 

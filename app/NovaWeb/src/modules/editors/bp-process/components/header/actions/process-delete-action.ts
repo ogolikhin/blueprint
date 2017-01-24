@@ -1,37 +1,36 @@
-import {IProcessDiagramCommunication} from "./../../diagram/process-diagram-communication";
-import {IDiagramNode} from "./../../diagram/presentation/graph/models/process-graph-interfaces";
-import {NodeType} from "./../../diagram/presentation/graph/models/process-graph-constants";
-import {INavigationService} from "./../../../../../core/navigation/navigation.svc";
-import {IDialogService} from "./../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {ILoadingOverlayService} from "./../../../../../core/loading-overlay/loading-overlay.svc";
-import {IProjectManager} from "./../../../../../managers/project-manager/project-manager";
-import {IArtifactManager} from "./../../../../../managers/artifact-manager/artifact-manager";
-import {IMessageService} from "./../../../../../core/messages/message.svc";
-import {ILocalizationService} from "./../../../../../core/localization/localizationService";
-import {IStatefulProcessArtifact} from "./../../../process-artifact";
-import {StatefulProcessSubArtifact} from "./../../../process-subartifact";
-import {DeleteAction} from "./../../../../../main/components/bp-artifact-info/actions/delete-action";
+import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
+import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
+import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
+import {INavigationService} from "../../../../../commonModule/navigation/navigation.service";
+import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
+import {IStatefulProcessArtifact} from "../../../process-artifact";
+import {DeleteAction} from "../../../../../main/components/bp-artifact-info/actions/delete-action";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
     private selectedNodes: IDiagramNode[];
     private _tooltip: string;
-    
+
     constructor(
         private process: IStatefulProcessArtifact,
         localization: ILocalizationService,
         messageService: IMessageService,
-        artifactManager: IArtifactManager,
+        selectionManager: ISelectionManager,
         projectManager: IProjectManager,
         loadingOverlayService: ILoadingOverlayService,
         dialogService: IDialogService,
         navigationService: INavigationService,
         private communication: IProcessDiagramCommunication
     ) {
-        super(process, localization, messageService, artifactManager, projectManager, loadingOverlayService, dialogService, navigationService);
-    
+        super(process, localization, messageService, selectionManager, projectManager, loadingOverlayService, dialogService, navigationService);
+
         if (!this.communication) {
             throw new Error("Process diagram communication is not provided or is null");
         }
@@ -53,7 +52,7 @@ export class ProcessDeleteAction extends DeleteAction {
             return false;
         }
 
-        //Is artifact and has Delete permissions 
+        //Is artifact and has Delete permissions
         if (this.isArtifactSelected()) {
             return this.hasDesiredPermissions(RolePermissions.Delete);
         }
@@ -63,7 +62,7 @@ export class ProcessDeleteAction extends DeleteAction {
         }
 
         const selectedNode: IDiagramNode = this.selectedNodes[0];
-        
+
         //Subartifact is selected and selective readonly is set
         if (this.process.isReuseSettingSRO && this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
             return false;
@@ -74,12 +73,10 @@ export class ProcessDeleteAction extends DeleteAction {
             NodeType.UserDecision,
             NodeType.SystemDecision
         ];
-        
-        if (validNodeTypes.indexOf(selectedNode.getNodeType()) < 0) {
-            return false;
-        }
 
-        return true;
+        return validNodeTypes.indexOf(selectedNode.getNodeType()) >= 0;
+
+
     }
 
     protected hasRequiredPermissions(): boolean {
@@ -90,7 +87,7 @@ export class ProcessDeleteAction extends DeleteAction {
         if (!this.canDelete()) {
             return;
         }
-        
+
         if (this.isArtifactSelected()) {
             super.delete();
         } else {

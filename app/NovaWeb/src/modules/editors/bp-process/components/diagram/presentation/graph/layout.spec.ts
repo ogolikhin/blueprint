@@ -2,10 +2,8 @@
 import * as angular from "angular";
 import "rx";
 require("script!mxClient");
-import {ExecutionEnvironmentDetectorMock} from "./../../../../../../core/services/execution-environment-detector.mock";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../../commonModule/services/executionEnvironmentDetector.mock";
 import {ProcessGraph} from "./process-graph";
-import {MessageServiceMock} from "../../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {NodeType} from "./models/";
 import * as TestModels from "../../../../models/test-model-factory";
@@ -16,15 +14,17 @@ import {ProcessLinkModel} from "../../../../models/process-models";
 import {DiagramLink} from "./shapes/";
 import {ProcessValidator} from "./process-graph-validator";
 import {ICommunicationManager, CommunicationManager} from "../../../../../bp-process";
-import {LocalizationServiceMock} from "../../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../../commonModule/localization/localization.service.mock";
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
 import {ProcessAddHelper} from "./process-add-helper";
-import {ShapesFactory, ShapesFactoryMock} from "./shapes/shapes-factory";
+import {ShapesFactory} from "./shapes/shapes-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {StatefulSubArtifactCollection} from "../../../../../../managers/artifact-manager/sub-artifact";
 import {ChangeSetCollector} from "../../../../../../managers/artifact-manager/changeset";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 
 describe("Layout test", () => {
     let msgService: IMessageService,

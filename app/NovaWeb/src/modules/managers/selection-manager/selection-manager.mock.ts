@@ -3,15 +3,16 @@ import {IStatefulArtifact, IStatefulSubArtifact} from "./../../managers/artifact
 import {IItem} from "../../main/models/models";
 
 export class SelectionManagerMock implements ISelectionManager {
+    public static $inject = ["$q"];
 
     private selectionSubject: Rx.BehaviorSubject<ISelection>;
     private explorerArtifactSelectionSubject: Rx.BehaviorSubject<IStatefulArtifact>;
 
-    constructor() {
+    constructor(private $q) {
         const selection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined,
-            multiSelect: undefined 
+            multiSelect: undefined
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
         this.explorerArtifactSelectionSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -83,7 +84,7 @@ export class SelectionManagerMock implements ISelectionManager {
         const selection = <ISelection>{
             artifact: val.artifact,
             subArtifact: subArtifact,
-            multiSelect: undefined 
+            multiSelect: undefined
         };
 
         this.setSelectionSubject(selection);
@@ -111,5 +112,9 @@ export class SelectionManagerMock implements ISelectionManager {
 
     private setSelectionSubject(selection: ISelection) {
         this.selectionSubject.onNext(selection);
+    }
+
+    public autosave(): ng.IPromise<any> {
+        return this.$q.resolve();
     }
 }

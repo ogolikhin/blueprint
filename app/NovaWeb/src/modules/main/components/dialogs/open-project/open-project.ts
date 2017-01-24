@@ -1,86 +1,103 @@
-import {ProjectSearchResultVM} from "./../../bp-artifact-picker/search-result-vm";
-import {Helper} from "./../../../../shared/utils/helper";
-import {IDialogController, IDialogSettings, BaseDialogController} from "./../../../../shared/widgets/bp-dialog/bp-dialog";
-import {AdminStoreModels, TreeModels} from "../../../models";
+import {ProjectSearchResultVM} from "../../bp-artifact-picker/search-result-vm";
+import {Helper} from "../../../../shared/utils/helper";
+import {IDialogSettings, BaseDialogController} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {TreeModels} from "../../../models";
+import {IInstanceItem} from "../../../models/admin-store-models";
+import {IProjectSearchResult} from "../../../models/search-service-models";
 
 type OpenProjectVM = TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
 
-export interface IOpenProjectController extends IDialogController {
-    isProjectSelected: boolean;
-    selectedName?: string;
+export class OpenProjectController extends BaseDialogController {
+    public hasCloseButton: boolean = true;
+    private _returnValue: IInstanceItem | IProjectSearchResult;
+    private _descriptionMaxHeight: number;
+
+    selectedName: string;
     selectedDescription: string;
 
-    // BpArtifactPicker bindings
-    onSelectionChanged(selectedVMs: OpenProjectVM[] ): void;
-    onDoubleClick: (vm: OpenProjectVM) => any;
-}
+    static $inject = [
+        "$window",
+        "$scope",
+        "$uibModalInstance",
+        "dialogSettings",
+        "$sce",
+        "$timeout"
+    ];
 
-export class OpenProjectController extends BaseDialogController implements IOpenProjectController {
-    public hasCloseButton: boolean = true;
-    private _returnValue: number;
-    private _selectedName: string;
-    private _selectedDescription: string;
-
-    static $inject = ["$scope", "$uibModalInstance", "dialogSettings", "$sce"];
-
-    constructor(private $scope: ng.IScope,
+    constructor(private $window: ng.IWindowService,
+                private $scope: ng.IScope,
                 $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance,
                 dialogSettings: IDialogSettings,
-                private $sce: ng.ISCEService) {
+                private $sce: ng.ISCEService,
+                private $timeout: ng.ITimeoutService) {
         super($uibModalInstance, dialogSettings);
     };
 
     //Dialog return value
-    public get returnValue(): number {
+    public get returnValue(): IInstanceItem | IProjectSearchResult {
         return this._returnValue;
     };
 
     public get isProjectSelected(): boolean {
-        return Boolean(this.returnValue);
-    }
-
-    public get selectedName(): string {
-        return this._selectedName;
-    }
-
-    public get selectedDescription() {
-        return this._selectedDescription;
+        return !!this.returnValue;
     }
 
     private setSelectedItem(vm: OpenProjectVM) {
-        this._selectedName = vm ? vm.model.name : undefined;
+        const doc = this.$window.document;
+
+        this._returnValue = undefined;
 
         let description = vm ? vm.model.description : undefined;
         if (description) {
-            const virtualDiv = window.document.createElement("DIV");
-            virtualDiv.innerHTML = description;
-
-            const aTags = virtualDiv.querySelectorAll("a");
-            for (let a = 0; a < aTags.length; a++) {
-                aTags[a].setAttribute("target", "_blank");
-            }
-            description = this.$sce.trustAsHtml(Helper.stripWingdings(virtualDiv.innerHTML));
+            const virtualDiv = doc.createElement("DIV");
+            virtualDiv.innerHTML = description.replace(/<\/p>/gi, "</p>\n\r");
+            description = virtualDiv.innerText.replace(/(?:\r\n|\r|\n|\u00a0|\ufeff|\u200b)/g, " ").trim();
         }
-        this._selectedDescription = description;
 
-        if (vm instanceof TreeModels.InstanceItemNodeVM && vm.model.type === AdminStoreModels.InstanceItemType.Project) {
-            this._returnValue = vm.model.id;
-        } else if (vm instanceof ProjectSearchResultVM) {
-            this._returnValue = vm.model.itemId;
-        } else {
-            this._returnValue = undefined;
+        this.selectedName = vm ? vm.model.name : undefined;
+        this.selectedDescription = description;
+        if (vm && vm.model) {
+            this._returnValue = vm.model;
+        }
+
+        const descriptionElement = doc.querySelector(".open-project__description");
+        if (descriptionElement) {
+            const clampClasses = ["line-clamp", "line-clamp-3", "line-clamp--gray-lightest"];
+            clampClasses.forEach((clampClass) => {
+                descriptionElement.classList.remove(clampClass);
+            });
+
+            this.$timeout(() => {
+                if (!this._descriptionMaxHeight) { // we calculate it only the first time
+                    const styles = this.$window.getComputedStyle(descriptionElement);
+                    // returns the resolved/computed value: https://developer.mozilla.org/en-US/docs/Web/CSS/resolved_value
+                    const lineHeight = styles.getPropertyValue("line-height");
+                    // if line-height is not in px, we use a backup value. we want up to 3 lines
+                    this._descriptionMaxHeight = (lineHeight.indexOf("px") === lineHeight.length - 2 ? parseFloat(lineHeight) : 16) * 3;
+                }
+                if (descriptionElement.scrollHeight > this._descriptionMaxHeight) {
+                    clampClasses.forEach((clampClass) => {
+                        descriptionElement.classList.add(clampClass);
+                    });
+                }
+            });
         }
     }
 
     // BpArtifactPicker bindings
 
     public onSelectionChanged(selectedVMs: OpenProjectVM[]): void {
-        this.$scope.$applyAsync(() => {
+        if (selectedVMs && selectedVMs.length) {
+            if (selectedVMs[0].model.hasOwnProperty("id") && this.returnValue && this.returnValue.hasOwnProperty("id")) {
+                if ((selectedVMs[0] as TreeModels.InstanceItemNodeVM).model.id === (this.returnValue as any).id) {
+                    return undefined;
+                }
+            }
             this.setSelectedItem(selectedVMs.length ? selectedVMs[0] : undefined);
-        });
+        }
     }
 
-    public onDoubleClick = (vm: OpenProjectVM): void => {
+    public onDoubleClick(vm: OpenProjectVM): void {
         this.$scope.$applyAsync(() => {
             this.setSelectedItem(vm);
             this.ok();

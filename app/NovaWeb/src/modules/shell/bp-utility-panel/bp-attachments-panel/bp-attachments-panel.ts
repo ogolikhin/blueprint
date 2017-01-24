@@ -1,27 +1,16 @@
 import {Enums, Models} from "../../../main";
-import {ISession} from "../../../shell";
-import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
-import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {IDialogSettings, IDialogService} from "../../../shared";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {IArtifactAttachment, IArtifactDocRef, IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../../managers/artifact-manager";
+import {IDialogService, IDialogSettings} from "../../../shared";
+import {Helper} from "../../../shared/utils/helper";
 import {IUploadStatusDialogData} from "../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import {Helper} from "../../../shared/utils/helper";
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
-import {IArtifactManager} from "../../../managers";
-import {
-    IArtifactAttachmentsService,
-    IArtifactDocRef,
-    IStatefulItem,
-    StatefulSubArtifact,
-    IStatefulArtifact,
-    IStatefulSubArtifact,
-    IArtifactAttachment
-} from "../../../managers/artifact-manager";
-import {ISettingsService} from "../../../core/configuration/settings";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {DialogTypeEnum} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {IFileUploadService, IFileResult} from "../../../core/file-upload/fileUploadService";
+import {ISession} from "../../../shell";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {ISettingsService} from "../../../commonModule/configuration/settings.service";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {IFileUploadService, IFileResult} from "../../../commonModule/fileUpload/fileUpload.service";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");

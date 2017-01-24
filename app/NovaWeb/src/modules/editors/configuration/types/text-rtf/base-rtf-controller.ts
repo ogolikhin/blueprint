@@ -1,8 +1,8 @@
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {Helper} from "../../../../shared/utils/helper";
 import {IDialogSettings, IDialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
@@ -16,9 +16,9 @@ import {IArtifactService} from "../../../../managers/artifact-manager/artifact/a
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact} from "../../../../managers/artifact-manager/sub-artifact/sub-artifact";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/relationshipModels";
 import {IPropertyDescriptor} from "../../property-descriptor-builder";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
@@ -379,8 +379,17 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected pastePostProcess = (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-        this.normalizeHtml(args.node, !this.isSingleLine);
-        Helper.removeAttributeFromNode(args.node, "id");
+        const clonedContent = args.node.cloneNode(true);
+        Helper.stripExternalImages(clonedContent);
+        const filteredClonedContent = clonedContent.outerHTML;
+
+        if (Helper.hasNonTextTags(filteredClonedContent) || Helper.tagsContainText(filteredClonedContent)) {
+            this.normalizeHtml(args.node, !this.isSingleLine);
+            Helper.stripExternalImages(args.node);
+            Helper.removeAttributeFromNode(args.node, "id");
+        } else {
+            args.preventDefault();
+        }
     };
 
     protected pastePreProcess(plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
@@ -535,10 +544,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         event.preventDefault();
         const itemId = Number(target.getAttribute("subartifactid")) || Number(target.getAttribute("artifactid"));
         if (itemId) {
-            if (this.mceEditor) {
-                this.mceEditor.destroy(false);
-            }
-            navigationService.navigateTo({id: itemId});
+            navigationService.navigateTo({id: itemId})
+                .then(() => {
+                    if (this.mceEditor) {
+                        this.mceEditor.destroy(false);
+                    }
+                });
         } else {
             window.open(target.getAttribute("href"), "_blank");
         }

@@ -1,69 +1,58 @@
-﻿import {IWindowVisibility, VisibilityStatus} from "../../core/services/window-visibility";
-import {IUser, ISession} from "../../shell";
-import {Models, Enums} from "../models";
+﻿import {IWindowVisibility, VisibilityStatus} from "../../commonModule/services/windowVisibility";
+import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IProjectManager} from "../../managers/project-manager";
-import {IArtifactManager, IStatefulArtifact} from "../../managers/artifact-manager";
-import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
-import {ILocalStorageService} from "../../core/local-storage/local-storage.svc";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IDialogService, IDialogSettings} from "../../shared";
+import {ISession, IUser} from "../../shell";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {BPTourController} from "../components/dialogs/bp-tour/bp-tour";
+import {IViewModel} from "../models/models";
+import {IMessageService} from "../components/messages/message.svc";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {ILocalStorageService} from "../../commonModule/localStorage/localStorage.service";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = MainViewController;
-    public transclude: boolean = true;
-    public controllerAs = "$main";
 }
 
 export class MainViewController {
+    private _subscribers: Rx.IDisposable[];
+    public isLeftToggled: boolean;
+    public isActive: boolean;
+    public isLeftPanelExpanded: boolean;
 
     static $inject: [string] = [
-        "$state",
-        "$interval",
         "$document",
         "session",
         "projectManager",
         "messageService",
         "localization",
-        "artifactManager",
+        "selectionManager",
         "windowVisibility",
         "utilityPanelService",
         "localStorageService",
         "dialogService"
     ];
 
-    private _subscribers: Rx.IDisposable[];
-
-    public isLeftToggled: boolean;
-    public isActive: boolean;
-    private originalTitle: string;
-
-    constructor(private $state: ng.ui.IState,
-                private $interval: ng.IIntervalService,
-                private $document: ng.IDocumentService,
+    constructor(private $document: ng.IDocumentService,
                 private session: ISession,
                 private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private windowVisibility: IWindowVisibility,
                 private utilityPanelService: IUtilityPanelService,
                 private localStorageService: ILocalStorageService,
                 private dialogService: IDialogService) {
-        this.originalTitle = this.$document[0].title;
     }
 
     public $onInit() {
         this.projectManager.initialize();
-        //use context reference as the last parameter on subscribe...
         this._subscribers = [
-            //subscribe for project collection update
             this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
-            this.windowVisibility.visibilityObservable.distinctUntilChanged()
-                .subscribeOnNext(this.onVisibilityChanged, this)           
-        ]; 
+            this.windowVisibility.visibilityObservable.distinctUntilChanged().subscribeOnNext(this.onVisibilityChanged, this)
+        ];
 
         this.openTourFirstTime();
     }
@@ -84,36 +73,37 @@ export class MainViewController {
         }
     }
 
-
-
     public $onDestroy() {
-        //dispose all subscribers
         this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
             it.dispose();
             return false;
         });
         this.messageService.dispose();
         this.projectManager.dispose();
-        this.artifactManager.dispose();
+        this.selectionManager.dispose();
     }
     private onVisibilityChanged = (status: VisibilityStatus) => {
         this.$document[0].body.classList.remove(status === VisibilityStatus.Visible ? "is-hidden" : "is-visible");
         this.$document[0].body.classList.add(status === VisibilityStatus.Visible ? "is-visible" : "is-hidden");
     };
 
-    private onProjectCollectionChanged = (projects: Models.IViewModel<IStatefulArtifact>[]) => {
+    private onProjectCollectionChanged(projects: IViewModel<IStatefulArtifact>[]) {
         this.isActive = Boolean(projects.length);
-        this.toggle(Enums.ILayoutPanel.Left, Boolean(projects.length));
-        this.toggle(Enums.ILayoutPanel.Right, Boolean(projects.length));
-    };
+        this.toggleLeft(Boolean(projects.length));
+        this.toggleRight(Boolean(projects.length));
+    }
 
-    public toggle = (id?: Enums.ILayoutPanel, state?: boolean) => {
-        if (Enums.ILayoutPanel.Left === id) {
-            this.isLeftToggled = _.isUndefined(state) ? !this.isLeftToggled : state;
-        } else if (Enums.ILayoutPanel.Right === id) {
-            this.isRightToggled = _.isUndefined(state) ? !this.isRightToggled : state;
-        }
-    };
+    public toggleLeft(state?: boolean) {
+        this.isLeftToggled = _.isUndefined(state) ? !this.isLeftToggled : state;
+    }
+
+    public toggleExpandLeft() {
+        this.isLeftPanelExpanded = !this.isLeftPanelExpanded;
+    }
+
+    public toggleRight(state?: boolean) {
+        this.isRightToggled = _.isUndefined(state) ? !this.isRightToggled : state;
+    }
 
     public get isRightToggled() {
         return this.utilityPanelService.isUtilityPanelOpened;
@@ -126,5 +116,4 @@ export class MainViewController {
     public get currentUser(): IUser {
         return this.session.currentUser;
     }
-
 }

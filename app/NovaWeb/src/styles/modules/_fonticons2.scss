@@ -60,17 +60,17 @@ $fonticon2-legacy: '\e821'; /* '' */
 $fonticon2-delete-filled: '\e810';  /* '' */
 $fonticon2-delete: '\e80f';/* '' */
 $fonticon2-edit: '\e814'; /* '' */
-$fonticon2-email: '\e816';  /* '' */
+$fonticon2-email: '\e8a4';  /* '' */
 $fonticon2-error: '\e817'; /* '' */
 $fonticon2-export: '\e818'; /* '' */
 $fonticon2-flag-emptied: '\e81a'; /* '' */
 $fonticon2-flag: '\e819'; /* '' */
-$fonticon2-help: '\e84e'; /* '' */
+$fonticon2-help: '\e81c'; /* '' */
 $fonticon2-history: '\e81d'; /* '' */
 $fonticon2-impact-analysis: '\e81e'; /* '' */
 $fonticon2-information-more: '\e820';  /* '' */
 $fonticon2-information: '\e81f';/* '' */
-$fonticon2-arrow-double-left: '\e802'; /* '' */
+$fonticon2-arrow-double-left: '\e8a5'; /* '' */
 $fonticon2-news: '\e824'; /* '' */
 $fonticon2-non-functional: '\e825'; /* '' */
 $fonticon2-pencil: '\e826'; /* '' */
@@ -91,8 +91,8 @@ $fonticon2-attachment: '\e839'; /* '' */
 $fonticon2-download: '\e813'; /* '' */
 $fonticon2-upload: '\e836';/* '' */
 $fonticon2-close: '\e80d'; /* '' */
-$fonticon2-navigation: '\e822'; /* '' */
-$fonticon2-arrow-double-right: '\e803'; /* '' */
+$fonticon2-navigation: '\e8a8'; /* '' */
+$fonticon2-arrow-double-right: '\e8a6'; /* '' */
 $fonticon2-search: '\e833'; /* '' */
 $fonticon2-relationship-right: '\e82f'; /* '' */
 $fonticon2-relationship-bi: '\e82d'; /* '' */
@@ -130,6 +130,10 @@ $fonticon2-more-menu: '\e84d'; /* '' */
 $fonticon2-unpublished: '\e852';
 $fonticon2-jobs: '\e848';
 $fonticon2-generate: '\e849';
+$fonticon2-close-line: '\e8a7';
+$fonticon2-expand: '\e8a9';
+
+
 
 .fonticon2-arrow-down::before {
     content: $fonticon2-arrow-down;
@@ -237,6 +241,7 @@ $fonticon2-generate: '\e849';
 
 /* '' */
 .fonticon2-info::before,
+.fonticon2-linkinfo::before,
 .fonticon2-information::before {
     content: $fonticon2-information;
 }
@@ -517,6 +522,12 @@ $fonticon2-generate: '\e849';
 .fonticon2-generate:before {
     content: $fonticon2-generate;
     font-size: 135%; // this icon has some optical illusion due to its zig-zag design that makes it look smaller than it is.  Need the corner to extend to its border a bit.
+}
+.fonticon2-close-line:before {
+    content: $fonticon2-close-line;
+}
+.fonticon2-expand:before {
+    content: $fonticon2-expand;
 }
 .fonticon2__action--disabled {
    color: $gray-lighter !important;

@@ -9,16 +9,21 @@ using Model.NovaModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using Utilities;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace Helper
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is expected in a Helper class.
+    [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is expected in a Helper class.
     public static class ArtifactStoreHelper
     {
         #region Custom Asserts
@@ -249,10 +254,11 @@ namespace Helper
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPublishedProperties">(optional) Pass true to skip comparison of properties that only published artifacts have.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
+        /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactDetails artifact2,
             bool skipIdAndVersion = false, bool skipParentId = false, bool skipOrderIndex = false, bool skipCreatedBy = false,
-            bool skipPublishedProperties = false, bool skipPermissions = false)
+            bool skipPublishedProperties = false, bool skipPermissions = false, bool skipDescription = false)
         {
             ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
             ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
@@ -292,8 +298,12 @@ namespace Helper
                 Identification.AssertEquals(artifact1.LockedByUser, artifact2.LockedByUser);
             }
 
+            if (!skipDescription)
+            {
+                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
+            }
+
             Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name parameters don't match!");
-            Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId parameters don't match!");
             Assert.AreEqual(artifact1.ItemTypeVersionId, artifact2.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
             Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId parameters don't match!");
@@ -651,7 +661,140 @@ namespace Helper
             Assert.AreEqual(expectedAttachment.UserName, actualAttachment.UserName, "The attachment UserName values do not match!");
         }
 
+        /// <summary>
+        /// Compares traces and asserts that each of their properties are equal.
+        /// </summary>
+        /// <param name="expectedArtifactTrace">The expected trace.</param>
+        /// <param name="expectedArtifactTrace">The resulted trace.</param>
+        /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
+        public static void AssertTracesAreEqual(ITrace expectedArtifactTrace, ITrace resultedArtifactTrace, bool checkDirection = true)
+        {
+            ThrowIf.ArgumentNull(expectedArtifactTrace, nameof(expectedArtifactTrace));
+            ThrowIf.ArgumentNull(resultedArtifactTrace, nameof(resultedArtifactTrace));
+
+            Assert.AreEqual(expectedArtifactTrace.ProjectId, resultedArtifactTrace.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.ArtifactId, resultedArtifactTrace.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.IsSuspect, resultedArtifactTrace.IsSuspect, "One trace is marked suspect but the other isn't!");
+
+            if (checkDirection)
+            {
+                Assert.AreEqual(expectedArtifactTrace.Direction, resultedArtifactTrace.Direction, "The Trace Directions don't match!");
+            }
+        }
+
         #endregion Custom Asserts
+
+        public enum ImageType
+        {
+            JPEG,
+            PNG,
+            GIF,
+            TIFF
+        }
+
+        #region Image Functions
+
+        private static Dictionary<ImageType, ImageFormat> ImageFormatMap = new Dictionary<ImageType, ImageFormat>
+        {
+            { ImageType.JPEG, ImageFormat.Jpeg },
+            { ImageType.PNG, ImageFormat.Png },
+            { ImageType.GIF, ImageFormat.Gif },
+            { ImageType.TIFF, ImageFormat.Tiff }
+        };
+
+        /// <summary>
+        /// Creates a random image and adds it to a property of the specified artifact. Artifact should be locked. It will be saved.
+        /// </summary>
+        /// <param name="artifact">The artifact where the image will be embedded.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="width">(optional) The image width.</param>
+        /// <param name="height">(optional) The image height.</param>
+        /// <param name="imageType">(optional) The image type.</param>
+        /// <param name="contentType">(optional) The Content-Type.</param>
+        /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
+        /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
+        /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(IArtifactBase artifact,
+            IUser user,
+            IArtifactStore artifactStore,
+            int width = 100,
+            int height = 100,
+            ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg",
+            string propertyName = nameof(NovaArtifactDetails.Description),
+            int numberOfImagesToAdd = 1)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
+            return AddRandomImageToArtifactProperty(artifactDetails, user, artifactStore,
+                width, height, imageType, contentType, propertyName, numberOfImagesToAdd);
+        }
+
+        /// <summary>
+        /// Creates a random image and adds it to a property of the specified artifact. Artifact should be locked. It will be saved.
+        /// NOTE: This function will first search for a top-level property with the specified name, then if not found it will
+        /// look in the CustomPropertyValues and then SpecificPropertyValues.
+        /// </summary>
+        /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="width">(optional) The image width.</param>
+        /// <param name="height">(optional) The image height.</param>
+        /// <param name="imageType">(optional) The image type.</param>
+        /// <param name="contentType">(optional) The Content-Type.</param>
+        /// <param name="propertyName">(optional) The name of the artifact property where the image should be embedded.</param>
+        /// <param name="numberOfImagesToAdd">(optional) The number of images to embed in the property.</param>
+        /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
+        public static INovaArtifactDetails AddRandomImageToArtifactProperty(NovaArtifactDetails artifactDetails,
+            IUser user,
+            IArtifactStore artifactStore,
+            int width = 100,
+            int height = 100,
+            ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg",
+            string propertyName = nameof(NovaArtifactDetails.Description),
+            int numberOfImagesToAdd = 1)
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var imageTags = new List<string>();
+
+            for (int i = 0; i < numberOfImagesToAdd; ++i)
+            {
+                var imageFile = CreateRandomImageFile(width, height, imageType, contentType);
+                var addedFile = artifactStore.AddImage(user, imageFile);
+                string imageTag = CreateEmbeddedImageHtml(addedFile.EmbeddedImageId);
+                imageTags.Add(imageTag);
+            }
+
+            string propertyContent = string.Join("<br/>", imageTags);
+
+            return SetArtifactTextProperty(artifactDetails, user, artifactStore, propertyContent, propertyName);
+        }
+
+        /// <summary>
+        /// Creates a random image file of the specified type and size.
+        /// </summary>
+        /// <param name="width">The image width.</param>
+        /// <param name="height">The image height.</param>
+        /// <param name="imageType">The type of image to create (ex. jpeg, png).</param>
+        /// <param name="contentType">The MIME Content-Type.</param>
+        /// <returns>The random image file.</returns>
+        [SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]  // I want lowercase, not uppercase!
+        public static IFile CreateRandomImageFile(int width = 300, int height = 100, ImageType imageType = ImageType.JPEG,
+            string contentType = "image/jpeg")
+        {
+            byte[] imageBytes = ImageUtilities.GenerateRandomImage(width, height, ImageFormatMap[imageType]);
+            string randomName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            string filename = I18NHelper.FormatInvariant("{0}.{1}", randomName, imageType.ToStringInvariant().ToLowerInvariant());
+
+            return FileFactory.CreateFile(filename, contentType, DateTime.Now, imageBytes);
+        }
 
         /// <summary>
         /// Creates Embedded Image html for the artifact property
@@ -663,6 +806,18 @@ namespace Helper
             Assert.IsNotNullOrEmpty(imageGUID, "Image GUID should not be null or empty!");
 
             return I18NHelper.FormatInvariant("<p><img src=\"/svc/bpartifactstore/images/{0}\" /></p>", imageGUID);
+        }
+
+        #endregion Image Functions
+
+        /// <summary>
+        /// Gets Inline Image Id from html of the artifact rich text property
+        /// </summary>
+        /// <returns>Guid string, empty string if no guids were found</returns>
+        public static string GetInlineImageId(string richTextProperty)
+        {
+            var guidString = Regex.Match(richTextProperty, @"[0-9a-f]{8}[-]([0-9a-f]{4}[-]){3}[0-9a-f]{12}");
+            return guidString.Value;
         }
 
         /// <summary>
@@ -683,6 +838,30 @@ namespace Helper
             projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
 
             return projectCustomData;
+        }
+
+        /// <summary>
+        /// Gets all details for all the sub-artifacts passed in.
+        /// </summary>
+        /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
+        /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>A list of NovaSubArtifacts.</returns>
+        public static List<NovaSubArtifact> GetDetailsForAllSubArtifacts(IArtifactStore artifactStore, IArtifactBase artifact, List<SubArtifact> subArtifacts, IUser user)
+        {
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(subArtifacts, nameof(subArtifacts));
+
+            var subArtifactDetailsList = new List<NovaSubArtifact>();
+
+            foreach (var subArtifact in subArtifacts)
+            {
+                var subArtifactDetails = artifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
+                subArtifactDetailsList.Add(subArtifactDetails);
+            }
+
+            return subArtifactDetailsList;
         }
 
         /// <summary>
@@ -765,13 +944,13 @@ namespace Helper
             ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            CustomProperty property = null;
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
 
             switch (propertyType)
             {
                 case PropertyPrimitiveType.Choice:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     var novaPropertyType = project.NovaPropertyTypes.Find(pt => pt.Name.EqualsOrdinalIgnoreCase(propertyName));
                     var choicePropertyValidValues = novaPropertyType.ValidValues;
 
@@ -779,7 +958,7 @@ namespace Helper
 
                     if (newValue.GetType().IsArray)
                     {
-                        values = ((System.Collections.IEnumerable) newValue)
+                        values = ((IEnumerable) newValue)
                             .Cast<object>()
                             .Select(x => x.ToString())
                             .ToArray();
@@ -810,46 +989,61 @@ namespace Helper
 
                     if (validValues.Count > 0)
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { ValidValues = validValues };
+                        property.CustomPropertyValue = new ChoiceValues { ValidValues = validValues };
                     }
 
                     if (!string.IsNullOrEmpty(customValue))
                     {
-                        property.CustomPropertyValue = new ArtifactStoreHelper.ChoiceValues { CustomValue = customValue };
+                        property.CustomPropertyValue = new ChoiceValues { CustomValue = customValue };
                     }
                     break;
                 case PropertyPrimitiveType.Date:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property date value
-                    property.CustomPropertyValue = newValue;
-                    break;
                 case PropertyPrimitiveType.Number:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
-                    // Change custom property number value
                     property.CustomPropertyValue = newValue;
                     break;
                 case PropertyPrimitiveType.Text:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     // Change custom property text value
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
                 case PropertyPrimitiveType.User:
-                    property = customProperties.Find(p => p.Name == propertyName);
-
                     IUser user = (IUser)newValue;
 
                     var newIdentification = new Identification { DisplayName = user.DisplayName, Id = user.Id };
                     var newUserPropertyValue = new List<Identification> { newIdentification };
 
                     // Change custom property user value
-                    property.CustomPropertyValue = new ArtifactStoreHelper.UserGroupValues { UsersGroups = newUserPropertyValue };
+                    property.CustomPropertyValue = new UserGroupValues { UsersGroups = newUserPropertyValue };
                     break;
                 default:
                     Assert.Fail("Unsupported PropertyPrimitiveType '{0}' was passed to this test!", propertyType);
                     break;
+            }
+
+            return property;
+        }
+
+        /// <summary>
+        /// Updates the specified custom property with a null value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// The caller is responsible for locking, saving & publishing the artifact.
+        /// </summary>
+        /// <param name="customProperties">The list of custom properties.</param>
+        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <returns>The custom property that was updated.</returns>
+        public static CustomProperty UpdateCustomPropertyWithNull(List<CustomProperty> customProperties, string propertyName)
+        {
+            ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
+
+            var property = customProperties.Find(p => p.Name == propertyName);
+
+            Assert.IsNotNull(property, "Property does not exist!");
+
+            if (property.PrimitiveType == (int) PropertyPrimitiveType.User)
+            {
+                property.CustomPropertyValue = new UserGroupValues { UsersGroups = null };
+            }
+            else
+            {
+                property.CustomPropertyValue = null;
             }
 
             return property;
@@ -1228,6 +1422,45 @@ namespace Helper
         }
 
         /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified ErrorCode and Message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorCode">The expected error code.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        public static void ValidateServiceError(RestResponse restResponse, int expectedErrorCode, string expectedErrorMessage)
+        {
+            IServiceErrorMessage serviceError = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
+
+            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+                expectedErrorCode,
+                expectedErrorMessage);
+
+            serviceError.AssertEquals(expectedError);
+        }
+
+        /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified Message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        public static void ValidateServiceError(RestResponse restResponse, string expectedErrorMessage)
+        {
+            string errorMessage = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                errorMessage = JsonConvert.DeserializeObject<string>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a string!");
+
+            Assert.AreEqual(expectedErrorMessage, errorMessage, "The error message received doesn't match what we expected!");
+        }
+
+        /// <summary>
         /// Creates new rich text that includes inline trace(s)
         /// </summary>
         /// <param name="artifacts">The artifacts being added as inline trace(s)</param>
@@ -1399,8 +1632,47 @@ namespace Helper
             return I18NHelper.FormatInvariant("{0}{1}", artifactTypeNameBase, artifactTypeSuffix);
         }
 
+        /// <summary>
+        /// Updates text property of the specified artifact. Artifact should be locked by the user. It will be saved.
+        /// NOTE: This function will first search for a top-level property with the specified name, then if not found it will
+        /// look in the CustomPropertyValues.
+        /// </summary>
+        /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
+        /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
+        public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,
+            IUser user,
+            IArtifactStore artifactStore,
+            string text,
+            string propertyName = nameof(NovaArtifactDetails.Description))
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            
+            if (artifactDetails.GetType().GetProperty(propertyName) != null)
+            {
+                CSharpUtilities.SetProperty(propertyName, text, artifactDetails);
+            }
+            else if (artifactDetails.CustomPropertyValues.Exists(p => p.Name == propertyName))
+            {
+                var property = artifactDetails.CustomPropertyValues.Find(p => p.Name == propertyName);
+                property.CustomPropertyValue = text;
+            }
+            else
+            {
+                Assert.Fail("No property named '{0}' was found in artifact ID: {1}!", propertyName, artifactDetails.Id);
+            }
+
+            artifactStore.UpdateArtifact(user, artifactDetails);
+            return artifactStore.GetArtifactDetails(user, artifactDetails.Id);
+        }
+
         public class ChoiceValues
         {
+            [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("validValues")]
             public List<NovaPropertyType.ValidValue> ValidValues { get; set; }
 
@@ -1410,6 +1682,7 @@ namespace Helper
 
         public class UserGroupValues
         {
+            [SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
             [JsonProperty("usersGroups")]
             public List<Identification> UsersGroups { get; set; }
 

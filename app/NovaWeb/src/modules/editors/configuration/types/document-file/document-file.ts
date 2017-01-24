@@ -5,10 +5,10 @@ import {IDialogSettings, IDialogService} from "../../../../shared";
 import {IUploadStatusDialogData} from "../../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {BPFieldBaseController} from "../base-controller";
-import {ISettingsService} from "../../../../core/configuration/settings";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IFileResult, IFileUploadService} from "../../../../core/file-upload/fileUploadService";
+import {ISettingsService} from "../../../../commonModule/configuration/settings.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IFileResult, IFileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
     public name: string = "bpDocumentFile";
@@ -23,6 +23,7 @@ export class BPFieldDocumentFile implements AngularFormly.ITypeOptions {
 
 export class BPFieldDocumentFileController extends BPFieldBaseController {
     static $inject: [string] = [
+        "$document",
         "$scope",
         "localization",
         "artifactAttachments",
@@ -33,7 +34,8 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         "fileUploadService"
     ];
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private artifactAttachments: IArtifactAttachmentsService,
                 private $window: ng.IWindowService,
@@ -41,7 +43,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                 private dialogService: IDialogService,
                 private settings: ISettingsService,
                 private fileUploadService: IFileUploadService) {
-        super();
+        super($document);
         const maxNumberAttachments: number = 1;
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];

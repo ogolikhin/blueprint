@@ -1,20 +1,18 @@
-import "./";
-import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {ComponentTest} from "../../util/component.test";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {BpGlossaryController} from "./bp-glossary";
-import {GlossaryServiceMock} from "./glossary.svc.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
-import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
-import {ArtifactManagerMock} from "../../managers/artifact-manager/artifact-manager.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {ItemTypePredefined} from "../../main/models/enums";
+import {StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {StatefulArtifactServices} from "../../managers/artifact-manager/services";
-import {StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
+import {ComponentTest} from "../../util/component.test";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {BpGlossaryController} from "./bp-glossary";
 import {ISubArtifact} from "../../main/models/models";
+import {GlossaryServiceMock} from "./glossary.svc.mock";
+import * as angular from "angular";
 
 describe("Component BP Glossary", () => {
 
@@ -30,16 +28,13 @@ describe("Component BP Glossary", () => {
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((artifactManager: ArtifactManagerMock,
-        statefulArtifactFactory: StatefulArtifactFactoryMock,
+    beforeEach(inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
         selectionManager: SelectionManagerMock,
         artifactService: ArtifactServiceMock,
         $q: ng.IQService) => {
-        artifactManager.selection = selectionManager;
         const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
         const artifact = new StatefulArtifact({id: 263, name: "Artifact 263", predefinedType: ItemTypePredefined.Process, version: 1}, services);
         spyOn(artifact, "lock").and.callFake(() => { return; });
@@ -47,7 +42,7 @@ describe("Component BP Glossary", () => {
         _.each(terms, value => {
             artifact.subArtifactCollection.add(statefulArtifactFactory.createStatefulSubArtifact(artifact, value));
         });
-        artifactManager.selection.setArtifact(artifact);
+        selectionManager.setArtifact(artifact);
         componentTest = new ComponentTest<BpGlossaryController>(template, "bp-glossary");
         vm = componentTest.createComponent(bindings);
     }));
@@ -68,13 +63,13 @@ describe("Component BP Glossary", () => {
         expect(vm.terms.length).toBe(4);
     }));
 
-    it("should select a specified term", inject(($rootScope: ng.IRootScopeService, artifactManager: ArtifactManagerMock) => {
+    it("should select a specified term", inject(($rootScope: ng.IRootScopeService, selectionManager: SelectionManagerMock) => {
         // pre-req
         expect(componentTest.element.find(".selected-term").length).toBe(0);
 
 
         // Act
-        artifactManager.selection.clearAll();
+        selectionManager.clearAll();
         vm.selectTerm(vm.artifact.subArtifactCollection.get(386));
         $rootScope.$digest();
 

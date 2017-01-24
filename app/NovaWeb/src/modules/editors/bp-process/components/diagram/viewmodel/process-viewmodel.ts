@@ -7,8 +7,8 @@ import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
 import {IStatefulProcessSubArtifact, StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessEvents} from "../process-diagram-communication";
-import {MessageType, Message} from "../../../../../core/messages/message";
-import {IMessageService} from "../../../../../core/messages/message.svc";
+import {MessageType, Message} from "../../../../../main/components/messages/message";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
 
 export interface IPersonaReferenceContainer {
     userTaskPersonaReferenceList: ProcessModels.IArtifactReference[];
@@ -112,11 +112,11 @@ export class ProcessViewModel implements IProcessViewModel {
         if (statefulProcess) {
             if (!(statefulProcess.artifactState)) {
                 return null;
-            } 
+            }
 
-            return statefulProcess.artifactState.readonly || 
+            return statefulProcess.artifactState.readonly ||
                     !!(statefulProcess.isReuseSettingSRO && statefulProcess.isReuseSettingSRO(Enums.ReuseSettings.Subartifacts));
-        } 
+        }
 
         return null;
     }
@@ -127,7 +127,7 @@ export class ProcessViewModel implements IProcessViewModel {
         if (statefulProcess && statefulProcess.artifactState) {
             return statefulProcess.artifactState.dirty;
         }
-        
+
         return null;
     }
 

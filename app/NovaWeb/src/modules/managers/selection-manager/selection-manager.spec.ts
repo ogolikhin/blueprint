@@ -5,6 +5,10 @@ import {IStatefulArtifact, IStatefulSubArtifact} from "../artifact-manager";
 import {StatefulArtifactFactoryMock} from "../artifact-manager/artifact/artifact.factory.mock";
 
 import {SelectionManager,  ISelection} from "./selection-manager";
+import {DialogService} from "../../shared/widgets/bp-dialog/bp-dialog";
+import {ModalServiceMock} from "../../shell/login/mocks.spec";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 
 describe("Selection Manager", () => {
     let $scope: ng.IScope;
@@ -15,6 +19,10 @@ describe("Selection Manager", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("selectionManager", SelectionManager);
+        $provide.service("dialogService", DialogService);
+        $provide.service("localization", LocalizationServiceMock);
+        $provide.service("$uibModal", ModalServiceMock);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         artifact = new StatefulArtifactFactoryMock().createStatefulArtifact({id: 1});
         subArtifact = new StatefulArtifactFactoryMock().createStatefulSubArtifact(artifact, {id: 100});
 
@@ -31,19 +39,19 @@ describe("Selection Manager", () => {
             const func = (item: ISelection) => {
                 selection = item;
             };
-        
+
             //Act
             selectionManager.selectionObservable.subscribeOnNext(func);
             selectionManager.setArtifact(artifact);
-            
-            //Assert 
+
+            //Assert
             expect(selection).toBeDefined();
             expect(selection.artifact).toBeDefined();
             expect(selection.artifact.id).toEqual(artifact.id);
             //$scope.$digest();
-            
+
         }));
-    
+
         it("notify subscriber when sub-artifact changed", inject((selectionManager: SelectionManager) => {
             //Arrange
             let subartifact: IStatefulSubArtifact;
@@ -60,9 +68,9 @@ describe("Selection Manager", () => {
 
         }));
 
-        it("notify subscriber when artifact changed multiple times", 
+        it("notify subscriber when artifact changed multiple times",
             inject((selectionManager: SelectionManager) => {//inject((selectionManager: SelectionManager) => {
-            
+
             //Arrange
             let artifacts: IStatefulArtifact[] = [];
             const spy = jasmine.createSpy("TEST", (item: IStatefulArtifact) => {
@@ -70,20 +78,20 @@ describe("Selection Manager", () => {
             }).and.callThrough();
             spyOn(artifact, "lock").and.callFake(() => { return _$q.resolve(); });
             selectionManager.artifactObservable.subscribeOnNext(spy);
-            
+
             //Act
             selectionManager.setArtifact(artifact);
             selectionManager.setArtifact(artifact);
-            
+
             //Assert
             expect(spy).toHaveBeenCalledTimes(3);
             expect(artifacts.length).toEqual(3);
 
         }));
 
-        it("notify subscriber when artifact's property has changed ", 
+        it("notify subscriber when artifact's property has changed ",
             inject((selectionManager: SelectionManager) => {//inject((selectionManager: SelectionManager) => {
-            
+
             //Arrange
             let names: string[] = [];
             const spy = jasmine.createSpy("TEST").and.callThrough();
@@ -92,12 +100,12 @@ describe("Selection Manager", () => {
             spyOn(artifact, "load").and.callFake(() => { return _$q.resolve(artifact); });
             spyOn(artifact, "getServices").and.callFake(() => { return {$q: _$q}; });
             selectionManager.currentlySelectedArtifactObservable.subscribeOnNext(spy);
-            
+
             //Act
             selectionManager.setArtifact(artifact);
             artifact.artifactState.misplaced = true;
             $scope.$digest();
-            
+
             //Assert
             expect(spy).toHaveBeenCalled();
         }));
@@ -107,7 +115,7 @@ describe("Selection Manager", () => {
             const artifact2 = new StatefulArtifactFactoryMock().createStatefulArtifact({id: 2});
             const unsubscribeSpy = spyOn(artifact, "unsubscribe").and.callFake(() => { ; });
             const unloadSpy = spyOn(artifact, "unload").and.callFake(() => { ; });
-            
+
             //act
             selectionManager.setArtifact(artifact);
             selectionManager.setArtifact(artifact2);
@@ -126,7 +134,7 @@ describe("Selection Manager", () => {
             const unloadSpy = spyOn(artifact, "unload").and.callFake(() => { ; });
             const unsubscribeSpy = spyOn(artifact, "unsubscribe").and.callFake(() => { ; });
             const unsubscribeSubartifactSpy = spyOn(subArtifact, "unsubscribe").and.callFake(() => { ; });
-            
+
             //act
             selectionManager.setArtifact(artifact);
             selectionManager.setSubArtifact(subArtifact);
@@ -159,13 +167,13 @@ describe("Selection Manager", () => {
             });
 
         }));
-        
+
 
         it("clear subartifact", inject((selectionManager: SelectionManager) => {
 
             selectionManager.setArtifact(artifact);
             selectionManager.setSubArtifact(subArtifact);
-     
+
             selectionManager.clearSubArtifact();
             selectionManager.selectionObservable.subscribeOnNext((selection: ISelection) => {
                 expect(selection).toBeDefined();
@@ -178,36 +186,36 @@ describe("Selection Manager", () => {
         it("artifact", inject((selectionManager: SelectionManager) => {
              //Arrange
               //Act
-            
+
 
             selectionManager.setArtifact(artifact);
              //Act
             let selected = selectionManager.getArtifact();
 
             expect(selected).toBeDefined();
-            
+
             //Act
             selectionManager.clearAll();
             selected = selectionManager.getArtifact();
             expect(selected).toBeUndefined();
-             
+
         }));
         it("sub artifact", inject((selectionManager: SelectionManager) => {
              //Arrange
               //Act
-            
+
             selectionManager.setArtifact(artifact);
             selectionManager.setSubArtifact(subArtifact);
              //Act
             let selected = selectionManager.getSubArtifact();
 
             expect(selected).toBeDefined();
-            
+
             //Act
             selectionManager.clearSubArtifact();
             selected = selectionManager.getSubArtifact();
             expect(selected).toBeNull();
-             
+
         }));
 
     });
@@ -224,5 +232,5 @@ describe("Selection Manager", () => {
 
         }));
     });
-    
+
 });

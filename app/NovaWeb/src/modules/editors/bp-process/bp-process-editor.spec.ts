@@ -2,29 +2,34 @@
 import "angular-mocks";
 import "script!mxClient";
 import ".";
+import "rx/dist/rx.lite.js";
+
 import {BpProcessEditorController} from "./bp-process-editor";
-import {MessageServiceMock} from "../../core/messages/message.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../main/services/window-manager";
-import {IArtifactManager} from "../../managers/artifact-manager/artifact-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact/sub-artifact";
-import {IDiagramNode} from "./components/diagram/presentation/graph/models/";
+import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
+import {IFileUploadService} from "../../commonModule/fileUpload/";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 describe("BpProcessEditor", () => {
     let $q: ng.IQService;
     let $compile: ng.ICompileService;
     let $rootScope: ng.IRootScopeService;
     let windowManager: IWindowManager;
-    let artifactManager: IArtifactManager;
+    let selectionManager: ISelectionManager;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
     let subArtifactSubject: Rx.BehaviorSubject<IStatefulSubArtifact>;
-
-    beforeEach(angular.mock.module("app.shell"));
+    let utilityPanelService:IUtilityPanelService;
+    let fileUploadService:IFileUploadService;
+    let loadingOverlayService:ILoadingOverlayService;
 
     beforeEach(angular.mock.module("bp.editors.process"));
 
@@ -37,17 +42,15 @@ describe("BpProcessEditor", () => {
             mainWindow: mainWindowSubject.asObservable()
         };
 
-        artifactManager = <IArtifactManager>{
-            selection: {
-                subArtifactObservable: subArtifactSubject.asObservable(),
-                getArtifact: () => <IStatefulArtifact>{
-                    id: 1,
-                    getObservable: () => artifactSubject.asObservable(),
-                    subArtifactCollection: {get: (id: number) => { /* no op */ }}
-                },
-                setSubArtifact: (subArtifact: IStatefulSubArtifact) => { /* no op */ },
-                clearSubArtifact: () => { /* no op */ }
-            }
+        selectionManager = <ISelectionManager>{
+            subArtifactObservable: subArtifactSubject.asObservable(),
+            getArtifact: () => <IStatefulArtifact>{
+                id: 1,
+                getObservable: () => artifactSubject.asObservable(),
+                subArtifactCollection: {get: (id: number) => { /* no op */ }}
+            },
+            setSubArtifact: (subArtifact: IStatefulSubArtifact) => { /* no op */ },
+            clearSubArtifact: () => { /* no op */ }
         };
         $provide.service("messageService", MessageServiceMock);
         $provide.service("localization", LocalizationServiceMock);
@@ -55,7 +58,12 @@ describe("BpProcessEditor", () => {
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("windowManager", () => windowManager);
-        $provide.service("artifactManager", () => artifactManager);
+        $provide.service("selectionManager", () => selectionManager);
+        $provide.service("utilityPanelService", () => utilityPanelService);
+        $provide.service("fileUploadService", () => fileUploadService);
+        $provide.service("loadingOverlayService", () => loadingOverlayService);
+
+
     }));
 
     beforeEach(inject((
@@ -99,7 +107,7 @@ describe("BpProcessEditor", () => {
             expect(spy).toHaveBeenCalledTimes(1);
         });
     });
-    
+
     describe("on resize", () => {
         it("resizes process diagram due to sidebar toggle", () => {
             // arrange
@@ -141,7 +149,7 @@ describe("BpProcessEditor", () => {
     });
 
     describe("on destroy", () => {
-       
+
         it("destroys process diagram", () => {
                         // arrange
             const element = "<bp-process-editor></bp-process-editor>";

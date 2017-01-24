@@ -1,5 +1,5 @@
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {IProjectService} from "../../../../managers/project-manager/project-service";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
@@ -9,12 +9,12 @@ import "../../../";
 import {DiscardAction} from "./discard-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../messages/message.svc";
+import {MessageServiceMock} from "../../messages/message.mock";
 
 describe("DiscardAction", () => {
     let $scope: ng.IScope;
@@ -38,7 +38,7 @@ describe("DiscardAction", () => {
     }));
 
     beforeEach(inject((
-        $rootScope: ng.IRootScopeService, 
+        $rootScope: ng.IRootScopeService,
         _$q_: ng.IQService,
         _statefulArtifactFactory_: IStatefulArtifactFactory,
         _localization_: ILocalizationService,

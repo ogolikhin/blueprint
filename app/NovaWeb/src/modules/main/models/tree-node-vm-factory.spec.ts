@@ -1,10 +1,9 @@
 import "angular";
 import "angular-mocks";
 import "rx";
-import {Models, AdminStoreModels} from "../models";
 import {IProjectService} from "../../managers/project-manager/project-service";
-import {TreeNodeVMFactory, ArtifactNodeVM} from "./tree-node-vm-factory";
-import {IArtifactManager, IStatefulArtifactFactory, StatefulArtifact} from "../../managers/artifact-manager";
+import {AdminStoreModels, Models} from "../models";
+import {ArtifactNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
 
 describe("TreeNodeVMFactory", () => {
     let projectService: IProjectService;
@@ -13,23 +12,20 @@ describe("TreeNodeVMFactory", () => {
 
     beforeEach(() => {
         projectService = jasmine.createSpyObj("projectService", ["getFolders", "getArtifacts", "getSubArtifactTree"]) as IProjectService;
-        const artifactManager = jasmine.createSpyObj("artifactManager", ["add"]) as IArtifactManager;
-        const statefulArtifactFactory = jasmine.createSpyObj("statefulArtifactFactory", ["createStatefulArtifact"]) as IStatefulArtifactFactory;
-        (statefulArtifactFactory.createStatefulArtifact as jasmine.Spy).and.callFake(model => new StatefulArtifact(model, undefined));
-        factory = new TreeNodeVMFactory(projectService, artifactManager, statefulArtifactFactory);
+        factory = new TreeNodeVMFactory(projectService);
         project = {id: 6, name: "new", hasChildren: true} as AdminStoreModels.IInstanceItem;
     });
 
-    describe("StatefulArtifactNodeVM", () => {
+    describe("ExplorerNodeVM", () => {
         it("constructor sets correct property values", () => {
             // Arrange
-            const model = new StatefulArtifact({
+            const model = {
                 id: 999,
                 hasChildren: false
-            }, undefined);
+            } as Models.IArtifact;
 
             // Act
-            const vm = factory.createStatefulArtifactNodeVM(model);
+            const vm = factory.createExplorerNodeVM(model);
 
             // Assert
             expect(vm.model).toBe(model);
@@ -42,13 +38,13 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when a collection folder, returns correct result", () => {
             // Arrange
-            const model = new StatefulArtifact({
+            const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.Collections,
                 itemTypeId: Models.ItemTypePredefined.CollectionFolder,
                 hasChildren: true
-            }, undefined);
-            const vm = factory.createStatefulArtifactNodeVM(model);
+            } as Models.IArtifact;
+            const vm = factory.createExplorerNodeVM(model);
 
             // Act
             const result = vm.getCellClass();
@@ -59,12 +55,12 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when a use case, returns correct result", () => {
             // Arrange
-            const model = new StatefulArtifact({
+            const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.UseCase,
                 hasChildren: true
-            }, undefined);
-            const vm = factory.createStatefulArtifactNodeVM(model);
+            } as Models.IArtifact;
+            const vm = factory.createExplorerNodeVM(model);
 
             // Act
             const result = vm.getCellClass();
@@ -75,12 +71,12 @@ describe("TreeNodeVMFactory", () => {
 
         it("getIcon, when custom icon, returns correct result", () => {
             // Arrange
-            const model = new StatefulArtifact({
+            const model = {
                 id: 1,
                 itemTypeIconId: 456,
                 itemTypeId: 123
-            }, undefined);
-            const vm = factory.createStatefulArtifactNodeVM(model);
+            } as Models.IArtifact;
+            const vm = factory.createExplorerNodeVM(model);
 
             // Act
             const result = vm.getIcon();
@@ -91,8 +87,8 @@ describe("TreeNodeVMFactory", () => {
 
         it("getIcon, when no custom icon, returns correct result", () => {
             // Arrange
-            const model = new StatefulArtifact({id: 1}, undefined);
-            const vm = factory.createStatefulArtifactNodeVM(model);
+            const model = {id: 1} as Models.IArtifact;
+            const vm = factory.createExplorerNodeVM(model);
 
             // Act
             const result = vm.getIcon();
@@ -103,11 +99,11 @@ describe("TreeNodeVMFactory", () => {
 
         it("getLabel returns correct result", () => {
             // Arrange
-            const model = new StatefulArtifact({
+            const model = {
                 id: 999,
                 name: "name"
-            }, undefined);
-            const vm = factory.createStatefulArtifactNodeVM(model);
+            } as Models.IArtifact;
+            const vm = factory.createExplorerNodeVM(model);
 
             // Act
             const result = vm.getLabel();
@@ -116,24 +112,42 @@ describe("TreeNodeVMFactory", () => {
             expect(result).toEqual("name");
         });
 
+        it("unloadChildren, when unloading children it removes children", () => {
+            // Arrange
+            const model = {
+                id: 1,
+                itemTypeIconId: 456,
+                itemTypeId: 123,
+                children: [{id: 123}, {id: 456}]
+            } as Models.IArtifact;
+            const vm = factory.createExplorerNodeVM(model);
+
+
+            // Act
+            vm.unloadChildren();
+
+            // Assert
+            expect(vm.children).toBeNull();
+        });
+
         it("loadChildrenAsync loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                     // Arrange
                     const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                    const model = new StatefulArtifact({
+                    const model = {
                         id: 123,
                         name: "parent",
                         predefinedType: Models.ItemTypePredefined.GenericDiagram,
                         artifactPath: ["project"]
-                    }, undefined);
-                    const vm = factory.createStatefulArtifactNodeVM(model);
+                    } as Models.IArtifact;
+                    const vm = factory.createExplorerNodeVM(model);
 
                     // Act
                     vm.loadChildrenAsync().then(result => {
 
                         // Assert
-                        expect(result).toEqual(children.map(child => factory.createStatefulArtifactNodeVM(new StatefulArtifact(child, undefined))));
+                        expect(result).toEqual(children.map(child => factory.createExplorerNodeVM(child)));
                         done();
                     }).catch(done.fail);
                     $rootScope.$digest(); // Resolves promises
@@ -232,118 +246,118 @@ describe("TreeNodeVMFactory", () => {
 
         it("loadChildrenAsync, when a folder, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {id: 5678}] as AdminStoreModels.IInstanceItem[];
-                (projectService.getFolders as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    type: AdminStoreModels.InstanceItemType.Folder
-                } as AdminStoreModels.IInstanceItem;
-                const vm = factory.createInstanceItemNodeVM(model);
+                    // Arrange
+                    const children = [{id: 1234}, {id: 5678}] as AdminStoreModels.IInstanceItem[];
+                    (projectService.getFolders as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        type: AdminStoreModels.InstanceItemType.Folder
+                    } as AdminStoreModels.IInstanceItem;
+                    const vm = factory.createInstanceItemNodeVM(model);
 
-                // Act
-                vm.loadChildrenAsync().then(result => {
+                    // Act
+                    vm.loadChildrenAsync().then(result => {
 
-                    // Assert
-                    expect(result).toEqual(children.map(child => factory.createInstanceItemNodeVM(child)));
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(result).toEqual(children.map(child => factory.createInstanceItemNodeVM(child)));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
 
         it("loadChildrenAsync, when a project and showing artifacts, loads artifacts", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {
-                    id: 5678,
-                    predefinedType: Models.ItemTypePredefined.CollectionFolder
-                }] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    id: 7,
-                    name: "project",
-                    type: AdminStoreModels.InstanceItemType.Project
-                } as AdminStoreModels.IInstanceItem;
-                const vm = factory.createInstanceItemNodeVM(model);
+                    // Arrange
+                    const children = [{id: 1234}, {
+                        id: 5678,
+                        predefinedType: Models.ItemTypePredefined.CollectionFolder
+                    }] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        id: 7,
+                        name: "project",
+                        type: AdminStoreModels.InstanceItemType.Project
+                    } as AdminStoreModels.IInstanceItem;
+                    const vm = factory.createInstanceItemNodeVM(model);
 
-                // Act
-                vm.loadChildrenAsync().then(result => {
+                    // Act
+                    vm.loadChildrenAsync().then(result => {
 
-                    // Assert
-                    expect(result).toEqual([factory.createArtifactNodeVM(model, children[0])]);
-                    expect(result.every(child => child instanceof ArtifactNodeVM &&
+                        // Assert
+                        expect(result).toEqual([factory.createArtifactNodeVM(model, children[0])]);
+                        expect(result.every(child => child instanceof ArtifactNodeVM &&
                         _.isEqual(child.model.artifactPath, ["project"]) &&
                         _.isEqual(child.model.idPath, [7]) &&
                         _.isEqual(child.expanded, false))).toEqual(true);
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
 
         it("loadChildrenAsync, when a project and showing collections, loads collections", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                factory.showArtifacts = false;
-                factory.showCollections = true;
-                const children = [{id: 1234}, {
-                    id: 5678,
-                    predefinedType: Models.ItemTypePredefined.CollectionFolder
-                }] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    id: 7,
-                    name: "project",
-                    type: AdminStoreModels.InstanceItemType.Project
-                } as AdminStoreModels.IInstanceItem;
-                const vm = factory.createInstanceItemNodeVM(model);
+                    // Arrange
+                    factory.showArtifacts = false;
+                    factory.showCollections = true;
+                    const children = [{id: 1234}, {
+                        id: 5678,
+                        predefinedType: Models.ItemTypePredefined.CollectionFolder
+                    }] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        id: 7,
+                        name: "project",
+                        type: AdminStoreModels.InstanceItemType.Project
+                    } as AdminStoreModels.IInstanceItem;
+                    const vm = factory.createInstanceItemNodeVM(model);
 
-                // Act
-                vm.loadChildrenAsync().then(result => {
+                    // Act
+                    vm.loadChildrenAsync().then(result => {
 
-                    // Assert
-                    expect(result).toEqual([factory.createArtifactNodeVM(model, children[1], true)]);
-                    expect(result.every(child => child instanceof ArtifactNodeVM &&
+                        // Assert
+                        expect(result).toEqual([factory.createArtifactNodeVM(model, children[1], true)]);
+                        expect(result.every(child => child instanceof ArtifactNodeVM &&
                         _.isEqual(child.model.artifactPath, ["project"]) &&
                         _.isEqual(child.model.idPath, [7]) &&
                         _.isEqual(child.expanded, true))).toEqual(true);
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
 
         it("loadChildrenAsync, when a project and showing artifacts and collections, loads both", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                factory.showArtifacts = true;
-                factory.showCollections = true;
-                const children = [{id: 1234}, {
-                    id: 5678,
-                    predefinedType: Models.ItemTypePredefined.CollectionFolder
-                }] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    id: 7,
-                    name: "project",
-                    type: AdminStoreModels.InstanceItemType.Project
-                } as AdminStoreModels.IInstanceItem;
-                const vm = factory.createInstanceItemNodeVM(model);
+                    // Arrange
+                    factory.showArtifacts = true;
+                    factory.showCollections = true;
+                    const children = [{id: 1234}, {
+                        id: 5678,
+                        predefinedType: Models.ItemTypePredefined.CollectionFolder
+                    }] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        id: 7,
+                        name: "project",
+                        type: AdminStoreModels.InstanceItemType.Project
+                    } as AdminStoreModels.IInstanceItem;
+                    const vm = factory.createInstanceItemNodeVM(model);
 
-                // Act
-                vm.loadChildrenAsync().then(result => {
+                    // Act
+                    vm.loadChildrenAsync().then(result => {
 
-                    // Assert
-                    expect(result).toEqual([factory.createArtifactNodeVM(model, children[0]), factory.createArtifactNodeVM(model, children[1])]);
-                    expect(result.every(child => child instanceof ArtifactNodeVM &&
+                        // Assert
+                        expect(result).toEqual([factory.createArtifactNodeVM(model, children[0]), factory.createArtifactNodeVM(model, children[1])]);
+                        expect(result.every(child => child instanceof ArtifactNodeVM &&
                         _.isEqual(child.model.artifactPath, ["project"]) &&
                         _.isEqual(child.model.idPath, [7]) &&
                         _.isEqual(child.expanded, false))).toEqual(true);
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
     });
 
     describe("ArtifactNodeVM", () => {
@@ -438,12 +452,12 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when a collection folder, returns correct result", () => {
             // Arrange
-            const model = new StatefulArtifact({
+            const model = {
                 id: 456,
                 predefinedType: Models.ItemTypePredefined.Collections,
                 itemTypeId: Models.ItemTypePredefined.CollectionFolder,
                 hasChildren: true
-            }, undefined);
+            } as Models.IArtifact;
             const vm = factory.createArtifactNodeVM(project, model);
 
             // Act
@@ -575,55 +589,55 @@ describe("TreeNodeVMFactory", () => {
 
         it("loadChildrenAsync, when not showing sub-artifacts, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {
-                    id: 123,
-                    name: "parent",
-                    predefinedType: Models.ItemTypePredefined.GenericDiagram,
-                    artifactPath: ["project"],
-                    idPath: [7]
-                } as Models.IArtifact;
-                const vm = factory.createArtifactNodeVM(project, model);
+                    // Arrange
+                    const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        id: 123,
+                        name: "parent",
+                        predefinedType: Models.ItemTypePredefined.GenericDiagram,
+                        artifactPath: ["project"],
+                        idPath: [7]
+                    } as Models.IArtifact;
+                    const vm = factory.createArtifactNodeVM(project, model);
 
-                // Act
-                vm.loadChildrenAsync().then(result => {
+                    // Act
+                    vm.loadChildrenAsync().then(result => {
 
-                    // Assert
-                    expect(result).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
-                    expect(result.every(child => child instanceof ArtifactNodeVM &&
-                    _.isEqual(child.model.artifactPath, ["project", "parent"]) &&
-                    _.isEqual(child.model.idPath, [7, 123]))).toEqual(true);
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(result).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
+                        expect(result.every(child => child instanceof ArtifactNodeVM &&
+                        _.isEqual(child.model.artifactPath, ["project", "parent"]) &&
+                        _.isEqual(child.model.idPath, [7, 123]))).toEqual(true);
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
 
         it("loadChildrenAsync, when showing sub-artifacts, loads children", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
-                (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
-                factory.showSubArtifacts = true;
-                const model = {
-                    id: 123,
-                    predefinedType: Models.ItemTypePredefined.BusinessProcess
-                } as Models.IArtifact;
-                const vm = factory.createArtifactNodeVM(project, model);
+                    // Arrange
+                    const children = [{id: 1234}, {id: 5678}] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    factory.showSubArtifacts = true;
+                    const model = {
+                        id: 123,
+                        predefinedType: Models.ItemTypePredefined.BusinessProcess
+                    } as Models.IArtifact;
+                    const vm = factory.createArtifactNodeVM(project, model);
 
-                // Act
-                vm.loadChildrenAsync().then(c => {
+                    // Act
+                    vm.loadChildrenAsync().then(c => {
 
-                    // Assert
-                    expect(c[0]).toEqual(factory.createSubArtifactContainerNodeVM(project, model, "Shapes"));
-                    expect(c.slice(1)).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(c[0]).toEqual(factory.createSubArtifactContainerNodeVM(project, model, "Shapes"));
+                        expect(c.slice(1)).toEqual(children.map(child => factory.createArtifactNodeVM(project, child)));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
     });
 
     describe("SubArtifactContainerNodeVM", () => {
@@ -683,22 +697,22 @@ describe("TreeNodeVMFactory", () => {
 
         it("loadChildrenAsync", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-                // Arrange
-                const children = [{id: 1111}, {id: 2222}] as Models.ISubArtifactNode[];
-                (projectService.getSubArtifactTree as jasmine.Spy).and.returnValue($q.resolve(children));
-                const model = {} as Models.IArtifact;
-                const vm = factory.createSubArtifactContainerNodeVM(project, model, "");
+                    // Arrange
+                    const children = [{id: 1111}, {id: 2222}] as Models.ISubArtifactNode[];
+                    (projectService.getSubArtifactTree as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {} as Models.IArtifact;
+                    const vm = factory.createSubArtifactContainerNodeVM(project, model, "");
 
-                // Act
-                vm.loadChildrenAsync().then(c => {
+                    // Act
+                    vm.loadChildrenAsync().then(c => {
 
-                    // Assert
-                    expect(c).toEqual(children.map(child => factory.createSubArtifactNodeVM(project, child, model)));
-                    done();
-                }).catch(done.fail);
-                $rootScope.$digest(); // Resolves promises
-            }
-        ));
+                        // Assert
+                        expect(c).toEqual(children.map(child => factory.createSubArtifactNodeVM(project, child, model)));
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
     });
 
     describe("SubArtifactNodeVM", () => {

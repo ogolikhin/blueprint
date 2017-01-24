@@ -2,6 +2,9 @@ import {IProjectManager} from "./project-manager";
 import {IViewModel, IArtifact, IArtifactWithProject} from "../../main/models/models";
 import {IStatefulArtifact} from "../artifact-manager/artifact/artifact";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
+import {IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
+import {AdminStoreModels} from "../../main/models";
+
 
 export class ProjectManagerMock implements IProjectManager {
     public projectCollection: Rx.BehaviorSubject<IViewModel<IStatefulArtifact>[]>;
@@ -71,7 +74,7 @@ export class ProjectManagerMock implements IProjectManager {
         return this.$q.resolve(0);
     }
 
-    public openProject(projectId: number): ng.IPromise<void> { // opens and selects project
+    public openProject(projectId: AdminStoreModels.IInstanceItem | IItemInfoResult): ng.IPromise<void> { // opens and selects project
         return this.$q.resolve();
 
     }

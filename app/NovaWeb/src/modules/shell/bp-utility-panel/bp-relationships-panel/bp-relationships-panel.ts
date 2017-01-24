@@ -1,18 +1,15 @@
 import {Enums, Relationships} from "../../../main";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {
-    IArtifactManager,
     IStatefulItem,
     IStatefulArtifact,
-    IStatefulSubArtifact,
-    IArtifactRelationships
+    IStatefulSubArtifact
 } from "../../../managers/artifact-manager";
 import {IRelationship, LinkType, IDialogRelationshipItem} from "../../../main/models/relationshipModels";
-import {IBpAccordionPanelController} from "../../../main/components/bp-accordion/bp-accordion";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
 import {Helper} from "../../../shared/utils/helper";
 import {ManageTracesDialogController} from "../../../main/components/dialogs/bp-manage-traces";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 interface IOptions {
     value: string;
@@ -77,9 +74,9 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
         this.actorInherits = null;
     }
 
-    public get isBulkActionsBarVisible () {
+    public get isBulkActionsBarVisible() {
         return !this.isLoading && (this.manualTraces2.length || this.otherTraces.length) &&
-            this.selectedTraces[this.item.id].length > 0 && this.categoryFilter < 2;
+            this.selectedTraces[this.item.id] && this.selectedTraces[this.item.id].length > 0 && this.categoryFilter < 2;
     }
 
     public get showTracesTitle() {
@@ -119,8 +116,8 @@ export class BPRelationshipsPanelController extends BPBaseUtilityPanelController
             if (this.selectedTraces && this.selectedTraces[this.item.id]) {
                 this.selectedTraces[this.item.id].length = 0;
             }
-        };
-    }
+        }
+    };
 
     public get manualTraces2(): Relationships.IRelationship[] {
         if (this.allTraces) {

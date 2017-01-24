@@ -3,9 +3,9 @@ import {IUploadStatusDialogData} from "../../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IFileUploadService, IFileResult} from "../../../../commonModule/fileUpload/fileUpload.service";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPFieldImage implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldImage";
@@ -20,6 +20,7 @@ export class BPFieldImage implements AngularFormly.ITypeOptions {
 
 export class BPFieldImageController extends BPFieldBaseController {
     static $inject: [string] = [
+        "$document",
         "$scope",
         "localization",
         "$window",
@@ -28,13 +29,14 @@ export class BPFieldImageController extends BPFieldBaseController {
         "fileUploadService"
     ];
 
-    constructor(private $scope: AngularFormly.ITemplateScope,
+    constructor(protected $document: ng.IDocumentService,
+                private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private $window: ng.IWindowService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
                 private fileUploadService: IFileUploadService) {
-        super();
+        super($document);
 
         const templateOptions: AngularFormly.ITemplateOptions = $scope["to"];
         let onChange = (templateOptions["onChange"] as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.

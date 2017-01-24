@@ -1,26 +1,23 @@
-﻿import * as angular from "angular";
-import "angular-mocks";
+﻿import "angular-mocks";
 import "angular-sanitize";
-import "rx/dist/rx.lite";
 import "angular-ui-router";
-import "../../../main";
-import "../../../shell";
-import {ComponentTest} from "../../../util/component.test";
-import {BPHistoryPanelController} from "./bp-history-panel";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {ArtifactManagerMock} from "../../../managers/artifact-manager/artifact-manager.mock";
-import {ArtifactHistoryMock} from "./artifact-history.mock";
-import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
-import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager";
-import {IArtifactHistory} from "./artifact-history.svc";
-import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
+import "rx/dist/rx.lite";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {ItemTypePredefined} from "../../../main/models/enums";
-import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
-import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {PanelType, IOnPanelChangesObject} from "../utility-panel.svc";
 import {ArtifactStateEnum} from "../../../main/models/models";
+import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {Helper} from "../../../shared/utils/helper";
+import {ComponentTest} from "../../../util/component.test";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {ArtifactHistoryMock} from "./artifact-history.mock";
+import {IArtifactHistory} from "./artifact-history.svc";
+import {BPHistoryPanelController} from "./bp-history-panel";
+import * as angular from "angular";
 
 describe("Component BPHistoryPanel", () => {
     let $q: ng.IQService;
@@ -38,18 +35,15 @@ describe("Component BPHistoryPanel", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactHistory", ArtifactHistoryMock);
         $provide.service("localization", LocalizationServiceMock);
-        $provide.service("artifactManager", ArtifactManagerMock);
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
 
-    beforeEach(inject((artifactManager: ArtifactManagerMock,
-                       selectionManager: ISelectionManager,
+    beforeEach(inject((selectionManager: ISelectionManager,
                        _$q_: ng.IQService) => {
 
         $q = _$q_;
-        artifactManager.selection = selectionManager;
         const template = `<bp-history-panel></bp-history-panel>`;
         component = new ComponentTest<BPHistoryPanelController>(template, "bp-history-panel");
         vm = component.createComponentWithMockParent({}, "bpAccordionPanel", bpAccordionPanelController);

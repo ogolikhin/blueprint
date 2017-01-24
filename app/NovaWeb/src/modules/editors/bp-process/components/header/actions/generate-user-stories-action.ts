@@ -1,23 +1,19 @@
 import {BPDropdownAction, BPDropdownItemAction} from "../../../../../shared/widgets/bp-toolbar/actions";
 import {IDialogService, IDialogSettings} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IUserStoryService} from "../../../services/user-story.svc";
-import {IProjectManager, ProjectManager} from "../../../../../managers/project-manager/project-manager";
-import {ISelectionManager} from "../../../../../managers/selection-manager";
-import {IStatefulSubArtifact} from "../../../../../managers/artifact-manager/sub-artifact";
+import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {StatefulProcessArtifact} from "../../../process-artifact";
-import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {IUserStory} from "../../../models/process-models";
-import {ProcessShapeType} from "../../../models/enums";
-import {ItemTypePredefined, RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
+import {ReuseSettings} from "../../../../../main/models/enums";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {DialogTypeEnum} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {IApplicationError} from "../../../../../core/error/applicationError";
-import {ErrorCode} from "../../../../../core/error/error-code";
-import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {IApplicationError} from "../../../../../shell/error/applicationError";
+import {ErrorCode} from "../../../../../shell/error/error-code";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private selectionChangedHandle: string;
@@ -115,7 +111,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
 
         const subArtifact: IDiagramNode = this.selection[0];
-        
+
         //Subartifact is selected and selective readonly is set
         if (this.process.isReuseSettingSRO && this.process.isReuseSettingSRO(ReuseSettings.Subartifacts)) {
             return false;
@@ -180,7 +176,8 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 type: DialogTypeEnum.Confirm,
                 header: this.localization.get("App_DialogTitle_Confirmation"),
                 message: this.localization.get("ST_US_Generate_Confirm_Publish"),
-                okButton: this.localization.get("App_Button_PublishAndContinue")
+                okButton: this.localization.get("App_Button_PublishAndContinue"),
+                css: "nova-messaging"
             };
 
             this.dialogService.open(settings)
@@ -246,6 +243,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                         case ErrorCode.ArtifactNotPublished:
                             message = this.localization.get("ST_US_Generate_LockedByOtherUser_Failure_Message");
                             break;
+                        case ErrorCode.UserStoryArtifactTypeNotFound:
+                            message = reason.message;
+                            break;
+
                     }
                 }
 

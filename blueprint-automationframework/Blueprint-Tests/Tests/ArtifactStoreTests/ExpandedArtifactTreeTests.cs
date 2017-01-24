@@ -239,7 +239,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase("")]
-        [TestCase("00000000-0000-0000-0000-000000000000")]
+        [TestCase(CommonConstants.InvalidToken)]
         [TestRail(164532)]
         [Description("Create an artifact.  GetExpandedArtifactTree with the ID of the artifact but pass an invalid token.  Verify 401 Unauthorized is returned with the correct error message.")]
         public void GetExpandedArtifactTree_InvalidToken_401Unauthorized(string token)

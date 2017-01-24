@@ -2,21 +2,21 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {
     BpFileUploadStatusController,
     IUploadStatusDialogData, IUploadStatusResult
 } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import {ISettingsService} from "../../../../core/configuration/settings";
-import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {ISettingsService} from "../../../../commonModule/configuration/settings.service";
+import {IFileUploadService, IFileResult} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {Helper} from "../../../../shared/utils/helper";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
@@ -30,12 +30,18 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
 }
 
+interface ISize {
+    width: number;
+    height: number;
+}
+
 export class BpFieldTextRTFController extends BPFieldBaseRTFController {
     static $inject: [string] = [
         "$q",
         "$log",
         "$scope",
         "$window",
+        "$filter",
         "navigationService",
         "validationService",
         "messageService",
@@ -52,6 +58,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                 private $log: ng.ILogService,
                 $scope: AngularFormly.ITemplateScope,
                 protected $window: ng.IWindowService,
+                private $filter: ng.IFilterService,
                 navigationService: INavigationService,
                 validationService: IValidationService,
                 messageService: IMessageService,
@@ -192,18 +199,19 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                             input.one("change", (event: Event) => {
                                 const inputElement = <HTMLInputElement>event.currentTarget;
                                 const imageFile = inputElement.files[0];
-                                let dimensions;
+                                const numberOfExistingImages = this.getNumberOfImagesInContent(editor.getContent());
+                                let dimensions: ISize;
 
-                                this.uploadImage(imageFile).then((uploadedImageUrl: string) => {
+                                this.uploadImage(imageFile, numberOfExistingImages).then((uploadedImageUrl: string) => {
                                     this.getImageDimensions(imageFile)
                                         .then(dim => {
-                                            dimensions = dim;
+                                            dimensions = this.getScaledDimensions(dim);
                                         })
                                         .finally(() => {
                                             const imageContent = editor.dom.createHTML("img", {
                                                 src: uploadedImageUrl,
-                                                width: dimensions.width > 400 && dimensions.width > dimensions.height ? 400 : undefined,
-                                                height: dimensions.height > 400 && dimensions.height > dimensions.width ? 400 : undefined
+                                                width: dimensions.width,
+                                                height: dimensions.height
                                             });
                                             editor.insertContent(`<span>${imageContent}</span>`);
                                         });
@@ -219,7 +227,22 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         _.assign($scope.to, to);
     }
 
-    private getImageDimensions(imageFile: File): ng.IPromise<{width: number, height: number}> {
+    private getNumberOfImagesInContent(content: string): number {
+        return _.isEmpty(content) ? 0 : angular.element(content).find("img").length;
+    }
+
+    private getScaledDimensions(dimensions: ISize): ISize {
+        const max = 400;
+        if (dimensions.width && dimensions.height && Math.max(dimensions.width, dimensions.height) > max) {
+            const ratio = Math.min(max / dimensions.width, max / dimensions.height);
+            return {width: Math.round(dimensions.width * ratio), height: Math.round(dimensions.height * ratio)};
+
+        } else {
+            return dimensions;
+        }
+    }
+
+    private getImageDimensions(imageFile: File): ng.IPromise<ISize> {
         const deferred = this.$q.defer<{width: number, height: number}>();
 
         const tempImage: any = new Image();
@@ -234,7 +257,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         return deferred.promise;
     }
 
-    private uploadImage(file: File): ng.IPromise<string> {
+    private uploadImage(file: File, numberOfExistingImages: number): ng.IPromise<string> {
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Button_Ok", "OK"),
             template: require("../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status.html"),
@@ -251,15 +274,20 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
             return this.fileUploadService.uploadImageToFileStore(file, progressCallback, cancelPromise);
         };
 
-        let filesize = this.settingsService.getNumber("MaxAttachmentFilesize", Helper.maxAttachmentFilesizeDefault);
-        if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.maxAttachmentFilesizeDefault) {
-            filesize = Helper.maxAttachmentFilesizeDefault;
+        let filesize = this.settingsService.getNumber("MaxEmbeddedImageFileSize", Helper.defaultMaxEmbeddedImageFileSize, 1);
+        if (!_.isFinite(filesize) || filesize < 0 || filesize > Helper.defaultMaxEmbeddedImageFileSize) {
+            filesize = Helper.defaultMaxEmbeddedImageFileSize;
         }
 
+        let maxNumOfImages = this.settingsService.getNumber("MaxEmbeddedImagesNumber", Helper.defaultMaxEmbeddedImageNumber);
+        maxNumOfImages = _.inRange(maxNumOfImages, 0, Infinity) ? maxNumOfImages : Helper.defaultMaxEmbeddedImageNumber;
+        const localeFormatFilter = this.$filter("bpFormat") as Function;
+        const localeMessage = this.localization.get("Property_Max_Images_Error", "This property exceeds the maximum number of images ({0}).");
         const dialogData: IUploadStatusDialogData = {
             files: [file],
             maxAttachmentFilesize: filesize,
-            maxNumberAttachments: 1,
+            maxNumberAttachments: maxNumOfImages - numberOfExistingImages,
+            maxNumberAttachmentsError: localeFormatFilter(localeMessage, maxNumOfImages),
             allowedExtentions: ["png", "jpeg", "jpg"],
             fileUploadAction: uploadFile
         };

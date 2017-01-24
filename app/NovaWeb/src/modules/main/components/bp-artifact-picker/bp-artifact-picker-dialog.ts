@@ -1,6 +1,6 @@
 import {IDialogSettings, BaseDialogController} from "../../../shared/";
 import {Models, AdminStoreModels} from "../../models";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {InstanceItemType} from "../../models/admin-store-models";
 
 export interface IArtifactPickerDialogController {

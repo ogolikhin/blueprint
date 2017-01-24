@@ -7,7 +7,7 @@ import {IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachment
 import {IArtifactRelationships} from "../relationships";
 import {Models, Enums, Relationships} from "../../../main/models";
 import {IDocumentRefs} from "../docrefs";
-import {IApplicationError} from "../../../core/error/applicationError";
+import {IApplicationError} from "../../../shell/error/applicationError";
 import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 import {IStatefulArtifactServices} from "../services";
 import {ISubArtifactCollection} from "../sub-artifact";

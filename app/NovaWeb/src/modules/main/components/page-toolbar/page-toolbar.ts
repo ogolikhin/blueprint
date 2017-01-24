@@ -1,7 +1,8 @@
+import {IJobsService} from "../../../editors/jobs/jobs.svc";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
-import {IArtifactManager, IProjectManager} from "../../../managers";
+import {IProjectManager} from "../../../managers";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {
@@ -10,34 +11,22 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IApplicationError} from "../../../core/error/applicationError";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {IApplicationError} from "../../../shell/error/applicationError";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
+import {IMessageService} from "../messages/message.svc";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
-interface IPageToolbarController {
-    openProject(evt?: ng.IAngularEvent): void;
-    closeProject(evt?: ng.IAngularEvent): void;
-    closeAllProjects(evt?: ng.IAngularEvent): void;
-    createNewArtifact(evt?: ng.IAngularEvent): void;
-    publishAll(evt?: ng.IAngularEvent): void;
-    discardAll(evt?: ng.IAngularEvent): void;
-    refreshAll(evt?: ng.IAngularEvent): void;
-    openTour(evt?: ng.IAngularEvent): void;
-    showSubLevel(evt: ng.IAngularEvent): void;
-    generateTestCases(evt?: ng.IAngularEvent): void;
-}
 
 export class PageToolbar implements ng.IComponentOptions {
     public template: string = require("./page-toolbar.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = PageToolbarController;
 }
 
-export class PageToolbarController implements IPageToolbarController {
+export class PageToolbarController {
 
     private _subscribers: Rx.IDisposable[];
     private _currentArtifact: IStatefulArtifact;
@@ -54,13 +43,13 @@ export class PageToolbarController implements IPageToolbarController {
         "localization",
         "dialogService",
         "projectManager",
-        "artifactManager",
+        "selectionManager",
         "publishService",
         "messageService",
         "navigationService",
         "artifactService",
         "loadingOverlayService",
-        "analytics"
+        "jobsService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -69,17 +58,17 @@ export class PageToolbarController implements IPageToolbarController {
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
-                private artifactManager: IArtifactManager,
+                private selectionManager: ISelectionManager,
                 private publishService: IUnpublishedArtifactsService,
                 private messageService: IMessageService,
                 private navigationService: INavigationService,
                 private artifactService: IArtifactService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private analytics: IAnalyticsProvider) {
+                private jobService: IJobsService) {
     }
 
     public $onInit() {
-        const artifactStateSubscriber = this.artifactManager.selection.artifactObservable
+        const artifactStateSubscriber = this.selectionManager.artifactObservable
             .subscribe(this.setCurrentArtifact);
 
         this._subscribers = [artifactStateSubscriber];
@@ -111,8 +100,8 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.artifactManager.autosave().then(() => {
-            const artifact = this.artifactManager.selection.getArtifact();
+        this.selectionManager.autosave().then(() => {
+            const artifact = this.selectionManager.getArtifact();
             if (artifact) {
                 return this.closeProjectInternal(artifact.projectId);
             }
@@ -129,7 +118,7 @@ export class PageToolbarController implements IPageToolbarController {
             evt.preventDefault();
         }
 
-        this.artifactManager.autosave()
+        this.selectionManager.autosave()
             .then(this.getProjectsWithUnpublishedArtifacts)
             .then((projectsWithUnpublishedArtifacts) => {
                 const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
@@ -232,7 +221,7 @@ export class PageToolbarController implements IPageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.artifactManager.autosave().then(() => {
+        this.selectionManager.autosave().then(() => {
             const getUnpublishedLoadingId = this.loadingOverlayService.beginLoading();
             //get a list of unpublished artifacts
             this.publishService.getUnpublishedArtifacts()
@@ -273,6 +262,7 @@ export class PageToolbarController implements IPageToolbarController {
             evt.preventDefault();
         }
 
+        const projectId = this._currentArtifact.projectId;
         const dialogSettings = <IDialogSettings>{
             okButton: this.localization.get("App_Toolbar_Generate_Test_Cases"),
             template: require("../../../main/components/bp-artifact-picker/bp-artifact-picker-dialog.html"),
@@ -291,12 +281,33 @@ export class PageToolbarController implements IPageToolbarController {
             showProjects: false
         };
 
-        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
+        //first, check if project is loaded, and if not - load it
+        let loadProjectPromise: ng.IPromise<any>;
+        if (!this.projectManager.getProject(projectId)) {
+            loadProjectPromise = this.projectManager.add(projectId);
+        } else {
+            loadProjectPromise = this.$q.resolve();
+        }
+
+        loadProjectPromise
+        .catch((err) => this.messageService.addError(err))
+        .then(() => {
+        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IArtifact[]) => {
             if (items) {
-                items.forEach(item => {
-                    console.log(item.id + " " + item.name);
+                const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
+                this.jobService.addProcessTestsGenerationJobs(
+                        projectId,
+                        this.projectManager.getProject(projectId).model.name,
+                    processes
+                ).then((result) => {
+                    const link = `<a href="#/main/jobs" class="btn-white-link">${this.localization.get("Jobs_Label")}</a>`;
+                    const message = `${this.localization.get("App_Toolbar_Generate_Test_Cases_Success_Message")}`;
+                    this.messageService.addLinkInfo(message, link, result.jobId);
+                }).catch((error: IApplicationError) => {
+                    this.messageService.addError(this.localization.get("App_Toolbar_Generate_Test_Cases_Failure_Message"));
                 });
             }
+        });
         });
     };
 
@@ -308,7 +319,7 @@ export class PageToolbarController implements IPageToolbarController {
         let artifact: IStatefulArtifact;
         if (this.isProjectOpened) {
             promise = this.projectManager.refreshAll();
-        } else if (artifact = this.artifactManager.selection.getArtifact()) {
+        } else if (artifact = this.selectionManager.getArtifact()) {
             promise = artifact.refresh();
         }
         if (promise) {
@@ -430,7 +441,6 @@ export class PageToolbarController implements IPageToolbarController {
     }
 
     private getProjectsWithUnpublishedArtifacts = (): ng.IPromise<number[]> => {
-        //We can't use artifactManager.list() because lock state is lazy-loaded
         return this.publishService.getUnpublishedArtifacts().then((unpublishedArtifactSet) => {
             const projectsWithUnpublishedArtifacts = _.map(unpublishedArtifactSet.artifacts, (artifact) => artifact.projectId);
             //We don't use _.uniq because we care about the count of artifacts.
@@ -443,7 +453,7 @@ export class PageToolbarController implements IPageToolbarController {
         //perform publish all
         this.publishService.publishAll()
             .then(() => {
-                let artifact = this.artifactManager.selection.getArtifact();
+                let artifact = this.selectionManager.getArtifact();
                 //remove lock on current artifact
                 if (artifact) {
                     artifact.artifactState.unlock();
@@ -469,7 +479,7 @@ export class PageToolbarController implements IPageToolbarController {
         //perform publish all
         this.publishService.discardAll()
             .then(() => {
-                const statefulArtifact = this.artifactManager.selection.getArtifact();
+                const statefulArtifact = this.selectionManager.getArtifact();
                 if (statefulArtifact) {
                     statefulArtifact.discard();
                 }

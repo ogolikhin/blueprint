@@ -2,15 +2,13 @@ import * as angular from "angular";
 import "angular-mocks";
 import {BpProcessHeaderController} from "./bp-process-header";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../../../core/messages/message.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {IBreadcrumbService} from "../../services/breadcrumb.svc";
-import {NavigationServiceMock} from "../../../../core/navigation/navigation.svc.mock";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {WindowManager} from "../../../../main";
 import {CommunicationManager} from "../../";
 import {
-    ArtifactManager,
     ArtifactService,
     MetaDataService,
     ArtifactAttachmentsService,
@@ -20,14 +18,14 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {SessionSvcMock} from "../../../../shell/login/mocks.spec";
-import {WindowResize} from "../../../../core/services/window-resize";
+import {WindowResize} from "../../../../commonModule/services/windowResize";
 import {ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
-import {ItemInfoService} from "../../../../core/navigation/item-info.svc";
-import {AnalyticsProvider} from "../../../../main/components/analytics/analyticsProvider";
-import {LoadingOverlayServiceMock} from "../../../../core/loading-overlay/loading-overlay.svc.mock";
-import {CollectionServiceMock} from "../../../../editors/bp-collection/collection.svc.mock";
+import {ItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {CollectionServiceMock} from "../../../bp-collection/collection.svc.mock";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -38,7 +36,7 @@ describe("BpProcessHeader", () => {
     let breadcrumbService: IBreadcrumbService;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
-            $provide.service("artifactManager", ArtifactManager);
+            $provide.service("selectionManager", SelectionManager);
             $provide.service("localization", LocalizationServiceMock);
             $provide.service("messageService", MessageServiceMock);
             $provide.service("dialogService", DialogServiceMock);
@@ -48,7 +46,6 @@ describe("BpProcessHeader", () => {
             $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
             $provide.service("navigationService", NavigationServiceMock);
             $provide.service("breadcrumbService", BreadcrumbServiceMock);
-            $provide.service("selectionManager", SelectionManager);
             $provide.service("metadataService", MetaDataService);
             $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
             $provide.service("session", SessionSvcMock);
@@ -56,11 +53,10 @@ describe("BpProcessHeader", () => {
             $provide.service("artifactAttachments", ArtifactAttachmentsService);
             $provide.service("artifactRelationships", ArtifactRelationshipsService);
             $provide.service("itemInfoService", ItemInfoService);
-            $provide.service("projectManager", ProjectManager);            
+            $provide.service("projectManager", ProjectManager);
             $provide.service("projectService", ProjectService);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
-            $provide.provider("analytics", AnalyticsProvider); 
-            $provide.service("collectionService", CollectionServiceMock);                                  
+            $provide.service("collectionService", CollectionServiceMock);
         }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,

@@ -130,11 +130,11 @@ namespace Model
         /// <summary>
         /// Gets license usage information
         /// </summary>
-        /// <param name="month">(optional)Information for specific month. By default gets information for all months</param>
         /// <param name="year">(optional)Information for specific year. By default gets information for all years</param>
+        /// <param name="month">(optional)Information for specific month. By default gets information for all months</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of ILicenseUsageInfo.</returns>
-        IList<LicenseUsage> GetLicenseUsage(int? month = null, int? year = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<LicenseUsage> GetLicenseUsage(int? year = null, int? month = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of active sessions.

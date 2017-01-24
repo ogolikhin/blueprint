@@ -3,13 +3,12 @@ import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {
     IArtifactState,
-    IArtifactManager,
     IStatefulArtifact,
     IMetaDataService,
     IItemChangeSet
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {
     IDialogService,
     IBPAction,
@@ -30,14 +29,14 @@ import {
     MoveCopyAction,
     AddToCollectionAction
 } from "./actions";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
-import {IAnalyticsProvider} from "../analytics/analyticsProvider";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
-import {IItemInfoService} from "../../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
+import {IMessageService} from "../messages/message.svc";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
 enum InfoBannerEnum {
     None = 0,
@@ -57,7 +56,8 @@ export class BpArtifactInfoController {
         "$q",
         "$scope",
         "$element",
-        "artifactManager",
+        "$timeout",
+        "selectionManager",
         "localization",
         "messageService",
         "dialogService",
@@ -67,7 +67,6 @@ export class BpArtifactInfoController {
         "projectManager",
         "metadataService",
         "mainbreadcrumbService",
-        "analytics",
         "collectionService",
         "itemInfoService"
     ];
@@ -103,7 +102,8 @@ export class BpArtifactInfoController {
     constructor(public $q: ng.IQService,
                 public $scope: ng.IScope,
                 private $element: ng.IAugmentedJQuery,
-                protected artifactManager: IArtifactManager,
+                private $timeout: ng.ITimeoutService,
+                protected selectionManager: ISelectionManager,
                 protected localization: ILocalizationService,
                 protected messageService: IMessageService,
                 protected dialogService: IDialogService,
@@ -113,7 +113,6 @@ export class BpArtifactInfoController {
                 protected projectManager: IProjectManager,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
-                protected analytics: IAnalyticsProvider,
                 protected collectionService: ICollectionService,
                 public itemInfoService: IItemInfoService) {
         this.initProperties();
@@ -122,7 +121,7 @@ export class BpArtifactInfoController {
     }
 
     public $onInit() {
-        this.artifact = this.artifactManager.selection.getArtifact();
+        this.artifact = this.selectionManager.getArtifact();
 
         if (this.artifact) {
             this.createToolbarActions();
@@ -330,9 +329,9 @@ export class BpArtifactInfoController {
             .finally(() => {
                 //(eventCollection, action, label?, value?, custom?, jQEvent?
                 const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
-                this.analytics.trackEvent("open", "project", label, projectId, {
+                /*this.analytics.trackEvent("open", "project", label, projectId, {
                     openProjects: openProjects
-                });
+                });*/
 
                 this.loadingOverlayService.endLoading(openProjectLoadingId);
             });
@@ -345,7 +344,7 @@ export class BpArtifactInfoController {
             this.projectManager, this.loadingOverlayService, this.navigationService);
         const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
             this.metadataService, this.mainBreadcrumbService);
-        const moveCopyAction = new MoveCopyAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+        const moveCopyAction = new MoveCopyAction(this.$q, this.$timeout, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService);
         const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
             this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService, this.itemInfoService);
@@ -366,7 +365,7 @@ export class BpArtifactInfoController {
 
     protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.artifactManager,
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
             this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
 
         if (buttonGroup) {

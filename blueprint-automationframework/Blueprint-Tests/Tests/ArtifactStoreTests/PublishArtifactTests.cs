@@ -61,7 +61,7 @@ namespace ArtifactStoreTests
             bool shouldPublishIncludingArtifacts)
         {
             // Setup: Create a collection and add published artifacts
-            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
 
             var savedOrPublishedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _authorUser, includingArtifactType, numberOfArtifacts);
 
@@ -103,7 +103,7 @@ namespace ArtifactStoreTests
             // Setup: Create a collection which contains inaccessible published artifact to the user
             var authorWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, authorWithoutPermission);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, authorWithoutPermission);
 
             var publishedArtifact = Helper.CreateAndPublishArtifact(_project, authorWithoutPermission, BaseArtifactType.Actor);
 
@@ -147,7 +147,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_PublishCollectionContainingDeletedArtifacts_VerifyCollection(int numberOfArtifacts)
         {
             // Setup: Create a collection and add artifacts in it
-            var collectionArtifact = ArtifactStoreHelper.CreateCollectionGetCollectionArtifact(Helper, _project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
 
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _authorUser, BaseArtifactType.Actor, numberOfArtifacts);
             

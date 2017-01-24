@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Impl;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
-using Common;
 
 namespace ArtifactStoreTests
 {
@@ -45,7 +43,7 @@ namespace ArtifactStoreTests
         [Description("Create new collection, get collection content and validate it.")]
         public void CreateEmptyCollection_GetCollectionContent_Validate()
         {
-            CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            Helper.CreateAndSaveCollection(_project, _authorUser);
         }
 
         [TestCase()]
@@ -54,7 +52,7 @@ namespace ArtifactStoreTests
         public void CreateEmptyCollection_AddArtifactToCollectionAndSave_ValidateCollectionContent()
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
@@ -67,7 +65,7 @@ namespace ArtifactStoreTests
             // Verify:
             collection = Helper.ArtifactStore.GetCollection(_authorUser, collection.Id);
             Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have 1 artifact");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd });
+            ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase> { artifactToAdd });
         }
 
         [TestCase()]
@@ -76,7 +74,7 @@ namespace ArtifactStoreTests
         public void UpdateCollection_AddTwoArtifactsToCollectionAndSave_RemoveOneArtifactFromCollectionAndSave_CheckContent()
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             var artifactToAdd = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Actor);
             var artifactToRemove = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Process);
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
@@ -94,7 +92,7 @@ namespace ArtifactStoreTests
             // Verify:
             collection = Helper.ArtifactStore.GetCollection(_authorUser, collection.Id);
             Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have 1 artifact");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd });
+            ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase> { artifactToAdd });
         }
 
         [TestCase(1)]
@@ -104,7 +102,7 @@ namespace ArtifactStoreTests
         public void UpdateCollection_AddPublishedArtifactsToCollection_Publish_ValidateCollectionContent(int artifactsNumber)
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             List<IArtifact> artifactsToAdd = new List<IArtifact>();
             for (int i = 0; i < artifactsNumber; i++)
             {
@@ -122,7 +120,7 @@ namespace ArtifactStoreTests
             // Verify:
             collection = Helper.ArtifactStore.GetCollection(_adminUser, collection.Id);
             Assert.AreEqual(artifactsNumber, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, artifactsToAdd);
+            ArtifactStoreHelper.ValidateCollection(collection, artifactsToAdd.ConvertAll(a => (IArtifactBase)a));
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -131,7 +129,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_PublishedArtifact_ValidateCollectionContent(BaseArtifactType artifactTypeToAdd)
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactTypeToAdd);
             
             int numberOfAddedArtifacts = 0;
@@ -145,7 +143,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
             Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifactToAdd});
+            ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase> { artifactToAdd });
         }
 
         [TestCase(true, 2)]
@@ -157,7 +155,7 @@ namespace ArtifactStoreTests
             int expectedNumberOfAddedArtifacts)
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor, artifact);
 
@@ -177,7 +175,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedNumberOfAddedArtifacts, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
             Assert.AreEqual(expectedNumberOfAddedArtifacts, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, addedArtifacts);
+            ArtifactStoreHelper.ValidateCollection(collection, addedArtifacts.ConvertAll(a => (IArtifactBase)a));
         }
 
         [TestCase]
@@ -186,7 +184,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_SavedArtifact_ValidateCollectionContent()
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Process);
 
             int numberOfAddedArtifacts = 0;
@@ -199,7 +197,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
             Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact });
+            ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase> { artifact });
         }
 
         [TestCase]
@@ -209,7 +207,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_SavedArtifact_CheckDescriptionFromCollectionContent()
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Actor);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
             const string descriptionText = "Description";
@@ -225,7 +223,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
             Assert.AreEqual(1, collection.Artifacts.Count, "Collection should have expected number of artifacts.");
-            CheckCollectionArtifactsHaveExpectedValues(collection.Artifacts, new List<IArtifact> { artifact });
+            ArtifactStoreHelper.ValidateCollection(collection, new List<IArtifactBase> { artifact });
             Assert.AreEqual(descriptionText, collection.Artifacts[0].Description, "Description should have expected value.");
         }
 
@@ -240,7 +238,8 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_CollectionLockedByOtherUser_Returns409()
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+
             Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser);
             collectionArtifact.Lock(_adminUser);
 
@@ -263,7 +262,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_ArtifactMarkedForDeletion_Returns404()
         {
             // Setup:
-            var collectionArtifact = CreateCollectionGetCollectionArtifact(_project, _authorUser);
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
             Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser);
             
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
@@ -280,50 +279,5 @@ namespace ArtifactStoreTests
         }
 
         #endregion 40x tests
-
-        /// <summary>
-        /// Creates empty collection and return corresponding IArtifact.
-        /// </summary>
-        /// <param name="project">Project to create collection.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="parentId">(optional) Id of artifact under which collection should be created (no check for valid location).</param>
-        /// <param name="name">(optional) The name of collection.</param>
-        /// <returns>IArtifact which corresponds to the created collection.</returns>
-        private IArtifact CreateCollectionGetCollectionArtifact(IProject project, IUser user, int? parentId = null, string name = null)
-        {
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
-            parentId = collectionFolder.Id;
-            // fake type as far as we don't have Collection in OpenApi
-            var collectionArtifact = Helper.CreateWrapAndSaveNovaArtifact(project, user,
-                ItemTypePredefined.ArtifactCollection, parentId.Value, baseType: BaseArtifactType.PrimitiveFolder,
-                name: name);
-
-            Collection collection = null;
-            Assert.DoesNotThrow(() =>
-                collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id),
-                "GetCollection shouldn't throw no error.");
-            Assert.AreEqual(0, collection.Artifacts.Count, "Collection should be empty.");
-            Assert.IsFalse(collection.IsCreated, "RapidReview shouldn't be created.");
-
-            return collectionArtifact;
-        }
-
-        /// <summary>
-        /// Compares list of CollectionItem with list of IArtifact.
-        /// </summary>
-        /// <param name="collectionArtifacts">List of CollectionItem.</param>
-        /// <param name="expectedArtifacts">List of IArtifact.</param>
-        private static void CheckCollectionArtifactsHaveExpectedValues (List<CollectionItem> collectionArtifacts,
-            List<IArtifact> expectedArtifacts)
-        {
-            Assert.AreEqual(collectionArtifacts.Count, expectedArtifacts.Count, "Number of artifacts should be the same");
-            for (int i = 0; i < collectionArtifacts.Count; i++)
-            {
-                Assert.AreEqual(expectedArtifacts[i].Id, collectionArtifacts[i].Id, "Id should have expected vaule");
-                Assert.AreEqual(expectedArtifacts[i].ArtifactTypeId, collectionArtifacts[i].ItemTypeId);
-                Assert.AreEqual(expectedArtifacts[i].Name, collectionArtifacts[i].Name);
-                Assert.AreEqual(expectedArtifacts[i].BaseArtifactType.ToItemTypePredefined(), collectionArtifacts[i].ItemTypePredefined);
-            }
-        }
     }
 }

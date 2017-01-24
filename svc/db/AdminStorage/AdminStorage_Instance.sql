@@ -1212,6 +1212,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Add_Same_DocRef_Error', 'en-US', N'Artifact already contains this document reference')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Delete_Attachment_Header', 'en-US', N'Delete Attachment')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Delete_Attachment', 'en-US', N'Please confirm the deletion of this attachment.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Filesize_Zero_Error', 'en-US', N'The file is invalid (its size is 0 bytes).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Document_File_Change', 'en-US', N'Change')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Document_File_Upload', 'en-US', N'Upload')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Document_File_Download', 'en-US', N'Download')

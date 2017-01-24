@@ -8,6 +8,7 @@ export interface IUploadStatusDialogData {
     maxNumberAttachments: number;
     maxNumberAttachmentsError?: string;
     maxAttachmentFilesize: number;
+    minAttachmentFilesize?: number;
     allowedExtentions?: string[];
     fileUploadAction: (file: File,
                        progressCallback: (event: ProgressEvent) => void,
@@ -103,6 +104,15 @@ export class BpFileUploadStatusController extends BaseDialogController {
 
     private isFileValid(f: IFileUploadStatus) {
         const filesizeFilter: Function = this.$filter("bpFilesize") as Function;
+
+        if (this.dialogData.minAttachmentFilesize &&
+            f.file.size < this.dialogData.minAttachmentFilesize) {
+
+            f.isFailed = true;
+            f.errorMessage =
+                this.localization.get("App_UP_Attachments_Upload_Filesize_Zero_Error", "The file size is zero.");
+            return false;
+        }
 
         if (f.file.size > this.dialogData.maxAttachmentFilesize) {
             f.isFailed = true;

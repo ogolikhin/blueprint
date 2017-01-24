@@ -105,7 +105,7 @@ export class BpFileUploadStatusController extends BaseDialogController {
     private isFileValid(f: IFileUploadStatus) {
         const filesizeFilter: Function = this.$filter("bpFilesize") as Function;
 
-        if (this.dialogData.minAttachmentFilesize &&
+        if (!_.isNil(this.dialogData.minAttachmentFilesize) &&
             f.file.size < this.dialogData.minAttachmentFilesize) {
 
             f.isFailed = true;

@@ -1,7 +1,7 @@
 import "angular";
 import "angular-mocks";
 import "lodash";
-import {BPArtifactListComponent, BPArtifactListController} from "./bp-artifact-list";
+import {IBPArtifactListController, BPArtifactListComponent, BPArtifactListController} from "./bp-artifact-list";
 import {Models} from "../../../main/models";
 
 describe("BPArtifactListComponent", () => {
@@ -17,23 +17,18 @@ describe("BPArtifactListComponent", () => {
     const projectList = mockData.projects;
     const selectedProject = 70422;
 
-    let scope: ng.IScope;
-    let template: string;
     let controller: BPArtifactListController;
 
     beforeEach(angular.mock.module("bp.widgets.artifactList"));
 
-    beforeEach(inject(($compile: ng.ICompileService, $rootScope: ng.IRootScopeService) => {
-        scope = $rootScope.$new();
-        scope["artifactList"] = artifactList;
-        scope["projectList"] = projectList;
-        scope["selectedProject"] = selectedProject;
-        template = `<bp-artifact-list
-                        artifact-list="artifactList"
-                        project-list="projectList"
-                        selected-project="selectedProject"
-                        limit="50" />`;
-        controller = $compile(template)(scope).controller("bpArtifactList") as BPArtifactListController;
+    beforeEach(inject(($componentController) => {
+        const bindings = {
+            artifactList: artifactList,
+            projectList: projectList,
+            selectedProject: selectedProject,
+            limit: 50
+        } as IBPArtifactListController;
+        controller = $componentController("bpArtifactList", null, bindings);
     }));
 
     it("Values are bound", () => {
@@ -46,33 +41,6 @@ describe("BPArtifactListComponent", () => {
         expect(controller.projectList).toEqual(projectList);
         expect(controller.selectedProject).toEqual(selectedProject);
         expect(controller.limit).toEqual(50);
-    });
-
-    it("Artifacts from selected project are first", () => {
-        // Arrange
-        const artifact1 = controller.sortedList[0] as Models.IArtifactWithProject;
-
-        // Act
-
-        // Assert
-        expect(artifact1.projectId).toEqual(selectedProject);
-    });
-
-    it("Subsequent artifacts are ordered by project name and by artifact name", () => {
-        // Arrange
-        const artifact1 = controller.sortedList[0] as Models.IArtifactWithProject;
-        const artifact2 = controller.sortedList[1] as Models.IArtifactWithProject;
-        const artifact3 = controller.sortedList[2] as Models.IArtifactWithProject;
-        const artifact4 = controller.sortedList[3] as Models.IArtifactWithProject;
-
-        // Act
-
-        // Assert
-        expect(artifact1.projectName < artifact2.projectName).toBeFalsy();
-        expect(artifact2.projectName < artifact3.projectName).toBeTruthy();
-
-        expect(artifact2.name < artifact3.name).toBeFalsy();
-        expect(artifact3.name < artifact4.name).toBeTruthy();
     });
 
     it("[Show more] button is initially visible if the artifact list is longer than limit", () => {
@@ -96,6 +64,7 @@ describe("BPArtifactListComponent", () => {
 
     it("Project name is visible for first artifact in list", () => {
         // Arrange
+        controller.$onInit();
         const artifact1 = controller.sortedList[0] as Models.IArtifactWithProject;
 
         // Act
@@ -106,6 +75,7 @@ describe("BPArtifactListComponent", () => {
 
     it("Project name is visible when artifact is from different project than previous artifact in list", () => {
         // Arrange
+        controller.$onInit();
         const artifact2 = controller.sortedList[1] as Models.IArtifactWithProject;
         const artifact3 = controller.sortedList[2] as Models.IArtifactWithProject;
         const artifact4 = controller.sortedList[3] as Models.IArtifactWithProject;
@@ -116,5 +86,35 @@ describe("BPArtifactListComponent", () => {
         expect(controller.showProject(artifact2, 1)).toBeTruthy();
         expect(controller.showProject(artifact3, 2)).toBeTruthy();
         expect(controller.showProject(artifact4, 3)).toBeFalsy();
+    });
+
+    // TODO: change/remove the following tests once the back-end provides presorted lists
+    it("Artifacts from selected project are first", () => {
+        // Arrange
+        controller.$onInit();
+        const artifact1 = controller.sortedList[0] as Models.IArtifactWithProject;
+
+        // Act
+
+        // Assert
+        expect(artifact1.projectId).toEqual(selectedProject);
+    });
+
+    it("Subsequent artifacts are ordered by project name and by artifact name", () => {
+        // Arrange
+        controller.$onInit();
+        const artifact1 = controller.sortedList[0] as Models.IArtifactWithProject;
+        const artifact2 = controller.sortedList[1] as Models.IArtifactWithProject;
+        const artifact3 = controller.sortedList[2] as Models.IArtifactWithProject;
+        const artifact4 = controller.sortedList[3] as Models.IArtifactWithProject;
+
+        // Act
+
+        // Assert
+        expect(artifact1.projectName < artifact2.projectName).toBeFalsy();
+        expect(artifact2.projectName < artifact3.projectName).toBeTruthy();
+
+        expect(artifact2.name < artifact3.name).toBeFalsy();
+        expect(artifact3.name < artifact4.name).toBeTruthy();
     });
 });

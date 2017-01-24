@@ -7,7 +7,7 @@ import {SelectionManagerMock} from "../managers/selection-manager/selection-mana
 import {MainStateController, LogoutStateController} from "./app.router";
 import {INavigationService} from "../commonModule/navigation/navigation.service";
 import {NavigationServiceMock} from "../commonModule/navigation/navigation.service.mock";
-import {IClipboardService} from "../editors/bp-process/services/clipboard.svc";
+import {IClipboardService} from "../editorsModule/bp-process/services/clipboard.svc";
 import {IProjectManager} from "../managers/project-manager/project-manager";
 import {ISession} from "./login/session.svc";
 import {SessionSvcMock} from "./login/mocks.spec";

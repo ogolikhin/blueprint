@@ -3,10 +3,10 @@ import "angular-sanitize";
 import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
-import {IProcessService} from "../../../editors/bp-process/services/process.svc";
-import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
-import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {IProcessService} from "../../../editorsModule/bp-process/services/process.svc";
+import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
+import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.svc.mock";
 import {
     ArtifactAttachmentsService,
     ArtifactService,

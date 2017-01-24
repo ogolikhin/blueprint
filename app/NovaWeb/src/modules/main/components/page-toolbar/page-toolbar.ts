@@ -4,7 +4,7 @@ import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadi
 import {IMessageService} from "../messages/message.svc";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
-import {IJobsService} from "../../../editors/jobs/jobs.svc";
+import {IJobsService} from "../../../editorsModule/jobs/jobs.svc";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
@@ -17,7 +17,7 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 

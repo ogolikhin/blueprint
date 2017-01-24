@@ -7,7 +7,7 @@ import {INavigationService} from "../commonModule/navigation/navigation.service"
 import {ILocalizationService} from "../commonModule/localization/localization.service";
 import {ILoadingOverlayService} from "../commonModule/loadingOverlay/loadingOverlay.service";
 import {IDialogService, IDialogSettings} from "../shared";
-import {IUnpublishedArtifactsService} from "../editors/unpublished/unpublished.svc";
+import {IUnpublishedArtifactsService} from "../editorsModule/unpublished/unpublished.svc";
 import {BPTourController} from "../main/components/dialogs/bp-tour/bp-tour";
 
 export class AppComponent implements ng.IComponentOptions {

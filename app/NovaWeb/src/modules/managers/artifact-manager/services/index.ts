@@ -3,4 +3,4 @@ export {
     StatefulProcessArtifactServices,
     IStatefulProcessArtifactServices
 }
-    from "../../../editors/bp-process/services/process-services";
+    from "../../../editorsModule/bp-process/services/process-services";

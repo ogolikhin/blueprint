@@ -9,7 +9,7 @@ import {PublishArtifactsAction} from "./publish-artifacts-action";
 import {
     UnpublishedArtifactsService,
     IUnpublishedArtifactsService
-} from "../../../../editors/unpublished/unpublished.svc";
+} from "../../../../editorsModule/unpublished/unpublished.svc";
 import {IArtifact} from "../../../models/models";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {IDialogService} from "../../../../shared";

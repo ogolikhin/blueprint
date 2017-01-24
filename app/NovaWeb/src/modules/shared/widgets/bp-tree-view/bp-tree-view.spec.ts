@@ -634,8 +634,6 @@ describe("BPTreeViewController", () => {
                 selectable: false
             } as ITreeNode;
             const node = {data: vm, expanded: true} as agGrid.RowNode;
-            const spy = jasmine.createSpyObj("vm", ["loadExpanded"]) as ITreeNode;
-            spyOn(controller, "resetGridAsync");
 
             // Act
             controller.onRowGroupOpened({node: node});

@@ -15,14 +15,13 @@ import {ProcessValidator} from "./process-graph-validator";
 import {NodeFactory} from "./shapes/node-factory";
 import {NodeFactorySettings} from "./shapes/node-factory-settings";
 import {SystemTask} from "./shapes/system-task";
-import {SystemDecision} from "./shapes/system-decision";
 import {MergingPoint} from "./shapes/merging-point";
 import {DiagramLink} from "./shapes/diagram-link";
 import {Connector} from "./shapes/connector";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ProcessDeleteHelper} from "./process-delete-helper";
-import {IMessageService} from "../../../../../../core/messages/message.svc";
 import {IBridgesHandler, BridgesHandler}  from "./bridges-handler";
+import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 
 export let tempShapeId: number = 0;
 
@@ -33,7 +32,7 @@ export class Layout implements ILayout {
     private edgesGeo: EdgeGeo[] = [];
     private DRAG_PREVIEW_TO_EDGE_DISTANCE = 50;
     public bridgesHandler: IBridgesHandler;
-    
+
     constructor(private processGraph: IProcessGraph,
                 public viewModel: IProcessViewModel,
                 private rootScope: any,

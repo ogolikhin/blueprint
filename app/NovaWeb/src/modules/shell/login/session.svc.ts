@@ -3,7 +3,7 @@ import {IDialogService, IDialogSettings, BaseDialogController} from "../../share
 import {IAuth, IUser} from "./auth.svc";
 import {SessionTokenHelper} from "./session.token.helper";
 import {LoginCtrl, ILoginInfo, ILoginModalDialogData} from "./login.ctrl";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export interface ISession {
     ensureAuthenticated(): ng.IPromise<any>;

@@ -1,8 +1,7 @@
 import {ICommunicationManager} from "../../";
-import {ILoadingOverlayService} from "../../../../core/loading-overlay/loading-overlay.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
+import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IWindowManager} from "../../../../main/services";
@@ -18,7 +17,8 @@ import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
 import {ICollectionService} from "../../../bp-collection/collection.svc";
-import {IItemInfoService} from "../../../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 
 export class BpProcessHeader implements ng.IComponentOptions {

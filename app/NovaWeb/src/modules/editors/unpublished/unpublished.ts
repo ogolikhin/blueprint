@@ -1,16 +1,16 @@
-import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IDialogService} from "../../shared/";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 
 export class UnpublishedComponent implements ng.IComponentOptions {

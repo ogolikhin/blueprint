@@ -1,10 +1,10 @@
 import "angular";
 import "angular-mocks";
 import "lodash";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {IProjectMeta} from "./../../../main/models/models";
 import {MetaDataService, IMetaDataService, ProjectMetaData} from "./metadata.svc";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {Enums} from "../../../main/models";
 
 
@@ -44,8 +44,8 @@ describe("Metadata Service -> ", () => {
             expect(meta.data.propertyTypes).toEqual(jasmine.any(Array), "incorrect type of propertyTypes");
             expect(meta.data.subArtifactTypes).toEqual(jasmine.any(Array), "incorrect type of subArtifactTypes");
             $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();   
-            expect(spy).toHaveBeenCalled();     
+            $httpBackend.verifyNoOutstandingRequest();
+            expect(spy).toHaveBeenCalled();
 
         }));
         it("from cache - successful", inject(($httpBackend: ng.IHttpBackendService, metadataService: IMetaDataService) => {
@@ -65,9 +65,9 @@ describe("Metadata Service -> ", () => {
             // Assert
             expect(error).toBe(undefined, "responce got error");
             expect(meta).toBeDefined();
-            expect(loadSpy).toHaveBeenCalledTimes(1);     
+            expect(loadSpy).toHaveBeenCalledTimes(1);
             $httpBackend.verifyNoOutstandingExpectation();
-            $httpBackend.verifyNoOutstandingRequest();   
+            $httpBackend.verifyNoOutstandingRequest();
 
         }));
         it("unsuccessful", inject(($httpBackend: ng.IHttpBackendService, metadataService: IMetaDataService) => {
@@ -81,7 +81,7 @@ describe("Metadata Service -> ", () => {
             metadataService.get(1).then((responce) => {
                 meta = responce;
             }, (err) => error = err);
-            
+
             $httpBackend.flush();
 
             // Assert
@@ -102,7 +102,7 @@ describe("Metadata Service -> ", () => {
             metadataService.get(1).then((responce) => {
                 meta = responce;
             }, (err) => error = err);
-            
+
             $httpBackend.flush();
 
             // Assert
@@ -118,9 +118,9 @@ describe("Metadata Service -> ", () => {
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
-        
+
     });
-    
+
     describe("Get -> ", () => {
         beforeEach(inject(($httpBackend: ng.IHttpBackendService, metadataService: IMetaDataService) => {
             // Arrange
@@ -131,66 +131,66 @@ describe("Metadata Service -> ", () => {
         }));
         it("Artifact item type - successul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let type: any;
             metadataService.getArtifactItemType(1, 12283).then(it => {
                 type = it;
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(type).toBeDefined();
         }));
         it("Artifact item type - unsuccessul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let type: any;
             metadataService.getArtifactItemType(1, 11111).then(it => {
                 type = it;
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(type).toBeUndefined();
         }));
         it("Subartifact item type - successul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let type: any;
             metadataService.getSubArtifactItemType(1, 12256).then(it => {
                 type = it;
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(type).toBeDefined();
         }));
         it("Subartifact item type - unsuccessul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let type: any;
             metadataService.getSubArtifactItemType(1, 22222).then(it => {
                 type = it;
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(type).toBeUndefined();
         }));
         it("Artifact property types - successul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let propertyTypes: any;
             metadataService.getArtifactPropertyTypes(1, 12282).then(it => {
                 propertyTypes = it;
             });
             _$rootScope.$digest();
-            
+
             // Assert
 
             expect(propertyTypes).toEqual(jasmine.any(Array), "incorrect type of property types");
@@ -199,14 +199,14 @@ describe("Metadata Service -> ", () => {
         }));
         it("Artifact property types - unsuccessul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let propertyTypes: any;
             metadataService.getArtifactPropertyTypes(1, 33333).then(it => {
                 propertyTypes = it;
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(propertyTypes).toEqual(jasmine.any(Array), "incorrect type of property types");
             expect(propertyTypes.length).toEqual(0);
@@ -221,7 +221,7 @@ describe("Metadata Service -> ", () => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(propertyTypeNames).toEqual(jasmine.any(Array), "incorrect type of property types");
             expect(propertyTypeNames.length).toEqual(7);
@@ -231,7 +231,7 @@ describe("Metadata Service -> ", () => {
 
         it("Actor artifact property types - successul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            const names = 
+            const names =
             "Label_Name,Label_Type,Label_CreatedBy,Label_CreatedOn,Label_LastEditBy,Label_LastEditOn,Label_Description,Label_ActorImage,Label_ActorInheritFrom";
             // Act
             let propertyTypeNames: string[] = [];
@@ -239,17 +239,17 @@ describe("Metadata Service -> ", () => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(propertyTypeNames).toEqual(jasmine.any(Array), "incorrect type of property types");
             expect(propertyTypeNames.length).toEqual(9);
             expect(propertyTypeNames.toString()).toEqual(names);
 
         }));
-        
+
         it("Document artifact property types - successul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            const names = 
+            const names =
             "Label_Name,Label_Type,Label_CreatedBy,Label_CreatedOn,Label_LastEditBy,Label_LastEditOn,Label_Description,Label_DocumentFile";
             // Act
             let propertyTypeNames: string[] = [];
@@ -257,26 +257,26 @@ describe("Metadata Service -> ", () => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(propertyTypeNames).toEqual(jasmine.any(Array), "incorrect type of property types");
             expect(propertyTypeNames.length).toEqual(8);
             expect(propertyTypeNames.toString()).toEqual(names);
 
         }));
-        
+
 
         it("Standard subrtifact property types - successul", inject((metadataService: IMetaDataService) => {
             // Arrange
             const names = "Label_Name,Label_Description";
-            
+
             // Act
             let propertyTypeNames: string[] = [];
             metadataService.getSubArtifactPropertyTypes(1, 12268).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
-            
+
             // Assert
 
             expect(propertyTypeNames).toEqual(jasmine.any(Array), "incorrect type of property types");
@@ -287,14 +287,14 @@ describe("Metadata Service -> ", () => {
         }));
         it("Standard subartifact property types - unsuccessul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let propertyTypes: any;
             metadataService.getSubArtifactPropertyTypes(1, 444).then(it => {
                 propertyTypes = it;
             });
             _$rootScope.$digest();
-            
+
             // Assert
             expect(propertyTypes).toEqual(jasmine.any(Array), "incorrect type of property types");
             expect(propertyTypes.length).toEqual(0);
@@ -308,7 +308,7 @@ describe("Metadata Service -> ", () => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
-            
+
             // Assert
 
             expect(propertyTypeNames).toEqual(jasmine.any(Array), "incorrect type of property types");
@@ -325,7 +325,7 @@ describe("Metadata Service -> ", () => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
-            
+
             // Assert
 
             expect(propertyTypeNames).toEqual(jasmine.any(Array), "incorrect type of property types");
@@ -342,7 +342,7 @@ describe("Metadata Service -> ", () => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
-            
+
             // Assert
 
             expect(propertyTypeNames).toEqual(jasmine.any(Array), "incorrect type of property types");
@@ -350,7 +350,7 @@ describe("Metadata Service -> ", () => {
             expect(propertyTypeNames.toString()).toEqual(names);
 
         }));
-        
+
 
     });
     describe("Remove -> ", () => {
@@ -363,39 +363,39 @@ describe("Metadata Service -> ", () => {
         }));
         it("successul", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let type: any;
             metadataService.remove(1);
             type = metadataService.getArtifactItemTypeTemp(1, 12283);
-            
+
             // Assert
             expect(type).toBeUndefined();
         }));
         it("unsuccessful", inject((metadataService: IMetaDataService) => {
             // Arrange
-            
+
             // Act
             let type: any;
             metadataService.remove(10);
             type = metadataService.getArtifactItemTypeTemp(1, 12283);
-            
+
             // Assert
             expect(type).toBeDefined();
         }));
     });
     describe("Refresh -> ", () => {
-        
+
         it("successul", inject((metadataService: IMetaDataService) => {
             // Arrange
             const spyLoad = spyOn(metadataService, "load").and.callFake(() => { return _$q.resolve(); });
             // Act
             let type: any;
             metadataService.refresh(1);
-            
+
             // Assert
             expect(spyLoad).toHaveBeenCalled();
         }));
-        
+
     });
 });

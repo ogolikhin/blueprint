@@ -1,8 +1,8 @@
+import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {createDefaultProcessModel} from "../../../editors/bp-process/models/test-model-factory";
 import {INovaProcess} from "../../../editors/bp-process/process-artifact";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
@@ -12,6 +12,7 @@ import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpu
 import {Enums, Models} from "../../../main";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
@@ -20,7 +21,6 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.moc
 import {ComponentTest} from "../../../util/component.test";
 import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {BPPropertiesController} from "./bp-properties-panel";
-import * as angular from "angular";
 
 describe("Component BPPropertiesPanel", () => {
 

@@ -2,17 +2,17 @@ import * as angular from "angular";
 import "angular-mocks";
 import "rx";
 import {UnpublishedController} from "./unpublished";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {UnpublishedArtifactsServiceMock} from "./unpublished.svc.mock";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
-import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
+import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {IUnpublishedArtifactsService} from "./unpublished.svc";
 import createSpy = jasmine.createSpy;
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 
 
 describe("Controller: Unpublished", () => {

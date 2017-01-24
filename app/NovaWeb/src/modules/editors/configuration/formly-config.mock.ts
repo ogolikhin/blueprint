@@ -4,7 +4,7 @@ import "angular-messages";
 import "angular-sanitize";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {BpEscapeAndHighlightFilter} from "../../shared/filters/bp-escape-highlight/bp-escape-highlight.filter";
 import {formlyConfig} from "./formly-config";
 

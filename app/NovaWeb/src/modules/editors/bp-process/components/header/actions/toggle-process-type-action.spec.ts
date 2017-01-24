@@ -3,7 +3,7 @@ import "angular-mocks";
 import "script!mxClient";
 import {ToggleProcessTypeAction} from "./toggle-process-type-action";
 import {CommunicationManager} from "../../../";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {RolePermissions, LockedByEnum, ReuseSettings} from "../../../../../main/models/enums";
 import {ProcessType} from "../../../models/enums";

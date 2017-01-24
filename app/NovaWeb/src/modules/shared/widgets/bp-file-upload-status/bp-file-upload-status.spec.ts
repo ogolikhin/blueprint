@@ -1,10 +1,10 @@
 import * as angular from "angular";
 import "angular-mocks";
 import {BpFileUploadStatusController, IUploadStatusDialogData} from "./bp-file-upload-status";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {DialogServiceMock} from "../bp-dialog/bp-dialog.mock";
-import {SettingsService} from "../../../core/configuration/settings";
-import {MessageService} from "../../../core/messages/message.svc";
+import {SettingsService} from "../../../commonModule/configuration/settings.service";
+import {MessageService} from "../../../main/components/messages/message.svc";
 
 class ModalServiceInstanceMock implements ng.ui.bootstrap.IModalServiceInstance {
     public close(result?: any): void {
@@ -146,6 +146,31 @@ describe("File Upload Status", () => {
         expect(controller.returnValue.length).toBe(1);
         expect(controller.totalFailedFiles).toBe(2);
         expect(controller.files.length).toBe(3);
+    }));
+
+    it("should not upload files with zero size", inject(() => {
+        // Arrange
+        const uploadFileSpy = jasmine.createSpy("uploadFileAction").and.returnValue($q.resolve({
+            guid: "test", uriToFile: "test"
+        }));
+        const dialogData = {
+            files: [
+                <File>{name: "testName1", size: 0},
+                <File>{name: "testName2", size: 456}],
+            maxAttachmentFilesize: 10485760, // 10 MB
+            minAttachmentFilesize: 1,
+            maxNumberAttachments: 5,
+            fileUploadAction: uploadFileSpy
+        };
+
+        // Act
+        controller = createController(dialogData);
+        $scope.$digest();
+
+        // Assert
+        expect(controller.returnValue.length).toBe(1);
+        expect(controller.totalFailedFiles).toBe(1);
+        expect(controller.files.length).toBe(2);
     }));
 
     it("should remove a file when it's cancelled", inject(() => {

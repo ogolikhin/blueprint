@@ -1,9 +1,9 @@
 ﻿import "angular-mocks";
-import {IUsersAndGroupsService, IUserOrGroupInfo} from "../../../../core";
 import {ITinyMceMentionOptions, MentionService} from "./mention.svc";
-import {UsersAndGroupsServiceMock, UserOrGroupInfo} from "../../../../core/services/users-and-groups.svc.mock";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {UsersAndGroupsServiceMock, UserOrGroupInfo} from "../../../../commonModule/services/usersAndGroups.service.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IUserOrGroupInfo, IUsersAndGroupsService} from "../../../../commonModule/services/usersAndGroups.service";
 
 /* tslint:disable:max-line-length */
 describe("Mention Service Test", () => {

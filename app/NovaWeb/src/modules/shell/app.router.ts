@@ -1,10 +1,10 @@
 import {ISession} from "./login/session.svc";
 import {IProjectManager, ISelectionManager} from "../managers";
-import {INavigationService} from "../core/navigation/navigation.svc";
+import {INavigationService} from "../commonModule/navigation/navigation.service";
 import {ILicenseService} from "./license/license.svc";
-import {IClipboardService} from "./../editors/bp-process/services/clipboard.svc";
-import {IMessageService} from "../core/messages/message.svc";
-import {MessageType} from "../core/messages/message";
+import {IClipboardService} from "../editors/bp-process/services/clipboard.svc";
+import {IMessageService} from "../main/components/messages/message.svc";
+import {MessageType} from "../main/components/messages/message";
 
 
 export class AppRoutes {

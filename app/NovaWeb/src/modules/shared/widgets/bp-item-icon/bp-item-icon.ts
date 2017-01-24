@@ -12,7 +12,14 @@ export class BPItemTypeIconComponent implements ng.IComponentOptions {
     };
 }
 
-export class BPItemTypeIconController {
+export interface IBPItemTypeIconController {
+    itemTypeId: number;
+    itemTypeIconId: number;
+    predefinedType: number;
+    fallback?: boolean;
+}
+
+export class BPItemTypeIconController implements IBPItemTypeIconController {
     public itemTypeId: number;
     public itemTypeIconId: number;
     public predefinedType: number;

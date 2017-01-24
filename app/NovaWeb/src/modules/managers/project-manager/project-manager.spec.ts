@@ -1,12 +1,8 @@
 ﻿import "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite.js";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {LoadingOverlayServiceMock} from "../../core/loading-overlay/loading-overlay.svc.mock";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {MessageType} from "../../core/messages/message";
-import {MessageServiceMock} from "../../core/messages/message.mock";
-import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
 import {AdminStoreModels, Enums, Models, TreeModels} from "../../main/models";
@@ -17,6 +13,10 @@ import {SelectionManagerMock} from "../selection-manager/selection-manager.mock"
 import {IArtifactNode, IProjectManager, ProjectManager} from "./project-manager";
 import {ProjectServiceStatusCode} from "./project-service";
 import {ProjectServiceMock} from "./project-service.mock";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {MessageType} from "../../main/components/messages/message";
+import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 
 describe("Project Manager Test", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {

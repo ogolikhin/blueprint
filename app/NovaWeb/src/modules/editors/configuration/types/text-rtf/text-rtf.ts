@@ -2,21 +2,21 @@ import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
-import {INavigationService} from "../../../../core/navigation/navigation.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
 import {IArtifactRelationships} from "../../../../managers/artifact-manager/relationships/relationships";
-import {IMessageService} from "../../../../core/messages/message.svc";
 import {
     BpFileUploadStatusController,
     IUploadStatusDialogData, IUploadStatusResult
 } from "../../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
-import {ISettingsService} from "../../../../core/configuration/settings";
-import {IFileUploadService, IFileResult} from "../../../../core/file-upload/fileUploadService";
+import {ISettingsService} from "../../../../commonModule/configuration/settings.service";
+import {IFileUploadService, IFileResult} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {Helper} from "../../../../shared/utils/helper";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
@@ -286,6 +286,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
         const dialogData: IUploadStatusDialogData = {
             files: [file],
             maxAttachmentFilesize: filesize,
+            minAttachmentFilesize: 1,
             maxNumberAttachments: maxNumOfImages - numberOfExistingImages,
             maxNumberAttachmentsError: localeFormatFilter(localeMessage, maxNumOfImages),
             allowedExtentions: ["png", "jpeg", "jpg"],

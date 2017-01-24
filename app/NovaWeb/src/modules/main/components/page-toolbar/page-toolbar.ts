@@ -1,3 +1,9 @@
+import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IMessageService} from "../messages/message.svc";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
 import {IJobsService} from "../../../editors/jobs/jobs.svc";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
@@ -11,11 +17,6 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
-import {IApplicationError} from "../../../core/error/applicationError";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
@@ -49,7 +50,8 @@ export class PageToolbarController {
         "navigationService",
         "artifactService",
         "loadingOverlayService",
-        "jobsService"
+        "jobsService",
+        "createArtifactService"
     ];
 
     constructor(private $q: ng.IQService,
@@ -64,7 +66,8 @@ export class PageToolbarController {
                 private navigationService: INavigationService,
                 private artifactService: IArtifactService,
                 private loadingOverlayService: ILoadingOverlayService,
-                private jobService: IJobsService) {
+                private jobService: IJobsService,
+                private createArtifactService: ICreateArtifactService) {
     }
 
     public $onInit() {
@@ -142,80 +145,71 @@ export class PageToolbarController {
         });
     };
 
+//------------------------------------------------------------------------------------
+// fixme: This code should be moved to a new action class when refactor the toolbar
     public createNewArtifact = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
         }
-        const artifact = this._currentArtifact;
-        const projectId = artifact.projectId;
-        const parentId = artifact.predefinedType !== Enums.ItemTypePredefined.ArtifactCollection ? artifact.id : artifact.parentId;
-        this.dialogService.open(<IDialogSettings>{
-                okButton: this.localization.get("App_Button_Create"),
-                cancelButton: this.localization.get("App_Button_Cancel"),
-                template: require("../dialogs/new-artifact/new-artifact.html"),
-                controller: CreateNewArtifactController,
-                css: "nova-new-artifact"
-            },
-            <ICreateNewArtifactDialogData>{
-                projectId: projectId,
-                parentId: parentId,
-                parentPredefinedType: artifact.predefinedType
-            })
-            .then((result: ICreateNewArtifactReturn) => {
-                const createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
-                const itemTypeId = result.artifactTypeId;
-                const name = result.artifactName;
 
-                this.artifactService.create(name, projectId, parentId, itemTypeId, undefined)
-                    .then((data: Models.IArtifact) => {
-                        const newArtifactId = data.id;
-                        this.projectManager.refresh(projectId, null, true)
-                            .finally(() => {
-                                this.projectManager.triggerProjectCollectionRefresh();
-                                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+        this.createArtifactService.createNewArtifact(
+            -1,
+            this._currentArtifact,
+            true,
+            null,
+            null,
+            this.refreshTree,
+            this.newArtifactCreationErrorHandler);
+    }
 
-                                this.$timeout(() => {
-                                    this.navigationService.navigateTo({id: newArtifactId});
-                                });
-                            });
-                    })
-                    .catch((error: IApplicationError) => {
-                        if (error.statusCode === 404 && error.errorCode === 102) {
-                            // project not found, we refresh all
-                            this.projectManager.refreshAll()
-                                .then(() => {
-                                    this.messageService.addError("Create_New_Artifact_Error_404_102", true);
-                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
-                                });
-                        } else if (error.statusCode === 404 && error.errorCode === 101) {
-                            // parent not found, we refresh the single project and move to the root
-                            this.navigationService.navigateTo({id: projectId})
-                                .finally(() => {
-                                    this.projectManager.refresh(projectId)
-                                        .then(() => {
-                                            this.projectManager.triggerProjectCollectionRefresh();
-                                            this.messageService.addError("Create_New_Artifact_Error_404_101", true);
-                                            this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
-                                        });
-                                });
-                        } else if (error.statusCode === 404 && error.errorCode === 109) {
-                            // artifact type not found, we refresh the single project
-                            this.projectManager.refresh(projectId)
-                                .then(() => {
-                                    this.projectManager.triggerProjectCollectionRefresh();
-                                    this.messageService.addError("Create_New_Artifact_Error_404_109", true);
-                                    this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
-                                });
-                        } else if (!error.handled) {
-                            this.messageService.addError("Create_New_Artifact_Error_Generic");
-                        }
+    private refreshTree = ((newArtifactId: number) => {
+        const projectId = this._currentArtifact.projectId;
+        let newArtifact: IStatefulArtifact = null;
+        return this.projectManager.refresh(projectId, null, true)
+            .finally(() => {
+                this.projectManager.triggerProjectCollectionRefresh();
 
-                        if (error.statusCode !== 404) {
-                            this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
-                        }
-                    });
+                this.$timeout(() => {
+                    this.navigationService.navigateTo({id: newArtifactId});
+                });
             });
-    };
+    });
+
+    private newArtifactCreationErrorHandler = ((error) => {
+        const projectId = this._currentArtifact.projectId;
+        if (error instanceof ApplicationError) {
+            if (error.statusCode === 404 && error.errorCode === 102) {
+                // project not found, we refresh all
+                this.projectManager.refreshAll()
+                    .then(() => {
+                        this.messageService.addError("Create_New_Artifact_Error_404_102", true);
+                    });
+            } else if (error.statusCode === 404 && error.errorCode === 101) {
+                // parent not found, we refresh the single project and move to the root
+                this.navigationService.navigateTo({id: projectId})
+                    .finally(() => {
+                        this.projectManager.refresh(projectId)
+                            .then(() => {
+                                this.projectManager.triggerProjectCollectionRefresh();
+                                this.messageService.addError("Create_New_Artifact_Error_404_101", true);
+                            });
+                    });
+            } else if (error.statusCode === 404 && error.errorCode === 109) {
+                // artifact type not found, we refresh the single project
+                this.projectManager.refresh(projectId)
+                    .then(() => {
+                        this.projectManager.triggerProjectCollectionRefresh();
+                        this.messageService.addError("Create_New_Artifact_Error_404_109", true);
+                    });
+            } else if (!error.handled) {
+                this.messageService.addError("Create_New_Artifact_Error_Generic");
+            }
+        } else {
+            this.messageService.addError("Create_New_Artifact_Error_Generic");
+        }
+    });
+// end
+//------------------------------------------------------------------------------------
 
     public publishAll = (evt?: ng.IAngularEvent): void => {
         if (evt) {

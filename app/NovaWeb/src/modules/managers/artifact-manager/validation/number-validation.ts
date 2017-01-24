@@ -1,4 +1,4 @@
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IBaseValidation, BaseValidation} from "./base-validation";
 
 export interface INumberValidation extends IBaseValidation {
@@ -54,10 +54,10 @@ export class NumberValidation extends BaseValidation implements INumberValidatio
                        oldValue: number,
                        decimalPlaces: number,
                        isValidated: boolean): boolean {
-                  
+
         const value = oldValue || newValue;
         const isNumber = angular.isNumber(this.localization.current.toNumber(value, isValidated ? decimalPlaces : null));
-        
+
         return !value || isNumber;
     }
 

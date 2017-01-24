@@ -1,9 +1,13 @@
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
 import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {Models} from "../../../../../main/models";
 import {IdGenerator} from "../../diagram/presentation/graph/shapes/id-generator";
 
@@ -16,11 +20,29 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         $rootScope: ng.IRootScopeService,
         $timeout: ng.ITimeoutService,
         dialogService: IDialogService,
+        $q: ng.IQService,
         localization: ILocalizationService,
+        createArtifactService: ICreateArtifactService,
+        statefulArtifactFactory: IStatefulArtifactFactory,
+        messageService: IMessageService,
+        artifactService: IArtifactService,
+        loadingOverlayService: ILoadingOverlayService,
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: SystemTaskDialogModel
     ) {
-        super($scope, $rootScope, $timeout, dialogService, localization, $uibModalInstance, dialogModel);
+        super($scope,
+        $rootScope,
+        $timeout,
+        dialogService,
+        $q,
+        localization,
+        createArtifactService,
+        statefulArtifactFactory,
+        messageService,
+        artifactService,
+        loadingOverlayService,
+        $uibModalInstance,
+        dialogModel);
     }
 
     public nameOnFocus() {
@@ -70,6 +92,14 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         } else {
             this.dialogModel.personaReference = this.getDefaultPersonaReference();
         }
+    }
+
+    protected getNewArtifactName(): string {
+        return this.dialogModel.label;
+    }
+
+    protected getItemTypeId(): number {
+        return this.dialogModel.itemTypeId;
     }
 
     protected populateTaskChanges() {

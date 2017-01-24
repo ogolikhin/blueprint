@@ -8,7 +8,7 @@ import {
     IItemChangeSet
 } from "../../../managers/artifact-manager";
 import {IProjectManager} from "../../../managers/project-manager";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {
     IDialogService,
     IBPAction,
@@ -29,13 +29,13 @@ import {
     MoveCopyAction,
     AddToCollectionAction
 } from "./actions";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
 import {Enums} from "../../models";
-import {IItemInfoService} from "../../../core/navigation/item-info.svc";
+import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
+import {IMessageService} from "../messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
 enum InfoBannerEnum {

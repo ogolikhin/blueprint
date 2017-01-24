@@ -2,8 +2,8 @@ import * as angular from "angular";
 import "angular-mocks";
 import {BreadcrumbService, IPathItem} from "./breadcrumb.svc";
 import {ItemTypePredefined} from "../../../main/models/enums";
-import {NavigationServiceMock} from "../../../core/navigation/navigation.svc.mock";
-import {INavigationService} from "../../../core/navigation/navigation.svc";
+import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 
 describe("BreadcrumbService", () => {
     let $rootScope: ng.IRootScopeService;
@@ -83,14 +83,14 @@ describe("BreadcrumbService", () => {
     it("getReferences makes an http call if navigation history exists", (done: DoneFn) => {
         // arrange
         const path = [
-            {id: 2}, 
+            {id: 2},
             {id: 3}
         ];
         const navigationState = {id: 1, path: path};
         const service = new BreadcrumbService($q, $http, navigationService);
         const expectedPathItems = [
-            {id: 2, version: undefined}, 
-            {id: 3, version: undefined}, 
+            {id: 2, version: undefined},
+            {id: 3, version: undefined},
             {id: 1, version: undefined}
         ];
         const deferred = $q.defer();

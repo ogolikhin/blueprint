@@ -1,5 +1,5 @@
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {IMessageService} from "../../core/messages/message.svc";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {IMessageService} from "../../main/components/messages/message.svc";
 import {Enums} from "../../main/models";
 import {IMainWindow, IWindowManager} from "../../main/services/window-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";

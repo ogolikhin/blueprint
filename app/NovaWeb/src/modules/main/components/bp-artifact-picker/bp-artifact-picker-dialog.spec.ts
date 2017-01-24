@@ -1,6 +1,6 @@
 import {IDialogSettings} from "../../../shared/";
 import {ArtifactPickerDialogController} from "./bp-artifact-picker-dialog";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 describe("ArtifactPickerDialogController", () => {
     let controller: ArtifactPickerDialogController;

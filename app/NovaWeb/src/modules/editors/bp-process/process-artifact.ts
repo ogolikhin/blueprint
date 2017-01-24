@@ -1,15 +1,11 @@
 import {Models} from "../../main/models";
-import {ReuseSettings} from "../../main/models/enums";
-import {Message, MessageType} from "../../core/messages/message";
 import {ProcessType} from "./models/enums";
 import {IProcess, IProcessShape, IProcessLink} from "./models/process-models";
-import {IHashMapOfPropertyValues, IVersionInfo, ItemTypePredefined} from "./models/process-models";
+import {IHashMapOfPropertyValues, ItemTypePredefined} from "./models/process-models";
 import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
-import {IStatefulProcessArtifactServices} from "../../managers/artifact-manager/services";
+import {IStatefulProcessArtifactServices} from "./services/process-services";
 import {StatefulProcessSubArtifact} from "./process-subartifact";
-import {IProcessUpdateResult} from "./services/process.svc";
 import {IArtifactReference} from "./models/process-models";
-import {IState} from "../../managers/artifact-manager/state";
 import {ProcessModelProcessor} from "./services/process-model-processor";
 
 export interface INovaProcess extends Models.IArtifact {

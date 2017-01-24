@@ -7,8 +7,8 @@ import {IMetaData} from "../metadata";
 import {IDocumentRefs, DocumentRefs} from "../docrefs";
 import {IStatefulArtifactServices} from "../services";
 import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
-import {IApplicationError} from "../../../core/error/applicationError";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {IApplicationError} from "../../../shell/error/applicationError";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 
 export interface IStatefulItem extends Models.IArtifact {

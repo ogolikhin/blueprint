@@ -1,4 +1,4 @@
-import {IItemInfoService, IItemInfoResult} from "../../../core/navigation/item-info.svc";
+import {IItemInfoService, IItemInfoResult} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";
 import {IProcessService} from "../../../editors/bp-process/services/process.svc";
@@ -26,12 +26,12 @@ import {
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
 import {IValidationService} from "../validation/validation.svc";
-import {ILoadingOverlayService} from "../../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../core/localization/localizationService";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {StatefulProjectArtifact} from "../project/project-artifact";
 import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: IArtifact): IStatefulArtifact;

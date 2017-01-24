@@ -692,6 +692,7 @@ namespace Helper
             ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
             ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
 
+            Assert.AreEqual(expectedArtifact.Id, actualCollectionItem.Id);
             Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
             Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
             Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
@@ -843,10 +844,9 @@ namespace Helper
 
             if (artifactList.Any())
             {
-                foreach (var artifact in artifactList)
+                for (int i =0; i < artifactList.Count(); i++)
                 {
-                    var collectionItem = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id));
-                    AssertAreEqual(artifact, collectionItem);
+                    AssertAreEqual(artifactList[i], collection.Artifacts[i]);
                 }
             }
         }

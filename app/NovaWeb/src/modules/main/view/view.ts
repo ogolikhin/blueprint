@@ -1,7 +1,4 @@
-﻿import {ILocalStorageService} from "../../core/local-storage/local-storage.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {IMessageService} from "../../core/messages/message.svc";
-import {IWindowVisibility, VisibilityStatus} from "../../core/services/window-visibility";
+﻿import {IWindowVisibility, VisibilityStatus} from "../../commonModule/services/windowVisibility";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IProjectManager} from "../../managers/project-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
@@ -10,6 +7,9 @@ import {ISession, IUser} from "../../shell";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {BPTourController} from "../components/dialogs/bp-tour/bp-tour";
 import {IViewModel} from "../models/models";
+import {IMessageService} from "../components/messages/message.svc";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {ILocalStorageService} from "../../commonModule/localStorage/localStorage.service";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");

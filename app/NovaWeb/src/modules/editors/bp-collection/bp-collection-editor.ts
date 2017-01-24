@@ -1,5 +1,3 @@
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {IMessageService} from "../../core/messages/message.svc";
 import {Models} from "../../main";
 import {Enums} from "../../main/models";
 import {IWindowManager} from "../../main/services/window-manager";
@@ -8,11 +6,13 @@ import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {Helper, IDialogService} from "../../shared";
+import {IMessageService} from "../../main/components/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRendererParams, ITreeNode} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../bp-artifact/bp-details-editor";
 import {IPropertyDescriptorBuilder} from "../configuration/property-descriptor-builder";
 import {ICollectionArtifact, IStatefulCollectionArtifact} from "./collection-artifact";
 import {ICollectionService} from "./collection.svc";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {
     public template: string = require("./bp-collection-editor.html");

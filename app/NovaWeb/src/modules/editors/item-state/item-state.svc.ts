@@ -1,8 +1,8 @@
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
-import {ILoadingOverlayService} from "../../core/loading-overlay/loading-overlay.svc";
-import {IMessageService} from "../../core/messages/message.svc";
-import {HttpStatusCode} from "../../core/http/http-status-code";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
+import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
+import {IMessageService} from "../../main/components/messages/message.svc";
 
 export interface IItemStateService {
     getItemInfoResult(id: number): ng.IPromise<IItemInfoResult>;

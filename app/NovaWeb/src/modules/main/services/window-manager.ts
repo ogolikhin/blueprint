@@ -1,5 +1,5 @@
-import {IWindowResize} from "../../core";
 
+import {IWindowResize} from "../../commonModule/services/windowResize";
 export enum ResizeCause {
     unknown,
     browserResize,

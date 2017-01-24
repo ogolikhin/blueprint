@@ -4,8 +4,8 @@ import "angular-sanitize";
 import "./index";
 import {ComponentTest} from "../util/component.test";
 import {AppController} from "./app.component";
-import {INavigationService} from "../core/navigation/navigation.svc";
-import {NavigationServiceMock} from "../core/navigation/navigation.svc.mock";
+import {INavigationService} from "../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../commonModule/navigation/navigation.service.mock";
 import {UnpublishedArtifactsServiceMock} from "../editors/unpublished/unpublished.svc.mock";
 import {IUser} from "./login/auth.svc";
 

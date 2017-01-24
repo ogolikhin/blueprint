@@ -4,7 +4,7 @@ import "angular-mocks";
 import "angular-sanitize";
 import {ComponentTest} from "../../../../util/component.test";
 import {BPArtifactHistoryItemController} from "./bp-artifact-history-item";
-import {LocalizationServiceMock} from "../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 
 describe("Component BPArtifactHistoryItem", () => {
 

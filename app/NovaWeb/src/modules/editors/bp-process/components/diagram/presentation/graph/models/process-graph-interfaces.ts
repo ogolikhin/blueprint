@@ -1,12 +1,12 @@
 import {IProcessShape, IProcessLink, IProcessLinkModel} from "./";
-import {IArtifactProperty, ItemIndicatorFlags} from "./";
+import {IArtifactProperty} from "./";
 import {Direction, NodeType, NodeChange, ElementType} from "./";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IProcessViewModel} from "../../../viewmodel/process-viewmodel";
 import {SourcesAndDestinations, IUserStory, IArtifactReference} from "../../../../../models/process-models";
-import {IMessageService} from "../../../../../../../core/messages/message.svc";
 import {IProcessDiagramCommunication} from "../../../process-diagram-communication";
 import {IBridgesHandler}  from "../bridges-handler";
+import {IMessageService} from "../../../../../../../main/components/messages/message.svc";
 
 export interface IDeletable {
     canDelete(): boolean;

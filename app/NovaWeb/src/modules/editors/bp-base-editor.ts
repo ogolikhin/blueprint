@@ -1,4 +1,4 @@
-﻿import {IMessageService} from "../core/messages/message.svc";
+﻿import {IMessageService} from "../main/components/messages/message.svc";
 import {IStatefulArtifact} from "../managers/artifact-manager";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 

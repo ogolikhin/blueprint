@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "../../..";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {NodeType} from "../../diagram/presentation/graph/models";
 import {IDialogService} from "../../../../../shared";
@@ -10,7 +10,7 @@ import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
 import {UserTaskModalController} from "./user-task-modal-controller";
 import {IArtifactReference} from "../../../models/process-models";
 import {UserTask} from "../../diagram/presentation/graph/shapes/";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {Models} from "../../../../../main/models/";
 
 require("script!mxClient");

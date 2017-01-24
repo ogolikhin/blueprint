@@ -1,9 +1,9 @@
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../../core/messages/message.mock";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {Enums, Models} from "../../../main/models";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";

@@ -8,13 +8,13 @@ import {SafaryGestureHelper} from "./impl/utils/gesture-helper";
 import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
 import {ShapeExtensions} from "./impl/utils/helpers";
 import {IStatefulDiagramArtifact} from "./diagram-artifact";
-import {IMessageService} from "../../core/messages/message.svc";
-import {MessageType, Message} from "../../core/messages/message";
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
+import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {BpBaseEditor} from "../bp-base-editor";
-import {INavigationService} from "../../core/navigation/navigation.svc";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {MessageType, Message} from "../../main/components/messages/message";
 
 
 export class BPDiagram implements ng.IComponentOptions {

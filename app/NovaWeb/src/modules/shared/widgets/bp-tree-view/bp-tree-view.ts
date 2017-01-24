@@ -1,7 +1,7 @@
 import * as agGrid from "ag-grid/main";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
-import {ILocalizationService} from "../../../core/localization/localizationService";
-import {IMessageService} from "../../../core/messages/message.svc";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 
 /**
  * Usage:

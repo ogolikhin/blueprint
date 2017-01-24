@@ -3,7 +3,7 @@ import "angular-sanitize";
 import {Models, Enums} from "../../../../main/models";
 import {IPropertyDescriptor} from "../../property-descriptor-builder";
 import {Helper} from "../../../../shared";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 
 export class BPFieldReadOnly implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldReadOnly";

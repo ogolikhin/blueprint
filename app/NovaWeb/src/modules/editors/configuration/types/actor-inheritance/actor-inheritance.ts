@@ -3,8 +3,8 @@ import {BPFieldBaseController} from "../base-controller";
 import {Models} from "../../../../main/models";
 import {ISelectionManager} from "../../../../managers";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldInheritFrom";

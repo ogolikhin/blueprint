@@ -3,7 +3,7 @@ import {IArtifactPickerAPI} from "../../bp-artifact-picker/bp-artifact-picker";
 import {Models} from "../../../../main/models";
 import {IDialogSettings} from "../../../../shared/";
 import {Enums} from "../../../../main/models";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 
 export enum MoveCopyArtifactInsertMethod {
     Inside,

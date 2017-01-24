@@ -6,7 +6,7 @@ import "angular-ui-bootstrap";
 import "ui-select";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import {UsersAndGroupsServiceMock} from "../../../../core/services/users-and-groups.svc.mock";
+import {UsersAndGroupsServiceMock} from "../../../../commonModule/services/usersAndGroups.service.mock";
 import {createFormlyModule} from "../../formly-config.mock";
 import {ValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
 

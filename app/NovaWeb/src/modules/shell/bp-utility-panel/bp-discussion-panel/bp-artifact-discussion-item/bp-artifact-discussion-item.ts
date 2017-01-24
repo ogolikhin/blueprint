@@ -1,6 +1,6 @@
 ﻿import {IDiscussion, IArtifactDiscussions} from "../artifact-discussions.svc";
-import {IMessageService} from "../../../../core/messages/message.svc";
-import {ILocalizationService} from "../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
 
 export class BPArtifactDiscussionItem implements ng.IComponentOptions {
     public template: string = require("./bp-artifact-discussion-item.html");

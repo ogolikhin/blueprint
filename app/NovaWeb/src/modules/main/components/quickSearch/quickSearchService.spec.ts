@@ -1,5 +1,5 @@
 import "angular-mocks";
-import {HttpStatusCode} from "../../../core/http/http-status-code";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {IProjectManager} from "../../../managers/project-manager";
 import {Models} from "../../models";
 import {IQuickSearchService} from "./quickSearchService";

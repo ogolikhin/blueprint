@@ -1,5 +1,5 @@
 import {BPButtonAction} from "../../../../../shared";
-import {ILocalizationService} from "../../../../../core/localization/localizationService";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ICommunicationManager} from "../../../services/communication-manager";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
@@ -43,7 +43,7 @@ export class CopyAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        return !this.process 
+        return !this.process
             || this.process.artifactState.historical
             || !this.hasValidSelection;
     }

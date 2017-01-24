@@ -5,9 +5,9 @@ import {PreviewCenterController, PreviewCenterComponent} from "./preview-center"
 import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
 import {IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {MessageServiceMock} from "../../../../../core/messages/message.mock";
-import {IMessageService} from "../../../../../core/messages/message.svc";
-import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
+import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
 
 describe("PreviewCenter Directive", () => {

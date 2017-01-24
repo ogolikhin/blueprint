@@ -3,20 +3,20 @@ import "angular-mocks";
 import "angular-sanitize";
 import "../../main";
 import {Models} from "../../main/models";
-import {LocalizationServiceMock} from "../../core/localization/localization.mock";
-import {MessageServiceMock} from "../../core/messages/message.mock";
-import {NavigationServiceMock} from "../../core/navigation/navigation.svc.mock";
-import {IItemInfoService, IItemInfoResult} from "../../core/navigation/item-info.svc";
-import {ItemInfoServiceMock} from "../../core/navigation/item-info.svc.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
+import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
+import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ItemStateController} from "./item-state.controller";
-import {IMessageService} from "../../core/messages/message.svc";
-import {ILocalizationService} from "../../core/localization/localizationService";
-import {INavigationService} from "../../core/navigation/navigation.svc";
-import {MessageType, Message} from "../../core/messages/message";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
+import {Message, MessageType} from "../../main/components/messages/message";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
@@ -36,7 +36,7 @@ describe("Item State Controller tests", () => {
         ctrl: ItemStateController;
 
     beforeEach(angular.mock.module("ui.router"));
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("bp.editors"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
@@ -96,10 +96,6 @@ describe("Item State Controller tests", () => {
             $timeout,
             itemInfo);
     }
-
-    it("respond to url", inject(($state: ng.ui.IStateService) => {
-        expect($state.href("main.item", {id: 1})).toEqual("#/main/1");
-    }));
 
     it("clears locked messages", () => {
         // arrange
@@ -259,7 +255,7 @@ describe("Item State Controller tests", () => {
 
                 // act
                 ctrl = getItemStateController(itemInfo);
-                $timeout.flush();
+                //$timeout.flush();
 
                 // assert
                 expect(navigationSpy).toHaveBeenCalled();
@@ -420,7 +416,7 @@ describe("Item State Controller tests", () => {
 
                 // act
                 ctrl = getItemStateController(itemInfo, version.toString());
-                $timeout.flush();
+                //$timeout.flush();
 
                 // assert
                 const selectedArtifact: IStatefulArtifact = selectionManager.setExplorerArtifact["calls"].argsFor(0)[0];

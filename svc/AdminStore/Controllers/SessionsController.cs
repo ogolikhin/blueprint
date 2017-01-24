@@ -233,5 +233,19 @@ namespace AdminStore.Controllers
                 return InternalServerError();
             }
         }
+
+        /// <summary>
+        /// IsSessionAlive
+        /// </summary>
+        /// <remarks>
+        /// Returns 200 OK. Used to check if session is alive.
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        [HttpGet, NoCache]
+        [Route("alive"), SessionRequired]
+        public IHttpActionResult IsSessionAlive()
+        {
+            return Ok();
+        }
     }
 }

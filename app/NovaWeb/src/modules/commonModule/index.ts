@@ -7,6 +7,7 @@ import {LocalStorage} from "./localStorage";
 import {Localization} from "./localization";
 import {ItemInfo} from "./itemInfo";
 import {Navigation} from "./navigation";
+import {Download} from "./download";
 import {CoreServices} from "./services/index";
 import * as uiBootstrap from "angular-ui-bootstrap";
 
@@ -21,6 +22,7 @@ export const CommonModule = angular.module("commonModule", [
     CoreServices,
     LocalStorage,
     ConfigurationModule,
-    HttpInterceptorModule
+    HttpInterceptorModule,
+    Download
 ])
     .name;

@@ -658,7 +658,7 @@ namespace SearchServiceTests
         }
 
         [TestCase ("Std-Text-Required-HasDefault", 1)]
-        [TestRail(999999)]
+        [TestRail(234325)]
         [Description("Search for search term that is present in artifact textual property.  Execute Search - " +
             "Must return SearchResult with list of FullTextSearchItems matching artifacts with textual property.")]
         public void FullTextSearch_SearchPublishedArtifactTextualProperties_VerifySearchResultIncludesItem(
@@ -690,13 +690,11 @@ namespace SearchServiceTests
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
         }
 
-
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [TestCase("Std-Text-Required-HasDefault", 1)]
-        [TestRail(999999)]
-        [Description("Search for search term that is present in artifact textual property.  Execute Search - " +
-            "Must return SearchResult with list of FullTextSearchItems matching artifacts with textual property.")]
+        [TestRail(234326)]
+        [Description("Search for search term that is present in subartifact textual property.  Execute Search - " +
+            "Must return SearchResult with list of FullTextSearchItems matching artifacts with subartifact textual property.")]
         public void FullTextSearch_SearchPublishedSubArtifactTextualProperties_VerifySearchResultIncludesItem(
             string propertyName, int expectedHits)
         {
@@ -724,7 +722,6 @@ namespace SearchServiceTests
                 "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
             // Verify: Verify that searchResult contains all published artifacts
-
             Assert.AreEqual(fullTextSearchResult.PageItemCount, expectedHits,
                 "The number of hits was {0} but {1} was expected", expectedHits, fullTextSearchResult.PageItemCount);
 

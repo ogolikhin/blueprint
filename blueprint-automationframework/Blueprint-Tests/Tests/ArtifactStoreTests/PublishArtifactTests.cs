@@ -906,7 +906,7 @@ namespace ArtifactStoreTests
             // Update custom property in artifact.
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            var property = ArtifactStoreHelper.UpdateCustomPropertyWithNull(artifactDetails.CustomPropertyValues, propertyName);
+            var property = ArtifactStoreHelper.SetCustomPropertyWithNull(artifactDetails.CustomPropertyValues, propertyName);
 
             var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
 
@@ -946,7 +946,7 @@ namespace ArtifactStoreTests
             var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, processShape.Id);
 
             // Update custom property in subartifact.
-            var property = ArtifactStoreHelper.UpdateCustomPropertyWithNull(novaSubArtifact.CustomPropertyValues, propertyName);
+            var property = ArtifactStoreHelper.SetCustomPropertyWithNull(novaSubArtifact.CustomPropertyValues, propertyName);
 
             // Add subartifact changeset to NovaProcess
             var subArtifactChangeSet = TestHelper.CreateSubArtifactChangeSet(novaSubArtifact, customProperty: property);

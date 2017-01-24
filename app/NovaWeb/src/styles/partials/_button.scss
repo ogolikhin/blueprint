@@ -49,6 +49,7 @@
  .btn-secondary           - Secondary action button
  .btn__icon               - another button with an icon?
  .btn-dropdown-toggle     - a drop down toggle
+ .btn-link                - a button that looks like a link
 
  markup:
  <button class="btn {$modifiers}">Button</button>
@@ -307,6 +308,15 @@ Helper classes
     &:hover {
         color: white;
         opacity: 80%;
+    }
+}
+
+.btn-link{
+    padding:0;
+    text-align:inherit;
+    &:hover,
+    &:focus{
+        text-decoration:none;
     }
 }
 

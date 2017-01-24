@@ -8,20 +8,14 @@
                 <span>{{::$root.config.labels["App_Toolbar_Project"]}}</span>
             </a>
             <ul class="dropdown-menu">
-                <li><a href="#" ng-click="$ctrl.openProject($event)">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</a>
+                <li>
+                    <button type="button" class="btn btn-link" g-click="$ctrl.openProject($event)">{{::$root.config.labels["App_Toolbar_Open_Project"]}}</button>
                 </li>
-                <!-- The following second level menu has been temporarily disabled -->
-                <!-- <li class="dropdown-submenu">
-                     <a href="#" ng-click="$ctrl.showSubLevel($event)">{{::$root.config.labels["App_Toolbar_Open_Recent_Projects"]}}</a>
-                     <ul class="dropdown-menu">
-                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #1</a></li>
-                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #2</a></li>
-                         <li><a href="#" ng-click="$ctrl.execute($event)">Recent project #3</a></li>
-                     </ul>
-                 </li> -->
-                <li><a href="#" ng-class="{disabled: !$ctrl.isArtifactSelected}" ng-click="$ctrl.closeProject($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</a>
+                <li>
+                    <button type="button" class="btn btn-link" ng-disabled="!$ctrl.isArtifactSelected" ng-click="$ctrl.closeProject($event)">{{::$root.config.labels["App_Toolbar_Close_Project"]}}</button>
                 </li>
-                <li><a href="#" ng-class="{disabled: !$ctrl.isProjectOpened}" ng-click="$ctrl.closeAllProjects($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</a>
+                <li>
+                    <button type="button" class="btn btn-link" ng-disabled="!$ctrl.isProjectOpened" ng-click="$ctrl.closeAllProjects($event)">{{::$root.config.labels["App_Toolbar_Close_All_Projects"]}}</button>
                 </li>
             </ul>
         </li>
@@ -33,6 +27,12 @@
                 </div>
                 <span>{{::$root.config.labels["App_Toolbar_New"]}}</span>
             </a>
+        </li>
+        <li>
+            <button title='{{::$root.config.labels["App_Toolbar_New"]}}' type="button" class="btn btn-link" ng-disabled="!$ctrl.canCreateNew" ng-click="$ctrl.createNewArtifact($event)">
+                <i class="fonticon fonticon2-new"></i>
+                <span class="icon-label">{{::$root.config.labels["App_Toolbar_New"]}}</span>
+            </button>
         </li>
         <li>
             <a href="#" ng-click="$ctrl.publishAll($event)">
@@ -79,7 +79,7 @@
         <li class="full-height">
             <quick-search class="full-height block"></quick-search>
         </li>
-        
+
 
     </ul>
 </div>

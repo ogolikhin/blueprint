@@ -624,6 +624,31 @@ describe("BPTreeViewController", () => {
             expect(vm.expanded).toEqual(false);
         });
 
+        it("onRowGroupOpened, when try to call this function twice", inject(($rootScope) => {
+            // Arrange
+            const vm = {
+                group: true,
+                expanded: false,
+                key: "",
+                children: [],
+                selectable: false
+            } as ITreeNode;
+            const node = {data: vm, expanded: true} as agGrid.RowNode;
+            const spy = jasmine.createSpyObj("vm", ["loadExpanded"]) as ITreeNode;
+            spyOn(controller, "resetGridAsync");
+
+            // Act
+            controller.onRowGroupOpened({node: node});
+
+            expect(vm.group).toEqual(undefined);
+
+            controller.onRowGroupOpened({node: node});
+            $rootScope.$digest(); // Resolves promises
+
+            // Assert
+            expect(vm.group).toEqual(true);
+        }));
+
         it("onCellClicked, when event target is outside the cell value div, does not call setSelectedParams", () => {
             // Arrange
             controller.options.rowDeselection = true;

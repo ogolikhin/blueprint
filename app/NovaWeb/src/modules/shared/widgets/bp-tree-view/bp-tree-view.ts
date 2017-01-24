@@ -416,6 +416,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             }
             vm.expanded = node.expanded;
             if (node.expanded) {
+                vm.group = undefined; // Temporarily prevent expanding/collapsing
                 if (row) {
                     row.classList.add("ag-row-loading");
                 }
@@ -428,9 +429,9 @@ export class BPTreeViewController implements IBPTreeViewController {
                         if (row) {
                             row.classList.remove("ag-row-loading");
                         }
+                        vm.group = true; // Allow expanding/collapsing again
                     });
-            }
-            if (!vm.expanded) {
+            } else {
                 /*if the children can be unloaded, do it now*/
                 if (_.isFunction(vm.unloadChildren)) {
                     /* ag-Grid: adding and removing rows is not supported when using nodeChildDetailsFunc, ie it is not supported if providing groups*

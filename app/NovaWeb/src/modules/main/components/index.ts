@@ -9,6 +9,7 @@ import "./momentDateFilter";
 import "./momentDateTimeFilter";
 import "./pagination";
 import "./dialogs/open-project";
+import "./projectControls";
 
 angular.module("bp.components", [
     "bp.components.momentDateFilter",
@@ -20,5 +21,6 @@ angular.module("bp.components", [
     "bp.components.pagecontent",
     "bp.components.artifactpicker",
     "bp.components.quickSearch",
-    "bp.components.pagination"
+    "bp.components.pagination",
+    "bp.components.projectControls"
 ]);

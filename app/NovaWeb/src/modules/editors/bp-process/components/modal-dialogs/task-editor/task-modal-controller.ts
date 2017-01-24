@@ -2,7 +2,7 @@ import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loadin
 import {Artifact} from "../../../../../main/models/models";
 import {ApplicationError, IApplicationError} from "../../../../../core/error/applicationError";
 import {IMessageService} from "../../../../../core/messages/message.svc";
-import {ICreateArtifactService} from "../../../../../main/components/page-toolbar/create-artifact.svc";
+import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {IDialogSettings, IDialogService} from "../../../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
@@ -81,8 +81,12 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         });
     }
 
-    public isEverPublished(): boolean {
-        return this.everPublished;
+    public notEverPublishedOrReadonly(): boolean {
+        return !this.everPublished || this.isReadonly;
+    }
+
+    public everPublishedAndNotReadonly(): boolean {
+        return this.everPublished && !this.isReadonly;
     }
 
     public prepIncludeField(): void {

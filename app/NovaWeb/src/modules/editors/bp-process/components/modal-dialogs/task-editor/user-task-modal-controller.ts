@@ -1,7 +1,7 @@
 import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../../core/messages/message.svc";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
-import {ICreateArtifactService} from "../../../../../main/components/page-toolbar/create-artifact.svc";
+import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {UserTaskDialogModel} from "./sub-artifact-dialog-model";

@@ -1,4 +1,4 @@
-import {ICreateArtifactService} from "./create-artifact.svc";
+import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
 import {IJobsService} from "../../../editors/jobs/jobs.svc";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
@@ -146,7 +146,7 @@ export class PageToolbarController {
     };
 
 //------------------------------------------------------------------------------------
-// This code should be moved to a new action class when refactor the toolbar
+// fixme: This code should be moved to a new action class when refactor the toolbar
     public createNewArtifact = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();

@@ -1,5 +1,5 @@
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {CreateArtifactService, ICreateArtifactService} from "./create-artifact.svc";
+import {CreateArtifactService, ICreateArtifactService} from "../projectControls/create-artifact.svc";
 import {JobsServiceMock} from "../../../editors/jobs/jobs.svc.mock";
 import "angular";
 import "angular-mocks";

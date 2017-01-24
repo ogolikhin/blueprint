@@ -3,7 +3,7 @@ import {LoadingOverlayServiceMock} from "../../../../../core/loading-overlay/loa
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loading-overlay.svc";
 import {IMessageService} from "../../../../../core/messages/message.svc";
-import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/page-toolbar/create-artifact.svc";
+import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import * as angular from "angular";
 import "angular-mocks";
 import "../../..";

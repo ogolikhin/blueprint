@@ -10,7 +10,7 @@ import {ILoadingOverlayService} from "../../../../../core/loading-overlay/loadin
 import * as angular from "angular";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../core/localization/localization.mock";
-import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/page-toolbar/create-artifact.svc";
+import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactReference, NodeType} from "../../diagram/presentation/graph/models";
 import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
 import {link} from "fs";

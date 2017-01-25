@@ -4,7 +4,8 @@ import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../messages/message.svc";
-import {IDialogService} from "../../../../shared";
+import {IDialogService, IDialogSettings} from "../../../../shared/widgets/bp-dialog";
+import {DialogTypeEnum} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class SaveAction extends BPButtonAction {
     constructor(
@@ -75,8 +76,15 @@ export class SaveAction extends BPButtonAction {
                     if (this.artifact.predefinedType === ItemTypePredefined.Process) {
                         this.artifact.metadata.getProcessSubArtifactPropertyTypes().then((subArtifactsPropertyTypes) => {
                             if (subArtifactsPropertyTypes.filter(a => a.isRequired || a.isValidated)) {
-                                this.dialogService
-                                .alert("There might be some validation errors with sub-artifacts, click validate to see any possible missing data.");
+                                let dialogSettings = <IDialogSettings>{
+                                    type: DialogTypeEnum.Confirm,
+                                    header: this.localization.get("App_DialogTitle_Confirmation"),
+                                    message: "There might be some validation errors with sub-artifacts, click validate to see any possible missing data.",
+                                    okButton: "Ok",
+                                    cancelButton: null,
+                                    css: "nova-messaging"
+                                };
+                                this.dialogService.open(dialogSettings);
                             }
                         });
                     }

@@ -112,7 +112,8 @@ namespace CommonServiceTests
 
             // Verify:
             Assert.AreEqual(artifact.Id, propertiesContent.ArtifactId, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, propertiesContent.ArtifactId);
-            Assert.AreEqual(_user.DisplayName, propertiesContent.AuthorHistory[0].Value, "Returned properties must have Author {0}, but it is {1}", _user.DisplayName, propertiesContent.AuthorHistory[0].Value);
+            Assert.AreEqual(_user.DisplayName, propertiesContent.AuthorHistory[0].Value, "Returned properties must have Author {0}, but it is {1}",
+                _user.DisplayName, propertiesContent.AuthorHistory[0].Value);
             Assert.IsNotEmpty(propertiesContent.Properties, "No properties were returned for the {0} artifact!", artifactType);
         }
     }

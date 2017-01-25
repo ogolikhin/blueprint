@@ -2,7 +2,7 @@ import "angular-mocks";
 import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
-import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services.mock";
+import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.svc";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";

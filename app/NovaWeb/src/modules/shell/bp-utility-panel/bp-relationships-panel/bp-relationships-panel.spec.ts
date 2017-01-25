@@ -5,7 +5,7 @@ import {LocalizationServiceMock} from "../../../commonModule/localization/locali
 import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {IProcessService} from "../../../editorsModule/bp-process/services/process.svc";
 import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
-import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services.mock";
+import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.svc.mock";
 import {
     ArtifactAttachmentsService,

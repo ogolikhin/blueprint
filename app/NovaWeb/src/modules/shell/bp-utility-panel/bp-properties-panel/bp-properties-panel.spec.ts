@@ -7,7 +7,7 @@ import {createDefaultProcessModel} from "../../../editorsModule/bp-process/model
 import {INovaProcess} from "../../../editorsModule/bp-process/process-artifact";
 import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
 import {IPropertyDescriptor} from "../../../editorsModule/services";
-import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services.mock";
+import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.svc.mock";
 import {Enums, Models} from "../../../main";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";

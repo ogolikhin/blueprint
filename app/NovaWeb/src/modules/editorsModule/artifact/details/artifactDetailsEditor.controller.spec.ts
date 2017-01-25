@@ -24,7 +24,7 @@ describe("Component BpArtifactDetailsEditor", () => {
     let descriptor: IPropertyDescriptor;
     let propertyValue: Models.IPropertyValue;
 
-    beforeEach(angular.mock.module("editor.artifact.general"));
+    beforeEach(angular.mock.module("editor.artifact.details"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);

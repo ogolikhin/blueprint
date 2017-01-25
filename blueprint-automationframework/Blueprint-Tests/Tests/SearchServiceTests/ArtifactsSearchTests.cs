@@ -228,7 +228,7 @@ namespace SearchServiceTests
         {
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
-            List<IArtifact> artifacts = new List<IArtifact>();
+            var artifacts = new List<IArtifact>();
 
             // Create and publish Storyboard and Actor in each project.  All artifacts have the same name.
             foreach (var project in _projects)
@@ -244,7 +244,7 @@ namespace SearchServiceTests
             var nameSearchCriteria       = new ItemNameSearchCriteria(artifactName, selectedProjectIds);                // Search by name across all projects.
             var itemTypeIdSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds, (int)ItemTypePredefined.Actor);  // Search by name and TypeId across all projects.
 
-            ItemNameSearchResultSet nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
+            var nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
                 "Search by name across all projects should return all artifacts with the artifactName name.");
 
@@ -316,7 +316,7 @@ namespace SearchServiceTests
             searchCriteria.IncludeArtifactPath = true;
             ItemNameSearchResultSet results = null;
 
-            List<string> expectedPath = new List<string> { _firstProject.Name, parentFolder.Name, parentArtifact.Name };
+            var expectedPath = new List<string> { _firstProject.Name, parentFolder.Name, parentArtifact.Name };
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -338,6 +338,7 @@ namespace SearchServiceTests
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
             int numberOfArtifacts = 11;
+
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
@@ -363,6 +364,7 @@ namespace SearchServiceTests
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
             int numberOfArtifacts = 5;
+
             for (int i = 0; i < numberOfArtifacts; i++)
             {
                 Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.UIMockup, name: artifactName);
@@ -414,7 +416,7 @@ namespace SearchServiceTests
         {
             // Setup:
             string artifactName = RandomGenerator.RandomAlphaNumeric(12);
-            List<IArtifact> artifacts = new List<IArtifact>();
+            var artifacts = new List<IArtifact>();
 
             // Create and publish Storyboard and Actor in each project.  All artifacts have the same name.
             foreach (var pr in _projects)
@@ -428,13 +430,14 @@ namespace SearchServiceTests
 
             // Create list of TypeId for search criteria, TypeId depends from Project; TypeId == ArtifactTypeId.
             int actorTypeIdInFirstProject = (artifacts.Find(a => (a.BaseArtifactType == BaseArtifactType.Actor &&
-            a.ProjectId == _projects[0].Id))).ArtifactTypeId;
+                a.ProjectId == _projects[0].Id))).ArtifactTypeId;
+
             var itemTypeIdSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds, new List<int> { actorTypeIdInFirstProject });
             // Search by name and TypeId across all projects.
 
             var nameSearchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds); // Search by name across all projects.
 
-            ItemNameSearchResultSet nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
+            var nameSearchResult = Helper.SearchService.SearchItems(_adminUser, nameSearchCriteria);
             Assert.AreEqual(artifacts.Count, nameSearchResult.Items.Count,
                 "Search by name across all projects should return all artifacts with the artifactName name.");
 
@@ -525,9 +528,9 @@ namespace SearchServiceTests
         private static bool DoesSearchItemCorrespondToArtifact(IArtifact artifact, ItemNameSearchResult searchItem)
         {
             return ((searchItem.Id == artifact.Id) &&
-            (searchItem.Name == artifact.Name) &&
-            (searchItem.ProjectId == artifact.ProjectId) &&
-            (searchItem.ItemTypeId == artifact.ArtifactTypeId));
+                    (searchItem.Name == artifact.Name) &&
+                    (searchItem.ProjectId == artifact.ProjectId) &&
+                    (searchItem.ItemTypeId == artifact.ArtifactTypeId));
         }
     }
 }

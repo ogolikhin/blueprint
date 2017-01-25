@@ -22,7 +22,8 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182409)]
-        [Description("Calls the /status endpoint for SearchService with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing detailed status of dependent services.")]
+        [Description("Calls the /status endpoint for SearchService with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure " +
+            "containing detailed status of dependent services.")]
         public void GetStatus_WithValidPreAuthorizedKey_ReturnsDetailedStatus()
         {
             string content = null;
@@ -39,7 +40,8 @@ namespace SearchServiceTests
 
         [TestCase]
         [TestRail(182410)]
-        [Description("Calls the /status endpoint for SearchService with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
+        [Description("Calls the /status endpoint for SearchService with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure " +
+            "containing basic status of dependent services.")]
         public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
         {
             string content = null;

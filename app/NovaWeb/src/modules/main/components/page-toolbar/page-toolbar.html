@@ -1,12 +1,14 @@
 <div class="navbar-toolbar">
     <ul class="nav navbar-nav">
         <li uib-dropdown>
-            <a href="#" uib-dropdown-toggle>
-                <div class="icon-container">
-                    <i class="fonticon fonticon2-project"></i><b class="caret"></b>
-                </div>
-                <span>{{::$root.config.labels['App_Toolbar_Project']}}</span>
-            </a>
+            <button type="button"
+                    class="btn btn-link"
+                    title="{{::$root.config.labels['App_Toolbar_Project']}}"
+                    uib-dropdown-toggle>
+                <i class="fonticon fonticon2-project"></i>
+                <span class="caret absolute--right--center"></span>
+                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Project']}}</span>
+            </button>
             <ul class="dropdown-menu">
                 <li>
                     <button type="button"
@@ -75,14 +77,24 @@
             </button>
         </li>
         <li uib-dropdown>
-            <a href="#" ng-class="{disabled: !$ctrl.canGenerateTestCases}" uib-dropdown-toggle>
-                <div class="icon-container">
-                    <i class="fonticon2-generate navbar-generate-icon"></i><b class="caret"></b>
-                </div>
-                <span>{{::$root.config.labels['App_Toolbar_Generate']}}</span>
-            </a>
-            <ul class="dropdown-menu">
-                <li><a href="#" ng-click="$ctrl.generateTestCases($event)">{{::$root.config.labels['App_Toolbar_Generate_Test_Cases']}}</a>
+            <button type="button"
+                    class="btn btn-link"
+                    title="{{::$root.config.labels['App_Toolbar_Generate']}}"
+                    ng-disabled="!$ctrl.canGenerateTestCases"
+                    id="generate-dropdown"
+                    uib-dropdown-toggle>
+                <i class="fonticon2-generate navbar-generate-icon"></i>
+                <span class="caret absolute--right--center"></span>
+                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Generate']}}</span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="generate-dropdown">
+                <li>
+                    <button type="button"
+                            class="btn btn-link"
+                            title="{{::$root.config.labels['App_Toolbar_Generate_Test_Cases']}}"
+                            ng-click="$ctrl.generateTestCases($event)">
+                        {{::$root.config.labels['App_Toolbar_Generate_Test_Cases']}}
+                    </button>
                 </li>
             </ul>
         </li>

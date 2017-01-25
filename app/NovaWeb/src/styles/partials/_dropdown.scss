@@ -6,6 +6,7 @@
         color: $text-color;
         line-height: inherit;
         padding: 6px 20px;
+        &:focus,
         &:hover:not([disabled]) {
             background: $brand-secondary;
             color: $white;

@@ -35,21 +35,37 @@ page-toolbar {
                 width: 50px;
                 line-height: normal;
                 text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                align-self: center;
+                padding-top: .35em;
                 > .fonticon {
                     display: block;
-                    //margin: -.2em 0 0;
                     &::before {
                         font-size: 1.6em;
                         margin: 0;
                     }
                 }
+                .caret.absolute--right--center {
+                    position: absolute;
+                    right: .25em;
+                    top: 33%;
+                }
                 > .icon-label {
-                    padding-top: .4em;
+                    white-space: initial;
+                    display: block;
+                    font-size: $font-size-smaller;
+                    line-height: 0.9rem;
+                    font-weight: normal;
+                    padding: .4em 5px 0;
+                    margin: 0;
                 }
                 > .caret {
                     margin: 0 0 0 3px;
                 }
-                &:hover {
+                &:hover,
+                &:focus{
                     background-color: $nav-link-hover-bg;
                     color: $brand-secondary;
                 }
@@ -57,17 +73,7 @@ page-toolbar {
                     color: $gray-light;
                     pointer-events: none;
                 }
-                span {
-                    white-space: initial;
-                    display: block;
-                    font-size: $font-size-smaller;
-                    line-height: 0.9rem;
-                    font-weight: normal;
-                    padding: 0 5px;
-                    margin: 0;
-                }
             }
-
             > a {
                 box-sizing: border-box;
                 color: $gray-dark;
@@ -101,13 +107,16 @@ page-toolbar {
                 }
             }
 
-            &.open > a {
+            &.open > a,
+            &.open > button {
                 background: $gray-lightest !important;
                 color: $brand-secondary !important;
             }
 
             &.open > a:hover,
-            > a:hover {
+            > a:hover,
+            &.open > button:hover,
+            > button:hover {
                 color: $brand-secondary;
             }
         }

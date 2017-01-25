@@ -20,7 +20,6 @@ export class MainViewController {
     private _subscribers: Rx.IDisposable[];
     private previousOpenProjectCount: number;
     public isLeftToggled: boolean;
-    public isActive: boolean;
     public isLeftPanelExpanded: boolean;
 
     static $inject: [string] = [

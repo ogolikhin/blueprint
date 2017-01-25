@@ -55,6 +55,8 @@ export class MainViewController {
             this.windowVisibility.visibilityObservable.distinctUntilChanged().subscribeOnNext(this.onVisibilityChanged, this)
         ];
 
+        this.previousOpenProjectCount = 0;
+
         this.openTourFirstTime();
     }
 
@@ -90,13 +92,18 @@ export class MainViewController {
     };
 
     private onProjectCollectionChanged(projects: IViewModel<IStatefulArtifact>[]) {
-        if (this.previousOpenProjectCount > 0 && projects.length > 0) {
-            //Do nothing if we haven't changed from 0 -> 1+ or 1+ -> 0
-        } else {
-            this.isActive = projects.length > 0;
-            this.toggleLeft(projects.length > 0);
-            this.toggleRight(projects.length > 0);
+        if (projects.length === 0) {
+            //Close the panel if no projects are open.
+            this.toggleLeft(false);
+            this.toggleRight(false);
+        } else if (projects.length > this.previousOpenProjectCount) {
+            //Open the panel only if a project was opened.
+            //Rationale: This method is also called if a project is closed,
+            // but we don't want to do anything if the project count went from 3 to 2
+            this.toggleLeft(true);
+            this.toggleRight(true);
         }
+
         this.previousOpenProjectCount = projects.length;
     }
 

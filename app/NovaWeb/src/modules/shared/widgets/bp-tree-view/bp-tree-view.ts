@@ -424,7 +424,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                     .then(() => {
                         this.resetGridAsync(true);
                     })
-
                     .catch(reason => this.messageService.addError(reason || "Artifact_NotFound"))
                     .finally(() => {
                         if (row) {

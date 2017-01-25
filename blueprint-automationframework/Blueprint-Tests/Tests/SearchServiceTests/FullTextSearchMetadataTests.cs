@@ -8,10 +8,14 @@ using NUnit.Framework;
 using System.Linq;
 using System.Net;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.SearchServiceModel.Impl;
+using Model.StorytellerModel.Impl;
 using TestCommon;
 using Utilities;
+using Utilities.Factories;
 
 namespace SearchServiceTests
 {
@@ -24,6 +28,7 @@ namespace SearchServiceTests
         private static List<IProject> _projects;
         private static List<IArtifactBase> _artifacts;
 
+        protected const string FULLTEXTSEARCHMETADATA_PATH = RestPaths.Svc.SearchService.FullTextSearch.METADATA;
         const int DEFAULT_PAGE_SIZE_VALUE = 10;
         const string DESCRIPTION = "Description";
 
@@ -221,6 +226,99 @@ namespace SearchServiceTests
 
             // Validation:
             ValidateSearchMetadataTest(fullTextSearchMetaDataResult, searchCriteria, DESCRIPTION);
+        }
+
+        [Category(Categories.CustomData)]
+        [TestCase("Std-Text-Required-HasDefault")]
+        [TestRail(234334)]
+        [Description("Search for search term that is present in artifact textual property.  Execute metadata Search - " +
+            "Must return Metadata SearchResult with expected hit count.")]
+        public void FullTextSearchMetadata_SearchPublishedArtifactTextualProperties_VerifyMetadataSearchResult(
+            string propertyName)
+        {
+            // Setup: 
+            var selectedProjectIds = _projects.ConvertAll(p => p.Id);
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+
+            string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
+
+            // Update custom property in artifact.
+            ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
+            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
+
+            // Execute: 
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult = Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCHMETADATA_PATH, searchCriteria.Query);
+
+            // Verify: 
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount,
+                "The number of hits was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual(DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize,
+                "The page size was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, DEFAULT_PAGE_SIZE_VALUE);
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalPages,
+                "The total pages was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual("Process", fullTextSearchMetaDataResult.Items.First().TypeName,
+                "The artifact type name was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, "Process");
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.Items.First().Count,
+                "The hit count for artifact type was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [Category(Categories.CustomData)]
+        [TestCase("Std-Text-Required-HasDefault")]
+        [TestRail(234335)]
+        [Description("Search for search term that is present in subartifact textual property.  Execute Search - " +
+            "Must return SearchResult with list of FullTextSearchItems matching artifacts with subartifact textual property.")]
+        public void FullTextSearchMetadata_SearchPublishedSubArtifactTextualProperties_VerifyMetadataSearchResult(
+            string propertyName)
+        {
+            // Setup: 
+            var selectedProjectIds = _projects.ConvertAll(p => p.Id);
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+
+            string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
+
+            // Get nova subartifact
+            var novaProcess = Helper.Storyteller.GetNovaProcess(_user, artifact.Id);
+            var processShape = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, processShape.Id);
+
+            ArtifactStoreHelper.UpdateSubArtifactCustomProperty(artifact, novaSubArtifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
+            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
+
+            // Execute: 
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult = Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCHMETADATA_PATH, searchCriteria.Query);
+
+            // Verify: 
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount,
+                "The number of hits was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual(DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize,
+                "The page size was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, DEFAULT_PAGE_SIZE_VALUE);
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalPages,
+                "The total pages was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual("Process: Shape", fullTextSearchMetaDataResult.Items.First().TypeName,
+                "The artifact type name was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, "Process: Shape");
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.Items.First().Count,
+                "The hit count for artifact type was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
         }
 
         #region Permissions Tests

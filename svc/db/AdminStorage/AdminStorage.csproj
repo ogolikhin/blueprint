@@ -157,6 +157,7 @@
     <Content Include="Procedures\ExtendSession.sql" />
     <Content Include="Procedures\GetActiveLicenses.sql" />
     <Content Include="Procedures\GetLicenseTransactions.sql" />
+    <Content Include="Procedures\GetLicenseUserActivity.sql" />
     <Content Include="Procedures\GetLicenseUsage.sql" />
     <Content Include="Procedures\GetLogs.sql" />
     <Content Include="Procedures\GetUserSession.sql" />

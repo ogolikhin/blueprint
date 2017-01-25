@@ -58,7 +58,7 @@ namespace ArtifactStoreTests
         public void GetAttachment_PublishedArtifactWithAttachment_AttachmentIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
             var openApiAttachment = artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
             artifact.Publish();
 
@@ -90,7 +90,7 @@ namespace ArtifactStoreTests
         public void GetAttachment_DeletedArtifactWithAttachment_NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
             artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
             artifact.Publish();
             artifact.Delete(_adminUser);
@@ -111,13 +111,13 @@ namespace ArtifactStoreTests
         public void GetAttachment_ArtifactAndSubArtifactWithAttachment_OnlyArtifactAttachmentIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Process);
             var addedArtifactAttachment = artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
 
             var process = Helper.Storyteller.GetProcess(_adminUser, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
-            IFile file2 = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
+            var file2 = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
             var addedSubArtifactAttachment = artifact.AddSubArtifactAttachment(userTask.Id, file2, _adminUser);
             artifact.Publish();
 
@@ -149,7 +149,7 @@ namespace ArtifactStoreTests
         public void AddAttachmentToSubArtifactOpenAPI_ArtifactWithAttachments_NoErrors()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Process);
             var addedArtifactAttachment = artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
 
             Assert.NotNull(addedArtifactAttachment, "Failed to add attachment to the artifact!");
@@ -159,7 +159,7 @@ namespace ArtifactStoreTests
 
             var process = Helper.Storyteller.GetProcess(_adminUser, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            IFile file2 = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
+            var file2 = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
 
             // Execute:
             Assert.DoesNotThrow(() => { artifact.AddSubArtifactAttachment(userTask.Id, file2, _adminUser); },
@@ -168,7 +168,7 @@ namespace ArtifactStoreTests
             artifact.Publish();
 
             // Verify:
-            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: userTask.Id);
+            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: userTask.Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
@@ -183,7 +183,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithSubArtifactId_ArtifactAndSubArtifactWithAttachments_OnlySubArtifactAttachmentIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             var addedArtifactAttachment = artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
             Assert.NotNull(addedArtifactAttachment, "Failed to add attachment to the artifact!");
             Assert.AreEqual(_attachmentFile.FileName, addedArtifactAttachment.FileName, "The FileName of the attached file doesn't match!");
@@ -193,8 +193,7 @@ namespace ArtifactStoreTests
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
 
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact,
-                new List<INovaFile> { attachmentFile2 }, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 }, Helper.ArtifactStore);
             artifact.Publish();
 
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -223,7 +222,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithSubArtifactId_SubArtifactWithDeletedAttachment_NoAttachmentsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(5, subArtifacts.Count, "Process should have 5 subartifacts.");
             var attachmentFile2 = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
@@ -235,7 +234,7 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore);
             artifact.Publish();
 
-            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
+            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
             ArtifactStoreHelper.DeleteSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, attachment.AttachedFiles[0].AttachmentId,
                 Helper.ArtifactStore);
@@ -259,7 +258,7 @@ namespace ArtifactStoreTests
         public void GetAttachment_SubArtifactIdPassedAsArtifactId_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var process = Helper.Storyteller.GetProcess(_adminUser, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
@@ -284,11 +283,11 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithSubArtifactId_SubArtifactIdFromDifferentArtifact_400BadRequest()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var process = Helper.Storyteller.GetProcess(_adminUser, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
-            IArtifact artifact2 = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact2 = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
             // Execute & verify:
             Assert.Throws<Http400BadRequestException>(() =>
@@ -305,7 +304,7 @@ namespace ArtifactStoreTests
         public void GetAttachment_UnpublishedArtifactWithAttachment_AttachmentIsReturned(bool? addDrafts)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
             var openApiAttachment = artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
 
             Attachments attachment = null;
@@ -320,9 +319,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
-            Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]), "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
-            Assert.IsNull(attachment.AttachedFiles[0].UploadedDate,
-                "UploadedDate for draft artifact's attachment should be null.");
+            Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]), 
+                "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
+            Assert.IsNull(attachment.AttachedFiles[0].UploadedDate, "UploadedDate for draft artifact's attachment should be null.");
         }
 
         [TestCase]
@@ -331,7 +330,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithAddDraftsFalse_UnpublishedArtifactWithAttachment_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
             artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
 
             // Execute & verify:
@@ -348,7 +347,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithAddDraftsFalse_PublishedArtifactWithAttachmentInDraft_NoAttachmentsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
 
             Attachments attachment = null;
@@ -371,12 +370,12 @@ namespace ArtifactStoreTests
         public void GetAttachment_PublishedArtifactWithMultipleAttachments_AllAttachmentsAreReturned(int numberOfAttachments)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            List<OpenApiAttachment> openApiAttachments = new List<OpenApiAttachment>();
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var openApiAttachments = new List<OpenApiAttachment>();
 
             for (int i = 0; i < numberOfAttachments; ++i)
             {
-                IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
+                var file = FileStoreTestHelper.CreateFileWithRandomByteArray(_fileSize, _fileName, "text/plain");
                 var openApiAttachment = artifact.AddArtifactAttachment(file, _adminUser);
                 openApiAttachments.Add(openApiAttachment);
             }
@@ -400,7 +399,7 @@ namespace ArtifactStoreTests
             
             foreach (var openApiAttachment in openApiAttachments)
             {
-                AttachedFile attachedFile = attachment.AttachedFiles.Find(f => f.AttachmentId == openApiAttachment.Id);
+                var attachedFile = attachment.AttachedFiles.Find(f => f.AttachmentId == openApiAttachment.Id);
                 Assert.NotNull(attachedFile, "Couldn't find file with ID '{0}' in the list of attached files!", openApiAttachment.Id);
                 Assert.IsTrue(openApiAttachment.Equals(attachedFile),
                     "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
@@ -416,8 +415,8 @@ namespace ArtifactStoreTests
         public void GetAttachment_NonExistentArtifactId_404NotFound(int artifactId)
         {
             // Setup:
-            IArtifact fakeArtifact = ArtifactFactory.CreateArtifact(
-                _project, _adminUser, BaseArtifactType.Actor, artifactId);   // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
+            // Don't use Helper because this isn't a real artifact, it's just wrapping the bad artifact ID.
+            var fakeArtifact = ArtifactFactory.CreateArtifact(_project, _adminUser, BaseArtifactType.Actor, artifactId);
 
             // Execute & verify:
             Assert.Throws<Http404NotFoundException>(() =>
@@ -434,7 +433,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithSubArtifactId_NonExistentSubArtifactId_404NotFound(int subArtifactId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
 
             // Execute & verify:
             Assert.Throws<Http404NotFoundException>(() =>
@@ -450,7 +449,7 @@ namespace ArtifactStoreTests
         public void GetAttachment_PublishedArtifactWithNoAttachments_NoAttachmentsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             Attachments attachment = null;
 
             // Execute:
@@ -470,9 +469,9 @@ namespace ArtifactStoreTests
         public void GetAttachment_PublishedArtifactUserHasNoPermissionToArtifact_403Forbidden()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
-            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+            var userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
             // Execute & verify:
@@ -491,7 +490,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_Version1NoAttachmentVersion2Attachment_CorrectAttachmentIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             //versionId = 1 - no attachments
 
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
@@ -520,7 +519,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_ArtifactWithDeletedAttachment_NoAttachmentForLastVersion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Glossary);
 
             ArtifactStoreHelper.AddArtifactAttachmentsAndSave(_adminUser, artifact,
                 new List<INovaFile> { _novaAttachmentFile, _novaAttachmentFile }, Helper.ArtifactStore);
@@ -550,7 +549,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_ArtifactNoAttachment_NoAttachmentForLastVersion()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.BusinessProcess);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.BusinessProcess);
             //versionId = 1 - no attachment
             
             Attachments attachment = null;
@@ -572,7 +571,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_Version1AttachmentVersion2TwoAttachment_CorrectAttachmentIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 1 attachment
@@ -608,7 +607,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_UserHaveNoPermissionFromVersion2_Returns403()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             //versionId = 1 - no attachments
 
             try
@@ -641,7 +640,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentWithSubArtifactId_PublishedArtifactUserHasNoPermissionToArtifact_403Forbidden()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
 
             var attachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_adminUser, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);
@@ -649,8 +648,7 @@ namespace ArtifactStoreTests
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
 
             // Add attachment to a sub-artifact.
-            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact,
-                new List<INovaFile> { attachmentFile }, Helper.ArtifactStore);
+            ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile }, Helper.ArtifactStore);
             artifact.Publish();
 
             // Give author user no access to the artifact.
@@ -672,15 +670,14 @@ namespace ArtifactStoreTests
         public void GetAttachmentSpecifyVersion_VersionNotExist_Returned404(int versionId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_adminUser, artifact, _novaAttachmentFile, Helper.ArtifactStore);
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 
             string messageText = I18NHelper.FormatInvariant("Version index (Id:{0}) is not found.", versionId);
-            IServiceErrorMessage errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(ErrorCodes.ResourceNotFound,
-                messageText);
+            var errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(ErrorCodes.ResourceNotFound, messageText);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>

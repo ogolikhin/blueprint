@@ -57,6 +57,13 @@ export class MetaDataServiceMock implements IMetaDataService {
         deferred.reject();
         return deferred.promise;
     }
+    
+    public getProcessSubArtifactPropertyTypes(projectId: number): ng.IPromise<IPropertyType[]> {
+        const deferred: ng.IDeferred<IPropertyType[]> = this.$q.defer<IPropertyType[]>();
+
+        deferred.reject();
+        return deferred.promise;
+    }
 
     public getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): ng.IPromise<IPropertyType[]> {
         const deferred: ng.IDeferred<IPropertyType[]> = this.$q.defer<IPropertyType[]>();

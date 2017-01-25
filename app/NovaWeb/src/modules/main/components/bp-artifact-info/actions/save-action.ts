@@ -4,13 +4,15 @@ import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../messages/message.svc";
+import {IDialogService} from "../../../../shared";
 
 export class SaveAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         private localization: ILocalizationService,
         private messageService: IMessageService,
-        private loadingOverlayService: ILoadingOverlayService
+        private loadingOverlayService: ILoadingOverlayService,
+        private dialogService: IDialogService
     ) {
         super();
 
@@ -24,6 +26,9 @@ export class SaveAction extends BPButtonAction {
 
         if (!this.loadingOverlayService) {
             throw new Error("Loading overlay service not provided or is null");
+        }
+        if (!this.dialogService) {
+            throw new Error("Dialog service not provided or is null");
         }
     }
 
@@ -65,7 +70,17 @@ export class SaveAction extends BPButtonAction {
 
         try {
             this.artifact.save()
-                .then(() => this.messageService.addInfo("App_Save_Artifact_Error_200"))
+                .then(() => {
+                    this.messageService.addInfo("App_Save_Artifact_Error_200");
+                    if (this.artifact.predefinedType === ItemTypePredefined.Process) {
+                        this.artifact.metadata.getProcessSubArtifactPropertyTypes().then((subArtifactsPropertyTypes) => {
+                            if (subArtifactsPropertyTypes.filter(a => a.isRequired || a.isValidated)) {
+                                this.dialogService
+                                .alert("There might be some validation errors with sub-artifacts, click validate to see any possible missing data.");
+                            }
+                        });
+                    }
+                })
                 .catch((err) => {
                     if (err) {
                         this.messageService.addError(err);

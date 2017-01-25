@@ -11,6 +11,7 @@ export interface IMetaDataService {
     getSubArtifactItemType(projectId: number, itemTypeId: number): ng.IPromise<IItemType>;
     getArtifactPropertyTypes(projectId: number, itemTypeId: number): ng.IPromise<IPropertyType[]>;
     getSubArtifactPropertyTypes(projectId: number, itemTypeId: number): ng.IPromise<IPropertyType[]>;
+    getProcessSubArtifactPropertyTypes(projectId: number): ng.IPromise<IPropertyType[]>;
 }
 
 
@@ -174,6 +175,21 @@ export class MetaDataService implements IMetaDataService {
             return properties;
         });
 
+    }
+
+    public getProcessSubArtifactPropertyTypes(projectId: number): ng.IPromise<IPropertyType[]> {
+        return this.get(projectId).then((projectMeta) => {
+            const itemType = _.find(projectMeta.data.subArtifactTypes, (it: IItemType) => {
+                return it.predefinedType === ItemTypePredefined.PROShape;
+            });
+            const properties: IPropertyType[] = [];
+            if (itemType) {
+                properties.push(...this.getSubArtifactSystemPropertyTypes(itemType));
+                //add custom property types
+                properties.push(...this.getCustomPropertyTypes(projectMeta, itemType));
+            }
+            return properties;
+        });
     }
 
     private getArtifactSystemPropertyTypes(projectMeta: ProjectMetaData, itemType: IItemType): IPropertyType[] {

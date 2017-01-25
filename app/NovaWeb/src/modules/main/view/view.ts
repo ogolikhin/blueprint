@@ -18,6 +18,7 @@ export class MainView implements ng.IComponentOptions {
 
 export class MainViewController {
     private _subscribers: Rx.IDisposable[];
+    private previousOpenProjectCount: number;
     public isLeftToggled: boolean;
     public isActive: boolean;
     public isLeftPanelExpanded: boolean;
@@ -89,9 +90,14 @@ export class MainViewController {
     };
 
     private onProjectCollectionChanged(projects: IViewModel<IStatefulArtifact>[]) {
-        this.isActive = Boolean(projects.length);
-        this.toggleLeft(Boolean(projects.length));
-        this.toggleRight(Boolean(projects.length));
+        if (this.previousOpenProjectCount > 0 && projects.length > 0) {
+            //Do nothing if we haven't changed from 0 -> 1+ or 1+ -> 0
+        } else {
+            this.isActive = projects.length > 0;
+            this.toggleLeft(projects.length > 0);
+            this.toggleRight(projects.length > 0);
+        }
+        this.previousOpenProjectCount = projects.length;
     }
 
     public toggleLeft(state?: boolean) {

@@ -9,6 +9,7 @@ import {IJobsService} from "./jobs.svc";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";
 import {IMessageService} from "../../main/components/messages/message.svc";
+import {IDownloadService} from "../../commonModule/download/download.service";
 
 export class JobsComponent implements ng.IComponentOptions {
     public template: string = require("./jobs.html");
@@ -24,7 +25,8 @@ export class JobsController {
         "jobsService",
         "loadingOverlayService",
         "navigationService",
-        "projectManager"
+        "projectManager",
+        "downloadService"
     ];
 
     public jobs: IJobInfo[];
@@ -41,7 +43,8 @@ export class JobsController {
         private jobsService: IJobsService,
         private loadingOverlayService: ILoadingOverlayService,
         private navigationService: INavigationService,
-        private projectManager: IProjectManager
+        private projectManager: IProjectManager,
+        private downloadService: IDownloadService
     ) {
         this.toolbarActions = [];
 
@@ -118,7 +121,8 @@ export class JobsController {
         }
 
         const url = `/svc/adminstore/jobs/${job.jobId}/result/file`;
-        this.$window.open(url, "_blank");
+
+        this.downloadService.downloadFile(url);
     }
 
     public loadPage(page: number) {

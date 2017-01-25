@@ -56,7 +56,7 @@ namespace AdminStoreTests
         public void GetCustomUserIcon_NoIconExistsForThisUser_204NoContent()
         {
             // Setup:
-            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
             Assert.DoesNotThrow(() => Helper.AdminStore.GetCustomUserIcon(viewerUser.Id, viewerUser, new List<HttpStatusCode> { HttpStatusCode.NoContent }),
@@ -70,7 +70,7 @@ namespace AdminStoreTests
         public void GetCustomUserIcon_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:
-            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width: 480, height: 640, imageFormat: ImageFormatMap[imageType]);
 
@@ -83,7 +83,7 @@ namespace AdminStoreTests
                 "'GET {0}' should return 200 OK when user has custom icon in his/her profile.", SVC_PATH);
 
             // Verify:
-            IFile expectedFile = FileFactory.CreateFile("tmp", contentType, DateTime.Now, imageBytes);
+            var expectedFile = FileFactory.CreateFile("tmp", contentType, DateTime.Now, imageBytes);
             expectedFile.FileName = null;
 
             FileStoreTestHelper.AssertFilesAreIdentical(expectedFile, iconFile);
@@ -96,7 +96,7 @@ namespace AdminStoreTests
         public void GetCustomUserIcon_DeletedUser_ReturnsIcon(ImageType imageType, string contentType)
         {
             // Setup:
-            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             byte[] imageBytes = ImageUtilities.GenerateRandomImage(width: 480, height: 640, imageFormat: ImageFormatMap[imageType]);
 
@@ -111,7 +111,7 @@ namespace AdminStoreTests
                 "'GET {0}' should return 200 OK when user has custom icon in his/her profile.", SVC_PATH);
 
             // Verify:
-            IFile expectedFile = FileFactory.CreateFile("tmp", contentType, DateTime.Now, imageBytes);
+            var expectedFile = FileFactory.CreateFile("tmp", contentType, DateTime.Now, imageBytes);
             expectedFile.FileName = null;
 
             FileStoreTestHelper.AssertFilesAreIdentical(expectedFile, iconFile);
@@ -146,7 +146,7 @@ namespace AdminStoreTests
         public void GetCustomUserIcon_NonExistingUser_404NotFound(int nonExistingUserId)
         {
             // Setup:
-            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
@@ -165,7 +165,7 @@ namespace AdminStoreTests
         public void GetCustomUserIcon_UserId0_404NotFound(int UserId0)
         {
             // Setup:
-            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
             Assert.Throws<Http404NotFoundException>(() =>

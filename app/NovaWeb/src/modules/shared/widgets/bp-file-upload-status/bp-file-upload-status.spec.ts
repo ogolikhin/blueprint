@@ -148,6 +148,31 @@ describe("File Upload Status", () => {
         expect(controller.files.length).toBe(3);
     }));
 
+    it("should not upload files with zero size", inject(() => {
+        // Arrange
+        const uploadFileSpy = jasmine.createSpy("uploadFileAction").and.returnValue($q.resolve({
+            guid: "test", uriToFile: "test"
+        }));
+        const dialogData = {
+            files: [
+                <File>{name: "testName1", size: 0},
+                <File>{name: "testName2", size: 456}],
+            maxAttachmentFilesize: 10485760, // 10 MB
+            minAttachmentFilesize: 1,
+            maxNumberAttachments: 5,
+            fileUploadAction: uploadFileSpy
+        };
+
+        // Act
+        controller = createController(dialogData);
+        $scope.$digest();
+
+        // Assert
+        expect(controller.returnValue.length).toBe(1);
+        expect(controller.totalFailedFiles).toBe(1);
+        expect(controller.files.length).toBe(2);
+    }));
+
     it("should remove a file when it's cancelled", inject(() => {
         const uploadFileSpy = jasmine.createSpy("uploadFileAction").and.returnValue($q.resolve({
             guid: "test", uriToFile: "test"

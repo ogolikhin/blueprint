@@ -15,6 +15,7 @@ import {INavigationService} from "../../commonModule/navigation/navigation.servi
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {MessageType, Message} from "../../main/components/messages/message";
+import {BpFormatFilterType} from "../../shared/filters/bp-format/bp-format.filter";
 
 
 export class BPDiagram implements ng.IComponentOptions {
@@ -35,7 +36,8 @@ export class BPDiagramController extends BpBaseEditor {
         "$log",
         "statefulArtifactFactory",
         "navigationService",
-        "itemInfoService"
+        "itemInfoService",
+        "bpFormatFilter"
     ];
 
     public errorMsg: string;
@@ -53,7 +55,8 @@ export class BPDiagramController extends BpBaseEditor {
                 private $log: ng.ILogService,
                 private statefulArtifactFactory: IStatefulArtifactFactory,
                 private navigationService: INavigationService,
-                private itemInfoService: IItemInfoService) {
+                private itemInfoService: IItemInfoService,
+                private bpFormatFilter: BpFormatFilterType) {
         super(messageService, selectionManager);
         new SafaryGestureHelper().disableGestureSupport(this.$element);
     }
@@ -139,21 +142,19 @@ export class BPDiagramController extends BpBaseEditor {
                     this.messageService.clearMessages();
                     const artifactPromise = this.getUseCaseDiagramArtifact(<IShape>element);
                     const artifactId = parseInt(ShapeExtensions.getPropertyByName(<IShape>element, ShapeProps.ARTIFACT_ID), 10);
-                    this.itemInfoService.get(artifactId).then((result: IItemInfoResult) => {
-                        if (result.isDeleted) {
-                            let deletedMessage = this.localization.get("Artifact_InfoBanner_DeletedByOn");
-                            deletedMessage = deletedMessage.replace("{0}", result.deletedByUser.displayName);
-                            deletedMessage = deletedMessage.replace("{1}", this.localization.current.formatShortDateTime(result.deletedDateTime));
-                            this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage));
-                        }
 
-                        if (artifactPromise) {
-                            artifactPromise.then((artifact) => {
-                                artifact.unload();
-                                this.selectionManager.setArtifact(artifact);
-                            });
-                        }
-                    });
+                    if (artifactPromise) {
+                        artifactPromise.then((artifact) => {
+                            if (artifact.artifactState.deleted) {
+                                let deletedMessage = this.bpFormatFilter(this.localization.get("Artifact_InfoBanner_DeletedByOn"),
+                                    artifact.artifactState.deletedByDisplayName,
+                                    this.localization.current.formatShortDateTime(artifact.artifactState.deletedDateTime));
+                                this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage));
+                            }
+
+                            this.selectionManager.setArtifact(artifact);
+                        });
+                    }
                 } else {
                     this.selectedElementId = element.id;
                     const subArtifact = this.artifact.subArtifactCollection.get(element.id);

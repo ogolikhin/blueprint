@@ -22,7 +22,7 @@ namespace AdminStore
             config.EnsureInitialized();
 
             // Assert
-            config.AssertTotalRoutes(20, "Please update asserts in WebApiConfigTests when changing routes.");
+            config.AssertTotalRoutes(21, "Please update asserts in WebApiConfigTests when changing routes.");
             config.AssertAction<ConfigController>("GetConfigSettings", HttpMethod.Get, "config/settings");
             config.AssertAction<ConfigController>("GetConfig", HttpMethod.Get, "config/config.js");
             config.AssertAction<LicensesController>("GetLicenseTransactions", HttpMethod.Get, "licenses/transactions?days=1");
@@ -45,6 +45,7 @@ namespace AdminStore
             config.AssertAction<JobsController>("GetJobResultFile", HttpMethod.Get, "jobs/1/result/file");
             config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
             config.AssertAction<JobsController>("QueueGenerateProcessTestsJob", HttpMethod.Post, "jobs/process/testgen");
+            config.AssertAction<SessionsController>("IsSessionAlive", HttpMethod.Get, "sessions/alive");
         }
 
         [TestMethod]

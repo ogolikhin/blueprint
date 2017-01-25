@@ -68,15 +68,12 @@ namespace AdminStoreTests
         [TestCase]
         [Description("Call:  GET /licenses/transactions?days=0  but don't pass any Session-Token header.  Verify 401 Unauthorized is returned.")]
         [TestRail(146083)]
-        public static void GetLicenseTransactions_NoTokenHeader_401Unauthorized()
+        public void GetLicenseTransactions_NoTokenHeader_401Unauthorized()
         {
-            using (TestHelper helper = new TestHelper())
+            Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Assert.Throws<Http401UnauthorizedException>(() =>
-                {
-                    helper.AdminStore.GetLicenseTransactions(numberOfDays: 0);
-                }, "GetLicenseTransactions() should return 401 Unauthorized when no token header field was passed.");
-            }
+                Helper.AdminStore.GetLicenseTransactions(numberOfDays: 0);
+            }, "GetLicenseTransactions() should return 401 Unauthorized when no token header field was passed.");
         }
 
         [TestCase]

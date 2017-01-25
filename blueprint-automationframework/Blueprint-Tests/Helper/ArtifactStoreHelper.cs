@@ -665,21 +665,37 @@ namespace Helper
         /// Compares traces and asserts that each of their properties are equal.
         /// </summary>
         /// <param name="expectedArtifactTrace">The expected trace.</param>
-        /// <param name="expectedArtifactTrace">The resulted trace.</param>
+        /// <param name="actualArtifactTrace">The actual trace.</param>
         /// <param name="checkDirection">(optional) Pass false if you don't want to compare the Direction properties of the traces.</param>
-        public static void AssertTracesAreEqual(ITrace expectedArtifactTrace, ITrace resultedArtifactTrace, bool checkDirection = true)
+        public static void AssertTracesAreEqual(ITrace expectedArtifactTrace, ITrace actualArtifactTrace, bool checkDirection = true)
         {
             ThrowIf.ArgumentNull(expectedArtifactTrace, nameof(expectedArtifactTrace));
-            ThrowIf.ArgumentNull(resultedArtifactTrace, nameof(resultedArtifactTrace));
+            ThrowIf.ArgumentNull(actualArtifactTrace, nameof(actualArtifactTrace));
 
-            Assert.AreEqual(expectedArtifactTrace.ProjectId, resultedArtifactTrace.ProjectId, "The Project IDs of the traces don't match!");
-            Assert.AreEqual(expectedArtifactTrace.ArtifactId, resultedArtifactTrace.ArtifactId, "The Artifact IDs of the traces don't match!");
-            Assert.AreEqual(expectedArtifactTrace.IsSuspect, resultedArtifactTrace.IsSuspect, "One trace is marked suspect but the other isn't!");
+            Assert.AreEqual(expectedArtifactTrace.ProjectId, actualArtifactTrace.ProjectId, "The Project IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.ArtifactId, actualArtifactTrace.ArtifactId, "The Artifact IDs of the traces don't match!");
+            Assert.AreEqual(expectedArtifactTrace.IsSuspect, actualArtifactTrace.IsSuspect, "One trace is marked suspect but the other isn't!");
 
             if (checkDirection)
             {
-                Assert.AreEqual(expectedArtifactTrace.Direction, resultedArtifactTrace.Direction, "The Trace Directions don't match!");
+                Assert.AreEqual(expectedArtifactTrace.Direction, actualArtifactTrace.Direction, "The Trace Directions don't match!");
             }
+        }
+
+        /// <summary>
+        /// Compare expected artifact with actual collection item
+        /// </summary>
+        /// <param name="expectedArtifact">The expected artifact</param>
+        /// <param name="actualCollectionItem">The actual collection item</param>
+        public static void AssertAreEqual(IArtifactBase expectedArtifact, CollectionItem actualCollectionItem)
+        {
+            ThrowIf.ArgumentNull(expectedArtifact, nameof(expectedArtifact));
+            ThrowIf.ArgumentNull(actualCollectionItem, nameof(actualCollectionItem));
+
+            Assert.AreEqual(expectedArtifact.Id, actualCollectionItem.Id);
+            Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
+            Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
+            Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
         }
 
         #endregion Custom Asserts
@@ -810,12 +826,45 @@ namespace Helper
 
         #endregion Image Functions
 
+        #region Collection Methods
+
         /// <summary>
-        /// Gets Inline Image Id from html of the artifact rich text property
+        /// Validate Collection contents by comparing with the expected artifact list
         /// </summary>
-        /// <returns>Guid string, empty string if no guids were found</returns>
+        /// <param name="collection">collection returned from get collection call</param>
+        /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
+        public static void ValidateCollection(Collection collection, List<IArtifactBase> artifactList)
+        {
+            ThrowIf.ArgumentNull(collection, nameof(collection));
+            ThrowIf.ArgumentNull(artifactList, nameof(artifactList));
+
+            Assert.AreEqual(artifactList.Count(), collection.Artifacts.Count(),
+                "{0} artifacts are expected from collection but {1} are returned.",
+                artifactList.Count(), collection.Artifacts.Count());
+
+            if (artifactList.Any())
+            {
+                foreach (var artifact in artifactList)
+                {
+                    var collectionItem = collection.Artifacts.Find(a => a.Id.Equals(artifact.Id));
+                    AssertAreEqual(artifact, collectionItem);
+                }
+            }
+        }
+
+        #endregion Collection Methods
+
+        /// <summary>
+        /// Gets Inline Image Id from html of the artifact rich text property.
+        /// </summary>
+        /// <returns>Guid string, empty string if no guids were found.</returns>
         public static string GetInlineImageId(string richTextProperty)
         {
+            if (richTextProperty == null)
+            {
+                return string.Empty;
+            }
+
             var guidString = Regex.Match(richTextProperty, @"[0-9a-f]{8}[-]([0-9a-f]{4}[-]){3}[0-9a-f]{12}");
             return guidString.Value;
         }
@@ -1712,6 +1761,7 @@ namespace Helper
         /// <param name="artifactDetails">The artifact where the image will be embedded.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="text">The new text that will be set in the property.</param>
         /// <param name="propertyName">(optional) The name of the artifact property to update. By default it is Description.</param>
         /// <returns>The INovaArtifactDetails after saving the artifact.</returns>
         public static INovaArtifactDetails SetArtifactTextProperty(NovaArtifactDetails artifactDetails,

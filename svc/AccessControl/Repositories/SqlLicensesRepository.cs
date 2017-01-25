@@ -61,7 +61,7 @@ namespace AccessControl.Repositories
             prm.Add("@year", year);
             var usage = new LicenseUsage();
             usage.Summary = await _connectionWrapper.QueryAsync<LicenseUsageSummary>("GetLicenseUsage", prm, commandType: CommandType.StoredProcedure);
-            usage.UserActivities = await _connectionWrapper.QueryAsync<LicenseUserActivity>("GetLicenseUserActivity", null, commandType: CommandType.StoredProcedure);
+            usage.UserActivities = await _connectionWrapper.QueryAsync<LicenseUserActivity>("GetLicenseUserActivity", prm, commandType: CommandType.StoredProcedure);
             return usage;
         }
 

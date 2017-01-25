@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Common;
 using Helper;
 using Model;
@@ -36,10 +35,10 @@ namespace OpenAPITests
         {
             // TODO: Create some projects.
 
-            List<IProject> projects = new Project().GetProjects(_server.Address, _user);
+            var projects = new Project().GetProjects(_server.Address, _user);
             Logger.WriteDebug("Number of projects returned = {0}", projects.Count);
 
-            foreach (IProject project in projects)
+            foreach (var project in projects)
             {
                 Logger.WriteDebug(project.ToString());
             }
@@ -52,10 +51,10 @@ namespace OpenAPITests
         public void GetProject()
         {
             // Setup: Create a project and collect the projectID
-            IProject project = Helper.CreateProject();
+            var project = Helper.CreateProject();
 
             // Try to get the project we added.
-            IProject foundProject = new Project().GetProject(_server.Address, project.Id, _user);
+            var foundProject = new Project().GetProject(_server.Address, project.Id, _user);
 
             // Verify that the projects we created were returned in the list of projects.
             Assert.That(project.Equals(foundProject),

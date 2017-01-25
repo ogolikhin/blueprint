@@ -47,7 +47,7 @@ namespace OpenAPITests
         private void LoginWithInvalidCredentials(string username)
         {
             const string badPassword = "bad-password";
-            IUser invalidUser = UserFactory.CreateUserOnly(username, badPassword);
+            var invalidUser = UserFactory.CreateUserOnly(username, badPassword);
 
             Assert.Throws<Http401UnauthorizedException>(
                 () => { _server.LoginUsingBasicAuthorization(invalidUser); },
@@ -109,7 +109,7 @@ namespace OpenAPITests
             RestResponse response = null;
 
             // Creating the user with invalid password.
-            IUser invalidUser = UserFactory.CreateUserOnly(_user.Username, "bad-password");
+            var invalidUser = UserFactory.CreateUserOnly(_user.Username, "bad-password");
             
             // Invalid login attempt 4 times.
             for (int i = 0; i < 4; i++)
@@ -141,14 +141,14 @@ namespace OpenAPITests
         {
             // Setup:
             List<IUser> users = new List<IUser>();
-            ConcurrentTestHelper threadHelper = new ConcurrentTestHelper(Helper);
+            var threadHelper = new ConcurrentTestHelper(Helper);
 
             try
             {
                 // Create the users & threads.
                 for (int i = 0; i < numThreads; ++i)
                 {
-                    IUser user = UserFactory.CreateUserAndAddToDatabase();  // Don't use Helper here because the users are deleted in the finally block.
+                    var user = UserFactory.CreateUserAndAddToDatabase();  // Don't use Helper here because the users are deleted in the finally block.
                     users.Add(user);
 
                     threadHelper.AddTestFunctionToThread(() =>

@@ -136,7 +136,7 @@ namespace AccessControlTests
         public void GetLicenseUsage_WithValidMonthAndYear_VerifyUsageDataReturned(int? year, int? month, bool expectedEmptyResponse)
         {
             // Setup:
-            List<LicenseUsage> response = null;
+            LicenseUsage response = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -180,7 +180,7 @@ namespace AccessControlTests
         /// <param name="expectedEmptyResponse">Pass true if the response should be empty or false if it should contain data.</param>
         /// <param name="year">The year requested in the REST call.</param>
         /// <param name="month">The month requested in the REST call.</param>
-        private static void VerifySomeProperties(List<LicenseUsage> licenseUsageInfo, bool expectedEmptyResponse, int? year, int? month)
+        private static void VerifySomeProperties(LicenseUsage licenseUsageInfo, bool expectedEmptyResponse, int? year, int? month)
         {
             Assert.IsNotNull(licenseUsageInfo, "License usage information should ever be null!");
 
@@ -201,66 +201,69 @@ namespace AccessControlTests
                 }
 
                 // First verify that the license usage starts from the month & year we requested.
-                Assert.AreEqual(year, licenseUsageInfo.First().UsageYear, "The year should be {0}!", year);
-                Assert.AreEqual(month, licenseUsageInfo.First().UsageMonth, "The month should be {0}!", month);
+                int? yearMonth = year * 100 + month;
+                Assert.AreEqual(yearMonth, licenseUsageInfo.Summary.First().YearMonth, "The year and month should be {0}!", yearMonth);
+                Assert.AreEqual(yearMonth, licenseUsageInfo.UserActivities.First().YearMonth, "The year and month should be {0}!", yearMonth);
 
-                var licenseUsage = licenseUsageInfo.Find(u => u.UsageYear.Equals(2016) && u.UsageMonth.Equals(10));
-                VerifyLicenseUsageValues(licenseUsage, usageMonth: 10, usageYear: 2016, uniqueAuthors: 1, uniqueAuthorUserIds: "1", authorsCreatedToDate: 1,
-                    registeredAuthorsCreated: 0, registeredAuthorsCreatedUserIds: null);
+                var licenseUsageSummary = licenseUsageInfo.Summary.ToList().Find(u => u.YearMonth.Equals(201610));
+                var licenseUserActivity = licenseUsageInfo.UserActivities.ToList().Find(u => u.YearMonth.Equals(201610));
 
-                licenseUsage = licenseUsageInfo.Find(u => u.UsageYear.Equals(2016) && u.UsageMonth.Equals(11));
-                VerifyLicenseUsageValues(licenseUsage, usageMonth: 11, usageYear: 2016, uniqueAuthors: 2, uniqueAuthorUserIds: "1,2", authorsCreatedToDate: 2,
-                    registeredAuthorsCreated: 1, registeredAuthorsCreatedUserIds: "2");
+                VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201610, uniqueAuthors: 1);
+                VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: 201610);
+
+                licenseUsageSummary = licenseUsageInfo.Summary.ToList().Find(u => u.YearMonth.Equals(201611));
+                licenseUserActivity = licenseUsageInfo.UserActivities.ToList().Find(u => u.YearMonth.Equals(201611));
+
+                VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201611, uniqueAuthors: 2);
+                VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: 201611);
             }
             else
             {
-                Assert.IsEmpty(licenseUsageInfo);
+                Assert.IsEmpty(licenseUsageInfo.Summary);
+                Assert.IsEmpty(licenseUsageInfo.UserActivities);
             }
         }
 
         /// <summary>
-        /// Verifies that the specified LicenseUsage contains the specified values.
+        /// Verifies that the specified LicenseUsageSummary contains the specified values.
         /// </summary>
-        /// <param name="licenseUsage">The LicenseUsage to verify.</param>
-        /// <param name="usageYear">The expected usageYear.</param>
-        /// <param name="usageMonth">The expected usageMonth.</param>
+        /// <param name="licenseUsageSummary">The LicenseUsageSummary to verify.</param>
+        /// <param name="yearMonth">The expected year and month.</param>
         /// <param name="uniqueAuthors">The expected uniqueAuthors.</param>
-        /// <param name="uniqueAuthorUserIds">The expected uniqueAuthorUserIds.</param>
-        /// <param name="authorsCreatedToDate">The expected authorsCreatedToDate.</param>
-        /// <param name="registeredAuthorsCreated">The expected registeredAuthorsCreated.</param>
-        /// <param name="registeredAuthorsCreatedUserIds">The expected registeredAuthorsCreatedUserIds.</param>
-        private static void VerifyLicenseUsageValues(LicenseUsage licenseUsage, int usageYear, int usageMonth, int uniqueAuthors, string uniqueAuthorUserIds, int authorsCreatedToDate,
-            int registeredAuthorsCreated, string registeredAuthorsCreatedUserIds)
+        private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors)
         {
             // These properties are always the same in our Golden DB (so far).
-            const string registeredCollaboratorCreatedUserIds = null;
-            const string uniqueCollaboratorUserIds = null;
-            const int uniqueCollaborators = 0;
-            const int collaboratorsCreatedToDate = 0;
+            const int uniqueCollaborators = 1;
+            const int uniqueViewers = 0;
             const int maxConcurrentViewers = 0;
             const int maxConcurrentAuthors = 1;
             const int maxConcurrentCollaborators = 0;
-            const int registeredCollaboratorsCreated = 0;
             const int usersFromAnalytics = 0;
             const int usersFromRestApi = 0;
 
-            Assert.AreEqual(usageYear, licenseUsage.UsageYear, "The UsageYear should be {0}!", usageYear);
-            Assert.AreEqual(usageMonth, licenseUsage.UsageMonth, "The UsageMonth should be {0}!", usageMonth);
-            Assert.AreEqual(uniqueAuthors, licenseUsage.UniqueAuthors, "UniqueAuthors should be {0}!", uniqueAuthors);
-            Assert.AreEqual(uniqueCollaborators, licenseUsage.UniqueCollaborators, "UniqueCollaborators should be {0}!", uniqueCollaborators);
-            Assert.AreEqual(uniqueAuthorUserIds, licenseUsage.UniqueAuthorUserIds, "UniqueAuthorUserIds should be {0}!", uniqueAuthorUserIds);
-            Assert.AreEqual(uniqueCollaboratorUserIds, licenseUsage.UniqueCollaboratorUserIds, "UniqueCollaboratorUserIds should be {0}!", uniqueCollaboratorUserIds);
-            Assert.AreEqual(registeredAuthorsCreated, licenseUsage.RegisteredAuthorsCreated, "RegisteredAuthorsCreated should be {0}!", registeredAuthorsCreated);
-            Assert.AreEqual(registeredAuthorsCreatedUserIds, licenseUsage.RegisteredAuthorsCreatedUserIds, "RegisteredAuthorsCreatedUserIds should be {0}!", registeredAuthorsCreatedUserIds);
-            Assert.AreEqual(registeredCollaboratorsCreated, licenseUsage.RegisteredCollaboratorsCreated, "RegisteredCollaboratorsCreated should be {0}!", registeredCollaboratorsCreated);
-            Assert.AreEqual(registeredCollaboratorCreatedUserIds, licenseUsage.RegisteredCollaboratorCreatedUserIds, "RegisteredCollaboratorCreatedUserIds should be {0}!", registeredCollaboratorCreatedUserIds);
-            Assert.AreEqual(authorsCreatedToDate, licenseUsage.AuthorsCreatedToDate, "AuthorsCreatedToDate should be {0}!", authorsCreatedToDate);
-            Assert.AreEqual(collaboratorsCreatedToDate, licenseUsage.CollaboratorsCreatedToDate, "CollaboratorsCreatedToDate should be {0}!", collaboratorsCreatedToDate);
-            Assert.AreEqual(maxConcurrentViewers, licenseUsage.MaxConcurrentViewers, "MaxConcurrentViewers should be {0}!", maxConcurrentViewers);
-            Assert.AreEqual(maxConcurrentAuthors, licenseUsage.MaxConcurrentAuthors, "MaxConcurrentAuthors should be {0}!", maxConcurrentAuthors);
-            Assert.AreEqual(maxConcurrentCollaborators, licenseUsage.MaxConcurrentCollaborators, "MaxConcurrentCollaborators should be {0}!", maxConcurrentCollaborators);
-            Assert.AreEqual(usersFromAnalytics, licenseUsage.UsersFromAnalytics, "UsersFromAnalytics should be {0}!", usersFromAnalytics);
-            Assert.AreEqual(usersFromRestApi, licenseUsage.UsersFromRestApi, "UsersFromRestApi should be {0}!", usersFromRestApi);
+            Assert.AreEqual(yearMonth, licenseUsageSummary.YearMonth, "The yearMonth should be {0}!", yearMonth);
+            Assert.AreEqual(uniqueAuthors, licenseUsageSummary.UniqueAuthors, "UniqueAuthors should be {0}!", uniqueAuthors);
+            Assert.AreEqual(uniqueCollaborators, licenseUsageSummary.UniqueCollaborators, "UniqueCollaborators should be {0}!", uniqueCollaborators);
+            Assert.AreEqual(uniqueViewers, licenseUsageSummary.UniqueViewers, "UniqueCollaborators should be {0}!", uniqueViewers);
+            Assert.AreEqual(maxConcurrentAuthors, licenseUsageSummary.MaxConcurrentAuthors, "MaxConcurrentAuthors should be {0}!", maxConcurrentAuthors);
+            Assert.AreEqual(maxConcurrentCollaborators, licenseUsageSummary.MaxConcurrentCollaborators, "MaxConcurrentCollaborators should be {0}!", maxConcurrentCollaborators);
+            Assert.AreEqual(maxConcurrentViewers, licenseUsageSummary.MaxConcurrentViewers, "MaxConcurrentViewers should be {0}!", maxConcurrentViewers);
+            Assert.AreEqual(usersFromAnalytics, licenseUsageSummary.UsersFromAnalytics, "UsersFromAnalytics should be {0}!", usersFromAnalytics);
+            Assert.AreEqual(usersFromRestApi, licenseUsageSummary.UsersFromRestApi, "UsersFromRestApi should be {0}!", usersFromRestApi);
+        }
+
+        /// <summary>
+        /// Verifies that the specified LicenseUserActivity contains the specified values.
+        /// </summary>
+        /// <param name="licenseUserActivity">The LicenseUserActivity to verify</param>
+        /// <param name="userId">The expected user id</param>
+        /// <param name="licenseType">The expected license type</param>
+        /// <param name="yearMonth">The expected year & month</param>
+        private static void VerifyLicenseUserActivityValues(LicenseUserActivity licenseUserActivity, int userId, int licenseType, int yearMonth)
+        {
+            Assert.AreEqual(userId, licenseUserActivity.UserId, "The User Id should be {0}!", userId);
+            Assert.AreEqual(licenseType, licenseUserActivity.LicenseType, "The User Id should be {0}!", licenseType);
+            Assert.AreEqual(yearMonth, licenseUserActivity.YearMonth, "The User Id should be {0}!", yearMonth);
         }
 
         #endregion Private functions

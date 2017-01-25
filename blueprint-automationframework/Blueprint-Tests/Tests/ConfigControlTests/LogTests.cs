@@ -33,8 +33,8 @@ namespace ConfigControlTests
         [Description("Calls the GetLog method of ConfigControl with no authentication.  Verify log file is returned.")]
         public static void GetLog_NoToken_VerifyLogFile()
         {
-            IConfigControl configControl = ConfigControlFactory.GetConfigControlFromTestConfig();
-            IFile file = configControl.GetLog();
+            var configControl = ConfigControlFactory.GetConfigControlFromTestConfig();
+            var file = configControl.GetLog();
 
             AssertLogFile(file);
         }

@@ -16,7 +16,8 @@ namespace ConfigControlTests
 
         [TestCase]
         [TestRail(106946)]
-        [Description("Calls the /status endpoint for ConfigControl with no preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
+        [Description("Calls the /status endpoint for ConfigControl with no preAuthorizedKey and verifies that it returns 200 OK and a JSON structure " +
+            "containing basic status of dependent services.")]
         public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
         {
             string content = null;

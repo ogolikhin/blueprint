@@ -204,7 +204,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
     }
 
     // BpTree bindings
-
     public treeApi: IBPTreeViewControllerApi;
     // public projects: ExplorerNodeVM[];
     public columns: IColumn[] = [{
@@ -214,7 +213,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
             const vm = params.data as ExplorerNodeVM;
             const icon = vm.getIcon();
             const label = Helper.escapeHTMLText(vm.getLabel());
-            return `<a ui-sref="main.item({id: ${vm.model.id}})" ng-click="$event.preventDefault()" class="explorer__node-link">` +
+            return `<a ui-sref="main.item({id: ${vm.model.id}})" class="explorer__node-link">` +
                 `${icon}<span>${label}</span></a>`;
         }
     }];
@@ -226,11 +225,11 @@ export class ProjectExplorerController implements IProjectExplorerController {
             //Following has to be a const to restore current selection in case of faling navigation
             const prevSelected = this.selected;
             this.selected = vm;
-            this.navigationService.navigateTo({id: vm.model.id})
-                .catch((err) => {
-                    this.resettingSelection = true;
-                    this.treeApi.setSelected(prevSelected);
-                });
+            // this.navigationService.navigateTo({id: vm.model.id})
+            //     .catch((err) => {
+            //         this.resettingSelection = true;
+            //         this.treeApi.setSelected(prevSelected);
+            //     });
         }
         this.resettingSelection = false;
     };

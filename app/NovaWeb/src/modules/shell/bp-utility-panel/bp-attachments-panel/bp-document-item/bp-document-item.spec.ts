@@ -9,6 +9,7 @@ import {IArtifactAttachmentsService} from "../../../../managers/artifact-manager
 import {ArtifactAttachmentsMock} from "../../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
 
 describe("Component BP Artifact Document Item", () => {
     const template = `<bp-document-item doc-ref-info="document" delete-item="delete()"></bp-document-item>`;
@@ -21,6 +22,7 @@ describe("Component BP Artifact Document Item", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
+        $provide.service("downloadService", DownloadServiceMock);
     }));
 
     beforeEach(inject(($window: ng.IWindowService) => {

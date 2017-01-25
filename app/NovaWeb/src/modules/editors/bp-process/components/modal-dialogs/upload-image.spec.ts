@@ -10,6 +10,7 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {IFileUploadService, FileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
 
 describe("UploadImage Directive", () => {
     let element: ng.IAugmentedJQuery;
@@ -41,6 +42,7 @@ describe("UploadImage Directive", () => {
         $provide.service("fileUploadService", FileUploadService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("downloadService", DownloadServiceMock);
     }));
 
     beforeEach(

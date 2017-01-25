@@ -21,16 +21,18 @@
             right: -4px;
             transition-duration: .01s;
         }
-        &.left-panel-expanded {
+    }
+}
+
+.left-panel-expanded {
+    .sidebar.left-panel {
+        width: $sidebar-size * 2;
+        margin-left: -$sidebar-size * 2;
+    }
+
+    &.left-panel-visible {
+        .sidebar.left-panel {
             margin-left: 0;
-
-            .btn-sidebar-expand {
-                opacity: 0.6;
-
-                &:hover {
-                    opacity: 0.7;
-                }
-            }
         }
     }
 }
@@ -115,11 +117,6 @@
 
         .project-explorer {
             height: 100%;
-        }
-
-        &.left-panel-expanded {
-            width: $sidebar-size * 2;
-            margin-left: -$sidebar-size * 2;
         }
     }
 

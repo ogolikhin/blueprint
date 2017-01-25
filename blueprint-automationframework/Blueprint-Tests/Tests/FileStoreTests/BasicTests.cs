@@ -43,7 +43,7 @@ namespace FileStoreTests
         public void PostFile_MultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
@@ -68,7 +68,7 @@ namespace FileStoreTests
         public void PostFile_NoMultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: false);
@@ -92,7 +92,7 @@ namespace FileStoreTests
         public void PostFile_UsingChunksMultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true, chunkSize: chunkSize);
@@ -116,7 +116,7 @@ namespace FileStoreTests
         public void PostFile_UsingChunksNoMultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: false, chunkSize: chunkSize);
@@ -136,7 +136,7 @@ namespace FileStoreTests
         public void PostFile_ExpireTimeInFuture_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, DateTime.Now.AddDays(1));
@@ -156,7 +156,7 @@ namespace FileStoreTests
         public void PostFile_NoExpireTime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user);
@@ -176,7 +176,7 @@ namespace FileStoreTests
         public void PostFile_ExpireTimeInPast_FileNotFound(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, DateTime.Now.AddDays(-1));
@@ -196,7 +196,7 @@ namespace FileStoreTests
         public void PostFile_UsingChunksExpireTimeInPast_FileNotFound(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, DateTime.Now.AddDays(-1), chunkSize: chunkSize);

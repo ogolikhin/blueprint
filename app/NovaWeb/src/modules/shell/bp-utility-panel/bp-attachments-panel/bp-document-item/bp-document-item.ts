@@ -1,4 +1,5 @@
-﻿import {
+﻿import {IDownloadService} from "../../../../commonModule/download";
+import {
     IArtifactDocRef,
     IArtifactAttachmentsService,
     IArtifactAttachmentsResultSet
@@ -32,14 +33,14 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
         "localization",
         "artifactAttachments",
         "messageService",
-        "$window"
+        "downloadService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private localization: ILocalizationService,
                 private artifactAttachments: IArtifactAttachmentsService,
                 private messageService: IMessageService,
-                private $window: ng.IWindowService) {
+                private downloadService: IDownloadService) {
     }
 
     public $onInit() {
@@ -57,7 +58,7 @@ export class BPDocumentItemController implements IBPAttachmentItemController {
                     if (isHistorical) {
                         url += `?versionId=${this.docRefInfo.versionId}`;
                     }
-                    this.$window.open(url, "_blank");
+                    this.downloadService.downloadFile(url);
                 } else {
                     this.messageService.addError(this.localization.get("App_UP_Attachments_Download_No_Attachment"));
                 }

@@ -56,7 +56,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentFile_PublishedArtifactWithAttachment_FileIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.Actor);
             artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
             artifact.Publish();
 
@@ -81,7 +81,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentFile_SavedUnpublishedArtifactWithAttachment_FileIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.BusinessProcess);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _adminUser, BaseArtifactType.BusinessProcess);
             artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
 
             Attachments attachment = null;
@@ -105,7 +105,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentFile_ForHistoricalVersionOfArtifact_FileIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.DomainDiagram);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.DomainDiagram);
             artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
             artifact.Publish(_adminUser);
             // now artifact has attachment in version 2
@@ -136,7 +136,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentFile_ForHistoricalVersionOfDeletedArtifact_FileIsReturned()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.GenericDiagram);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.GenericDiagram);
             artifact.AddArtifactAttachment(_attachmentFile, _adminUser);
             artifact.Publish(_adminUser);
             // now artifact has attachment in version 2
@@ -167,7 +167,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentFile_SubArtifactWithAttachment_ReturnsExpectedFile()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(3, subArtifacts.Count, "Use Case should have 3 subartifacts.");
             var subArtifact = Helper.ArtifactStore.GetSubartifact(_adminUser, artifact.Id, subArtifacts[0].Id);
@@ -177,7 +177,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AddSubArtifactAttachmentAndSave(_adminUser, artifact, subArtifact, new List<INovaFile> { attachmentFile2 },
                 Helper.ArtifactStore);
             artifact.Publish();
-            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
+            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifact.Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
             int attachmentIdToDownload = attachment.AttachedFiles[0].AttachmentId;
             IFile downloadedFile = null;
@@ -201,7 +201,7 @@ namespace ArtifactStoreTests
         public void GetAttachmentFile_SubArtifactWithDeletedAttachment_Returns404()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_adminUser, artifact.Id);
             Assert.AreEqual(5, subArtifacts.Count, "Process should have 5 subartifacts.");
 
@@ -215,7 +215,7 @@ namespace ArtifactStoreTests
             artifact.Publish();
 
             // Verify attachment was added.
-            Attachments attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[2].Id);
+            var attachment = Helper.ArtifactStore.GetAttachments(artifact, _adminUser, subArtifactId: subArtifacts[2].Id);
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "SubArtifact should have 1 file attached.");
 
             // Delete the attachment.

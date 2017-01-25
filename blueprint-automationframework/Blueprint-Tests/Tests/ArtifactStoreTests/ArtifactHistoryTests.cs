@@ -43,7 +43,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_PublishedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
@@ -70,7 +70,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifact = Helper.CreateArtifact(_project, author, BaseArtifactType.Actor);
+            var artifact = Helper.CreateArtifact(_project, author, BaseArtifactType.Actor);
 
             artifact.Save(author);
 
@@ -96,7 +96,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_DeletedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Delete(_user);
             artifact.Publish(_user);
 
@@ -121,7 +121,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_PublishedArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
@@ -145,7 +145,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_UnpublishedArtifactInDraft_VerifyOtherUserGetsEmptyHistory()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Save(_user);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
@@ -166,7 +166,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactWith12PublishedVersions_VerifyOnly10LatestVersionsReturned()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 12);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 12);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -204,7 +204,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactWith5PublishedVersions_VerifyDefaultAscIsFalse()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -229,7 +229,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscTrue_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInAscendingOrder()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -254,7 +254,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscFalse_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInDescendingOrder()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -279,7 +279,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithOffset2_ArtifactWith5PublishedVersions_VerifyOnly3LatestVersionsReturned()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -304,7 +304,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscTrueAndOffset3AndLimit1_ArtifactWith5PublishedVersions_VerifyOnlyVersion4Returned()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
@@ -330,7 +330,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactWithSubArtifacts_PublishedVersions_SendSubArtifactId_VerifyReturn()
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Process, numberOfVersions: 2);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Process, numberOfVersions: 2);
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
@@ -357,7 +357,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_PublishedArtifact_UserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
 
@@ -375,10 +375,10 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            IArtifact parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent);
 
-            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, parent);
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, parent);
 
             // Execute
             Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactHistory(parent.Id, user),
@@ -395,9 +395,9 @@ namespace ArtifactStoreTests
         public void GetSubArtifactDetails_PublishedArtifact_UserWithoutPermissionsUsingSubArtifactId_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
@@ -482,7 +482,7 @@ namespace ArtifactStoreTests
         private void GetArtifactHistoryWithLimitHelper(int numberOfVersions, int limit)
         {
             // Setup:
-            IOpenApiArtifact artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 

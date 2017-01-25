@@ -54,12 +54,12 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, GetArtifactDetails.  Verify the artifact details are returned.")]
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
             INovaArtifactDetails artifactDetails = null;
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
 
             Assert.DoesNotThrow(() =>
             {
@@ -78,7 +78,7 @@ namespace ArtifactStoreTests
         public void GetArtifactDetails_PublishedArtifactWithMultipleVersions_ReturnsArtifactDetailsForLatestVersion(int numberOfVersions)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, numberOfVersions: numberOfVersions);
             INovaArtifactDetails artifactDetails = null;
 
             // Execute:
@@ -103,7 +103,7 @@ namespace ArtifactStoreTests
         public void GetArtifactDetailsWithVersionId1_PublishedArtifactWithMultipleVersions_ReturnsArtifactDetailsForFirstVersion(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifactVersion1 = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
             artifact.Save();
@@ -133,7 +133,7 @@ namespace ArtifactStoreTests
         public void GetArtifactDetailsWithVersionId1_DeletedArtifactWithMultipleVersions_ReturnsArtifactDetailsForFirstVersion(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
             var retrievedArtifactVersion1 = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
             artifact.Save();
@@ -315,7 +315,7 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, GetArtifactDetails but don't send any Session-Token header.  Verify it returns 401 Unauthorized.")]
         public void GetArtifactDetails_PublishedArtifactNoTokenHeader_401Unauthorized()
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
 
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
@@ -329,8 +329,8 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, GetArtifactDetails but use an unauthorized token.  Verify it returns 401 Unauthorized.")]
         public void GetArtifactDetails_PublishedArtifactUnauthorizedToken_401Unauthorized()
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
-            IUser unauthorizedUser = Helper.CreateUserAndAddToDatabase();
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+            var unauthorizedUser = Helper.CreateUserAndAddToDatabase();
 
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
@@ -348,9 +348,9 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact, GetArtifactDetails with a user that doesn't have access to the artifact.  Verify it returns 403 Forbidden.")]
         public void GetArtifactDetails_PublishedArtifactUserWithoutPermissions_403Forbidden()
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
             Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
 
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -370,9 +370,9 @@ namespace ArtifactStoreTests
             "Verify it returns 403 Forbidden.")]
         public void GetArtifactDetailsWithVersion1_PublishedArtifactWithMultipleVersions_UserWithoutPermissions_403Forbidden()
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
 
-            IUser unauthorizedUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var unauthorizedUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
             Helper.AssignProjectRolePermissionsToUser(unauthorizedUser, TestHelper.ProjectRole.None, _projects[0], artifact);
 
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -391,10 +391,10 @@ namespace ArtifactStoreTests
                     "Verify it returns 403 Forbidden.")]
         public void GetArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden()
         {
-            IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
-            IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, parent);
+            var parent = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+            var child = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, parent);
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
             Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
 
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -417,8 +417,8 @@ namespace ArtifactStoreTests
         [Description("Create & save (but don't publish) an artifact, GetArtifactDetails with a different user.  Verify it returns 404 Not Found.")]
         public void GetArtifactDetails_UnpublishedArtifactOtherUser_404NotFound()
         {
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_projects[0], _user, BaseArtifactType.Process);
-            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifact = Helper.CreateAndSaveArtifact(_projects[0], _user, BaseArtifactType.Process);
+            var user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             Assert.Throws<Http404NotFoundException>(() =>
             {
@@ -446,7 +446,7 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  GetArtifactDetails and pass a non-existent Version ID (ex. 0 or 2).  Verify it returns 404 Not Found.")]
         public void GetArtifactDetailsWithVersion_NonExistentVersionId_404NotFound(int versionId)
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process);
 
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
@@ -474,13 +474,13 @@ namespace ArtifactStoreTests
         {
             ThrowIf.ArgumentNull(assertMessage, nameof(assertMessage));
 
-            JsonSerializerSettings jsonSettings = new JsonSerializerSettings()
+            var jsonSettings = new JsonSerializerSettings()
             {
                 // This will alert us if new properties are added to the return JSON format.
                 MissingMemberHandling = MissingMemberHandling.Error
             };
 
-            MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
+            var messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
 
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
         }

@@ -22,7 +22,8 @@ namespace FileStoreTests
 
         [TestCase]
         [TestRail(106953)]
-        [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing detailed status of dependent services.")]
+        [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure " +
+            "containing detailed status of dependent services.")]
         public void GetStatus_WithPreAuthorizedKey_ReturnsDetailedStatus()
         {
             string content = null;
@@ -39,7 +40,8 @@ namespace FileStoreTests
 
         [TestCase]
         [TestRail(166143)]
-        [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure containing basic status of dependent services.")]
+        [Description("Calls the /status endpoint for FileStore with a valid preAuthorizedKey and verifies that it returns 200 OK and a JSON structure " +
+            "containing basic status of dependent services.")]
         public void GetStatus_WithNoPreAuthorizedKey_ReturnsBasicStatus()
         {
             string content = null;

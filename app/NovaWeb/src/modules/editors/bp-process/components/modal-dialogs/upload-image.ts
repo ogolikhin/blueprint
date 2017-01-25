@@ -42,7 +42,6 @@ export class UploadImageDirective implements ng.IDirective {
                                                  downloadService: IDownloadService) =>
             new UploadImageDirective(fileUploadService, $timeout, $compile, messageService, downloadService);
         directive.$inject = ["fileUploadService",
-            "$window",
             "$timeout",
             "$compile",
             "messageService",

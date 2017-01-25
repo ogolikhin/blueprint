@@ -691,7 +691,7 @@ namespace SearchServiceTests
 
             // Verify: 
             Assert.AreEqual(expectedHits, fullTextSearchResult.PageItemCount,
-                "The number of hits was {0} but {1} was expected", expectedHits, fullTextSearchResult.PageItemCount);
+                "The number of hits was {0} but {1} was expected", fullTextSearchResult.PageItemCount, expectedHits);
 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
         }
@@ -730,7 +730,7 @@ namespace SearchServiceTests
 
             // Verify: 
             Assert.AreEqual(expectedHits,fullTextSearchResult.PageItemCount,
-                "The number of hits was {0} but {1} was expected", expectedHits, fullTextSearchResult.PageItemCount);
+                "The number of hits was {0} but {1} was expected", fullTextSearchResult.PageItemCount, expectedHits);
 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
         }

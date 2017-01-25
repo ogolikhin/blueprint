@@ -1,4 +1,5 @@
-﻿import {IArtifactAttachment} from "../../../../managers/artifact-manager";
+﻿import {IDownloadService} from "../../../../commonModule/download";
+import {IArtifactAttachment} from "../../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../../managers";
 import {FiletypeParser} from "../../../../shared/utils/filetypeParser";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
@@ -23,7 +24,7 @@ export class BPAttachmentItemController implements IBPAttachmentItemController {
         "$log",
         "localization",
         "selectionManager",
-        "$window"
+        "downloadService"
     ];
 
     public fileIconClass: string;
@@ -34,7 +35,7 @@ export class BPAttachmentItemController implements IBPAttachmentItemController {
     constructor(private $log: ng.ILogService,
                 private localization: ILocalizationService,
                 private selectionManager: ISelectionManager,
-                private $window: ng.IWindowService) {
+                private downloadService: IDownloadService) {
     }
 
     public $onInit() {
@@ -54,6 +55,6 @@ export class BPAttachmentItemController implements IBPAttachmentItemController {
             }
         }
 
-        this.$window.open(url, "_blank");
+        this.downloadService.downloadFile(url);
     }
 }

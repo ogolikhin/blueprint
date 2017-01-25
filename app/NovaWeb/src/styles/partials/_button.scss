@@ -311,8 +311,10 @@ Helper classes
 
 .btn-link {
     padding: 0;
+    min-width: initial;
+    color: $gray-dark;
     text-align: inherit;
-    border: none!important;
+    border: none !important;
     &:hover,
     &:focus {
         text-decoration: none;

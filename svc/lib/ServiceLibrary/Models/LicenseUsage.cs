@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace ServiceLibrary.Models
 {
+    [JsonObject]
     public class LicenseUsage
     {
         public IEnumerable<LicenseUsageSummary> Summary { get; set; }
@@ -21,15 +22,15 @@ namespace ServiceLibrary.Models
     public class LicenseUserActivity
     {
         /// <summary>
-        /// Year.
+        /// User ID
         /// </summary>
         public int UserId { get; set; }
         /// <summary>
-        /// Year.
+        /// License type being used by user
         /// </summary>
         public int LicenseType { get; set; }
         /// <summary>
-        /// Year.
+        /// Composite Year and Month for user activity
         /// </summary>
         public int YearMonth { get; set; }
 
@@ -45,14 +46,9 @@ namespace ServiceLibrary.Models
     public class LicenseUsageSummary
     {
         /// <summary>
-        /// Year.
+        /// Composite Year and Month of license usage
         /// </summary>
-        public int UsageYear { get; set; }
-
-        /// <summary>
-        /// Month.
-        /// </summary>
-        public int UsageMonth { get; set; }
+        public int YearMonth { get; set; }
 
         /// <summary>
         /// Number of unique authors who have accessed BP in a given month
@@ -93,7 +89,6 @@ namespace ServiceLibrary.Models
         /// Number of users logged in from RestAPI.
         /// </summary>
         public int UsersFromRestApi { get; set; }
-
 
     }
 }

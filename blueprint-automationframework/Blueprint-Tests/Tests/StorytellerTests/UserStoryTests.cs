@@ -63,7 +63,7 @@ namespace StorytellerTests
             Logger.WriteDebug("The number of UserTasks inside of Process is: {0}", userTasksOnProcess);
 
             // Generate User Story artfact(s) from the Process artifact
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
@@ -84,7 +84,7 @@ namespace StorytellerTests
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             // Test Object: Generated User Stories from the Process
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // Assert that there is only one to one maching between UserTask and generated UserStory
             foreach (IProcessShape shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
@@ -175,7 +175,7 @@ namespace StorytellerTests
             Logger.WriteDebug("The number of UserTasks inside of Process is: {0}", userTasksOnProcess);
 
             // Generate User Story artfact(s) from the Process artifact
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
@@ -219,7 +219,7 @@ namespace StorytellerTests
             process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             // Test Object: Generated User Stories from the Process
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // Assert that there is one to one maching between UserTask and generated UserStory
             foreach (IProcessShape shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
@@ -268,7 +268,7 @@ namespace StorytellerTests
             var returnedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             // User Stories from the Process artifact
-            List<IStorytellerUserStory> userStoriesFirstBatch = Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
+            var userStoriesFirstBatch = Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
 
             Logger.WriteDebug("The number of user stories generated is: {0}", userStoriesFirstBatch.Count);
 
@@ -296,7 +296,7 @@ namespace StorytellerTests
             returnedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             // User Stories from the Process artifact
-            List<IStorytellerUserStory> userStoriesSecondBatch = Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
+            var userStoriesSecondBatch = Helper.Storyteller.GenerateUserStories(_user, returnedProcess);
 
             Logger.WriteDebug("The number of user stories generated or updated is: {0}", userStoriesSecondBatch.Count);
 
@@ -325,7 +325,7 @@ namespace StorytellerTests
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             // Create target artifact for inline trace
-            IArtifact linkedArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor);     // TODO:  Change ArtifactFactory to Helper.
+            var linkedArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor);     // TODO:  Change ArtifactFactory to Helper.
             linkedArtifact.Save();
             linkedArtifact.Publish();
             string inlineTraceText;
@@ -344,7 +344,7 @@ namespace StorytellerTests
             }
 
             // Generate User Stories from the Process
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // update Nonfunctional Requirements field with inline trace
             var updatePropertyResult = userStories[0].UpdateNonfunctionalRequirements(Helper.Storyteller.Address, _user, inlineTraceText);
@@ -373,7 +373,7 @@ namespace StorytellerTests
             var inlineTraceText = GetTextForInlineTrace(new List<IArtifact>() { processArtifact });
 
             // Generate User Stories from the Process
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // update Nonfunctional Requirements field with inline trace
             Assert.DoesNotThrow(() =>
@@ -405,7 +405,7 @@ namespace StorytellerTests
                 css_font_normal, css_font_bold, persona.ToString(), taskName);
 
             // Generated User Stories from the Process
-            List <IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
             // Check that ST-Title property has expected value
             var stTitleProperty = GetPropertyByName(userStories[0].CustomProperties, "ST-Title");
             Assert.AreEqual(expectedStoryTitle, stTitleProperty.Value);

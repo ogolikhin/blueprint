@@ -266,7 +266,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             var additionalHeaders = new Dictionary<string, string>();
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
 
@@ -519,7 +519,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             byte[] bytes = file.Content.ToArray();
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Uploading a file named: {1}, size: {2}", nameof(Storyteller), file.FileName, bytes.Length);
 
@@ -558,7 +558,7 @@ namespace Model.StorytellerModel.Impl
             }
 
             const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
             restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(path, RestRequestMethod.POST, new List<int> { process.Id },
@@ -607,7 +607,7 @@ namespace Model.StorytellerModel.Impl
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
 
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);

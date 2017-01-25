@@ -782,7 +782,7 @@ namespace StorytellerTests
             var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
@@ -844,7 +844,7 @@ namespace StorytellerTests
             var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 

@@ -36,7 +36,7 @@ export class MainViewController {
     ];
 
     constructor(private $document: ng.IDocumentService,
-                private session: ISession,
+                public session: ISession,
                 private projectManager: IProjectManager,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,

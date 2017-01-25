@@ -1,6 +1,6 @@
-<page-toolbar ng-if="$ctrl.currentUser"></page-toolbar>
+<page-toolbar ng-if="$ctrl.session.currentUser"></page-toolbar>
 
-<div ng-if="$ctrl.currentUser" class="bp-sidebar-wrapper"
+<div ng-if="$ctrl.session.currentUser" class="bp-sidebar-wrapper"
      ng-class="{
          'left-panel-visible': $ctrl.isLeftToggled,
          'right-panel-visible': $ctrl.isRightToggled,

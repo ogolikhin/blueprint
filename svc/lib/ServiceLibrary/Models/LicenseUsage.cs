@@ -4,6 +4,12 @@ using System.Collections.Generic;
 
 namespace ServiceLibrary.Models
 {
+    public class LicenseUsage
+    {
+        public IEnumerable<LicenseUsageSummary> Summary { get; set; }
+        public IEnumerable<LicenseUserActivity> UserActivities { get; set; }
+    }
+
 
     /// <summary>
     /// The structure to keep calculated license user activities.
@@ -36,7 +42,7 @@ namespace ServiceLibrary.Models
     /// Populated from LicenseActivities and LicenseActivitiesDetails tables.
     /// </remarks>
     [JsonObject]
-    public class LicenseUsage
+    public class LicenseUsageSummary
     {
         /// <summary>
         /// Year.

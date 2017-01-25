@@ -73,7 +73,7 @@ namespace AdminStoreTests
         [Description("Run:  GET /config/settings  and pass an invalid token.  Verify it returns 401 Unauthorized.")]
         public void GetSettings_InvalidToken_401Unauthorized()
         {
-            IUser user = UserFactory.CreateUserOnly();
+            var user = UserFactory.CreateUserOnly();
             user.Token.AccessControlToken = (new Guid()).ToString();
 
             Assert.Throws<Http401UnauthorizedException>(() =>
@@ -172,7 +172,7 @@ namespace AdminStoreTests
                             }
                         }
                     }
-                    catch (System.InvalidOperationException ex)
+                    catch (InvalidOperationException ex)
                     {
                         Logger.WriteError("SQL query didn't get processed. Exception details = {0}", ex);
                     }

@@ -38,7 +38,7 @@ namespace AccessControlTests
         private ISession AddSessionToAccessControl(ISession session)
         {
             // POST the new session.
-            ISession createdSession = Helper.AccessControl.AddSession(session);
+            var createdSession = Helper.AccessControl.AddSession(session);
 
             // Verify that the POST returned the expected session.
             Assert.True(session.Equals(createdSession),
@@ -54,7 +54,7 @@ namespace AccessControlTests
         /// <returns>The session that was added including the session token.</returns>
         private ISession CreateAndAddSessionToAccessControl()
         {
-            ISession session = SessionFactory.CreateSession(_user);
+            var session = SessionFactory.CreateSession(_user);
 
             // POST the new session.
             return AddSessionToAccessControl(session);
@@ -77,9 +77,9 @@ namespace AccessControlTests
         [Description("Check that PUT for valid Session returns 200 OK")]
         public void PutSessionWithSessionToken_Verify200OK(string operation, int? artifactId)
         {
-            ISession createdSession = CreateAndAddSessionToAccessControl();
+            var createdSession = CreateAndAddSessionToAccessControl();
 
-            ISession returnedSession = Helper.AccessControl.AuthorizeOperation(createdSession, operation, artifactId);
+            var returnedSession = Helper.AccessControl.AuthorizeOperation(createdSession, operation, artifactId);
 
             Assert.That(returnedSession.Equals(createdSession), "The POSTed session doesn't match the PUT session!");
         }
@@ -89,7 +89,7 @@ namespace AccessControlTests
         [Description("Put session without SessionToken returns 400.")]
         public void PutSessionWithoutSessionToken_Verify400BadRequest()
         {
-            ISession session = SessionFactory.CreateSession(_user);
+            var session = SessionFactory.CreateSession(_user);
             int artifactId = RandomGenerator.RandomNumber();
 
             Assert.Throws<Http400BadRequestException>(() =>
@@ -103,9 +103,9 @@ namespace AccessControlTests
         [Description("Check that AccessControl returns active Session-Token for the user.")]
         public void GetSessionForUserIdWithActiveSession_VerifyPostAndGetSessionsMatch()
         {
-            ISession addedSession = CreateAndAddSessionToAccessControl();
+            var addedSession = CreateAndAddSessionToAccessControl();
 
-            ISession returnedSession = Helper.AccessControl.GetSession(addedSession.UserId);
+            var returnedSession = Helper.AccessControl.GetSession(addedSession.UserId);
 
             Assert.That(addedSession.Equals(returnedSession), "'GET {0}' returned a different session than the one we added!", addedSession.UserId);
         }
@@ -119,7 +119,7 @@ namespace AccessControlTests
             CreateAndAddSessionToAccessControl();
 
             // Now create another session, but don't add it to AccessControl.
-            ISession session = SessionFactory.CreateRandomSession();
+            var session = SessionFactory.CreateRandomSession();
 
             // Try to get the session without the session token, which should give a 404 error.
             Assert.Throws<Http404NotFoundException>(() => { Helper.AccessControl.GetSession(session.UserId); });
@@ -131,7 +131,7 @@ namespace AccessControlTests
         public void DeleteSessionWithSessionToken_Verify200OK()
         {
             // Setup: Create a session to be deleted.
-            ISession createdSession = CreateAndAddSessionToAccessControl();
+            var createdSession = CreateAndAddSessionToAccessControl();
 
             // Delete the session.  We should get no errors.
             Helper.AccessControl.DeleteSession(createdSession);
@@ -152,7 +152,7 @@ namespace AccessControlTests
         public void GetActiveSessions_VerifySessionsWereFound()
         {
             // Setup: Create a session for test.
-            ISession session = CreateAndAddSessionToAccessControl();
+            var session = CreateAndAddSessionToAccessControl();
 
             // TODO: add expected results
             var sessionsList = Helper.AccessControl.GetActiveSessions(session: session);

@@ -114,7 +114,14 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                     lockedDateTime: result.lockedDateTime,
                     permissions: result.permissions
                 };
-                return this.createStatefulArtifact(artifact);
+
+                let extendedArtifact = this.createStatefulArtifact(artifact);
+                if (result.isDeleted) {
+                    extendedArtifact.artifactState.deleted = result.isDeleted;
+                    extendedArtifact.artifactState.deletedByDisplayName = result.deletedByUser.displayName;
+                    extendedArtifact.artifactState.deletedDateTime = result.deletedDateTime;
+                }
+                return extendedArtifact;
             }
         });
     }

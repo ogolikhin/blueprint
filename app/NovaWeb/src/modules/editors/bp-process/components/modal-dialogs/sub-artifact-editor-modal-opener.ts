@@ -135,6 +135,7 @@ export class SubArtifactEditorModalOpener {
         const model = new UserTaskDialogModel();
 
         model.artifactId = graph.viewModel.id;
+        model.itemTypeId = graph.viewModel.itemTypeId;
         model.subArtifactId = shapeId;
         model.isReadonly = graph.viewModel.isReadonly;
         model.isHistoricalVersion = graph.viewModel.isHistorical;
@@ -165,6 +166,7 @@ export class SubArtifactEditorModalOpener {
         const model = new SystemTaskDialogModel();
 
         model.artifactId = graph.viewModel.id;
+        model.itemTypeId = graph.viewModel.itemTypeId;
         model.subArtifactId = shapeId;
         model.isReadonly = graph.viewModel.isReadonly;
         model.isHistoricalVersion = graph.viewModel.isHistorical;

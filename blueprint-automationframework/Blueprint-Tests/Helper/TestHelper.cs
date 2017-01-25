@@ -280,9 +280,10 @@ namespace Helper
         ///     By default it creates the collection in the project's default collection folder.</param>
         /// <param name="orderIndex">(optional) The order index of this collection.
         ///     By default the order index should be after the last collection/folder.</param>
+        /// <param name="name">(optional) The name of collection.</param>
         /// <returns>The collection wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
         ///     because OpenAPI doesn't support collections.</returns>
-        public IArtifact CreateAndSaveCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        public IArtifact CreateAndSaveCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null, string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -292,7 +293,22 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            return CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
+            // fake type as far as we don't have Collection in OpenApi
+            var collectionArtifact = CreateWrapAndSaveNovaArtifact(
+                project,
+                user,
+                ItemTypePredefined.ArtifactCollection,
+                parentId,
+                orderIndex,
+                BaseArtifactType.PrimitiveFolder,
+                name: name);
+
+            // TODO: better way to set specific artifactTypeId value for the collection artifact?
+            
+            //Set ArtifactTypeId for collection: Delete collection
+            collectionArtifact.ArtifactTypeId = 83;
+
+            return collectionArtifact;
         }
 
         /// <summary>
@@ -363,7 +379,7 @@ namespace Helper
             var collection = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
                 itemType, name, project, artifactTypeName, parentId, orderIndex);
 
-            return WrapNovaArtifact(collection, project, user, baseType);
+            return WrapNovaArtifact(collection, project, user, baseType, name);
         }
 
         /// <summary>
@@ -609,11 +625,13 @@ namespace Helper
         /// <param name="user">The user that created this artifact.</param>
         /// <param name="baseType">(optional) You can select a different BaseArtifactType here other than what's in the novaArtifact.
         ///     Use this for artifact types that don't exist in the BaseArtifactType enum.</param>
+        /// <param name="name">(optional) Artifact's name.</param>
         /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
         public IArtifact WrapNovaArtifact(INovaArtifactDetails novaArtifact,
             IProject project,
             IUser user,
-            BaseArtifactType? baseType = null)
+            BaseArtifactType? baseType = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(novaArtifact, nameof(novaArtifact));
 
@@ -630,7 +648,8 @@ namespace Helper
                 user,
                 baseType.Value,
                 novaArtifact.Id,
-                fakeParent);
+                fakeParent,
+                name);
 
             artifact.IsSaved = true;
             Artifacts.Add(artifact);

@@ -19,10 +19,8 @@ namespace ArtifactStoreTests
     public class RelationshipsTests : TestBase
     {
         private IUser _user = null;
-        private IUser _userWithLimitedAccess = null;
+        private IUser _viewer = null;
         private IProject _project = null;
-        private IGroup _authorsGroup = null;
-        private IProjectRole _viewerRole = null;
 
         private const int INVALID_VERSIONID = -1;
         private const int NONEXSITING_VERSIONID = int.MaxValue;
@@ -33,17 +31,10 @@ namespace ArtifactStoreTests
         public void SetUp()
         {
             Helper = new TestHelper();
-
-            _authorsGroup = Helper.CreateGroupAndAddToDatabase();
-
-            _userWithLimitedAccess = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
-            _authorsGroup.AddUser(_userWithLimitedAccess);
-
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-
-            _viewerRole = ProjectRoleFactory.GetDeployedProjectRole(ProjectRoleFactory.DeployedProjectRole.Viewer);
-        }
+            _viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+    }
 
         [TearDown]
         public void TearDown()
@@ -118,7 +109,7 @@ namespace ArtifactStoreTests
             Relationships relationshipsV2 = null;
             Assert.DoesNotThrow(() =>
             {
-                relationshipsV2 = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: 2);
+                relationshipsV2 = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact, versionId: 2);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Validation: Validates trace properties from relationships for each version
@@ -145,10 +136,12 @@ namespace ArtifactStoreTests
 
             Relationships relationships = null;
 
+            sourceArtifact.Publish(_user);
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -175,10 +168,11 @@ namespace ArtifactStoreTests
 
             Relationships relationships = null;
 
+            sourceArtifact.Publish(_user);
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -207,7 +201,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -247,7 +241,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid sub-artifact.");
 
             // Verify:
@@ -263,20 +257,22 @@ namespace ArtifactStoreTests
         public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsTrue_ReturnsCorrectTraces(bool? addDrafts)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            sourceArtifact.Save(_user);
-            targetArtifact.Save(_user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            IArtifact sourceArtifact = Helper.CreateArtifact(_project, author, BaseArtifactType.UseCase);
+            IArtifact targetArtifact = Helper.CreateArtifact(_project, author, BaseArtifactType.UseCase);
+            sourceArtifact.Save(author);
+            targetArtifact.Save(author);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
+                targetArtifact, TraceDirection.To, author);
 
             Relationships relationships = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, addDrafts: addDrafts);
+                relationships = Helper.ArtifactStore.GetRelationships(author, sourceArtifact, addDrafts: addDrafts);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid Unpublished Draft artifact and {0} addDrafts=true.",
                 addDrafts.HasValue ? "with" : "without");
 
@@ -293,29 +289,29 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceArtifactToSubartifactInDifferentArtifact_ReturnsCorrectTraces()
         {
             // Setup:
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Process);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(author, targetArtifact.Id);
+            var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, targetArtifact.Id);
 
-            sourceArtifact.Lock(author);
+            sourceArtifact.Lock(_user);
 
             var trace = new NovaTrace(targetArtifact, targetSubArtifacts[0].Id);
 
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             sourceArtifactDetails.Traces = new List<NovaTrace> { trace };
 
-            Artifact.UpdateArtifact(sourceArtifact, author, sourceArtifactDetails);
+            Artifact.UpdateArtifact(sourceArtifact, _user, sourceArtifactDetails);
 
             Relationships relationships = null;
+
+            sourceArtifact.Publish(_user);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(author, sourceArtifact, addDrafts: true);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact, addDrafts: true);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid sub-artifact.");
 
             // VerifY:
@@ -331,18 +327,16 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceBetweenTwoSubArtifactsInDifferentArtifacts_ReturnsCorrectTraces()
         {
             // Setup:
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.UseCase);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Process);
+            var sourceSubArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, sourceArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceNovaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, sourceArtifact, sourceSubArtifacts, _user);
 
-            var sourceSubArtifacts = Helper.ArtifactStore.GetSubartifacts(author, sourceArtifact.Id);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
-            var sourceNovaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, sourceArtifact, sourceSubArtifacts, author);
+            var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, targetArtifact.Id);
 
-            var targetSubArtifacts = Helper.ArtifactStore.GetSubartifacts(author, targetArtifact.Id);
-
-            sourceArtifact.Lock(author);
+            sourceArtifact.Lock(_user);
 
             var trace = new NovaTrace(targetArtifact, targetSubArtifacts[0].Id);
 
@@ -350,14 +344,16 @@ namespace ArtifactStoreTests
 
             artifactDetails.SubArtifacts = sourceNovaSubArtifacts;
 
-            Artifact.UpdateArtifact(sourceArtifact, author, artifactDetails);
+            Artifact.UpdateArtifact(sourceArtifact, _user, artifactDetails);
+
+            sourceArtifact.Publish(_user);
 
             Relationships relationships = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(author, sourceArtifact, sourceSubArtifacts[0].Id, addDrafts: true);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact, sourceSubArtifacts[0].Id, addDrafts: true);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid sub-artifact.");
 
             // VerifY:
@@ -388,10 +384,12 @@ namespace ArtifactStoreTests
 
             Relationships relationships = null;
 
+            sourceArtifact.Publish(_user);
+
             // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given an artifact with multiple traces.");
 
             Assert.AreEqual(2, relationships.ManualTraces.Count, "There should be 2 manual traces!");
@@ -412,7 +410,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given an artifact with no traces.");
 
             Assert.AreEqual(0, relationships.ManualTraces.Count, "There should be 0 manual traces!");
@@ -443,10 +441,12 @@ namespace ArtifactStoreTests
 
             Relationships relationships = null;
 
+            firstArtifact.Publish(_user);
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, firstArtifact);
+                relationships = Helper.ArtifactStore.GetRelationships(_viewer, firstArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given an artifact with a cyclic trace dependency.");
 
             // Verify:
@@ -462,20 +462,21 @@ namespace ArtifactStoreTests
         [TestRail(154699)]
         [Description("Try to get relationships using credentials of user which has no access to the target artifact.  " +
             "Verify that relationships returns empty artifact name and HasAccess false.")]
-        public void GetRelationships_NoAccessToTargetArtifact_ReturnsCorrectRelationships()
+        public void GetRelationships_NoAccessToTargetArtifact_ReturnsRelationshipsWithHasAccessFalseAndNullName()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            _authorsGroup.AssignRoleToProjectOrArtifact(_project, _viewerRole, sourceArtifact);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.From, _user);
-            targetArtifact.Publish(_user);
+
+            sourceArtifact.Publish(_user);
 
             Assert.AreEqual(false, traces[0].IsSuspect,
                 "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
-            Helper.AdminStore.AddSession(_userWithLimitedAccess);
+
+            Helper.AssignProjectRolePermissionsToUser(_viewer, TestHelper.ProjectRole.None, _project, targetArtifact);
 
             Relationships relationshipsForUserWithFullAccessToTargetArtifact = null;
             Relationships relationshipsForUserWithNoAccessToTargetArtifact = null;
@@ -483,7 +484,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                relationshipsForUserWithNoAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_userWithLimitedAccess, sourceArtifact);
+                relationshipsForUserWithNoAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
                 relationshipsForUserWithFullAccessToTargetArtifact = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
             }, "GetArtifactRelationships shouldn't throw any error when given a valid artifact.");
 
@@ -513,7 +514,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                traceDetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, artifact);
+                traceDetails = Helper.ArtifactStore.GetRelationshipsDetails(_viewer, artifact);
             }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -539,7 +540,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                traceDetails = Helper.ArtifactStore.GetRelationshipsDetails(_user, artifact);
+                traceDetails = Helper.ArtifactStore.GetRelationshipsDetails(_viewer, artifact);
             }, "GetRelationshipsDetails shouldn't throw any error when given a valid artifact.");
 
             // Verify:
@@ -587,13 +588,11 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(153691)]
-        [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to the artifacts.  " +
-            "Verify that returned trace has expected value.")]
-        public void GetRelationships_ManualTraceUserHasNoAccessToTarget_403Forbidden()
+        [Description("Create manual trace between 2 artifacts, get relationships with a user that doesn't have permission to source artifacts.  " +
+            "Verify returns 403 Forbidden.")]
+        public void GetRelationships_ManualTraceUserHasNoAccessToSourceArtifact_403Forbidden()
         {
             // Setup:
-            IUser userWithNoPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
-
             IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
@@ -603,11 +602,46 @@ namespace ArtifactStoreTests
             Assert.AreEqual(false, traces[0].IsSuspect,
                 "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
+            sourceArtifact.Publish(_user);
+
+            Helper.AssignProjectRolePermissionsToUser(_viewer, TestHelper.ProjectRole.None, _project, sourceArtifact);
+
             // Execute & Verify:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Helper.ArtifactStore.GetRelationships(userWithNoPermissions, sourceArtifact);
+                Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
+
+            // TODO: Error code and error message verification - Not possible at the moment Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4859
+        }
+
+        [TestCase]
+        [TestRail(234312)]
+        [Description("Create manual trace between 2 artifacts, get relationship details with a user that doesn't have permission to target artifacts.  " +
+            "Verify returns 403 Forbidden.")]
+        public void GetRelationshipsDetails_ManualTraceUserHasNoAccessToTargetArtifact_403Forbidden()
+        {
+            // Setup:
+            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
+                targetArtifact, TraceDirection.To, _user);
+
+            Assert.AreEqual(false, traces[0].IsSuspect,
+                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+
+            sourceArtifact.Publish(_user);
+
+            Helper.AssignProjectRolePermissionsToUser(_viewer, TestHelper.ProjectRole.None, _project, targetArtifact);
+
+            // Execute & Verify:
+            Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                Helper.ArtifactStore.GetRelationshipsDetails(_viewer, targetArtifact);
+            }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
+
+            // TODO: Error code and error message verification - Not possible at the moment Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4859
         }
 
         #endregion 403 Forbidden Tests

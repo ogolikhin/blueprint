@@ -1,7 +1,6 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.NovaModel;
 using NUnit.Framework;
 using System;
 using TestCommon;
@@ -37,7 +36,7 @@ namespace FileStoreTests
         public void PostNovaFile_MultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
@@ -60,7 +59,7 @@ namespace FileStoreTests
         public void PostNovaFile_NoMultiPartMime_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: false);
@@ -80,7 +79,7 @@ namespace FileStoreTests
         public void PostNovaFile_ExpireTimeInFuture_FileExists(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             var futureDate = DateTime.Now.AddDays(1);
 
@@ -101,8 +100,7 @@ namespace FileStoreTests
         public void PostNovaFile_UsingChunksMultiPartMime_MethodNotAllowedException(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
-
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             Assert.Throws<Http405MethodNotAllowedException>(() =>
             {
@@ -117,7 +115,7 @@ namespace FileStoreTests
         public void PostNovaFile_UsingChunksNoMultiPartMime_MethodNotAllowedException(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             Assert.Throws<Http405MethodNotAllowedException>(() =>
             {

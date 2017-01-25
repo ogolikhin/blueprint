@@ -176,7 +176,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.CheckSession(string, List{HttpStatusCode})"/>
-        public HttpStatusCode CheckSession(string token, List<HttpStatusCode> expectedStatusCodes = null)
+        public HttpStatusCode CheckSession(string token = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address);
             const string path = RestPaths.Svc.AdminStore.Sessions.ALIVE;

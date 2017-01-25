@@ -159,34 +159,27 @@ namespace ArtifactStoreTests
             string propertyName, T newValue)
         {
             // Setup:
-            IProject project = Helper.GetProject(TestHelper.GoldenDataProject.CustomData, _user);
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, author, itemType);
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.CustomData, _user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(project, author, itemType);
 
             // Update custom property in artifact.
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
 
             CustomProperty property = null;
 
+            // Execute:
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifactDetails, project, propertyType, propertyName, author);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, author, project, propertyType, propertyName, author, Helper.ArtifactStore);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifactDetails, project, propertyType, propertyName, newValue);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, author, project, propertyType, propertyName, newValue, Helper.ArtifactStore);
             }
-
-            var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
-
-            // Execute:
-            artifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(author, (NovaArtifactDetails)artifactDetailsChangeset);
-            artifact.Save();
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
-            CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
+            var returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
@@ -214,38 +207,30 @@ namespace ArtifactStoreTests
             T newValue)
         {
             // Setup:
-            IProject project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectNonRequiredCustomPropertiesAssigned, _user);
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForCustomArtifactType(project, author, itemType);
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectNonRequiredCustomPropertiesAssigned, _user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForCustomArtifactType(project, author, itemType);
 
             // Update custom property in artifact.
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
-            var subArtifact = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
-            var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, subArtifact.Id);
+            var subArtifact = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
+            var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
 
             CustomProperty property = null;
 
+            // Execute:
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateSubArtifactCustomProperty(novaSubArtifact, project, propertyType, propertyName, author);
+                property = ArtifactStoreHelper.UpdateSubArtifactCustomProperty(artifact, novaSubArtifact, author, project, propertyType, propertyName, author, Helper.ArtifactStore);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateSubArtifactCustomProperty(novaSubArtifact, project, propertyType, propertyName, newValue);
+                property = ArtifactStoreHelper.UpdateSubArtifactCustomProperty(artifact, novaSubArtifact, author, project, propertyType, propertyName, newValue, Helper.ArtifactStore);
             }
 
-            var subartifactChangeSet = TestHelper.CreateSubArtifactChangeSet(novaSubArtifact, customProperty: property);
-            var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, subArtifact: subartifactChangeSet);
-
-            // Execute:
-            artifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(author, (NovaArtifactDetails)artifactDetailsChangeset);
-            artifact.Save();
-
             // Verify:
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
+            var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
 
-            CustomProperty returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(propertyName));
+            var returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(propertyName));
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }

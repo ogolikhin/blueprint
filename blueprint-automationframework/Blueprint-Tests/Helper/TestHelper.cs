@@ -718,7 +718,8 @@ namespace Helper
         /// <param name="specificProperty">(optional) The specific property to add to the changeset</param>
         /// <param name="subArtifact">(optional) The subartifact to add to the changeset</param>
         /// <returns>The artifact details changeset</returns>
-        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails, CustomProperty customProperty = null, CustomProperty specificProperty = null, NovaSubArtifact subArtifact = null)
+        public static INovaArtifactDetails CreateArtifactChangeSet(INovaArtifactBase artifactDetails,
+            CustomProperty customProperty = null, CustomProperty specificProperty = null, NovaSubArtifact subArtifact = null)
         {
             ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
 

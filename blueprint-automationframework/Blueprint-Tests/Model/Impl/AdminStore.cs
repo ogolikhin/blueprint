@@ -163,6 +163,42 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAdminStore.CheckSession(IUser, List{HttpStatusCode})"/>
+        public HttpStatusCode CheckSession(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CheckSession(user?.Token?.AccessControlToken, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IAdminStore.CheckSession(ISession, List{HttpStatusCode})"/>
+        public HttpStatusCode CheckSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CheckSession(session?.SessionId, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IAdminStore.CheckSession(string, List{HttpStatusCode})"/>
+        public HttpStatusCode CheckSession(string token, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(Address);
+            const string path = RestPaths.Svc.AdminStore.Sessions.ALIVE;
+
+            Dictionary<string, string> additionalHeaders = null;
+
+            if (token != null)
+            {
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, token } };
+            }
+
+            Logger.WriteInfo("Checking session '{0}'...", token);
+
+            var restResponse = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.GET,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return restResponse.StatusCode;
+        }
+
         /// <seealso cref="IAdminStore.DeleteSession(IUser, List{HttpStatusCode})"/>
         public void DeleteSession(IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {

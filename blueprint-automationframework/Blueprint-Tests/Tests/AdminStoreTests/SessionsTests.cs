@@ -277,5 +277,20 @@ namespace AdminStoreTests
                 Helper.AdminStore.DeleteSession(session: null);
             }, "DeleteSession() should return 401 Unauthorized if no Session-Token header was passed!");
         }
+
+        [TestCase]
+        [TestRail(9999)]
+        [Description("Add a session. Check if session is valid. Verify 200 OK is returned.")]
+        public void Add_CheckIfSessionIsValid_Verify200OK()
+        {
+            var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
+            Helper.AdminStore.CheckSession(session);
+
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.CheckSession(session);
+            }, "The second call to DeleteSession() should succeed!");
+        }
     }
 }

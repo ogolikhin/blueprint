@@ -415,7 +415,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
             vm.expanded = node.expanded;
-            if (node.expanded) {
+            if (vm.expanded) {
                 vm.group = undefined; // Temporarily prevent expanding/collapsing
                 if (row) {
                     row.classList.add("ag-row-loading");

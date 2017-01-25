@@ -6,7 +6,7 @@ import {ItemTypePredefined} from "../../models/enums";
 import {IArtifact, IItem} from "../../models/models";
 import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../managers/artifact-manager/artifact";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn} from "../dialogs/new-artifact/new-artifact";
+import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn} from "../dialogs/new-artifact";
 import {error} from "util";
 
 export interface ICreateArtifactService {

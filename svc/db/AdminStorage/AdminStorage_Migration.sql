@@ -2038,22 +2038,40 @@ DROP PROCEDURE [dbo].[GetLicenseUserActivity]
 GO
 
 CREATE PROCEDURE [dbo].[GetLicenseUserActivity]
-
+(
+	@month int = null,
+	@year int = null
+)
 AS
 BEGIN
+IF (NOT @month IS NULL AND (@month < 1 OR @month > 12))  
+	SET @month = NULL
+IF (NOT @year IS NULL AND (@year < 2000 OR @year > 2999))
+	SET @year = NULL
 
+DECLARE @startMonth date = CAST(DATEFROMPARTS(@year, @month, 1) as Datetime); 
+DECLARE @currentMonth date = CAST(DATEFROMPARTS(YEAR(GETUTCDATE()), MONTH(GETUTCDATE()), 1) as Datetime);
 
 SELECT 
-	UserId, 
-	MAX(UserLicenseType) as LicenseType,  
-	YEAR([TimeStamp])* 100 + MONTH([TimeStamp]) AS [YearMonth]
-FROM [dbo].[LicenseActivities]  WITH (NOLOCK) 
-WHERE ConsumerType = 1 AND ActionType = 1 --and UserLicenseType in (3,2) 
-GROUP BY UserId, YEAR([TimeStamp])* 100 + MONTH([TimeStamp])
-ORDER BY UserId, [YearMonth]
+	la.UserId, 
+	MAX(la.UserLicenseType) as LicenseType,  
+	YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp]) AS [YearMonth]
+FROM 
+	[dbo].[LicenseActivities] la  WITH (NOLOCK) 
+WHERE 
+	@startMonth < @currentMonth AND
+	la.ConsumerType = 1 AND 
+	la.ActionType = 1 --and UserLicenseType in (3,2) 
+GROUP BY 
+	la.UserId, YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp])
+ORDER BY 
+	UserId, YearMonth
+
 
 END
-GO 
+GO
+--------------------------------------------------------------
+
 
 
 /******************************************************************************************************************************

@@ -57,12 +57,12 @@
 
                     <div class="nova-form-group">
                         <div ng-if="!$ctrl.isIncludeResultsVisible">
-                            <div ng-if="$ctrl.notEverPublishedOrReadonly()">
+                            <div ng-if="!$ctrl.showCreateNewArtifact()">
                                 <button class="btn btn-primary btn-small storyteller-include_btn" type="button" ng-click="$ctrl.openIncludePicker()" ng-disabled="$ctrl.isReadonly">
                                     <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}}
                                 </button>
                             </div>
-                            <div class="btn-group" uib-dropdown ng-if="$ctrl.everPublishedAndNotReadonly()">
+                            <div class="btn-group" uib-dropdown ng-if="$ctrl.showCreateNewArtifact()">
                                 <button class="btn btn-primary btn-small storyteller-include_btn" type="button" uib-dropdown-toggle ng-disabled="$ctrl.isReadonly">
                                     <i class="fonticon2-link fonticon-st-tabs"></i>{{::$root.config.labels['ST_Add_Include_Tab_Label']}} <span class="caret"></span>
                                 </button>

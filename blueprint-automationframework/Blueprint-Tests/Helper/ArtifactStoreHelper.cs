@@ -61,7 +61,7 @@ namespace Helper
 
             foreach (var expectedProject in expectedProjects)
             {
-                INovaProject novaProject = returnedProjects.Find(p => p.Id == expectedProject.Id);
+                var novaProject = returnedProjects.Find(p => p.Id == expectedProject.Id);
 
                 Assert.NotNull(novaProject, "Project ID {0} was not found in the list of returned projects!", expectedProject.Id);
                 Assert.AreEqual(expectedProject.Name, novaProject.Name,
@@ -313,13 +313,13 @@ namespace Helper
             Assert.AreEqual(artifact1.SpecificPropertyValues.Count, artifact2.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
 
             // Now compare each property in CustomProperties & SpecificPropertyValues.
-            foreach (CustomProperty property in artifact1.CustomPropertyValues)
+            foreach (var property in artifact1.CustomPropertyValues)
             {
                 Assert.That(artifact2.CustomPropertyValues.Exists(p => p.Name == property.Name),
                 "Couldn't find a CustomProperty named '{0}'!", property.Name);
             }
 
-            foreach (CustomProperty property in artifact1.SpecificPropertyValues)
+            foreach (var property in artifact1.SpecificPropertyValues)
             {
                 Assert.That(artifact2.SpecificPropertyValues.Exists(p => p.Name == property.Name),
                 "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
@@ -446,7 +446,7 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
             
             // Compare each property in CustomPropertiess.
-            foreach (CustomProperty expectedProperty in expectedSubArtifact.CustomPropertyValues)
+            foreach (var expectedProperty in expectedSubArtifact.CustomPropertyValues)
             {
                 Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
                 "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
@@ -459,7 +459,7 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
             
             // Compare each property in SpecificPropertyValues.
-            foreach (CustomProperty expectedProperty in expectedSubArtifact.SpecificPropertyValues)
+            foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
             {
                 Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
                 "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
@@ -1056,7 +1056,7 @@ namespace Helper
                     property.CustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(newValue.ToString()));
                     break;
                 case PropertyPrimitiveType.User:
-                    IUser user = (IUser)newValue;
+                    var user = (IUser)newValue;
 
                     var newIdentification = new Identification { DisplayName = user.DisplayName, Id = user.Id };
                     var newUserPropertyValue = new List<Identification> { newIdentification };
@@ -1296,14 +1296,15 @@ namespace Helper
             artifact.Lock(user);
             var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
 
-            NovaSubArtifact subArtifactToAdd = new NovaSubArtifact();
+            var subArtifactToAdd = new NovaSubArtifact();
             subArtifactToAdd.Id = subArtifact.Id;
+
             foreach (var file in files)
             {
                 subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(user, file));
             }
 
-            List<NovaSubArtifact> subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
+            var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
             artifactDetails.SubArtifacts = subArtifacts;
 
@@ -1328,10 +1329,12 @@ namespace Helper
             var attachment = artifactStore.GetAttachments(artifact, user);
             Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+
             var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
+
             var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
             artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
@@ -1358,18 +1361,20 @@ namespace Helper
             var attachment = artifactStore.GetAttachments(artifact, user, subArtifactId: subArtifact.Id);
             Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+
             var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
+
             var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
             artifactDetails.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
-            NovaSubArtifact subArtifactToAdd = new NovaSubArtifact();
+            var subArtifactToAdd = new NovaSubArtifact();
             subArtifactToAdd.Id = subArtifact.Id;
             subArtifactToAdd.AttachmentValues.Add(new AttachmentValue(fileToDelete.AttachmentId));
 
-            List<NovaSubArtifact> subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
+            var subArtifacts = new List<NovaSubArtifact> { subArtifactToAdd };
 
             artifactDetails.SubArtifacts = subArtifacts;
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
@@ -1557,7 +1562,7 @@ namespace Helper
                 serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
             }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
 
-            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+            var expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
                 expectedErrorCode,
                 expectedErrorMessage);
 
@@ -1595,6 +1600,7 @@ namespace Helper
             foreach (var artifact in artifacts)
             {
                 var openApiProperty = artifact.Properties.FirstOrDefault(p => p.Name == "ID");
+
                 if (openApiProperty != null)
                 {
                     text = text + I18NHelper.FormatInvariant("<a href=\"{0}/?/ArtifactId={1}\" target=\"\" artifactid=\"{1}\"" +
@@ -1636,7 +1642,7 @@ namespace Helper
             artifact.Lock(user);
             var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
 
-            NovaTrace traceToCreate = new NovaTrace();
+            var traceToCreate = new NovaTrace();
             traceToCreate.ArtifactId = traceTarget.Id;
             traceToCreate.ProjectId = traceTarget.ProjectId;
             traceToCreate.Direction = traceDirection;
@@ -1645,7 +1651,7 @@ namespace Helper
             traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;
 
-            List<NovaTrace> updatedTraces = new List<NovaTrace> { traceToCreate };
+            var updatedTraces = new List<NovaTrace> { traceToCreate };
 
             artifactDetails.Traces = updatedTraces;
 

@@ -204,8 +204,8 @@ namespace AccessControlTests
                 Assert.AreEqual(yearMonth, licenseUsageInfo.Summary.First().YearMonth, "The year and month should be {0}!", yearMonth);
                 Assert.AreEqual(yearMonth, licenseUsageInfo.UserActivities.First().YearMonth, "The year and month should be {0}!", yearMonth);
 
-                var licenseUsageSummary = licenseUsageInfo.Summary.ToList().Find(u => u.YearMonth.Equals(201610));
-                var licenseUserActivity = licenseUsageInfo.UserActivities.ToList().Find(u => u.YearMonth.Equals(201610));
+                var licenseUsageSummary = licenseUsageInfo.Summary.Find(u => u.YearMonth.Equals(201610));
+                var licenseUserActivity = licenseUsageInfo.UserActivities.Find(u => u.YearMonth.Equals(201610));
 
                 VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201610, uniqueAuthors: 1);
                 VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: 201610);

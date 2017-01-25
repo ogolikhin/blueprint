@@ -7,8 +7,8 @@ namespace Model.Impl
     // Copied from: blueprint/svc/lib/ServiceLibrary/Models/LicenseUsage.cs
     public class LicenseUsage
     {
-        public IEnumerable<LicenseUsageSummary> Summary { get; set; }
-        public IEnumerable<LicenseUserActivity> UserActivities { get; set; }
+        public List<LicenseUsageSummary> Summary { get; set; }
+        public List<LicenseUserActivity> UserActivities { get; set; }
     }
 
     /// <summary>
@@ -65,17 +65,17 @@ namespace Model.Impl
         public int UniqueViewers { get; set; }
 
         /// <summary>
-        /// Maxumumn number of concurent Author licenses.
+        /// Maxumum number of concurent Author licenses.
         /// </summary>
         public int MaxConcurrentAuthors { get; set; }
 
         /// <summary>
-        /// Maxumumn number of concurent Collaborator licenses.
+        /// Maxumum number of concurent Collaborator licenses.
         /// </summary>
         public int MaxConcurrentCollaborators { get; set; }
 
         /// <summary>
-        /// Maxumumn number of concurent Viewer licenses.
+        /// Maxumum number of concurent Viewer licenses.
         /// </summary>
         public int MaxConcurrentViewers { get; set; }
 

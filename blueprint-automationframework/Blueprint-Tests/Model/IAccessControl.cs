@@ -133,7 +133,7 @@ namespace Model
         /// <param name="year">(optional)Information for specific year. By default gets information for all years</param>
         /// <param name="month">(optional)Information for specific month. By default gets information for all months</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>List of ILicenseUsageInfo.</returns>
+        /// <returns>LicenseUsage.</returns>
         LicenseUsage GetLicenseUsage(int? year = null, int? month = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

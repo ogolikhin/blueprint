@@ -5,7 +5,7 @@ import {LoadingOverlayService, ILoadingOverlayService} from "./loadingOverlay.se
 import {BpLoadingOverlayController} from "./loadingOverlay.controller";
 
 //The service and component are closely related, so we test both at the same time.
-//See loading-overlay.svc
+//See loading-overlay.service
 
 describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 

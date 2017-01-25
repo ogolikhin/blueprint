@@ -1,4 +1,4 @@
-﻿import "angular";
+﻿import "./";
 import "angular-mocks";
 import {Enums, Models} from "../../../main";
 import {WindowManagerMock} from "../../../main/services/window-manager.mock";
@@ -24,7 +24,7 @@ describe("Component BpGeneralEditorInfo", () => {
     let descriptor: IPropertyDescriptor;
     let propertyValue: Models.IPropertyValue;
 
-    beforeEach(angular.mock.module("editor.artifact.general"));
+    beforeEach(angular.mock.module("generalEditor"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("messageService", MessageServiceMock);

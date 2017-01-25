@@ -48,8 +48,7 @@ namespace ArtifactStoreTests
 
             // Execute: 
             Collection collection = null;
-            Assert.DoesNotThrow(() =>
-                collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id),
+            Assert.DoesNotThrow(() => collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id),
                 "Get Collection shouldn't return an error.");
 
             // Verify: Collection is empty and rapid review should not be created for the collection
@@ -72,8 +71,9 @@ namespace ArtifactStoreTests
             // Execute:
             collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
             collectionArtifact.Lock(_authorUser);
-            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection); },
-                "Updating collection content should throw no error.");
+            Assert.DoesNotThrow(() => {
+                Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection);
+            }, "Updating collection content should throw no error.");
 
             // Verify:
             collection = Helper.ArtifactStore.GetCollection(_authorUser, collection.Id);
@@ -99,8 +99,9 @@ namespace ArtifactStoreTests
             // Execute:
             collection.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove.Id });
 
-            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection); },
-                "Updating collection content should throw no error.");
+            Assert.DoesNotThrow(() => {
+                Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection);
+            }, "Updating collection content should throw no error.");
 
             // Verify:
             collection = Helper.ArtifactStore.GetCollection(_authorUser, collection.Id);
@@ -116,7 +117,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
-            List<IArtifact> artifactsToAdd = new List<IArtifact>();
+            var artifactsToAdd = new List<IArtifact>();
             for (int i = 0; i < artifactsNumber; i++)
             {
                 artifactsToAdd.Add(Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor));
@@ -127,8 +128,9 @@ namespace ArtifactStoreTests
             collection.UpdateArtifacts(artifactsIdsToAdd: artifactsToAdd.ConvertAll(artifact => artifact.Id));
             collectionArtifact.Lock(_authorUser);
             Artifact.UpdateArtifact(collectionArtifact, _authorUser, collection);
-            Assert.DoesNotThrow(() => { Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser); },
-                "Publishing collection should throw no error.");
+            Assert.DoesNotThrow(() => {
+                Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser);
+            }, "Publishing collection should throw no error.");
 
             // Verify:
             collection = Helper.ArtifactStore.GetCollection(_adminUser, collection.Id);
@@ -149,8 +151,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                    numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifactToAdd.Id,
-                        collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+                    numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifactToAdd.Id, collectionArtifact.Id);
+            }, "Adding artifact to collection shouldn't throw an error.");
             
             // Verify:
             Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
@@ -172,7 +174,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor, artifact);
 
-            List<IArtifact> addedArtifacts = new List<IArtifact> { artifact };
+            var addedArtifacts = new List<IArtifact> { artifact };
             if (includeDescendants)
             {
                 addedArtifacts.Add(childArtifact);
@@ -181,8 +183,10 @@ namespace ArtifactStoreTests
             int numberOfAddedArtifacts = 0;
 
             // Execute:
-            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
-                artifact.Id, collectionArtifact.Id, includeDescendants: includeDescendants); }, "Adding artifact to collection shouldn't throw an error.");
+            Assert.DoesNotThrow(() => {
+                numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id,
+                includeDescendants: includeDescendants);
+            }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
             Assert.AreEqual(expectedNumberOfAddedArtifacts, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
@@ -203,8 +207,9 @@ namespace ArtifactStoreTests
             int numberOfAddedArtifacts = 0;
 
             // Execute:
-            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
-                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+            Assert.DoesNotThrow(() => {
+                numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id);
+            }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
             Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
@@ -229,8 +234,9 @@ namespace ArtifactStoreTests
             int numberOfAddedArtifacts = 0;
 
             // Execute:
-            Assert.DoesNotThrow(() => { numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
-                artifact.Id, collectionArtifact.Id); }, "Adding artifact to collection shouldn't throw an error.");
+            Assert.DoesNotThrow(() => {
+                numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id);
+            }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
             Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToCollection should return expected number added artifacts");
@@ -259,8 +265,8 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => { Helper.ArtifactStore.AddArtifactToCollection(_authorUser,
-                artifact.Id, collectionArtifact.Id, includeDescendants: true);
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id, includeDescendants: true);
             }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
@@ -283,8 +289,8 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id, 
-                    includeDescendants: true); }, "Adding artifact to collection shouldn't throw an error.");
+                Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id, includeDescendants: true);
+            }, "Adding artifact to collection shouldn't throw an error.");
 
             // Verify:
             const string messageText = "You have attempted to access an artifact that does not exist or has been deleted.";

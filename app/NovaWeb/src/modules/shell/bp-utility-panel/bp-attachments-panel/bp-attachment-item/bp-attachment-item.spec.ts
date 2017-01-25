@@ -9,6 +9,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {SelectionManagerMock} from "../../../../managers/selection-manager/selection-manager.mock";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
 
 describe("Component BP Artifact Attachment Item", () => {
 
@@ -18,6 +19,7 @@ describe("Component BP Artifact Attachment Item", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("downloadService", DownloadServiceMock);
     }));
 
     let componentTest: ComponentTest<BPAttachmentItemController>;

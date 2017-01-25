@@ -60,6 +60,7 @@
     <Compile Include="ArtifactModel\Enums\ItemTypePredefined.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefinedExtension.cs" />
     <Compile Include="ArtifactModel\IArtifactObserver.cs" />
+    <Compile Include="ArtifactModel\Impl\Actor.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactBase.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactHistory.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />

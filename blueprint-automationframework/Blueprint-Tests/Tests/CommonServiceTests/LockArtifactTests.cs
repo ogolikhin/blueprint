@@ -279,7 +279,7 @@ namespace CommonServiceTests
             var artifactList = Helper.CreateAndPublishMultipleArtifacts(_project, _user, baseArtifactType, numberOfArtifacts);
 
             // Lock one artifact with user2.
-            IArtifact firstArtifact = artifactList[0] as IArtifact;
+            var firstArtifact = artifactList[0] as IArtifact;
             var lockResult = firstArtifact.Lock(_user2);
             Assert.That(lockResult.Result == LockResult.Success, "User2 failed to get lock for the first artifact!");
 
@@ -297,7 +297,7 @@ namespace CommonServiceTests
             // Verify that lock obtained for all artifacts except the first one.
             foreach (var artifact in artifactList)
             {
-                LockResultInfo lockResultInfo = lockResultInfoList.Find(x => x.Info.ArtifactId == artifact.Id);
+                var lockResultInfo = lockResultInfoList.Find(x => x.Info.ArtifactId == artifact.Id);
 
                 Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
 

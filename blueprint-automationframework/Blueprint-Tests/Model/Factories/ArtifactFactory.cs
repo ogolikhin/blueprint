@@ -1,5 +1,7 @@
 ﻿using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using TestConfig;
 using Utilities;
@@ -134,6 +136,25 @@ namespace Model.Factories
             }
 
             return artifact;
+        }
+
+        /// <summary>
+        /// Tries to convert NovaArtifactDetails to specific artifact type (now it works for Actor).
+        /// </summary>
+        /// <param name="artifactDetails">.</param>
+        /// <param name="artifactDetailsJSON">User for authentication.</param>
+        /// <returns>Object of specific artifact type.</returns>
+        public static NovaArtifactDetails ConvertToSpecificArtifact(NovaArtifactDetails artifactDetails, string artifactDetailsJSON)
+        {
+            ThrowIf.ArgumentNull(artifactDetails, nameof(artifactDetails));
+            switch (artifactDetails.PredefinedType.Value)
+            {
+                case (int)ItemTypePredefined.Actor:
+                    var actorDetails = JsonConvert.DeserializeObject<Actor>(artifactDetailsJSON);
+                    return actorDetails;
+                default:
+                    return artifactDetails;
+            }
         }
     }
 }

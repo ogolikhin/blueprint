@@ -45,12 +45,12 @@ namespace CommonServiceTests
         [TestFixtureTearDown]
         public void ClassTearDown()
         {
-            foreach (IUser user in _users)
+            foreach (var user in _users)
             {
                 user.DeleteUser(deleteFromDatabase: true);
             }
 
-            foreach (IGroup group in _groups)
+            foreach (var group in _groups)
             {
                 group.DeleteGroup();    // TODO: Add a deleteFromDatabase parameter to the DeleteGroup() function.
             }
@@ -121,7 +121,7 @@ namespace CommonServiceTests
                 "We should find 2 users with E-mail addresses, but {0} were found!", usersWithEmail.Count);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUser(userOrGroup, isGuest: false, isBlocked: false, nameSearch: displayNamePrefix);
             }
@@ -168,7 +168,7 @@ namespace CommonServiceTests
                 "We should find 2 non-guest users, but {0} were found!", nonGuestUsers.Count);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUserSkipGuestAndIsBlocked(userOrGroup, nameSearch: displayNamePrefix);
             }
@@ -179,7 +179,8 @@ namespace CommonServiceTests
         [TestCase(8)]
         [TestCase(500)]
         [TestRail(157083)]
-        [Description("Create (x + 2) number of users whose Display Names all begin with the same string (and who have E-mail addresses).  FindUserOrGroup with limit=x.  Verify only x users are returned.")]
+        [Description("Create (x + 2) number of users whose Display Names all begin with the same string (and who have E-mail addresses).  " +
+            "FindUserOrGroup with limit=x.  Verify only x users are returned.")]
         public void FindUserOrGroupWithLimit_CreateMoreUsersThanLimit_ReturnsLimitedNumberOfUsers(int limit)
         {
             // Setup:
@@ -201,7 +202,7 @@ namespace CommonServiceTests
                 limit, userOrGroupInfo.Count);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUser(userOrGroup, isGuest: false, isBlocked: false, nameSearch: displayNamePrefix);
             }
@@ -252,7 +253,7 @@ namespace CommonServiceTests
                 "If Search is set to the Email prefix of the users we created, we should find {0} users!", expectedUserCount);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUser(userOrGroup, isGuest: false, isBlocked: false, emailSearch: emailUserPrefix);
             }
@@ -289,7 +290,7 @@ namespace CommonServiceTests
                 "If Search is set to the Email sub-string of the users we created, we should find {0} users!", expectedUserCount);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUser(userOrGroup, isGuest: false, isBlocked: false, emailSearch: emailCommonString);
             }
@@ -326,7 +327,7 @@ namespace CommonServiceTests
                 "If Search is set to the Display Name sub-string of the users we created, we should find {0} users!", expectedUserCount);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUser(userOrGroup, isGuest: false, isBlocked: false, nameSearch: displayNameCommonString);
             }
@@ -359,7 +360,7 @@ namespace CommonServiceTests
                 "If Search is set to the Email domain of the users we created, we should find {0} users!", expectedUserCount);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUser(userOrGroup, isGuest: false, isBlocked: false, emailSearch: emailDomain);
             }
@@ -397,7 +398,7 @@ namespace CommonServiceTests
                 "All the users we found should be guests, but {0} guests were returned!", guestUsers.Count);
 
             // Verify the users we found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedUser(userOrGroup, isGuest: true, isBlocked: true, nameSearch: displayNamePrefix);
             }
@@ -428,7 +429,7 @@ namespace CommonServiceTests
                 "We should find {0} groups, but {1} were found!", numberOfGroups, userOrGroupInfo.Count);
 
             // Verify the group names it found are correct.
-            foreach (UserOrGroupInfo userOrGroup in userOrGroupInfo)
+            foreach (var userOrGroup in userOrGroupInfo)
             {
                 ValidateReturnedGroup(userOrGroup, namePrefix);
             }
@@ -436,7 +437,8 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(157160)]
-        [Description("Create 3 users whose DisplayNames begin with the same string, then delete them.  FindUserOrGroup with Search equal to the common sub-string.  Verify no users are returned.")]
+        [Description("Create 3 users whose DisplayNames begin with the same string, then delete them.  FindUserOrGroup with Search equal to the common sub-string.  " +
+            "Verify no users are returned.")]
         public void FindUserOrGroupWithSearch_FindDeletedUsers_NoUsersAreReturned()
         {
             // Setup:
@@ -447,7 +449,7 @@ namespace CommonServiceTests
             _users.AddRange(users);
 
             // Delete the users.
-            foreach (IUser user in users)
+            foreach (var user in users)
             {
                 user.DeleteUser();
             }
@@ -465,7 +467,8 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(157161)]
-        [Description("Create 3 groups whose DisplayNames begin with the same string, then delete them.  FindUserOrGroup with Search equal to the common sub-string.  Verify no groups are returned.")]
+        [Description("Create 3 groups whose DisplayNames begin with the same string, then delete them.  FindUserOrGroup with Search equal to the common sub-string.  " +
+            "Verify no groups are returned.")]
         public void FindUserOrGroupWithSearch_FindDeletedGroups_NoGroupsAreReturned()
         {
             // Setup:
@@ -476,7 +479,7 @@ namespace CommonServiceTests
             _groups.AddRange(groups);
 
             // Delete the groups.
-            foreach (IGroup group in groups)
+            foreach (var group in groups)
             {
                 group.DeleteGroup();
             }
@@ -528,7 +531,7 @@ namespace CommonServiceTests
             // Verify the users we found are correct and in alphabetical order starting with users.
             for (int i = 0; i < userOrGroupInfo.Count; ++i)
             {
-                UserOrGroupInfo userOrGroup = userOrGroupInfo[i];
+                var userOrGroup = userOrGroupInfo[i];
                 string expectedSubstring = I18NHelper.FormatInvariant("{0}{1}", namePrefixOrdered[i % numberOfUsersAndGroups], nameSubstring);
 
                 if (i < numberOfUsersAndGroups)
@@ -550,7 +553,7 @@ namespace CommonServiceTests
         public void FindUserOrGroup_BadOrMissingToken_401Unauthorized(string token)
         {
             // Setup:
-            IUser userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
+            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
             userWithBadOrMissingToken.Token.SetToken(_user.Token.AccessControlToken);
             userWithBadOrMissingToken.Token.AccessControlToken = token;
 
@@ -559,7 +562,7 @@ namespace CommonServiceTests
                 "'GET {0}' should return 401 Unauthorized when a bad or missing token is passed!", REST_PATH);
 
             // Verify:
-            MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
+            var messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
             const string expectedMessage = "Unauthorized call";
 
             Assert.AreEqual(expectedMessage, messageResult.Message,
@@ -679,11 +682,11 @@ namespace CommonServiceTests
             bool isGuest = false,
             int numberOfUsers = 1)
         {
-            List<IUser> users = new List<IUser>();
+            var users = new List<IUser>();
 
             for (int i = 0; i < numberOfUsers; ++i)
             {
-                IUser user = UserFactory.CreateUserOnly();
+                var user = UserFactory.CreateUserOnly();
 
                 if (displayNamePrefix != null)
                 {
@@ -740,11 +743,11 @@ namespace CommonServiceTests
             string emailDomain = null,
             int numberOfGroups = 1)
         {
-            List<IGroup> groups = new List<IGroup>();
+            var groups = new List<IGroup>();
 
             for (int i = 0; i < numberOfGroups; ++i)
             {
-                IGroup group = GroupFactory.CreateGroup();
+                var group = GroupFactory.CreateGroup();
 
                 if (namePrefix != null)
                 {

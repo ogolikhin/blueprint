@@ -99,7 +99,7 @@ namespace FileStoreTests
             const string fileType = "text/plain";
 
             // Setup: Create a fake file with contents the same as filename.
-            IFile file = FileStoreTestHelper.CreateFileWithStringContents(fakeFileName, fileType, fakeFileName);
+            var file = FileStoreTestHelper.CreateFileWithStringContents(fakeFileName, fileType, fakeFileName);
             IFile storedFile = null;
 
             // Execute: Post the file to Filestore.
@@ -171,7 +171,7 @@ namespace FileStoreTests
             const string fileType = "text/plain";
 
             // Setup: Create a fake file with contents the same as filename.
-            IFile file = FileStoreTestHelper.CreateFileWithStringContents(fakeFileName, fileType, fakeFileName);
+            var file = FileStoreTestHelper.CreateFileWithStringContents(fakeFileName, fileType, fakeFileName);
             IFile storedFile = null;
 
             // Post the file to Filestore.

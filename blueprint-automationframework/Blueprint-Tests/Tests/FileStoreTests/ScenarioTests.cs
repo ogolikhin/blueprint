@@ -40,7 +40,7 @@ namespace FileStoreTests
         public void PostFile_UsingChunksWithFutureExpireTimeThenDeleteFile_FileWasAddedAndDeleted(uint fileSize, string fakeFileName, string fileType, uint chunkSize)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, DateTime.Now.AddDays(1), chunkSize: chunkSize);

@@ -81,12 +81,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         });
     }
 
-    public notEverPublishedOrReadonly(): boolean {
-        return !this.everPublished || this.isReadonly;
-    }
-
-    public everPublishedAndNotReadonly(): boolean {
-        return this.everPublished && !this.isReadonly;
+    public showCreateNewArtifact(): boolean {
+        return this.everPublished && !!this.getNewArtifactName();
     }
 
     public prepIncludeField(): void {
@@ -196,7 +192,11 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                     }
         };
 
-        this.openArtifactPicker(dialogSettings, dialogOption, this.postIncludePickerAction);
+        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                this.setInclude(items[0]);
+            }
+        });
     }
 
     public createNewArtifact = (useModal: boolean): void => {
@@ -227,7 +227,16 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                     }
         };
 
-        this.openArtifactPicker(dialogSettings, dialogOption, this.postActorPickerAction);
+        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
+            if (items.length === 1) {
+                const artifactReference = new ArtifactReference();
+                artifactReference.baseItemTypePredefined = items[0].predefinedType;
+                artifactReference.id = items[0].id;
+                artifactReference.name = items[0].name;
+                artifactReference.typePrefix = items[0].prefix;
+                this.postActorPickerAction(artifactReference);
+            }
+        });
     }
 
     private postIncludePickerAction = (artifactReference: ArtifactReference): void => {
@@ -242,17 +251,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
     private postActorPickerAction = (artifactReference: ArtifactReference): void => {
         this.setPersonaReference(artifactReference);
-    }
-
-    private openArtifactPicker(dialogSettings: IDialogSettings,
-        dialogOptions: IArtifactPickerOptions,
-        postArtifactPickerAction: (artifactReference: ArtifactReference) => void) {
-
-        this.dialogService.open(dialogSettings, dialogOptions).then((items: Models.IItem[]) => {
-            if (items.length === 1) {
-                this.setInclude(items[0]);
-            }
-        });
     }
 
     private setInclude(item: Models.IItem) {

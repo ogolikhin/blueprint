@@ -38,7 +38,7 @@ namespace OpenAPITests
             var projects = new Project().GetProjects(_server.Address, _user);
             Logger.WriteDebug("Number of projects returned = {0}", projects.Count);
 
-            foreach (IProject project in projects)
+            foreach (var project in projects)
             {
                 Logger.WriteDebug(project.ToString());
             }

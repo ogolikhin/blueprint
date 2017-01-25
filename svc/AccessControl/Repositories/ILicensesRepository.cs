@@ -11,6 +11,5 @@ namespace AccessControl.Repositories
         Task<int> GetLockedLicenses(int excludeUserId, int licenseLevel, int licenseLockTimeMinutes);
         Task<IEnumerable<LicenseTransaction>> GetLicenseTransactions(DateTime startTime, int consumerType);
         Task<LicenseUsage> GetLicenseUsage(int? month, int? year);
-        //Task<Tuple<IEnumerable<LicenseUsage>, IEnumerable<LicenseUserActivity>>> GetLicenseUsage(int? month, int? year);
     }
 }

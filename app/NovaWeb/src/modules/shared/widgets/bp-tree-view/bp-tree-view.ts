@@ -419,7 +419,7 @@ export class BPTreeViewController implements IBPTreeViewController {
             }
             if (node.expanded) {
                 if (!vm.isExpanding) {
-                    vm.isExpanding = true; // Temporarily prevent expanding/collapsing
+                    vm.isExpanding = true; // Temporarily prevent expanding
                     if (row) {
                         row.classList.add("ag-row-loading");
                     }
@@ -433,7 +433,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                                 row.classList.remove("ag-row-loading");
                             }
                             vm.expanded = node.expanded;
-                            vm.isExpanding = false; // Allow expanding/collapsing again
+                            vm.isExpanding = false; // Allow expanding again
                         });
                 }
 

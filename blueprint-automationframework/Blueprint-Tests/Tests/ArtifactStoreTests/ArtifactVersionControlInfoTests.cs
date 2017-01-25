@@ -50,7 +50,7 @@ namespace ArtifactStoreTests
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
             Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(viewer, artifact.Id),
@@ -91,7 +91,7 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithArtifactId_PublishArtifactWithTrace_ReturnsArtifactInfoWithHasChangesTrue_200OK(BaseArtifactType artifactType)
         {
             //Setup
-            IArtifact artifact = CreatePublishedArtifactWithTrace(artifactType, TraceDirection.From, _user);
+            var artifact = CreatePublishedArtifactWithTrace(artifactType, TraceDirection.From, _user);
             artifact.Lock();
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
@@ -114,8 +114,8 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithArtifactId_PublishArtifactWithTrace_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             //Setup
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            IArtifact artifact = CreatePublishedArtifactWithTrace(artifactType, TraceDirection.From, _user);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var artifact = CreatePublishedArtifactWithTrace(artifactType, TraceDirection.From, _user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -141,7 +141,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
             artifact.Lock(_user);
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -190,7 +190,7 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_SavedArtifactWithSubArtifact_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
@@ -219,7 +219,7 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
@@ -250,7 +250,7 @@ namespace ArtifactStoreTests
             var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
 
             // Get the process artifact
-            IProcess process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id);
 
@@ -258,7 +258,7 @@ namespace ArtifactStoreTests
 
             Helper.Storyteller.UpdateProcess(_user, process);
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             int subArtifactId = subArtifacts[0].Id;
 
@@ -284,7 +284,7 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifact_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
@@ -315,7 +315,7 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifactAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
@@ -323,7 +323,7 @@ namespace ArtifactStoreTests
 
             artifact.Lock();
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             int subArtifactId = subArtifacts[0].Id;
 
@@ -351,7 +351,7 @@ namespace ArtifactStoreTests
             var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
 
             // Get the process artifact
-            IProcess process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
+            var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id);
 
@@ -381,7 +381,7 @@ namespace ArtifactStoreTests
         [Description("Create, publish & lock an artifact with subartifact. Lock artifact. Verify user gets basic artifact information with subartifact Id.")]
         public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Save();
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
@@ -412,7 +412,7 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithArtifactId_PublishedArtifactDeleteAndPublish_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
@@ -438,7 +438,7 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithArtifactId_PublishedArtifactDeleted_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -451,8 +451,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, artifact.Id),
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
-            // Verify:
-            
+            // Verify:        
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: true,
@@ -466,8 +465,8 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithArtifactId_PublishedArtifactDeletedByAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             artifact.Delete(anotherUser);
 
@@ -492,7 +491,7 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_PublishedArtifactDeleted_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact!");
@@ -524,12 +523,12 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_PublishedArtifactDeletedByAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             artifact.Delete(anotherUser);
 
             int subArtifactId = subArtifacts[0].Id;
@@ -555,9 +554,8 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_PublishedArtifact_DeleteAndPublishSubArtifact_ReturnsArtifactInfo_200OK()
         {
             // Setup:
-
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            IProcess processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
 
             var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -589,9 +587,8 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_PublishedArtifact_DeleteAndSaveSubArtifact_ReturnsArtifactInfo_200OK()
         {
             // Setup:
-
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            IProcess processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
 
             var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -623,9 +620,8 @@ namespace ArtifactStoreTests
         public void VersionControlInfoWithSubArtifactId_PublishedArtifact_DeleteAndSaveSubArtifact_AnotherUserReturnsArtifactInfo_200OK()
         {
             // Setup:
-
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            IProcess processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
 
             var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -638,7 +634,7 @@ namespace ArtifactStoreTests
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute
             Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
@@ -687,7 +683,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IUser unauthorizedUser = UserFactory.CreateUserAndAddToDatabase();
+            var unauthorizedUser = UserFactory.CreateUserAndAddToDatabase();
             unauthorizedUser.SetToken(invalidToken);
 
             // Execute & Verify:
@@ -711,7 +707,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            IUser userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+            var userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
             // Execute & Verify:
@@ -732,7 +728,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Create a user that has access to the project but not the artifact.
-            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute & Verify:
@@ -771,7 +767,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, artifact.Id),
@@ -805,7 +801,7 @@ namespace ArtifactStoreTests
             process = Helper.Storyteller.UpdateProcess(_user, process);
             userTask = process.GetProcessShapeByShapeName(userTask.Name);
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, userTask.Id),
@@ -832,7 +828,7 @@ namespace ArtifactStoreTests
 
             int subArtifactId = subArtifacts[0].Id;
 
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetVersionControlInfo(anotherUser, subArtifactId),
@@ -938,11 +934,10 @@ namespace ArtifactStoreTests
         /// <returns>Artifact with the trace.</returns>
         private IArtifact CreatePublishedArtifactWithTrace(BaseArtifactType artifactType, TraceDirection traceDirection, IUser user)
         {
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.UseCase);
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                    targetArtifact, traceDirection, user);
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, traceDirection, user);
 
             return sourceArtifact;
         }

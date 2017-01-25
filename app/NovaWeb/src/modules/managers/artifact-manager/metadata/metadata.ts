@@ -29,11 +29,17 @@ export class MetaData implements IMetaData {
     }
 
     public getSubArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]> {
-        return this.item.getServices().metaDataService.getSubArtifactPropertyTypes(this.item.projectId, this.item.itemTypeId);
+        return this.item.getServices().metaDataService
+        .getSubArtifactPropertyTypes(this.item.projectId, (itemType) => { 
+            return itemType.id === this.item.itemTypeId;
+        });
     }
     
     public getProcessSubArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]> {
-        return this.item.getServices().metaDataService.getProcessSubArtifactPropertyTypes(this.item.projectId);
+        return this.item.getServices().metaDataService
+        .getSubArtifactPropertyTypes(this.item.projectId, (itemType) => { 
+            return itemType.primitiveType === this.item.itemTypeId;
+        });
     }
 
     // public getArtifactPropertyType(propertyTypeId?: number): Models.IPropertyType[] {

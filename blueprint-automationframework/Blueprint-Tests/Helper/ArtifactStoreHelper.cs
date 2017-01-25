@@ -956,7 +956,7 @@ namespace Helper
         ///     For Choice & Text property types, pass a string.
         ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
         ///     For User property types, pass an IUser.</param>
-        /// <returns>The custom property that was uset.</returns>
+        /// <returns>The custom property that was set.</returns>
         public static CustomProperty SetSubArtifactCustomProperty<T>(NovaItem subArtifactDetails,
             IProject project,
             PropertyPrimitiveType propertyType,
@@ -1079,7 +1079,7 @@ namespace Helper
         /// <param name="customProperties">The list of custom properties.</param>
         /// <param name="propertyName">The name of the custom property to set.</param>
         /// <returns>The custom property that was set.</returns>
-        public static CustomProperty SetCustomPropertyWithNull(List<CustomProperty> customProperties, string propertyName)
+        public static CustomProperty SetCustomPropertyToNull(List<CustomProperty> customProperties, string propertyName)
         {
             ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
 
@@ -1127,7 +1127,7 @@ namespace Helper
 
             var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
 
-            artifact.Lock();
+            artifact.Lock(user);
             artifactStore.UpdateArtifact(user, (NovaArtifactDetails) artifactDetailsChangeset);
 
             return property;

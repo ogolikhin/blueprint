@@ -657,6 +657,7 @@ namespace SearchServiceTests
             }
         }
 
+        [Category(Categories.CustomData)]
         [TestCase ("Std-Text-Required-HasDefault", 1)]
         [TestRail(234325)]
         [Description("Search for search term that is present in artifact textual property.  Execute Search - " +
@@ -664,7 +665,7 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchPublishedArtifactTextualProperties_VerifySearchResultIncludesItem(
             string propertyName, int expectedHits)
         {
-            // Setup: Create search criteria with search term that matches with description value of all published artifacts
+            // Setup: 
             var selectedProjectIds = _projects.ConvertAll(p => p.Id);
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
             var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
@@ -678,19 +679,20 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
 
-            // Execute: Execute FullTextSearch with search term that matches published artifact(s) description
+            // Execute: 
             FullTextSearchResult fullTextSearchResult = null;
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria),
                 "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
-            // Verify: Verify that searchResult contains all published artifacts
-            Assert.AreEqual(fullTextSearchResult.PageItemCount, expectedHits,
+            // Verify: 
+            Assert.AreEqual(expectedHits, fullTextSearchResult.PageItemCount,
                 "The number of hits was {0} but {1} was expected", expectedHits, fullTextSearchResult.PageItemCount);
 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [Category(Categories.CustomData)]
         [TestCase("Std-Text-Required-HasDefault", 1)]
         [TestRail(234326)]
         [Description("Search for search term that is present in subartifact textual property.  Execute Search - " +
@@ -698,7 +700,7 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchPublishedSubArtifactTextualProperties_VerifySearchResultIncludesItem(
             string propertyName, int expectedHits)
         {
-            // Setup: Create search criteria with search term that matches with description value of all published artifacts
+            // Setup: 
             var selectedProjectIds = _projects.ConvertAll(p => p.Id);
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
             var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
@@ -716,13 +718,13 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
 
-            // Execute: Execute FullTextSearch with search term that matches published artifact(s) description
+            // Execute: 
             FullTextSearchResult fullTextSearchResult = null;
             Assert.DoesNotThrow(() => fullTextSearchResult = Helper.SearchService.FullTextSearch(_user, searchCriteria),
                 "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCH_PATH, searchCriteria.Query);
 
-            // Verify: Verify that searchResult contains all published artifacts
-            Assert.AreEqual(fullTextSearchResult.PageItemCount, expectedHits,
+            // Verify: 
+            Assert.AreEqual(expectedHits,fullTextSearchResult.PageItemCount,
                 "The number of hits was {0} but {1} was expected", expectedHits, fullTextSearchResult.PageItemCount);
 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });

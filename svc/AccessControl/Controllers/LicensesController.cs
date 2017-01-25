@@ -180,7 +180,7 @@ namespace AccessControl.Controllers
                     }
                 }
                 //NOTE: number of month is taken from zero-based array (i.e. 0- jan, 11- dec)
-                var usage = await _repo.GetLicenseUsage(month - 1, year);
+                var usage = await _repo.GetLicenseUsage(month, year);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK, usage);
                 return ResponseMessage(response);

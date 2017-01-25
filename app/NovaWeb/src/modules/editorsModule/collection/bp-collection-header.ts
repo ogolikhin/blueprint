@@ -5,7 +5,7 @@ import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/b
 import {IDialogService, BPButtonOrDropdownSeparator} from "../../shared";
 import {IProjectManager} from "../../managers";
 import {IMetaDataService} from "../../managers/artifact-manager";
-import {IStatefulCollectionArtifact} from "./collection-artifact";
+import {IStatefulCollectionArtifact} from "../configuration/classes/collection-artifact";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
 import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";

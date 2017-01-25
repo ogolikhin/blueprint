@@ -2,7 +2,7 @@ import {Helper} from "../../../shared/utils/helper";
 import {BPButtonAction} from "../../../shared";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {Enums} from "../../../main/models";
-import {IStatefulCollectionArtifact} from "../collection-artifact";
+import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IDialogService} from "../../../shared";
 

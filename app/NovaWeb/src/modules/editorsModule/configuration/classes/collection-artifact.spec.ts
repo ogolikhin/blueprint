@@ -2,14 +2,14 @@ import "./";
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {Models} from "../../main/models";
+import {Models} from "../../../main/models";
 import {StatefulCollectionArtifact, ICollection} from "./collection-artifact";
-import {IArtifactService} from "../../managers/artifact-manager/";
-import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IArtifactService} from "../../../managers/artifact-manager/";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {LoadingOverlayService, ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {
     StatefulArtifactServices
-} from "../../managers/artifact-manager/services";
+} from "../../../managers/artifact-manager/services";
 
 describe("StatefulCollectionArtifact", () => {
 

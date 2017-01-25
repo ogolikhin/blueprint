@@ -3,7 +3,7 @@ import "angular-mocks";
 import "rx/dist/rx.lite";
 import {ICollectionService, CollectionService} from "./collection.service";
 import {Models} from "../../main";
-import {ICollection} from "./collection-artifact";
+import {ICollection} from "../configuration/classes/collection-artifact";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 

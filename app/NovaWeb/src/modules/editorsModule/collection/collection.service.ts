@@ -1,4 +1,4 @@
-import {ICollection} from "./collection-artifact";
+import {ICollection} from "../configuration/classes/collection-artifact";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export interface ICollectionService {

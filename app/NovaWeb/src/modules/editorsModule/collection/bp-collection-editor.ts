@@ -10,7 +10,7 @@ import {IMessageService} from "../../main/components/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRendererParams, ITreeNode} from "../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../artifact/details/artifactDetailsEditor.controller";
 import {IPropertyDescriptorBuilder} from "../services";
-import {ICollectionArtifact, IStatefulCollectionArtifact} from "./collection-artifact";
+import {ICollectionArtifact, IStatefulCollectionArtifact} from "../configuration/classes/collection-artifact";
 import {ICollectionService} from "./collection.service";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 

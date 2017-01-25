@@ -1,6 +1,6 @@
 import {ICollectionService} from "./collection.service";
 import {IArtifact} from "../../main/models/models";
-import {ICollection, ICollectionArtifact} from "./collection-artifact";
+import {ICollection, ICollectionArtifact} from "../configuration/classes/collection-artifact";
 import {Models} from "../../main";
 
 export class CollectionServiceMock implements ICollectionService {

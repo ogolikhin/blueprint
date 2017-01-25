@@ -1,6 +1,6 @@
 import {BPButtonAction} from "../../../shared";
 import {ItemTypePredefined} from "../../../main/models/enums";
-import {IStatefulCollectionArtifact} from "../collection-artifact";
+import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 import {Models} from "../../../main/models";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";

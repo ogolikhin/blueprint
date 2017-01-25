@@ -3,12 +3,15 @@ import "angular-ui-router";
 import "angular-ui-bootstrap";
 import "./widgets";
 import "./filters";
+import "./decorators";
 
 angular.module("app.shared", [
     "ui.router",
     "ui.bootstrap",
     "bp.widgets",
-    "bp.filters"]);
+    "bp.filters",
+    "bp.decorators"
+]);
 
 export {
     IDialogSettings,

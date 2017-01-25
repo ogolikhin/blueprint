@@ -178,22 +178,14 @@ namespace Model.Impl
         /// <seealso cref="IAdminStore.CheckSession(string, List{HttpStatusCode})"/>
         public HttpStatusCode CheckSession(string token = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var restApi = new RestApiFacade(Address);
+            var restApi = new RestApiFacade(Address, token);
             const string path = RestPaths.Svc.AdminStore.Sessions.ALIVE;
-
-            Dictionary<string, string> additionalHeaders = null;
-
-            if (token != null)
-            {
-                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, token } };
-            }
 
             Logger.WriteInfo("Checking session '{0}'...", token);
 
             var restResponse = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.GET,
-                additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
 
             return restResponse.StatusCode;

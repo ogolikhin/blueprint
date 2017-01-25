@@ -20,6 +20,7 @@ import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 
 export class PageToolbar implements ng.IComponentOptions {
@@ -44,6 +45,7 @@ export class PageToolbarController {
         "localization",
         "dialogService",
         "projectManager",
+        "projectExplorerService",
         "selectionManager",
         "publishService",
         "messageService",
@@ -60,6 +62,7 @@ export class PageToolbarController {
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
                 private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private selectionManager: ISelectionManager,
                 private publishService: IUnpublishedArtifactsService,
                 private messageService: IMessageService,
@@ -88,7 +91,8 @@ export class PageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.projectManager.openProjectWithDialog();
+        // this.projectManager.openProjectWithDialog();
+        this.projectExplorerService.openProjectWithDialog();
     };
 
     /**
@@ -418,11 +422,12 @@ export class PageToolbarController {
     }
 
     private closeProjectById(projectId: number) {
-        const isOpened = _.some(this.projectManager.projectCollection.getValue(), (p) => p.model.id === projectId);
+        const isOpened = _.some(this.projectExplorerService.projects, project => project.model.id === projectId);
         if (isOpened) {
-            this.projectManager.remove(projectId);
+            this.projectExplorerService.remove(projectId);
         }
-        const nextProject = _.first(this.projectManager.projectCollection.getValue());
+
+        const nextProject = _.first(this.projectExplorerService.projects);
         if (nextProject) {
             this.navigationService.navigateTo({id: nextProject.model.id});
         } else {
@@ -432,7 +437,7 @@ export class PageToolbarController {
     }
 
     private closeAllProjectsInternal (): ng.IPromise<any> {
-        this.projectManager.removeAll();
+        this.projectExplorerService.removeAll();
         this.clearStickyMessages();
         return this.navigationService.navigateToMain();
     }

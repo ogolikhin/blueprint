@@ -131,8 +131,8 @@ $fonticon2-unpublished: '\e852';
 $fonticon2-jobs: '\e848';
 $fonticon2-generate: '\e849';
 $fonticon2-close-line: '\e8a7';
-$fonticon2-expand: '\e8a9';
-
+$fonticon2-expand: '\e854';
+$fonticon2-contract: '\e853';
 
 
 .fonticon2-arrow-down::before {
@@ -528,6 +528,9 @@ $fonticon2-expand: '\e8a9';
 }
 .fonticon2-expand:before {
     content: $fonticon2-expand;
+}
+.fonticon2-contract:before {
+    content: $fonticon2-contract;
 }
 .fonticon2__action--disabled {
    color: $gray-lighter !important;

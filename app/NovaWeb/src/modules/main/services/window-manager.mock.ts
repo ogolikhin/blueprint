@@ -6,6 +6,7 @@ export class MainWindowMock implements IMainWindow {
     public contentWidth: number;
     public contentHeight: number;
     public isLeftSidebarOpen: boolean;
+    public isLeftSidebarExpanded: boolean;
     public isRightSidebarOpen: boolean;
     public causeOfChange: ResizeCause;
 }

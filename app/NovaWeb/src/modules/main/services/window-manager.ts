@@ -12,6 +12,7 @@ export interface IMainWindow {
     contentWidth: number;
     contentHeight: number;
     isLeftSidebarOpen: boolean;
+    isLeftSidebarExpanded: boolean;
     isRightSidebarOpen: boolean;
     causeOfChange: ResizeCause;
 }
@@ -30,6 +31,7 @@ export class WindowManager implements IWindowManager {
     private _contentWidth: number;
     private _contentHeight: number;
     private _isLeftSidebarOpen: boolean;
+    private _isLeftSidebarExpanded: boolean;
     private _isRightSidebarOpen: boolean;
     private _causeOfChange: ResizeCause;
 
@@ -41,9 +43,10 @@ export class WindowManager implements IWindowManager {
     constructor(public windowResize: IWindowResize) {
         this._causeOfChange = ResizeCause.unknown;
 
-        let sidebarWrapper = document.querySelector(".bp-sidebar-wrapper") as HTMLElement;
+        const sidebarWrapper = document.querySelector(".bp-sidebar-wrapper") as HTMLElement;
         if (sidebarWrapper) {
             this._isLeftSidebarOpen = sidebarWrapper.classList.contains("left-panel-visible");
+            this._isLeftSidebarExpanded = sidebarWrapper.classList.contains("left-panel-expanded");
             this._isRightSidebarOpen = sidebarWrapper.classList.contains("right-panel-visible");
 
             this._toggleObserver = new MutationObserver((mutations) => {
@@ -51,10 +54,12 @@ export class WindowManager implements IWindowManager {
                     if (mutation.attributeName === "class") {
                         if (
                             this._isLeftSidebarOpen !== sidebarWrapper.classList.contains("left-panel-visible") ||
+                            this._isLeftSidebarExpanded !== sidebarWrapper.classList.contains("left-panel-expanded") ||
                             this._isRightSidebarOpen !== sidebarWrapper.classList.contains("right-panel-visible")
                         ) {
                             this._causeOfChange = ResizeCause.sidebarToggle;
                             this._isLeftSidebarOpen = sidebarWrapper.classList.contains("left-panel-visible");
+                            this._isLeftSidebarExpanded = sidebarWrapper.classList.contains("left-panel-expanded");
                             this._isRightSidebarOpen = sidebarWrapper.classList.contains("right-panel-visible");
 
                             this.onWindowResize();
@@ -74,6 +79,7 @@ export class WindowManager implements IWindowManager {
             }
         } else {
             this._isLeftSidebarOpen = false;
+            this._isLeftSidebarExpanded = false;
             this._isRightSidebarOpen = false;
         }
 
@@ -89,6 +95,7 @@ export class WindowManager implements IWindowManager {
             contentWidth: this._contentWidth,
             contentHeight: this._contentHeight,
             isLeftSidebarOpen: this._isLeftSidebarOpen,
+            isLeftSidebarExpanded: this._isLeftSidebarExpanded,
             isRightSidebarOpen: this._isRightSidebarOpen,
             causeOfChange: this._causeOfChange
         });
@@ -135,6 +142,7 @@ export class WindowManager implements IWindowManager {
             contentWidth: this._contentWidth,
             contentHeight: this._contentHeight,
             isLeftSidebarOpen: this._isLeftSidebarOpen,
+            isLeftSidebarExpanded: this._isLeftSidebarExpanded,
             isRightSidebarOpen: this._isRightSidebarOpen,
             causeOfChange: this._causeOfChange
         });

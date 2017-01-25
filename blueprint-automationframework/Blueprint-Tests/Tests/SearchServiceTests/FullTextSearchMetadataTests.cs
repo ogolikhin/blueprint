@@ -145,7 +145,7 @@ namespace SearchServiceTests
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
-            Assert.That(!fullTextSearchMetaDataResultForMultipleProjects.TotalCount.Equals(fullTextSearchMetaDataResultForSingleProject.TotalCount),
+            Assert.AreNotEqual(fullTextSearchMetaDataResultForSingleProject.TotalCount, fullTextSearchMetaDataResultForMultipleProjects.TotalCount,
                 "The search hit count for multiple projects was the same as for a single project but should be different.");
         }
 
@@ -371,7 +371,8 @@ namespace SearchServiceTests
                 searchCriteria.Query);
 
             // Verify that second user can see the artifact 
-            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(1), "The expected search hit count is {0} but {1} was returned.",
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount,
+                "The expected search hit count is {0} but {1} was returned.",
                 1, fullTextSearchMetaDataResult.TotalCount);
 
             // Delete and publish artifact by first user

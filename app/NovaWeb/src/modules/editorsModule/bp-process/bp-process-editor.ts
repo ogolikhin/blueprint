@@ -47,7 +47,7 @@ export class BpProcessEditorController extends BpBaseEditor {
         "loadingOverlayService"
     ];
 
-    constructor(messageService: IMessageService,
+    constructor(private messageService: IMessageService,
                 selectionManager: ISelectionManager,
                 private windowManager: IWindowManager,
                 private $rootScope: ng.IRootScopeService,
@@ -67,7 +67,7 @@ export class BpProcessEditorController extends BpBaseEditor {
                 private clipboard: IClipboardService = null,
                 private fileUploadService: IFileUploadService = null,
                 private loadingOverlayService: ILoadingOverlayService = null) {
-        super(messageService, selectionManager);
+        super(selectionManager);
 
         this.subArtifactEditorModalOpener = new SubArtifactEditorModalOpener(
             $uibModal, communicationManager.modalDialogManager, localization);

@@ -1,5 +1,4 @@
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
-import {IMessageService} from "../../main/components/messages/message.svc";
 import {IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {BpBaseEditor} from "../bp-base-editor";
@@ -14,7 +13,6 @@ export class BpGlossaryController extends BpBaseEditor {
         "$log",
         "localization",
         "$sce",
-        "messageService",
         "selectionManager"
     ];
 
@@ -24,10 +22,8 @@ export class BpGlossaryController extends BpBaseEditor {
     constructor(private $log: ng.ILogService,
                 public localization: ILocalizationService,
                 public $sce: ng.ISCEService,
-                public messageService: IMessageService,
                 public selectionManager: ISelectionManager) {
-
-        super(messageService, selectionManager);
+        super(selectionManager);
     }
 
     public $onInit() {

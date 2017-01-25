@@ -1,5 +1,4 @@
-﻿import {IMessageService} from "../main/components/messages/message.svc";
-import {IStatefulArtifact} from "../managers/artifact-manager";
+﻿import {IStatefulArtifact} from "../managers/artifact-manager";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 
 export class BpBaseEditor {
@@ -8,8 +7,7 @@ export class BpBaseEditor {
     public artifact: IStatefulArtifact;
     public isLoading: boolean;
 
-    constructor(public messageService: IMessageService,
-                public selectionManager: ISelectionManager) {
+    constructor(public selectionManager: ISelectionManager) {
         this.subscribers = [];
     }
 

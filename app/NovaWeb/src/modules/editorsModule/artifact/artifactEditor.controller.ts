@@ -22,7 +22,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
                 public windowManager: IWindowManager,
                 public localization: ILocalizationService,
                 public propertyDescriptorBuilder: IPropertyDescriptorBuilder) {
-        super(messageService, selectionManager);
+        super(selectionManager);
         this.activeTab = 0;
     }
 

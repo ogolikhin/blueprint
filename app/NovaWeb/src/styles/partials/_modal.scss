@@ -18,11 +18,6 @@ $modal-side-clearance: 8px;
         border: 0;
     }
 
-    .modal-focus-stealer {
-        position: absolute;
-        top: -5000px;
-    }
-
     .modal-header {
         @include rounded-corners($border-radius-amount $border-radius-amount 0 0);
         background-color: $brand-secondary;
@@ -540,11 +535,6 @@ $modal-open-project-height: 450px;
 }
 
 .modal.change-password {
-    .change-password__focus-stealer {
-        float: left;
-        margin: -2000px 0 0 -2000px;
-    }
-
     .change-password__message {
         box-sizing: content-box;
         font-size: $font-size-normal;

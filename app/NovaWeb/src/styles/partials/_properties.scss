@@ -1,3 +1,4 @@
+@import "../settings/_variables";
 @import "../settings/colors";
 @import "../../modules/editors/configuration/formly-config.scss";
 
@@ -176,7 +177,8 @@ pagecontent, bp-properties-panel {
                 &[disabled] {
                     background: transparent;
                     border-color: transparent;
-                    cursor: default;
+                    cursor: $cursor-disabled;
+
 
                     & + .input-group-btn {
                         display: none;
@@ -610,7 +612,7 @@ pagecontent, bp-properties-panel {
                 }
 
                 &[disabled] {
-                    cursor: default;
+                    cursor: $cursor-disabled;
                 }
 
                 &:not([disabled]):hover {

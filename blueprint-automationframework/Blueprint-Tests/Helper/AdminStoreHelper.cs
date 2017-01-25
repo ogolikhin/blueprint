@@ -159,8 +159,9 @@ namespace Helper
         public static void GetJobValidation(IJobInfo jobInfo, IOpenAPIJob expectedOpenAPIJob)
         {
             // creating the jobResult with the empty TotalJobCount
-            JobResult jobResult = new JobResult();
+            var jobResult = new JobResult();
             var jobInfoList = new List<IJobInfo>() { jobInfo }.ConvertAll(o => (JobInfo)o);
+
             jobResult.JobInfos = jobInfoList;
             jobResult.TotalJobCount = 0;
 

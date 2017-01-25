@@ -76,7 +76,7 @@ namespace Helper
             var accessibleSourceArtifactList = artifactList.FindAll(
                 artifact => artifact.CreatedBy.Token.Equals(user.Token) && !artifact.Id.Equals(NONEXISTENT_ARTIFACT_ID));
 
-            List<int> accessibleSourceArtifactdIdList = accessibleSourceArtifactList.ConvertAll(a => a.Id);
+            var accessibleSourceArtifactdIdList = accessibleSourceArtifactList.ConvertAll(a => a.Id);
 
             //accessibleResultArtifactReferenceList is list of artifact references whose Ids exist in accessibleSourceArtifactdIdList
             var accessibleResultArtifactReferenceList = resultArtifactReferenceList.FindAll(ar => accessibleSourceArtifactdIdList.Contains(ar.Id));

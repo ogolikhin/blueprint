@@ -1,3 +1,29 @@
+@import "../settings/_variables";
+
+.dropdown-menu {
+    button.btn.btn-link { //add a class requirement
+        width: 100%;
+        border-radius: 0;
+        border: 0;
+        color: $text-color;
+        line-height: inherit;
+        padding: 6px 20px;
+        &:focus,
+        &:hover:not([disabled]) {
+            background: $brand-secondary;
+            color: $white;
+        }
+        &[disabled] {
+            &:hover {
+                background: transparent;
+            }
+            background: transparent;
+            cursor: $cursor-disabled;
+            color: $gray-light !important;
+        }
+    }
+}
+
 .dropdown-menu__filter{
     left:auto;
     right: 0;

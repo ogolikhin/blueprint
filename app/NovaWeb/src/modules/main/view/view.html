@@ -1,9 +1,13 @@
-<page-toolbar ng-if="$ctrl.currentUser"></page-toolbar>
+<page-toolbar ng-if="$ctrl.session.currentUser"></page-toolbar>
 
-<div ng-if="$ctrl.currentUser" class="bp-sidebar-wrapper"
-     ng-class="{'left-panel-visible': $ctrl.isLeftToggled, 'right-panel-visible': $ctrl.isRightToggled}">
+<div ng-if="$ctrl.session.currentUser" class="bp-sidebar-wrapper"
+     ng-class="{
+         'left-panel-visible': $ctrl.isLeftToggled,
+         'right-panel-visible': $ctrl.isRightToggled,
+         'left-panel-expanded': $ctrl.isLeftPanelExpanded
+     }">
 
-    <div class="sidebar left-panel" ng-class="{'left-panel-expanded': $ctrl.isLeftPanelExpanded}">
+    <div class="sidebar left-panel">
         <button class="sidebar-toggle hamburger hamburger--collapse" ng-class="{'is-active': $ctrl.isLeftToggled}"
                 type="button" ng-click="$ctrl.toggleLeft()" bp-tooltip="{{::$ctrl.localization.get('App_Sidebar_Left')}}">
 			<span class="hamburger-box">
@@ -11,7 +15,7 @@
 			</span>
         </button>
         <button class="btn btn-link btn-sidebar-expand" ng-click="$ctrl.toggleExpandLeft()">
-            <span class="fonticon2-expand"></span>
+            <span ng-class="{'fonticon2-expand': !$ctrl.isLeftPanelExpanded, 'fonticon2-contract': $ctrl.isLeftPanelExpanded}"></span>
         </button>
         <div class="sidebar-title">{{::$ctrl.localization.get('App_Sidebar_Left')}}</div>
         <div class="sidebar-content">

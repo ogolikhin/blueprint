@@ -1,4 +1,3 @@
-import "./";
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";

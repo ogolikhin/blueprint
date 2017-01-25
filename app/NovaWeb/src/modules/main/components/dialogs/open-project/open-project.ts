@@ -1,10 +1,8 @@
-import {ProjectSearchResultVM} from "../../bp-artifact-picker/search-result-vm";
-import {Helper} from "../../../../shared/utils/helper";
-import {IDialogSettings, BaseDialogController} from "../../../../shared/widgets/bp-dialog/bp-dialog";
+import {BaseDialogController, IDialogSettings} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {TreeModels} from "../../../models";
-import {IInstanceItem} from "../../../models/admin-store-models";
+import {IInstanceItem, InstanceItemType} from "../../../models/admin-store-models";
 import {IProjectSearchResult} from "../../../models/search-service-models";
-
+import {ProjectSearchResultVM} from "../../bp-artifact-picker/search-result-vm";
 type OpenProjectVM = TreeModels.InstanceItemNodeVM | ProjectSearchResultVM;
 
 export class OpenProjectController extends BaseDialogController {
@@ -56,8 +54,12 @@ export class OpenProjectController extends BaseDialogController {
 
         this.selectedName = vm ? vm.model.name : undefined;
         this.selectedDescription = description;
-        if (vm && vm.model) {
+        if (vm instanceof TreeModels.InstanceItemNodeVM && vm.model.type === InstanceItemType.Project) {
             this._returnValue = vm.model;
+        } else if (vm instanceof ProjectSearchResultVM) {
+            this._returnValue = vm.model;
+        } else {
+            this._returnValue = undefined;
         }
 
         const descriptionElement = doc.querySelector(".open-project__description");

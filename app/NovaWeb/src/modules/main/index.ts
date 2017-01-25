@@ -19,15 +19,17 @@ import "./services";
 import "./view";
 import {formlyConfig} from "../editors/";
 
-config.$inject = ["$rootScope", "$state"];
+config.$inject = ["$rootScope", "$state", "$templateCache"];
 
 declare let VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare let BUILD_YEAR: string;
 
-export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService) {
+export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService, $templateCache) {
     $rootScope["config"] = window["config"] || {settings: {}, labels: {}};
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;
+
+    $templateCache.put("uib/template/modal/window.html", require("./uibModal.html"));
 
     let labels = $rootScope["config"].labels;
     if (!labels || (Object.keys(labels).length === 0 && labels.constructor === Object)) {

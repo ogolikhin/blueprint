@@ -1,9 +1,9 @@
-import {Enums, Models} from "../../main";
-import {IStatefulItem, StatefulSubArtifact} from "../../managers/artifact-manager";
-import {Helper} from "../../shared/utils/helper";
-import {BPLocale, ILocalizationService} from "../../commonModule/localization/localization.service";
-import {IPropertyDescriptor} from "../services";
-import {IUserGroup} from "../configuration/types/user-picker/user-picker";
+import {Enums, Models} from "../../../main";
+import {IStatefulItem, StatefulSubArtifact} from "../../../managers/artifact-manager";
+import {Helper} from "../../../shared/utils/helper";
+import {BPLocale, ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IPropertyDescriptor} from "../../services";
+import {IUserGroup} from "../../configuration/types/user-picker/user-picker";
 
 export class PropertyEditor {
 

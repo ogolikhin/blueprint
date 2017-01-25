@@ -9,6 +9,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {SelectionManagerMock} from "../../../../managers/selection-manager/selection-manager.mock";
 import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {IDownloadService} from "../../../../commonModule/download/download.service";
 import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
 
 describe("Component BP Artifact Attachment Item", () => {
@@ -29,8 +30,10 @@ describe("Component BP Artifact Attachment Item", () => {
         </bp-attachment-item>
     `;
     let vm: BPAttachmentItemController;
+    let downloadService: IDownloadService;
 
-    beforeEach(inject(($window: ng.IWindowService) => {
+    beforeEach(inject(( $window: ng.IWindowService,
+                        _downloadService_: IDownloadService) => {
         let bindings: any = {
             attachment: {
                 userId: 1,
@@ -45,6 +48,7 @@ describe("Component BP Artifact Attachment Item", () => {
         };
         componentTest = new ComponentTest<BPAttachmentItemController>(template, "bp-attachment-item");
         vm = componentTest.createComponent(bindings);
+        downloadService = _downloadService_;
     }));
 
     it("should be visible by default", () => {
@@ -57,7 +61,6 @@ describe("Component BP Artifact Attachment Item", () => {
 
     it("should try to download an attachment without Guid",
         inject(($rootScope: ng.IRootScopeService,
-                $window: ng.IWindowService,
                 selectionManager: ISelectionManager,
                 statefulArtifactFactory: IStatefulArtifactFactory) => {
 
@@ -67,17 +70,16 @@ describe("Component BP Artifact Attachment Item", () => {
             //Act
             selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-            spyOn($window, "open").and.callFake(() => true);
+            const spyDownload = spyOn(downloadService, "downloadFile");
             vm.downloadItem();
 
             //Assert
-            expect($window.open).toHaveBeenCalled();
-            expect($window.open).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/22/attachments/1093", "_blank");
+            expect(spyDownload).toHaveBeenCalled();
+            expect(spyDownload).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/22/attachments/1093");
         }));
 
     it("should try to download historical version",
         inject(($rootScope: ng.IRootScopeService,
-                $window: ng.IWindowService,
                 selectionManager: ISelectionManager,
                 statefulArtifactFactory: IStatefulArtifactFactory) => {
 
@@ -93,17 +95,16 @@ describe("Component BP Artifact Attachment Item", () => {
             //Act
             selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-            spyOn($window, "open").and.callFake(() => true);
+            const spyDownload = spyOn(downloadService, "downloadFile");
             vm.downloadItem();
 
             //Assert
-            expect($window.open).toHaveBeenCalled();
-            expect($window.open).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/22/attachments/1093?versionId=14", "_blank");
+            expect(spyDownload).toHaveBeenCalled();
+            expect(spyDownload).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/22/attachments/1093?versionId=14");
         }));
 
     it("should try to download an attachment with Guid",
         inject(($rootScope: ng.IRootScopeService,
-                $window: ng.IWindowService,
                 selectionManager: ISelectionManager,
                 statefulArtifactFactory: IStatefulArtifactFactory) => {
 
@@ -114,12 +115,12 @@ describe("Component BP Artifact Attachment Item", () => {
             //Act
             selectionManager.setArtifact(artifact);
             $rootScope.$digest();
-            spyOn($window, "open").and.callFake(() => true);
+            const spyDownload = spyOn(downloadService, "downloadFile");
             vm.downloadItem();
 
             //Assert
-            expect($window.open).toHaveBeenCalled();
-            expect($window.open).toHaveBeenCalledWith("/svc/bpfilestore/file/newid", "_blank");
+            expect(spyDownload).toHaveBeenCalled();
+            expect(spyDownload).toHaveBeenCalledWith("/svc/bpfilestore/file/newid");
         }));
 
     it("should try to delete an attachment",

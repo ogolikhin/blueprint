@@ -82,6 +82,7 @@ export class MainViewController {
         this.projectManager.dispose();
         this.selectionManager.dispose();
     }
+
     private onVisibilityChanged = (status: VisibilityStatus) => {
         this.$document[0].body.classList.remove(status === VisibilityStatus.Visible ? "is-hidden" : "is-visible");
         this.$document[0].body.classList.add(status === VisibilityStatus.Visible ? "is-visible" : "is-hidden");

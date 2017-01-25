@@ -107,6 +107,9 @@ describe("Formly Text RTF", () => {
                 return;
             }
         },
+        save: () => {
+            return;
+        },
         addButton: (a: string, menuToolbar: IMenuToolbar) => {
             if (!menuItems) {
                 menuItems = menuToolbar.menu;

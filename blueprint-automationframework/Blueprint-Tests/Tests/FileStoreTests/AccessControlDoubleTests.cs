@@ -67,7 +67,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateFileWithRandomByteArray();
+                var file = CreateFileWithRandomByteArray();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -75,7 +75,8 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
                 Assert.DoesNotThrow(() => { Helper.FileStore.PostFile(file, _user); },
-                    "PostFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+                    "PostFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!",
+                    accessControlError);
             }
         }
 
@@ -87,7 +88,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -95,7 +96,8 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
                 Assert.DoesNotThrow(() => { Helper.FileStore.PutFile(file, file.Content.ToArray(), _user); },
-                    "PutFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+                    "PutFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!",
+                    accessControlError);
             }
         }
 
@@ -107,7 +109,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -115,7 +117,8 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
                 Assert.DoesNotThrow(() => { Helper.FileStore.GetFile(file.Guid, _user); },
-                    "GetFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+                    "GetFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!",
+                    accessControlError);
             }
         }
 
@@ -127,7 +130,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -135,7 +138,8 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
                 Assert.DoesNotThrow(() => { Helper.FileStore.DeleteFile(file.Guid, _user); },
-                    "DeleteFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+                    "DeleteFile should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!",
+                    accessControlError);
             }
         }
 
@@ -147,7 +151,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.DELETE, accessControlError);
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.GET, accessControlError);
@@ -155,7 +159,8 @@ namespace FileStoreTests
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.POST, accessControlError);
 
                 Assert.DoesNotThrow(() => { Helper.FileStore.GetFileMetadata(file.Guid, _user); },
-                    "GetFileMetadata should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!", accessControlError);
+                    "GetFileMetadata should NOT call DELETE, GET, HEAD or POST on AccessControl so it shouldn't fail if AccessControl returns a {0} error for any of those methods!",
+                    accessControlError);
             }
         }
 
@@ -171,7 +176,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateFileWithRandomByteArray();
+                var file = CreateFileWithRandomByteArray();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
@@ -188,7 +193,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
@@ -205,7 +210,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
@@ -222,7 +227,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 
@@ -239,7 +244,7 @@ namespace FileStoreTests
         {
             using (var accessControlDoubleHelper = AccessControlDoubleHelper.GetAccessControlDoubleFromTestConfig())
             {
-                IFile file = CreateAndAddFile();
+                var file = CreateAndAddFile();
 
                 accessControlDoubleHelper.StartInjectingErrors(RestRequestMethod.PUT, accessControlError);
 

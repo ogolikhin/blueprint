@@ -1,3 +1,4 @@
+import {IDownloadService} from "../../../../commonModule/download";
 import {IArtifactAttachmentsService, IArtifactAttachmentsResultSet} from "../../../../managers/artifact-manager";
 import {Helper} from "../../../../shared/utils/helper";
 import {FiletypeParser} from "../../../../shared/utils/filetypeParser";
@@ -27,22 +28,22 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
         "$scope",
         "localization",
         "artifactAttachments",
-        "$window",
         "messageService",
         "dialogService",
         "settings",
-        "fileUploadService"
+        "fileUploadService",
+        "downloadService"
     ];
 
     constructor(protected $document: ng.IDocumentService,
                 private $scope: AngularFormly.ITemplateScope,
                 private localization: ILocalizationService,
                 private artifactAttachments: IArtifactAttachmentsService,
-                private $window: ng.IWindowService,
                 private messageService: IMessageService,
                 private dialogService: IDialogService,
                 private settings: ISettingsService,
-                private fileUploadService: IFileUploadService) {
+                private fileUploadService: IFileUploadService,
+                private downloadService: IDownloadService) {
         super($document);
         const maxNumberAttachments: number = 1;
 
@@ -122,7 +123,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
 
         $scope["downloadFile"] = () => {
             if (guid) {
-                $window.open(`/svc/bpfilestore/file/${guid}`, "_blank");
+                this.downloadService.downloadFile(`/svc/bpfilestore/file/${guid}`);
             } else {
                 const artifactId = templateOptions["artifactId"];
                 const versionId = templateOptions["versionId"];
@@ -134,7 +135,7 @@ export class BPFieldDocumentFileController extends BPFieldBaseController {
                             if (_.isFinite(versionId)) {
                                 url += `?versionId=${versionId}`;
                             }
-                            this.$window.open(url, "_blank");
+                            this.downloadService.downloadFile(url);
                         } else {
                             messageService.addError(localization.get("App_UP_Attachments_Download_No_Attachment"));
                         }

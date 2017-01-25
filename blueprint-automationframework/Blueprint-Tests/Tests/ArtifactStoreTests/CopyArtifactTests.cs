@@ -404,24 +404,20 @@ namespace ArtifactStoreTests
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Add custom properties to the source artifact.
-            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
             CustomProperty property = null;
 
             if (propertyType == PropertyPrimitiveType.User)
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, _user);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifact, _user, _project, propertyType, propertyName, _user, Helper.ArtifactStore);
             }
             else
             {
-                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifactDetails, _project, propertyType, propertyName, newValue);
+                property = ArtifactStoreHelper.UpdateArtifactCustomProperty(sourceArtifact, _user, _project, propertyType, propertyName, newValue, Helper.ArtifactStore);
             }
 
-            // Execute:
-            sourceArtifact.Lock();
-            Helper.ArtifactStore.UpdateArtifact(_user, sourceArtifactDetails);
             Helper.ArtifactStore.PublishArtifact(sourceArtifact, _user);
 
-            sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+            var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;

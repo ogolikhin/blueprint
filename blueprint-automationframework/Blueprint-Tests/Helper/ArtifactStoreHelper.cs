@@ -892,7 +892,7 @@ namespace Helper
         /// <summary>
         /// Gets all details for all the sub-artifacts passed in.
         /// </summary>
-        /// <param name="artifactStore">An ArtifactStore instance.</param>
+        /// <param name="artifactStore">A reference to an instance of artifact store</param>
         /// <param name="artifact">The artifact to which the sub-artifacts belong.</param>
         /// <param name="subArtifacts">The list of sub-artifacts to get more details for.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -915,20 +915,20 @@ namespace Helper
         }
 
         /// <summary>
-        /// Updates the specified custom property of the artifact with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// Sets the specified custom property of the artifact to the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
         /// The caller is responsible for locking, saving & publishing the artifact.
         /// </summary>
         /// <typeparam name="T">The new value type.</typeparam>
-        /// <param name="artifactDetails">The artifact details containing the custom property to update.</param>
+        /// <param name="artifactDetails">The artifact details containing the custom property to set.</param>
         /// <param name="project">The project where the artifact exists.</param>
-        /// <param name="propertyType">The type of property to be updated.</param>
-        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="propertyType">The type of property to be set.</param>
+        /// <param name="propertyName">The name of the custom property to set.</param>
         /// <param name="newValue">The new value to assign to the custom property.
         ///     For Choice & Text property types, pass a string.
         ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
         ///     For User property types, pass an IUser.</param>
-        /// <returns>The custom property that was updated.</returns>
-        public static CustomProperty UpdateArtifactCustomProperty<T>(INovaArtifactDetails artifactDetails,
+        /// <returns>The custom property that was set.</returns>
+        public static CustomProperty SetArtifactCustomProperty<T>(INovaArtifactDetails artifactDetails,
             IProject project,
             PropertyPrimitiveType propertyType,
             string propertyName,
@@ -940,24 +940,24 @@ namespace Helper
 
             var customProperties = artifactDetails.CustomPropertyValues;
 
-            return UpdateCustomProperty(customProperties, project, propertyType, propertyName, newValue);
+            return SetCustomProperty(customProperties, project, propertyType, propertyName, newValue);
         }
 
         /// <summary>
-        /// Updates the specified custom property of the subartifact with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// Sets the specified custom property of the subartifact to the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
         /// The caller is responsible for locking, saving & publishing the artifact.
         /// </summary>
         /// <typeparam name="T">The new value type.</typeparam>
-        /// <param name="subArtifactDetails">The subartifact details containing the custom property to update.</param>
+        /// <param name="subArtifactDetails">The subartifact details containing the custom property to set.</param>
         /// <param name="project">The project where the artifact exists.</param>
-        /// <param name="propertyType">The type of property to be updated.</param>
-        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="propertyType">The type of property to be set.</param>
+        /// <param name="propertyName">The name of the custom property to set.</param>
         /// <param name="newValue">The new value to assign to the custom property.
         ///     For Choice & Text property types, pass a string.
         ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
         ///     For User property types, pass an IUser.</param>
-        /// <returns>The custom property that was updated.</returns>
-        public static CustomProperty UpdateSubArtifactCustomProperty<T>(NovaItem subArtifactDetails,
+        /// <returns>The custom property that was set.</returns>
+        public static CustomProperty SetSubArtifactCustomProperty<T>(NovaItem subArtifactDetails,
             IProject project,
             PropertyPrimitiveType propertyType,
             string propertyName,
@@ -968,24 +968,24 @@ namespace Helper
 
             var customProperties = subArtifactDetails.CustomPropertyValues;
 
-            return UpdateCustomProperty(customProperties, project, propertyType, propertyName, newValue);
+            return SetCustomProperty(customProperties, project, propertyType, propertyName, newValue);
         }
 
         /// <summary>
-        /// Updates the specified custom property with the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// Sets the specified custom property to the new value.  NOTE: This function doesn't update the artifact on the server, only in memory.
         /// The caller is responsible for locking, saving & publishing the artifact.
         /// </summary>
         /// <typeparam name="T">The new value type.</typeparam>
-        /// <param name="customProperties">The list of custom properties to update.</param>
+        /// <param name="customProperties">The list of custom properties to set.</param>
         /// <param name="project">The project where the artifact exists.</param>
-        /// <param name="propertyType">The type of property to be updated.</param>
-        /// <param name="propertyName">The name of the custom property to update.</param>
+        /// <param name="propertyType">The type of property to be set.</param>
+        /// <param name="propertyName">The name of the custom property to set.</param>
         /// <param name="newValue">The new value to assign to the custom property.
         ///     For Choice & Text property types, pass a string.
         ///     For Number & Date property types, pass an integer (for Date, it means 'Now + newValue').
         ///     For User property types, pass an IUser.</param>
-        /// <returns>The custom property that was updated.</returns>
-        public static CustomProperty UpdateCustomProperty<T>(List<CustomProperty> customProperties,
+        /// <returns>The custom property that was set.</returns>
+        public static CustomProperty SetCustomProperty<T>(List<CustomProperty> customProperties,
             IProject project,
             PropertyPrimitiveType propertyType,
             string propertyName,
@@ -1073,13 +1073,13 @@ namespace Helper
         }
 
         /// <summary>
-        /// Updates the specified custom property with a null value.  NOTE: This function doesn't update the artifact on the server, only in memory.
+        /// Sets the specified custom property to null.  NOTE: This function doesn't update the artifact on the server, only in memory.
         /// The caller is responsible for locking, saving & publishing the artifact.
         /// </summary>
         /// <param name="customProperties">The list of custom properties.</param>
-        /// <param name="propertyName">The name of the custom property to update.</param>
-        /// <returns>The custom property that was updated.</returns>
-        public static CustomProperty UpdateCustomPropertyWithNull(List<CustomProperty> customProperties, string propertyName)
+        /// <param name="propertyName">The name of the custom property to set.</param>
+        /// <returns>The custom property that was set.</returns>
+        public static CustomProperty SetCustomPropertyToNull(List<CustomProperty> customProperties, string propertyName)
         {
             ThrowIf.ArgumentNull(customProperties, nameof(customProperties));
 
@@ -1095,6 +1095,77 @@ namespace Helper
             {
                 property.CustomPropertyValue = null;
             }
+
+            return property;
+        }
+
+        /// <summary>
+        /// Update an artifact custom property and save.
+        /// </summary>
+        /// <typeparam name="T">The property value type</typeparam>
+        /// <param name="artifact">The artifact to update</param>
+        /// <param name="user">The user updating the artifact</param>
+        /// <param name="project">The project where the artifact exists</param>
+        /// <param name="propertyType">The primitive property type of the property</param>
+        /// <param name="propertyName">The name of the artifact property to be updated</param>
+        /// <param name="propertyValue">The new value for the subartifact property</param>
+        /// <param name="artifactStore">A reference to an instance of artifact store</param>
+        /// <returns>The updated property</returns>
+        public static CustomProperty UpdateArtifactCustomProperty<T>(IArtifact artifact, IUser user, IProject project,
+            PropertyPrimitiveType propertyType, string propertyName, T propertyValue, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
+            // Set custom property in artifact.
+            var property = SetArtifactCustomProperty(artifactDetails, project,
+                propertyType, propertyName, propertyValue);
+
+            var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, customProperty: property);
+
+            artifact.Lock(user);
+            artifactStore.UpdateArtifact(user, (NovaArtifactDetails) artifactDetailsChangeset);
+
+            return property;
+        }
+
+        /// <summary>
+        /// Update a subartifact custom property and save
+        /// </summary>
+        /// <typeparam name="T">The property value type</typeparam>
+        /// <param name="artifact">The artifact to update</param>
+        /// <param name="subArtifact">The subartifact to update</param>
+        /// <param name="user">The user updating the subartifact</param>
+        /// <param name="project">The project where the artifact exists</param>
+        /// <param name="propertyType">The primitive type of the property</param>
+        /// <param name="propertyName">The name of the subartifact property to be updated</param>
+        /// <param name="propertyValue">The new value for the subartifact property</param>
+        /// <param name="artifactStore">A reference to an instance of artifact store</param>
+        /// <returns>The updated property</returns>
+        public static CustomProperty UpdateSubArtifactCustomProperty<T>(IArtifact artifact, NovaSubArtifact subArtifact, IUser user, IProject project,
+            PropertyPrimitiveType propertyType, string propertyName, T propertyValue, IArtifactStore artifactStore)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+
+            // Set custom property in subartifact.
+            var property = SetSubArtifactCustomProperty(subArtifact, project,
+                propertyType, propertyName, propertyValue);
+
+            var subArtifactChangeSet = TestHelper.CreateSubArtifactChangeSet(subArtifact, customProperty: property);
+            var artifactDetailsChangeset = TestHelper.CreateArtifactChangeSet(artifactDetails, subArtifact: subArtifactChangeSet);
+
+            artifact.Lock(user);
+            artifactStore.UpdateArtifact(user, (NovaArtifactDetails)artifactDetailsChangeset);
 
             return property;
         }

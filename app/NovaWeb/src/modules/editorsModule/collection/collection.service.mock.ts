@@ -1,4 +1,4 @@
-import {ICollectionService} from "./collection.svc";
+import {ICollectionService} from "./collection.service";
 import {IArtifact} from "../../main/models/models";
 import {ICollection, ICollectionArtifact} from "./collection-artifact";
 import {Models} from "../../main";
@@ -35,7 +35,7 @@ export class CollectionServiceMock implements ICollectionService {
 
     public static createCollection(id: number): ICollection {
         /* tslint:disable:max-line-length */
-        const collection: ICollection = {            
+        const collection: ICollection = {
             id: id,
             projectId: 1,
             reviewName: "Review1",
@@ -50,7 +50,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: ["Path1"]                                      
+                    artifactPath: ["Path1"]
                 },
                 <ICollectionArtifact>{
                     id: 386,
@@ -59,7 +59,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: ["Path1"]  
+                    artifactPath: ["Path1"]
                 },
                 <ICollectionArtifact>{
                     id: 382,
@@ -68,7 +68,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: ["Path1"]  
+                    artifactPath: ["Path1"]
                 },
                 <ICollectionArtifact>{
                     id: 385,
@@ -77,7 +77,7 @@ export class CollectionServiceMock implements ICollectionService {
                     prefix: "TR",
                     itemTypeId: 5,
                     itemTypePredefined: Models.ItemTypePredefined.Actor,
-                    artifactPath: ["Path1"]  
+                    artifactPath: ["Path1"]
                 }
             ]
         };

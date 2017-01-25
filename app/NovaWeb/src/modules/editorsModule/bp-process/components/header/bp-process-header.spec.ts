@@ -24,7 +24,7 @@ import {ProjectService} from "../../../../managers/project-manager/project-servi
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {CollectionServiceMock} from "../../../bp-collection/collection.svc.mock";
+import {CollectionServiceMock} from "../../../collection/collection.service.mock";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 
 describe("BpProcessHeader", () => {

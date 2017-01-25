@@ -5,7 +5,7 @@ import {
     IStatefulItem
 } from "../../../managers/artifact-manager";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {PropertyEditor} from "../../../editorsModule/configuration/bp-property-editor";
+import {PropertyEditor} from "../../../editorsModule/configuration/classes/bp-property-editor";
 import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editorsModule/services";
 import {PropertyLookupEnum} from "../../../main/models/enums";
 import {Helper} from "../../../shared/utils/helper";

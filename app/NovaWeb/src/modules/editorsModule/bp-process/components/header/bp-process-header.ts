@@ -16,7 +16,7 @@ import {IUserStoryService} from "../../services/user-story.svc";
 import {CopyAction, GenerateUserStoriesAction, ToggleProcessTypeAction} from "./actions";
 import {OpenProcessImpactAnalysisAction} from "./actions/open-process-impact-analysis-action";
 import {ProcessDeleteAction} from "./actions/process-delete-action";
-import {ICollectionService} from "../../../bp-collection/collection.svc";
+import {ICollectionService} from "../../../collection/collection.service";
 import {IItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";

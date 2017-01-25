@@ -13,7 +13,7 @@ import {IArtifactRelationshipsService} from "../relationships";
 import {
     IStatefulCollectionArtifact,
     StatefulCollectionArtifact
-} from "../../../editorsModule/bp-collection/collection-artifact";
+} from "../../../editorsModule/collection/collection-artifact";
 import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editorsModule/bp-glossary/glossary-artifact";
 import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editorsModule/bp-diagram/diagram-artifact";
 import {StatefulUseCaseArtifact} from "../../../editorsModule/bp-diagram/usecase-artifact";

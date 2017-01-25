@@ -11,7 +11,7 @@ import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRen
 import {BpArtifactDetailsEditorController} from "../artifact/details/artifactDetailsEditor.controller";
 import {IPropertyDescriptorBuilder} from "../services";
 import {ICollectionArtifact, IStatefulCollectionArtifact} from "./collection-artifact";
-import {ICollectionService} from "./collection.svc";
+import {ICollectionService} from "./collection.service";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export class BpArtifactCollectionEditor implements ng.IComponentOptions {

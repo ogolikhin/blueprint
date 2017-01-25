@@ -5,7 +5,7 @@ import {IMainWindow, IWindowManager} from "../../main/services/window-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {BpBaseEditor} from "../bp-base-editor";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../services";
-import {PropertyEditor} from "../configuration/bp-property-editor";
+import {PropertyEditor} from "../configuration/classes/bp-property-editor";
 
 export abstract class BpArtifactEditor extends BpBaseEditor {
 

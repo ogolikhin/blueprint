@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {ICollectionService, CollectionService} from "./collection.svc";
+import {ICollectionService, CollectionService} from "./collection.service";
 import {Models} from "../../main";
 import {ICollection} from "./collection-artifact";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";

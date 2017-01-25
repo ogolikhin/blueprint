@@ -1,11 +1,11 @@
 import "angular";
 import "angular-mocks";
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
-import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ILocalizationService} from "../../commonModule/localization/localization.service";
-import {IPropertyValue} from "../../main/models/models";
-import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {IPropertyDescriptor} from "../services";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact";
+import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IPropertyValue} from "../../../main/models/models";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
+import {IPropertyDescriptor} from "../../services";
 import {PropertyEditor} from "./bp-property-editor";
 
 

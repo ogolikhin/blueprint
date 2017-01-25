@@ -5,7 +5,7 @@ import "./bp-glossary";
 import {ArtifactEditors} from "./artifact";
 import "./bp-diagram";
 import "./bp-process";
-import "./bp-collection";
+import {CollectionEditors} from "./collection";
 import "./unpublished";
 import "./jobs";
 import {ArtifactRoutes} from "./editors.router";
@@ -24,7 +24,7 @@ angular.module("bp.editors", [
         EditorServices,
         "bp.editors.diagram",
         "bp.editors.process",
-        "bp.editors.collection",
+        CollectionEditors,
         "bp.editors.unpublished",
         "bp.editors.jobs"
     ])

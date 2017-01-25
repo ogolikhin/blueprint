@@ -1,5 +1,4 @@
-﻿import { IOnPanelChangesObject } from './../../shell/bp-utility-panel/utility-panel.svc';
-import {IWindowVisibility, VisibilityStatus} from "../../commonModule/services/windowVisibility";
+﻿import {IWindowVisibility, VisibilityStatus} from "../../commonModule/services/windowVisibility";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IProjectManager} from "../../managers/project-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";

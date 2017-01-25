@@ -46,6 +46,10 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+        /// <summary>
+        /// Checks that CustomProperty model corresponds to JSON from Blueprint server 
+        /// </summary>
+        /// <param name="property">property to check</param>
         private static void CheckIsJsonChanged<T>(CustomProperty property)
         {
             // Deserialization

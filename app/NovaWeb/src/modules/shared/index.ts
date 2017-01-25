@@ -8,8 +8,7 @@ angular.module("app.shared", [
     "ui.router",
     "ui.bootstrap",
     "bp.widgets",
-    "bp.filters"
-]);
+    "bp.filters"]);
 
 export {
     IDialogSettings,

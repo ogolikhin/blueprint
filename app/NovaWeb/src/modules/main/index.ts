@@ -24,7 +24,7 @@ config.$inject = ["$rootScope", "$state", "$templateCache"];
 declare let VERSION: string; //Usages replaced by webpack.DefinePlugin
 declare let BUILD_YEAR: string;
 
-export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService, $templateCache) {
+export function config($rootScope: ng.IRootScopeService, $state: ng.ui.IStateService, $templateCache: ng.ITemplateCacheService) {
     $rootScope["config"] = window["config"] || {settings: {}, labels: {}};
     $rootScope["version"] = VERSION.split(".")[0] + "." + VERSION.split(".")[1] + " (" + VERSION.replace("-", ".") + ")";
     $rootScope["year"] = BUILD_YEAR;

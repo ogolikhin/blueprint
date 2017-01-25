@@ -628,7 +628,7 @@ describe("BPTreeViewController", () => {
         it("onRowGroupOpened, when try to call this function one more time while promise is not resolved", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
             const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeNode;
-            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject("error"));
+            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject());
             vm.group = true;
             vm.expanded = true;
             const node = {data: vm, expanded: true} as agGrid.RowNode;

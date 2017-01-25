@@ -1,4 +1,5 @@
-﻿import {IWindowVisibility, VisibilityStatus} from "../../commonModule/services/windowVisibility";
+﻿import { IOnPanelChangesObject } from './../../shell/bp-utility-panel/utility-panel.svc';
+import {IWindowVisibility, VisibilityStatus} from "../../commonModule/services/windowVisibility";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IProjectManager} from "../../managers/project-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
@@ -59,7 +60,7 @@ export class MainViewController {
     }
 
     private openTourFirstTime(): void {
-        if (this.currentUser) {
+        if (this.session.currentUser) {
             const productTourKey = "ProductTour";
             const productTour = this.localStorageService.read(productTourKey);
             if (!productTour) {
@@ -100,14 +101,25 @@ export class MainViewController {
         this.previousOpenProjectCount = projects.length;
     }
 
+    /*
+     * Toggle visibility of left (explorer) side panel
+     * @param state optionally set visibility isntead of toggling (true = visible)
+     */
     public toggleLeft(state?: boolean) {
         this.isLeftToggled = _.isUndefined(state) ? !this.isLeftToggled : state;
     }
 
+    /*
+     * Toggle expansion (width) of left panel.
+     */
     public toggleExpandLeft() {
         this.isLeftPanelExpanded = !this.isLeftPanelExpanded;
     }
 
+    /*
+     * Toggle visibility of right (properties) side panel
+     * @param state optionally set visibility isntead of toggling (true = visible)
+     */
     public toggleRight(state?: boolean) {
         this.isRightToggled = _.isUndefined(state) ? !this.isRightToggled : state;
     }
@@ -118,9 +130,5 @@ export class MainViewController {
 
     public set isRightToggled(value: boolean) {
         this.utilityPanelService.isUtilityPanelOpened = value;
-    }
-
-    public get currentUser(): IUser {
-        return this.session.currentUser;
     }
 }

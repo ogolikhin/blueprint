@@ -17,6 +17,7 @@ namespace Model.ArtifactModel.Impl
         [JsonIgnore]
         public ActorInheritanceValue ActorInheritance
         {
+            // TODO: simplify/redesign(?) code to avoid possibility to have exception
             get
             {
                 // Finding ActorInheritence among other properties
@@ -40,23 +41,21 @@ namespace Model.ArtifactModel.Impl
                 var actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
 
-                if (actorInheritanceProperty != null)   // TODO: Should this throw an exception instead?
-                {
-                    actorInheritanceProperty.CustomPropertyValue = value;
-                }
+                Assert.NotNull(actorInheritanceProperty, "ActorInheritanceProperty shouldn't be null");
+                actorInheritanceProperty.CustomPropertyValue = value;
             }
         }
 
-        private static void CheckIsJsonChanged<TClass>(CustomProperty property)
+        private static void CheckIsJsonChanged<T>(CustomProperty property)
         {
             // Deserialization
             string specificPropertyString = property.CustomPropertyValue.ToString();
-            var specificPropertyValue = JsonConvert.DeserializeObject<TClass>(specificPropertyString);
+            var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyString);
 
             // Try to serialize and compare with JSON from the server
             string serializedObject = JsonConvert.SerializeObject(specificPropertyValue, Formatting.Indented);
             bool isJsonChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
-            string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
+            string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(T));
             Assert.IsFalse(isJsonChanged, msg);
         }
     }

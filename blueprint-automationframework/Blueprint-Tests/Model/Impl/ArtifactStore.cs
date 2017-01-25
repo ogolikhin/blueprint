@@ -255,14 +255,7 @@ namespace Model.Impl
 
             if (artifactDetails.PredefinedType != null)
             {
-                switch (artifactDetails.PredefinedType.Value)
-                {
-                    case (int)ItemTypePredefined.Actor:
-                        var actorDetails = JsonConvert.DeserializeObject<Actor>(response.Content);
-                        return actorDetails;
-                    default:
-                        break;
-                }
+                return ArtifactFactory.ConvertToSpecificArtifact(artifactDetails, response.Content);
             }
 
             return artifactDetails;

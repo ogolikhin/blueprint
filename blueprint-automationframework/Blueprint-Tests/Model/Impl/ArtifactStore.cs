@@ -246,11 +246,17 @@ namespace Model.Impl
                 queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
             }
 
-            var artifactDetails = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParams,
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, queryParameters: queryParams,
                 expectedStatusCodes: expectedStatusCodes);
+
+            var artifactDetails = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
+
+            RestApiFacade.CheckJSON<NovaArtifactDetails>(artifactDetails, response.Content);
+
+            if (artifactDetails.PredefinedType != null)
+            {
+                return ArtifactFactory.ConvertToSpecificArtifact(artifactDetails, response.Content);
+            }
 
             return artifactDetails;
         }

@@ -154,43 +154,6 @@ namespace Model.ArtifactModel.Impl
         #region Other properties
 
         /// <summary>
-        /// Returns ActorInheritanceValue. It represents information from Inherited from field for Actor.
-        /// </summary>
-        /// <exception cref="FormatException">Throws FormatException if ActorInheritanceValue doesn't correspond to server JSON.</exception>
-        [JsonIgnore]
-        public ActorInheritanceValue ActorInheritance
-        {
-            get
-            {
-            // Finding ActorInheritence among other properties
-            CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
-                p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-            if ((actorInheritanceProperty == null) || (actorInheritanceProperty.CustomPropertyValue == null))
-            {
-                return null;
-            }
-            // Deserialization
-            string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
-            var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
-
-                CheckIsJsonChanged<ActorInheritanceValue>(actorInheritanceProperty);
-
-                return actorInheritanceValue;
-            }
-
-            set
-            {
-                CustomProperty actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
-                    p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-
-                if (actorInheritanceProperty != null)   // TODO: Should this throw an exception instead?
-                {
-                    actorInheritanceProperty.CustomPropertyValue = value;
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the DocumentFile property for Artifact of Document type.
         /// TODO: replace this and GetActorInheritance function with generic function
         /// </summary>
@@ -230,19 +193,6 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Other properties
-
-        private static void CheckIsJsonChanged<TClass>(CustomProperty property)
-        {
-            // Deserialization
-            string specificPropertyString = property.CustomPropertyValue.ToString();
-            var specificPropertyValue = JsonConvert.DeserializeObject<TClass>(specificPropertyString);
-
-            // Try to serialize and compare with JSON from the server
-            string serializedObject = JsonConvert.SerializeObject(specificPropertyValue, Formatting.Indented);
-            bool isJsonChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
-            string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(TClass));
-            Assert.IsFalse(isJsonChanged, msg);
-        }
     }
 
     /// <summary>

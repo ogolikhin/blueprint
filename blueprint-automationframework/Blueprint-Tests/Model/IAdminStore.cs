@@ -55,6 +55,33 @@ namespace Model
         ISession AddSsoSession(string username, string samlResponse, bool? force = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Checks if the session for the specified user from AdminStore is valid.
+        /// (Runs: GET /sessions/alive)
+        /// </summary>
+        /// <param name="user">The user that contains the session token to check.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode CheckSession(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        ///  Checks if the specified session from AdminStore is valid.
+        /// (Runs: GET /sessions/alive)
+        /// </summary>
+        /// <param name="session">The session to check.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode CheckSession(ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Checks if the specified session token from AdminStore is valid.
+        /// (Runs: GET /sessions/alive)
+        /// </summary>
+        /// <param name="token">The session token to check.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode CheckSession(string token, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Deletes the session token for the specified user from AdminStore.
         /// (Runs: DELETE /sessions)
         /// </summary>

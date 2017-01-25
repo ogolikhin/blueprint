@@ -448,6 +448,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                     node.childrenAfterSort = [];
                     vm.unloadChildren();
                 }
+                vm.expanded = node.expanded;
             }
         }
     };

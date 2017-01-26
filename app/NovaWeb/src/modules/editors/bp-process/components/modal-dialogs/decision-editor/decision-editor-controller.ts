@@ -70,10 +70,11 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         return !this.isReadonly && this.isLabelAvailable() && !this.areMergeNodesEmpty();
     }
 
-    public saveData() {
+    public saveData(): ng.IPromise<void> {
         this.populateDecisionChanges();
         this.addNewBranchesToGraph();
         this.removeDeletedBranchesFromGraph();
+        return;
     }
 
     public get canAddCondition(): boolean {

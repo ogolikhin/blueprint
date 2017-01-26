@@ -41,7 +41,7 @@ export class CreateArtifactService implements ICreateArtifactService {
     }
 
     private getArtifactById(artifactId: number, artifact?: IStatefulArtifact): ng.IPromise<IStatefulArtifact> {
-        return !!artifact ?
+        return artifact ?
             this.$q.resolve(artifact) :
             this.statefulArtifactFactory.createStatefulArtifactFromId(artifactId);
     }
@@ -89,7 +89,7 @@ export class CreateArtifactService implements ICreateArtifactService {
                 return this.artifactService.create(result.artifactName, projectId, parentId, result.artifactTypeId);
             })
             .finally(() => {
-                if (!!createNewArtifactLoadingId) {
+                if (createNewArtifactLoadingId) {
                     this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
                 }
             });

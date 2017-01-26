@@ -155,19 +155,19 @@ export class PageToolbarController {
 
         let newArtifactId;
 
-        this.createArtifactService.createNewArtifact(-1, this._currentArtifact, true, null, null)
+        this.createArtifactService.createNewArtifact(-1, this._currentArtifact, true)
             .then((artifact: IArtifact) => {
                 newArtifactId = artifact.id;
                 return this.projectManager.refresh(this._currentArtifact.projectId, null, true);
             })
-            .then(() => {
+            .catch(this.newArtifactCreationErrorHandler)
+            .finally(() => {
                 this.projectManager.triggerProjectCollectionRefresh();
-                return this.$timeout();
-            })
-            .then(() => {
-                return this.navigationService.navigateTo({id: newArtifactId});
-            })
-            .catch(this.newArtifactCreationErrorHandler);
+
+                this.$timeout(() => {
+                    this.navigationService.navigateTo({id: newArtifactId});
+                });
+            });
     }
 
     private newArtifactCreationErrorHandler = ((error: any) => {

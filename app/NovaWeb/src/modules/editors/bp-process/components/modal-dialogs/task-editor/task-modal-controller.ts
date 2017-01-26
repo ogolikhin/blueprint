@@ -147,19 +147,29 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         return `${model.typePrefix}${model.id} - ${model.name}`;
     }
 
-    public saveData() {
+    public saveData(): ng.IPromise<void> {
         if (this.dialogModel.isReadonly) {
             throw new Error("Changes cannot be made or saved as this is a read-only item");
         }
 
+        return this.applyAssociatedArtifactChanges()
+            .finally(() => {
+                this.populateTaskChanges();
+            });
+    }
+
+    private applyAssociatedArtifactChanges(): ng.IPromise<void> {
         const associatedArtifact = this.getAssociatedArtifact();
 
         if (!associatedArtifact) {
             this.setAssociatedArtifact(null);
-        } else if (associatedArtifact.id < 0) {
+            return this.$q.resolve();
+        }
+
+        if (associatedArtifact.id < 0) {
             let newStatefulArtifact: IStatefulArtifact;
 
-            this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId())
+            return this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId())
                 .then((newArtifact: IArtifact) => {
                     return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifact.id);
                 })
@@ -170,13 +180,14 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 .then(() => {
                     this.setInclude(newStatefulArtifact);
                 })
-                .catch(this.onNewArtifactCreationError)
-                .finally(() => {
-                    this.populateTaskChanges();
+                .catch((error: any) => {
+                    this.onNewArtifactCreationError(error);
+                    this.setAssociatedArtifact(null);
+                    this.$q.reject(error);
                 });
-        } else {
-            this.populateTaskChanges();
         }
+
+        return this.$q.resolve();
     }
 
     private getIncludedArtifactTypes(): ItemTypePredefined[] {

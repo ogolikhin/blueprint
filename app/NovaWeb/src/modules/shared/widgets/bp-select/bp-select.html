@@ -1,6 +1,12 @@
 <div uib-dropdown>
-    <a href="#" uib-dropdown-toggle><span class="bp-select__selected-label" bp-tooltip="{{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}" bp-tooltip-truncated="true">{{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}</span><b
-        class="caret"></b></a>
+    <button class="text-left btn btn-link btn-block" type="button" uib-dropdown-toggle>
+        <strong>
+            <span class="bp-select__selected-label" bp-tooltip="{{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}" bp-tooltip-truncated="true">
+                {{ $ctrl.buttonLabel || $ctrl.selectedOption.label }}
+            </span>
+            <b class="caret"></b>
+        </strong>
+    </button>
     <ul uib-dropdown-menu class="dropdown-menu">
         <li ng-repeat="option in $ctrl.options" ng-click="$ctrl.onOptionSelect(option)">
             <a class="bp-select__item-label" href>{{ option.label }}</a>

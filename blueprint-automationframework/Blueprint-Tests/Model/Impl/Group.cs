@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data.SqlClient;
 using Common;
 using Model.Factories;
 using Model.ArtifactModel;
@@ -63,7 +62,7 @@ namespace Model.Impl
         /// <seealso cref="IGroup.AddGroupToDatabase()"/>
         public void AddGroupToDatabase()
         {
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -77,12 +76,11 @@ namespace Model.Impl
                 };
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
-
                 string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) Output Inserted.GroupId VALUES ({2})", GROUPS_TABLE, fields, values);
 
                 Logger.WriteDebug("Running: {0}", query);
 
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var cmd = database.CreateSqlCommand(query))
                 using (var sqlDataReader = cmd.ExecuteReader())
                 {
                     if (sqlDataReader.HasRows)
@@ -115,6 +113,7 @@ namespace Model.Impl
             DateTime? oldEndTimestamp = EndTimestamp;
             EndTimestamp = DateTime.Now;
             query = I18NHelper.FormatInvariant("UPDATE {0} SET EndTimestamp='{1}' WHERE GroupId='{2}'", GROUPS_TABLE, EndTimestamp, GroupId);
+
             try
             {
                 RunSQLQuery(query);
@@ -146,11 +145,13 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(role, nameof(role));
+
             if (artifact != null)
             {
                 Assert.AreEqual(artifact.ProjectId, project.Id, "Artifact doesn't belong to the project provided.");
             }
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -162,13 +163,13 @@ namespace Model.Impl
                 object[] valueArray = {
                         project.Id, role.RoleId, (artifact==null ? project.Id : artifact.Id), null, GroupId, 0
                             };
-                string values = string.Join(",", objArraytoStringList(valueArray));
 
+                string values = string.Join(",", objArraytoStringList(valueArray));
                 string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", ROLEASSIGNMENTS_TABLE, fields, values);
 
                 Logger.WriteDebug("Running: {0}", query);
 
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var cmd = database.CreateSqlCommand(query))
                 using (var sqlDataReader = cmd.ExecuteReader())
                 {
                     if (sqlDataReader.RecordsAffected <= 0)
@@ -186,13 +187,13 @@ namespace Model.Impl
         /// <returns>A list of strings that MS SQL can use.</returns>
         private static List<string> objArraytoStringList(object[] objArray)
         {
-            List<string> strList = new List<string>();
+            var strList = new List<string>();
 
-            foreach (object obj in objArray)
+            foreach (var obj in objArray)
             {
                 if (obj is bool) { strList.Add((bool)obj ? "1" : "0"); }
                 else if (obj is int) { strList.Add(obj.ToString()); }
-                else if (obj is DateTime) { strList.Add("'" + dateTimeToString((DateTime)obj) + "'"); }
+                else if (obj is DateTime) { strList.Add("'" + DateTimeToString((DateTime)obj) + "'"); }
                 else if (obj == null) { strList.Add("NULL"); }
                 else { strList.Add("'" + obj + "'"); }
             }
@@ -205,7 +206,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="date">The date to convert to a string.</param>
         /// <returns>A string version of the date.</returns>
-        private static string dateTimeToString(DateTime date)
+        private static string DateTimeToString(DateTime date)
         {
             string dateString = date.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
             return dateString;
@@ -213,7 +214,7 @@ namespace Model.Impl
 
         private static void RunSQLQuery(string query)
         {
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -221,22 +222,15 @@ namespace Model.Impl
 
                 Logger.WriteDebug("Running: {0}", query);
 
-                try
+                using (var cmd = database.CreateSqlCommand(query))
                 {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        rowsAffected = cmd.ExecuteNonQuery();
-                    }
-
-                    if (rowsAffected <= 0)
-                    {
-                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
-                        Logger.WriteError(msg);
-                    }
+                    rowsAffected = cmd.ExecuteNonQuery();
                 }
-                catch
+
+                if (rowsAffected <= 0)
                 {
-                    throw;
+                    string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
+                    Logger.WriteError(msg);
                 }
             }
         }

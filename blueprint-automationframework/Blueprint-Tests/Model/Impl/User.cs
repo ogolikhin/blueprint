@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using Common;
 using Model.Factories;
@@ -87,7 +86,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            User userToCopy = user as User;
+            var userToCopy = user as User;
 
             AllowFallback = userToCopy.AllowFallback;
             CurrentVersion = userToCopy.CurrentVersion;
@@ -175,8 +174,8 @@ namespace Model.Impl
         {
             string str = I18NHelper.FormatInvariant("[User: Username = '{0}', Department = '{1}', DisplayName = '{2}', Email = '{3}', Enabled = '{4}', FirstName = '{5}', " +
                 "InstanceAdminRole = '{6}', LastName = '{7}', License = '{8}', Password = '{9}', Picture = '{10}', Source = '{11}', Title = '{12}']",
-                Username, toStringOrNull(Department), toStringOrNull(DisplayName), toStringOrNull(Email), Enabled, FirstName,
-                 InstanceAdminRole, LastName, License, toStringOrNull(Password), (Picture != null) && (Picture.Any()), Source, toStringOrNull(Title));
+                Username, ToStringOrNull(Department), ToStringOrNull(DisplayName), ToStringOrNull(Email), Enabled, FirstName,
+                 InstanceAdminRole, LastName, License, ToStringOrNull(Password), (Picture != null) && (Picture.Any()), Source, ToStringOrNull(Title));
 
             return str;
         }
@@ -214,7 +213,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="value">The object to convert to a string.</param>
         /// <returns>The object as a string or the "NULL".</returns>
-        protected static string toStringOrNull(object value)
+        protected static string ToStringOrNull(object value)
         {
             if (value == null) { return "NULL"; }
 
@@ -242,7 +241,7 @@ namespace Model.Impl
 
                 using (var cmd = database.CreateSqlCommand(insertQuery))
                 {
-                    SqlParameter param = cmd.Parameters.Add("@Content", SqlDbType.VarBinary);
+                    var param = cmd.Parameters.Add("@Content", SqlDbType.VarBinary);
                     param.Value = value;
 
                     cmd.ExecuteNonQuery();
@@ -253,6 +252,7 @@ namespace Model.Impl
                         {
                             throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", insertQuery));
                         }
+
                         return sqlDataReader.RecordsAffected;
                     }
                 }
@@ -276,7 +276,7 @@ namespace Model.Impl
 
                 using (var cmd = database.CreateSqlCommand(selectQuery))
                 {
-                    SqlParameter param = cmd.Parameters.Add("@Content", SqlDbType.VarBinary);
+                    var param = cmd.Parameters.Add("@Content", SqlDbType.VarBinary);
                     param.Value = content;
 
                     cmd.ExecuteNonQuery();
@@ -287,6 +287,7 @@ namespace Model.Impl
                         {
                             return DatabaseUtilities.GetValueOrDefault<int>(sqlDataReader, "ImageId");
                         }
+
                         throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", selectQuery));
                     }
                 }
@@ -317,6 +318,7 @@ namespace Model.Impl
                         {
                             throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
                         }
+
                         return sqlDataReader.RecordsAffected;
                     }
                 }
@@ -368,7 +370,7 @@ namespace Model.Impl
         /// <returns>A list of strings that MS SQL can use.</returns>
         private static List<string> objArraytoStringList(object[] objArray)
         {
-            List<string> strList = new List<string>();
+            var strList = new List<string>();
 
             foreach (object obj in objArray)
             {
@@ -389,7 +391,7 @@ namespace Model.Impl
         /// <exception cref="SqlQueryFailedException">If no rows were affected.</exception>
         public override void CreateUser(UserSource source = UserSource.Database)
         {
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -407,12 +409,11 @@ namespace Model.Impl
                 };
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
-
                 string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) Output Inserted.UserId VALUES ({2})", USERS_TABLE, fields, values);
 
                 Logger.WriteDebug("Running: {0}", query);
 
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var cmd = database.CreateSqlCommand(query))
                 using (var sqlDataReader = cmd.ExecuteReader())
                 {
                     if (sqlDataReader.HasRows)
@@ -445,7 +446,7 @@ namespace Model.Impl
                 return;
             }
 
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -467,7 +468,7 @@ namespace Model.Impl
 
                 try
                 {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
+                    using (var cmd = database.CreateSqlCommand(query))
                     {
                         rowsAffected = cmd.ExecuteNonQuery();
                     }
@@ -499,8 +500,8 @@ namespace Model.Impl
             string str = base.ToString();
             str += I18NHelper.FormatInvariant(" + [AllowFallback = '{0}', CurrentVersion = '{1}', EndTimestamp = '{2}', EULAccepted = '{3}', ExpirePassword = '{4}', Guest = '{5}', " +
                 "InvalidLogonAttemptsNumber = '{6}', LastInvalidLogonTimeStamp = '{7}', LastPasswordChangeTimestamp = '{8}', StartTimestamp = '{9}', UserSALT = '{10}']",
-                toStringOrNull(AllowFallback), CurrentVersion, toStringOrNull(EndTimestamp), EULAccepted, toStringOrNull(ExpirePassword), Guest, InvalidLogonAttemptsNumber, toStringOrNull(LastInvalidLogonTimeStamp),
-                toStringOrNull(LastPasswordChangeTimestamp), StartTimestamp, UserSALT);
+                ToStringOrNull(AllowFallback), CurrentVersion, ToStringOrNull(EndTimestamp), EULAccepted, ToStringOrNull(ExpirePassword), Guest, InvalidLogonAttemptsNumber, ToStringOrNull(LastInvalidLogonTimeStamp),
+                ToStringOrNull(LastPasswordChangeTimestamp), StartTimestamp, UserSALT);
 
             return str;
         }

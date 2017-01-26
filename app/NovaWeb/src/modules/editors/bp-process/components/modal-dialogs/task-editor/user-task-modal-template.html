@@ -63,12 +63,12 @@
                                 </button>
                                 <ul uib-dropdown-menu>
                                     <li class="toolbar-menu__item">
-                                        <button class="btn btn-link toolbar-menu__action" ng-click="$ctrl.createNewArtifact()">
+                                        <button class="btn btn-link toolbar-menu__action" type="button" ng-click="$ctrl.createNewArtifact()">
                                             {{::$root.config.labels['ST_Include_New_Process_Label']}}
                                         </button>
                                     </li>
                                     <li class="toolbar-menu__item">
-                                        <button class="btn btn-link toolbar-menu__action" ng-click="$ctrl.openIncludePicker()">
+                                        <button class="btn btn-link toolbar-menu__action" type="button" ng-click="$ctrl.openIncludePicker()">
                                             {{::$root.config.labels['ST_Include_Existing_Artifact_Label']}}
                                         </button>
                                     </li>

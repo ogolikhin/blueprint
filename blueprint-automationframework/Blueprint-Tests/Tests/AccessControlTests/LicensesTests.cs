@@ -185,6 +185,9 @@ namespace AccessControlTests
 
             if (!expectedEmptyResponse)
             {
+                Assert.IsNotEmpty(licenseUsageInfo.Summary, "Summary has no values!");
+                Assert.IsNotEmpty(licenseUsageInfo.UserActivities, "UserActivities has no values!");
+
                 const int FIRST_YEAR_IN_DB = 2016;
                 const int FIRST_MONTH_IN_DB = 9;
 

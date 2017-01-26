@@ -37,11 +37,9 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     }
 
     public ok = () => {
-        this.saveData()
-            .finally(() => {
-                this.$scope.dialogModel = null;
-                this.modalInstance.close();
-            });
+        this.saveData();
+        this.$scope.dialogModel = null;
+        this.modalInstance.close();
     };
 
     public cancel = () => {

@@ -1,17 +1,17 @@
-﻿using System;
-using System.Net;
-using System.Collections.Generic;
-using System.Linq;
-using Utilities;
-using NUnit.Framework;
-using Utilities.Facades;
-using Common;
+﻿using Common;
 using Model.ArtifactModel.Adaptors;
 using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
-using Utilities.Factories;
 using Newtonsoft.Json;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using Utilities;
+using Utilities.Facades;
+using Utilities.Factories;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -174,7 +174,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
             var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO_id_, Id);
 
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
@@ -206,7 +206,7 @@ namespace Model.ArtifactModel.Impl
 
             var artifactInfo = GetArtifactInfo(user);
             string path;
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             switch (artifactInfo.BaseTypePredefined)
             {
@@ -254,7 +254,7 @@ namespace Model.ArtifactModel.Impl
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.UseCase)
             {
                 string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, Id);
-                RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+                var restApi = new RestApiFacade(Address, tokenValue);
 
                 var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(
                     path,
@@ -293,7 +293,7 @@ namespace Model.ArtifactModel.Impl
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
             {
                 string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY_id_, Id);
-                RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+                var restApi = new RestApiFacade(Address, tokenValue);
 
                 var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(
                     path,
@@ -329,7 +329,7 @@ namespace Model.ArtifactModel.Impl
 
             string path = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
             var artifactIds = new List<int> { Id };
-            RestApiFacade restApi = new RestApiFacade(Address, tokenValue);
+            var restApi = new RestApiFacade(Address, tokenValue);
 
             var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(
                 path,
@@ -493,7 +493,8 @@ namespace Model.ArtifactModel.Impl
                 });
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
+
             try {
                 restApi.SendRequestAndGetResponse(
                 path,
@@ -511,8 +512,8 @@ namespace Model.ArtifactModel.Impl
                         Assert.NotNull(artifactToUpdate.Project, "Project is null and we don't have an OpenAPI token!");
                     }
 
-                    IProject project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
-                    ArtifactBase artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
+                    var project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
+                    var artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
 
                     // Copy updated properties into original artifact.
                     if (artifactDetailsChanges == null)
@@ -599,7 +600,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
             var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
@@ -843,7 +844,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
-            RestApiFacade restApi = new RestApiFacade(artifactToPublish.Address, tokenValue);
+            var restApi = new RestApiFacade(artifactToPublish.Address, tokenValue);
 
             var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
                 new List<int> { artifactToPublish.Id },

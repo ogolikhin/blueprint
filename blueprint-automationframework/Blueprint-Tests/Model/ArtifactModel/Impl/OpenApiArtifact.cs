@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
 using Common;
 using Model.ArtifactModel.Adaptors;
 using Model.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Net;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -192,7 +192,7 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
+                var restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
 
                 var artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiAddArtifactResult, ArtifactBase>(
                     path,
@@ -311,7 +311,7 @@ namespace Model.ArtifactModel.Impl
 
             var artifactsToUpdate = new List<OpenApiArtifactForUpdate> { artifactWithPropertyToUpdate };
 
-            RestApiFacade restApi = new RestApiFacade(artifactToUpdate.Address, tokenValue);
+            var restApi = new RestApiFacade(artifactToUpdate.Address, tokenValue);
             var updateResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiUpdateArtifactResult>, List<OpenApiArtifactForUpdate>>(
                 path, RestRequestMethod.PATCH, artifactsToUpdate, expectedStatusCodes: expectedStatusCodes);
 
@@ -384,7 +384,7 @@ namespace Model.ArtifactModel.Impl
             var artifactObjectList = artifactsToDiscard.Select(artifact =>
                 new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
 
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<ArtifactBase>>(
                 RestPaths.OpenApi.VersionControl.DISCARD,
@@ -465,7 +465,7 @@ namespace Model.ArtifactModel.Impl
             if (getTraces != null) { queryParameters.Add("Traces", getTraces.ToString()); }
             if (richTextAsPlain != null) { queryParameters.Add("RichTextAsPlain", richTextAsPlain.ToString()); }
 
-            RestApiFacade restApi = new RestApiFacade(baseAddress, user.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(baseAddress, user.Token?.OpenApiToken);
             var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, project.Id, artifactId);
 
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
@@ -509,7 +509,7 @@ namespace Model.ArtifactModel.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(artifact.Address, tokenValue);
+            var restApi = new RestApiFacade(artifact.Address, tokenValue);
             var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifact.ProjectId, artifact.Id);
 
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
@@ -938,7 +938,7 @@ namespace Model.ArtifactModel.Impl
                 queryParameters = new Dictionary<string, string> { {"reconcilewithtwoway", reconcileWithTwoWay.ToString() } };
             }
 
-            OpenApiTrace traceToCreate = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
+            var traceToCreate = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
                 traceDirection, traceType, isSuspect, subArtifactId);
 
             var restApi = new RestApiFacade(address, tokenValue);
@@ -1010,7 +1010,7 @@ namespace Model.ArtifactModel.Impl
                 queryParameters = new Dictionary<string, string> { { "reconcilewithtwoway", reconcileWithTwoWay.ToString() } };
             }
 
-            OpenApiTrace traceToDelete = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
+            var traceToDelete = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
                 traceDirection, traceType, isSuspect, subArtifactId);
 
             var restApi = new RestApiFacade(address, tokenValue);

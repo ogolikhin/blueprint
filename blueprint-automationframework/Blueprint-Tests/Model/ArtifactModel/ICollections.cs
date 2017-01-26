@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Model.ArtifactModel;
+﻿using Model.ArtifactModel;
+using System.Collections.Generic;
 
 namespace Model
 {

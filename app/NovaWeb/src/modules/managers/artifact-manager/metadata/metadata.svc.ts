@@ -10,7 +10,7 @@ export interface IMetaDataService {
     getArtifactItemTypeTemp(projectId: number, itemTypeId: number): IItemType;
     getSubArtifactItemType(projectId: number, itemTypeId: number): ng.IPromise<IItemType>;
     getArtifactPropertyTypes(projectId: number, itemTypeId: number): ng.IPromise<IPropertyType[]>;
-    getSubArtifactPropertyTypes(projectId: number, filter: (itemType: IPropertyType) => boolean): ng.IPromise<IPropertyType[]>;
+    getSubArtifactPropertyTypes(projectId: number, filter: (itemType: IItemType) => boolean): ng.IPromise<IPropertyType[]>;
 }
 
 
@@ -158,7 +158,7 @@ export class MetaDataService implements IMetaDataService {
 
     }
 
-    public getSubArtifactPropertyTypes(projectId: number, filter: (itemType: IPropertyType) => boolean): ng.IPromise<IPropertyType[]> {
+    public getSubArtifactPropertyTypes(projectId: number, filter: (itemType: IItemType) => boolean): ng.IPromise<IPropertyType[]> {
 
         return this.get(projectId).then((projectMeta) => {
             const itemType = _.find(projectMeta.data.subArtifactTypes, filter);

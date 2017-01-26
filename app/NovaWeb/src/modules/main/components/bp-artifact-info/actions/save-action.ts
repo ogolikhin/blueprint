@@ -1,6 +1,6 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../../models/enums";
+import {ItemTypePredefined, PropertyTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../messages/message.svc";
@@ -90,7 +90,9 @@ export class SaveAction extends BPButtonAction {
     public execute(): void {
         if (this.artifact.predefinedType === ItemTypePredefined.Process) {
             this.artifact.metadata.getProcessSubArtifactPropertyTypes().then((subArtifactsPropertyTypes) => {
-                if (subArtifactsPropertyTypes.filter(a => a.isRequired || a.isValidated)) {
+                if (subArtifactsPropertyTypes.filter(a => 
+                    (a.isRequired && a.propertyTypePredefined !== PropertyTypePredefined.Name) || a.isValidated)
+                    .length > 0) {
                     let dialogSettings = <IDialogSettings>{
                         type: DialogTypeEnum.Confirm,
                         header: this.localization.get("App_DialogTitle_Confirmation"),
@@ -102,9 +104,11 @@ export class SaveAction extends BPButtonAction {
                     this.dialogService.open(dialogSettings).then(() => {
                         this.executeInternal();
                     });
+                } else {
+                    this.executeInternal();
                 }
             });
-        } else { 
+        } else {
             this.executeInternal();
         }
     }

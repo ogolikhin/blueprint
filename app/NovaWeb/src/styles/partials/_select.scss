@@ -1,4 +1,8 @@
 bp-select, .bp-select {
+    .bp-select__button {
+        text-align: left;
+    }
+
     &.disabled {
         opacity: 0.6;
         pointer-events: none;

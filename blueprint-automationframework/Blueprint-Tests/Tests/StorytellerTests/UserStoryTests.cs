@@ -87,11 +87,11 @@ namespace StorytellerTests
             var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // Assert that there is only one to one maching between UserTask and generated UserStory
-            foreach (IProcessShape shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
+            foreach (var shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
             {
                 var userStoryCounter = 0;
 
-                foreach (IStorytellerUserStory us in userStories.Where(us => us.ProcessTaskId.Equals(shape.Id)))
+                foreach (var us in userStories.Where(us => us.ProcessTaskId.Equals(shape.Id)))
                 {
                     userStoryCounter++;
 
@@ -222,7 +222,7 @@ namespace StorytellerTests
             var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // Assert that there is one to one maching between UserTask and generated UserStory
-            foreach (IProcessShape shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
+            foreach (var shape in process.GetProcessShapesByShapeType(ProcessShapeType.UserTask))
             {
                 var userStoryCounter = userStories.Count(us => us.ProcessTaskId.Equals(shape.Id));
 

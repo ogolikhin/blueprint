@@ -603,7 +603,7 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process with a system decision
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user,
+            var process = CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user,
                 updateProcess: false);
 
             // Find the first UserTask

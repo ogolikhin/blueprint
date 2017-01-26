@@ -686,7 +686,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(userTaskToMove, nameof(userTaskToMove));
             ThrowIf.ArgumentNull(destinationShape, nameof(destinationShape));
 
-            IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
+            var systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
             var nextShapeIncomingLinks = GetIncomingLinksForShape(destinationShape);
 

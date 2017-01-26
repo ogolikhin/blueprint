@@ -237,7 +237,7 @@ namespace Model.StorytellerModel.Impl
             return novaProcesses;
         }
 
-        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool, bool)"/>
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,

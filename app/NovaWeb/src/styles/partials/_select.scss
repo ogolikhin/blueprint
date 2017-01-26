@@ -1,6 +1,7 @@
 bp-select, .bp-select {
     .bp-select__button {
         text-align: left;
+        font-weight: $font-weight-bold;
     }
 
     &.disabled {

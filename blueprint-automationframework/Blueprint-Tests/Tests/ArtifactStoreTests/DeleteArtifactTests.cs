@@ -45,15 +45,14 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_PublishedArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, authorUser, artifactType);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var artifact = Helper.CreateAndPublishArtifact(_project, authorUser, artifactType);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
@@ -70,19 +69,18 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_PublishedCollectionOrCollectionFolderWithNoChildren_ArtifactIsDeleted(ItemTypePredefined artifactType)
         {
             // Setup:
-            IUser authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, authorUser);
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
-                "'DELETE {0}' should return 200 OK if a valid {1} ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactType);
+                "'DELETE {0}' should return 200 OK if a valid {1} ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactType);
 
             // Verify:
             artifact.IsDeleted = true;
@@ -99,15 +97,14 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_SavedArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, authorUser, artifactType);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var artifact = Helper.CreateAndSaveArtifact(_project, authorUser, artifactType);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
@@ -123,15 +120,14 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_PublishedWithDraftArtifactWithNoChildren_ArtifactIsDeleted(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Save();
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
@@ -157,8 +153,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain[indexToDelete], _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             int expectedArtifactCount = artifactChain.Count - indexToDelete;
@@ -185,8 +180,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain[indexToDelete], _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             int expectedArtifactCount = artifactChain.Count - indexToDelete;
@@ -212,8 +206,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
             
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
                 
             // Verify:
             int expectedArtifactCount = artifactChain.Count;
@@ -241,8 +234,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             int expectedArtifactCount = artifactChain.Count;
@@ -259,11 +251,10 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_PublishedArtifactWithManualTrace_ArtifactAndTraceIsDeleted()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.From, _user);
 
             // Make sure trace was created properly.
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 1, expectedOtherTraces: 0);
@@ -272,8 +263,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(targetArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             VerifyArtifactIsDeleted(targetArtifact);
@@ -287,11 +277,10 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_SavedArtifactWithManualTrace_ArtifactAndTraceIsDeleted()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.From, _user);
 
             // Make sure trace was created properly.
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 1, expectedOtherTraces: 0);
@@ -300,8 +289,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(targetArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             VerifyArtifactIsDeleted(targetArtifact);
@@ -330,17 +318,15 @@ namespace ArtifactStoreTests
             ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, parentArtifact, _project.Id, _user);
 
             // Execute:
-            List <INovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(grandParentArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             Helper.ArtifactStore.PublishArtifacts(artifacts: null, user: _user, all: true);
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(parentArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             var parentAndChild = artifactChain.GetRange(1, 2);
@@ -362,8 +348,8 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_UserDoesNotHaveAuthorizationToDelete_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithBadToken),
@@ -377,7 +363,7 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_MissingTokenHeader_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, null),
@@ -395,11 +381,11 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_UserDoesNotHavePermissionToDelete_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Create a user without permission to delete the artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
-            IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
 
             // Execute:
@@ -424,7 +410,7 @@ namespace ArtifactStoreTests
 
             // Create a user without permission to delete the child artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
-            IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, childArtifact);
 
             // Execute:
@@ -448,11 +434,11 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Create a user without permission to delete the artifact.
             // NOTE: The difference between AuthorFullAccess & Author is that Author doesn't have delete permission.
-            IUser userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var userWithoutDeletePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutDeletePermission, TestHelper.ProjectRole.Author, _project, artifact);
 
             // Execute:
@@ -475,10 +461,9 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_DeletedArtifactNotPublished_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            Assert.DoesNotThrow(() => artifact.Delete(_user),
-                "Failed to delete a published artifact!");
+            Assert.DoesNotThrow(() => artifact.Delete(_user), "Failed to delete a published artifact!");
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
@@ -496,10 +481,9 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_DeletedArtifactPublished_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            Assert.DoesNotThrow(() => artifact.Delete(_user),
-                "Failed to delete a published artifact!");
+            Assert.DoesNotThrow(() => artifact.Delete(_user), "Failed to delete a published artifact!");
 
             artifact.Publish(_user);
 
@@ -524,10 +508,9 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
-                "Failed to delete a published {0}!", artifactType);
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user), "Failed to delete a published {0}!", artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
@@ -550,10 +533,9 @@ namespace ArtifactStoreTests
 
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user),
-                "Failed to delete a published {0}!", artifactType);
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(artifact, _user), "Failed to delete a published {0}!", artifactType);
 
             artifact.Publish(_user);
 
@@ -574,7 +556,7 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_NonExistentArtifact_404NotFound(BaseArtifactType artifactType, int nonExistentArtifactId)
         {
             // Setup:
-            IArtifact artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
+            var artifact = ArtifactFactory.CreateArtifact(_project, _user, artifactType);
 
             // Replace artifact Id with non-existent Id
             artifact.Id = nonExistentArtifactId;
@@ -602,8 +584,8 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_UserTriesToDeleteArtifactLockedByAnotherUser_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, userWithLock, artifactType);
+            var userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var artifact = Helper.CreateAndPublishArtifact(_project, userWithLock, artifactType);
 
             // Lock artifact to prevent other users from deleting
             artifact.Lock(userWithLock);
@@ -626,7 +608,7 @@ namespace ArtifactStoreTests
             BaseArtifactType parentArtifactType, BaseArtifactType childArtifactType)
         {
             // Setup:
-            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, childArtifactType, parentArtifact);
@@ -665,8 +647,8 @@ namespace ArtifactStoreTests
             var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
 
-            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, userWithLock, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, userWithLock, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             // Lock artifact to prevent other users from deleting
             artifact.Lock(userWithLock);
@@ -693,7 +675,7 @@ namespace ArtifactStoreTests
             var parentCollectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _user);
             var childCollection = Helper.CreateAndPublishCollection(_project, _user, parentCollectionFolder.Id);
 
-            IUser userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Another user locks the child collection.
             childCollection.Lock(userWithLock);
@@ -779,8 +761,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactChain">The chain of parent/child artifacts that were created.</param>
         /// <param name="deletedArtifacts">The list of artifacts returned by the delete call.</param>
         /// <param name="startIndex">(optional) To skip artifacts at the beginning of the list, enter the index of the first artifact to check.</param>
-        private static void VerifyDeletedArtifactAndChildrenWereReturned(List<IArtifact> artifactChain,
-            List<INovaArtifactResponse> deletedArtifacts,
+        private static void VerifyDeletedArtifactAndChildrenWereReturned(List<IArtifact> artifactChain, List<INovaArtifactResponse> deletedArtifacts,
             int startIndex = 0)
         {
             ThrowIf.ArgumentNull(artifactChain, nameof(artifactChain));

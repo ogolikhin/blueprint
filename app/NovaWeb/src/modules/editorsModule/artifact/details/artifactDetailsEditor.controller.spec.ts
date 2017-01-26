@@ -1,4 +1,4 @@
-﻿import "./";
+﻿import "angular";
 import "angular-mocks";
 import {Enums, Models} from "../../../main";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";

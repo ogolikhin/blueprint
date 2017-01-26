@@ -1,10 +1,10 @@
-﻿using System;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using Model.ArtifactModel.Enums;
+﻿using Model.ArtifactModel.Enums;
 using Model.NovaModel;
-using Utilities;
+using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -60,7 +60,7 @@ namespace Model.ArtifactModel.Impl
 
             compareOptions = compareOptions ?? new CompareOptions();
 
-            foreach (AttachedFile expectedAttachment in expectedAttachments.AttachedFiles)
+            foreach (var expectedAttachment in expectedAttachments.AttachedFiles)
             {
                 var actualAttachment = actualAttachments.AttachedFiles.Find(a => a.AttachmentId.Equals(expectedAttachment.AttachmentId));
 
@@ -73,7 +73,7 @@ namespace Model.ArtifactModel.Impl
                 }
             }
 
-            foreach (DocumentReference expectedDocumentReference in expectedAttachments.DocumentReferences)
+            foreach (var expectedDocumentReference in expectedAttachments.DocumentReferences)
             {
                 var actualDocumentReference = actualAttachments.DocumentReferences.Find(a => a.ArtifactId.Equals(expectedDocumentReference.ArtifactId));
 

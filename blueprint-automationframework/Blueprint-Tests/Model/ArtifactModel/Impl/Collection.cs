@@ -26,7 +26,7 @@ namespace Model.ArtifactModel.Impl
         public void UpdateArtifacts(List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {
 
-            CollectionContentValue collectionContentValue = new CollectionContentValue();
+            var collectionContentValue = new CollectionContentValue();
 
             if (artifactsIdsToAdd?.Count > 0)
             {
@@ -37,7 +37,7 @@ namespace Model.ArtifactModel.Impl
                 collectionContentValue.RemovedArtifacts.AddRange(artifactsIdsToRemove);
             }
             
-            CustomProperty collectionContentProperty = new CustomProperty();
+            var collectionContentProperty = new CustomProperty();
             collectionContentProperty.Name = "CollectionContent";
             collectionContentProperty.PropertyTypeId = -1;
             collectionContentProperty.PropertyType = PropertyTypePredefined.Collection;

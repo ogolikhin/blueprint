@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Model.ArtifactModel.Enums;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl

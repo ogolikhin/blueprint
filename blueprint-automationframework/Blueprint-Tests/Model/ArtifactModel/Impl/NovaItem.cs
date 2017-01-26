@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Model.ArtifactModel.Enums;
+﻿using Model.ArtifactModel.Enums;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Model.ArtifactModel.Impl
 {

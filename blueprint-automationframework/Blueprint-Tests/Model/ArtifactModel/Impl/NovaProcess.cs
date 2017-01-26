@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Model.StorytellerModel.Impl;
+﻿using Model.StorytellerModel.Impl;
+using System.Collections.Generic;
 
 namespace Model.ArtifactModel.Impl
 {

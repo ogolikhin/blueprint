@@ -1,13 +1,13 @@
+using Common;
+using Model.Factories;
+using Model.Impl;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using NUnit.Framework;
 using System.Reflection;
-using Common;
-using Model.Factories;
-using Model.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -120,7 +120,7 @@ namespace Model.ArtifactModel.Impl
         /// <seealso cref="IDeepCopyable{T}.DeepCopy()"/>
         public IArtifactBase DeepCopy()
         {
-            IArtifactBase artifactBase = new ArtifactBase
+            var artifactBase = new ArtifactBase
             {
                 ShouldDeleteChildren = this.ShouldDeleteChildren,
                 LockOwner = this.LockOwner,
@@ -220,7 +220,7 @@ namespace Model.ArtifactModel.Impl
                 queryparameters.Add("Recursively", "true");
             }
 
-            RestApiFacade restApi = new RestApiFacade(artifactToDelete.Address, tokenValue);
+            var restApi = new RestApiFacade(artifactToDelete.Address, tokenValue);
             var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.DELETE,
@@ -384,7 +384,7 @@ namespace Model.ArtifactModel.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var publishedResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
                 RestPaths.OpenApi.VersionControl.PUBLISH,
@@ -588,7 +588,7 @@ namespace Model.ArtifactModel.Impl
                 return;
             }
 
-            OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
+            var property = Properties.Find(p => p.Name == propertyName);
 
             if (property == null)
             {
@@ -620,7 +620,7 @@ namespace Model.ArtifactModel.Impl
                 return;
             }
 
-            OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
+            var property = Properties.Find(p => p.Name == propertyName);
 
             if (property == null)
             {
@@ -648,9 +648,9 @@ namespace Model.ArtifactModel.Impl
             // Only add/replace if the source artifact had a value for this property.
             if (propertyValue != null)
             {
-                OpenApiProperty property = Properties.Find(p => p.Name == propertyName);
+                var property = Properties.Find(p => p.Name == propertyName);
 
-                UsersAndGroups userOrGroup = new UsersAndGroups
+                var userOrGroup = new UsersAndGroups
                 {
                     Type = userType,
                     DisplayName = propertyValue.DisplayName,
@@ -683,7 +683,7 @@ namespace Model.ArtifactModel.Impl
                 return;
             }
 
-            IArtifactStore artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+            var artifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
             var savedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
             var publishedArtifactsDictionary = new Dictionary<IUser, List<IArtifactBase>>();
 
@@ -691,7 +691,7 @@ namespace Model.ArtifactModel.Impl
             foreach (var artifact in artifactList.ToArray())
             {
                 artifactList.Remove(artifact);
-                IUser user = artifact.LockOwner ?? artifact.CreatedBy;
+                var user = artifact.LockOwner ?? artifact.CreatedBy;
 
                 if (artifact.IsDeleted)
                 {
@@ -732,7 +732,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             // Create & authenticate an admin user that has access to delete all artifacts.
-            IUser adminUser = UserFactory.CreateUserAndAddToDatabase();
+            var adminUser = UserFactory.CreateUserAndAddToDatabase();
             var adminStore = AdminStoreFactory.GetAdminStoreFromTestConfig();
             var openApi = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
 
@@ -742,7 +742,7 @@ namespace Model.ArtifactModel.Impl
                 openApi.LoginUsingBasicAuthorization(adminUser);
 
                 // For each user that created published artifacts, delete & publish the list of artifacts they created.
-                foreach (IUser user in publishedArtifactsDictionary.Keys)
+                foreach (var user in publishedArtifactsDictionary.Keys)
                 {
                     // First discard all to release any locks by the original user.
                     Logger.WriteDebug("*** Discarding all artifacts created by user: '{0}'.", user.Username);

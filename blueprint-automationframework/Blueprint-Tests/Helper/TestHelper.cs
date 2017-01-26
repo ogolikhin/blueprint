@@ -133,7 +133,7 @@ namespace Helper
         /// <returns>new artifact object for the target project with selected artifactType</returns>
         public IOpenApiArtifact CreateOpenApiArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType)
         {
-            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(address, user, project, artifactType);
+            var artifact = ArtifactFactory.CreateOpenApiArtifact(address, user, project, artifactType);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             return artifact;
@@ -148,7 +148,7 @@ namespace Helper
         /// <returns>new artifact object</returns>
         public IOpenApiArtifact CreateOpenApiArtifact(IProject project, IUser user, BaseArtifactType artifactType)
         {
-            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType);
+            var artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             return artifact;
@@ -167,7 +167,7 @@ namespace Helper
             BaseArtifactType artifactType,
             IArtifactBase parentArtifact = null)
         {
-            IOpenApiArtifact artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact);
+            var artifact = ArtifactFactory.CreateOpenApiArtifact(project, user, artifactType, parent: parentArtifact);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             artifact.Save();
@@ -187,7 +187,7 @@ namespace Helper
             BaseArtifactType artifactType,
             int numberOfVersions = 1)
         {
-            IOpenApiArtifact artifact = CreateOpenApiArtifact(project, user, artifactType);
+            var artifact = CreateOpenApiArtifact(project, user, artifactType);
 
             for (int i = 0; i < numberOfVersions; ++i)
             {
@@ -212,7 +212,7 @@ namespace Helper
 
             for (int i = 0; i < numberOfArtifacts; ++i)
             {
-                IOpenApiArtifact artifact = CreateAndPublishOpenApiArtifact(project, user, artifactType);
+                var artifact = CreateAndPublishOpenApiArtifact(project, user, artifactType);
                 artifactList.Add(artifact);
             }
 
@@ -230,7 +230,7 @@ namespace Helper
         /// <returns>new artifact object for the target project with selected artifactType</returns>
         public IArtifact CreateArtifact(string address, IUser user, IProject project, BaseArtifactType artifactType)
         {
-            IArtifact artifact = ArtifactFactory.CreateArtifact(address, user, project, artifactType);
+            var artifact = ArtifactFactory.CreateArtifact(address, user, project, artifactType);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             return artifact;
@@ -248,7 +248,7 @@ namespace Helper
         public IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType,
             IArtifactBase parent = null, string name = null)
         {
-            IArtifact artifact = ArtifactFactory.CreateArtifact(project, user, artifactType, parent: parent, name: name);
+            var artifact = ArtifactFactory.CreateArtifact(project, user, artifactType, parent: parent, name: name);
             Artifacts.Add(artifact);
             artifact.RegisterObserver(this);
             return artifact;
@@ -266,7 +266,7 @@ namespace Helper
         public IArtifact CreateAndSaveArtifact(IProject project, IUser user, BaseArtifactType artifactType,
             IArtifactBase parent = null, string name = null)
         {
-            IArtifact artifact = CreateArtifact(project, user, artifactType, parent, name: name);
+            var artifact = CreateArtifact(project, user, artifactType, parent, name: name);
             artifact.Save();
             return artifact;
         }
@@ -456,7 +456,7 @@ namespace Helper
 
             for (int i = 0; i < numberOfArtifacts; ++i)
             {
-                IArtifact artifact = CreateAndSaveArtifact(project, user, artifactType, parent);
+                var artifact = CreateAndSaveArtifact(project, user, artifactType, parent);
                 artifactList.Add(artifact);
             }
 
@@ -480,7 +480,7 @@ namespace Helper
             string name = null,
             int numberOfVersions = 1)
         {
-            IArtifact artifact = CreateArtifact(project, user, artifactType, parent, name);
+            var artifact = CreateArtifact(project, user, artifactType, parent, name);
 
             for (int i = 0; i < numberOfVersions; ++i)
             {
@@ -562,7 +562,7 @@ namespace Helper
 
             for (int i = 0; i < numberOfArtifacts; ++i)
             {
-                IArtifact artifact = CreateAndPublishArtifact(project, user, artifactType, parent);
+                var artifact = CreateAndPublishArtifact(project, user, artifactType, parent);
                 artifactList.Add(artifact);
             }
 
@@ -584,7 +584,7 @@ namespace Helper
             IArtifact bottomArtifact = null;
 
             // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
+            foreach (var artifactType in artifactTypeChain)
             {
                 bottomArtifact = CreateAndSaveArtifact(project, user, artifactType, parent: bottomArtifact);
                 artifactChain.Add(bottomArtifact);
@@ -608,7 +608,7 @@ namespace Helper
             IArtifact bottomArtifact = null;
 
             // Create artifact chain.
-            foreach (BaseArtifactType artifactType in artifactTypeChain)
+            foreach (var artifactType in artifactTypeChain)
             {
                 bottomArtifact = CreateAndPublishArtifact(project, user, artifactType, parent: bottomArtifact);
                 artifactChain.Add(bottomArtifact);
@@ -757,7 +757,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
 
-            NovaSubArtifact changesetDetails = new NovaSubArtifact
+            var changesetDetails = new NovaSubArtifact
             {
                 Id = subArtifact.Id
             };
@@ -818,7 +818,7 @@ namespace Helper
         /// <returns>The new project object.</returns>
         public IProject CreateProject(string name = null, string description = null, string location = null, int id = 0)
         {
-            IProject project = ProjectFactory.CreateProject(name, description, location, id);
+            var project = ProjectFactory.CreateProject(name, description, location, id);
             Projects.Add(project);
             return project;
         }
@@ -831,8 +831,7 @@ namespace Helper
         /// <returns>The retrieved project.</returns>
         public IProject GetProject(string projectName, IUser user)
         {
-            List<IProject> allProjects = null;
-            allProjects = ProjectFactory.GetAllProjects(user);
+            var allProjects = ProjectFactory.GetAllProjects(user);
 
             Assert.That(allProjects.Exists(p => (p.Name == projectName)),
                 "No project was found named '{0}'!", projectName);
@@ -857,7 +856,7 @@ namespace Helper
         public IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            IUser user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source);
+            var user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source);
             Users.Add(user);
             return user;
         }
@@ -875,7 +874,7 @@ namespace Helper
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            IUser user = UserFactory.CreateUserAndAddToDatabase(username, password, instanceAdminRole, source);
+            var user = UserFactory.CreateUserAndAddToDatabase(username, password, instanceAdminRole, source);
             Users.Add(user);
             return user;
         }
@@ -904,7 +903,7 @@ namespace Helper
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            IUser user = CreateUserAndAddToDatabase(instanceAdminRole, source);
+            var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
 
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
             {
@@ -933,7 +932,7 @@ namespace Helper
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            IUser user = CreateUserAndAddToDatabase(instanceAdminRole, source);
+            var user = CreateUserAndAddToDatabase(instanceAdminRole, source);
             string fakeTokenValue = Guid.NewGuid().ToString("N");   // 'N' creates a 32-char string with no hyphens.
 
             if ((targets & AuthenticationTokenTypes.AccessControlToken) != 0)
@@ -1026,7 +1025,7 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
 
-            RolePermissions rolePermissions = RolePermissions.None;
+            var rolePermissions = RolePermissions.None;
 
             if (role == ProjectRole.Viewer)
             {
@@ -1140,7 +1139,7 @@ namespace Helper
 
             var almTarget = AlmTarget.GetAlmTargets(address, user, project).First();
             Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
-            List<IOpenAPIJob> jobsToBeFound = new List<IOpenAPIJob>();
+            var jobsToBeFound = new List<IOpenAPIJob>();
             for (int i = 0; i < numberOfJobsToBeCreated; i++)
             {
                 var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
@@ -1162,7 +1161,7 @@ namespace Helper
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
         public static string GetApplicationSetting(string key)
         {
-            string selectQuery = I18NHelper.FormatInvariant("SELECT Value FROM [dbo].[ApplicationSettings] WHERE [ApplicationSettings].[Key] ='{0}'", key);
+            var selectQuery = I18NHelper.FormatInvariant("SELECT Value FROM [dbo].[ApplicationSettings] WHERE [ApplicationSettings].[Key] ='{0}'", key);
 
             return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "Value");
         }
@@ -1175,12 +1174,12 @@ namespace Helper
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
         public static void UpdateApplicationSettings(string key, string value)
         {
-            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
+            var updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
 
             using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
-                string query = updateQuery;
+                var query = updateQuery;
 
                 Logger.WriteDebug("Running: {0}", query);
 
@@ -1277,7 +1276,7 @@ namespace Helper
         /// <param name="message">The assert message to display if the dates are different.</param>
         public static void AssertUtcDatesAreEqual(DateTime firstDate, string secondDateStr, string message)
         {
-            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            var secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
             AssertUtcDatesAreEqual(firstDate, secondDate, message);
         }
 
@@ -1289,8 +1288,8 @@ namespace Helper
         /// <param name="message">The assert message to display if the dates are different.</param>
         public static void AssertUtcDatesAreEqual(string firstDateStr, string secondDateStr, string message)
         {
-            DateTime firstDate = DateTime.Parse(firstDateStr, CultureInfo.InvariantCulture);
-            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            var firstDate = DateTime.Parse(firstDateStr, CultureInfo.InvariantCulture);
+            var secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
             AssertUtcDatesAreEqual(firstDate, secondDate, message);
         }
 
@@ -1309,7 +1308,7 @@ namespace Helper
                 serviceError = JsonConvert.DeserializeObject<ServiceErrorMessage>(restResponse.Content);
             }, "Failed to deserialize the content of the REST response into a ServiceErrorMessage object!");
 
-            IServiceErrorMessage expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+            var expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
                 expectedErrorCode,
                 expectedErrorMessage);
 

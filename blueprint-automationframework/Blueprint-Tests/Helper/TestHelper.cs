@@ -1161,7 +1161,7 @@ namespace Helper
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
         public static string GetApplicationSetting(string key)
         {
-            var selectQuery = I18NHelper.FormatInvariant("SELECT Value FROM [dbo].[ApplicationSettings] WHERE [ApplicationSettings].[Key] ='{0}'", key);
+            string selectQuery = I18NHelper.FormatInvariant("SELECT Value FROM [dbo].[ApplicationSettings] WHERE [ApplicationSettings].[Key] ='{0}'", key);
 
             return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, "Value");
         }
@@ -1174,12 +1174,12 @@ namespace Helper
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
         public static void UpdateApplicationSettings(string key, string value)
         {
-            var updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
+            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
 
             using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
-                var query = updateQuery;
+                string query = updateQuery;
 
                 Logger.WriteDebug("Running: {0}", query);
 
@@ -1276,7 +1276,7 @@ namespace Helper
         /// <param name="message">The assert message to display if the dates are different.</param>
         public static void AssertUtcDatesAreEqual(DateTime firstDate, string secondDateStr, string message)
         {
-            var secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
             AssertUtcDatesAreEqual(firstDate, secondDate, message);
         }
 
@@ -1288,8 +1288,8 @@ namespace Helper
         /// <param name="message">The assert message to display if the dates are different.</param>
         public static void AssertUtcDatesAreEqual(string firstDateStr, string secondDateStr, string message)
         {
-            var firstDate = DateTime.Parse(firstDateStr, CultureInfo.InvariantCulture);
-            var secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
+            DateTime firstDate = DateTime.Parse(firstDateStr, CultureInfo.InvariantCulture);
+            DateTime secondDate = DateTime.Parse(secondDateStr, CultureInfo.InvariantCulture);
             AssertUtcDatesAreEqual(firstDate, secondDate, message);
         }
 

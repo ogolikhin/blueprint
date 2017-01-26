@@ -108,7 +108,7 @@ namespace Model.SearchServiceModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var url = RestPaths.Svc.SearchService.PROJECTSEARCH;
+            string url = RestPaths.Svc.SearchService.PROJECTSEARCH;
 
             if (separatorString != null)
             {

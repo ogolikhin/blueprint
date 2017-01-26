@@ -51,9 +51,8 @@ namespace ArtifactStoreTests
 
             // Execute: Get the glossary artifact using GetGlossaryArtifact without versionId parameter
             NovaGlossaryArtifact glossaryArtifact = null;
-            Assert.DoesNotThrow(() => {
-                glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
+            Assert.DoesNotThrow(() => { glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id); }, 
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
             // Validation: Verify that the returned from GetGlossaryArtifact in valid format
             ArtifactStoreHelper.AssertArtifactsEqual(glossaryArtifact, retrievedArtifact);
@@ -65,15 +64,14 @@ namespace ArtifactStoreTests
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithVersion1_ReturnsFirstVersionOfGlossaryArtifact()
         {
             // Setup: Create and publish a glossary artifact two times to have two versions of it			
-            IArtifact publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary, numberOfVersions: 2);
+            var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary, numberOfVersions: 2);
             var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_user, publishedGlossaryArtifact.Id, versionId: 1);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the glossary artifact using GetGlossaryArtifact with first versionId			
             NovaGlossaryArtifact glossaryArtifact = null;
-            Assert.DoesNotThrow(() => {
-                glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: 1);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
+            Assert.DoesNotThrow(() => { glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: 1); },
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
             ArtifactStoreHelper.AssertArtifactsEqual(glossaryArtifact, retrievedArtifactVersion1);
         }
@@ -90,7 +88,7 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a glossary artifact
             var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary);
-            IUser userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
+            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
             userWithBadOrMissingToken.Token.SetToken(token);
 
             // Execute: Get the glossary artifact with invalid token header using GetGlossaryArtifact
@@ -120,8 +118,7 @@ namespace ArtifactStoreTests
             // Validation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
-                "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}",
-                InternalApiErrorCodes.Forbidden);
+                "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}", InternalApiErrorCodes.Forbidden);
         }
 
         #endregion 403 Forbidden Tests
@@ -149,9 +146,5 @@ namespace ArtifactStoreTests
         }
 
         #endregion 404 Not Found Tests
-
-        #region Private Functions
-
-        #endregion Private Functions
     }
 }

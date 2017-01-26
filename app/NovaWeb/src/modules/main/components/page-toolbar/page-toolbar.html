@@ -1,16 +1,16 @@
-<div class="navbar-toolbar">
-    <ul class="nav navbar-nav">
-        <li uib-dropdown>
+<div class="navbar-toolbar page-toolbar__wrapper">
+    <ul class="page-toolbar__container">
+        <li class="page-toolbar__item" uib-dropdown>
             <button type="button"
-                    class="btn btn-link"
+                    class="page-toolbar__item-button"
                     title="{{::$root.config.labels['App_Toolbar_Project']}}"
                     uib-dropdown-toggle>
-                <i class="fonticon fonticon2-project"></i>
-                <span class="caret absolute--right--center"></span>
-                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Project']}}</span>
+                <i class="page-toolbar__item-icon fonticon2-project"></i>
+                <span class="caret"></span>
+                <span class="page-toolbar__item-label">{{::$root.config.labels['App_Toolbar_Project']}}</span>
             </button>
-            <ul class="dropdown-menu">
-                <li>
+            <ul class="page-toolbar__item-dropdown dropdown-menu">
+                <li class="page-toolbar__sub-item">
                     <button type="button"
                             class="btn btn-link"
                             ng-click="$ctrl.openProject($event)"
@@ -18,7 +18,7 @@
                         {{::$root.config.labels['App_Toolbar_Open_Project']}}
                     </button>
                 </li>
-                <li>
+                <li class="page-toolbar__sub-item">
                     <button type="button"
                             class="btn btn-link"
                             title="{{::$root.config.labels['App_Toolbar_Close_Project']}}"
@@ -27,7 +27,7 @@
                         {{::$root.config.labels['App_Toolbar_Close_Project']}}
                     </button>
                 </li>
-                <li>
+                <li class="page-toolbar__sub-item">
                     <button type="button"
                             class="btn btn-link"
                             ng-disabled="!$ctrl.isProjectOpened"
@@ -38,57 +38,57 @@
                 </li>
             </ul>
         </li>
-        <li class="separator"></li>
-        <li>
+        <li class="page-toolbar__separator"></li>
+        <li class="page-toolbar__item">
             <button type="button"
-                    class="btn btn-link"
+                    class="page-toolbar__item-button"
                     title="{{::$root.config.labels['App_Toolbar_New']}}"
                     ng-click="$ctrl.createNewArtifact($event)"
                     ng-disabled="!$ctrl.canCreateNew">
-                <i class="fonticon fonticon2-new"></i>
-                <span class="icon-label">{{::$root.config.labels['App_Toolbar_New']}}</span>
+                <i class="page-toolbar__item-icon fonticon2-new"></i>
+                <span class="page-toolbar__item-label">{{::$root.config.labels['App_Toolbar_New']}}</span>
             </button>
         </li>
-        <li>
+        <li class="page-toolbar__item">
             <button type="button"
-                    class="btn btn-link"
+                    class="page-toolbar__item-button"
                     ng-click="$ctrl.publishAll($event)"
                     title="{{::$root.config.labels['App_Toolbar_Publish_All']}}">
-                <i class="fonticon fonticon2-publish-line"></i>
-                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Publish_All']}}</span>
+                <i class="page-toolbar__item-icon fonticon2-publish-line"></i>
+                <span class="page-toolbar__item-label">{{::$root.config.labels['App_Toolbar_Publish_All']}}</span>
             </button>
         </li>
-        <li>
+        <li class="page-toolbar__item">
             <button type="button"
-                    class="btn btn-link"
+                    class="page-toolbar__item-button"
                     title="{{::$root.config.labels['App_Toolbar_Discard_All']}}"
                     ng-click="$ctrl.discardAll($event)">
-                <i class="fonticon fonticon2-discard-line"></i>
-                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Discard_All']}}</span>
+                <i class="page-toolbar__item-icon fonticon2-discard-line"></i>
+                <span class="page-toolbar__item-label">{{::$root.config.labels['App_Toolbar_Discard_All']}}</span>
             </button>
         </li>
-        <li>
+        <li class="page-toolbar__item">
             <button type="button"
-                    class="btn btn-link"
+                    class="page-toolbar__item-button"
                     title="{{::$root.config.labels['App_Toolbar_Refresh_All']}}"
                     ng-click="$ctrl.refreshAll($event)">
-                <i class="fonticon fonticon2-refresh-line"></i>
-                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Refresh_All']}}</span>
+                <i class="page-toolbar__item-icon fonticon2-refresh-line"></i>
+                <span class="page-toolbar__item-label">{{::$root.config.labels['App_Toolbar_Refresh_All']}}</span>
             </button>
         </li>
-        <li uib-dropdown>
+        <li class="page-toolbar__item" uib-dropdown>
             <button type="button"
-                    class="btn btn-link"
+                    class="page-toolbar__item-button"
                     title="{{::$root.config.labels['App_Toolbar_Generate']}}"
                     ng-disabled="!$ctrl.canGenerateTestCases"
                     id="generate-dropdown"
                     uib-dropdown-toggle>
-                <i class="fonticon2-generate navbar-generate-icon"></i>
-                <span class="caret absolute--right--center"></span>
-                <span class="icon-label">{{::$root.config.labels['App_Toolbar_Generate']}}</span>
+                <i class="page-toolbar__item-icon fonticon2-generate"></i>
+                <span class="caret"></span>
+                <span class="page-toolbar__item-label">{{::$root.config.labels['App_Toolbar_Generate']}}</span>
             </button>
-            <ul class="dropdown-menu" aria-labelledby="generate-dropdown">
-                <li>
+            <ul class="page-toolbar__item-dropdown dropdown-menu" aria-labelledby="generate-dropdown">
+                <li class="page-toolbar__sub-item">
                     <button type="button"
                             class="btn btn-link"
                             title="{{::$root.config.labels['App_Toolbar_Generate_Test_Cases']}}"
@@ -98,8 +98,8 @@
                 </li>
             </ul>
         </li>
-        <li class="separator"></li>
-        <li>
+        <li class="page-toolbar__separator"></li>
+        <li class="page-toolbar__item">
             <bp-goto></bp-goto>
         </li>
     </ul>

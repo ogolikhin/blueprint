@@ -3,7 +3,6 @@ import {IModalDialogModel} from "../models/modal-dialog-model-interface";
 import {DiagramNodeElement, UserTask, SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {IArtifactReference} from "../../../models/process-models";
 
-
 export interface IPersonaOption {
     value: IArtifactReference;
     label: string;

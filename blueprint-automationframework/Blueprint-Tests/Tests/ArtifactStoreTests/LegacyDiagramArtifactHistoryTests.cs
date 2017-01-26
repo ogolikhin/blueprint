@@ -53,9 +53,8 @@ namespace ArtifactStoreTests
 
             // Execute: Get the diagram artifact using GetDiagramArtifact without versionId parameter
             NovaDiagramArtifact diagramArtifact = null;
-            Assert.DoesNotThrow(() => {
-                diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
+            Assert.DoesNotThrow(() => {diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id);},
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Validation: Verify that the returned from GetDiagramArtifact in valid format
             ArtifactStoreHelper.AssertArtifactsEqual(diagramArtifact, retrievedArtifact);
@@ -69,15 +68,14 @@ namespace ArtifactStoreTests
         public void GetDiagramArtifact_PublishAndGetDiagramArtifactWithVersion1_ReturnsFirstVersionOfDiagramArtifact(BaseArtifactType artifactType)
         {
             // Setup: Create and publish a diagram artifact two times to have two versions of it			
-            IArtifact publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType, numberOfVersions: 2);
+            var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType, numberOfVersions: 2);
             var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_user, publishedDiagramArtifact.Id, versionId: 1);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute: Get the diagram artifact using GetDiagramArtifact with first versionId			
             NovaDiagramArtifact diagramArtifact = null;
-            Assert.DoesNotThrow(() => {
-                diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: 1);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
+            Assert.DoesNotThrow(() => {diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: 1);},
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             ArtifactStoreHelper.AssertArtifactsEqual(diagramArtifact, retrievedArtifactVersion1);
         }
@@ -94,7 +92,7 @@ namespace ArtifactStoreTests
         {
             // Setup: Create and publish a diagram artifact
             var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType);
-            IUser userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
+            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
             userWithBadOrMissingToken.Token.SetToken(token);
 
             // Execute: Get the diagram artifact with invalid token header using GetDiagramArtifact
@@ -154,8 +152,5 @@ namespace ArtifactStoreTests
         }
 
         #endregion 404 Not Found Tests
-
-        #region Private Functions
-        #endregion Private Functions
     }
 }

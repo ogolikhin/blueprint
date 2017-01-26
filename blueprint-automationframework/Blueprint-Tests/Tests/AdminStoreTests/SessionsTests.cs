@@ -277,5 +277,65 @@ namespace AdminStoreTests
                 Helper.AdminStore.DeleteSession(session: null);
             }, "DeleteSession() should return 401 Unauthorized if no Session-Token header was passed!");
         }
+
+        [TestCase]
+        [TestRail(234354)]
+        [Description("Add a session. Check if session is valid. Verify 200 OK is returned.")]
+        public void Check_ValidSession_Verify200OK()
+        {
+            // Setup:
+            var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
+            // Execute & Verify:
+            Assert.DoesNotThrow(() =>
+            {
+                Helper.AdminStore.CheckSession(session);
+            }, "The call to CheckSession() should succeed!");
+        }
+
+        [TestCase]
+        [TestRail(234355)]
+        [Description("Add a session. Delete session and check if session is valid. " +
+                     "Verify 401 Unauthorized is returned.")]
+        public void Check_SessionDeleted_Verify401Unauthorized()
+        {
+            // Setup:
+            var session = Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
+            Helper.AdminStore.DeleteSession(session);
+
+            // Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.CheckSession(session);
+            }, "The call to CheckSession() should return 401 Unauthorized!");
+        }
+
+        [TestCase]
+        [TestRail(234357)]
+        [Description("Add a session. Check session with invalid token. Verify 401 Unauthorized is returned.")]
+        public void Check_InvalidSessionToken_Verify401Unauthorized()
+        {
+            // Setup, Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.CheckSession(CommonConstants.InvalidToken);
+            }, "The call to CheckSession() should return 401 Unauthorized!");
+        }
+
+        [TestCase]
+        [TestRail(234358)]
+        [Description("Add a session. Check session with missing token. Verify 401 Unauthorized is returned.")]
+        public void Check_MissingSessionToken_Verify401Unauthorized()
+        {
+            // Setup:
+            Helper.AdminStore.AddSession(_user.Username, _user.Password);
+
+            // Execute & Verify:
+            Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AdminStore.CheckSession(token: null);
+            }, "The call to CheckSession() should return 401 Unauthorized!");
+        }
     }
 }

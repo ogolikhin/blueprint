@@ -9,30 +9,26 @@ export interface IPersonaOption {
     label: string;
 }
 
-export abstract class SubArtifactTaskDialogModel implements IModalDialogModel {
+export abstract class TaskDialogModel implements IModalDialogModel {
     artifactId: number;
     subArtifactId: number;
     isHistoricalVersion: boolean;
     isReadonly: boolean;
     itemTypeId: number;
-}
-
-export class UserTaskDialogModel extends SubArtifactTaskDialogModel {
-    originalItem: UserTask;
     action: string;
     associatedArtifact: IArtifactReference;
     personaReference: IArtifactReference;
     label: string;
+}
+
+export class UserTaskDialogModel extends TaskDialogModel {
+    originalItem: UserTask;
     objective: string;
     userTaskPersonaReferenceOptions: IPersonaOption[];
 }
 
-export class SystemTaskDialogModel extends SubArtifactTaskDialogModel {
+export class SystemTaskDialogModel extends TaskDialogModel {
     originalItem: SystemTask;
-    action: string;
-    associatedArtifact: IArtifactReference;
-    personaReference: IArtifactReference;
-    label: string;
     imageId: string;
     associatedImageUrl: string;
     systemTaskPersonaReferenceOptions: IPersonaOption[];

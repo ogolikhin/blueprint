@@ -70,7 +70,7 @@ export class PublishAction extends BPButtonAction {
                     let dialogSettings = <IDialogSettings>{
                         type: DialogTypeEnum.Confirm,
                         header: this.localization.get("App_DialogTitle_Confirmation"),
-                        message: "There might be some validation errors with sub-artifacts, click validate to see any possible missing data.",
+                        message: this.localization.get("App_Possible_SubArtifact_Validation_Error"),
                         okButton: "Ok",
                         cancelButton: null,
                         css: "nova-messaging"

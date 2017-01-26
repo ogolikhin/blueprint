@@ -525,7 +525,7 @@ namespace ArtifactStoreTests
         {
             ThrowIf.ArgumentNull(assertMessage, nameof(assertMessage));
 
-            JsonSerializerSettings jsonSettings = new JsonSerializerSettings()
+            var jsonSettings = new JsonSerializerSettings()
             {
                 // This will alert us if new properties are added to the return JSON format.
                 MissingMemberHandling = MissingMemberHandling.Error
@@ -543,7 +543,7 @@ namespace ArtifactStoreTests
         /// <param name="novaArtifacts">The list of NovaArtifacts returned by the GetExpandedArtifactTree call.</param>
         private static void VerifyOtherTopLevelArtifactsExist(List<IArtifact> otherTopLevelArtifacts, List<INovaArtifact> novaArtifacts)
         {
-            foreach (IArtifact artifact in otherTopLevelArtifacts)
+            foreach (var artifact in otherTopLevelArtifacts)
             {
                 var novaArtifact = novaArtifacts.Find(a => a.Id == artifact.Id);
 

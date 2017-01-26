@@ -62,8 +62,7 @@ namespace ArtifactStoreTests
             Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
 
-            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId,
-                "The EmbeddedImageId should not be the same as the FileStore FileId!");
+            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId, "The EmbeddedImageId should not be the same as the FileStore FileId!");
 
             // Get the file from FileStore and compare against what we uploaded.
             var fileStoreFileId = returnedFile.Guid;
@@ -94,8 +93,7 @@ namespace ArtifactStoreTests
             Assert.NotNull(returnedFile, "AddImage() shouldn't return null if successful!");
             FileStoreTestHelper.AssertFilesAreIdentical(imageFile, returnedFile);
             
-            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId,
-                "The EmbeddedImageId should not be the same as the FileStore FileId!");
+            Assert.AreNotEqual(returnedFile.Guid, returnedFile.EmbeddedImageId, "The EmbeddedImageId should not be the same as the FileStore FileId!");
 
             // Get the file from FileStore and compare against what we uploaded.
             var fileStoreFileId = returnedFile.Guid;
@@ -121,8 +119,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with a Content-Type of '{1}'!", ADD_IMAGE_PATH, contentType);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
-                "Specified image type isn't supported.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported, "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -145,8 +142,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 400 Bad Request when called with data that's not in JPEG or PNG format!", ADD_IMAGE_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported,
-                "Specified image type isn't supported.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ImageTypeNotSupported, "Specified image type isn't supported.");
 
             AssertFileNotInEmbeddedImagesTable(nonImageFile.FileName);
         }
@@ -211,8 +207,7 @@ namespace ArtifactStoreTests
             }, "'POST {0}' should return 409 Conflict when called with images that exceed the FileStore size limit!", ADD_IMAGE_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit,
-                "Specified image size is over limit.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ExceedsLimit, "Specified image size is over limit.");
 
             AssertFileNotInEmbeddedImagesTable(imageFile.FileName);
         }
@@ -347,9 +342,9 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_AddImageToArtifact_ExpiredTimeFieldUpdatedToNull(int width, int height, ArtifactStoreHelper.ImageType imageType, string contentType)
         {
             // Setup:
-            BaseArtifactType artifactType = BaseArtifactType.Process;
+            var artifactType = BaseArtifactType.Process;
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
             artifact.Lock(_authorUser);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
@@ -426,8 +421,7 @@ namespace ArtifactStoreTests
             string fileIdQuery = I18NHelper.FormatInvariant("SELECT COUNT(*) FROM [FileStore].[Files] WHERE [FileName] ='{0}'", filename);
             int numberOfRows = DatabaseHelper.ExecuteSingleValueSqlQuery<int>(fileIdQuery, "FileId", databaseName: "FileStore");
 
-            Assert.AreEqual(0, numberOfRows,
-                "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);
+            Assert.AreEqual(0, numberOfRows, "Found {0} rows in the EmbeddedImages table containing FileName: '{1}'", numberOfRows, filename);
         }
 
         #endregion Private functions

@@ -1,13 +1,13 @@
 ﻿using Common;
 using Model.Impl;
-using System.Data;
-using System.Net;
-using Utilities.Factories;
-using System.Linq;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Net;
+using TestConfig;
 using Utilities;
 using Utilities.Facades;
-using TestConfig;
+using Utilities.Factories;
 
 namespace Model.Factories
 {
@@ -17,7 +17,7 @@ namespace Model.Factories
 
         private static string GetOpenApiUrl()
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            var testConfig = TestConfiguration.GetInstance();
             return testConfig.BlueprintServerAddress;
         }
 
@@ -35,7 +35,7 @@ namespace Model.Factories
             if (description == null) { description = RandomGenerator.RandomAlphaNumeric(10); }
             if (location == null) { location = RandomGenerator.RandomAlphaNumeric(10); }
 
-            IProject project = new Project { Name = name, Description = description, Location = location, Id = id };
+            var project = new Project { Name = name, Description = description, Location = location, Id = id };
             return project;
         }
 
@@ -49,11 +49,11 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = RestPaths.OpenApi.PROJECTS;
+            var path = RestPaths.OpenApi.PROJECTS;
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Token?.OpenApiToken);
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
-            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            var restApi = new RestApiFacade(Address, user.Token?.OpenApiToken);
+            var expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
+            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             if (shouldRetrievePropertyTypes)
             {
@@ -87,10 +87,10 @@ namespace Model.Factories
             }
 
             // Get project from blueprint
-            IProject prj = projectName == null ? projects.First() : projects.First(t => (t.Name == projectName));
+            var prj = projectName == null ? projects.First() : projects.First(t => (t.Name == projectName));
 
             // Create a project object in memeory using the constructor
-            IProject project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};  // TODO: Do we need to make a copy of it?
+            var project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};  // TODO: Do we need to make a copy of it?
 
             if (shouldRetrieveArtifactTypes)
             {
@@ -118,7 +118,7 @@ namespace Model.Factories
 
             if (allProjects.Count < numberOfProjects)
             {
-                string errorMsg = I18NHelper.FormatInvariant("Not enough projects available on the test server '{0}'.  Need {1}, but only {2} exist.",
+                var errorMsg = I18NHelper.FormatInvariant("Not enough projects available on the test server '{0}'.  Need {1}, but only {2} exist.",
                     Address, numberOfProjects, allProjects.Count);
 
                 Logger.WriteError(errorMsg);

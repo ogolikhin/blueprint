@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.Impl;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IConfigControl object.</returns>
         public static IConfigControl CreateConfigControl(string address)
         {
-            IConfigControl filestore = new ConfigControl(address);
+            var filestore = new ConfigControl(address);
             return filestore;
         }
 
@@ -24,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IConfigControl GetConfigControlFromTestConfig()
         {
-            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ConfigControl);
+            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ConfigControl);
             return CreateConfigControl(address);
         }
     }

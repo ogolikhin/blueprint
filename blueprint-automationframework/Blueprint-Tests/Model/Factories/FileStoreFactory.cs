@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.Impl;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IFileStore object.</returns>
         public static IFileStore CreateFileStore(string address)
         {
-            IFileStore filestore = new FileStore(address);
+            var filestore = new FileStore(address);
             return filestore;
         }
 
@@ -24,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IFileStore GetFileStoreFromTestConfig()
         {
-            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.FileStore);
+            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.FileStore);
             return CreateFileStore(address);
         }
     }

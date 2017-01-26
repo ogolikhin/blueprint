@@ -1,6 +1,6 @@
 ﻿using Model.Impl;
-using Utilities.Factories;
 using Utilities;
+using Utilities.Factories;
 
 namespace Model.Factories
 {
@@ -22,8 +22,8 @@ namespace Model.Factories
                 name = RandomGenerator.RandomAlphaNumeric(7);
             }
 
-            string description = RandomGenerator.RandomAlphaNumeric(10);
-            IProjectRole role = new ProjectRole(project.Id, name, description, permissions);
+            var description = RandomGenerator.RandomAlphaNumeric(10);
+            var role = new ProjectRole(project.Id, name, description, permissions);
             role.AddRoleToDatabase();
             return role;
         }
@@ -50,7 +50,7 @@ namespace Model.Factories
             //need to refactor!!!
             //it will work only for project with Id=1 (what we have in DB after restoring from backup)
             ThrowIf.ArgumentNull(deployedRole, nameof(deployedRole));
-            IProjectRole role = new ProjectRole(1, "Author", string.Empty, RolePermissions.Edit);
+            var role = new ProjectRole(1, "Author", string.Empty, RolePermissions.Edit);
             role.RoleId = (int)deployedRole;
             return role;
         }

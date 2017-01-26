@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.Impl;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IAdminStore object.</returns>
         public static IAdminStore CreateAdminStore(string address)
         {
-            IAdminStore adminStore = new AdminStore(address);
+            var adminStore = new AdminStore(address);
             return adminStore;
         }
 
@@ -24,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IAdminStore GetAdminStoreFromTestConfig()
         {
-            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AdminStore);
+            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AdminStore);
             return CreateAdminStore(address);
         }
     }

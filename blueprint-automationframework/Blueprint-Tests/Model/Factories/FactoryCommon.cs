@@ -1,5 +1,5 @@
-﻿using System.Data;
-using Common;
+﻿using Common;
+using System.Data;
 using TestConfig;
 
 namespace Model.Factories
@@ -14,11 +14,11 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static string GetServiceAddressFromTestConfig(string keyName)
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            var testConfig = TestConfiguration.GetInstance();
 
             if (!testConfig.Services.ContainsKey(keyName))
             {
-                string msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
+                var msg = I18NHelper.FormatInvariant("No <Service> tag named '{0}' was found in the TestConfiguration.xml file!  Please update it.", keyName);
                 Logger.WriteError(msg);
                 throw new DataException(msg);
             }

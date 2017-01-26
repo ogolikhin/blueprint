@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.Impl;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IAccessControl object.</returns>
         public static IAccessControl CreateAccessControl(string address)
         {
-            IAccessControl accessControl = new AccessControl(address);
+            var accessControl = new AccessControl(address);
             return accessControl;
         }
 
@@ -24,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IAccessControl GetAccessControlFromTestConfig()
         {
-            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AccessControl);
+            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AccessControl);
             return CreateAccessControl(address);
         }
     }

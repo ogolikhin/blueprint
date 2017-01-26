@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.Impl;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IArtifactStore object.</returns>
         public static IArtifactStore CreateArtifactStore(string address)
         {
-            IArtifactStore adminStore = new ArtifactStore(address);
+            var adminStore = new ArtifactStore(address);
             return adminStore;
         }
 
@@ -24,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IArtifactStore GetArtifactStoreFromTestConfig()
         {
-            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ArtifactStore);
+            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ArtifactStore);
             return CreateArtifactStore(address);
         }
     }

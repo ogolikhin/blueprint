@@ -12,7 +12,7 @@ import {UserTask} from "../../diagram/presentation/graph/shapes/user-task";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactReference, NodeType} from "../../diagram/presentation/graph/models";
-import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
+import {UserTaskDialogModel} from "./userTaskDialogModel";
 import {link} from "fs";
 import {version} from "punycode";
 import {IModalScope} from "../base-modal-dialog-controller";

@@ -12,7 +12,7 @@ import {LocalizationServiceMock} from "../../../../../commonModule/localization/
 import {IModalScope} from "../base-modal-dialog-controller";
 import {NodeType} from "../../diagram/presentation/graph/models";
 import {IDialogService} from "../../../../../shared";
-import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
+import {SystemTaskDialogModel} from "./systemTaskDialogModel";
 import {SystemTaskModalController} from "./system-task-modal-controller";
 import {IArtifactReference, ArtifactReference, ProcessModel, ISystemTaskShape} from "../../../models/process-models";
 import {SystemTask} from "../../diagram/presentation/graph/shapes/";

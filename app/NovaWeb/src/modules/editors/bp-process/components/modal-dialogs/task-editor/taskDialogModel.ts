@@ -19,16 +19,3 @@ export abstract class TaskDialogModel implements IModalDialogModel {
     personaReference: IArtifactReference;
     label: string;
 }
-
-export class UserTaskDialogModel extends TaskDialogModel {
-    originalItem: UserTask;
-    objective: string;
-    userTaskPersonaReferenceOptions: IPersonaOption[];
-}
-
-export class SystemTaskDialogModel extends TaskDialogModel {
-    originalItem: SystemTask;
-    imageId: string;
-    associatedImageUrl: string;
-    systemTaskPersonaReferenceOptions: IPersonaOption[];
-}

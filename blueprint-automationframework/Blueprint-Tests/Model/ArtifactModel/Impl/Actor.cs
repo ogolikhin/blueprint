@@ -47,6 +47,37 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
+        /// Returns ActorIconValue. It represents information from Actor's icon.
+        /// </summary>
+        /// <exception cref="FormatException">Throws FormatException if ActorInheritanceValue doesn't correspond to server JSON.</exception>
+        [JsonIgnore]
+        public ActorIconValue ActorIcon
+        {
+            get
+            {
+                var actorIconProperty = SpecificPropertyValues.FirstOrDefault(
+                    p => p.PropertyType == PropertyTypePredefined.ActorIcon);
+                if ((actorIconProperty == null) || (actorIconProperty.CustomPropertyValue == null))
+                {
+                    return null;
+                }
+                // Deserialization
+                var customPropertyValueString = actorIconProperty.CustomPropertyValue.ToString();
+                var iconValue = JsonConvert.DeserializeObject<ActorIconValue>(customPropertyValueString);
+                return iconValue;
+            }
+
+            set
+            {
+                var actorIconProperty = SpecificPropertyValues.FirstOrDefault(
+                    p => p.PropertyType == PropertyTypePredefined.ActorIcon);
+
+                Assert.NotNull(actorIconProperty, "actorIconProperty shouldn't be null");
+                actorIconProperty.CustomPropertyValue = value;
+            }
+        }
+
+        /// <summary>
         /// Checks that CustomProperty model corresponds to JSON from Blueprint server 
         /// </summary>
         /// <param name="property">property to check</param>

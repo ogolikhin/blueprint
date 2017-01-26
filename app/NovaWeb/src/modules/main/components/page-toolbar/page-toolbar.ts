@@ -1,3 +1,4 @@
+import {IArtifact} from "../../models/models";
 import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
@@ -147,39 +148,35 @@ export class PageToolbarController {
 
 //------------------------------------------------------------------------------------
 // fixme: This code should be moved to a new action class when refactor the toolbar
-    public createNewArtifact = (evt?: ng.IAngularEvent): void => {
-        if (evt) {
-            evt.preventDefault();
+    public createNewArtifact = (event?: ng.IAngularEvent): void => {
+        if (event) {
+            event.preventDefault();
         }
 
-        this.createArtifactService.createNewArtifact(
-            -1,
-            this._currentArtifact,
-            true,
-            null,
-            null,
-            this.refreshTree,
-            this.newArtifactCreationErrorHandler);
+        let newArtifactId;
+
+        this.createArtifactService.createNewArtifact(-1, this._currentArtifact, true, null, null)
+            .then((artifact: IArtifact) => {
+                newArtifactId = artifact.id;
+                return this.projectManager.refresh(this._currentArtifact.projectId, null, true);
+            })
+            .then(() => {
+                this.projectManager.triggerProjectCollectionRefresh();
+                return this.$timeout();
+            })
+            .then(() => {
+                return this.navigationService.navigateTo({id: newArtifactId});
+            })
+            .catch(this.newArtifactCreationErrorHandler);
     }
 
-    private refreshTree = ((newArtifactId: number) => {
-        const projectId = this._currentArtifact.projectId;
-        let newArtifact: IStatefulArtifact = null;
-        return this.projectManager.refresh(projectId, null, true)
-            .finally(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-
-                this.$timeout(() => {
-                    this.navigationService.navigateTo({id: newArtifactId});
-                });
-            });
-    });
-
-    private newArtifactCreationErrorHandler = ((error) => {
+    private newArtifactCreationErrorHandler = ((error: any) => {
         if (error === "cancel") {
             return;
         }
+
         const projectId = this._currentArtifact.projectId;
+
         if (error instanceof ApplicationError) {
             if (error.statusCode === 404 && error.errorCode === 102) {
                 // project not found, we refresh all

@@ -157,14 +157,23 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         if (!associatedArtifact) {
             this.setAssociatedArtifact(null);
         } else if (associatedArtifact.id < 0) {
-            this.createArtifactService.createNewArtifact(
-                this.dialogModel.artifactId,
-                null,
-                false,
-                associatedArtifact.name,
-                this.getItemTypeId(),
-                this.onNewArtifactCreated,
-                this.onNewArtifactCreationError);
+            let newStatefulArtifact: IStatefulArtifact;
+
+            this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId())
+                .then((newArtifact: IArtifact) => {
+                    return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifact.id);
+                })
+                .then((statefulArtifact: IStatefulArtifact) => {
+                    newStatefulArtifact = statefulArtifact;
+                    return newStatefulArtifact.publish();
+                })
+                .then(() => {
+                    this.setInclude(newStatefulArtifact);
+                })
+                .catch(this.onNewArtifactCreationError)
+                .finally(() => {
+                    this.populateTaskChanges();
+                });
         } else {
             this.populateTaskChanges();
         }
@@ -278,21 +287,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.postIncludePickerAction(artifactReference);
     }
 
-    private onNewArtifactCreated = (newArtifactId: number): ng.IPromise<void> => {
-        let newArtifact: IStatefulArtifact = null;
-
-        return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifactId)
-            .then((artifact: IStatefulArtifact) => {
-                newArtifact = artifact;
-                return newArtifact.publish();
-            })
-            .then(() => {
-                this.setInclude(newArtifact);
-                this.populateTaskChanges();
-                return this.$q.resolve();
-            });
-    };
-
     private onNewArtifactCreationError = (error: IApplicationError): void => {
         if (error instanceof ApplicationError) {
             if (error.statusCode === 404 && error.errorCode === 102) {
@@ -309,9 +303,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         } else {
             this.messageService.addError("Create_New_Artifact_Error_Generic");
         }
-
-        this.setInclude(null);
-        this.populateTaskChanges();
     };
 
     private canCleanField(): boolean {

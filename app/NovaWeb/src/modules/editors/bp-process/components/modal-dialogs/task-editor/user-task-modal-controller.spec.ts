@@ -85,9 +85,7 @@ describe("UserTaskModalController", () => {
     }
 
     describe("model is non-readonly ", () => {
-
         it("save data should be successful", () => {
-
             // arrange
             const model = new UserTaskDialogModel();
             model.isReadonly = false;
@@ -132,6 +130,7 @@ describe("UserTaskModalController", () => {
 
             //act
             controller.saveData();
+            $rootScope.$digest();
 
             //assert
             expect(model.originalItem.action).toEqual(model.action);
@@ -140,8 +139,5 @@ describe("UserTaskModalController", () => {
             expect(model.originalItem.label).toEqual(null);
             expect(model.originalItem.personaReference).toEqual(model.personaReference);
         });
-
     });
-
-
 });

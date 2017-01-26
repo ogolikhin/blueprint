@@ -147,27 +147,47 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         return `${model.typePrefix}${model.id} - ${model.name}`;
     }
 
-    public saveData() {
+    public saveData(): ng.IPromise<void> {
         if (this.dialogModel.isReadonly) {
             throw new Error("Changes cannot be made or saved as this is a read-only item");
         }
 
+        return this.applyAssociatedArtifactChanges()
+            .finally(() => {
+                this.populateTaskChanges();
+            });
+    }
+
+    private applyAssociatedArtifactChanges(): ng.IPromise<void> {
         const associatedArtifact = this.getAssociatedArtifact();
 
         if (!associatedArtifact) {
             this.setAssociatedArtifact(null);
-        } else if (associatedArtifact.id < 0) {
-            this.createArtifactService.createNewArtifact(
-                this.dialogModel.artifactId,
-                null,
-                false,
-                associatedArtifact.name,
-                this.getItemTypeId(),
-                this.onNewArtifactCreated,
-                this.onNewArtifactCreationError);
-        } else {
-            this.populateTaskChanges();
+            return this.$q.resolve();
         }
+
+        if (associatedArtifact.id < 0) {
+            let newStatefulArtifact: IStatefulArtifact;
+
+            return this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId())
+                .then((newArtifact: IArtifact) => {
+                    return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifact.id);
+                })
+                .then((statefulArtifact: IStatefulArtifact) => {
+                    newStatefulArtifact = statefulArtifact;
+                    return newStatefulArtifact.publish();
+                })
+                .then(() => {
+                    this.setInclude(newStatefulArtifact);
+                })
+                .catch((error: any) => {
+                    this.onNewArtifactCreationError(error);
+                    this.setAssociatedArtifact(null);
+                    this.$q.reject(error);
+                });
+        }
+
+        return this.$q.resolve();
     }
 
     private getIncludedArtifactTypes(): ItemTypePredefined[] {
@@ -278,21 +298,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.postIncludePickerAction(artifactReference);
     }
 
-    private onNewArtifactCreated = (newArtifactId: number): ng.IPromise<void> => {
-        let newArtifact: IStatefulArtifact = null;
-
-        return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifactId)
-            .then((artifact: IStatefulArtifact) => {
-                newArtifact = artifact;
-                return newArtifact.publish();
-            })
-            .then(() => {
-                this.setInclude(newArtifact);
-                this.populateTaskChanges();
-                return this.$q.resolve();
-            });
-    };
-
     private onNewArtifactCreationError = (error: IApplicationError): void => {
         if (error instanceof ApplicationError) {
             if (error.statusCode === 404 && error.errorCode === 102) {
@@ -309,9 +314,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         } else {
             this.messageService.addError("Create_New_Artifact_Error_Generic");
         }
-
-        this.setInclude(null);
-        this.populateTaskChanges();
     };
 
     private canCleanField(): boolean {

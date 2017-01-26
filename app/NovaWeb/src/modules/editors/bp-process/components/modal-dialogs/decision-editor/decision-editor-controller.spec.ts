@@ -772,6 +772,7 @@ describe("DecisionEditorController", () => {
             // act
             model.label = newValue;
             controller.saveData();
+            $rootScope.$digest();
 
             // assert
             expect(setLabelSpy).toHaveBeenCalledWith(newValue);
@@ -804,6 +805,7 @@ describe("DecisionEditorController", () => {
 
             // act
             controller.saveData();
+            $rootScope.$digest();
 
             // assert
             expect(modelUpdateSpy).toHaveBeenCalled();
@@ -838,6 +840,7 @@ describe("DecisionEditorController", () => {
             // act
             controller.deleteCondition(model.conditions[model.conditions.length - 1]);
             controller.saveData();
+            $rootScope.$digest();
 
             // assert
             expect(deleteSpy).toHaveBeenCalled();
@@ -875,6 +878,7 @@ describe("DecisionEditorController", () => {
             const condition = model.conditions[model.conditions.length - 1];
             condition.mergeNode = endNode;
             controller.saveData();
+            $rootScope.$digest();
 
             // assert
             expect(addSpy).toHaveBeenCalled();

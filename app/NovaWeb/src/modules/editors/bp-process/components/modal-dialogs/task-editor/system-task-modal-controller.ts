@@ -74,7 +74,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             this.dialogModel.personaReference.name;
     }
 
-    protected  getAssociatedArtifact(): IArtifactReference {
+    protected getAssociatedArtifact(): IArtifactReference {
         return this.dialogModel.associatedArtifact;
     }
 

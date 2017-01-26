@@ -169,11 +169,11 @@ namespace Model.StorytellerModel.Impl
         public IProcessShape AddXUserTaskAndSystemTask(IProcessShape processShape, int numberOfPairs)
         {
             ThrowIf.ArgumentNull(processShape, nameof(processShape));
-            IProcessShape addedUserTaskShape = processShape;
+            var addedUserTaskShape = processShape;
 
             for (int i = 0; i < numberOfPairs; i++)
             {
-                ProcessLink outgoingLink = GetOutgoingLinkForShape(processShape);
+                var outgoingLink = GetOutgoingLinkForShape(processShape);
                 addedUserTaskShape = AddUserAndSystemTask(outgoingLink);
                 processShape = GetNextShape(addedUserTaskShape);
             }
@@ -532,7 +532,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         public void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
-    IProcessShape branchMergePointShape)
+            IProcessShape branchMergePointShape)
         {
             ThrowIf.ArgumentNull(systemDecision, nameof(systemDecision));
             ThrowIf.ArgumentNull(branchMergePointShape, nameof(branchMergePointShape));
@@ -548,7 +548,7 @@ namespace Model.StorytellerModel.Impl
             // 1) system task 2) system decision point 
 
             // Find the shapes to delete, including all branches before merge point
-            List<ProcessShape> shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
+            var shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
 
             // Add the system task to the list of shapes to delete
             shapesToDelete.Add((ProcessShape)targetProcessShape);
@@ -686,7 +686,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(userTaskToMove, nameof(userTaskToMove));
             ThrowIf.ArgumentNull(destinationShape, nameof(destinationShape));
 
-            IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
+            var systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
             var nextShapeIncomingLinks = GetIncomingLinksForShape(destinationShape);
 
@@ -708,7 +708,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(userTaskToMove, nameof(userTaskToMove));
             ThrowIf.ArgumentNull(sourceShape, nameof(sourceShape));
 
-            IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
+            var systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
             // Find source shape outgoing link
             var sourceShapeOutgoingLink = GetOutgoingLinkForShape(sourceShape);
@@ -1577,7 +1577,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IProcessShape.IsTypeOf(ProcessShapeType)"/>
         public bool IsTypeOf(ProcessShapeType processShapeType)
         {
-            return (GetShapeType() == processShapeType);
+            return GetShapeType() == processShapeType;
         }
     }
 

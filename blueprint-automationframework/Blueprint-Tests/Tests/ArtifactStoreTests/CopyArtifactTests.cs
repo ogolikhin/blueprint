@@ -72,7 +72,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SingleSavedArtifact_ToNewParent_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType targetArtifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, sourceArtifactType);
             var targetArtifact = Helper.CreateAndSaveArtifact(_project, author, targetArtifactType);
@@ -100,7 +100,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SinglePublishedChildArtifact_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType parentArtifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, author, parentArtifactType);
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, sourceArtifactType, parentArtifact, numberOfVersions: 2);
@@ -169,7 +169,7 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, bool shouldPublishAttachment)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             // Create & add attachment to the source artifact:
             var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
@@ -207,21 +207,18 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, sourceArtifactAttachments.DocumentReferences.Count, "Source artifact shouldn't have any Document References.");
 
             // A new attachment reference is created in the copy which has different AttachmentId & UploadedDate, so we need to exclude those when comparing.
-            Attachments.CompareOptions compareOptions = new Attachments.CompareOptions
+            var compareOptions = new Attachments.CompareOptions
             {
                 CompareAttachmentIds = false,
                 CompareUploadedDates = false
             };
 
             // Nova copy does a shallow copy of attachments, so sourceArtifactAttachments should equal copiedArtifactAttachments.
-            AttachedFile.AssertAreEqual(sourceArtifactAttachments.AttachedFiles[0], copiedArtifactAttachments.AttachedFiles[0],
-                compareOptions: compareOptions);
+            AttachedFile.AssertAreEqual(sourceArtifactAttachments.AttachedFiles[0], copiedArtifactAttachments.AttachedFiles[0], compareOptions: compareOptions);
 
             // Compare file contents.
-            var fileFromCopy = Helper.ArtifactStore.GetAttachmentFile(author, copyResult.Artifact.Id,
-                copiedArtifactAttachments.AttachedFiles[0].AttachmentId);
-            var fileFromSource = Helper.ArtifactStore.GetAttachmentFile(author, sourceArtifact.Id,
-                sourceArtifactAttachments.AttachedFiles[0].AttachmentId);
+            var fileFromCopy = Helper.ArtifactStore.GetAttachmentFile(author, copyResult.Artifact.Id, copiedArtifactAttachments.AttachedFiles[0].AttachmentId);
+            var fileFromSource = Helper.ArtifactStore.GetAttachmentFile(author, sourceArtifact.Id, sourceArtifactAttachments.AttachedFiles[0].AttachmentId);
 
             FileStoreTestHelper.AssertFilesAreIdentical(fileFromSource, fileFromCopy);
         }
@@ -236,7 +233,7 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, TraceDirection direction, bool isSuspect, bool shouldPublishTrace)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             var sourceArtifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
@@ -265,8 +262,8 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact);
 
             // Get traces & compare.
-            Relationships sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, author, copyResult.Artifact.Id, addDrafts: true);
-            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(author, targetArtifact, addDrafts: true);
+            var sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, author, copyResult.Artifact.Id, addDrafts: true);
+            var targetRelationships = Helper.ArtifactStore.GetRelationships(author, targetArtifact, addDrafts: true);
 
             Assert.AreEqual(1, sourceRelationships.ManualTraces.Count, "Copied artifact should have 1 manual trace.");
             Assert.AreEqual(2, targetRelationships.ManualTraces.Count, "Target artifact should have 2 manual traces.");
@@ -296,7 +293,7 @@ namespace ArtifactStoreTests
             var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
-            IUser userNoTracePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            var userNoTracePermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
             Helper.AssignProjectRolePermissionsToUser(userNoTracePermission,
                         RolePermissions.Edit |
                         RolePermissions.CanReport |
@@ -319,8 +316,8 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true);
 
             // Get traces & compare.
-            Relationships copyRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
-            Relationships targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
+            var copyRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
+            var targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
 
             Assert.AreEqual(0, copyRelationships.ManualTraces.Count, "Copied artifact should have no manual traces.");
 
@@ -339,8 +336,8 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SinglePublishedReusedArtifact_ToNewFolder_ReturnsNewArtifactNotReused(BaseArtifactType artifactType, int artifactId, string artifactName)
         {
             // Setup:
-            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
@@ -429,7 +426,7 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user);
 
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
-            CustomProperty returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
+            var returnedProperty = artifactDetailsAfter.CustomPropertyValues.Find(p => p.Name == propertyName);
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
@@ -546,8 +543,8 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
         {
             // Setup:
-            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
@@ -580,8 +577,8 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
         {
             // Setup:
-            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
@@ -600,7 +597,7 @@ namespace ArtifactStoreTests
 
             VerifyChildrenWereCopied(author, sourceArtifactDetails, copyResult.Artifact, skipSubArtifactTraces: true);
 
-            Attachments.CompareOptions compareOptions = new Attachments.CompareOptions
+            var compareOptions = new Attachments.CompareOptions
             {
                 CompareAttachmentIds = false,
                 CompareUploadedDates = false,
@@ -629,8 +626,8 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, int artifactId, string artifactName, int expectedVersionOfOriginalArtifact)
         {
             // Setup:
-            IProject customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var targetFolder = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.PrimitiveFolder);
             var preCreatedArtifact = ArtifactFactory.CreateArtifact(customDataProject, author, artifactType, artifactId, name: artifactName);
@@ -652,7 +649,7 @@ namespace ArtifactStoreTests
 
             // A new attachment reference is created in the copy which has different AttachmentId, UploadedDate & ReferenceDate,
             // so we need to exclude those when comparing.  Also, the copy was done by a different user than the original, so we can't compare Users.
-            Attachments.CompareOptions compareOptions = new Attachments.CompareOptions
+            var compareOptions = new Attachments.CompareOptions
             {
                 CompareAttachmentIds = false,
                 CompareUploadedDates = false,
@@ -660,8 +657,7 @@ namespace ArtifactStoreTests
                 CompareUsers = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact,
-                compareOptions: compareOptions);
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, compareOptions: compareOptions);
         }
 
         [TestCase]
@@ -692,7 +688,7 @@ namespace ArtifactStoreTests
             // Verify User Stories were copied.
             VerifyChildrenWereCopied(_user, sourceArtifactDetails, copyResult.Artifact, skipSubArtifactTraces: true);
 
-            Attachments.CompareOptions compareOptions = new Attachments.CompareOptions
+            var compareOptions = new Attachments.CompareOptions
             {
                 CompareAttachmentIds = false,
                 CompareUploadedDates = false
@@ -714,16 +710,15 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SinglePublishedProcessWithUserStories_ToNewFolder_GenerateUserStories_NewUserStoriesAreCreated()
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             List<IStorytellerUserStory> sourceUserStories;
             var sourceArtifact = CreateComplexProcessAndGenerateUserStories(author, out sourceUserStories);
             var targetFolder = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
 
             var sourceChildrenBefore = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, sourceArtifact.Id, author);
-            Assert.AreEqual(sourceUserStories.Count, sourceChildrenBefore.Count,
-                "Wrong number of children under the source Process artifact!");
-
+            Assert.AreEqual(sourceUserStories.Count, sourceChildrenBefore.Count,"Wrong number of children under the source Process artifact!");
+             
             var sourceArtifactDetailsBefore = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
@@ -778,8 +773,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SinglePublishedProcessWithLinkLabels_ToNewFolder_ReturnsNewProcessWithLinkLabels()
         {
             // Setup:
-            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(
-                Helper.Storyteller, _project, _user);
+            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(Helper.Storyteller, _project, _user);
 
             sourceProcess = StorytellerTestHelper.AddRandomLinkLabelsToProcess(Helper.Storyteller, sourceProcess, _user);
             sourceProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, _user);
@@ -799,7 +793,7 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: sourceArtifactDetails.Version.Value);
 
-            Attachments.CompareOptions compareOptions = new Attachments.CompareOptions
+            var compareOptions = new Attachments.CompareOptions
             {
                 CompareAttachmentIds = false,
                 CompareUploadedDates = false
@@ -842,8 +836,7 @@ namespace ArtifactStoreTests
             var copiedArtifactImageFile = Helper.ArtifactStore.GetImage(_user, copiedArtifactInlineImageId);
 
             // Verify:
-            Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactInlineImageId,
-                "ImageId's for source and copied artifacts should be different.");
+            Assert.AreNotEqual(sourceArtifactInlineImageId, copiedArtifactInlineImageId, "ImageId's for source and copied artifacts should be different.");
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, _user,
                 expectedVersionOfOriginalArtifact: -1, skipDescription: true);
             FileStoreTestHelper.AssertFilesAreIdentical(sourceArtifactImageFile, copiedArtifactImageFile, compareFileNames: false);
@@ -925,8 +918,8 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
             const string artifactTypeName = "ST-User Story";
             const string propertyName = "ST-Acceptance Criteria";
-            //IProject project = Helper.GetProject(TestHelper.GoldenDataProject.CustomData, _user);
-            IArtifact sourceArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.TextualRequirement,
+
+            var sourceArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.TextualRequirement,
                 artifactTypeName: artifactTypeName);
             sourceArtifact.Lock(_user);
 
@@ -1014,7 +1007,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SavedArtifact_NotPositiveOrderIndex_400BadRequest(double orderIndex)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
@@ -1037,10 +1030,10 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedArtifact_ToParentArtifactWithInvalidToken_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
@@ -1060,7 +1053,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedArtifact_NoTokenInAHeader_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
@@ -1085,12 +1078,12 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedArtifact_ToNewParent_NoEditPermissionsToTargetArtifact_403Forbidden(BaseArtifactType artifactType)
         { 
             // Setup:
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Viewer, _project, newParentArtifact);
 
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, newParentArtifact, user),
@@ -1112,8 +1105,8 @@ namespace ArtifactStoreTests
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
 
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(projects.First(), _user, artifactType);
-            IArtifact newParentArtifact = Helper.CreateAndPublishArtifact(projects.Last(), _user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(projects.First(), _user, artifactType);
+            var newParentArtifact = Helper.CreateAndPublishArtifact(projects.Last(), _user, artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceArtifact, newParentArtifact, _user),
@@ -1129,12 +1122,11 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SavedArtifact_FolderToBeAChildOfArtifact_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            IArtifact folder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var folder = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(folder, artifact, _user),
-
                 "'POST {0}' should return 403 Forbidden when user tries to copy a folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -1151,9 +1143,9 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IArtifact collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
+            var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(artifact, collection, _user),
@@ -1176,7 +1168,7 @@ namespace ArtifactStoreTests
 
             var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
-            IArtifact parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(collection, parentArtifact, _user),
@@ -1199,7 +1191,7 @@ namespace ArtifactStoreTests
 
             var sourceCollection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
 
-            IArtifact targetCollection = Helper.CreateAndPublishCollectionFolder(_project, _user);
+            var targetCollection = Helper.CreateAndPublishCollectionFolder(_project, _user);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceCollection, targetCollection, _user),
@@ -1220,7 +1212,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SavedArtifact_ToNonExistingArtifact_404NotFound(BaseArtifactType artifactType, int nonExistingArtifactId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifact.Id, nonExistingArtifactId, _user),
@@ -1241,7 +1233,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_NonExistingArtifact_ToPublishedArtifact_404NotFound(BaseArtifactType artifactType, int nonExistingArtifactId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, nonExistingArtifactId, artifact.Id, _user),
@@ -1261,8 +1253,8 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedArtifact_ToDeletedArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             targetArtifact.Delete();
             targetArtifact.Publish();
@@ -1282,8 +1274,8 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SavedDeletedArtifacts_ToSavedArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
             sourceArtifact.Delete();
 
@@ -1303,8 +1295,8 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedArtifacts_ForUserWithoutProperPermissionsToSource_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, sourceArtifact);
@@ -1325,8 +1317,8 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedArtifacts_ForUserWithoutProperPermissionsToTarget_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, targetArtifact);
@@ -1348,8 +1340,8 @@ namespace ArtifactStoreTests
         public void CopyArtifact_SavedArtifact_ToSubArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, targetArtifact.Id);
 
@@ -1372,8 +1364,8 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedSubArtifact_ToArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, sourceArtifact.Id);
 
@@ -1397,7 +1389,7 @@ namespace ArtifactStoreTests
         public void CopyArtifact_PublishedArtifact_ProjectToArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, _project.Id, artifact.Id, _user),
@@ -1440,8 +1432,7 @@ namespace ArtifactStoreTests
             try
             {
                 // Execute:
-                var ex =
-                    Assert.Throws<Http409ConflictException>(
+                var ex = Assert.Throws<Http409ConflictException>(
                         () => ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifactChain.First().Id, _project.Id, _user),
                         "'POST {0}' should return 409 Conflict when user tries to copy a artifact with large amount of children " +
                         "(larger than MaxNumberArtifactsToCopy setting in ApplicationSettings table)", SVC_PATH);
@@ -1489,13 +1480,11 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedNumberOfArtifactsCopied, copyResult.CopiedArtifactsCount,
                 "There should be exactly {0} artifact copied, but the result reports {1} artifacts were copied.",
                 expectedNumberOfArtifactsCopied, copyResult.CopiedArtifactsCount);
-            Assert.AreNotEqual(originalArtifact.Id, copyResult.Artifact.Id,
-                "The ID of the copied artifact should not be the same as the original artifact!");
+            Assert.AreNotEqual(originalArtifact.Id, copyResult.Artifact.Id, "The ID of the copied artifact should not be the same as the original artifact!");
 
             // We need to skip comparison of a lot of properties because the copy has different Id & Parent, and isn't published...
-            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact,
-                skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, skipCreatedBy: skipCreatedBy,
-                skipPublishedProperties: true, skipPermissions: skipPermissions, skipDescription: skipDescription);
+            ArtifactStoreHelper.AssertArtifactsEqual(originalArtifact, copyResult.Artifact, skipIdAndVersion: true, skipParentId: true, skipOrderIndex: true, 
+                skipCreatedBy: skipCreatedBy, skipPublishedProperties: true, skipPermissions: skipPermissions, skipDescription: skipDescription);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, copyResult.Artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, copyResult.Artifact, skipDescription: skipDescription);
@@ -1557,8 +1546,7 @@ namespace ArtifactStoreTests
             foreach (var expectedTrace in expectedTraces)
             {
                 var actualTrace = actualTraces.Find(t => (t.TraceType == expectedTrace.TraceType) && (t.ArtifactId == expectedTrace.ArtifactId));
-                Assert.NotNull(actualTrace, "Couldn't find actual trace type '{0}' with ArtifactId: {1}",
-                    expectedTrace.TraceType, expectedTrace.ArtifactId);
+                Assert.NotNull(actualTrace, "Couldn't find actual trace type '{0}' with ArtifactId: {1}", expectedTrace.TraceType, expectedTrace.ArtifactId);
 
                 OpenApiTrace.AssertAreEqual(expectedTrace, actualTrace);
             }
@@ -1586,7 +1574,7 @@ namespace ArtifactStoreTests
 
             if (copyResult?.Artifact != null)
             {
-                IProject project = _projects.Find(p => p.Id == copyResult.Artifact.ProjectId);
+                var project = _projects.Find(p => p.Id == copyResult.Artifact.ProjectId);
 
                 _wrappedArtifacts.Add(Helper.WrapNovaArtifact(copyResult.Artifact, project, user, artifact.BaseArtifactType));
             }
@@ -1607,8 +1595,7 @@ namespace ArtifactStoreTests
                                |                        |           |              |
                                +-------[UT2]--+--[ST3]--+           +----+--[ST7]--+
             */
-            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(
-                Helper.Storyteller, _project, user);
+            var sourceProcess = StorytellerTestHelper.CreateAndGetDefaultProcessWithUserAndSystemDecisions(Helper.Storyteller, _project, user);
 
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(sourceProcess, Helper.Storyteller, user);
 

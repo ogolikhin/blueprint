@@ -23,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IAdminStore GetAdminStoreFromTestConfig()
         {
-            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AdminStore);
+            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.AdminStore);
             return CreateAdminStore(address);
         }
     }

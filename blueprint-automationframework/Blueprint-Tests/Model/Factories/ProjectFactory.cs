@@ -49,7 +49,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var path = RestPaths.OpenApi.PROJECTS;
+            string path = RestPaths.OpenApi.PROJECTS;
 
             var restApi = new RestApiFacade(Address, user.Token?.OpenApiToken);
             var expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
@@ -118,7 +118,7 @@ namespace Model.Factories
 
             if (allProjects.Count < numberOfProjects)
             {
-                var errorMsg = I18NHelper.FormatInvariant("Not enough projects available on the test server '{0}'.  Need {1}, but only {2} exist.",
+                string errorMsg = I18NHelper.FormatInvariant("Not enough projects available on the test server '{0}'.  Need {1}, but only {2} exist.",
                     Address, numberOfProjects, allProjects.Count);
 
                 Logger.WriteError(errorMsg);

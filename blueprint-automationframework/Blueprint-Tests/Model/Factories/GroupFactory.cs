@@ -13,9 +13,9 @@ namespace Model.Factories
         /// <returns>The created Group.</returns>
         public static IGroup CreateGroup(GroupLicenseType licenseType)
         {
-            var name = RandomGenerator.RandomAlphaNumeric(6);
-            var description = RandomGenerator.RandomAlphaNumeric(10);
-            var email = I18NHelper.FormatInvariant("{0}@{1}.com", name, RandomGenerator.RandomAlphaNumeric(10));
+            string name = RandomGenerator.RandomAlphaNumeric(6);
+            string description = RandomGenerator.RandomAlphaNumeric(10);
+            string email = I18NHelper.FormatInvariant("{0}@{1}.com", name, RandomGenerator.RandomAlphaNumeric(10));
             var group = new Group(name, email, description, licenseType);
             return group;
         }

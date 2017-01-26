@@ -23,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IConfigControl GetConfigControlFromTestConfig()
         {
-            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ConfigControl);
+            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ConfigControl);
             return CreateConfigControl(address);
         }
     }

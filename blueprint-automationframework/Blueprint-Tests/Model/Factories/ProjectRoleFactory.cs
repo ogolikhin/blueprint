@@ -22,7 +22,7 @@ namespace Model.Factories
                 name = RandomGenerator.RandomAlphaNumeric(7);
             }
 
-            var description = RandomGenerator.RandomAlphaNumeric(10);
+            string description = RandomGenerator.RandomAlphaNumeric(10);
             var role = new ProjectRole(project.Id, name, description, permissions);
             role.AddRoleToDatabase();
             return role;

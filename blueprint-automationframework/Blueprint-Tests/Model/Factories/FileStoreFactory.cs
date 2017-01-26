@@ -23,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IFileStore GetFileStoreFromTestConfig()
         {
-            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.FileStore);
+            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.FileStore);
             return CreateFileStore(address);
         }
     }

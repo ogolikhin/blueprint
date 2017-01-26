@@ -23,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IArtifactStore GetArtifactStoreFromTestConfig()
         {
-            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ArtifactStore);
+            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.ArtifactStore);
             return CreateArtifactStore(address);
         }
     }

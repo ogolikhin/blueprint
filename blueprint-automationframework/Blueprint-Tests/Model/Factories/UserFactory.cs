@@ -79,8 +79,8 @@ namespace Model.Factories
         /// <returns>A new unique user object.</returns>
         public static IUser CreateUserOnly(UserSource source = UserSource.Database)
         {
-            var username = RandomGenerator.RandomAlphaNumeric(10);
-            var password = RandomGenerator.RandomAlphaNumeric(10);
+            string username = RandomGenerator.RandomAlphaNumeric(10);
+            string password = RandomGenerator.RandomAlphaNumeric(10);
 
             return CreateUserOnly(username, password, source);
         }
@@ -134,8 +134,8 @@ namespace Model.Factories
         public static IUser GetUserFromTestConfig()
         {
             var testConfig = TestConfiguration.GetInstance();
-            var username = testConfig.Username;
-            var password = testConfig.Password;
+            string username = testConfig.Username;
+            string password = testConfig.Password;
 
             return CreateUserOnly(username, password);
         }
@@ -156,7 +156,7 @@ namespace Model.Factories
                 // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
                 // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
 
-                var query = I18NHelper.FormatInvariant("SELECT {0} FROM {1}", User.ALL_USER_FIELDS, User.USERS_TABLE);
+                string query = I18NHelper.FormatInvariant("SELECT {0} FROM {1}", User.ALL_USER_FIELDS, User.USERS_TABLE);
 
                 if (!includeDeletedUsers)
                 {

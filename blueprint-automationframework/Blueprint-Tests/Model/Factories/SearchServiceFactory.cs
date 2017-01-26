@@ -24,7 +24,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static ISearchService GetSearchServiceFromTestConfig()
         {
-            var address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.SearchService);
+            string address = FactoryCommon.GetServiceAddressFromTestConfig(Categories.SearchService);
             return CreateSearchService(address);
         }
     }

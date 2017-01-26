@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using Common;
+﻿using Common;
 using Model.Impl;
+using System.Collections.Generic;
+using System.Net;
+using System.Web;
 using Utilities;
 using Utilities.Facades;
-using System.Web;
 
 namespace Model.SearchServiceModel.Impl
 {
@@ -108,7 +108,7 @@ namespace Model.SearchServiceModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string url = RestPaths.Svc.SearchService.PROJECTSEARCH;
+            var url = RestPaths.Svc.SearchService.PROJECTSEARCH;
 
             if (separatorString != null)
             {

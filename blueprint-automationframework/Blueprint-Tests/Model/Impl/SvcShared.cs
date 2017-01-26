@@ -34,8 +34,8 @@ namespace Model.Impl
             // GET: <base_url>/svc/shared/users/search?search={search}&emailDiscussions={emailDiscussions}&limit={limit}&includeGuests={includeGuests}
             // See:  https://github.com/BlueprintSys/blueprint-current/blob/develop/Source/BluePrintSys.RC.Web.Internal/Shared/Metadata/UsersAndGroupsController.cs
 
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
-            Dictionary<string, string> queryParams = new Dictionary<string, string>();
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var queryParams = new Dictionary<string, string>();
 
             if (search != null)
             {

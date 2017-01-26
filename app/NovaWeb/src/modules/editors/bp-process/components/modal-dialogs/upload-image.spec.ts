@@ -10,6 +10,8 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {IFileUploadService, FileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {IDownloadService} from "../../../../commonModule/download/download.service";
+import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
 
 describe("UploadImage Directive", () => {
     let element: ng.IAugmentedJQuery;
@@ -18,6 +20,8 @@ describe("UploadImage Directive", () => {
     let isolatedScope: ng.IScope;
 
     let messageService: IMessageService;
+    let downloadService: IDownloadService;
+    let $q: ng.IQService;
 
     const directiveTemplate: string = "<button id=\"upload-image-btn\" class=\"btn btn-block button-white\" ng-click=\"uploadImage()\">Upload</button>";
 
@@ -41,6 +45,7 @@ describe("UploadImage Directive", () => {
         $provide.service("fileUploadService", FileUploadService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("messageService", MessageServiceMock);
+        $provide.service("downloadService", DownloadServiceMock);
     }));
 
     beforeEach(
@@ -49,7 +54,9 @@ describe("UploadImage Directive", () => {
                 $templateCache: ng.ITemplateCacheService,
                 $injector: ng.auto.IInjectorService,
                 statefulArtifactFactory: IStatefulArtifactFactory,
-                _messageService_: IMessageService) => {
+                _messageService_: IMessageService,
+                _downloadService_: IDownloadService,
+                _$q_: ng.IQService) => {
             shapesFactory = new ShapesFactory($rootScope, statefulArtifactFactory);
             $templateCache.put("/Areas/Web/App/Components/Storyteller/Directives/UploadImageTemplate.html", directiveTemplate);
             scope = $rootScope.$new();
@@ -68,6 +75,8 @@ describe("UploadImage Directive", () => {
 
             isolatedScope = element.isolateScope();
             messageService = _messageService_;
+            downloadService = _downloadService_;
+            $q = _$q_;
         })
     );
 
@@ -75,16 +84,15 @@ describe("UploadImage Directive", () => {
         expect(element.find("button#upload-image-btn")).toBeDefined();
     });
 
-    it("downloadImage", inject(($injector: ng.auto.IInjectorService, $window: ng.IWindowService) => {
+    it("downloadImage - expects download service to be called with fake url", inject(($injector: ng.auto.IInjectorService) => {
         //Arange
-        spyOn($window, "open").and.callFake(function () {
-            return;
-        });
+        const spyDownload = spyOn(downloadService, "downloadFile");
         //Act
         isolatedScope["downloadImage"]();
         // Assert
-        expect($window.open).toHaveBeenCalledWith(fakeUrl, "_blank");
+        expect(spyDownload).toHaveBeenCalledWith(fakeUrl);
     }));
+
     it("clearImage", inject(($injector: ng.auto.IInjectorService) => {
         //Arange
         spyOn(imageUpload, "clearImageContainer");

@@ -9,6 +9,8 @@ import {IArtifactAttachmentsService} from "../../../../managers/artifact-manager
 import {ArtifactAttachmentsMock} from "../../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {IDownloadService} from "../../../../commonModule/download/download.service";
+import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
 
 describe("Component BP Artifact Document Item", () => {
     const template = `<bp-document-item doc-ref-info="document" delete-item="delete()"></bp-document-item>`;
@@ -21,6 +23,7 @@ describe("Component BP Artifact Document Item", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
+        $provide.service("downloadService", DownloadServiceMock);
     }));
 
     beforeEach(inject(($window: ng.IWindowService) => {
@@ -51,31 +54,28 @@ describe("Component BP Artifact Document Item", () => {
     it("should try to download a document which has an attachment",
         inject((
             $timeout: ng.ITimeoutService,
-            $window: ng.IWindowService) => {
+            downloadService: IDownloadService) => {
 
             // Arrange
-            spyOn($window, "open").and.callFake(function () {
-                return true;
-            });
+            const spyDownload = spyOn(downloadService, "downloadFile");
 
             // Act
             vm.downloadItem();
             $timeout.flush();
 
             //Assert
-            expect($window.open).toHaveBeenCalled();
-            expect($window.open).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/306/attachments/1093", "_blank");
+            expect(spyDownload).toHaveBeenCalled();
+            expect(spyDownload).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/306/attachments/1093");
         }));
 
     it("should try to download a document which has an historical attachment",
         inject((
             $timeout: ng.ITimeoutService,
-            $window: ng.IWindowService) => {
+            downloadService: IDownloadService) => {
 
             // Arrange
-            spyOn($window, "open").and.callFake(function () {
-                return true;
-            });
+            const spyDownload = spyOn(downloadService, "downloadFile");
+
             vm.docRefInfo.versionId = 4;
 
             // Act
@@ -83,20 +83,20 @@ describe("Component BP Artifact Document Item", () => {
             $timeout.flush();
 
             //Assert
-            expect($window.open).toHaveBeenCalled();
-            expect($window.open).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/306/attachments/1093?versionId=4", "_blank");
+            expect(spyDownload).toHaveBeenCalled();
+            expect(spyDownload).toHaveBeenCalledWith("/svc/bpartifactstore/artifacts/306/attachments/1093?versionId=4");
         }));
 
     it("should try to download a document which has no attachment",
         inject((
             $timeout: ng.ITimeoutService,
-            $window: ng.IWindowService,
+            downloadService: IDownloadService,
             messageService: IMessageService,
             artifactAttachments: IArtifactAttachmentsService,
             $q: ng.IQService) => {
 
             // Arrange
-            spyOn($window, "open").and.callFake(() => true);
+            const spyDownload = spyOn(downloadService, "downloadFile");
             spyOn(messageService, "addError").and.callFake(() => true);
             spyOn(artifactAttachments, "getArtifactAttachments").and.callFake((artifactId: number) => {
                 const result = {
@@ -115,7 +115,7 @@ describe("Component BP Artifact Document Item", () => {
             $timeout.flush();
 
             //Assert
-            expect($window.open).not.toHaveBeenCalled();
+            expect(spyDownload).not.toHaveBeenCalled();
             expect(messageService.addError).toHaveBeenCalled();
         }));
 

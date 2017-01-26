@@ -8,10 +8,14 @@ using NUnit.Framework;
 using System.Linq;
 using System.Net;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.SearchServiceModel.Impl;
+using Model.StorytellerModel.Impl;
 using TestCommon;
 using Utilities;
+using Utilities.Factories;
 
 namespace SearchServiceTests
 {
@@ -24,6 +28,7 @@ namespace SearchServiceTests
         private static List<IProject> _projects;
         private static List<IArtifactBase> _artifacts;
 
+        protected const string FULLTEXTSEARCHMETADATA_PATH = RestPaths.Svc.SearchService.FullTextSearch.METADATA;
         const int DEFAULT_PAGE_SIZE_VALUE = 10;
         const string DESCRIPTION = "Description";
 
@@ -50,13 +55,13 @@ namespace SearchServiceTests
         [Description("Search without optional parameter pagesize. Executed search must return search metadata result that indicates default page size.")]
         public void FullTextSearchMetadata_SearchMetadataWithoutPageSize_VerifySearchMetadataResultUsesDefaultPageSize()
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup: 
             var searchTerm = _artifacts.First().Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Execute: Execute FullTextSearch with search term
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -74,13 +79,13 @@ namespace SearchServiceTests
         [Description("Search with optional parameter pagesize. Executed search must return search metadata result that indicates requested page size")]
         public void FullTextSearchMetadata_SearchMetadataWithValidPageSize_VerifySearchMetadataResult(int requestedPageSize)
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup: 
             var searchTerm = _artifacts.First().Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
 
             // Execute: Execute FullTextSearch with search terms
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria, requestedPageSize),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -118,15 +123,15 @@ namespace SearchServiceTests
                      " search metadata result that indicates only the single project was searched.")]
         public void FullTextSearchMetadata_SearchMetadataFromSingleProject_VerifySearchMetadataResultIncludesOnlyProjectsSpecified()
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResultForSingleProject = null;
-
             // Setup: 
             var searchTerm = _artifacts.First().Name;
 
-            // Seaarch only a single project from the list of projects.
+            // Search only a single project from the list of projects.
             var searchCriteria = new FullTextSearchCriteria(searchTerm, new List<int> { _projects.First().Id });
 
             // Execute: Execute FullTextSearch with search term
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResultForSingleProject = null;
+
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResultForSingleProject =
                 Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -145,7 +150,7 @@ namespace SearchServiceTests
                 "SearchMetaData() call failed when using following search term: {0}!",
                 searchCriteria.Query);
 
-            Assert.That(!fullTextSearchMetaDataResultForMultipleProjects.TotalCount.Equals(fullTextSearchMetaDataResultForSingleProject.TotalCount),
+            Assert.AreNotEqual(fullTextSearchMetaDataResultForSingleProject.TotalCount, fullTextSearchMetaDataResultForMultipleProjects.TotalCount,
                 "The search hit count for multiple projects was the same as for a single project but should be different.");
         }
 
@@ -155,9 +160,7 @@ namespace SearchServiceTests
                      " ignore the invalid project.")]
         public void FullTextSearchMetadata_SearchMetadataWithOneValidAndOneInvalidProject_VerifySearchMetadataResultIgnoresInvalidProject(int invalidProjectId)
         {
-            // Setup: 
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
+            // Setup:
             var searchTerm = _artifacts.First().Name;
             var projectIds = new List<int>
             {
@@ -168,6 +171,8 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, projectIds);
 
             // Execute: Execute FullTextSearch with search term
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -199,8 +204,6 @@ namespace SearchServiceTests
         {
             ThrowIf.ArgumentNull(baseArtifactTypes, nameof(baseArtifactTypes));
 
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup: 
             var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
 
@@ -208,12 +211,12 @@ namespace SearchServiceTests
 
             // Search for Description property value which is common to all artifacts
             var searchTerm = WebUtility.HtmlDecode(openApiProperty.TextOrChoiceValue);
-
             var itemTypeIds = SearchServiceTestHelper.GetItemTypeIdsForBaseArtifactTypes(_projects, baseArtifactTypes.ToList());
-
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id), itemTypeIds);
 
             // Execute: Execute FullTextSearch with search term
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -221,6 +224,99 @@ namespace SearchServiceTests
 
             // Validation:
             ValidateSearchMetadataTest(fullTextSearchMetaDataResult, searchCriteria, DESCRIPTION);
+        }
+
+        [Category(Categories.CustomData)]
+        [TestCase("Std-Text-Required-HasDefault")]
+        [TestRail(234334)]
+        [Description("Search for search term that is present in artifact textual property.  Execute metadata Search - " +
+            "Must return Metadata SearchResult with expected hit count.")]
+        public void FullTextSearchMetadata_SearchPublishedArtifactTextualProperties_VerifyMetadataSearchResult(
+            string propertyName)
+        {
+            // Setup: 
+            var selectedProjectIds = _projects.ConvertAll(p => p.Id);
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+
+            string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
+
+            // Update custom property in artifact.
+            ArtifactStoreHelper.UpdateArtifactCustomProperty(artifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
+            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
+
+            // Execute: 
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult = Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCHMETADATA_PATH, searchCriteria.Query);
+
+            // Verify: 
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount,
+                "The number of hits was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual(DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize,
+                "The page size was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, DEFAULT_PAGE_SIZE_VALUE);
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalPages,
+                "The total pages was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual("Process", fullTextSearchMetaDataResult.Items.First().TypeName,
+                "The artifact type name was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, "Process");
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.Items.First().Count,
+                "The hit count for artifact type was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
+        [Category(Categories.CustomData)]
+        [TestCase("Std-Text-Required-HasDefault")]
+        [TestRail(234335)]
+        [Description("Search for search term that is present in subartifact textual property.  Execute Search - " +
+            "Must return SearchResult with list of FullTextSearchItems matching artifacts with subartifact textual property.")]
+        public void FullTextSearchMetadata_SearchPublishedSubArtifactTextualProperties_VerifyMetadataSearchResult(
+            string propertyName)
+        {
+            // Setup: 
+            var selectedProjectIds = _projects.ConvertAll(p => p.Id);
+            var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectWithSubArtifactRequiredProperties, _user);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(project, _user, ItemTypePredefined.Process, artifactTypeName: "Process");
+
+            string searchTerm = "SearchText_" + RandomGenerator.RandomAlphaNumericUpperAndLowerCase(25);
+
+            // Get nova subartifact
+            var novaProcess = Helper.Storyteller.GetNovaProcess(_user, artifact.Id);
+            var processShape = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var novaSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, processShape.Id);
+
+            ArtifactStoreHelper.UpdateSubArtifactCustomProperty(artifact, novaSubArtifact, _user, project, PropertyPrimitiveType.Text, propertyName, searchTerm, Helper.ArtifactStore);
+            Helper.ArtifactStore.PublishArtifact(artifact, _user);
+
+            var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
+
+            // Execute: 
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+            Assert.DoesNotThrow(() => fullTextSearchMetaDataResult = Helper.SearchService.FullTextSearchMetaData(_user, searchCriteria),
+                "POST {0} call failed when using search term {1} which matches with published artifacts!", FULLTEXTSEARCHMETADATA_PATH, searchCriteria.Query);
+
+            // Verify: 
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount,
+                "The number of hits was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual(DEFAULT_PAGE_SIZE_VALUE, fullTextSearchMetaDataResult.PageSize,
+                "The page size was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, DEFAULT_PAGE_SIZE_VALUE);
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalPages,
+                "The total pages was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
+
+            Assert.AreEqual("Process: Shape", fullTextSearchMetaDataResult.Items.First().TypeName,
+                "The artifact type name was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, "Process: Shape");
+
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.Items.First().Count,
+                "The hit count for artifact type was {0} but {1} was expected", fullTextSearchMetaDataResult.TotalCount, 1);
         }
 
         #region Permissions Tests
@@ -234,8 +330,6 @@ namespace SearchServiceTests
             BaseArtifactType baseArtifactType)
         {
             // Setup:
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Create artifact in first project with random Name.
             var savedArtifact = Helper.CreateAndSaveArtifact(_projects.First(), _user, baseArtifactType);
             var publishedArtifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
@@ -247,6 +341,8 @@ namespace SearchServiceTests
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
             // Execute: Perform search for saved artifact with another user.
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
             searchCriteria.Query = savedArtifact.Name;
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
@@ -258,8 +354,6 @@ namespace SearchServiceTests
             ValidateSearchMetaDataPermissionsTest(fullTextSearchMetaDataResult, expectedHitCount, expectedTotalPageCount);
         }
 
-
-
         [TestCase(1, 1, BaseArtifactType.Actor)]
         [TestRail(182365)]
         [Description("Save artifact and publish. Search artifact with other user. Executed search must return search hits for search criteria.")]
@@ -268,8 +362,6 @@ namespace SearchServiceTests
             int expectedTotalPageCount,
             BaseArtifactType baseArtifactType)
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup: 
             // Create artifact in first project with random Name
             var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
@@ -280,6 +372,8 @@ namespace SearchServiceTests
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1);
 
             // Execute: Perform search with another user
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
+
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -298,8 +392,6 @@ namespace SearchServiceTests
             BaseArtifactType baseArtifactType)
         {
             // Setup:
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Create artifact in first project with unique random Name.
             var artifactToDelete = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
             var artifactToDeleteAndPublish = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
@@ -309,6 +401,7 @@ namespace SearchServiceTests
 
             // Wait until second user can see the artifact in the search results or timeout occurs.
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user2, Helper, searchCriteria, 1);
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
@@ -359,8 +452,6 @@ namespace SearchServiceTests
             int expectedTotalPageCount,
             BaseArtifactType baseArtifactType)
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup: 
             // Create artifact in first project with unique random Name
             var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
@@ -370,6 +461,7 @@ namespace SearchServiceTests
 
             // Wait until second user can see the artifact in the search results or timeout occurs
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user2, Helper, searchCriteria, 1);
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
@@ -377,7 +469,9 @@ namespace SearchServiceTests
                 searchCriteria.Query);
 
             // Verify that second user can see the artifact 
-            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(1), "The expected search hit count is {0} but {1} was returned.", 1, fullTextSearchMetaDataResult.TotalCount);
+            Assert.AreEqual(1, fullTextSearchMetaDataResult.TotalCount,
+                "The expected search hit count is {0} but {1} was returned.",
+                1, fullTextSearchMetaDataResult.TotalCount);
 
             // Delete and publish artifact by first user
             artifact.Delete(_user);
@@ -386,6 +480,7 @@ namespace SearchServiceTests
             // Wait until second user can no longer see the artifact or timeout occurs
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user2, Helper, searchCriteria, 0, waitForArtifactsToDisappear: true);
 
+            // Execute:
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(_user2, searchCriteria),
                 "SearchMetaData() call failed when using following search term: {0}!",
@@ -407,8 +502,6 @@ namespace SearchServiceTests
             int expectedTotalPageCount,
             TestHelper.ProjectRole projectRole)
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup: 
             var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
@@ -423,6 +516,9 @@ namespace SearchServiceTests
             var userWithProjectRole = Helper.CreateUserWithProjectRolePermissions(
                 projectRole,
                 new List<IProject> { _projects.First() });
+
+            // Execute:
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(userWithProjectRole, searchCriteria),
@@ -445,8 +541,6 @@ namespace SearchServiceTests
             int expectedTotalPageCount,
             TestHelper.ProjectRole projectRole)
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup:
             var openApiProperty = _artifacts.First().Properties.FirstOrDefault(p => p.Name == DESCRIPTION);
             Assert.That(openApiProperty != null, "Description property for artifact could not be found!");
@@ -461,6 +555,9 @@ namespace SearchServiceTests
             var userWithProjectRole = Helper.CreateUserWithProjectRolePermissions(
                 projectRole,
                 _projects);
+
+            // Execute:
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
                 Helper.SearchService.FullTextSearchMetaData(userWithProjectRole, searchCriteria),
@@ -479,10 +576,8 @@ namespace SearchServiceTests
             int expectedTotalPageCount,
             BaseArtifactType baseArtifactType)
         {
-            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
-
             // Setup: 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, baseArtifactType);
 
             var searchTerm = artifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -502,6 +597,9 @@ namespace SearchServiceTests
 
             // Wait until user can see the artifact in the search results or timeout occurs
             SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, newSearchCriteria, 1);
+
+            // Execute:
+            FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
 
             // Attempt to search for artifact with original search criteria
             Assert.DoesNotThrow(() => fullTextSearchMetaDataResult =
@@ -569,7 +667,7 @@ namespace SearchServiceTests
         public void FullTextSearchMetadata_SearchMetadataWithInvalidSession_401Unauthorized(BaseArtifactType artifactType, string invalidAccessControlToken)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_projects.First(), _user, artifactType);
 
             var searchTerm = artifact.Name;
             var searchCriteria = new FullTextSearchCriteria(searchTerm, _projects.Select(p => p.Id));
@@ -615,12 +713,20 @@ namespace SearchServiceTests
             var expectedSearchResult = CreateExpectedSearchMetaDataResult(searchCriteria, propertyToSearch, pageSize);
 
             // Validation:
-            Assert.That(searchResult.PageSize.Equals(expectedSearchResult.PageSize), "The expected default pagesize value is {0} but {1} was found from the returned searchResult.", expectedSearchResult.PageSize, searchResult.PageSize);
-            Assert.That(searchResult.TotalCount.Equals(expectedSearchResult.TotalCount), "The expected total hit count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.TotalCount, searchResult.TotalCount);
-            Assert.That(searchResult.TotalPages.Equals(expectedSearchResult.TotalPages), "The expected total pages is {0} but {1} was found from the returned searchResult.", expectedSearchResult.TotalPages, searchResult.TotalPages);
+            Assert.AreEqual(expectedSearchResult.PageSize, searchResult.PageSize,
+                "The expected default pagesize value is {0} but {1} was found from the returned searchResult.",
+                expectedSearchResult.PageSize, searchResult.PageSize);
+            Assert.AreEqual(expectedSearchResult.TotalCount, searchResult.TotalCount,
+                "The expected total hit count is {0} but {1} was found from the returned searchResult.",
+                expectedSearchResult.TotalCount, searchResult.TotalCount);
+            Assert.AreEqual(expectedSearchResult.TotalPages, searchResult.TotalPages,
+                "The expected total pages is {0} but {1} was found from the returned searchResult.",
+                expectedSearchResult.TotalPages, searchResult.TotalPages);
 
             Assert.IsNotNull(searchResult.Items, "List of items shouldn't be empty");
-            Assert.That(searchResult.Items.Count().Equals(expectedSearchResult.Items.Count()), "The expected item type count is {0} but {1} was found from the returned searchResult.", expectedSearchResult.Items.Count(), searchResult.Items.Count());
+            Assert.AreEqual(expectedSearchResult.Items.Count(), searchResult.Items.Count(), 
+                "The expected item type count is {0} but {1} was found from the returned searchResult.",
+                expectedSearchResult.Items.Count(), searchResult.Items.Count());
 
             foreach (var expectedFullTextSearchTypeItem in expectedSearchResult.Items)
             {
@@ -628,10 +734,17 @@ namespace SearchServiceTests
                     searchResult.Items.FirstOrDefault(
                         i => i.ItemTypeId == expectedFullTextSearchTypeItem.ItemTypeId);
 
-                Assert.IsNotNull(fullTextSearchTypeItem, "Item type id {0} was expected but not found", expectedFullTextSearchTypeItem.ItemTypeId);
-                Assert.That(fullTextSearchTypeItem.Count.Equals(expectedFullTextSearchTypeItem.Count), "A hit count of {0} was expected but {1} was returned.", expectedFullTextSearchTypeItem.Count, fullTextSearchTypeItem.Count);
-                Assert.That(fullTextSearchTypeItem.ItemTypeId.Equals(expectedFullTextSearchTypeItem.ItemTypeId), "An item type id of {0} was expected but {1} was returned.", expectedFullTextSearchTypeItem.ItemTypeId, fullTextSearchTypeItem.ItemTypeId);
-                Assert.That(fullTextSearchTypeItem.TypeName.Equals(expectedFullTextSearchTypeItem.TypeName), "A type name of {0} was expected but {1} was returned.", expectedFullTextSearchTypeItem.TypeName, fullTextSearchTypeItem.TypeName);
+                Assert.IsNotNull(fullTextSearchTypeItem, "Item type id {0} was expected but not found",
+                    expectedFullTextSearchTypeItem.ItemTypeId);
+                Assert.AreEqual(expectedFullTextSearchTypeItem.Count, fullTextSearchTypeItem.Count,
+                    "A hit count of {0} was expected but {1} was returned.",
+                    expectedFullTextSearchTypeItem.Count, fullTextSearchTypeItem.Count);
+                Assert.AreEqual(expectedFullTextSearchTypeItem.ItemTypeId, fullTextSearchTypeItem.ItemTypeId,
+                    "An item type id of {0} was expected but {1} was returned.",
+                    expectedFullTextSearchTypeItem.ItemTypeId, fullTextSearchTypeItem.ItemTypeId);
+                Assert.AreEqual(expectedFullTextSearchTypeItem.TypeName, fullTextSearchTypeItem.TypeName,
+                    "A type name of {0} was expected but {1} was returned.",
+                    expectedFullTextSearchTypeItem.TypeName, fullTextSearchTypeItem.TypeName);
             }
         }
 
@@ -680,6 +793,7 @@ namespace SearchServiceTests
             foreach (var artifactTypeId in selectedArtifacts.Select(a => a.ArtifactTypeId).Distinct())
             {
                 var firstOrDefault = selectedArtifacts.FirstOrDefault(a => a.ArtifactTypeId == artifactTypeId);
+
                 if (firstOrDefault != null)
                 {
                     var fullTextSearchTypeItem = new FullTextSearchTypeItem
@@ -710,28 +824,27 @@ namespace SearchServiceTests
         /// <param name="searchResult">The full text metadata search result</param>
         /// <param name="expectedHitCount">The expected number of hits resulting from the search</param>
         /// <param name="expectedTotalPageCount">The expected total page count returned by the search</param>
-
-        /// <param name="pageSize"></param>
+        /// <param name="expectedPageSize">(optional) The expected page size returned by the search.</param>
         private static void ValidateSearchMetaDataPermissionsTest(
             FullTextSearchMetaDataResult searchResult,
             int expectedHitCount,
             int expectedTotalPageCount,
-            int pageSize = DEFAULT_PAGE_SIZE_VALUE)
+            int expectedPageSize = DEFAULT_PAGE_SIZE_VALUE)
         {
             ThrowIf.ArgumentNull(searchResult, nameof(searchResult));
 
-            Assert.That(searchResult.Items.Count().Equals(expectedHitCount),
+            Assert.AreEqual(expectedHitCount, searchResult.Items.Count(),
                 "Returned Full text search type items count of {0} did not match expected count of {1}",
                 searchResult.Items.Count(), expectedHitCount);
-            Assert.That(searchResult.TotalCount.Equals(expectedHitCount),
+            Assert.AreEqual(expectedHitCount, searchResult.TotalCount,
                 "The expected search hit count is {0} but {1} was returned.",
                 expectedHitCount, searchResult.TotalCount);
-            Assert.That(searchResult.TotalPages.Equals(expectedTotalPageCount),
+            Assert.AreEqual(expectedTotalPageCount, searchResult.TotalPages,
                 "The expected total page count is {0} but {1} was returned.",
                 expectedTotalPageCount, searchResult.TotalPages);
-            Assert.That(searchResult.PageSize.Equals(pageSize),
+            Assert.AreEqual(expectedPageSize, searchResult.PageSize,
                 "The expected default pagesize value is {0} but {1} was found from the returned searchResult.",
-                pageSize, searchResult.PageSize);
+                expectedPageSize, searchResult.PageSize);
         }
 
         #endregion Private Functions

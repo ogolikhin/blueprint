@@ -287,8 +287,8 @@ namespace ArtifactStoreTests
             BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
         {
             // Setup:
-            List<BaseArtifactType> folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
-            List<BaseArtifactType> artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
+            var folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
@@ -360,7 +360,7 @@ namespace ArtifactStoreTests
         public void ArtifactNavigationPath_InvalidSession_401Unauthorized()
         {
             // Setup: Create a user with invalid session
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute and Validation: Execute GetNavigationPath using the user with invalid session
             Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetNavigationPath(user: userWithBadToken, itemId: _project.Id),
@@ -401,7 +401,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Create a user that has access to the project but not the artifact.
-            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute & Verify:
@@ -423,7 +423,7 @@ namespace ArtifactStoreTests
             var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
 
             // Create a user that has access to the project but not the artifact.
-            IUser userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, parentArtifact);
 
             // Execute & Verify:

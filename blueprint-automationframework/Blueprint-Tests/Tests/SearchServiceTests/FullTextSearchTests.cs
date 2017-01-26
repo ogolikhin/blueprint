@@ -77,7 +77,7 @@ namespace SearchServiceTests
             page = page.Equals(0) ? DEFAULT_PAGE_VALUE : page;
             pageSize = pageSize.Equals(0) ? DEFAULT_PAGESIZE_VALUE : pageSize;
 
-            List<int> returnedFullTextSearchItemArtifactIds = new List<int>();
+            var returnedFullTextSearchItemArtifactIds = new List<int>();
 
             if (artifactsToBeFound.Any())
             {
@@ -354,7 +354,8 @@ namespace SearchServiceTests
         [TestCase]
         [TestRail(182342)]
         [Ignore(IgnoreReasons.ProductBug)]  // TFS Bug: 4191  The GET svc/searchservice/itemsearch/fulltextmetadata call doesn't find saved (unpublished) changes
-        [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
+        [Description("Searching with the search criteria that matches with deleted but not published artifacts. Execute Search with the same user - " +
+            "Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedNotPublishedArtifact_VerifyWithSameUserEmptySearchResult()
         {
             // Setup: Delete all published artifacts
@@ -415,7 +416,8 @@ namespace SearchServiceTests
         [Explicit(IgnoreReasons.FlakyTest)] // This test deletes the artifacts in the FixtureSetup which then causes all tests after it to fail.
         [TestCase]
         [TestRail(182343)]
-        [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with the same user - Must return SearchResult with empty list of FullTextSearchItems.")]
+        [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with the same user - " +
+            "Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedAndPublishedArtifact_VerifyWithSameUserEmptySearchResult()
         {
             // Setup: Delete all published artifacts
@@ -442,7 +444,8 @@ namespace SearchServiceTests
         [Explicit(IgnoreReasons.FlakyTest)] // This test deletes the artifacts in the FixtureSetup which then causes all tests after it to fail.
         [TestCase]
         [TestRail(182371)]
-        [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with different user - Must return SearchResult with empty list of FullTextSearchItems.")]
+        [Description("Searching with the search criteria that matches with deleted and published artifacts. Execute Search with different user - " +
+            "Must return SearchResult with empty list of FullTextSearchItems.")]
         public void FullTextSearch_SearchDeletedAndPublishedArtifact_VerifyWithDifferentUserEmptySearchResult()
         {
             // Setup: Delete all published artifacts
@@ -505,9 +508,9 @@ namespace SearchServiceTests
             var searchCriteria = new FullTextSearchCriteria(searchTerm, projectIds: searchProjectIds);
 
             // Calculate expecting values for the selected project(s) and published artifacts for the project(s)
-            List<IProject> selectedProjects = new List<IProject>();
+            var selectedProjects = new List<IProject>();
             selectedProjects.AddRange(_projects.Take(numberOfProjectForPermissionTesting));
-            List<IArtifactBase> publishedArtifactsForSelectedProjects = new List<IArtifactBase>();
+            var publishedArtifactsForSelectedProjects = new List<IArtifactBase>();
 
             foreach (var selectedProjectId in selectedProjects.ConvertAll(o => o.Id))
             {
@@ -525,6 +528,7 @@ namespace SearchServiceTests
             // Execute: Execute FullTextSearch with the search term using the user with the specific permission on project(s)
             var userWithSelectiveProjectPermission = Helper.CreateUserWithProjectRolePermissions(projectRole, selectedProjects);
             FullTextSearchResult fullTextSearchResult = null;
+
             Assert.DoesNotThrow(() =>
             {
                 fullTextSearchResult = Helper.SearchService.FullTextSearch(userWithSelectiveProjectPermission, searchCriteria,
@@ -545,7 +549,7 @@ namespace SearchServiceTests
         public void FullTextSearch_SearchOlderVersionArtifact_VerifyEmptySearchResults()
         {
             // Setup: Create few artifacts to search
-            List<BaseArtifactType> selectedBasedArtifactTypes = new List<BaseArtifactType> { BaseArtifactType.Actor };
+            var selectedBasedArtifactTypes = new List<BaseArtifactType> { BaseArtifactType.Actor };
             var publishedArtifacts = SearchServiceTestHelper.SetupFullTextSearchData(_projects, _user, Helper, selectedBasedArtifactTypes);
 
             // Create search criteria with search term that matches with current version of artifact(s) description
@@ -597,6 +601,7 @@ namespace SearchServiceTests
             // Execute: Execute FullTextSearch with pageSize
             var returnedSearchCount = 0;
             var pageCount = 1;
+
             while ( pageCount <= expectedPageCount)
             {
                 // Execute Search with page and pageSize
@@ -609,7 +614,7 @@ namespace SearchServiceTests
                 returnedSearchCount += fullTextSearchResult.Items.Count();
 
                 // Create a artifact list per page, decending ordered by Last Edited On
-                List<IArtifactBase> pagedArtifacts = CreateArtifactListPerPage(expectedArtifactsStackDescOrderedByLastEditedOn, pageSize);
+                var pagedArtifacts = CreateArtifactListPerPage(expectedArtifactsStackDescOrderedByLastEditedOn, pageSize);
 
                 // Validation: Verify that searchResult contains list of FullTextSearchItems
                 FullTextSearchResultValidation(fullTextSearchResult, artifactsToBeFound: pagedArtifacts, page: pageCount, pageSize: pageSize);
@@ -645,15 +650,15 @@ namespace SearchServiceTests
 
             // Create an expected artifact list, decending ordered by Last Edited On
             var expectedArtifactsStackDescOrderedByLastEditedOn = CreateDescendingOrderedLastEditedOnArtifactStack(_publishedArtifacts);
-            List<IArtifactBase> LastEditedOnOrderedArtifacts = CreateArtifactListPerPage(expectedArtifactsStackDescOrderedByLastEditedOn, customSearchPageSize);
+            var lastEditedOnOrderedArtifacts = CreateArtifactListPerPage(expectedArtifactsStackDescOrderedByLastEditedOn, customSearchPageSize);
 
             // Compare returned FullTextSearchItems from search result with the expected ordered artifacts
             for (int i = 0; i < fullTextSearchResult.Items.Count(); i++ )
             {
                 Assert.That(fullTextSearchResult.Items.ToList()[i].ArtifactId.
-                    Equals(LastEditedOnOrderedArtifacts[i].Id),
+                    Equals(lastEditedOnOrderedArtifacts[i].Id),
                     "artfiact with ID {0} was expected from the returned FullTextSearchItems but artifact with ID {1} is found on data row {2}.",
-                    LastEditedOnOrderedArtifacts[i].Id, fullTextSearchResult.Items.ToList()[i].ArtifactId, i);
+                    lastEditedOnOrderedArtifacts[i].Id, fullTextSearchResult.Items.ToList()[i].ArtifactId, i);
             }
         }
 
@@ -686,7 +691,7 @@ namespace SearchServiceTests
 
             // Verify: 
             Assert.AreEqual(expectedHits, fullTextSearchResult.PageItemCount,
-                "The number of hits was {0} but {1} was expected", expectedHits, fullTextSearchResult.PageItemCount);
+                "The number of hits was {0} but {1} was expected", fullTextSearchResult.PageItemCount, expectedHits);
 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
         }
@@ -725,7 +730,7 @@ namespace SearchServiceTests
 
             // Verify: 
             Assert.AreEqual(expectedHits,fullTextSearchResult.PageItemCount,
-                "The number of hits was {0} but {1} was expected", expectedHits, fullTextSearchResult.PageItemCount);
+                "The number of hits was {0} but {1} was expected", fullTextSearchResult.PageItemCount, expectedHits);
 
             FullTextSearchResultValidation(searchResult: fullTextSearchResult, artifactsToBeFound: new List<IArtifactBase> { artifact });
         }
@@ -806,7 +811,7 @@ namespace SearchServiceTests
             // Setup: Create searchable artifact(s) with unique search term
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute: Execute FullTextSearch using the user with invalid session token
             var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.SearchService.FullTextSearch(userWithBadToken, searchCriteria),
@@ -841,7 +846,8 @@ namespace SearchServiceTests
         /// <param name="pageSize">maximum number of artifacts that will be on the paged artifact list</param>
         private static List<IArtifactBase> CreateArtifactListPerPage (Stack<IArtifactBase> artifactStack, int pageSize)
         {
-            List<IArtifactBase> pagedArtifacts = new List<IArtifactBase>();
+            var pagedArtifacts = new List<IArtifactBase>();
+
             for (int i = 0; i < pageSize; i++)
             {
                 if (artifactStack.Any())

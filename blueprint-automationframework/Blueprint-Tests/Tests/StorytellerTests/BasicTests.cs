@@ -66,7 +66,7 @@ namespace StorytellerTests
         [TestCase]
         public void GetProcesses_ReturnedListContainsCreatedProcess()
         {
-            IArtifact artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
+            var artifact = Helper.Storyteller.CreateAndSaveProcessArtifact(_project, _user);
             List<IProcess> processList = null;
 
             Assert.DoesNotThrow(() =>

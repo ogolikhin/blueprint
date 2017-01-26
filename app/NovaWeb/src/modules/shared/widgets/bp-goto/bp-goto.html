@@ -9,11 +9,16 @@
         ng-blur="$ctrl.hideSearch()"
         placeholder="Enter an ID...">
     <div class="bp-goto__line"></div>
-    <i class="bp-goto__clear-search fonticon-error" ng-if="$ctrl.gotoValue" ng-mousedown="$ctrl.onClearInput($event)"></i>
+    <i class="bp-goto__clear-search fonticon-error"
+       ng-if="$ctrl.gotoValue"
+       ng-mousedown="$ctrl.onClearInput($event)"></i>
 </div>
 
-<a class="bp-goto__button" ng-mousedown="$ctrl.showOrDoSearch($event)" bp-tooltip="{{$ctrl.tooltip}}">
+<button type="button"
+        class="btn-link btn bp-goto__button"
+        ng-mousedown="$ctrl.showOrDoSearch($event)"
+        bp-tooltip="{{$ctrl.tooltip}}">
     <i class="bp-goto__button-icon fonticon fonticon2-relationship-right"></i>
     <span class="bp-goto__button-label">Go to</span>
     <div class="bp-goto__overlay"></div>
-</a>
+</button>

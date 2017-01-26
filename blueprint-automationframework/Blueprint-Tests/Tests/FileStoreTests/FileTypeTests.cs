@@ -38,7 +38,7 @@ namespace FileStoreTests
         public void PostFile_MultiPartMime_ReturnedFileTypeMatchesSentFileType(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: true);
@@ -60,7 +60,7 @@ namespace FileStoreTests
         public void PostFile_NoMultiPartMime_ReturnedFileTypeMatchesSentFileType(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup: create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _user, useMultiPartMime: false);

@@ -16,8 +16,8 @@ namespace SearchServiceTests
         private IUser _userAdmin = null;
         private IUser _userAuthorLicense = null;
 
+        // TODO: Remove _viewerRole & _group and use TestHelper.CreateUserWithProjectRolePermissions() instead.
         private IProjectRole _viewerRole = null;
-
         private IGroup _group = null;
 
         private IProject _project = null;

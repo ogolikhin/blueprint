@@ -2,7 +2,6 @@
     <h3 class="modal-title">{{::$root.config.labels["Create_New_Artifact_Dialog_Header"]}}</h3>
 </div>
 <div class="modal-body new-artifact">
-    <input class="new-artifact__focus-stealer" type="text">
     <div class="nova-form-group nova-floating-label new-artifact__group new-artifact__group--first">
         <span class="nova-form-control" ng-class="{'ng-not-empty': $ctrl.newArtifactType, 'fake-focus': $ctrl.hasFocus || $ctrl.isDropdownOpen}">
             <input type="text" class="nova-form-control new-artifact__dropdown"

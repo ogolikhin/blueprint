@@ -338,8 +338,8 @@ export class BpArtifactInfoController {
     }
 
     private createToolbarActions(): void {
-        const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
-        const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
+        const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService, this.dialogService);
+        const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService, this.dialogService);
         const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
             this.projectManager, this.loadingOverlayService, this.navigationService);
         const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,

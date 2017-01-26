@@ -50,7 +50,7 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            var property = new OpenApiProperty(_artifact.Address);
             
             //Set property value
             _artifact.Properties.Add(
@@ -82,7 +82,8 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            var property = new OpenApiProperty(_artifact.Address);
+
             _artifact.Properties.Add(
                 property.SetPropertyAttribute(
                     _project,
@@ -100,7 +101,7 @@ namespace OpenAPITests
             _artifact.Save();
 
             //Adding all artifact(s) to publish
-            List<IOpenApiArtifact> artifactList = new List<IOpenApiArtifact>();
+            var artifactList = new List<IOpenApiArtifact>();
             artifactList.Add(_artifact);
             // TODO more assertion?
 
@@ -116,7 +117,8 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //Create Description property
-            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            var property = new OpenApiProperty(_artifact.Address);
+
             _artifact.Properties.Add(
                 property.SetPropertyAttribute(
                     _project,
@@ -153,7 +155,8 @@ namespace OpenAPITests
             _artifact = Helper.CreateOpenApiArtifact(project: _project, user: _user, artifactType: BaseArtifactType.Actor);
 
             //create Description property
-            OpenApiProperty property = new OpenApiProperty(_artifact.Address);
+            var property = new OpenApiProperty(_artifact.Address);
+
             _artifact.Properties.Add(
                 property.SetPropertyAttribute(
                     _project,

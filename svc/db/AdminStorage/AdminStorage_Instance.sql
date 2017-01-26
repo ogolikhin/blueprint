@@ -841,6 +841,54 @@ Description:	Returns license usage information
 
 ******************************************************************************************************************************/
 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseUserActivity]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLicenseUserActivity]
+GO
+
+CREATE PROCEDURE [dbo].[GetLicenseUserActivity]
+(
+	@month int = null,
+	@year int = null
+)
+AS
+BEGIN
+IF (NOT @month IS NULL AND (@month < 1 OR @month > 12))  
+	SET @month = NULL
+IF (NOT @year IS NULL AND (@year < 2000 OR @year > 2999))
+	SET @year = NULL
+
+DECLARE @startMonth date = ISNULL(DATEFROMPARTS(@year, @month, 1), '1900/1/1'); 
+DECLARE @currentMonth date = DATEFROMPARTS(YEAR(GETUTCDATE()), MONTH(GETUTCDATE()), 1);
+
+SELECT 
+	la.UserId, 
+	MAX(la.UserLicenseType) as LicenseType,  
+	YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp]) AS [YearMonth]
+FROM 
+	[dbo].[LicenseActivities] la  WITH (NOLOCK) 
+WHERE 
+	@startMonth < @currentMonth AND
+	la.ConsumerType = 1 AND 
+	la.ActionType = 1 --and UserLicenseType in (3,2) 
+GROUP BY 
+	la.UserId, YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp])
+ORDER BY 
+	UserId, YearMonth
+
+
+END
+GO
+--------------------------------------------------------------
+
+
+
+/******************************************************************************************************************************
+Name:			GetLicenseUsage
+
+Description:	Returns license usage information 
+
+******************************************************************************************************************************/
+
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLicenseUsage]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[GetLicenseUsage]
 GO
@@ -859,123 +907,46 @@ IF (NOT @year IS NULL AND (@year < 2000 OR @year > 2999))
 	SET @year = NULL
 
 DECLARE @currentDate datetime = GETUTCDATE();
-DECLARE @startMonth date = CAST(DATEFROMPARTS(@year, @month, 1) as Datetime); --DATEADD(month, @month, DATEADD(year, (@year-1900), 0));
-DECLARE @currentMonth date = CAST(DATEFROMPARTS(YEAR(@currentDate), MONTH(@currentDate), 1) as Datetime);--,DATEADD(month, MONTH(@currentDate)-1, DATEADD(year, (YEAR(@currentDate)-1900), 0));
+DECLARE @startMonth date = CAST(DATEFROMPARTS(@year, @month, 1) as Datetime); 
+DECLARE @currentMonth date = CAST(DATEFROMPARTS(YEAR(@currentDate), MONTH(@currentDate), 1) as Datetime);
 
--- To Hold registered user (first time login)
-DECLARE @registration TABLE  (
-	[YearMonth] int NULL,
-	[UserId] int NULL,
-	[License] int NULL
+WITH L
+AS (
+	-- Client: 1, Analytics: 2, REST: 3
+	-- Viewer: 1, Collaborator: 2, Author: 3
+	SELECT	 
+		YEAR(la.[TimeStamp]) AS 'UsageYear',
+		MONTH(la.[TimeStamp]) AS 'UsageMonth',
+		la.UserId as 'UserId',
+		la.ConsumerType AS 'Consumer',
+		la.UserLicenseType AS 'License',
+		ISNULL(da.LicenseType, 0) AS 'CountLicense',
+		ISNULL(da.[Count], 0) AS 'Count'
+	FROM 
+		LicenseActivities AS la WITH (NOLOCK) LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
+			ON la.LicenseActivityId = da.LicenseActivityId
+	WHERE 
+		(@year IS NULL OR @month IS NULL OR la.[TimeStamp] > @startMonth) AND la.[TimeStamp] < @currentMonth
 )
-INSERT INTO @registration
+
+--Selects and returns the summary
 SELECT 
-	YEAR(R.FirstTime) * 100 + MONTH(R.FirstTime) as YearMonth, 
-	R.UserId, 
-	R.License  
-FROM (		
-	SELECT 
-		UserId,
-		UserLicenseType AS License,
-		MIN(la.TimeStamp) AS FirstTime
-	FROM LicenseActivities AS la WITH (NOLOCK) 
-	WHERE la.ConsumerType = 1 AND la.ActionType = 1 -- Client(ConsumerType) and Login(ActionType)
-	GROUP BY la.UserId, la.UserLicenseType
-) AS R
-
--- To hold user activities
-DECLARE @usage TABLE  (
-	[YearMonth] int NULL,
-	[UserId] int NULL,
-	[Consumer] int NULL,
-	[License] int NULL,
-	[CountLicense] int NULL,
-	[Count] int NULL
-)
-INSERT INTO @usage
-SELECT 
-	YEAR(la.TimeStamp) * 100 + MONTH(la.TimeStamp) as YearMonth,
-	la.UserId,
-	la.ConsumerType AS Consumer,
-	la.UserLicenseType AS License,
-	da.LicenseType AS CountLicense,
-	da.[Count] AS [Count]
-FROM LicenseActivities AS la WITH (NOLOCK) 
-	LEFT JOIN LicenseActivityDetails AS da WITH (NOLOCK) 
-	ON la.LicenseActivityId = da.LicenseActivityId
-
-
---Create final result
--- Consumer: Client-1, Analytics-2, REST-3
--- LicenseType: Viewer-1, Collaborator- 2, Author- 3
-SELECT 
-	 u.YearMonth / 100 AS UsageYear
-	,u.YearMonth % 100 AS UsageMonth
-	
-	,COUNT(DISTINCT CASE WHEN u.Consumer = 1 AND u.License = 3 THEN u.UserId ELSE NULL END) AS UniqueAuthors
-	,STUFF((
-		SELECT DISTINCT ',' + CAST(a.UserId AS VARCHAR(10)) 
-			FROM @usage as a
-			WHERE u.YearMonth = a.YearMonth AND a.Consumer = 1  AND a.License = 3 
-			FOR XML PATH('')), 1, 1,'') as UniqueAuthorUserIds	
-				
-	,COUNT(DISTINCT CASE WHEN u.Consumer = 1 AND u.License = 2 THEN u.UserId ELSE NULL END) AS UniqueCollaborators
-	,STUFF((
-		SELECT DISTINCT ',' + CAST(a.UserId AS VARCHAR(10)) 
-		FROM @usage as a 
-		WHERE u.YearMonth = a.YearMonth AND a.Consumer = 1  AND a.License = 2
-		FOR XML PATH('')), 1, 1, '') as UniqueCollaboratorUserIds
-
-	, ISNULL((
-		SELECT Count(r.UserId) as [Count] 
-			FROM @registration r 
-			WHERE r.YearMonth = u.YearMonth AND r.License = 3
-		), 0) as RegisteredAuthorsCreated
-	,STUFF((
-		SELECT ',' + CAST(r.UserId AS VARCHAR(10)) 
-			FROM @registration as r 
-			WHERE r.YearMonth = u.YearMonth AND r.License = 3 
-		FOR XML PATH('')), 1, 1,'') as RegisteredAuthorsCreatedUserIds
-
-	, ISNULL((
-		SELECT Count(r.UserId) as [Count] 
-			FROM @registration r 
-			WHERE r.YearMonth = u.YearMonth AND r.License = 2
-		), 0) as RegisteredCollaboratorsCreated
-	,STUFF((
-		SELECT ',' + CAST(r.UserId AS VARCHAR(10)) 
-			FROM @registration as r
-			WHERE r.YearMonth = u.YearMonth AND r.License = 2 
-		FOR XML PATH('')), 1, 1,'') as RegisteredCollaboratorCreatedUserIds
-
-	, ISNULL((
-		SELECT Count(r.UserId) as [Count] 
-			FROM @registration r 
-			WHERE r.YearMonth <= u.YearMonth AND r.License = 3
-		), 0) as AuthorsCreatedToDate
-
-	, ISNULL((
-		SELECT Count(r.UserId) as [Count] 
-			FROM @registration r 
-			WHERE r.YearMonth <= u.YearMonth AND r.License = 2
-		), 0) as CollaboratorsCreatedToDate
-	
-
-	,ISNULL(MAX(CASE WHEN u.CountLicense = 3 THEN u.[Count] ELSE NULL END), 0) AS MaxConcurrentAuthors
-	,ISNULL(MAX(CASE WHEN u.CountLicense = 2 THEN u.[Count] ELSE NULL END), 0) AS MaxConcurrentCollaborators
-	,ISNULL(MAX(CASE WHEN u.CountLicense = 1 THEN u.[Count] ELSE NULL END), 0) AS MaxConcurrentViewers
-	,COUNT(CASE WHEN u.Consumer = 2 THEN 1 ELSE NULL END) AS UsersFromAnalytics
-	,COUNT(CASE WHEN u.Consumer= 3 THEN 1 ELSE NULL END) AS UsersFromRestApi
-
-			
-FROM @usage AS u
-GROUP BY u.YearMonth
-HAVING (@year IS NULL OR @month IS NULL OR u.YearMonth >= Year(@startMonth) * 100 +  Month(@startMonth))
-	   AND u.YearMonth < Year(@currentMonth) * 100 +  Month(@currentMonth)
-
-
+	L.UsageYear * 100 + L.UsageMonth as 'YearMonth',
+	COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 3 THEN L.UserId ELSE 0 END) AS 'UniqueAuthors',
+	COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 2 THEN L.UserId ELSE 0 END) AS 'UniqueCollaborators',
+	COUNT(DISTINCT CASE WHEN L.Consumer = 1 AND L.License = 1 THEN L.UserId ELSE 0 END) AS 'UniqueViews',
+	ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentAuthors',
+	ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentCollaborators',
+	ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentViewers',
+	COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE 0 END) AS 'LoggedFromAnalytics',
+	COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE 0 END) AS 'LoggedFromRestApi'
+FROM 
+	L
+GROUP BY 
+	L.UsageYear, L.UsageMonth;
 END
 GO 
+
 
 
 
@@ -1290,6 +1261,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_130', 'en-US', N'The Item name cannot be empty.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_Other', 'en-US', N'An error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Auto_Confirm', 'en-US', N'Your changes could not be autosaved.<br/>Try saving manually for more information. If you proceed, your changes will be lost.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Possible_SubArtifact_Validation_Error', 'en-US', N'There may be issues with one or more sub-artifact property values. Please validate the artifact to confirm.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact you were viewing has been deleted. The artifact''s parent or project is now being displayed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog_Header', 'en-US', N'Publish All')

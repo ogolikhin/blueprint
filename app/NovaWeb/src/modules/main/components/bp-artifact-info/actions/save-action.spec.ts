@@ -10,6 +10,7 @@ import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonM
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
+import {DialogService, IDialogService} from "../../../../shared/widgets/bp-dialog";
 
 describe("SaveAction", () => {
     let $scope: ng.IScope;
@@ -22,6 +23,7 @@ describe("SaveAction", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("dialogService", DialogService);
     }));
 
     beforeEach(inject(($rootScope: ng.IRootScopeService, _$q_: ng.IQService) => {
@@ -32,7 +34,7 @@ describe("SaveAction", () => {
     it("throws exception when localization is null",
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
             const localization: ILocalizationService = null;
@@ -40,7 +42,7 @@ describe("SaveAction", () => {
 
             // act
             try {
-                new SaveAction(artifact, localization, messageService, loadingOverlayService);
+                new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
             } catch (exception) {
                 error = exception;
             }
@@ -53,7 +55,7 @@ describe("SaveAction", () => {
     it("throws exception when message service is null",
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
             const messageService: IMessageService = null;
@@ -61,7 +63,7 @@ describe("SaveAction", () => {
 
             // act
             try {
-                new SaveAction(artifact, localization, messageService, loadingOverlayService);
+                new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
             } catch (exception) {
                 error = exception;
             }
@@ -74,7 +76,7 @@ describe("SaveAction", () => {
     it("throws exception when loadingOverlayService is null",
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,
-                messageService: IMessageService) => {
+                messageService: IMessageService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
             const loadingOverlayService: ILoadingOverlayService = null;
@@ -82,7 +84,7 @@ describe("SaveAction", () => {
 
             // act
             try {
-                new SaveAction(artifact, localization, messageService, loadingOverlayService);
+                new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
             } catch (exception) {
                 error = exception;
             }
@@ -95,12 +97,12 @@ describe("SaveAction", () => {
     it("is disabled when artifact is null",
         inject((localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = null;
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -110,13 +112,13 @@ describe("SaveAction", () => {
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
             artifact.artifactState.readonly = true;
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -126,7 +128,7 @@ describe("SaveAction", () => {
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -138,7 +140,7 @@ describe("SaveAction", () => {
                 });
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -148,7 +150,7 @@ describe("SaveAction", () => {
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -157,7 +159,7 @@ describe("SaveAction", () => {
                 });
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -167,7 +169,7 @@ describe("SaveAction", () => {
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -176,7 +178,7 @@ describe("SaveAction", () => {
                 });
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -186,7 +188,7 @@ describe("SaveAction", () => {
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,
                 messageService: IMessageService,
-                loadingOverlayService: ILoadingOverlayService) => {
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -199,7 +201,7 @@ describe("SaveAction", () => {
             artifact.artifactState.dirty = true;
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(saveAction.disabled).toBe(false);
@@ -215,7 +217,7 @@ describe("SaveAction", () => {
         beforeEach(inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                            localization: ILocalizationService,
                            messageService: IMessageService,
-                           loadingOverlayService: ILoadingOverlayService) => {
+                           loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -225,7 +227,7 @@ describe("SaveAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-            saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+            saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
             saveSpy = spyOn(artifact, "save");
             addErrorSpy = spyOn(messageService, "addError").and.callThrough();
             beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();

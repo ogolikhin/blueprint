@@ -1,3 +1,4 @@
+import {IDownloadService} from "../../../../commonModule/download";
 import {ISystemTask} from "../diagram/presentation/graph/models/";
 import {IFileUploadService, IFileResult} from "../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
@@ -27,24 +28,24 @@ export class UploadImageDirective implements ng.IDirective {
     public restrict = "E";
 
     constructor(private fileUploadService: IFileUploadService,
-                private $window: ng.IWindowService,
                 private $timeout: ng.ITimeoutService,
                 private $compile: ng.ICompileService,
-                private messageService: IMessageService) {
+                private messageService: IMessageService,
+                private downloadService: IDownloadService) {
     }
 
     public static factory(): ng.IDirectiveFactory {
         const directive: ng.IDirectiveFactory = (fileUploadService: IFileUploadService,
-                                                 $window: ng.IWindowService,
                                                  $timeout: ng.ITimeoutService,
                                                  $compile: ng.ICompileService,
-                                                 messageService: IMessageService) =>
-            new UploadImageDirective(fileUploadService, $window, $timeout, $compile, messageService);
+                                                 messageService: IMessageService,
+                                                 downloadService: IDownloadService) =>
+            new UploadImageDirective(fileUploadService, $timeout, $compile, messageService, downloadService);
         directive.$inject = ["fileUploadService",
-            "$window",
             "$timeout",
             "$compile",
-            "messageService"];
+            "messageService",
+            "downloadService"];
         return directive;
     }
 
@@ -68,7 +69,7 @@ export class UploadImageDirective implements ng.IDirective {
 
         $scope.downloadImage = () => {
             if ($scope.systemTaskModel.associatedImageUrl) {
-                this.$window.open($scope.systemTaskModel.associatedImageUrl, "_blank");
+                this.downloadService.downloadFile($scope.systemTaskModel.associatedImageUrl);
             }
         };
 

@@ -10,6 +10,7 @@ import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonM
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
+import {DialogService, IDialogService} from "../../../../shared/widgets/bp-dialog";
 
 describe("PublishAction", () => {
     let $q: ng.IQService;
@@ -20,6 +21,7 @@ describe("PublishAction", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("dialogService", DialogService);
     }));
 
     beforeEach(inject((_$q_: ng.IQService) => {
@@ -27,7 +29,7 @@ describe("PublishAction", () => {
     }));
 
     it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
+            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
         // arrange
         const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
         const localization: ILocalizationService = null;
@@ -35,7 +37,7 @@ describe("PublishAction", () => {
 
         // act
         try {
-            new PublishAction(artifact, localization, messageService, loadingOverlayService);
+            new PublishAction(artifact, localization, messageService, loadingOverlayService, dialogService);
         } catch (exception) {
             error = exception;
         }
@@ -46,12 +48,12 @@ describe("PublishAction", () => {
     }));
 
     it("is disabled when artifact is null", inject((localization: ILocalizationService,
-            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
+            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
         // arrange
         const artifact: IStatefulArtifact = null;
 
         // act
-        const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService);
+        const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
         // assert
         expect(publishAction.disabled).toBe(true);
@@ -59,13 +61,13 @@ describe("PublishAction", () => {
 
     it("is disabled when artifact is read-only",
         inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
-            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
+            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
             artifact.artifactState.readonly = true;
 
             // act
-            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService);
+            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(publishAction.disabled).toBe(true);
@@ -73,7 +75,7 @@ describe("PublishAction", () => {
 
     it("is disabled when artifact is Project",
         inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
-            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
+            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -82,7 +84,7 @@ describe("PublishAction", () => {
                 });
 
             // act
-            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService);
+            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(publishAction.disabled).toBe(true);
@@ -90,7 +92,7 @@ describe("PublishAction", () => {
 
     it("is disabled when artifact is Collections",
         inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
-            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
+            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -99,7 +101,7 @@ describe("PublishAction", () => {
                 });
 
             // act
-            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService);
+            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(publishAction.disabled).toBe(true);
@@ -107,7 +109,7 @@ describe("PublishAction", () => {
 
     it("is enabled when artifact is valid",
         inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
-            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
+            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -120,7 +122,7 @@ describe("PublishAction", () => {
                 });
 
             // act
-            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService);
+            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // assert
             expect(publishAction.disabled).toBe(false);
@@ -128,7 +130,7 @@ describe("PublishAction", () => {
 
     it("calls artifact.discard when executed",
         inject((statefulArtifactFactory: IStatefulArtifactFactory, localization: ILocalizationService,
-            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService) => {
+            messageService: IMessageService, loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
                 {
@@ -143,7 +145,7 @@ describe("PublishAction", () => {
                     deferred.reject(null);
                     return deferred.promise;
                 });
-            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService);
+            const publishAction = new PublishAction(artifact, localization, messageService, loadingOverlayService, dialogService);
 
             // act
             publishAction.execute();

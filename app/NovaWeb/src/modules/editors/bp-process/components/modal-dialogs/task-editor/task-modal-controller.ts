@@ -152,7 +152,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             throw new Error("Changes cannot be made or saved as this is a read-only item");
         }
 
-        let associatedArtifact = this.getAssociatedArtifact();
+        const associatedArtifact = this.getAssociatedArtifact();
+
         if (!associatedArtifact) {
             this.setAssociatedArtifact(null);
         } else if (associatedArtifact.id < 0) {
@@ -308,6 +309,9 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         } else {
             this.messageService.addError("Create_New_Artifact_Error_Generic");
         }
+
+        this.setInclude(null);
+        this.populateTaskChanges();
     };
 
     private canCleanField(): boolean {

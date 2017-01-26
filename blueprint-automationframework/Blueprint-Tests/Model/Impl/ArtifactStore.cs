@@ -190,7 +190,7 @@ namespace Model.Impl
         public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
@@ -214,7 +214,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(project, nameof(project));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.ARTIFACTS_id_, project.Id, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -237,7 +237,7 @@ namespace Model.Impl
         public NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -265,7 +265,7 @@ namespace Model.Impl
         public NovaDiagramArtifact GetDiagramArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.DIAGRAM_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -285,7 +285,7 @@ namespace Model.Impl
         public NovaGlossaryArtifact GetGlossaryArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.GLOSSARY_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -305,7 +305,7 @@ namespace Model.Impl
         public NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.USECASE_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -351,7 +351,7 @@ namespace Model.Impl
                 }
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
 
             var artifactHistory = restApi.SendRequestAndDeserializeObject<ArtifactHistory>(
                 path,
@@ -429,64 +429,6 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             return GetRelationshipsDetails(Address, user, artifact.Id, expectedStatusCodes);
         }
-
-        /*    Commented out because this is still in development.
-        /// <summary>
-        /// Save a single artifact to ArtifactStore.
-        /// </summary>
-        /// <param name="artifactToSave">The artifact to save.</param>
-        /// <param name="user">The user saving the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
-        public static void PostArtifact(IArtifactBase artifactToSave,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { artifactToSave.Id == 0 ? HttpStatusCode.Created : HttpStatusCode.OK };
-            }
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS, artifactToSave.ProjectId);  // TODO: Update REST path to include projectID.
-
-            RestApiFacade restApi = new RestApiFacade(artifactToSave.Address, tokenValue);
-
-            var artifactResult = restApi.SendRequestAndDeserializeObject<UpdateArtifactResult, ArtifactBase>(
-                path,
-                RestRequestMethod.POST,
-                artifactToSave as ArtifactBase,
-                expectedStatusCodes: expectedStatusCodes);
-
-            ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact, artifactToSave);
-
-            // Artifact was successfully created so IsSaved is set to true
-            if (artifactResult.ResultCode == HttpStatusCode.Created)
-            {
-                artifactToSave.IsSaved = true;
-            }
-
-            Logger.WriteDebug("POST {0} returned the following: Message: {1}, ResultCode: {2}",
-                path, artifactResult.Message, artifactResult.ResultCode);
-            Logger.WriteDebug("The Artifact Returned: {0}", artifactResult.Artifact);
-
-            if (expectedStatusCodes.Contains(HttpStatusCode.OK) || expectedStatusCodes.Contains(HttpStatusCode.Created))
-            {
-                Assert.That(artifactResult.ResultCode == HttpStatusCode.Created,
-                    "The returned ResultCode was '{0}' but '{1}' was expected",
-                    artifactResult.ResultCode,
-                    ((int) HttpStatusCode.Created).ToString(CultureInfo.InvariantCulture));
-
-                Assert.That(artifactResult.Message == "Success",
-                    "The returned Message was '{0}' but 'Success' was expected",
-                    artifactResult.Message);
-            }
-        }
-        */
 
         /// <seealso cref="IArtifactStore.GetSubartifacts(IUser, int, List{HttpStatusCode})"/>
         public List<SubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null)
@@ -818,7 +760,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.COPY_TO_id_, artifactId, newParentId);
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -902,7 +844,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(project, nameof(project));
 
             string path = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             // Set expectedStatusCodes to 201 Created by default if it's null.
             expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
@@ -956,7 +898,7 @@ namespace Model.Impl
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaArtifactDetails.Id);
 
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
                 path,
@@ -981,7 +923,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifact.Id);
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             var deletedArtifacts = restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
                 path,
@@ -993,15 +935,15 @@ namespace Model.Impl
             if (restApi.StatusCode == HttpStatusCode.OK)
             {
                 // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
-                foreach (INovaArtifactResponse deletedArtifact in deletedArtifacts)
+                foreach (var deletedArtifact in deletedArtifacts)
                 {
                     Logger.WriteDebug("'DELETE {0}' returned following artifact Id: {1}",
                         path, deletedArtifact.Id);
 
-                    ArtifactBase artifaceBaseToDelete = artifact as ArtifactBase;
+                    var artifaceBaseToDelete = artifact as ArtifactBase;
 
                     // Hack: This is needed until we can refactor ArtifactBase better.
-                    DeleteArtifactResult deletedArtifactResult = new DeleteArtifactResult
+                    var deletedArtifactResult = new DeleteArtifactResult
                     {
                         ArtifactId = deletedArtifact.Id,
                         ResultCode = HttpStatusCode.OK
@@ -1052,7 +994,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, artifactId);
-            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            var queryParameters = new Dictionary<string, string>();
 
             if (addDrafts != null)
             {
@@ -1110,7 +1052,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN, id);
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
@@ -1259,7 +1201,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifact.Id, newParentId);
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -1307,7 +1249,7 @@ namespace Model.Impl
             }
 
             const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
             Dictionary<string, string> queryParams = null;
 
@@ -1335,7 +1277,7 @@ namespace Model.Impl
                     Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
                         path, publishedArtifactDetails.Id);
 
-                    IArtifactBase publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
+                    var publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
 
                     if (publishedArtifact == null)
                     {
@@ -1403,7 +1345,7 @@ namespace Model.Impl
             }
 
             const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
             Dictionary<string, string> queryParams = null;
 
@@ -1429,7 +1371,7 @@ namespace Model.Impl
 
                     if (artifacts.Count > 0)
                     {
-                        IArtifactBase discardedArtifact = artifacts.Find(a => a.Id == discardedArtifacts.Id);
+                        var discardedArtifact = artifacts.Find(a => a.Id == discardedArtifacts.Id);
 
                         if (discardedArtifact != null)
                         {

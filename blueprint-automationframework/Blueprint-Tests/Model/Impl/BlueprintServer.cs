@@ -47,8 +47,8 @@ namespace Model.Impl
 
             if (forceNew || (user.Token == null))
             {
-                RestResponse resp = LoginUsingBasicAuthorization(address, user);
-                user.Token = getTokenFromResponse(resp);
+                var resp = LoginUsingBasicAuthorization(address, user);
+                user.Token = GetTokenFromResponse(resp);
                 Logger.WriteTrace("Disposing HttpWebResponse from LoginUsingBasicAuthorization().");
             }
 
@@ -71,8 +71,8 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            RestResponse response = LoginUsingBasicAuthorization(Address, user, token, maxRetries);
-            IBlueprintToken newToken = getTokenFromResponse(response);
+            var response = LoginUsingBasicAuthorization(Address, user, token, maxRetries);
+            var newToken = GetTokenFromResponse(response);
 
             if (newToken != null)
             {
@@ -96,7 +96,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             RestResponse response = null;
-            RestApiFacade restApi = new RestApiFacade(address, user.Username, user.Password, token);
+            var restApi = new RestApiFacade(address, user.Username, user.Password, token);
 
             for (uint attempt = 1; attempt <= maxRetries + 1; ++attempt)
             {
@@ -188,7 +188,7 @@ namespace Model.Impl
         /// </summary>
         /// <param name="response">The response from a login request.</param>
         /// <returns>A token.</returns>
-        private static IBlueprintToken getTokenFromResponse(RestResponse response)
+        private static IBlueprintToken GetTokenFromResponse(RestResponse response)
         {
             string tokenString = null;
 
@@ -197,7 +197,7 @@ namespace Model.Impl
                 tokenString = (string) response.Headers[BlueprintToken.OPENAPI_TOKEN_HEADER];
             }
 
-            IBlueprintToken token = new BlueprintToken(openApiToken: tokenString);
+            var token = new BlueprintToken(openApiToken: tokenString);
             return token;
         }
 

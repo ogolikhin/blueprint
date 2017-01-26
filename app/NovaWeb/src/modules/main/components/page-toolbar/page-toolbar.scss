@@ -75,6 +75,7 @@
 .page-toolbar__item-icon {
     display: inline-block;
     margin: 5px 0 0;
+    min-height: 23px;
     padding: 0;
     position: relative;
 
@@ -88,9 +89,10 @@
     display: block;
     font-size: $font-size-smaller;
     font-weight: $font-weight-normal;
-    line-height: .9rem;
+    line-height: .9;
     margin: 2px 0 0;
     max-width: 100%;
+    min-height: 20px;
     padding: 0 2px;
     position: relative;
     white-space: normal;

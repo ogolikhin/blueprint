@@ -438,7 +438,7 @@ namespace Model.Impl
 
             file.ContentLength = restApi.ReqContentLength;
 
-            var deserialzedResultContent = Deserialization.DeserializeObject<NovaFile>(response.Content);
+            var deserialzedResultContent = SerializationUtilities.DeserializeObject<NovaFile>(response.Content);
 
             file.Guid = deserialzedResultContent.Guid;
             file.UriToFile = deserialzedResultContent.UriToFile;

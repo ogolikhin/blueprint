@@ -237,7 +237,7 @@ namespace Model.Impl
         public NovaArtifactDetails GetArtifactDetails(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            RestApiFacade restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Dictionary<string, string> queryParams = null;
 
@@ -251,7 +251,7 @@ namespace Model.Impl
 
             var artifactDetails = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
-            RestApiFacade.CheckJSON<NovaArtifactDetails>(artifactDetails, response.Content);
+            SerializationUtilities.CheckJson(artifactDetails, response.Content);
 
             if (artifactDetails.PredefinedType != null)
             {

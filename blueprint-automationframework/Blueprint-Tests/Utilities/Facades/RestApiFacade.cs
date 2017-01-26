@@ -343,7 +343,7 @@ namespace Utilities.Facades
 
             if (jsonObject != null)
             {
-                request.JsonSerializer = new Deserialization.CustomJsonSerializer();
+                request.JsonSerializer = new SerializationUtilities.CustomJsonSerializer();
                 request.AddJsonBody(jsonObject);
             }
 
@@ -362,7 +362,7 @@ namespace Utilities.Facades
                 ////try to serialize and compare
                 if (shouldControlJsonChanges)
                 {
-                    CheckJSON<T1>(result, response.Content);
+                    SerializationUtilities.CheckJson(result, response.Content);
                 }
                 ////
 
@@ -554,7 +554,7 @@ namespace Utilities.Facades
 
             if (bodyObject != null)
             {
-                request.JsonSerializer = new Deserialization.CustomJsonSerializer();
+                request.JsonSerializer = new SerializationUtilities.CustomJsonSerializer();
                 request.AddJsonBody(bodyObject);
             }
 
@@ -572,31 +572,6 @@ namespace Utilities.Facades
             catch (WebException e)
             {
                 throw WebExceptionConverter.Convert(e, _restResponse);
-            }
-        }
-
-        /// <summary>
-        /// Check that T description in Test Framework corresponds to server's JSON.
-        /// </summary>
-        /// <typeparam name="T">The type of 'result' object.</typeparam>
-        /// <param name="result">Result of deserealization using Framework presentation of T.</param>
-        /// <param name="serializedObjectFromServer">String presentation of object T received from Blueprint server.</param>
-        /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
-        static public void CheckJSON<T>(T result, string serializedObjectFromServer)
-        {
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            };
-
-            string serializedObject = JsonConvert.SerializeObject(result, jsonSerializerSettings);
-            bool isJSONChanged = !(string.Equals(serializedObjectFromServer, serializedObject, StringComparison.OrdinalIgnoreCase));
-
-            if (isJSONChanged)
-            {
-                string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!\r\nReceived JSON:   {1}\r\nSerialized JSON: {2}",
-                    typeof(T).ToString(), serializedObjectFromServer, serializedObject);
-                throw new FormatException(msg);
             }
         }
     }

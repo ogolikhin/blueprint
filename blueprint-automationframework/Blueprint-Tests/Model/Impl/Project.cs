@@ -44,7 +44,7 @@ namespace Model.Impl
         /// </summary>
         public string Location { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiArtifactType>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<OpenApiArtifactType>>))]
         public List<OpenApiArtifactType> ArtifactTypes { get; } = new List<OpenApiArtifactType>();
 
         [JsonIgnore]

@@ -76,7 +76,7 @@ namespace Model.ArtifactModel.Impl
 
         //TODO Remove these from here or make them generic for both Artifact and OpenApiArtifact (So we don't need to use OpenApiArtifact in the Artifact class
 
-        [JsonConverter(typeof (Deserialization.ConcreteConverter<List<OpenApiProperty>>))]
+        [JsonConverter(typeof (SerializationUtilities.ConcreteConverter<List<OpenApiProperty>>))]
         public List<OpenApiProperty> Properties { get; set; } = new List<OpenApiProperty>();
 
         #endregion Serialized JSON Properties

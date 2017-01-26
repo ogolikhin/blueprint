@@ -663,7 +663,7 @@ namespace ArtifactStoreTests
                 "Calling GET {0} with non-existing version ID should return 404 NotFound!",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
 
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.ResourceNotFound),

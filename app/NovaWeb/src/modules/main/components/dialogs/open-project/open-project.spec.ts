@@ -56,10 +56,10 @@ describe("OpenProjectController", () => {
         controller.onSelectionChanged([vm]);
 
         // Assert
-        expect(controller.isProjectSelected).toEqual(true);
+        expect(controller.isProjectSelected).toEqual(false);
         expect(controller.selectedName).toEqual(model.name);
         expect(controller.selectedDescription).toEqual(model.description);
-        expect(controller.returnValue).toEqual(model);
+        expect(controller.returnValue).toEqual(undefined);
     }));
 
     it("onDoubleClick, sets selection and calls ok", inject(($browser) => {

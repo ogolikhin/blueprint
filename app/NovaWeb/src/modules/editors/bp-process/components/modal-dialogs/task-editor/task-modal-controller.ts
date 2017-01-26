@@ -1,7 +1,8 @@
-import {ApplicationError} from "../../../../../shell/error/applicationError";
+import {ItemTypePredefined} from "../../../../../main/models/enums";
+import {ApplicationError, IApplicationError} from "../../../../../shell/error/applicationError";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {Artifact} from "../../../../../main/models/models";
+import {Artifact, IArtifact, IItem} from "../../../../../main/models/models";
 import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {IDialogSettings, IDialogService} from "../../../../../shared";
@@ -30,7 +31,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     protected abstract setPersonaReference(value: IArtifactReference);
     protected abstract getDefaultPersonaReference(): IArtifactReference;
     protected abstract populateTaskChanges();
-    protected abstract getModel(): Models.IArtifact;
+    protected abstract getModel(): IArtifact;
     protected abstract getNewArtifactName(): string;
     protected abstract getItemTypeId(): number;
 
@@ -72,13 +73,18 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         if (this.getAssociatedArtifact()) {
             this.prepIncludeField();
         }
+
         this.isIncludeError = false;
+
         let createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
+
         this.artifactService.getArtifact(this.dialogModel.artifactId)
-        .then((artifact) => {
-            this.everPublished = artifact.version > 0;
-            this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
-        });
+            .then((artifact) => {
+                this.everPublished = artifact.version > 0;
+            })
+            .finally(() => {
+                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+            });
     }
 
     public showCreateNewArtifact(): boolean {
@@ -130,14 +136,15 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             return "";
         }
 
-        let msg: string;
-        if (model.typePrefix === "<Inaccessible>") {
-            msg = this.localization.get("ST_Inaccessible_Include_Artifact_Label");
-        } else {
-            msg = model.typePrefix + model.id + " - " + model.name;
+        if (!model.typePrefix) {
+            return `${model.name}`;
         }
 
-        return msg;
+        if (model.typePrefix === "<Inaccessible>") {
+           return this.localization.get("ST_Inaccessible_Include_Artifact_Label");
+        }
+
+        return `${model.typePrefix}${model.id} - ${model.name}`;
     }
 
     public saveData() {
@@ -145,27 +152,37 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             throw new Error("Changes cannot be made or saved as this is a read-only item");
         }
 
-        if (this.getAssociatedArtifact() === undefined) {
+        let associatedArtifact = this.getAssociatedArtifact();
+        if (!associatedArtifact) {
             this.setAssociatedArtifact(null);
+        } else if (associatedArtifact.id < 0) {
+            this.createArtifactService.createNewArtifact(
+                this.dialogModel.artifactId,
+                null,
+                false,
+                associatedArtifact.name,
+                this.getItemTypeId(),
+                this.onNewArtifactCreated,
+                this.onNewArtifactCreationError);
+        } else {
+            this.populateTaskChanges();
         }
-
-        this.populateTaskChanges();
     }
 
-    private getIncludedArtifactTypes(): Models.ItemTypePredefined[] {
-        const selectableArtifactTypes: Models.ItemTypePredefined[] = [
-            Models.ItemTypePredefined.BusinessProcess,
-            Models.ItemTypePredefined.Document,
-            Models.ItemTypePredefined.DomainDiagram,
-            Models.ItemTypePredefined.PrimitiveFolder,
-            Models.ItemTypePredefined.GenericDiagram,
-            Models.ItemTypePredefined.Glossary,
-            Models.ItemTypePredefined.Process,
-            Models.ItemTypePredefined.Storyboard,
-            Models.ItemTypePredefined.TextualRequirement,
-            Models.ItemTypePredefined.UIMockup,
-            Models.ItemTypePredefined.UseCase,
-            Models.ItemTypePredefined.UseCaseDiagram
+    private getIncludedArtifactTypes(): ItemTypePredefined[] {
+        const selectableArtifactTypes: ItemTypePredefined[] = [
+            ItemTypePredefined.BusinessProcess,
+            ItemTypePredefined.Document,
+            ItemTypePredefined.DomainDiagram,
+            ItemTypePredefined.PrimitiveFolder,
+            ItemTypePredefined.GenericDiagram,
+            ItemTypePredefined.Glossary,
+            ItemTypePredefined.Process,
+            ItemTypePredefined.Storyboard,
+            ItemTypePredefined.TextualRequirement,
+            ItemTypePredefined.UIMockup,
+            ItemTypePredefined.UseCase,
+            ItemTypePredefined.UseCaseDiagram
         ];
 
         return selectableArtifactTypes;
@@ -184,7 +201,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
         const dialogOption: IArtifactPickerOptions = {
             selectableItemTypes: this.getIncludedArtifactTypes(),
-            isItemSelectable: (item: Models.IArtifact) => {
+            isItemSelectable: (item: IArtifact) => {
                         return item.id !== subArtifact.parentId &&
                                 item.id !== subArtifact.id &&
                                 item.id > 0 &&
@@ -192,23 +209,20 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                     }
         };
 
-        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
+        this.dialogService.open(dialogSettings, dialogOption).then((items: IItem[]) => {
             if (items.length === 1) {
                 this.setInclude(items[0]);
             }
         });
     }
 
-    public createNewArtifact = (useModal: boolean): void => {
-        this.createArtifactService.createNewArtifact(
-            this.dialogModel.artifactId,
-            null,
-            false,
-            this.getNewArtifactName(),
-            this.getItemTypeId(),
-            this.publisAndInclude,
-            this.newArtifactCreationErrorHandler);
-    };
+    public createNewArtifact(useModal: boolean): void {
+        const newArtifactReference = <IArtifact>{
+            id: -1,
+            name: this.getNewArtifactName()
+        };
+        this.setInclude(newArtifactReference);
+    }
 
     public openActorPicker() {
         const dialogSettings = <IDialogSettings>{
@@ -220,14 +234,14 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         };
 
         const dialogOption: IArtifactPickerOptions = {
-            selectableItemTypes: [Models.ItemTypePredefined.Actor],
-            isItemSelectable: (item: Models.IArtifact) => {
+            selectableItemTypes: [ItemTypePredefined.Actor],
+            isItemSelectable: (item: IArtifact) => {
                         return item.id > 0 &&
                                 !item.lockedByUser;
                     }
         };
 
-        this.dialogService.open(dialogSettings, dialogOption).then((items: Models.IItem[]) => {
+        this.dialogService.open(dialogSettings, dialogOption).then((items: IItem[]) => {
             if (items.length === 1) {
                 const artifactReference = new ArtifactReference();
                 artifactReference.baseItemTypePredefined = items[0].predefinedType;
@@ -253,29 +267,32 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.setPersonaReference(artifactReference);
     }
 
-    private setInclude(item: Models.IItem) {
+    private setInclude(item: IItem) {
         const artifactReference = new ArtifactReference();
         artifactReference.baseItemTypePredefined = item.predefinedType;
         artifactReference.id = item.id;
         artifactReference.name = item.name;
         artifactReference.typePrefix = item.prefix;
+
         this.postIncludePickerAction(artifactReference);
     }
 
-    private publisAndInclude = ((newArtifactId: number) => {
+    private onNewArtifactCreated = (newArtifactId: number): ng.IPromise<void> => {
         let newArtifact: IStatefulArtifact = null;
-        return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifactId)
-        .then((artifact: IStatefulArtifact) => {
-            newArtifact = artifact;
-            return newArtifact.publish();
-        })
-        .then(() => {
-            this.setInclude(newArtifact);
-            return this.$q.resolve();
-        });
-    });
 
-    private newArtifactCreationErrorHandler = ((error) => {
+        return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifactId)
+            .then((artifact: IStatefulArtifact) => {
+                newArtifact = artifact;
+                return newArtifact.publish();
+            })
+            .then(() => {
+                this.setInclude(newArtifact);
+                this.populateTaskChanges();
+                return this.$q.resolve();
+            });
+    };
+
+    private onNewArtifactCreationError = (error: IApplicationError): void => {
         if (error instanceof ApplicationError) {
             if (error.statusCode === 404 && error.errorCode === 102) {
                 this.messageService.addError("Create_New_Artifact_Error_404_102", true);
@@ -291,10 +308,9 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         } else {
             this.messageService.addError("Create_New_Artifact_Error_Generic");
         }
-    });
+    };
 
     private canCleanField(): boolean {
         return !this.dialogModel.isReadonly;
     }
-
 }

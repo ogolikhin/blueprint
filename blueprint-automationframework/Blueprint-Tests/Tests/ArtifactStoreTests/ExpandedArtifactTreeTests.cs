@@ -79,7 +79,7 @@ namespace ArtifactStoreTests
             otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor));
             otherTopLevelArtifacts.Add(Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process));
 
-            IUser viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
             List<INovaArtifact> artifacts = null;
@@ -230,9 +230,8 @@ namespace ArtifactStoreTests
             // Make sure we can find all the artifacts we created in the list returned by the GetExpandedArtifactTree call.
             foreach (var artifact in publishedArtifacts)
             {
-                INovaArtifact matchingNovaArtifact = returnedArtifacts.Find(a => a.Id == artifact.Id);
-                Assert.NotNull(matchingNovaArtifact,
-                    "Couldn't find artifact ID {0} in the list of returned artifacts!", artifact.Id);
+                var matchingNovaArtifact = returnedArtifacts.Find(a => a.Id == artifact.Id);
+                Assert.NotNull(matchingNovaArtifact, "Couldn't find artifact ID {0} in the list of returned artifacts!", artifact.Id);
 
                 matchingNovaArtifact.AssertEquals(artifact, shouldCompareVersions: false);
             }
@@ -245,9 +244,9 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_InvalidToken_401Unauthorized(string token)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
 
-            IUser userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
+            var userWithBadOrMissingToken = UserFactory.CreateUserAndAddToDatabase();
             userWithBadOrMissingToken.Token.SetToken(_user.Token.AccessControlToken);
             userWithBadOrMissingToken.Token.AccessControlToken = token;
 
@@ -256,7 +255,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 401 Unauthorized when a bad or empty Session-Token is passed!", REST_PATH);
 
             // Verify:
-            MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
+            var messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
             const string expectedMessage = "Token is invalid.";
 
             Assert.AreEqual(expectedMessage, messageResult.Message,
@@ -269,14 +268,14 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_MissingTokenHeader_401Unauthorized()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(user: null, project: _project, artifactId: artifact.Id),
                 "'GET {0}' should return 401 Unauthorized when no Session-Token header is passed!", REST_PATH);
 
             // Verify:
-            MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
+            var messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
             const string expectedMessage = "Token is missing or malformed.";
 
             Assert.AreEqual(expectedMessage, messageResult.Message,
@@ -290,8 +289,8 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_NonExistingProjectId_404NotFound(int projectId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
-            IProject nonExistingProject = ProjectFactory.CreateProject();
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var nonExistingProject = ProjectFactory.CreateProject();
             nonExistingProject.Id = projectId;
 
             // Execute:
@@ -346,8 +345,8 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_ProjectIdIsAnArtifactId_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
-            IProject notAProject = ProjectFactory.CreateProject();
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var notAProject = ProjectFactory.CreateProject();
             notAProject.Id = artifact.Id;
 
             // Execute:
@@ -365,7 +364,7 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_ArtifactIdIsASubArtifact_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
             var process = Helper.Storyteller.GetProcess(_user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
@@ -385,7 +384,7 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_IdOfDeletedAndPublishedArtifact_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Delete();
             artifact.Publish();
 
@@ -406,7 +405,7 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactSameUser_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             artifact.Delete();
 
             // Execute:
@@ -426,11 +425,11 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_IdOfDeletedWithoutPublishArtifactOtherUser_ReturnsExpectedArtifactHierarchy()
         {
             // Setup:
-            IUser otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-            BaseArtifactType[] artifactTypeChain = new BaseArtifactType[] { BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process };
+            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifactTypeChain = new BaseArtifactType[] { BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process };
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
-            IArtifact artifact = artifactChain.Last();
+            var artifact = artifactChain.Last();
             artifact.Delete();
 
             // Execute:
@@ -450,8 +449,8 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_IdOfUnpublishArtifactOtherUser_404NotFound()
         {
             // Setup:
-            IUser otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var otherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(otherUser, _project, artifact.Id),
@@ -469,8 +468,8 @@ namespace ArtifactStoreTests
         public void GetExpandedArtifactTree_UserWithoutPermissionToProject_403Forbidden()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetExpandedArtifactTree(userWithoutPermission, _project, artifact.Id),
@@ -500,7 +499,7 @@ namespace ArtifactStoreTests
             otherTopLevelArtifacts.Add(Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process));
 
             // Create a user without permission to the artifact.
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifactChain[artifactIndex]);
 
             // Execute:
@@ -532,7 +531,7 @@ namespace ArtifactStoreTests
                 MissingMemberHandling = MissingMemberHandling.Error
             };
 
-            MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
+            var messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
 
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
         }
@@ -546,7 +545,7 @@ namespace ArtifactStoreTests
         {
             foreach (IArtifact artifact in otherTopLevelArtifacts)
             {
-                INovaArtifact novaArtifact = novaArtifacts.Find(a => a.Id == artifact.Id);
+                var novaArtifact = novaArtifacts.Find(a => a.Id == artifact.Id);
 
                 Assert.NotNull(novaArtifact, "Couldn't find Artifact ID {0} in the list of Nova Artifacts!", artifact.Id);
                 novaArtifact.AssertEquals(artifact, shouldCompareVersions: false);
@@ -563,7 +562,7 @@ namespace ArtifactStoreTests
         /// By default the entire chain is assumed to be returned from GetExpandedArtifactTree.</param>
         private void VerifyArtifactTree(List<IArtifact> artifactChain, List<INovaArtifact> novaArtifacts, int artifactIndex = int.MaxValue)
         {
-            INovaArtifact topArtifact = VerifyAllTopLevelArtifacts(artifactChain, novaArtifacts);
+            var topArtifact = VerifyAllTopLevelArtifacts(artifactChain, novaArtifacts);
             VerifyChildArtifactsInChain(artifactChain, topArtifact, artifactIndex);
         }
 
@@ -576,11 +575,11 @@ namespace ArtifactStoreTests
         /// <returns>The NovaArtifact corresponding to the top level artifact in the chain we created.</returns>
         private INovaArtifact VerifyAllTopLevelArtifacts(List<IArtifact> artifactChain, List<INovaArtifact> novaArtifacts)
         {
-            IArtifact topArtifact = artifactChain[0];
+            var topArtifact = artifactChain[0];
             INovaArtifact topNovaArtifact = null;
 
             // Make sure only the top artifact has children and that all top-level artifacts have parentId == projectId.
-            foreach (INovaArtifact artifact in novaArtifacts)
+            foreach (var artifact in novaArtifacts)
             {
                 if (artifact.Id == topArtifact.Id)
                 {
@@ -595,7 +594,6 @@ namespace ArtifactStoreTests
                         "The Children property of artifact '{0}' should be null because it's not in the artifact chain we created!",
                         artifact.Id);
                 }
-
                 Assert.AreEqual(_project.Id, artifact.ParentId, "The parent of all top level artifacts should be the project ID!");
             }
 
@@ -613,9 +611,9 @@ namespace ArtifactStoreTests
         private static void VerifyChildArtifactsInChain(List<IArtifact> artifactChain, INovaArtifact topNovaArtifact, int artifactIndex = int.MaxValue)
         {
             // Verify all the children in the chain.
-            INovaArtifact currentChild = topNovaArtifact;
+            var currentChild = topNovaArtifact;
 
-            foreach (IArtifact artifact in artifactChain)
+            foreach (var artifact in artifactChain)
             {
                 Assert.NotNull(currentChild, "No NovaArtifact was returned that matches with artifact '{0}' that we created!", artifact.Id);
 
@@ -627,7 +625,6 @@ namespace ArtifactStoreTests
                     break;
                 }
             }
-
             Assert.IsNull(currentChild, "The Children property of the last artifact in the chain should be null!");
         }
 

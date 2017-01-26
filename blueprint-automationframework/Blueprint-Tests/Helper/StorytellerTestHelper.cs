@@ -603,7 +603,7 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process with a system decision
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user,
+            var process = CreateAndGetDefaultProcessWithOneSystemDecision(storyteller, project, user,
                 updateProcess: false);
 
             // Find the first UserTask
@@ -753,7 +753,7 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // Create and get the default process with one user decision
-            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithOneUserDecision(storyteller, project, user,
+            var process = CreateAndGetDefaultProcessWithOneUserDecision(storyteller, project, user,
                 updateProcess: false);
 
             // Find the precondition
@@ -1192,7 +1192,7 @@ namespace Helper
         {
             foreach (var link1 in process1.Links)
             {
-                ProcessLink link2 = new ProcessLink();
+                var link2 = new ProcessLink();
 
                 if (link1.SourceId > 0 && link1.DestinationId > 0)
                 {

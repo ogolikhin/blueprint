@@ -27,10 +27,12 @@ namespace Model.Impl
         /// <summary>
         /// Get available ALM targets available from the project using the specified user.
         /// </summary>
+        /// <param name="address">The address of the Blueprint server.</param>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="project">The project where the ALM targets exist.</param>
+        /// <param name="expectedStatusCodes">(optional) The expected HTTP status codes for this call.  By default only 200 OK is expected.</param>
         /// <returns>The ALM targets available for the project authenticated to the specified user.</returns>
-        public static List<IAlmTarget> GetAlmTargets (string address,
+        public static List<IAlmTarget> GetAlmTargets(string address,
             IUser user,
             IProject project,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -38,10 +40,10 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALMTARGETS, project.Id);
 
-            List<AlmTarget> almTargets = restApi.SendRequestAndDeserializeObject<List<AlmTarget>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            var almTargets = restApi.SendRequestAndDeserializeObject<List<AlmTarget>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
 
             return almTargets.ConvertAll(o => (IAlmTarget)o);
         }

@@ -363,7 +363,7 @@ namespace StorytellerTests
 
             // Get persona reference and persona actor artifact
             var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-            IArtifact personaActorArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == personaReference.Id);
+            var personaActorArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == personaReference.Id);
 
             //Execute:
             // Update process and publish
@@ -387,7 +387,7 @@ namespace StorytellerTests
 
             // Get persona reference and persona actor artifact
             var personaReference = AddPersonaReferenceToTask(taskName, process, _authorFullAccess, _project);
-            IArtifact personaActorArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == personaReference.Id);
+            var personaActorArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == personaReference.Id);
 
             // Update process and publish
             var updatedProcess = StorytellerTestHelper.UpdateVerifyAndPublishProcess(process, Helper.Storyteller, _authorFullAccess);
@@ -422,12 +422,12 @@ namespace StorytellerTests
             Assert.IsNotNull(publishedProcess, "There was a problem in process verification!");
 
             // Execute:
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
 
             // Verify:
             Assert.IsNotNull(userStories, "There is no user story generated!");
 
-            StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
+            var returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
             string expectedPersonaName = null;
 
@@ -466,12 +466,12 @@ namespace StorytellerTests
             actor.Delete(_authorFullAccess);
 
             // Execute:
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_authorFullAccess, process);
 
             // Verify:
             Assert.IsNotNull(userStories, "There is no user story generated!");
 
-            StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
+            var returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
             var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the System will be {1}",
                 Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
             Assert.AreEqual(expectedUserStoryText, ConvertHtmlToText(returnedProperty.Value), "Generated user story does not have default persona names!");
@@ -501,12 +501,12 @@ namespace StorytellerTests
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermissions, TestHelper.ProjectRole.None, _project, actor);
 
             // Execute:
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(userWithoutPermissions, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(userWithoutPermissions, process);
 
             // Verify:
             Assert.IsNotNull(userStories, "There is no user story generated!");
 
-            StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
+            var returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
             string expectedPersonaName = null;
 
@@ -535,7 +535,7 @@ namespace StorytellerTests
             // Setup:
             const int STORYTELLER1_PROCESS_ID = 34;
 
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
 
             var process = Helper.Storyteller.GetProcess(_adminUser, STORYTELLER1_PROCESS_ID);
 
@@ -548,7 +548,7 @@ namespace StorytellerTests
                 // Verify:
                 Assert.IsNotNull(userStories, "There is no user story generated!");
 
-                StorytellerProperty returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
+                var returnedProperty = userStories.First().CustomProperties.Find(p => p.Name == "ST-Acceptance Criteria");
 
                 var expectedUserStoryText = I18NHelper.FormatInvariant("Given the System is Precondition When User attempts to {0} Then the System will be {1}",
                 Process.DefaultUserTaskName, Process.DefaultSystemTaskName);
@@ -649,7 +649,7 @@ namespace StorytellerTests
             ThrowIf.ArgumentNull(personaReference, nameof(personaReference));
 
             // Get task relationships
-            IArtifact processArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id);
+            var processArtifact = Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id);
             var task = process.GetProcessShapeByShapeName(taskName);
             var taskRelationships = Helper.ArtifactStore.GetRelationships(_authorFullAccess, processArtifact, task.Id);
 

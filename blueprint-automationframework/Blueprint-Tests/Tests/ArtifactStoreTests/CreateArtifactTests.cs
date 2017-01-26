@@ -59,10 +59,8 @@ namespace ArtifactStoreTests
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
-            Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project),
-                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
-                SVC_PATH, artifactType);
+            Assert.DoesNotThrow(() => newArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project),
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
@@ -77,15 +75,13 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidArtifactTypeUnderFolder_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            INovaArtifactDetails parentFolder = CreateArtifactWithRandomName(ItemTypePredefined.PrimitiveFolder, _user, _project);
+            var parentFolder = CreateArtifactWithRandomName(ItemTypePredefined.PrimitiveFolder, _user, _project);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
 
-            Assert.DoesNotThrow(() =>
-                newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentFolder.Id),
-                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
-                SVC_PATH, artifactType);
+            Assert.DoesNotThrow(() => newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentFolder.Id),
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
@@ -109,8 +105,7 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() =>
                 newArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder),
-                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
-                SVC_PATH, artifactType);
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
@@ -136,8 +131,7 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() =>
                 newArtifact = CreateArtifactWithRandomName(artifactType, _user, _project, parentCollectionsFolder.Id, baseType: dummyType),
-                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
-                SVC_PATH, artifactType);
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
@@ -168,8 +162,7 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() =>
                 newArtifact = CreateArtifactWithRandomName(artifactType, authorUser, _project, orderIndex: orderIndexToSet),
-                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
-                SVC_PATH, artifactType);
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
 
             // Verify:
             Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
@@ -192,7 +185,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create a Project with a fake ID that shouldn't exist.
-            IProject fakeProject = ProjectFactory.CreateProject(id: projectId);
+            var fakeProject = ProjectFactory.CreateProject(id: projectId);
             fakeProject.NovaArtifactTypes.AddRange(_project.NovaArtifactTypes);
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -281,7 +274,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_NoTokenHeader_401Unauthorized()
         {
             // Setup:
-            IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
+            var userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Process, userWithNoToken, _project),
@@ -297,7 +290,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_UnauthorizedToken_401Unauthorized()
         {
             // Setup:
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Process, userWithBadToken, _project),
@@ -313,7 +306,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_UserWithoutPermissionToProject_403Forbidden()
         {
             // Setup:
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -328,15 +321,14 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183538)]
-        [Description("Create an artifact as a user that full access to the project, but no access to the parent.  " +
-            "Verify 403 Forbidden is returned.")]
+        [Description("Create an artifact as a user that full access to the project, but no access to the parent.  Verify 403 Forbidden is returned.")]
         public void CreateArtifact_UserHasNoPermissionToParentArtifact_403Forbidden()
         {
             // Setup:
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Create a user that has full access to project, but no access to parentArtifact.
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, parentArtifact);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
@@ -353,15 +345,14 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(185235)]
-        [Description("Create an artifact as a user that full access to the project, but only view access to the parent.  " +
-            "Verify 403 Forbidden is returned.")]
+        [Description("Create an artifact as a user that full access to the project, but only view access to the parent.  Verify 403 Forbidden is returned.")]
         public void CreateArtifact_UserHasViewPermissionToParentArtifact_403Forbidden()
         {
             // Setup:
             var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Create a user that has full access to project, but no access to parentArtifact.
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.Viewer, _project, parentArtifact);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
@@ -420,7 +411,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create a Project with a fake ID that shouldn't exist.
-            IProject fakeProject = ProjectFactory.CreateProject(id: projectId);
+            var fakeProject = ProjectFactory.CreateProject(id: projectId);
             fakeProject.NovaArtifactTypes.AddRange(_project.NovaArtifactTypes);
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -441,13 +432,11 @@ namespace ArtifactStoreTests
             var collectionFolder = GetDefaultCollectionFolder(_project, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
-                artifactType, _user, _project, collectionFolder.Id),
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id),
                 "'POST {0}' should return 409 Conflict when creating a regular artifact under the Collections folder!");
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Cannot create an artifact at this location.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent, "Cannot create an artifact at this location.");
         }
 
         [TestCase]
@@ -464,8 +453,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when creating a Collection under another Collection!");
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Cannot create an artifact at this location.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent, "Cannot create an artifact at this location.");
         }
 
         [TestCase]
@@ -478,8 +466,7 @@ namespace ArtifactStoreTests
             "'POST {0}' should return 409 Conflict when creating a Collection under the project!");
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Cannot create an artifact at this location.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent, "Cannot create an artifact at this location.");
         }
 
         [TestCase]
@@ -492,8 +479,7 @@ namespace ArtifactStoreTests
             "'POST {0}' should return 409 Conflict when creating a Collection Folder under the project!");
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Cannot create an artifact at this location.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent, "Cannot create an artifact at this location.");
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -510,8 +496,7 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 409 Conflict when trying to create a folder under a regular artifact!");
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Cannot create an artifact at this location.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent, "Cannot create an artifact at this location.");
         }
 
         [Explicit(IgnoreReasons.DeploymentNotReady)]    // NOTE: This won't work on Silver02 until we make a required property without a default value.
@@ -523,7 +508,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ArtifactWithMissingRequiredCustomProperty_ArtifactIsCreated_VerifyPublishReturns409Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            IProject customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
+            var customDataProject = ProjectFactory.GetProject(_user, "Custom Data", shouldRetrievePropertyTypes: true);
             customDataProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             // Execute:
@@ -578,7 +563,7 @@ namespace ArtifactStoreTests
                 "CU-User Required"                      "{\r\n  \"usersGroups\": [\r\n    {\r\n      \"id\": 1,\r\n      \"displayName\": \"Default Instance Admin\"\r\n    }\r\n  ]\r\n}"
             */
 
-            Dictionary<string, object> expectedValues = new Dictionary<string, object>
+            var expectedValues = new Dictionary<string, object>
             {
                 { "CU-Text Required", "<html><head/><pre>Default Text</pre></html>" },
                 { "CU-Number Required with Min & Max", 10 },
@@ -610,13 +595,11 @@ namespace ArtifactStoreTests
             projects[1].GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
-                artifactType, _user, projects[1], parentArtifact.Id),
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, projects[1], parentArtifact.Id),
                 "'POST {0}' should return 409 Conflict when the Project ID is different than the project of the parent!");
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
-                "Invalid request.");
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent, "Invalid request.");
         }
 
         #endregion Negative tests
@@ -640,10 +623,8 @@ namespace ArtifactStoreTests
             {
                 string artifactName = I18NHelper.FormatInvariant("{0}-{1}", baseNovaArtifactName, i);
 
-                Assert.DoesNotThrow(() =>
-                    CreateArtifact(_user, _project, artifactType, artifactName, _project.Id),
-                    "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!",
-                    SVC_PATH, artifactType);
+                Assert.DoesNotThrow(() => CreateArtifact(_user, _project, artifactType, artifactName, _project.Id),
+                    "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
             }
 
             var endTime = DateTime.Now;
@@ -658,8 +639,7 @@ namespace ArtifactStoreTests
             {
                 string artifactName = I18NHelper.FormatInvariant("{0}-{1}", baseOpenApiArtifactName, i);
 
-                Assert.DoesNotThrow(() =>
-                    Helper.CreateAndSaveArtifact(_project, _user, artifactType.ToBaseArtifactType(), name: artifactName),
+                Assert.DoesNotThrow(() => Helper.CreateAndSaveArtifact(_project, _user, artifactType.ToBaseArtifactType(), name: artifactName),
                     "'POST {0}' should return 200 OK when trying to create an artifact of type: '{1}'!",
                     RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactType);
             }
@@ -697,8 +677,7 @@ namespace ArtifactStoreTests
             BaseArtifactType? baseType = null)
         {
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var artifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address,
-                user, artifactType, artifactName, project, parentId, orderIndex);
+            var artifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, user, artifactType, artifactName, project, parentId, orderIndex);
 
             Helper.WrapNovaArtifact(artifact, project, user, baseType);
 
@@ -733,7 +712,7 @@ namespace ArtifactStoreTests
             var artifactDetails = CreateNovaArtifactDetails(artifactName, project.Id, itemTypeId, parentId ?? project.Id, orderIndex);
             string jsonBody = JsonConvert.SerializeObject(artifactDetails);
 
-            RestResponse response = CreateArtifactFromJson(user, jsonBody);
+            var response = CreateArtifactFromJson(user, jsonBody);
             var createdArtifact = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
             Helper.WrapNovaArtifact(createdArtifact, project, user, baseType);
@@ -749,10 +728,10 @@ namespace ArtifactStoreTests
         /// <returns>The REST response.</returns>
         private RestResponse CreateArtifactFromJson(IUser user, string jsonBody)
         {
-            RestApiFacade restApi = new RestApiFacade(Helper.BlueprintServer.Address, user?.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Helper.BlueprintServer.Address, user?.Token?.AccessControlToken);
 
             // Set expectedStatusCodes to 201 Created.
-            List<HttpStatusCode> expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             const string contentType = "application/json";
 
             var response = restApi.SendRequestBodyAndGetResponse(
@@ -800,7 +779,7 @@ namespace ArtifactStoreTests
         /// <returns>The default Collections folder for the project.</returns>
         private INovaArtifactBase GetDefaultCollectionFolder(IProject project, IUser user)
         {
-            INovaArtifact collectionFolder = project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, user);
+            var collectionFolder = project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, user);
 
             return new NovaArtifactDetails
             {

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Common;
 using Model.ArtifactModel.Impl.PredefinedProperties;
 using Newtonsoft.Json;
-using System.Linq;
-using Common;
 using NUnit.Framework;
+using System;
+using System.Linq;
 
 namespace Model.ArtifactModel.Impl
 {

@@ -1,7 +1,6 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Model.ArtifactModel.Adaptors;
+using System;
 using System.Collections.Generic;
-using Model.ArtifactModel.Adaptors;
 
 namespace Model.ArtifactModel.Impl
 {

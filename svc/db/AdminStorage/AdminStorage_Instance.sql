@@ -1530,6 +1530,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_Bus
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_UserToSystemProcess_Label', 'en-US', N'User-System Process mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_RegenerateUS_Message', 'en-US', N'Regenerate user stories to synchronize your changes.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_RegenerateUSS_Message', 'en-US', N'Published artifacts include one or more Processes. Regenerate corresponding user stories to synchronize changes')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Process_Include_Creation_Validation_Error_409_121', 'en-US', N'Please navigate to artifact (ID:{0} ''{1}'') to fix all validation errors and publish to include in current process. The new artifact was not included.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Breadcrumb_InaccessibleArtifact', 'en-US', N'<Inaccessible>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_Dropdown_Tooltip', 'en-US', N'User Stories')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_All_Label', 'en-US', N'Generate All')

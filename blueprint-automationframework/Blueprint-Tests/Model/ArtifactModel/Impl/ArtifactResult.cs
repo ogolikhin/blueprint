@@ -23,7 +23,7 @@ namespace Model.ArtifactModel.Impl
 
     public class OpenApiAddArtifactResult
     {
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<OpenApiArtifact>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<OpenApiArtifact>))]
         public IOpenApiArtifact Artifact { get; set; }
         public string Message { get; set; }
         public HttpStatusCode ResultCode { get; set; }

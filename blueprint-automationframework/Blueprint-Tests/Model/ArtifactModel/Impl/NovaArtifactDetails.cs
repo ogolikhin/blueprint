@@ -254,13 +254,13 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// The artifacts that were published.
         /// </summary>
-        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
         public List<INovaArtifactResponse> Artifacts { get; set; } = new List<INovaArtifactResponse>();
 
         /// <summary>
         /// The projects where the published artifacts exist.
         /// </summary>
-        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaProject, NovaProject>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaProject, NovaProject>))]
         public List<INovaProject> Projects { get; set; } = new List<INovaProject>();
 
         #endregion Serialized JSON Properties

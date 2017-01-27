@@ -1,5 +1,5 @@
-﻿using System.Data;
-using Common;
+﻿using Common;
+using System.Data;
 using TestConfig;
 
 namespace Model.Factories
@@ -14,7 +14,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static string GetServiceAddressFromTestConfig(string keyName)
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            var testConfig = TestConfiguration.GetInstance();
 
             if (!testConfig.Services.ContainsKey(keyName))
             {

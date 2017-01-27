@@ -1145,6 +1145,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_130', 'en-US', N'The Item name cannot be empty.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_Other', 'en-US', N'An error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Auto_Confirm', 'en-US', N'Your changes could not be autosaved.<br/>Try saving manually for more information. If you proceed, your changes will be lost.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Possible_SubArtifact_Validation_Error', 'en-US', N'There may be issues with one or more sub-artifact property values. Please validate the artifact to confirm.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact you were viewing has been deleted. The artifact''s parent or project is now being displayed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog_Header', 'en-US', N'Publish All')
@@ -2041,22 +2042,40 @@ DROP PROCEDURE [dbo].[GetLicenseUserActivity]
 GO
 
 CREATE PROCEDURE [dbo].[GetLicenseUserActivity]
-
+(
+	@month int = null,
+	@year int = null
+)
 AS
 BEGIN
+IF (NOT @month IS NULL AND (@month < 1 OR @month > 12))  
+	SET @month = NULL
+IF (NOT @year IS NULL AND (@year < 2000 OR @year > 2999))
+	SET @year = NULL
 
+DECLARE @startMonth date = ISNULL(DATEFROMPARTS(@year, @month, 1), '1900/1/1'); 
+DECLARE @currentMonth date = DATEFROMPARTS(YEAR(GETUTCDATE()), MONTH(GETUTCDATE()), 1);
 
 SELECT 
-	UserId, 
-	MAX(UserLicenseType) as LicenseType,  
-	YEAR([TimeStamp])* 100 + MONTH([TimeStamp]) AS [YearMonth]
-FROM [dbo].[LicenseActivities]  WITH (NOLOCK) 
-WHERE ConsumerType = 1 AND ActionType = 1 --and UserLicenseType in (3,2) 
-GROUP BY UserId, YEAR([TimeStamp])* 100 + MONTH([TimeStamp])
-ORDER BY UserId, [YearMonth]
+	la.UserId, 
+	MAX(la.UserLicenseType) as LicenseType,  
+	YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp]) AS [YearMonth]
+FROM 
+	[dbo].[LicenseActivities] la  WITH (NOLOCK) 
+WHERE 
+	@startMonth < @currentMonth AND
+	la.ConsumerType = 1 AND 
+	la.ActionType = 1 --and UserLicenseType in (3,2) 
+GROUP BY 
+	la.UserId, YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp])
+ORDER BY 
+	UserId, YearMonth
+
 
 END
-GO 
+GO
+--------------------------------------------------------------
+
 
 
 /******************************************************************************************************************************

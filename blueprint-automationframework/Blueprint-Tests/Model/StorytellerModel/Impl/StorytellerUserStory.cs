@@ -23,10 +23,10 @@ namespace Model.StorytellerModel.Impl
         public string TypePrefix { get; set; }
         public PropertyTypePredefined TypePredefined { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> SystemProperties { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> CustomProperties { get; set; }
 
         public int ProcessTaskId { get; set; }
@@ -112,7 +112,7 @@ namespace Model.StorytellerModel.Impl
             var nonFunctionalRequirementProperty = CustomProperties.First(property => property.Name.StartsWithOrdinal("ST-Non-Functional Requirements"));   // Use StartsWith() instead of == because it might have "(Agile Pack)" on the end of the name.
             nonFunctionalRequirementProperty.Value = value;
             
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<UpdateResult<StorytellerProperty>, List<StorytellerProperty>>(path,
                 RestRequestMethod.PATCH, jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty }, expectedStatusCodes: expectedStatusCodes);

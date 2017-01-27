@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.SearchServiceModel;
 using Model.SearchServiceModel.Impl;
 
@@ -14,7 +13,7 @@ namespace Model.Factories
         /// <returns>An ISearchService object.</returns>
         public static ISearchService CreateSearchService(string address)
         {
-            ISearchService searchService = new SearchService(address);
+            var searchService = new SearchService(address);
             return searchService;
         }
 

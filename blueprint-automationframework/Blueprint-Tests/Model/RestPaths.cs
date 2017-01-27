@@ -143,6 +143,7 @@ namespace Model
 
                 public static class Sessions
                 {
+                    public const string ALIVE                       = "svc/adminstore/sessions/alive";
                     public const string SSO                         = "svc/adminstore/sessions/sso";
                 }
 

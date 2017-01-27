@@ -7,14 +7,11 @@ using NUnit.Framework;
 using Utilities;
 using Utilities.Factories;
 using Model.NovaModel;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
 
 namespace Helper
 {
     public static class FileStoreTestHelper
     {
-
         /// <summary>
         /// Asserts that the two files are identical.
         /// </summary>
@@ -97,17 +94,17 @@ namespace Helper
             ThrowIf.ArgumentNull(filestore, nameof(filestore));
 
             // Create a fake file with a random byte array.
-            IFile file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fileName, fileType);
+            var file = CreateFileWithRandomByteArray(fileSize, fileName, fileType);
 
             // Add the file to Filestore.
             var addedFile = filestore.AddFile(file, user, useMultiPartMime: true);
 
-            FileStoreTestHelper.AssertFilesAreIdentical(file, addedFile, compareIds: false);
+            AssertFilesAreIdentical(file, addedFile, compareIds: false);
 
             // Verify that the file was stored properly by getting it back and comparing it with original.
             var returnedFile = filestore.GetFile(addedFile.Guid, user);
 
-            FileStoreTestHelper.AssertFilesAreIdentical(addedFile, returnedFile);
+            AssertFilesAreIdentical(addedFile, returnedFile);
 
             return addedFile;
         }
@@ -123,7 +120,7 @@ namespace Helper
         {
             string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize);
             byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
-            IFile file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileContents);
+            var file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileContents);
             return file;
         }
 
@@ -151,7 +148,7 @@ namespace Helper
         {
             encoding = encoding ?? Encoding.Unicode;
             byte[] fileBytes = encoding.GetBytes(fileContents);
-            IFile file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileBytes);
+            var file = FileFactory.CreateFile(fakeFileName, fileType, DateTime.Now, fileBytes);
             return file;
         }
 
@@ -205,7 +202,7 @@ namespace Helper
             string randomChunk = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(fileSize.Value);
             byte[] fileContents = Encoding.ASCII.GetBytes(randomChunk);
 
-            INovaFile file = FileFactory.CreateNovaFile(fakeFileName, fileType, DateTime.Now, fileContents);
+            var file = FileFactory.CreateNovaFile(fakeFileName, fileType, DateTime.Now, fileContents);
             return file;
         }
 

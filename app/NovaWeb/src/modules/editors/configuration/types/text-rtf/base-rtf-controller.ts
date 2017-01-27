@@ -273,6 +273,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected initInstanceCallback = (editor) => {
         this.mceEditor = editor;
+        this.mceEditor.undoManager.clear();
 
         editor.formatter.register("font8", {
             inline: "span",
@@ -336,14 +337,27 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             this.observer.observe(this.editorBody, observerConfig);
         }
 
-        editor.on("KeyUp", (e) => {
-            if (e && [
-                    8, // delete
-                    46 // backspace
-                ].indexOf(e.keyCode) !== -1) {
+        editor.on("KeyDown", (e: KeyboardEvent) => {
+            const KEY_X = 88;
+            const KEY_Z = 90;
+
+            if (e && [KEY_X, KEY_Z].indexOf(e.keyCode) !== -1 && (e.ctrlKey || e.metaKey)) {
+                this.$scope["$applyAsync"](() => {
+                    editor.save();
+                    this.triggerChange(editor.getContent());
+                });
+            }
+        });
+
+        editor.on("KeyUp", (e: KeyboardEvent) => {
+            const KEY_DELETE = 8;
+            const KEY_BACKSPACE = 46;
+
+            if (e && [KEY_DELETE, KEY_BACKSPACE].indexOf(e.keyCode) !== -1) {
                 if (this.isDirty || this.contentBuffer !== editor.getContent()) {
                     this.triggerChange();
                 }
+                return;
             }
         });
 

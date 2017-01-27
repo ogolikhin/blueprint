@@ -1,5 +1,5 @@
-﻿using System.Net;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Net;
 using Utilities;
 using Utilities.Facades;
 

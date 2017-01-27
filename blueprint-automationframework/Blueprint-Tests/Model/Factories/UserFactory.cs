@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using Common;
+﻿using Common;
 using Model.Impl;
+using System;
+using System.Collections.Generic;
 using TestConfig;
 using Utilities;
 using Utilities.Factories;
@@ -47,7 +46,7 @@ namespace Model.Factories
         public static IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            IUser user = CreateUserOnly(source);
+            var user = CreateUserOnly(source);
             user.InstanceAdminRole = instanceAdminRole;
             user.CreateUser();
             return user;
@@ -66,7 +65,7 @@ namespace Model.Factories
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
             UserSource source = UserSource.Database)
         {
-            IUser user = CreateUserOnly(username, password, source);
+            var user = CreateUserOnly(username, password, source);
             user.InstanceAdminRole = instanceAdminRole;
             user.CreateUser();
             return user;
@@ -134,7 +133,7 @@ namespace Model.Factories
         /// <returns>The user object from the TestConfiguration.</returns>
         public static IUser GetUserFromTestConfig()
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            var testConfig = TestConfiguration.GetInstance();
             string username = testConfig.Username;
             string password = testConfig.Password;
 
@@ -149,7 +148,7 @@ namespace Model.Factories
         /// <returns>A list of users.</returns>
         public static List<IUser> GetUsers(bool includeDeletedUsers = false)
         {
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -166,10 +165,10 @@ namespace Model.Factories
 
                 Logger.WriteDebug("Running: {0}", query);
 
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (var cmd = database.CreateSqlCommand(query))
+                using (var reader = cmd.ExecuteReader())
                 {
-                    List<IUser> users = new List<IUser>();
+                    var users = new List<IUser>();
 
                     while (reader.Read())
                     {

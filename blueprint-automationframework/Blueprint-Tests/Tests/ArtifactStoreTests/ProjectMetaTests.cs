@@ -41,7 +41,7 @@ namespace ArtifactStoreTests
             // Setup:
             ProjectCustomArtifactTypesResult artifactTypes = null;
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -80,8 +80,7 @@ namespace ArtifactStoreTests
             }
 
             // Search for specific Property types.
-            Assert.That(artifactTypes.PropertyTypes.Exists(p => p.PrimitiveType == PropertyPrimitiveType.Text),
-                "There were no Text property types returned!");
+            Assert.That(artifactTypes.PropertyTypes.Exists(p => p.PrimitiveType == PropertyPrimitiveType.Text), "There were no Text property types returned!");
             Assert.That(artifactTypes.PropertyTypes.Exists(p => p.PrimitiveType == PropertyPrimitiveType.Number),
                 "There were no Number property types returned!");
         }
@@ -107,7 +106,7 @@ namespace ArtifactStoreTests
         public void GetArtifactTypes_UnauthorizedToken_Unauthorized()
         {
             // Setup: Create a user with an unauthorized token.
-            IUser unauthorizedUser = UserFactory.CreateUserOnly();
+            var unauthorizedUser = UserFactory.CreateUserOnly();
             string newToken = (new Guid()).ToString();
             unauthorizedUser.SetToken(newToken);
             unauthorizedUser.Token.AccessControlToken = newToken;
@@ -137,7 +136,7 @@ namespace ArtifactStoreTests
         public void GetArtifactTypes_InsufficientPermissions_Forbidden(InstanceAdminRole? role)
         {
             // Setup: Create a user that isn't a Default Instance Admin (i.e. doesn't have access to the project).
-            IUser forbiddenUser = UserFactory.CreateUserAndAddToDatabase(role);
+            var forbiddenUser = UserFactory.CreateUserAndAddToDatabase(role);
             Helper.AdminStore.AddSession(forbiddenUser);
 
             // Execute:
@@ -189,7 +188,7 @@ namespace ArtifactStoreTests
         [Description("Runs 'GET /projects/{projectId}/meta/customtypes' with a non-existing projectId and valid token and verifies it returns 404 Not Found.")]
         public void GetArtifactTypes_NonExistingProjectId_NotFound()
         {
-            IProject nonExistingProject = ProjectFactory.CreateProject(id: int.MaxValue);
+            var nonExistingProject = ProjectFactory.CreateProject(id: int.MaxValue);
 
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {

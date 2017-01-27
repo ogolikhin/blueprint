@@ -98,6 +98,14 @@ describe("Formly Text RTF Inline", () => {
                 return;
             }
         },
+        undoManager: {
+            clear: () => {
+                return;
+            }
+        },
+        save: () => {
+            return;
+        },
         addButton: (a: string, menuToolbar: IMenuToolbar) => {
             if (!menuItems) {
                 menuItems = menuToolbar.menu;

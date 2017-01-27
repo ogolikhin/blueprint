@@ -1,5 +1,4 @@
-﻿
-namespace Model.ArtifactModel.Impl.PredefinedProperties
+﻿namespace Model.ArtifactModel.Impl.PredefinedProperties
 {
     public class DocumentFileValue
     {

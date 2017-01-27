@@ -232,6 +232,7 @@ App_Save_Artifact_Error_409_124,"The artifact {0} cannot be saved. It inherits f
 App_Save_Artifact_Error_409_130,"The Item name cannot be empty."
 App_Save_Artifact_Error_Other,"An error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>"
 App_Save_Auto_Confirm, "Your changes could not be autosaved.<br/>Try saving manually for more information. If you proceed, your changes will be lost."
+App_Possible_SubArtifact_Validation_Error, "There may be issues with one or more sub-artifact property values. Please validate the artifact to confirm."
 
 Refresh_Project_NotFound,"You have attempted to access a project that has been deleted."
 Refresh_Artifact_Deleted,"The artifact you were viewing has been deleted. The artifact's parent or project is now being displayed."

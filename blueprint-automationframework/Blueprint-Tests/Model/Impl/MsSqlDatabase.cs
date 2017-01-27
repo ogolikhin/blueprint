@@ -75,7 +75,7 @@ namespace Model.Impl
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]   // Ignore this warning.
         public SqlCommand CreateSqlCommand(string sqlCommand)
         {
-            SqlCommand cmd = new SqlCommand(sqlCommand, _sqlConnection);
+            var cmd = new SqlCommand(sqlCommand, _sqlConnection);
             return cmd;
         }
 

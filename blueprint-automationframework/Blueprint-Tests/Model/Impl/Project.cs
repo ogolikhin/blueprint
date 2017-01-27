@@ -10,15 +10,12 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using Utilities;
-using Utilities.Facades;
 
 namespace Model.Impl
 {
     [DataContract(Name = "Project", Namespace = "Model")]
     public class Project : IProject
     {
-        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
-
         #region Properties
 
         /// <summary>
@@ -80,6 +77,10 @@ namespace Model.Impl
         public INovaArtifact GetDefaultCollectionFolder(string address, IUser user)
         {
             var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(address, Id, user);
+
+            Assert.That((novaArtifacts != null) && novaArtifacts.Any(),
+                "No artifacts were found in Project ID: {0}.", Id);
+
             return novaArtifacts.Find(a => a.PredefinedType.Value == (int)BaselineAndCollectionTypePredefined.CollectionFolder);
         }
 
@@ -131,28 +132,8 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.MetaData.ARTIFACT_TYPES, Id);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (shouldRetrievePropertyTypes)
-            {
-                queryParameters.Add("PropertyTypes", "true");
-            }
-
-            // Retrieve the artifact type list for the project 
-            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+            var artifactTypes = OpenApi.GetAllArtifactTypes(address, Id, user, shouldRetrievePropertyTypes,
+                expectedStatusCodes, sendAuthorizationAsCookie);
 
             // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
             if (ArtifactTypes.Any())

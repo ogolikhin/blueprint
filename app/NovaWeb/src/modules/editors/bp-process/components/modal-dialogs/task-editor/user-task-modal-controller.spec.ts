@@ -1,10 +1,13 @@
+require("script!mxClient");
+import * as angular from "angular";
+import "angular-mocks";
+import "../../..";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
-import * as angular from "angular";
 import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
@@ -13,15 +16,11 @@ import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactReference, NodeType} from "../../diagram/presentation/graph/models";
 import {UserTaskDialogModel} from "./userTaskDialogModel";
-import {link} from "fs";
-import {version} from "punycode";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {UserTaskModalController} from "./user-task-modal-controller";
 import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {Models} from "../../../../../main/models/";
-
-require("script!mxClient");
 
 describe("UserTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;

@@ -36,7 +36,7 @@ namespace ArtifactStoreTests
 
             _allProjects = ProjectFactory.GetAllProjects(_user);
             _project = _allProjects.First();
-            _project.GetAllArtifactTypes(ProjectFactory.Address, _user);
+            _project.GetAllOpenApiArtifactTypes(ProjectFactory.Address, _user);
             _fileName = I18NHelper.FormatInvariant("{0}.{1}", RandomGenerator.RandomAlphaNumeric(10), "docx");
             _attachmentFile = FileStoreTestHelper.UploadNovaFileToFileStore(_user, _fileName, _fileType, defaultExpireTime,
                 Helper.FileStore);

@@ -58,10 +58,9 @@ namespace ArtifactStoreTests
         public void AddAttachment_PublishedArtifact_AttachmentHasExpectedValue()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
-            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
-                "Artifact shouldn't have attachments at this point.");
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
@@ -70,8 +69,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, author);
-            Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count,
-                "Artifact should have 1 attachments at this point.");
+            Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 1 attachments at this point.");
             Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
@@ -82,7 +80,7 @@ namespace ArtifactStoreTests
         public void DeleteAttachment_ArtifactWithAttachment_AttachmentIsEmpty()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
             ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact, _attachmentFile, Helper.ArtifactStore);
             artifact.Publish(_user);
             var attachment = Helper.ArtifactStore.GetAttachments(artifact, _user);
@@ -104,24 +102,20 @@ namespace ArtifactStoreTests
         public void Add2Attachments_Artifact_AttachmentHasExpectedValue()
         {
             // Setup:
-            var attachmentFile1 = FileStoreTestHelper.UploadNovaFileToFileStore(_user, _fileName, _fileType, defaultExpireTime,
-                Helper.FileStore);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
+            var attachmentFile1 = FileStoreTestHelper.UploadNovaFileToFileStore(_user, _fileName, _fileType, defaultExpireTime, Helper.FileStore);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.TextualRequirement);
 
             var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
-            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
-                "Artifact shouldn't have attachments at this point.");
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentsAndSave(author, artifact,
-                new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
-                "Exception caught while trying to update an artifact!");
+                new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore), "Exception caught while trying to update an artifact!");
 
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, author);
-            Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count,
-                "Artifact should have 2 attachments at this point.");
+            Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 2 attachments at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
 
@@ -135,20 +129,17 @@ namespace ArtifactStoreTests
         public void AddAttachment_PublishedDocument_Throw409()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
             var attachmentBeforeTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
-            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count,
-                "Artifact shouldn't have attachments at this point.");
+            Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
 
             // Execute:
             Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
-                _attachmentFile, Helper.ArtifactStore),
-                "Unexpected Exception caught while trying to update an artifact!");
+                _attachmentFile, Helper.ArtifactStore), "Unexpected Exception caught while trying to update an artifact!");
             
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
-            Assert.AreEqual(0, attachmentAfterTest.AttachedFiles.Count,
-                "Artifact shouldn't have at this point.");
+            Assert.AreEqual(0, attachmentAfterTest.AttachedFiles.Count, "Artifact shouldn't have at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
         }
 

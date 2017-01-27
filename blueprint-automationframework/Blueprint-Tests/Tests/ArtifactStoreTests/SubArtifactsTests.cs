@@ -47,7 +47,7 @@ namespace ArtifactStoreTests
         #region Process tests
 
         [TestCase]
-        [TestRail(165964)]//regression see https://trello.com/c/yyqvXZa1
+        [TestRail(165964)]
         [Description("Create default process, add user task, delete default user task, save process, get list of subartifacts - check that it has expected content.")]
         public void GetSubArtifacts_ProcessWithDeletedDefaultAndAddedNewUserTask_ReturnsCorrectSubArtifactsList()
         {
@@ -169,8 +169,7 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
-                "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
             // Execute:
             inlineTraceArtifact.Lock();
@@ -228,8 +227,7 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
-                "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
             // Execute:
             inlineTraceArtifact.Lock();
@@ -283,8 +281,7 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
-                "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
             // Execute:
             inlineTraceArtifact.Lock();
@@ -335,8 +332,7 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(),
-                "Description properties don't match.");
+            StringAssert.Contains(descriptionProperty.Value.ToString(), updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
             // Create user with a permission only on second project
             var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, new List<IProject> { secondProject });
@@ -387,10 +383,8 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(USECASE_ID, s.ParentId, "ParentId for subartifact of Use Case must be equal to Use Case Id.");
             }
 
-            Assert.AreEqual(UseCaseDisplayNames.PRECONDITION, subArtifacts[0].DisplayName,
-                "DisplayName for Precondition should have expected name.");
-            Assert.AreEqual(UseCaseDisplayNames.POSTCONDITION, subArtifacts[1].DisplayName,
-                "DisplayName for Postcondition should have expected name.");
+            Assert.AreEqual(UseCaseDisplayNames.PRECONDITION, subArtifacts[0].DisplayName, "DisplayName for Precondition should have expected name.");
+            Assert.AreEqual(UseCaseDisplayNames.POSTCONDITION, subArtifacts[1].DisplayName, "DisplayName for Postcondition should have expected name.");
 
             for (int i = 2; i < subArtifacts.Count; i++)
             {
@@ -507,9 +501,9 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
             Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
 
             // Execute
@@ -530,10 +524,10 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
+            var parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
             Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
 
             // Execute
@@ -553,9 +547,9 @@ namespace ArtifactStoreTests
         public void GetSubArtifactDetails_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
             Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
@@ -583,10 +577,10 @@ namespace ArtifactStoreTests
         public void GetSubArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            IArtifact parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            IArtifact child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
+            var parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
 
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
             Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, child.Id);

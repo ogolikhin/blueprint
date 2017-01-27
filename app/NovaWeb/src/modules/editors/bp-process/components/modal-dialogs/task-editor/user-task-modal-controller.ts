@@ -4,7 +4,7 @@ import {IArtifactService, IStatefulArtifactFactory} from "../../../../../manager
 import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";
 import {IModalScope} from "../base-modal-dialog-controller";
-import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
+import {UserTaskDialogModel} from "./userTaskDialogModel";
 import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";

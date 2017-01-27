@@ -15,7 +15,6 @@ import {ILocalizationService} from "../../../../../commonModule/localization/loc
 
 export abstract class TaskModalController<T extends IModalDialogModel> extends BaseModalDialogController<T> {
     public includeArtifactName: string;
-    public isReadonly: boolean = false;
     public isIncludeResultsVisible: boolean;
     public isIncludeError: boolean;
     private everPublished: boolean = false;
@@ -66,8 +65,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     ) {
         super($rootScope, $scope, $uibModalInstance, dialogModel);
 
-        this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
-
         this.nameOnBlur();
 
         if (this.getAssociatedArtifact()) {
@@ -76,15 +73,19 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
         this.isIncludeError = false;
 
-        let createNewArtifactLoadingId = this.loadingOverlayService.beginLoading();
+        let getArtifactLoadingId = this.loadingOverlayService.beginLoading();
 
         this.artifactService.getArtifact(this.dialogModel.artifactId)
             .then((artifact) => {
                 this.everPublished = artifact.version > 0;
             })
             .finally(() => {
-                this.loadingOverlayService.endLoading(createNewArtifactLoadingId);
+                this.loadingOverlayService.endLoading(getArtifactLoadingId);
             });
+    }
+
+    public get isReadonly(): boolean {
+        return !this.dialogModel || this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
     }
 
     public showCreateNewArtifact(): boolean {
@@ -148,13 +149,16 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     }
 
     public saveData(): ng.IPromise<void> {
-        if (this.dialogModel.isReadonly) {
-            throw new Error("Changes cannot be made or saved as this is a read-only item");
+        const savingDataOverlayId = this.loadingOverlayService.beginLoading();
+
+        if (this.isReadonly) {
+            return this.$q.reject(new Error("Changes cannot be made or saved as this is a read-only item"));
         }
 
         return this.applyAssociatedArtifactChanges()
             .finally(() => {
                 this.populateTaskChanges();
+                this.loadingOverlayService.endLoading(savingDataOverlayId);
             });
     }
 

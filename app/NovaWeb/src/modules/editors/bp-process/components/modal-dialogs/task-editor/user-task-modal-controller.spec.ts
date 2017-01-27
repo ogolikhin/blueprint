@@ -70,33 +70,18 @@ describe("UserTaskModalController", () => {
         $uibModalInstance = _$uibModalInstance_;
     }));
 
-    function createUserTaskNode(): UserTask {
-        return <UserTask>{
-            model: {id: 1},
-            direction: null,
-            action: null,
-            label: null,
-            row: null,
-            column: null,
-            newShapeColor: null,
-            getNodeType: () => NodeType.UserTask
-        };
-    }
+    describe("saveData", () => {
+        let model: UserTaskDialogModel;
+        let controller: UserTaskModalController;
 
-    describe("model is non-readonly ", () => {
-        it("save data should be successful", () => {
-            // arrange
-            const model = new UserTaskDialogModel();
+        beforeEach(() => {
+            model = new UserTaskDialogModel();
             model.isReadonly = false;
             model.isHistoricalVersion = false;
             model.action = "Custom Action";
             model.objective = "Custom Objective";
             model.label = "Custom Label";
-            model.associatedArtifact = <IArtifactReference>{
-                id: 5,
-                name: "associated",
-                typePrefix: "PRO"
-            };
+            model.associatedArtifact = null;
             model.originalItem = createUserTaskNode();
             model.personaReference = {
                 id: -1,
@@ -109,9 +94,8 @@ describe("UserTaskModalController", () => {
                 version: null
             };
 
-            const $scope = <IModalScope>$rootScope.$new();
-            const localizationSpy = spyOn(localization, "get");
-            const controller = new UserTaskModalController($scope,
+            controller = new UserTaskModalController(
+                <IModalScope>$rootScope.$new(),
                 $rootScope,
                 $timeout,
                 dialogService,
@@ -124,19 +108,118 @@ describe("UserTaskModalController", () => {
                 loadingOverlayService,
                 $uibModalInstance,
                 model);
+        });
 
-            const artifactReference: IArtifactReference = null;
+        it("throws error for read-only model", () => {
+            // arrange
+            let error: any;
+            model.isReadonly = true;
 
-            //act
+            // act
+            controller.saveData().catch((err: any) => error = err);
+            $rootScope.$digest();
+
+            // assert
+            expect(error).toEqual(Error("Changes cannot be made or saved as this is a read-only item"));
+        });
+
+        it("throws error for historical model", () => {
+            // arrange
+            let error: any;
+            model.isHistoricalVersion = true;
+
+            // act
+            controller.saveData().catch((err: any) => error = err);
+            $rootScope.$digest();
+
+            // assert
+            expect(error).toEqual(Error("Changes cannot be made or saved as this is a read-only item"));
+        });
+
+        it("saves action", () => {
+            // arrange
+            model.action = "Test Action";
+
+            // act
             controller.saveData();
             $rootScope.$digest();
 
-            //assert
+            // assert
             expect(model.originalItem.action).toEqual(model.action);
+        });
+
+        it("saves associated artifact (include)", () => {
+            // arrange
+            model.associatedArtifact = <IArtifactReference>{
+                id: 5,
+                name: "associated",
+                typePrefix: "PRO"
+            };
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
             expect(model.originalItem.associatedArtifact).toEqual(model.associatedArtifact);
+        });
+
+        it("saves objective", () => {
+            // arrange
+            model.objective = "Test Objective";
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
             expect(model.originalItem.objective).toEqual(model.objective);
+        });
+
+        it("saves label", () => {
+            // arrange
+            model.label = "Test Label";
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
             expect(model.originalItem.label).toEqual(null);
+        });
+
+        it("saves persona reference", () => {
+            // arrange
+            model.personaReference = {
+                id: 28,
+                projectId: 1,
+                name: "Custom Actor",
+                typePrefix: "AC",
+                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                projectName: "Test Project",
+                link: null,
+                version: 26
+            };
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
             expect(model.originalItem.personaReference).toEqual(model.personaReference);
         });
     });
+
+    function createUserTaskNode(): UserTask {
+        return <UserTask>{
+            model: {id: 1},
+            direction: null,
+            action: null,
+            label: null,
+            row: null,
+            column: null,
+            newShapeColor: null,
+            getNodeType: () => NodeType.UserTask
+        };
+    }
 });

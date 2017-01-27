@@ -13,6 +13,8 @@ namespace Model.Impl
     {
         private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
 
+        #region Project methods
+
         /// <sumary>
         /// Get a project based on the project ID on the Blueprint server.
         /// </sumary>
@@ -45,6 +47,10 @@ namespace Model.Impl
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
             return projects.ConvertAll(o => (IProject)o);
         }
+
+        #endregion Project methods
+
+        #region MetaData methods
 
         /// <summary>
         /// Get the all Artifact Types for the specified project.
@@ -93,6 +99,8 @@ namespace Model.Impl
 
             return artifactTypes;
         }
+
+        #endregion MetaData methods
 
     }
 }

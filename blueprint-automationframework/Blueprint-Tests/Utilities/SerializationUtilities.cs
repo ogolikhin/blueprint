@@ -157,7 +157,7 @@ namespace Utilities
         /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
         public static void CheckJson<T>(T deserializedObjectFromServer, string serializedObjectFromServer)
         {
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
+            var jsonSerializerSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore
             };

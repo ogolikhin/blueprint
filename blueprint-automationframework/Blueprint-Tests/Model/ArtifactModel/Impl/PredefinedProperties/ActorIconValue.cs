@@ -49,6 +49,8 @@ namespace Model.ArtifactModel.Impl.PredefinedProperties
             // TODO: add code which adds imageSource key with base64 encoded image (?!) to mock fron-end behaviour
         }
 
+        static public readonly PropertyTypePredefined PropertyType = PropertyTypePredefined.ActorIcon;
+
         private const string outIconKey = "url";
         private const string inIconKey = "guid";
     }

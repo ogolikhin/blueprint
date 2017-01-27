@@ -20,29 +20,12 @@ namespace Model.ArtifactModel.Impl
             // TODO: simplify/redesign(?) code to avoid possibility to have exception
             get
             {
-                // Finding ActorInheritence among other properties
-                var actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
-                    p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-                if ((actorInheritanceProperty == null) || (actorInheritanceProperty.CustomPropertyValue == null))
-                {
-                    return null;
-                }
-                // Deserialization
-                string actorInheritancePropertyString = actorInheritanceProperty.CustomPropertyValue.ToString();
-                var actorInheritanceValue = JsonConvert.DeserializeObject<ActorInheritanceValue>(actorInheritancePropertyString);
-
-                CheckIsJsonChanged<ActorInheritanceValue>(actorInheritanceProperty);
-
-                return actorInheritanceValue;
+                return GetSpecificPropertyValue<ActorInheritanceValue>(ActorInheritanceValue.PropertyType);
             }
 
             set
             {
-                var actorInheritanceProperty = SpecificPropertyValues.FirstOrDefault(
-                    p => p.PropertyType == PropertyTypePredefined.ActorInheritance);
-
-                Assert.NotNull(actorInheritanceProperty, "ActorInheritanceProperty shouldn't be null");
-                actorInheritanceProperty.CustomPropertyValue = value;
+                SetSpecificPropertyValue(ActorInheritanceValue.PropertyType, value);
             }
         }
 
@@ -55,26 +38,38 @@ namespace Model.ArtifactModel.Impl
         {
             get
             {
-                var actorIconProperty = SpecificPropertyValues.FirstOrDefault(
-                    p => p.PropertyType == PropertyTypePredefined.ActorIcon);
-                if (actorIconProperty?.CustomPropertyValue == null)
-                {
-                    return null;
-                }
-                // Deserialization
-                var customPropertyValueString = actorIconProperty.CustomPropertyValue.ToString();
-                var iconValue = JsonConvert.DeserializeObject<ActorIconValue>(customPropertyValueString);
-                return iconValue;
+                return GetSpecificPropertyValue<ActorIconValue>(ActorIconValue.PropertyType);
             }
 
             set
             {
-                var actorIconProperty = SpecificPropertyValues.FirstOrDefault(
-                    p => p.PropertyType == PropertyTypePredefined.ActorIcon);
-
-                Assert.NotNull(actorIconProperty, "actorIconProperty shouldn't be null");
-                actorIconProperty.CustomPropertyValue = value;
+                SetSpecificPropertyValue(ActorIconValue.PropertyType, value);
             }
+        }
+
+        private T GetSpecificPropertyValue<T>(PropertyTypePredefined propertyType)
+        {
+            var specificProperty = SpecificPropertyValues.FirstOrDefault(
+                p => p.PropertyType == propertyType);
+            if (specificProperty?.CustomPropertyValue == null)
+            {
+                return default(T);
+            }
+            // Deserialization
+            string actorInheritancePropertyString = specificProperty.CustomPropertyValue.ToString();
+            var specificPropertyValue = JsonConvert.DeserializeObject<T>(actorInheritancePropertyString);
+
+            CheckIsJsonChanged<T>(specificProperty);
+
+            return specificPropertyValue;
+        }
+
+        private void SetSpecificPropertyValue<T>(PropertyTypePredefined propertyType, T valueToSet)
+        {
+            var specificProperty = SpecificPropertyValues.FirstOrDefault(p => p.PropertyType == propertyType);
+
+            Assert.NotNull(specificProperty, "SpecificProperty shouldn't be null");
+            specificProperty.CustomPropertyValue = valueToSet;
         }
 
         /// <summary>

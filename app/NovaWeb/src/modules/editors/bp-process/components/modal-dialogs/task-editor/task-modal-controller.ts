@@ -315,7 +315,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 // artifact type not found, we refresh the single project
                 this.messageService.addError("Create_New_Artifact_Error_404_109", true);
             } else if (error.statusCode === 409 && error.errorCode === ErrorCode.CannotPublishOverValidationErrors) {
-                const message = new Message(MessageType.Error, "ST_Process_Include_Creation_Validation_Error_409_121", true, newArtifact.id, newArtifact.name);
+                const message = new Message(MessageType.Error, "ST_Process_Include_Creation_Validation_Error_409_121", true, newArtifact.name, newArtifact.id);
                 this.messageService.addMessage(message);
             }
             else if (!error.handled) {

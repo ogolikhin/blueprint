@@ -1,33 +1,35 @@
-﻿using Helper;
-using Model;
-using NUnit.Framework;
+﻿using Common;
 using CustomAttributes;
-using System.Collections.Generic;
-using Common;
-using TestCommon;
+using Helper;
+using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
+using NUnit.Framework;
+using System.Collections.Generic;
+using TestCommon;
 using Utilities;
 
-namespace ArtifactStoreTests 
+namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class ProjectTests : TestBase
     {
         private const int NON_EXISTING_PROJECT_ID = int.MaxValue;
-        private const string REST_PATH_ARTIFACT = RestPaths.Svc.ArtifactStore.Projects_id_.ARTIFACTS_id_;
-        private const string REST_PATH_CHILDREN = RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN;
+        private const string PATH_PROJECT_CHILDREN = RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN;
+        private const string REST_ARTIFACT_CHILDREN = RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN;
 
-        private IUser _user = null;
+        private IUser _adminUser = null;
         private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
         }
 
         [TearDown]
@@ -44,15 +46,17 @@ namespace ArtifactStoreTests
         public void GetProjectChildrenByProjectId_OK()
         {
             // Setup:
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute & Verify:
+            List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, viewer);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_ARTIFACT);
+                returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, viewer);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
 
-            // TODO: Add proper validation of the list of artifacts returned by the REST call.
+            // Verify: validate the list of artifacts returned by the REST call.
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project, novaArtifactList: returnedNovaArtifactList);
         }
 
         [TestCase]
@@ -63,8 +67,8 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetProjectChildrenByProjectId(NON_EXISTING_PROJECT_ID, _user);
-            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_PATH_ARTIFACT);
+                Helper.ArtifactStore.GetProjectChildrenByProjectId(NON_EXISTING_PROJECT_ID, _adminUser);
+            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", PATH_PROJECT_CHILDREN);
         }
 
         [TestCase]
@@ -73,13 +77,13 @@ namespace ArtifactStoreTests
         public void GetProjectChildrenByProjectId_UserWithNoPermissionsToProject_403Forbidden()
         {
             // Setup:
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, userWithoutPermission);
-            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", REST_PATH_ARTIFACT);
+            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", PATH_PROJECT_CHILDREN);
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Project (Id:{0}).", _project.Id);
@@ -92,13 +96,13 @@ namespace ArtifactStoreTests
         public void GetProjectChildrenByProjectId_InvalidToken_401Unauthorized()
         {
             // Setup:
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, unauthorizedUser);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_ARTIFACT);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", PATH_PROJECT_CHILDREN);
         }
         
         [TestCase]
@@ -110,7 +114,7 @@ namespace ArtifactStoreTests
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, user: null);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", REST_PATH_ARTIFACT);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", PATH_PROJECT_CHILDREN);
         }
 
         #endregion GetProjectChildrenByProjectId tests
@@ -123,16 +127,21 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_PublishedParentArtifact_OK()
         {
             // Setup:
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute & Verify:
+            List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, viewer);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+                returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, viewer);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_ARTIFACT_CHILDREN);
 
-            // TODO: Add proper validation of the list of artifacts returned by the REST call.
+            // Verify: validatie the list of artifacts returned by the REST call.
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project,
+                novaArtifactList: returnedNovaArtifactList,
+                parentArtifact: parentArtifact,
+                expectedNumberOfArtifacts: 2);
         }
 
         [TestCase]
@@ -143,8 +152,8 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _user);
-            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_PATH_CHILDREN);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _adminUser);
+            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_ARTIFACT_CHILDREN);
         }
 
         [TestCase]
@@ -155,8 +164,8 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _user);
-            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_PATH_CHILDREN);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _adminUser);
+            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", REST_ARTIFACT_CHILDREN);
         }
 
         [TestCase]
@@ -165,14 +174,14 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_UserWithNoPermissionsToProject_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, artifact.Id, userWithoutPermission);
-            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", REST_PATH_ARTIFACT);
+            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", PATH_PROJECT_CHILDREN);
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
@@ -185,15 +194,15 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_UserWithNoPermissionsToArtifact_403Forbidden()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, artifact.Id, userWithoutPermission);
-            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", REST_PATH_ARTIFACT);
+            }, "The 'GET {0}' endpoint should return 403 Forbidden if called by a user with no permissions!", PATH_PROJECT_CHILDREN);
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
@@ -206,14 +215,14 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_InvalidToken_401Unauthorized()
         {
             // Setup:
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser);
+            var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, unauthorizedUser);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_PATH_CHILDREN);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", REST_ARTIFACT_CHILDREN);
         }
 
         [TestCase]
@@ -222,13 +231,13 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_MissingTokenHeader_401Unauthorized()
         {
             // Setup:
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, user: null);
-            }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", REST_PATH_CHILDREN);
+            }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", REST_ARTIFACT_CHILDREN);
         }
 
         [TestCase]
@@ -237,18 +246,23 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_PublishedArtifactWithDraft_OK()
         {
             // Setup:
-            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
+            var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser);
 
             // Save parent to create a draft.
             parentArtifact.Save();
 
             // Execute & Verify:
+            List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, _user);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+                returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, _adminUser);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_ARTIFACT_CHILDREN);
 
-            // TODO: Add proper validation of the list of artifacts returned by the REST call.
+            // Verify: validate the list of artifacts returned by the REST call.
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project,
+                novaArtifactList: returnedNovaArtifactList,
+                parentArtifact: parentArtifact,
+                expectedNumberOfArtifacts: 2);
         }
 
         [TestCase]
@@ -257,15 +271,20 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_SecondLevelPublishedArtifactChild_OK()
         {
             // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser);
 
             // Execute & Verify:
+            List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+                returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _adminUser);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_ARTIFACT_CHILDREN);
 
-            // TODO: Add proper validation of the list of artifacts returned by the REST call.
+            // Verify: validate the list of artifacts returned by the REST call.
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project,
+                novaArtifactList: returnedNovaArtifactList,
+                parentArtifact: parentArtifactList[1],
+                expectedNumberOfArtifacts: 2);
         }
 
         [TestCase]
@@ -274,18 +293,23 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_SecondLevelPublishedArtifactChildWithDraft_OK()
         {
             // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser);
 
             // Save second parent to create a draft.
             parentArtifactList[1].Save();
 
             // Execute & Verify:
+            List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+                returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _adminUser);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_ARTIFACT_CHILDREN);
 
-            // TODO: Add proper validation of the list of artifacts returned by the REST call.
+            // Verify: validate the list of artifacts returned by the REST call.
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project,
+                novaArtifactList: returnedNovaArtifactList,
+                parentArtifact: parentArtifactList[1],
+                expectedNumberOfArtifacts: 2);
         }
 
         [TestCase]
@@ -294,20 +318,26 @@ namespace ArtifactStoreTests
         public void GetArtifactChildrenByProjectAndArtifactId_MovedArtifact_OK()
         {
             // Setup:
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _user);
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser);
 
             // Move second parent below the first parent.
             parentArtifactList[1].Lock();
-            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _user);
+            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _adminUser);
             parentArtifactList[1].Publish();
 
             // Execute & Verify:
+            List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _user);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_PATH_CHILDREN);
+                returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _adminUser);
+            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_ARTIFACT_CHILDREN);
 
-            // TODO: Add proper validation of the list of artifacts returned by the REST call.
+            // Verify: validate the list of artifacts returned by the REST call.
+            ArtifactStoreHelper.ValidateNovaArtifacts(
+                _project,
+                novaArtifactList: returnedNovaArtifactList,
+                parentArtifact: parentArtifactList[1],
+                expectedNumberOfArtifacts: 2);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId tests

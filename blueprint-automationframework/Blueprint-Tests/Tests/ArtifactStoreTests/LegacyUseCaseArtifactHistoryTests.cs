@@ -51,9 +51,8 @@ namespace ArtifactStoreTests
 
             // Execute: Get the use case artifact using GetUseCaseArtifact without passing versionId parameter
             NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.DoesNotThrow(() => {
-                usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+            Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id);}, 
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
 
             // Validation: Verify that the returned from GetUseCaseArtifact in valid format
             ArtifactStoreHelper.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
@@ -71,9 +70,8 @@ namespace ArtifactStoreTests
 
             // Execute: Get the use case artifact using GetUseCaseArtifact with first versionId		
             NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.DoesNotThrow(() => {
-                usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id, versionId: 1);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+            Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id, versionId: 1);}, 
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
 
             ArtifactStoreHelper.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion1);
         }
@@ -148,9 +146,5 @@ namespace ArtifactStoreTests
         }
 
         #endregion 404 Not Found Tests
-
-        #region Private Functions
-
-        #endregion Private Functions
     }
 }

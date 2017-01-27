@@ -161,14 +161,14 @@
 
             &.ag-row-selected:hover .ag-cell:not(.not-selectable) span > span{
                 background-color: transparent;
-                color: $gray-darkest;
+                color: $gray-darker;
             }
 
             &.ag-row-selected .ag-cell:not(.not-selectable).ag-cell-value{
                 background: transparent;
 
                 .ag-group-value > .ag-group-value-wrapper {
-                    color: $gray-darkest;
+                    color: $gray-darker;
                 }
 
                 .icon__normal::before{

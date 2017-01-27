@@ -67,7 +67,7 @@ namespace Model.Impl
             Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Put Session for User ID: {0}.", session.UserId);
 
-            ISession returnedSession = restApi.SendRequestAndDeserializeObject<Session>(
+            var returnedSession = restApi.SendRequestAndDeserializeObject<Session>(
                 path,
                 RestRequestMethod.PUT,
                 queryParameters: queryParameters);
@@ -85,7 +85,7 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)     // POST /sessions/{userId}
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.AccessControl.SESSIONS_id_, userId);
-            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            var queryParameters = new Dictionary<string, string>();
 
             // Add all the query parameters for the POST call.
             queryParameters.Add("UserId", userId.ToStringInvariant());
@@ -111,7 +111,7 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             string token = GetToken(response);
-            ISession session = new Session(userId, username, licenseLevel.GetValueOrDefault(), isSso.GetValueOrDefault(), token, beginTime, endTime);
+            var session = new Session(userId, username, licenseLevel.GetValueOrDefault(), isSso.GetValueOrDefault(), token, beginTime, endTime);
             Logger.WriteDebug("Got session token '{0}' for User ID: {1}.", token, userId);
 
             // Add session to list of created sessions, so we can delete them later.
@@ -161,7 +161,7 @@ namespace Model.Impl
             Logger.WriteTrace("path = '{0}'.", path);
             Logger.WriteInfo("Getting Session for User ID: {0}.", userId);
 
-            ISession session = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.GET);
+            var session = restApi.SendRequestAndDeserializeObject<Session>(path, RestRequestMethod.GET);
 
             return session;
         }
@@ -188,8 +188,8 @@ namespace Model.Impl
         public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path;
-
             Dictionary<string, string> additionalHeaders = null;
+
             if (session != null)
             {
                 additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
@@ -232,10 +232,10 @@ namespace Model.Impl
         /// <seealso cref="IAccessControl.GetLicenseTransactions(int, int, ISession, List{HttpStatusCode})"/>
         public IList<ILicenseActivity> GetLicenseTransactions(int numberOfDays, int consumerType, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(Address);
+            var restApi = new RestApiFacade(Address);
             string path = RestPaths.Svc.AccessControl.Licenses.TRANSACTIONS;
 
-            Dictionary<string, string> queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
+            var queryParameters = new Dictionary<string, string> { { "days", numberOfDays.ToString(System.Globalization.CultureInfo.InvariantCulture) } };
             queryParameters.Add("consumerType", consumerType.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Dictionary<string, string> additionalHeaders = null;
 
@@ -269,7 +269,7 @@ namespace Model.Impl
         /// <seealso cref="IAccessControl.GetLicenseUsage(int?, int?, List{HttpStatusCode})"/>
         public LicenseUsage GetLicenseUsage(int? year = null, int? month = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            RestApiFacade restApi = new RestApiFacade(Address);
+            var restApi = new RestApiFacade(Address);
             string path = RestPaths.Svc.AccessControl.Licenses.USAGE;
 
             var queryParameters = new Dictionary<string, string>();
@@ -308,7 +308,7 @@ namespace Model.Impl
         /// <seealso cref="IAccessControl.GetActiveSessions(int?, int?, ISession, List{HttpStatusCode})"/>
         public IList<ISession> GetActiveSessions(int? pageSize = null, int? pageNumber = null, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Dictionary<string, string> queryParameters = new Dictionary<string, string>();
+            var queryParameters = new Dictionary<string, string>();
 
             if (pageSize != null)
             {
@@ -320,7 +320,7 @@ namespace Model.Impl
                 queryParameters.Add("pn", pageNumber.ToString());
             }
 
-            RestApiFacade restApi = new RestApiFacade(Address);
+            var restApi = new RestApiFacade(Address);
             Dictionary<string, string> additionalHeaders = null;
 
             if (session != null)
@@ -339,7 +339,7 @@ namespace Model.Impl
 
                 string path = RestPaths.Svc.AccessControl.Sessions.SELECT;
 
-                RestResponse response = restApi.SendRequestAndGetResponse(
+                var response = restApi.SendRequestAndGetResponse(
                     path,
                     RestRequestMethod.GET,
                     additionalHeaders: additionalHeaders,

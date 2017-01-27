@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -25,7 +25,7 @@ namespace Model.ArtifactModel.Impl
         public override int? ProjectId { get; set; }
         public override int? Version { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifact, NovaArtifact>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaArtifact, NovaArtifact>))]
         public List<INovaArtifact> Children { get; set; }   // This is optional and can be null depending on the REST call made.
 
         #endregion Serialized JSON Properties

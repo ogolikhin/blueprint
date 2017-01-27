@@ -1,7 +1,6 @@
-using System;
+using Model.ArtifactModel.Impl;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel.Impl;
 
 namespace Model.ArtifactModel
 {

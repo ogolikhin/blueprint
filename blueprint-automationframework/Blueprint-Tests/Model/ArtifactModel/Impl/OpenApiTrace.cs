@@ -1,7 +1,7 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using NUnit.Framework;
+using System;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl

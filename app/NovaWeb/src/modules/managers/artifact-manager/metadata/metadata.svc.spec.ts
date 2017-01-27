@@ -272,7 +272,9 @@ describe("Metadata Service -> ", () => {
 
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1, 12268).then(it => {
+            metadataService.getSubArtifactPropertyTypes(1, (itemType) => { 
+                return itemType.id === 12268;
+            }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
@@ -290,7 +292,9 @@ describe("Metadata Service -> ", () => {
 
             // Act
             let propertyTypes: any;
-            metadataService.getSubArtifactPropertyTypes(1, 444).then(it => {
+            metadataService.getSubArtifactPropertyTypes(1,  (itemType) => { 
+                return itemType.id === 444;
+            }).then(it => {
                 propertyTypes = it;
             });
             _$rootScope.$digest();
@@ -304,7 +308,9 @@ describe("Metadata Service -> ", () => {
             const names = "Label_Name,Label_Description,Step Of";
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1, 12260).then(it => {
+            metadataService.getSubArtifactPropertyTypes(1, (itemType) => { 
+                return itemType.id === 12260;
+            }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
@@ -321,7 +327,9 @@ describe("Metadata Service -> ", () => {
             const names = "Label_Name,Label_Description,Label_Label";
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1, 12272).then(it => {
+            metadataService.getSubArtifactPropertyTypes(1, (itemType) => { 
+                return itemType.id === 12272;
+            }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();
@@ -338,7 +346,9 @@ describe("Metadata Service -> ", () => {
             const names = "Label_Name,Label_Description,Label_Label,Label_X,Label_Y,Label_Width,Label_Height";
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1, 12279).then(it => {
+            metadataService.getSubArtifactPropertyTypes(1,  (itemType) => { 
+                return itemType.id === 12279;
+            }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
             });
             _$rootScope.$digest();

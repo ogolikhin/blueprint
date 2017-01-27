@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using Model.ArtifactModel;
+﻿using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using System.Collections.Generic;
 
 namespace Model.Impl
 {

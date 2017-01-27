@@ -23,10 +23,10 @@ namespace Model.StorytellerModel.Impl
         public string TypePrefix { get; set; }
         public PropertyTypePredefined TypePredefined { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> SystemProperties { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<StorytellerProperty>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<StorytellerProperty>>))]
         public List<StorytellerProperty> CustomProperties { get; set; }
 
         public int ProcessTaskId { get; set; }

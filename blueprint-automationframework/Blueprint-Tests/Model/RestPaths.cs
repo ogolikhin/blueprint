@@ -179,7 +179,7 @@ namespace Model
                 public const string PROCESSUPDATE_id_               = "svc/bpartifactstore/processupdate/{0}";  // NovaProcessController.UpdateNovaProcess
                 public const string STATUS                          = "svc/artifactstore/status";
                 public const string USECASE_id_                     = "svc/bpartifactstore/usecase/{0}";    // NovaUseCaseController.GetUseCase
-                public const string ACTORICON_id_                   = "svc/bpartifactstore/diagram/actoricon/{0}?versionId={1}&addDraft=true";
+                public const string ACTORICON_id_                   = "svc/bpartifactstore/diagram/actoricon/{0}";
 
                 public static class Artifacts
                 {

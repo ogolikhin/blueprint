@@ -588,6 +588,18 @@ namespace Model.Impl
                 versionId?.ToStringInvariant() ?? string.Empty);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
+            Dictionary<string, string> queryParams = null;
+            if (versionId != null)
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
+            }
+            else
+            {
+                queryParams = new Dictionary<string, string> { { "versionId", string.Empty } };
+            }
+
+            queryParams.Add("addDraft", "true");
+
             File file = null;
 
             var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);

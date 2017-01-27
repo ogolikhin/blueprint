@@ -1,3 +1,5 @@
+import "./loadingOverlay.scss";
+
 import {ILoadingOverlayService} from "./loadingOverlay.service";
 
 export class BpLoadingOverlayComponent implements ng.IComponentOptions {

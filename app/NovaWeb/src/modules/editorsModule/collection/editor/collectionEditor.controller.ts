@@ -1,23 +1,18 @@
-import {Models} from "../../main";
-import {Enums} from "../../main/models";
-import {IWindowManager} from "../../main/services/window-manager";
-import {IMetaDataService} from "../../managers/artifact-manager";
-import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
-import {IValidationService} from "../../managers/artifact-manager/validation/validation.svc";
-import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
-import {Helper, IDialogService} from "../../shared";
-import {IMessageService} from "../../main/components/messages/message.svc";
-import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRendererParams, ITreeNode} from "../../shared/widgets/bp-tree-view/";
-import {BpArtifactDetailsEditorController} from "../artifact/details/artifactDetailsEditor.controller";
-import {IPropertyDescriptorBuilder} from "../services";
-import {ICollectionArtifact, IStatefulCollectionArtifact} from "../configuration/classes/collection-artifact";
-import {ICollectionService} from "./collection.service";
-import {ILocalizationService} from "../../commonModule/localization/localization.service";
-
-export class BpArtifactCollectionEditor implements ng.IComponentOptions {
-    public template: string = require("./bp-collection-editor.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactCollectionEditorController;
-}
+import {Models} from "../../../main";
+import {Enums} from "../../../main/models";
+import {IWindowManager} from "../../../main/services/window-manager";
+import {IMetaDataService} from "../../../managers/artifact-manager";
+import {IItemChangeSet} from "../../../managers/artifact-manager/changeset";
+import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {Helper, IDialogService} from "../../../shared";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRendererParams, ITreeNode} from "../../../shared/widgets/bp-tree-view/";
+import {BpArtifactDetailsEditorController} from "../../artifact/details/artifactDetailsEditor.controller";
+import {IPropertyDescriptorBuilder} from "../../services";
+import {ICollectionArtifact, IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
+import {ICollectionService} from "../collection.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 export class BpArtifactCollectionEditorController extends BpArtifactDetailsEditorController {
     public static $inject: [string] = [

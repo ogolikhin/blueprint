@@ -7,11 +7,6 @@ import {BpArtifactEditor} from "../artifactEditor.controller";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../services";
 
-export class BpArtifactDetailsEditor implements ng.IComponentOptions {
-    public template: string = require("./detailsEditor.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BpArtifactDetailsEditorController;
-}
-
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
         "$window",

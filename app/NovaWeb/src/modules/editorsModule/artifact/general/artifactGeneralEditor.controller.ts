@@ -6,11 +6,6 @@ import {IMessageService} from "../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {BpArtifactEditor} from "../artifactEditor.controller";
 
-export class BpArtifactGeneralEditorComponent implements ng.IComponentOptions {
-    public template: string = require("./generalEditor.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BpGeneralArtifactEditorController;
-}
-
 export class BpGeneralArtifactEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
         "$window",

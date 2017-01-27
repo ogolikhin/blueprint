@@ -1,11 +1,13 @@
 require("./bp-collection.scss");
 
 import * as angular from "angular";
-import {BpArtifactCollectionEditor} from "./bp-collection-editor";
-import {BpCollectionHeader} from "./bp-collection-header";
+import {CollectionEditor} from "./editor";
+import {CollectionHeader} from "./header";
 import {CollectionService} from "./collection.service";
 
-export const CollectionEditors = angular.module("bp.editors.collection", [])
+export const CollectionEditors = angular.module("editorsCollection", [
+        CollectionEditor,
+        CollectionHeader
+    ])
     .service("collectionService", CollectionService)
-    .component("bpCollection", new BpArtifactCollectionEditor())
-    .component("bpCollectionHeader", new BpCollectionHeader()).name;
+    .name;

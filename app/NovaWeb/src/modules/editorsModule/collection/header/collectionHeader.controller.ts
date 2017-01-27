@@ -1,23 +1,23 @@
-import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {DeleteAction} from "../../main/components/bp-artifact-info/actions/delete-action";
-import {IWindowManager} from "../../main/services";
-import {BpArtifactInfoController} from "../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPButtonOrDropdownSeparator} from "../../shared";
-import {IProjectManager} from "../../managers";
-import {IMetaDataService} from "../../managers/artifact-manager";
-import {IStatefulCollectionArtifact} from "../configuration/classes/collection-artifact";
-import {INavigationService} from "../../commonModule/navigation/navigation.service";
-import {RapidReviewAction, AddCollectionArtifactAction} from "./actions";
-import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../commonModule/localization/localization.service";
-import {IMainBreadcrumbService} from "../../main/components/bp-page-content/mainbreadcrumb.svc";
-import {ICollectionService} from "./collection.service";
-import {IItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
-import {IMessageService} from "../../main/components/messages/message.svc";
-import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {BPButtonGroupAction} from "../../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {DeleteAction} from "../../../main/components/bp-artifact-info/actions/delete-action";
+import {IWindowManager} from "../../../main/services";
+import {BpArtifactInfoController} from "../../../main/components/bp-artifact-info/bp-artifact-info";
+import {IDialogService, BPButtonOrDropdownSeparator} from "../../../shared";
+import {IProjectManager} from "../../../managers";
+import {IMetaDataService} from "../../../managers/artifact-manager";
+import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {RapidReviewAction, AddCollectionArtifactAction} from "../actions";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IMainBreadcrumbService} from "../../../main/components/bp-page-content/mainbreadcrumb.svc";
+import {ICollectionService} from "../collection.service";
+import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
-    public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
+    public template: string = require("../../../main/components/bp-artifact-info/bp-artifact-info.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = BpCollectionHeaderController;
 }
 

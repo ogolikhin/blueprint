@@ -1,8 +1,9 @@
 require("./unpublished.scss");
 
-import {UnpublishedArtifactsService} from "./unpublished.svc";
-import {UnpublishedComponent} from "./unpublished";
+import {UnpublishedArtifactsService} from "./unpublished.service";
+import {UnpublishedComponent} from "./unpublished.component";
 
-angular.module("bp.editors.unpublished", [])
+export const UnpublishedEditor = angular.module("unpublishedEditor", [])
     .service("publishService", UnpublishedArtifactsService)
-    .component("unpublished", new UnpublishedComponent());
+    .component("unpublished", new UnpublishedComponent())
+    .name;

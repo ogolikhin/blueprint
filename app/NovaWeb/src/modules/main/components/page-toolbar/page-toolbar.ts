@@ -18,7 +18,7 @@ import {
     ICreateNewArtifactReturn
 } from "../dialogs/new-artifact";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.svc";
+import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 

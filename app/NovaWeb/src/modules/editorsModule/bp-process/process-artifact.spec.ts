@@ -10,7 +10,7 @@ import {ValidationServiceMock} from "../../managers/artifact-manager/validation/
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {PropertyDescriptorBuilderMock} from "../services";
-import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.svc.mock";
+import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.service.mock";
 import {IProcess} from "./models/process-models";
 import {SessionSvc} from "../../shell/login/session.svc";
 import {AuthSvc} from "../../shell/login/auth.svc";

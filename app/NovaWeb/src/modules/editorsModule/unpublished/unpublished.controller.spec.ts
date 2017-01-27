@@ -1,13 +1,13 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx";
-import {UnpublishedController} from "./unpublished";
+import {UnpublishedController} from "./unpublished.controller";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {UnpublishedArtifactsServiceMock} from "./unpublished.svc.mock";
+import {UnpublishedArtifactsServiceMock} from "./unpublished.service.mock";
 import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
-import {IUnpublishedArtifactsService} from "./unpublished.svc";
+import {IUnpublishedArtifactsService} from "./unpublished.service";
 import createSpy = jasmine.createSpy;
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {ItemTypePredefined} from "../../main/models/enums";

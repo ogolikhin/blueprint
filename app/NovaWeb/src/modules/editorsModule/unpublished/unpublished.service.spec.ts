@@ -3,7 +3,7 @@ import "angular-mocks";
 import "rx";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
-import {UnpublishedArtifactsService, IUnpublishedArtifactsService} from "./unpublished.svc";
+import {UnpublishedArtifactsService, IUnpublishedArtifactsService} from "./unpublished.service";
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
 import {ApplicationError} from "../../shell/error/applicationError";
 

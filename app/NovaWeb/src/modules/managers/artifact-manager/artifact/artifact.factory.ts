@@ -30,7 +30,7 @@ import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadi
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {StatefulProjectArtifact} from "../project/project-artifact";
 import {IPropertyDescriptorBuilder} from "../../../editorsModule/services";
-import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.svc";
+import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 
 export interface IStatefulArtifactFactory {

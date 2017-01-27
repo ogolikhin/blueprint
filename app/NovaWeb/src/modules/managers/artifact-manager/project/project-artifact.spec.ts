@@ -2,7 +2,7 @@ import "angular-mocks";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
-import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.svc.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {Enums, Models} from "../../../main/models";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";

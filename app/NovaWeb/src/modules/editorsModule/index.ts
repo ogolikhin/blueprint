@@ -6,7 +6,7 @@ import {ArtifactEditors} from "./artifact";
 import "./bp-diagram";
 import "./bp-process";
 import {CollectionEditors} from "./collection";
-import "./unpublished";
+import {UnpublishedEditor} from "./unpublished";
 import {JobsEditor} from "./jobs";
 import {ArtifactRoutes} from "./editors.router";
 import {
@@ -14,7 +14,7 @@ import {
     IPropertyDescriptorBuilder,
     EditorServices
 } from "./services";
-import {ItemStateService} from "./item-state/item-state.svc";
+import {ItemStateService} from "./item-state/item-state.service";
 
 angular.module("bp.editors", [
         "formly",
@@ -26,7 +26,7 @@ angular.module("bp.editors", [
         "bp.editors.process",
         CollectionEditors,
         JobsEditor,
-        "bp.editors.unpublished"
+        UnpublishedEditor
     ])
     .service("itemStateService", ItemStateService)
     .config(ArtifactRoutes);

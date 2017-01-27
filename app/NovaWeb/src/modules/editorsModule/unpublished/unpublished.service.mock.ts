@@ -1,4 +1,4 @@
-import {IUnpublishedArtifactsService} from "./unpublished.svc";
+import {IUnpublishedArtifactsService} from "./unpublished.service";
 import {IPublishResultSet} from "../../main/models/models";
 
 export class UnpublishedArtifactsServiceMock implements IUnpublishedArtifactsService {

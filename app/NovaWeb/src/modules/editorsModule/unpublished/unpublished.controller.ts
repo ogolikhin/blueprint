@@ -7,16 +7,10 @@ import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/act
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
-import {IUnpublishedArtifactsService} from "./unpublished.svc";
+import {IUnpublishedArtifactsService} from "./unpublished.service";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IDialogService} from "../../shared/";
 import {IMessageService} from "../../main/components/messages/message.svc";
-
-
-export class UnpublishedComponent implements ng.IComponentOptions {
-    public template: string = require("./unpublished.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = UnpublishedController;
-}
 
 interface IArtifactWithProject extends IArtifact {
     projectName: string;

@@ -1,5 +1,5 @@
 import {ItemStateController} from "./item-state/item-state.controller";
-import {IItemStateService} from "./item-state/item-state.svc";
+import {IItemStateService} from "./item-state/item-state.service";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 
 export class ArtifactRoutes {

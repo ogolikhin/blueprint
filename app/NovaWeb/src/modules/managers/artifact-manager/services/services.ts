@@ -8,7 +8,7 @@ import {IValidationService} from "../validation/validation.svc";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IPropertyDescriptorBuilder} from "../../../editorsModule/services";
-import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.svc";
+import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 
 export interface IStatefulArtifactServices {

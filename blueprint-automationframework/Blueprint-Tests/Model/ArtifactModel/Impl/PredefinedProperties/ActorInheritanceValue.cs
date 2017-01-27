@@ -16,5 +16,7 @@ namespace Model.ArtifactModel.Impl.PredefinedProperties
         public int ActorId { get; set; }
 
         public bool HasAccess { get; set; }
+
+        static public readonly PropertyTypePredefined PropertyType = PropertyTypePredefined.ActorInheritance;
     }
 }

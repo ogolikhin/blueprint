@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.Impl;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IFileStore object.</returns>
         public static IFileStore CreateFileStore(string address)
         {
-            IFileStore filestore = new FileStore(address);
+            var filestore = new FileStore(address);
             return filestore;
         }
 

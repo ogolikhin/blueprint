@@ -37,9 +37,11 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     }
 
     public ok = () => {
-        this.saveData();
-        this.$scope.dialogModel = null;
-        this.modalInstance.close();
+        this.saveData()
+            .finally(() => {
+                this.$scope.dialogModel = null;
+                this.modalInstance.close();
+            });
     };
 
     public cancel = () => {
@@ -47,8 +49,8 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
         this.modalInstance.dismiss("cancel");
     };
 
-    protected saveData() {
-        // do nothing here
+    protected saveData(): ng.IPromise<void> {
+        return;
     }
 
     protected updateModelWithNewValues(destination: any, source: any): void {

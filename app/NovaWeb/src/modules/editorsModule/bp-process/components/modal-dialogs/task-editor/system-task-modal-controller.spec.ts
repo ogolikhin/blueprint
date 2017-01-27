@@ -1,18 +1,14 @@
-import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
-import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
+require("script!mxClient");
 import * as angular from "angular";
 import "angular-mocks";
+import "rx";
 import "../../..";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {NodeType} from "../../diagram/presentation/graph/models";
 import {IDialogService} from "../../../../../shared";
-import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
+import {SystemTaskDialogModel} from "./systemTaskDialogModel";
 import {SystemTaskModalController} from "./system-task-modal-controller";
 import {IArtifactReference, ArtifactReference, ProcessModel, ISystemTaskShape} from "../../../models/process-models";
 import {SystemTask} from "../../diagram/presentation/graph/shapes/";
@@ -24,11 +20,17 @@ import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/arti
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
-require("script!mxClient");
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {ProcessViewModel, IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
 import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../commonModule/services/executionEnvironmentDetector.mock";
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -45,6 +47,9 @@ describe("SystemTaskModalController", () => {
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let dialogService: IDialogService;
     let communicationManager: ICommunicationManager;
+
+    let _window: any = window;
+    _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
@@ -99,9 +104,7 @@ describe("SystemTaskModalController", () => {
     }
 
     describe("retrieve included artifact info ", () => {
-
         it("when no included artifact, label should be empty", () => {
-
             // arrange
             const model = new SystemTaskDialogModel();
             model.isReadonly = true;
@@ -131,11 +134,9 @@ describe("SystemTaskModalController", () => {
 
             // assert
             expect(label).toBe("");
-
         });
 
         it("when included artifact is not accessible, label should indicate forbidden information", () => {
-
             // arrange
             const model = new SystemTaskDialogModel();
             model.isReadonly = true;
@@ -165,11 +166,9 @@ describe("SystemTaskModalController", () => {
 
             // assert
             expect(localizationSpy).toHaveBeenCalledWith("ST_Inaccessible_Include_Artifact_Label");
-
         });
 
         it("with proper included artifact, label should contain prefix, id and name", () => {
-
             // arrange
             const model = new SystemTaskDialogModel();
             model.isReadonly = true;
@@ -204,15 +203,11 @@ describe("SystemTaskModalController", () => {
 
             // assert
             expect(label).toEqual(expectedLabel);
-
         });
-
     });
 
     describe("model is readonly ", () => {
-
         it("save data should not occur", () => {
-
             // arrange
             const model = new SystemTaskDialogModel();
             model.isReadonly = true;
@@ -239,13 +234,10 @@ describe("SystemTaskModalController", () => {
             // act and assert
             expect(controller.saveData).toThrow();
         });
-
     });
 
     describe("model is non-readonly ", () => {
-
         it("save data should be successful", () => {
-
             // arrange
             const model = new SystemTaskDialogModel();
             model.isReadonly = false;
@@ -291,6 +283,7 @@ describe("SystemTaskModalController", () => {
 
             //act
             controller.saveData();
+            $rootScope.$digest();
 
             //assert
             expect(model.originalItem.action).toEqual(model.action);
@@ -321,12 +314,10 @@ describe("SystemTaskModalController", () => {
                 processModel.userTaskPersonaReferenceList = [];
                 processModel.systemTaskPersonaReferenceList = [];
 
-
                 wrapper = document.createElement("DIV");
                 container = document.createElement("DIV");
                 wrapper.appendChild(container);
                 document.body.appendChild(wrapper);
-
 
                 localScope = {graphContainer: container, graphWrapper: wrapper, isSpa: false};
 
@@ -378,9 +369,7 @@ describe("SystemTaskModalController", () => {
                 model);
             });
 
-
             it("personaReference changes, triggers lock and is dirty", () => {
-
                 spyOn(statefulArtifact, "refresh")();
                 const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -396,40 +385,39 @@ describe("SystemTaskModalController", () => {
                 };
 
                 controller.saveData();
+                $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();
                 expect(statefulArtifact.artifactState.dirty).toBeTruthy();
             });
 
-
             it("action (label) changes, triggers lock and is dirty", () => {
-
                 spyOn(statefulArtifact, "refresh")();
                 const lockSpy = spyOn(statefulArtifact, "lock");
 
                 model.action = "new system action";
 
                 controller.saveData();
+                $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();
                 expect(statefulArtifact.artifactState.dirty).toBeTruthy();
             });
 
             it("image changes, triggers lock and is dirty", () => {
-
                 spyOn(statefulArtifact, "refresh")();
                 const lockSpy = spyOn(statefulArtifact, "lock");
 
                 model.imageId = "6b021f82-0e3c-4df7-8eb2-74730b92dc3a";
 
                 controller.saveData();
+                $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();
                 expect(statefulArtifact.artifactState.dirty).toBeTruthy();
             });
 
             it("associated artifact changes, triggers lock and is dirty", () => {
-
                 spyOn(statefulArtifact, "refresh")();
                 const lockSpy = spyOn(statefulArtifact, "lock");
 
@@ -447,13 +435,11 @@ describe("SystemTaskModalController", () => {
                 model.associatedArtifact = artifactReference;
 
                 controller.saveData();
+                $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();
                 expect(statefulArtifact.artifactState.dirty).toBeTruthy();
             });
         });
-
     });
-
-
 });

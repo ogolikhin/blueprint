@@ -8,14 +8,16 @@ using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using TestCommon;
 using Utilities;
+using Common;
 
 namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
-    public class ActorInheritanceTests : TestBase
+    public class ActorPropertiesTests : TestBase
     {
         private IUser _user = null;
 
@@ -57,11 +59,11 @@ namespace ArtifactStoreTests
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, projectCustomData);
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(viewer, inheritedActorId);
+            var artifactDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(viewer, inheritedActorId);
             ActorInheritanceValue actorInheritance = null;
 
             // Execution & Verify:
-            actorInheritance = ((Actor)artifactDetails).ActorInheritance;
+            actorInheritance = artifactDetails.ActorInheritance;
             Assert.AreEqual(baseActorId, actorInheritance.ActorId, "Inherited From artifact should have id {0}, but it has id {1}", baseActorId, actorInheritance.ActorId);
             Assert.AreEqual(customDataProjectName, actorInheritance.PathToProject[0], "PathToProject[0] - name of project which contains Inherited From actor.");
         }
@@ -101,6 +103,38 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => DeleteActorInheritance(actor, author), "Deleting Actor inheritance shouldn't throw any exception, but it does.");
             CheckActorHasNoActorInheritace(actor, author);
             CheckActorHasNoOtherTraces(actor, author);
+        }
+
+        [TestCase]
+        [TestRail(234388)]
+        [Description("Create and publish Actor, set one Actor icon, check that icon has expected values.")]
+        public void SetActorIcon_Actor_ValidateReturnedActorIcon()
+        {
+            // Setup:
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            // TODO: function to add Actor icon
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
+            DateTime expireTime = DateTime.Now.AddDays(2);
+            var uploadedFile = Helper.FileStore.AddFile(imageFile, author, expireTime: expireTime, useMultiPartMime: true);
+
+            var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+
+            // Execute:
+
+            var actorIcon = new ActorIconValue();
+            actorIcon.SetIcon(uploadedFile.Guid);
+            actorDetails.ActorIcon = actorIcon;
+            actor.Lock(author);
+            Artifact.UpdateArtifact(actor, author, actorDetails, address: Helper.BlueprintServer.Address);
+            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+
+            // Verify:
+            // TODO: function to validate Actor icon
+            string iconAddress = actorDetails.ActorIcon.GetIconAddress();
+            StringAssert.Contains(actor.Id.ToStringInvariant(), iconAddress, "iconAddress should contain artifact ID");
+            StringAssert.Contains("versionId=1", iconAddress, "iconAddress should contain proper versionID");
         }
 
         #endregion 200 OK Tests

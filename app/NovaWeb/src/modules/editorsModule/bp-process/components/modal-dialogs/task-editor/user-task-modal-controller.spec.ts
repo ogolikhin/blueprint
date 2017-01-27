@@ -1,10 +1,13 @@
+require("script!mxClient");
+import * as angular from "angular";
+import "angular-mocks";
+import "../../..";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
-import * as angular from "angular";
 import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
@@ -12,16 +15,12 @@ import {UserTask} from "../../diagram/presentation/graph/shapes/user-task";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactReference, NodeType} from "../../diagram/presentation/graph/models";
-import {UserTaskDialogModel} from "./sub-artifact-dialog-model";
-import {link} from "fs";
-import {version} from "punycode";
+import {UserTaskDialogModel} from "./userTaskDialogModel";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {UserTaskModalController} from "./user-task-modal-controller";
 import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {Models} from "../../../../../main/models/";
-
-require("script!mxClient");
 
 describe("UserTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -71,35 +70,18 @@ describe("UserTaskModalController", () => {
         $uibModalInstance = _$uibModalInstance_;
     }));
 
-    function createUserTaskNode(): UserTask {
-        return <UserTask>{
-            model: {id: 1},
-            direction: null,
-            action: null,
-            label: null,
-            row: null,
-            column: null,
-            newShapeColor: null,
-            getNodeType: () => NodeType.UserTask
-        };
-    }
+    describe("saveData", () => {
+        let model: UserTaskDialogModel;
+        let controller: UserTaskModalController;
 
-    describe("model is non-readonly ", () => {
-
-        it("save data should be successful", () => {
-
-            // arrange
-            const model = new UserTaskDialogModel();
+        beforeEach(() => {
+            model = new UserTaskDialogModel();
             model.isReadonly = false;
             model.isHistoricalVersion = false;
             model.action = "Custom Action";
             model.objective = "Custom Objective";
             model.label = "Custom Label";
-            model.associatedArtifact = <IArtifactReference>{
-                id: 5,
-                name: "associated",
-                typePrefix: "PRO"
-            };
+            model.associatedArtifact = null;
             model.originalItem = createUserTaskNode();
             model.personaReference = {
                 id: -1,
@@ -112,9 +94,8 @@ describe("UserTaskModalController", () => {
                 version: null
             };
 
-            const $scope = <IModalScope>$rootScope.$new();
-            const localizationSpy = spyOn(localization, "get");
-            const controller = new UserTaskModalController($scope,
+            controller = new UserTaskModalController(
+                <IModalScope>$rootScope.$new(),
                 $rootScope,
                 $timeout,
                 dialogService,
@@ -127,21 +108,118 @@ describe("UserTaskModalController", () => {
                 loadingOverlayService,
                 $uibModalInstance,
                 model);
-
-            const artifactReference: IArtifactReference = null;
-
-            //act
-            controller.saveData();
-
-            //assert
-            expect(model.originalItem.action).toEqual(model.action);
-            expect(model.originalItem.associatedArtifact).toEqual(model.associatedArtifact);
-            expect(model.originalItem.objective).toEqual(model.objective);
-            expect(model.originalItem.label).toEqual(null);
-            expect(model.originalItem.personaReference).toEqual(model.personaReference);
         });
 
+        it("throws error for read-only model", () => {
+            // arrange
+            let error: any;
+            model.isReadonly = true;
+
+            // act
+            controller.saveData().catch((err: any) => error = err);
+            $rootScope.$digest();
+
+            // assert
+            expect(error).toEqual(Error("Changes cannot be made or saved as this is a read-only item"));
+        });
+
+        it("throws error for historical model", () => {
+            // arrange
+            let error: any;
+            model.isHistoricalVersion = true;
+
+            // act
+            controller.saveData().catch((err: any) => error = err);
+            $rootScope.$digest();
+
+            // assert
+            expect(error).toEqual(Error("Changes cannot be made or saved as this is a read-only item"));
+        });
+
+        it("saves action", () => {
+            // arrange
+            model.action = "Test Action";
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
+            expect(model.originalItem.action).toEqual(model.action);
+        });
+
+        it("saves associated artifact (include)", () => {
+            // arrange
+            model.associatedArtifact = <IArtifactReference>{
+                id: 5,
+                name: "associated",
+                typePrefix: "PRO"
+            };
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
+            expect(model.originalItem.associatedArtifact).toEqual(model.associatedArtifact);
+        });
+
+        it("saves objective", () => {
+            // arrange
+            model.objective = "Test Objective";
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
+            expect(model.originalItem.objective).toEqual(model.objective);
+        });
+
+        it("saves label", () => {
+            // arrange
+            model.label = "Test Label";
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
+            expect(model.originalItem.label).toEqual(null);
+        });
+
+        it("saves persona reference", () => {
+            // arrange
+            model.personaReference = {
+                id: 28,
+                projectId: 1,
+                name: "Custom Actor",
+                typePrefix: "AC",
+                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                projectName: "Test Project",
+                link: null,
+                version: 26
+            };
+
+            // act
+            controller.saveData();
+            $rootScope.$digest();
+
+            // assert
+            expect(model.originalItem.personaReference).toEqual(model.personaReference);
+        });
     });
 
-
+    function createUserTaskNode(): UserTask {
+        return <UserTask>{
+            model: {id: 1},
+            direction: null,
+            action: null,
+            label: null,
+            row: null,
+            column: null,
+            newShapeColor: null,
+            getNodeType: () => NodeType.UserTask
+        };
+    }
 });

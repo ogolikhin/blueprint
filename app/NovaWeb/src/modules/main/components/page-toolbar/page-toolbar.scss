@@ -60,6 +60,7 @@
         color: $brand-secondary;
     }
 
+    &[disabled],
     &.disabled {
         color: $gray-light;
         pointer-events: none;
@@ -137,7 +138,7 @@
         &[disabled] {
             background: transparent;
             color: $gray-light;
-            cursor: $cursor-disabled;
+            pointer-events: none;
         }
     }
 }

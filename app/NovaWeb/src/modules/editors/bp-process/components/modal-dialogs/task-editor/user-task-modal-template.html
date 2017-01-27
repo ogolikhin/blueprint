@@ -1,8 +1,3 @@
-<script type="text/ng-template" id="includeTemplate.html">
-    <a href="" tabindex="-1" ng-bind-html="match.label | highlight:query"
-       ng-attr-title="{{ match.model.projectName + '\u000A' + match.label}}"></a>
-</script>
-
 <div class="modal-header storyteller-modal-header">
     <h3 class="modal-title" style="display: inline-block">{{$ctrl.getActiveHeader()}}</h3>
     <h3 ng-if="!$ctrl.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>
@@ -68,14 +63,14 @@
                                 </button>
                                 <ul uib-dropdown-menu>
                                     <li class="toolbar-menu__item">
-                                        <a href='' class="toolbar-menu__action" ng-click="$ctrl.createNewArtifact()">
+                                        <button class="btn btn-link toolbar-menu__action" type="button" ng-click="$ctrl.createNewArtifact()">
                                             {{::$root.config.labels['ST_Include_New_Process_Label']}}
-                                        </a>
+                                        </button>
                                     </li>
                                     <li class="toolbar-menu__item">
-                                        <a href='' class="toolbar-menu__action" ng-click="$ctrl.openIncludePicker()">
+                                        <button class="btn btn-link toolbar-menu__action" type="button" ng-click="$ctrl.openIncludePicker()">
                                             {{::$root.config.labels['ST_Include_Existing_Artifact_Label']}}
-                                        </a>
+                                        </button>
                                     </li>
                                 </ul>
                             </div>

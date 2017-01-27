@@ -59,9 +59,9 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_PublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock(author);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -81,9 +81,9 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_UnpublishedArtifact_CanGetArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
 
             string description = StringUtilities.WrapInHTML("NewDescription_" + RandomGenerator.RandomAlphaNumeric(5));
 
@@ -103,9 +103,9 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_UserLosesPermissionsToArtifact_CanGetArtifact()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            IUser user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             artifact.Lock(user);
 
@@ -201,10 +201,7 @@ namespace ArtifactStoreTests
         [Description("Create and publish an artifact with subartifact (that has custom properties). Change custom property in subartifact. " +
                      "Verify the saved subartifact artifact has the expected custom property change.")]
         public void UpdateSubArtifact_ChangePropertyAndSave_VerifyPropertyChanged<T>(ItemTypePredefined itemType,
-            PropertyPrimitiveType propertyType,
-            string subArtifactDisplayName,
-            string propertyName,
-            T newValue)
+            PropertyPrimitiveType propertyType, string subArtifactDisplayName, string propertyName, T newValue)
         {
             // Setup:
             var project = Helper.GetProject(TestHelper.GoldenDataProject.EmptyProjectNonRequiredCustomPropertiesAssigned, _user);
@@ -242,16 +239,15 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a text property in a subartifact, save and publish.  " +
                      "Verify the sub artifact returned the text property updated.")]
         public void UpdateSubArtifact_ChangeTextPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType,
-            string subArtifactDisplayName,
-            string subArtifactCustomPropertyName)
+            string subArtifactDisplayName, string subArtifactCustomPropertyName)
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Change custom property text value
             var subArtifactCustomPropertyValue = StringUtilities.WrapInHTML(WebUtility.HtmlEncode(
@@ -268,9 +264,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
+            var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
-            CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+            var returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(requestedCustomProperty, returnedCustomProperty);
         }
@@ -285,17 +281,15 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a number property in a subartifact, save and publish.  " +
                      "Verify the sub artifact returned the number property updated.")]
         public void UpdateSubArtifact_ChangeNumberPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, 
-            string subArtifactDisplayName, 
-            string subArtifactCustomPropertyName, 
-            double newNumber)
+            string subArtifactDisplayName, string subArtifactCustomPropertyName, double newNumber)
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Change custom property number value
             var subArtifactCustomPropertyValue = newNumber;
@@ -313,7 +307,7 @@ namespace ArtifactStoreTests
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
             NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
-            CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+            var returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(requestedCustomProperty, returnedCustomProperty);
         }
@@ -324,16 +318,15 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a date property in a subartifact, save and publish.  " +
                      "Verify the sub artifact returned the date property updated.")]
         public void UpdateSubArtifact_ChangeDatePropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, 
-            string subArtifactDisplayName, 
-            string subArtifactCustomPropertyName)
+            string subArtifactDisplayName, string subArtifactCustomPropertyName)
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Change custom property date value
             var subArtifactCustomPropertyValue = DateTimeUtilities.ConvertDateTimeToSortableDateTime(DateTime.Now);
@@ -349,9 +342,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
+            var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
-            CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+            var returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(requestedCustomProperty, returnedCustomProperty);
         }
@@ -366,17 +359,15 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a choice property in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the choice property updated.")]
         public void UpdateSubArtifact_ChangeChoicePropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, 
-            string subArtifactDisplayName,
-            string subArtifactCustomPropertyName, 
-            string newChoiceValue)
+            string subArtifactDisplayName, string subArtifactCustomPropertyName, string newChoiceValue)
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Change custom property choice value
             var subArtifactCustomPropertyValue = new List<string>() { newChoiceValue };
@@ -392,9 +383,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
+            var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
-            CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+            var returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(requestedCustomProperty, returnedCustomProperty);
         }
@@ -406,18 +397,15 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact. Update a choice property with multiple selection in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the choice property updated.")]
         public void UpdateSubArtifact_ChangeChoicePropertyWithMultipleSelectionSaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType,
-            string subArtifactDisplayName,
-            string subArtifactCustomPropertyName,
-            string[] newChoiceValues
-            )
+            string subArtifactDisplayName, string subArtifactCustomPropertyName, string[] newChoiceValues)
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Change custom property choice value
             var subArtifactCustomPropertyValue = new List<string>();
@@ -434,9 +422,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
+            var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
-            CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+            var returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(requestedCustomProperty, returnedCustomProperty);
         }
@@ -447,16 +435,15 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a user property in a subartifact, save and publish. " +
                      "Verify the sub artifact returned the user property updated.")]
         public void UpdateSubArtifact_ChangeUserPropertySaveAndPublish_VerifyPropertyChanged(ItemTypePredefined itemType, 
-            string subArtifactDisplayName,
-            string subArtifactCustomPropertyName)
+            string subArtifactDisplayName, string subArtifactCustomPropertyName)
         {
             // Setup:
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            IUser author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
 
-            IArtifact artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
+            var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
             // Change custom property user value
             var subArtifactCustomPropertyValue = author;
@@ -472,9 +459,9 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.NotNull(subArtifactChangeSet.Id, "The SubArtifact ID shouldn't be null!");
-            NovaSubArtifact subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
+            var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifactChangeSet.Id.Value);
 
-            CustomProperty returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
+            var returnedCustomProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
 
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(requestedCustomProperty, returnedCustomProperty);
         }
@@ -493,7 +480,7 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_EmptyBody_400BadRequest()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
             string requestBody = string.Empty;
 
             // Execute & Verify:
@@ -513,7 +500,7 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_CorruptBody_400BadRequest()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
             string requestBody = JsonConvert.SerializeObject(artifact);
 
             // Remove first 5 characters to corrupt the JSON string, thereby corrupting the JSON structure.
@@ -536,7 +523,7 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_MissingIdInJsonBody_400BadRequest()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
             string requestBody = JsonConvert.SerializeObject(artifact);
 
             // Remove the 'Id' property by renaming it.
@@ -546,8 +533,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
-            }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             const string expectedMessage = "Artifact not provided.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -559,8 +545,8 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_DifferentArtifactIdsInUrlAndBody_400BadRequest()
         {
             // Setup:
-            IArtifact artifact1 = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
-            IArtifact artifact2 = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact1 = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact2 = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
 
             string requestBody = JsonConvert.SerializeObject(artifact1);
             int wrongArtifactId = artifact2.Id;
@@ -582,7 +568,7 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_PublishedArtifact_SetEmptyNameProperty_400BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             artifact.Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -594,8 +580,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifactDetails.Id, _user);
-            }, "'PATCH {0}' should return 400 Bad Request if the artifact name property is empty!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'PATCH {0}' should return 400 Bad Request if the artifact name property is empty!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
@@ -609,13 +594,12 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_NoTokenHeader_401Unauthorized()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
-            IUser userWithNoToken = Helper.CreateUserAndAddToDatabase();
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            var userWithNoToken = Helper.CreateUserAndAddToDatabase();
 
             // Execute & Verify:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithNoToken),
-                "'PATCH {0}' should return 401 Unauthorized if no Session-Token header is passed!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 401 Unauthorized if no Session-Token header is passed!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             const string expectedMessage = "Unauthorized call.";
             AssertStringMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -627,14 +611,13 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_UnauthorizedToken_401Unauthorized()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
             artifact.Lock();
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithBadToken, shouldGetLockForUpdate: false),
-                "'PATCH {0}' should return 401 Unauthorized if an invalid token is passed!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 401 Unauthorized if an invalid token is passed!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify
             const string expectedMessage = "Unauthorized call";
@@ -647,15 +630,14 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_UserWithoutPermissions_403Forbidden()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            IUser userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
+            var userWithoutPermission = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.Save(userWithoutPermission, shouldGetLockForUpdate: false),
-                "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
@@ -669,15 +651,14 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_NonExistentArtifactId_404NotFound(int nonExistentArtifactId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             // Replace ProjectId with a fake ID that shouldn't exist.
             artifact.Id = nonExistentArtifactId;
 
             // Execute & Verify:
             var ex = Assert.Throws<Http404NotFoundException>(() => Artifact.UpdateArtifact(artifact, _user),
-                "'PATCH {0}' should return 404 Not Found if the Artifact ID doesn't exist!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 404 Not Found if the Artifact ID doesn't exist!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify the message, but skip for Id == 0 because in that case IIS returns the generic HTML 404 response.
             if (artifact.Id != 0)
@@ -693,14 +674,13 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_DeletedArtifact_404NotFound()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
             artifact.Delete();
             artifact.Publish();
 
             // Execute & Verify:
             var ex = Assert.Throws<Http404NotFoundException>(() => Artifact.UpdateArtifact(artifact, _user),
-                "'PATCH {0}' should return 404 Not Found if the artifact was deleted!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 404 Not Found if the artifact was deleted!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             const string expectedMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -716,7 +696,7 @@ namespace ArtifactStoreTests
         public void UpdateArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType, string artifactCustomPropertyName)
         {
             // Setup: Set the required custom text property value for the target sub artifact with empty content
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
             var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
@@ -748,11 +728,10 @@ namespace ArtifactStoreTests
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
              "Verify 409 Conflict is returned at the event of publishing the invalid change.")]
         public void UpdateSubArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType,
-            string subArtifactDisplayName,
-            string subArtifactCustomPropertyName)
+            string subArtifactDisplayName, string subArtifactCustomPropertyName)
         {
             // Setup: Set the required custom text property value for the target sub artifact with empty content
-            IProject projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
+            var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
             projectCustomData.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
             var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
@@ -768,8 +747,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetails);
 
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author),
-                "'POST {0}' should return 409 Conflict if the artifact containing invalid change!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS);
+                "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
             // Validation: Exception should contain proper errorCode in the response content
@@ -777,17 +755,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode,
                 "Error code for PublishArtifact with the artifact containing invalid change should be {0}",
                 InternalApiErrorCodes.CannotPublishOverValidationErrors);
-
-            // Commented code below is for debugging purpose:
-            /*
-            var subArtifact = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
-            var defaultCustomProperty = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id).CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
-            Helper.ArtifactStore.PublishArtifact(artifact, author);
-            Assert.NotNull(subArtifact.Id, "The SubArtifact ID shouldn't be null!");
-            var subArtifactAfter = Helper.ArtifactStore.GetSubartifact(author, artifact.Id, subArtifact.Id);
-            var returnedProperty = subArtifactAfter.CustomPropertyValues.Find(p => p.Name.Equals(subArtifactCustomPropertyName));
-            ArtifactStoreHelper.AssertCustomPropertiesAreEqual(defaultCustomProperty, returnedProperty);
-            */
         }
 
         #endregion Subartifact Properties tests
@@ -808,7 +775,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -822,8 +789,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user);
-            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -831,7 +797,7 @@ namespace ArtifactStoreTests
             Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
 
-            CustomProperty customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+            var customProperty = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
             Assert.IsNull(customProperty.CustomPropertyValue, "Value of this custom property with Id {0} has to be null", propertyTypeId);
 
@@ -852,7 +818,7 @@ namespace ArtifactStoreTests
             string stringToReplace = "value\":10.0";
 
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -865,8 +831,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -874,7 +839,7 @@ namespace ArtifactStoreTests
             Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
 
-            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+            var customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
             Assert.AreEqual(outOfRangeNumber, customPropertyAfter.CustomPropertyValue,
                     "Value of this custom property with id {0} should be {1} but was {2}!", propertyTypeId, outOfRangeNumber, customPropertyAfter.CustomPropertyValue);
@@ -889,7 +854,7 @@ namespace ArtifactStoreTests
             // TODO: Make this test work with any data type, not just int.
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -901,16 +866,14 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+            var customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
-            Assert.AreEqual(newNumberValue, customPropertyAfter.CustomPropertyValue,
-                    "Value of this custom property with id {0} should be {1} but was {2}!",
+            Assert.AreEqual(newNumberValue, customPropertyAfter.CustomPropertyValue, "Value of this custom property with id {0} should be {1} but was {2}!",
                     propertyTypeId, newNumberValue, customPropertyAfter.CustomPropertyValue);
         }
 
@@ -922,7 +885,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             int thisYear = DateTime.Now.Year;
@@ -935,8 +898,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -944,9 +906,9 @@ namespace ArtifactStoreTests
             Assert.NotNull(artifactDetailsAfter.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsTrue(artifactDetailsAfter.LastSaveInvalid.Value, "LastSaveInvalid should be true for artifacts with invalid properties!");
 
-            CustomProperty customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
+            var customPropertyAfter = GetCustomPropertyByPropertyTypeId(artifactDetailsAfter, "CustomPropertyValues", propertyTypeId);
 
-            DateTime newDate = (DateTime)customPropertyAfter.CustomPropertyValue;
+            var newDate = (DateTime)customPropertyAfter.CustomPropertyValue;
 
             Assert.AreEqual(thisYear, newDate.Year,
                     "Value of year in this custom property with id {0} should be {1} but was {2}!", propertyTypeId, thisYear, newDate.Year);
@@ -964,7 +926,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -977,8 +939,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
         }
@@ -991,12 +952,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http409ConflictException>(() => Artifact.UpdateArtifact(artifact, _user),
-                "'PATCH {0}' should return 409 Conflict if the user didn't lock on the artifact first",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 409 Conflict if the user didn't lock on the artifact first", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             const string expectedError = "The artifact is not locked.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
@@ -1032,7 +992,7 @@ namespace ArtifactStoreTests
             Assert.NotNull(artifactDetails.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsFalse(artifactDetails.LastSaveInvalid.Value, "LastSaveInvalid should be false for artifacts with valid properties!");
 
-            IOpenApiArtifact openApiArtifact = OpenApiArtifact.GetArtifact(Helper.ArtifactStore.Address, _project, artifact.Id, user);
+            var openApiArtifact = OpenApiArtifact.GetArtifact(Helper.ArtifactStore.Address, _project, artifact.Id, user);
             ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }
@@ -1192,7 +1152,7 @@ namespace ArtifactStoreTests
         /// <param name="requestMethod">(optional) The REST request method of the call.  This is used for the assert message.</param>
         private static void AssertRestResponseMessageIsCorrect(RestResponse restReponse, string expectedMessage, string requestMethod = "PATCH")
         {
-            SaveArtifactResult result = JsonConvert.DeserializeObject<SaveArtifactResult>(restReponse.Content);
+            var result = JsonConvert.DeserializeObject<SaveArtifactResult>(restReponse.Content);
 
             Assert.AreEqual(expectedMessage, result.Message, "The wrong message was returned by '{0} {1}'.",
                 requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);

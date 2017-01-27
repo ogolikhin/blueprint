@@ -284,7 +284,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
                 novaArtifactList: returnedNovaArtifactList,
                 parentArtifact: parentArtifactList[1],
-                expectedNumberOfArtifacts: 2);
+                expectedNumberOfArtifacts: 1);
         }
 
         [TestCase]
@@ -309,7 +309,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
                 novaArtifactList: returnedNovaArtifactList,
                 parentArtifact: parentArtifactList[1],
-                expectedNumberOfArtifacts: 2);
+                expectedNumberOfArtifacts: 1);
         }
 
         [TestCase]
@@ -337,7 +337,7 @@ namespace ArtifactStoreTests
                 _project,
                 novaArtifactList: returnedNovaArtifactList,
                 parentArtifact: parentArtifactList[1],
-                expectedNumberOfArtifacts: 2);
+                expectedNumberOfArtifacts: 1);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId tests

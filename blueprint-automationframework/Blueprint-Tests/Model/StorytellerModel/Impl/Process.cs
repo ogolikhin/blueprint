@@ -90,16 +90,16 @@ namespace Model.StorytellerModel.Impl
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessShape>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<ProcessShape>>))]
         public List<ProcessShape> Shapes { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessLink>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<ProcessLink>>))]
         public List<ProcessLink> Links { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
         public List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
         public ProcessStatus Status { get; set; }
@@ -1490,7 +1490,7 @@ namespace Model.StorytellerModel.Impl
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
         public ArtifactReference AssociatedArtifact { get; set; }

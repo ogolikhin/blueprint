@@ -51,14 +51,14 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
 
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            var expireTime = System.DateTime.Now.AddDays(2);
 
             var uploadedFile = Helper.FileStore.AddFile(file, author, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
             artifact.Lock(author);
 
             // Execute & Verify:
@@ -73,20 +73,20 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
 
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            var expireTime = System.DateTime.Now.AddDays(2);
 
             var uploadedFile = Helper.FileStore.AddFile(file, author, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
             artifact.Lock();
             UpdateDocumentFile_CanGetAttachment(author, artifact, uploadedFile);
-            //
+
             artifact.StorytellerPublish(author);
             artifact.Lock(author);
-            //
+
             // Execute & Verify:
             DeleteDocumentFile_CheckAttachmentIsEmpty(author, artifact);
         }
@@ -99,15 +99,15 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            INovaFile file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
-            INovaFile file2 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(4096, "4KB_File.txt", "text/plain");
+            var file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            var file2 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(4096, "4KB_File.txt", "text/plain");
 
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            var expireTime = System.DateTime.Now.AddDays(2);
 
             var uploadedFile1 = Helper.FileStore.AddFile(file1, author, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile1.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Document);
             artifact.Lock(author);
             UpdateDocumentFile_CanGetAttachment(author, artifact, uploadedFile1);
             artifact.StorytellerPublish(author);
@@ -128,14 +128,14 @@ namespace ArtifactStoreTests
         public void AddAttachment_PublishedDocument_UserWithNoPermissions_403Forbidden()
         {
             // Setup:
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
 
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            var expireTime = System.DateTime.Now.AddDays(2);
 
             var uploadedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
 
             var artifactDetails = CreateAndPopulateDocumentFileValue(_user, artifact, file);
 
@@ -158,14 +158,14 @@ namespace ArtifactStoreTests
         public void DeleteAttachment_PublishedDocumentWithAttachment_UserWithNoPermissions_403Forbidden()
         {
             // Setup:
-            INovaFile file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
 
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            var expireTime = System.DateTime.Now.AddDays(2);
 
             var uploadedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
             artifact.Lock();
 
             UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile);
@@ -196,15 +196,15 @@ namespace ArtifactStoreTests
         public void ReplaceAttachment_PublishedDocumentWithAttachment_UserWithNoPermissions_403Forbidden()
         {
             // Setup:
-            INovaFile file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
-            INovaFile file2 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(4096, "4KB_File.txt", "text/plain");
+            var file1 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(2048, "2KB_File.txt", "text/plain");
+            var file2 = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(4096, "4KB_File.txt", "text/plain");
 
             //Currently Nova set ExpireTime 2 days from today for newly uploaded file
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            var expireTime = System.DateTime.Now.AddDays(2);
 
             var uploadedFile1 = Helper.FileStore.AddFile(file1, _user, expireTime: expireTime, useMultiPartMime: true);
             Assert.IsNotNull(Helper.FileStore.GetSQLExpiredTime(uploadedFile1.Guid), "Uploaded file shouldn't have null ExpiredTime");
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Document);
             artifact.Lock(_user);
             UpdateDocumentFile_CanGetAttachment(_user, artifact, uploadedFile1);
             artifact.Publish(_user);
@@ -267,8 +267,8 @@ namespace ArtifactStoreTests
             INovaArtifactDetails updateResult = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails,
-                address: Helper.BlueprintServer.Address), "Exception caught while trying to update an artifact!");
+            Assert.DoesNotThrow(() => updateResult = Artifact.UpdateArtifact(artifact, user, artifactDetails, address: Helper.BlueprintServer.Address),
+                "Exception caught while trying to update an artifact!");
             var updatedArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
 
             // Verify:
@@ -278,8 +278,8 @@ namespace ArtifactStoreTests
         /// <summary>
         /// Check that artifactDetails has info about expectedDocumentFile.
         /// </summary>
-        /// <param name="artifactDetails">Artifact details to check.</param>
-        /// <param name="expectedDocumentFile">Expected file info.</param>
+        /// <param name="expectedArtifactDetails">Expected artifact details.</param>
+        /// <param name="actualArtifactDetails">Artifact details to check.</param>
         private static void DocumentHasExpectedAttachment(INovaArtifactDetails expectedArtifactDetails, INovaArtifactDetails actualArtifactDetails)
         {
             var expectedDocumentFileProperty = (DocumentFileValue)expectedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue;
@@ -303,7 +303,7 @@ namespace ArtifactStoreTests
             const string EXTENTION = "xls";
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-            DocumentFileValue testFileValue = new DocumentFileValue();
+            var testFileValue = new DocumentFileValue();
 
             testFileValue.FileExtension = EXTENTION;
             testFileValue.FileGuid = file.Guid;

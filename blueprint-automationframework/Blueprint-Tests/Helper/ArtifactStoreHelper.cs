@@ -545,7 +545,7 @@ namespace Helper
                     }
                     else
                     {
-                        firstCustomPropertyValue = DateTime.Parse(Deserialization.CastOrDeserialize<string>(expectedProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
+                        firstCustomPropertyValue = DateTime.Parse(SerializationUtilities.CastOrDeserialize<string>(expectedProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
                     }
 
                     if (actualProperty.CustomPropertyValue is DateTime)
@@ -554,7 +554,7 @@ namespace Helper
                     }
                     else
                     {
-                        secondCustomPropertyValue = DateTime.Parse(Deserialization.CastOrDeserialize<string>(actualProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
+                        secondCustomPropertyValue = DateTime.Parse(SerializationUtilities.CastOrDeserialize<string>(actualProperty.CustomPropertyValue), CultureInfo.InvariantCulture);
                     }
 
                     Assert.AreEqual(firstCustomPropertyValue, secondCustomPropertyValue, "The custom {0} properties do not match.", primitiveType);
@@ -562,8 +562,8 @@ namespace Helper
 
                 case PropertyPrimitiveType.Choice:
                 {
-                    var expectedCustomProperty = Deserialization.CastOrDeserialize<ChoiceValues>(expectedProperty.CustomPropertyValue);
-                    var actualCustomProperty = Deserialization.CastOrDeserialize<ChoiceValues>(actualProperty.CustomPropertyValue);
+                    var expectedCustomProperty = SerializationUtilities.CastOrDeserialize<ChoiceValues>(expectedProperty.CustomPropertyValue);
+                    var actualCustomProperty = SerializationUtilities.CastOrDeserialize<ChoiceValues>(actualProperty.CustomPropertyValue);
 
                     Assert.AreEqual(expectedCustomProperty.ValidValues.Count, actualCustomProperty.ValidValues.Count,
                         "The custom {0} property counts are not equal.", primitiveType);
@@ -596,8 +596,8 @@ namespace Helper
                 }
                 case PropertyPrimitiveType.User:
                 {
-                    var expectedCustomProperty = Deserialization.CastOrDeserialize<UserGroupValues>(expectedProperty.CustomPropertyValue);
-                    var actualCustomProperty = Deserialization.CastOrDeserialize<UserGroupValues>(actualProperty.CustomPropertyValue);
+                    var expectedCustomProperty = SerializationUtilities.CastOrDeserialize<UserGroupValues>(expectedProperty.CustomPropertyValue);
+                    var actualCustomProperty = SerializationUtilities.CastOrDeserialize<UserGroupValues>(actualProperty.CustomPropertyValue);
 
                     Assert.AreEqual(expectedCustomProperty.UsersGroups.Count, actualCustomProperty.UsersGroups.Count,
                         "The custom {0} property counts are not equal.", primitiveType);

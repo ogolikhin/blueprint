@@ -38,7 +38,7 @@ export class MetaData implements IMetaData {
     public getProcessSubArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]> {
         return this.item.getServices().metaDataService
         .getSubArtifactPropertyTypes(this.item.projectId, (itemType) => { 
-            return itemType.primitiveType === this.item.itemTypeId;
+            return itemType.predefinedType === Models.ItemTypePredefined.PROShape;
         });
     }
 

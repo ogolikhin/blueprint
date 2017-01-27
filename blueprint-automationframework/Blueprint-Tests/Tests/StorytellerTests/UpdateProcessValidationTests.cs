@@ -63,7 +63,7 @@ namespace StorytellerTests
                         process)
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Assert that the deserialized response indicates that the process name is required
             AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NameRequired);
@@ -95,7 +95,7 @@ namespace StorytellerTests
                         process)
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Asser that the deserialized response indicates that an orphaned shape was found
             AssertValidationResponse(deserializedResponse, ProcessValidationResponse.OrphanedShapes);
@@ -124,7 +124,7 @@ namespace StorytellerTests
                         process)
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Assert that the deserialized response indicates that no user tasks were found
             AssertValidationResponse(deserializedResponse, ProcessValidationResponse.NoUserTasksFound);
@@ -171,7 +171,7 @@ namespace StorytellerTests
                         process)
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             var expectedValidationResponseContent = I18NHelper.FormatInvariant(
                 ProcessValidationResponse.TwoSequentialUserDecisionsNotAllowed,
@@ -206,7 +206,7 @@ namespace StorytellerTests
                 "the first user's attempted publish was successful."
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Assert that the deserialized response indicates that the artifact is locked
             // by the second user
@@ -246,7 +246,7 @@ namespace StorytellerTests
                     "Expected the update process to return error due to the number of shapes to update exceeds the limit in the database."
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             // Assert that the deserialized response indicates that the process name is required
             var expectedReturnResponse = I18NHelper.FormatInvariant(ProcessValidationResponse.ArtifactLimitExceeded, limit);

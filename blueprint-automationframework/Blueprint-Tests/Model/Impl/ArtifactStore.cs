@@ -251,7 +251,7 @@ namespace Model.Impl
 
             var artifactDetails = JsonConvert.DeserializeObject<NovaArtifactDetails>(response.Content);
 
-            RestApiFacade.CheckJSON<NovaArtifactDetails>(artifactDetails, response.Content);
+            SerializationUtilities.CheckJson(artifactDetails, response.Content);
 
             if (artifactDetails.PredefinedType != null)
             {

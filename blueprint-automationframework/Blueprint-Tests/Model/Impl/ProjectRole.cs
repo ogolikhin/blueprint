@@ -1,5 +1,4 @@
-﻿using System.Data.SqlClient;
-using Common;
+﻿using Common;
 using Model.Factories;
 using System.Collections.Generic;
 
@@ -33,7 +32,7 @@ namespace Model.Impl
         /// <seealso cref="IProjectRole.AddRoleToDatabase()"/>
         public void AddRoleToDatabase()
         {
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -46,12 +45,11 @@ namespace Model.Impl
                 };
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
-
                 string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) Output Inserted.RoleId VALUES ({2})", ROLES_TABLE, fields, values);
 
                 Logger.WriteDebug("Running: {0}", query);
 
-                using (SqlCommand cmd = database.CreateSqlCommand(query))
+                using (var cmd = database.CreateSqlCommand(query))
                 using (var sqlDataReader = cmd.ExecuteReader())
                 {
                     if (sqlDataReader.HasRows)
@@ -85,7 +83,7 @@ namespace Model.Impl
         /// <returns>A list of strings that MS SQL can use.</returns>
         private static List<string> objArraytoStringList(object[] objArray)
         {
-            List<string> strList = new List<string>();
+            var strList = new List<string>();
 
             foreach (object obj in objArray)
             {
@@ -100,7 +98,7 @@ namespace Model.Impl
 
         private static void RunSQLQuery(string query)
         {
-            using (IDatabase database = DatabaseFactory.CreateDatabase())
+            using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
@@ -108,22 +106,15 @@ namespace Model.Impl
 
                 Logger.WriteDebug("Running: {0}", query);
 
-                try
+                using (var cmd = database.CreateSqlCommand(query))
                 {
-                    using (SqlCommand cmd = database.CreateSqlCommand(query))
-                    {
-                        rowsAffected = cmd.ExecuteNonQuery();
-                    }
-
-                    if (rowsAffected <= 0)
-                    {
-                        string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
-                        Logger.WriteError(msg);
-                    }
+                    rowsAffected = cmd.ExecuteNonQuery();
                 }
-                catch
+
+                if (rowsAffected <= 0)
                 {
-                    throw;
+                    string msg = I18NHelper.FormatInvariant("No rows were affected when running: {0}", query);
+                    Logger.WriteError(msg);
                 }
             }
         }

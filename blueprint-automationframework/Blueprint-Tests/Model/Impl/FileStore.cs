@@ -59,11 +59,11 @@ namespace Model.Impl
             }
 
             // Post the first chunk of the file.
-            IFile postedFile = PostFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+            var postedFile = PostFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
 
             if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
-                List<byte> fileChunkList = new List<byte>(postedFile.Content);
+                var fileChunkList = new List<byte>(postedFile.Content);
                 byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
 
                 do
@@ -360,11 +360,11 @@ namespace Model.Impl
             }
 
             // Post the first chunk of the file.
-            INovaFile postedFile = PostFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
+            var postedFile = PostFile(file, user, expireTime, useMultiPartMime, expectedStatusCodes, sendAuthorizationAsCookie);
 
             if (chunkSize > 0 && fileBytes.Length > chunkSize)
             {
-                List<byte> fileChunkList = new List<byte>(postedFile.Content);
+                var fileChunkList = new List<byte>(postedFile.Content);
                 byte[] rem = fileBytes.Skip((int)chunkSize).ToArray();
 
                 do
@@ -438,7 +438,7 @@ namespace Model.Impl
 
             file.ContentLength = restApi.ReqContentLength;
 
-            var deserialzedResultContent = Deserialization.DeserializeObject<NovaFile>(response.Content);
+            var deserialzedResultContent = SerializationUtilities.DeserializeObject<NovaFile>(response.Content);
 
             file.Guid = deserialzedResultContent.Guid;
             file.UriToFile = deserialzedResultContent.UriToFile;

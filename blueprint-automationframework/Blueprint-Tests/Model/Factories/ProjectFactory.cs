@@ -49,11 +49,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = RestPaths.OpenApi.PROJECTS;
-
-            var restApi = new RestApiFacade(Address, user.Token?.OpenApiToken);
-            var expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
-            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            var projects = OpenApi.GetProjects(Address, user);
 
             if (shouldRetrievePropertyTypes)
             {
@@ -63,7 +59,7 @@ namespace Model.Factories
                 }
             }
 
-            return projects.ConvertAll(o => (IProject)o);
+            return projects;
         }
 
         /// <summary>

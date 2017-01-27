@@ -94,23 +94,13 @@ namespace Model.Impl
         /// <seealso cref="IProject.GetProjects(string, IUser)"/>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
-            const string path = RestPaths.OpenApi.PROJECTS;
-
-            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
-
-            // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
-            return projects.ConvertAll(o => (IProject)o);
+            return OpenApi.GetProjects(address, user);
         }
 
         /// <seealso cref="IProject.GetProject(string, int, IUser)"/>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            var restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.PROJECTS_id_, projectId);
-            var project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
-
-            return project;
+            return OpenApi.GetProject(address, projectId, user);
         }
 
         /// <summary>

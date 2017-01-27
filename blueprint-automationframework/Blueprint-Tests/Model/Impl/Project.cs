@@ -121,8 +121,8 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        /// <seealso cref="IProject.GetAllArtifactTypes(string, IUser, bool, List{HttpStatusCode}, bool)"/>
-        public List<OpenApiArtifactType> GetAllArtifactTypes(
+        /// <seealso cref="IProject.GetAllOpenApiArtifactTypes(string, IUser, bool, List{HttpStatusCode}, bool)"/>
+        public List<OpenApiArtifactType> GetAllOpenApiArtifactTypes(
             string address,
             IUser user,
             bool shouldRetrievePropertyTypes = false,

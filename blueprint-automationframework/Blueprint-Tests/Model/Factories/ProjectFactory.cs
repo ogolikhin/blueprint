@@ -55,7 +55,7 @@ namespace Model.Factories
             {
                 foreach (var project in projects)
                 {
-                    project.GetAllArtifactTypes(Address, user);
+                    project.GetAllOpenApiArtifactTypes(Address, user);
                 }
             }
 
@@ -90,7 +90,7 @@ namespace Model.Factories
 
             if (shouldRetrieveArtifactTypes)
             {
-                project.GetAllArtifactTypes(address: Address, user: user,
+                project.GetAllOpenApiArtifactTypes(address: Address, user: user,
                     shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
             }
 
@@ -128,7 +128,7 @@ namespace Model.Factories
             {
                 foreach (var project in projects)
                 {
-                    project.GetAllArtifactTypes(address: Address, user: user,
+                    project.GetAllOpenApiArtifactTypes(address: Address, user: user,
                         shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
                 }
             }

@@ -112,7 +112,7 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>a artifact type list which is retrieved for the project</returns>
-        List<OpenApiArtifactType> GetAllArtifactTypes(string address, IUser user,
+        List<OpenApiArtifactType> GetAllOpenApiArtifactTypes(string address, IUser user,
             bool shouldRetrievePropertyTypes = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>

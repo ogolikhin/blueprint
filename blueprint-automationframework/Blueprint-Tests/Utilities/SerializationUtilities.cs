@@ -157,6 +157,8 @@ namespace Utilities
         /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
         public static void CheckJson<T>(T deserializedObjectFromServer, string serializedObjectFromServer)
         {
+            if (deserializedObjectFromServer == null && serializedObjectFromServer == null) return;
+
             var jsonSerializerSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore
@@ -185,10 +187,10 @@ namespace Utilities
             ThrowIf.ArgumentNull(json1, nameof(json1));
             ThrowIf.ArgumentNull(json2, nameof(json2));
 
-            var jsonObject1 = JObject.Parse(json1.ToLower(CultureInfo.CurrentCulture));
-            var jsonObject2 = JObject.Parse(json2.ToLower(CultureInfo.CurrentCulture));
+            var jsonToken1 = JToken.Parse(json1.ToLower(CultureInfo.CurrentCulture));
+            var jsonToken2 = JToken.Parse(json2.ToLower(CultureInfo.CurrentCulture));
 
-            return JToken.DeepEquals(jsonObject1, jsonObject2);
+            return JToken.DeepEquals(jsonToken1, jsonToken2);
         }
     }
 }

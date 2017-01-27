@@ -1,3 +1,5 @@
+import {ErrorCode} from "../../../../../shell/error/error-code";
+import {Message, MessageType} from "../../../../../main/components/messages/message";
 import {ItemTypePredefined} from "../../../../../main/models/enums";
 import {ApplicationError, IApplicationError} from "../../../../../shell/error/applicationError";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
@@ -185,7 +187,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                     this.setInclude(newStatefulArtifact);
                 })
                 .catch((error: any) => {
-                    this.onNewArtifactCreationError(error);
+                    this.onNewArtifactCreationError(error, newStatefulArtifact);
                     this.setAssociatedArtifact(null);
                     this.$q.reject(error);
                 });
@@ -302,17 +304,21 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         this.postIncludePickerAction(artifactReference);
     }
 
-    private onNewArtifactCreationError = (error: IApplicationError): void => {
+    private onNewArtifactCreationError = (error: IApplicationError, newArtifact: IStatefulArtifact): void => {
         if (error instanceof ApplicationError) {
-            if (error.statusCode === 404 && error.errorCode === 102) {
+            if (error.statusCode === 404 && error.errorCode === ErrorCode.ProjectNotFound) {
                 this.messageService.addError("Create_New_Artifact_Error_404_102", true);
-            } else if (error.statusCode === 404 && error.errorCode === 101) {
+            } else if (error.statusCode === 404 && error.errorCode === ErrorCode.ItemNotFound) {
                 // parent not found, we refresh the single project and move to the root
                 this.messageService.addError("Create_New_Artifact_Error_404_101", true);
-            } else if (error.statusCode === 404 && error.errorCode === 109) {
+            } else if (error.statusCode === 404 && error.errorCode === ErrorCode.ItemTypeNotFound) {
                 // artifact type not found, we refresh the single project
                 this.messageService.addError("Create_New_Artifact_Error_404_109", true);
-            } else if (!error.handled) {
+            } else if (error.statusCode === 409 && error.errorCode === ErrorCode.CannotPublishOverValidationErrors) {
+                const message = new Message(MessageType.Error, "ST_Process_Include_Creation_Validation_Error_409_121", true, newArtifact.name, newArtifact.id);
+                this.messageService.addMessage(message);
+            }
+            else if (!error.handled) {
                 this.messageService.addError("Create_New_Artifact_Error_Generic");
             }
         } else {

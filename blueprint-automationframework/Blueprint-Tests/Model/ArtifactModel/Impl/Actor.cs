@@ -47,6 +47,13 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
+        /// <summary>
+        /// Get specific property value from SpecificPropertyValues list
+        /// Common code to use for properties of ActorIcon, ActorInheritance, DocumentFile
+        /// </summary>
+        /// <typeparam name="T">Type of specific property value</typeparam>
+        /// <param name="propertyType">Property type to use for search in SpecificPropertyValues list</param>
+        /// <returns></returns>
         private T GetSpecificPropertyValue<T>(PropertyTypePredefined propertyType)
         {
             var specificProperty = SpecificPropertyValues.FirstOrDefault(
@@ -64,6 +71,13 @@ namespace Model.ArtifactModel.Impl
             return specificPropertyValue;
         }
 
+        /// <summary>
+        /// Set specific property value from SpecificPropertyValues list
+        /// Common code to use for properties of ActorIcon, ActorInheritance, DocumentFile
+        /// </summary>
+        /// <typeparam name="T">Type of specific property value</typeparam>
+        /// <param name="propertyType">Property type to use for search in SpecificPropertyValues list</param>
+        /// <param name="valueToSet">Object of T type to set</param>
         private void SetSpecificPropertyValue<T>(PropertyTypePredefined propertyType, T valueToSet)
         {
             var specificProperty = SpecificPropertyValues.FirstOrDefault(p => p.PropertyType == propertyType);

@@ -1,7 +1,7 @@
-﻿using System;
-using Model.Impl;
-using Model.NovaModel.Impl;
+﻿using Model.Impl;
 using Model.NovaModel;
+using Model.NovaModel.Impl;
+using System;
 
 namespace Model.Factories
 {
@@ -17,7 +17,7 @@ namespace Model.Factories
         /// <returns>An IFile.</returns>
         public static IFile CreateFile(string fileName, string fileType, DateTime lastModifiedDate, byte[] fileContents)
         {
-            IFile file = new File
+            var file = new File
             {
                 Content = fileContents,
                 FileName = fileName,
@@ -38,7 +38,7 @@ namespace Model.Factories
         /// <returns>An INovaFile.</returns>
         public static INovaFile CreateNovaFile(string fileName, string fileType, DateTime lastModifiedDate, byte[] fileContents)
         {
-            INovaFile file = new NovaFile
+            var file = new NovaFile
             {
                 Content = fileContents,
                 FileName = fileName,

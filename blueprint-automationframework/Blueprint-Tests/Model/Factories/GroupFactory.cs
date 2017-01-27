@@ -1,6 +1,6 @@
-﻿using Model.Impl;
+﻿using Common;
+using Model.Impl;
 using Utilities.Factories;
-using Common;
 
 namespace Model.Factories
 {
@@ -16,7 +16,7 @@ namespace Model.Factories
             string name = RandomGenerator.RandomAlphaNumeric(6);
             string description = RandomGenerator.RandomAlphaNumeric(10);
             string email = I18NHelper.FormatInvariant("{0}@{1}.com", name, RandomGenerator.RandomAlphaNumeric(10));
-            IGroup group = new Group(name, email, description, licenseType);
+            var group = new Group(name, email, description, licenseType);
             return group;
         }
 
@@ -48,7 +48,7 @@ namespace Model.Factories
                 description = RandomGenerator.RandomAlphaNumeric(10);
             }
 
-            IGroup group = new Group(name, email, description, licenseType);
+            var group = new Group(name, email, description, licenseType);
             return group;
         }
     }

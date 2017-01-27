@@ -116,7 +116,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
             // Validation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
                 "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}", InternalApiErrorCodes.Forbidden);
         }
@@ -139,7 +139,7 @@ namespace ArtifactStoreTests
             // Execute: Get the glossary artifact with invalid versionId using GetGlossaryArtifact
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: versionId), "GetGlossaryArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content
             Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code for GetGlossaryArtifact with invalid versionId should be {0}", InternalApiErrorCodes.ItemNotFound);

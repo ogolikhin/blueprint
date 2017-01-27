@@ -116,7 +116,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.USECASE_id_);
 
             // Vaidation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
                 "Error code for GetUseCaseArtifact with the user which has no permission to the artifact should be {0}",
                 InternalApiErrorCodes.Forbidden);
@@ -141,7 +141,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http404NotFoundException>(() =>  Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id, versionId: versionId), "GetUseCaseArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
             // Validation: Exception should contain proper errorCode in the response content
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code for GetUseCaseArtifact with invalid versionId should be {0}", InternalApiErrorCodes.ItemNotFound);
         }
 

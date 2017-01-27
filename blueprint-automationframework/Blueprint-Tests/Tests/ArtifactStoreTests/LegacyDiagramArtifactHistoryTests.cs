@@ -121,7 +121,7 @@ namespace ArtifactStoreTests
                 "Calling GET {0} with the user with the user which has no permission to the artifact should return 403 Forbidden!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Validation: Verify that the returned from GetDiagramArtifact is in valid format
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(InternalApiErrorCodes.Forbidden, serviceErrorMessage.ErrorCode,
                 "Error code for GetDiagramArtifact with the user which has no permission to the artifact should be {0}",
                 InternalApiErrorCodes.Forbidden);
@@ -145,7 +145,7 @@ namespace ArtifactStoreTests
             // Execute: Get the diagram artifact with invalid versionId using GetDiagramArtifact
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: versionId), "GetDiagramArtifact call with invalid versionId does not exit with 404 NotFoundException!");
 
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
             Assert.AreEqual(InternalApiErrorCodes.ItemNotFound, serviceErrorMessage.ErrorCode, "Error code for GetDiagramArtifact with invalid versionId should be {0}", InternalApiErrorCodes.ItemNotFound);

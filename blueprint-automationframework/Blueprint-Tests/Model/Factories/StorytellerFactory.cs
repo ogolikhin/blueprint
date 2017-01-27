@@ -1,7 +1,5 @@
-﻿using System.Data;
-using Model.StorytellerModel;
+﻿using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
-using TestConfig;
 
 namespace Model.Factories
 {
@@ -14,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IStoryteller object.</returns>
         public static IStoryteller CreateStoryteller(string address)
         {
-            IStoryteller storyteller = new Storyteller(address);
+            var storyteller = new Storyteller(address);
             return storyteller;
         }
 
@@ -25,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static IStoryteller GetStorytellerFromTestConfig()
         {
-            TestConfiguration testConfig = TestConfig.TestConfiguration.GetInstance();
+            var testConfig = TestConfig.TestConfiguration.GetInstance();
             return CreateStoryteller(testConfig.BlueprintServerAddress);
         }
         

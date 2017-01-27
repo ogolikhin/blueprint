@@ -87,7 +87,7 @@ namespace StorytellerTests
                 () => Helper.Storyteller.UpdateProcessReturnResponseOnly( _user, returnedProcess)
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             var expectedValidationResponseContent = I18NHelper.FormatInvariant(
                 ProcessValidationResponse.MinimumNumberBranchValidationFormat,
@@ -144,7 +144,7 @@ namespace StorytellerTests
                 () => Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess)
                 );
 
-            var deserializedResponse = Deserialization.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
+            var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
 
             var expectedValidationResponseContent = I18NHelper.FormatInvariant(
                 ProcessValidationResponse.MinimumNumberBranchValidationFormat,

@@ -81,7 +81,7 @@ $modal-side-clearance: 8px;
 }
 
 .modal.modal-alert {
-    z-index: 18000 !important;
+    z-index: $zindex-popover !important;
 
     .modal-header {
         background-color: $brand-warning;
@@ -404,7 +404,7 @@ $modal-open-project-height: 450px;
 
 .nova-login-confirm,
 .modal.nova-login {
-    z-index: 18000 !important;
+    z-index: $zindex-popover !important;
 }
 
 .modal.nova-login {

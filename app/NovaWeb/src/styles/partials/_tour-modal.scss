@@ -1,7 +1,7 @@
 $modal-tour-height: 703px;
 .modal.nova-tour {
     text-align: center;
-    z-index: 18000 !important;
+    z-index: $zindex-popover !important;
 
     .modal-dialog {
         height: $modal-tour-height;

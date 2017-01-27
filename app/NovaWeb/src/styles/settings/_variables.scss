@@ -16,7 +16,7 @@ $bootstrap-sass-asset-helper: false !default;
 //## Gray and brand colors for use across Bootstrap.
 
 $gray-base:              #000 !default;
-$gray-darkest: lighten($gray-base, 13.5%) !default; // #222
+$gray-darker:            lighten($gray-base, 13.5%) !default; // #222
 $gray-dark:              lighten($gray-base, 20%) !default;   // #333
 $gray:                   lighten($gray-base, 33.5%) !default; // #555
 $gray-light:             lighten($gray-base, 46.7%) !default; // #777
@@ -880,17 +880,16 @@ $dl-horizontal-breakpoint:    $grid-float-breakpoint !default;
 //** Horizontal line color.
 $hr-border:                   $gray-lighter !default;
 
-/*------------------------------------*\
 
+/*------------------------------------*\
     #CUSTOM VARIABLES
-
 \*------------------------------------*/
-$zindex-messages: 2000 !default;
 
 
-/*------------------------------------*\
-    #HAMBURGER
-\*------------------------------------*/
+//== Hamburger menu
+//
+//##
+
 $hamburger-padding-x: 14px;
 $hamburger-padding-y: 5px;
 $hamburger-layer-width: 18px;
@@ -899,49 +898,52 @@ $hamburger-layer-spacing: 4px;
 $hamburger-layer-border-radius: 1px;
 $hamburger-types: (collapse, collapse-r);
 
-//app minimum global width
+
+//== Dimensions
+//
+//##
+
+//** app minimum global width
 $app-minimum-width: 1024px;
 
-//padding
+//** padding
 $padding-smallest: 5px;
 $padding-smaller: 7px;
 $padding-root: 10px;
 $padding-bigger: 15px;
 $padding-biggest: 30px;
 
-//navbar
+//** navbar
 $navbar-height: 40px;
-$navbar-color: #01206a;
 
-//toolbar
+//** toolbar
 $toolbar-height: 50px;
 
-//breadcrumbs
+//** breadcrumbs
 $breadcrumbs-height: 48px;
 
-//sidebars
+//** sidebars
 $wrapper-height: $navbar-height;
 $sidebar-size: 280px;
 
-//utility panel
+//** utility panel
 $utility-panel-title-height: 33px;
 $utility-panel-heading-height: 31px;
 
-//project picker
+//** project picker
 $project-picker-tree-height: 244px;
 
-//artifact picker
+//** artifact picker
 $artifact-picker-tree-height: 244px;
 $artifact-picker-data-width: 100%;
 
-//vertical order
-$tooltip-z-index: 20000;
-$sidebar-z-index: 500;
-$toolbar-z-index: $sidebar-z-index + 100;
+//** vertical order
+$zindex-sidebar: 500;
+$zindex-toolbar: 600;
+$zindex-messages: $zindex-popover;
+$zindex-overlay: $zindex-popover - 1;
 
-//other
+//** borders
 $border-radius-amount: 4px;
 $border-radius-small: 2px;
 
-//opaicity
-$default-disabled-opacity: 0.65;

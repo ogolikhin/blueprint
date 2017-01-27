@@ -55,7 +55,7 @@ export class ItemStateController {
         } else if (this.itemInfoService.isProject(itemInfo)) {
             itemInfo.predefinedType = ItemTypePredefined.Project;
 
-            this.projectManager.openProject(itemInfo).then((val) => {
+            this.projectManager.openProject(itemInfo).then(() => {
                 const projectNode = this.projectManager.getProject(itemInfo.id);
                 const project = this.createArtifact(itemInfo);
                 project.itemTypeId = ItemTypePredefined.Project;

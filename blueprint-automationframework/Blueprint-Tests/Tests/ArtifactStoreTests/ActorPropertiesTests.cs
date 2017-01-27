@@ -136,6 +136,39 @@ namespace ArtifactStoreTests
             StringAssert.Contains("versionId=1", iconAddress, "iconAddress should contain proper versionID");
         }
 
+        [TestCase]
+        [TestRail(234389)]
+        [Description("Create and publish Actor, set one Actor icon, check that icon has expected values.")]
+        public void DeleteActorIcon_ActorWithIcon_ValidateReturnedActorIcon()
+        {
+            // Setup:
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
+
+            // TODO: function to add Actor icon
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
+            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            var uploadedFile = Helper.FileStore.AddFile(imageFile, author, expireTime: expireTime, useMultiPartMime: true);
+
+            var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+
+            // Execute:
+
+            var actorIcon = new ActorIconValue();
+            actorIcon.SetIcon(uploadedFile.Guid);
+            actorDetails.ActorIcon = actorIcon;
+            actor.Lock(author);
+            Artifact.UpdateArtifact(actor, author, actorDetails, address: Helper.BlueprintServer.Address);
+            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+            actorDetails.ActorIcon = null;
+            Artifact.UpdateArtifact(actor, author, actorDetails, address: Helper.BlueprintServer.Address);
+            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+
+            // Verify:
+            // TODO: function to validate Actor icon
+            Assert.IsNull(actorDetails.ActorIcon);
+        }
+
         #endregion 200 OK Tests
 
         #region 409 Conflict Tests

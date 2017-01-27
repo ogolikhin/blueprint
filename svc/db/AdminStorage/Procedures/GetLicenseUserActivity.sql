@@ -21,8 +21,8 @@ IF (NOT @month IS NULL AND (@month < 1 OR @month > 12))
 IF (NOT @year IS NULL AND (@year < 2000 OR @year > 2999))
 	SET @year = NULL
 
-DECLARE @startMonth date = CAST(DATEFROMPARTS(@year, @month, 1) as Datetime); 
-DECLARE @currentMonth date = CAST(DATEFROMPARTS(YEAR(GETUTCDATE()), MONTH(GETUTCDATE()), 1) as Datetime);
+DECLARE @startMonth date = ISNULL(DATEFROMPARTS(@year, @month, 1), '1900/1/1'); 
+DECLARE @currentMonth date = DATEFROMPARTS(YEAR(GETUTCDATE()), MONTH(GETUTCDATE()), 1);
 
 SELECT 
 	la.UserId, 

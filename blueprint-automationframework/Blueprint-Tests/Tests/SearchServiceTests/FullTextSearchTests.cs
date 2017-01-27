@@ -751,7 +751,7 @@ namespace SearchServiceTests
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(_user, invalidSearchCriteria),
                 "POST {0} call should exit with 400 BadRequestException when using invalid search criteria!", FULLTEXTSEARCH_PATH);
 
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the response content.
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria),
@@ -772,7 +772,7 @@ namespace SearchServiceTests
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.SearchService.FullTextSearch(_user, lessThanMinimumSearchTermSearchCriteria),
                 "POST {0} call shuold exit with 400 BadRequestException when using less than minimum length search term!", FULLTEXTSEARCH_PATH);
 
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
             // Validation: Exception should contain proper errorCode in the  response content.
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria),

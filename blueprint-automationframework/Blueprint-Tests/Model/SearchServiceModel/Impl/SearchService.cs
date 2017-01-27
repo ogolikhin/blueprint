@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using Common;
+﻿using Common;
 using Model.Impl;
+using System.Collections.Generic;
+using System.Net;
+using System.Web;
 using Utilities;
 using Utilities.Facades;
-using System.Web;
 
 namespace Model.SearchServiceModel.Impl
 {

@@ -454,7 +454,7 @@ namespace StorytellerTests
             // Uploading the file
             var uploadResult = Helper.Storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
-            var deserialzedUploadResult = Deserialization.DeserializeObject<UploadResult>(uploadResult);
+            var deserialzedUploadResult = SerializationUtilities.DeserializeObject<UploadResult>(uploadResult);
 
             // Update the default precondition properties in the retrieved process model with Guid and UriToFile
             var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -782,7 +782,7 @@ namespace StorytellerTests
             var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 
@@ -844,7 +844,7 @@ namespace StorytellerTests
             var userTasksOnProcess = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask).Count;
 
             // Generate User Story artfact(s) from the Process artifact
-            List<IStorytellerUserStory> userStories = Helper.Storyteller.GenerateUserStories(_user, process);
+            var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             Logger.WriteDebug("The number of UserStories generated is: {0}", userStories.Count);
 

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CustomAttributes;
+﻿using CustomAttributes;
 using Model.Impl;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An IArtifactStore object.</returns>
         public static IArtifactStore CreateArtifactStore(string address)
         {
-            IArtifactStore adminStore = new ArtifactStore(address);
+            var adminStore = new ArtifactStore(address);
             return adminStore;
         }
 

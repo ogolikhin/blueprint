@@ -31,7 +31,7 @@ namespace Model.Factories
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            IOpenApiArtifact artifact = new OpenApiArtifact(address);
+            var artifact = new OpenApiArtifact(address);
             artifact.BaseArtifactType = artifactType;
 
             artifact.ProjectId = project.Id;
@@ -67,8 +67,8 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
-            IOpenApiArtifact artifact = CreateOpenApiArtifact(testConfig.BlueprintServerAddress, user, project, artifactType, parent, name);
+            var testConfig = TestConfiguration.GetInstance();
+            var artifact = CreateOpenApiArtifact(testConfig.BlueprintServerAddress, user, project, artifactType, parent, name);
 
             if (artifactId != null)
             {
@@ -94,7 +94,7 @@ namespace Model.Factories
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            IArtifact artifact = new Artifact(address);
+            var artifact = new Artifact(address);
             artifact.BaseArtifactType = artifactType;
 
             artifact.Project = project;
@@ -127,8 +127,8 @@ namespace Model.Factories
         public static IArtifact CreateArtifact(IProject project, IUser user, BaseArtifactType artifactType,
             int? artifactId = null, IArtifactBase parent = null, string name = null)
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
-            IArtifact artifact = CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType, parent, name);
+            var testConfig = TestConfiguration.GetInstance();
+            var artifact = CreateArtifact(testConfig.BlueprintServerAddress, user, project, artifactType, parent, name);
 
             if (artifactId != null)
             {

@@ -44,7 +44,7 @@ namespace Model.Impl
         /// </summary>
         public string Location { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<OpenApiArtifactType>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<OpenApiArtifactType>>))]
         public List<OpenApiArtifactType> ArtifactTypes { get; } = new List<OpenApiArtifactType>();
 
         [JsonIgnore]
@@ -86,7 +86,7 @@ namespace Model.Impl
         /// <seealso cref="IProject.GetItemTypeIdForPredefinedType(ItemTypePredefined)"/>
         public int GetItemTypeIdForPredefinedType(ItemTypePredefined predefinedType)
         {
-            NovaArtifactType itemType = NovaArtifactTypes.Find(at => at.PredefinedType == predefinedType);
+            var itemType = NovaArtifactTypes.Find(at => at.PredefinedType == predefinedType);
             Assert.NotNull(itemType, "No Nova artifact type was found in project {0} for predefined type: '{1}'", Id, predefinedType);
             return itemType.Id;
         }
@@ -94,10 +94,10 @@ namespace Model.Impl
         /// <seealso cref="IProject.GetProjects(string, IUser)"/>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             const string path = RestPaths.OpenApi.PROJECTS;
 
-            List<Project> projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
+            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
 
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
             return projects.ConvertAll(o => (IProject)o);
@@ -106,9 +106,9 @@ namespace Model.Impl
         /// <seealso cref="IProject.GetProject(string, int, IUser)"/>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
+            var restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.PROJECTS_id_, projectId);
-            Project project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
+            var project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
 
             return project;
         }
@@ -150,7 +150,7 @@ namespace Model.Impl
                 tokenValue = BlueprintToken.NO_TOKEN;
             }
 
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, tokenValue);
 
             var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.MetaData.ARTIFACT_TYPES, Id);
             var queryParameters = new Dictionary<string, string>();

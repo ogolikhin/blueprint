@@ -1,5 +1,4 @@
-﻿
-using Model.ArtifactModel;
+﻿using Model.ArtifactModel;
 
 namespace Model
 {

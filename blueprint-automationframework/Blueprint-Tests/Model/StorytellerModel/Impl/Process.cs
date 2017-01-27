@@ -90,16 +90,16 @@ namespace Model.StorytellerModel.Impl
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessShape>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<ProcessShape>>))]
         public List<ProcessShape> Shapes { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<ProcessLink>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<ProcessLink>>))]
         public List<ProcessLink> Links { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<DecisionBranchDestinationLink>>))]
         public List<DecisionBranchDestinationLink> DecisionBranchDestinationLinks { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
         public ProcessStatus Status { get; set; }
@@ -169,11 +169,11 @@ namespace Model.StorytellerModel.Impl
         public IProcessShape AddXUserTaskAndSystemTask(IProcessShape processShape, int numberOfPairs)
         {
             ThrowIf.ArgumentNull(processShape, nameof(processShape));
-            IProcessShape addedUserTaskShape = processShape;
+            var addedUserTaskShape = processShape;
 
             for (int i = 0; i < numberOfPairs; i++)
             {
-                ProcessLink outgoingLink = GetOutgoingLinkForShape(processShape);
+                var outgoingLink = GetOutgoingLinkForShape(processShape);
                 addedUserTaskShape = AddUserAndSystemTask(outgoingLink);
                 processShape = GetNextShape(addedUserTaskShape);
             }
@@ -532,7 +532,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         public void DeleteSystemDecisionBranch(IProcessShape systemDecision, double orderIndex,
-    IProcessShape branchMergePointShape)
+            IProcessShape branchMergePointShape)
         {
             ThrowIf.ArgumentNull(systemDecision, nameof(systemDecision));
             ThrowIf.ArgumentNull(branchMergePointShape, nameof(branchMergePointShape));
@@ -548,7 +548,7 @@ namespace Model.StorytellerModel.Impl
             // 1) system task 2) system decision point 
 
             // Find the shapes to delete, including all branches before merge point
-            List<ProcessShape> shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
+            var shapesToDelete = GetShapesBetween(targetProcessShape, new List<IProcessShape> { branchMergePointShape }).ToList();
 
             // Add the system task to the list of shapes to delete
             shapesToDelete.Add((ProcessShape)targetProcessShape);
@@ -686,7 +686,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(userTaskToMove, nameof(userTaskToMove));
             ThrowIf.ArgumentNull(destinationShape, nameof(destinationShape));
 
-            IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
+            var systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
             var nextShapeIncomingLinks = GetIncomingLinksForShape(destinationShape);
 
@@ -708,7 +708,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(userTaskToMove, nameof(userTaskToMove));
             ThrowIf.ArgumentNull(sourceShape, nameof(sourceShape));
 
-            IProcessShape systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
+            var systemTaskToMove = RemoveUserAndSystemTask(userTaskToMove);
 
             // Find source shape outgoing link
             var sourceShapeOutgoingLink = GetOutgoingLinkForShape(sourceShape);
@@ -1490,7 +1490,7 @@ namespace Model.StorytellerModel.Impl
 
         public ItemTypePredefined BaseItemTypePredefined { get; set; }
 
-        [JsonConverter(typeof(Deserialization.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteDictionaryConverter<Dictionary<string, PropertyValueInformation>, PropertyValueInformation>))]
         public Dictionary<string, PropertyValueInformation> PropertyValues { get; set; }
 
         public ArtifactReference AssociatedArtifact { get; set; }
@@ -1577,7 +1577,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IProcessShape.IsTypeOf(ProcessShapeType)"/>
         public bool IsTypeOf(ProcessShapeType processShapeType)
         {
-            return (GetShapeType() == processShapeType);
+            return GetShapeType() == processShapeType;
         }
     }
 

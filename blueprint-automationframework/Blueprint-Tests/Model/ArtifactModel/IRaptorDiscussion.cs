@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Model.ArtifactModel.Adaptors;
+using System;
 using System.Collections.Generic;
-using Model.ArtifactModel.Adaptors;
 
 namespace Model
 {

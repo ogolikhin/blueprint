@@ -94,7 +94,7 @@ namespace StorytellerTests
 
             // Get original story link
             var originalStoryLinksProperty = defaultUserTask.PropertyValues[STORYLINKSKEY];
-            var originalStoryLink = Deserialization.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
+            var originalStoryLink = SerializationUtilities.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Create and publish textual requirement artifact to simulate user story artifact
             var addedArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.TextualRequirement);
@@ -121,7 +121,7 @@ namespace StorytellerTests
 
             // Get returned story link
             var returnedStoryLinksProperty = modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
-            var returnedStoryLink = Deserialization.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
+            var returnedStoryLink = SerializationUtilities.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
 
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);
@@ -149,7 +149,7 @@ namespace StorytellerTests
             // Get original story link
             var originalStoryLinksProperty =
                 returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
-            var originalStoryLink = Deserialization.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
+            var originalStoryLink = SerializationUtilities.DeserializeObject<StoryLink>(originalStoryLinksProperty.Value.ToString());
 
             // Delete the story link for the default user task
             returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY].Value = null;
@@ -162,7 +162,7 @@ namespace StorytellerTests
             // Get returned story link
             var returnedStoryLinksProperty =
                 modifiedReturnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName).PropertyValues[STORYLINKSKEY];
-            var returnedStoryLink = Deserialization.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
+            var returnedStoryLink = SerializationUtilities.DeserializeObject<StoryLink>(returnedStoryLinksProperty.Value.ToString());
 
             // Verify that the returned story link is identical to the sent story link
             AssertThatOriginalAndReturnedStoryLinksAreIdentical(originalStoryLink, returnedStoryLink);

@@ -12,7 +12,7 @@ namespace Model.Factories
         /// <returns>The BlueprintServer object.</returns>
         public static IBlueprintServer CreateBlueprintServer(string serverAddress)
         {
-            IBlueprintServer server = new BlueprintServer(serverAddress);
+            var server = new BlueprintServer(serverAddress);
             return server;
         }
 
@@ -22,7 +22,7 @@ namespace Model.Factories
         /// <returns>The BlueprintServer object.</returns>
         public static IBlueprintServer GetBlueprintServerFromTestConfig()
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            var testConfig = TestConfiguration.GetInstance();
             return CreateBlueprintServer(testConfig.BlueprintServerAddress);
         }
     }

@@ -1,3 +1,4 @@
+using Common;
 using Model.ArtifactModel.Impl.PredefinedProperties;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -5,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Common;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -163,7 +163,7 @@ namespace Model.ArtifactModel.Impl
             get
             {
                 // Finding DocumentFile among other properties
-                CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                var documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
                 if ((documentFileProperty == null) || (documentFileProperty.CustomPropertyValue == null))
@@ -182,7 +182,7 @@ namespace Model.ArtifactModel.Impl
             set
             {
                 // Finding DocumentFile among other properties
-                CustomProperty documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                var documentFileProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
                 if (documentFileProperty != null)   // TODO: Should this throw an exception instead?
@@ -254,13 +254,13 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// The artifacts that were published.
         /// </summary>
-        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaArtifactResponse, NovaArtifactResponse>))]
         public List<INovaArtifactResponse> Artifacts { get; set; } = new List<INovaArtifactResponse>();
 
         /// <summary>
         /// The projects where the published artifacts exist.
         /// </summary>
-        [JsonConverter(typeof(Deserialization.ConcreteListConverter<INovaProject, NovaProject>))]
+        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaProject, NovaProject>))]
         public List<INovaProject> Projects { get; set; } = new List<INovaProject>();
 
         #endregion Serialized JSON Properties

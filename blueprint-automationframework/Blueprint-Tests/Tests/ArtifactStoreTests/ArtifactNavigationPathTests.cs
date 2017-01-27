@@ -386,7 +386,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode,
                 "{0} using the user without view permission to the artifact should return {1} errorCode but {2} is returned",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.UnauthorizedAccess, serviceErrorMessage.ErrorCode);
@@ -452,7 +452,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode,
                 "{0} with non-existing artifact ID should return {1} errorCode but {2} is returned",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);
@@ -501,7 +501,7 @@ namespace ArtifactStoreTests
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH);
 
             // Validation: Exception should contain proper errorCode in the response content.
-            var serviceErrorMessage = Deserialization.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
+            var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
             Assert.AreEqual(ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode,
                 "{0} with deleted artifact ID should return {1} errorCode but {2} is returned",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.NAVIGATION_PATH, ErrorCodes.ResourceNotFound, serviceErrorMessage.ErrorCode);

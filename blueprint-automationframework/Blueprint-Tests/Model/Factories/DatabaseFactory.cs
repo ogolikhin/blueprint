@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Model.Impl;
+using System;
 using System.Data.SqlClient;
-using Model.Impl;
 using TestConfig;
 using Utilities;
 
@@ -17,7 +17,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(databaseName, nameof(databaseName));
 
-            IDatabase database = new MsSqlDatabase(GetConnectionString(databaseName));
+            var database = new MsSqlDatabase(GetConnectionString(databaseName));
             return database;
         }
 
@@ -30,7 +30,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(databaseName, nameof(databaseName));
 
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            var testConfig = TestConfiguration.GetInstance();
 
             var connectionString = testConfig.Databases[databaseName].ConnectionString;
 

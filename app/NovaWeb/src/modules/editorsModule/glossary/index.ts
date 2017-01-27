@@ -1,3 +1,4 @@
+import "angular";
 require("./glossary.scss");
 
 import {BpGlossary} from "./glossary.component";

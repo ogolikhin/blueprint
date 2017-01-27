@@ -1,3 +1,4 @@
+import "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
@@ -12,7 +13,6 @@ import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {BpGlossaryController} from "./glossary.controller";
 import {ISubArtifact} from "../../main/models/models";
 import {GlossaryServiceMock} from "./glossary.service.mock";
-import * as angular from "angular";
 
 describe("Component BP Glossary", () => {
 
@@ -21,7 +21,7 @@ describe("Component BP Glossary", () => {
     let vm: BpGlossaryController;
     let bindings = {};
 
-    beforeEach(angular.mock.module("bp.editors.glossary"));
+    beforeEach(angular.mock.module("glossaryEditor"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);

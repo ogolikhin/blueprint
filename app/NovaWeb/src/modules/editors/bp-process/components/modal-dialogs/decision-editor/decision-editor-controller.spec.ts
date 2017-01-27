@@ -18,6 +18,7 @@ describe("DecisionEditorController", () => {
     let $timeout: ng.ITimeoutService;
     let $anchorScroll: ng.IAnchorScrollService;
     let $location: ng.ILocationService;
+    let $q: ng.IQService;
     let localization: ILocalizationService;
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let noop = () => {/*noop*/};
@@ -32,6 +33,7 @@ describe("DecisionEditorController", () => {
         _$timeout_: ng.ITimeoutService,
         _$anchorScroll_: ng.IAnchorScrollService,
         _$location_: ng.ILocationService,
+        _$q_: ng.IQService,
         _localization_: ILocalizationService,
         _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance
     ) => {
@@ -39,6 +41,7 @@ describe("DecisionEditorController", () => {
         $timeout = _$timeout_;
         $anchorScroll = _$anchorScroll_;
         $location = _$location_;
+        $q = _$q_;
         localization = _localization_;
         $uibModalInstance = _$uibModalInstance_;
     }));
@@ -100,7 +103,7 @@ describe("DecisionEditorController", () => {
             const localizationSpy = spyOn(localization, "get");
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -123,7 +126,7 @@ describe("DecisionEditorController", () => {
             // act
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // assert
@@ -141,7 +144,7 @@ describe("DecisionEditorController", () => {
             // act
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // assert
@@ -159,7 +162,7 @@ describe("DecisionEditorController", () => {
             // act
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // assert
@@ -174,7 +177,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -190,7 +193,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -208,7 +211,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -224,7 +227,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -243,7 +246,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -259,7 +262,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -275,7 +278,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -301,7 +304,7 @@ describe("DecisionEditorController", () => {
             $scope = <IModalScope>$rootScope.$new();
             controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
         });
         it("doesn't update conditions if read-only", () => {
@@ -359,7 +362,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -377,7 +380,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -402,7 +405,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
             controller.isReadonly = true;
 
@@ -421,7 +424,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -439,7 +442,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -466,7 +469,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
             controller.isReadonly = true;
 
@@ -485,7 +488,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             spyOn(controller, "refreshView").and.callFake(noop);
@@ -507,7 +510,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             const refreshSpy = spyOn(controller, "refreshView").and.callFake(noop);
@@ -529,7 +532,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -545,7 +548,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -566,7 +569,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.UserTask);
 
@@ -584,7 +587,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.UserDecision);
 
@@ -602,7 +605,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.ProcessEnd);
 
@@ -620,7 +623,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
             const node = createDiagramNode(NodeType.SystemTask);
 
@@ -641,7 +644,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -662,7 +665,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -681,7 +684,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -698,7 +701,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -715,7 +718,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -734,7 +737,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             // act
@@ -763,7 +766,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
             const newValue = "Decision Label";
             const setLabelSpy = spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
@@ -793,7 +796,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
@@ -829,7 +832,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
@@ -863,7 +866,7 @@ describe("DecisionEditorController", () => {
             const $scope = <IModalScope>$rootScope.$new();
             const controller = new DecisionEditorController(
                 $rootScope, $scope, $timeout, $anchorScroll,
-                $location, localization, $uibModalInstance, model
+                $location, $q, localization, $uibModalInstance, model
             );
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();

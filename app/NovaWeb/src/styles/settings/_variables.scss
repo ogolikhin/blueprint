@@ -941,6 +941,7 @@ $artifact-picker-data-width: 100%;
 $zindex-sidebar: 500;
 $zindex-toolbar: 600;
 $zindex-messages: $zindex-popover;
+$zindex-overlay: $zindex-popover - 1;
 
 //** borders
 $border-radius-amount: 4px;

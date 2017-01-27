@@ -523,8 +523,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
         savePromise.promise.then(() => {
             this.doPublish().then(() => {
                 deffered.resolve();
-            }).catch(() => {
-                deffered.reject();
+            }).catch((err) => {
+                deffered.reject(err);
             });
         })
             .catch((err) => {
@@ -560,7 +560,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 } else {
                     this.services.messageService.addError(err);
                 }
-                deffered.reject();
+                deffered.reject(err);
             });
 
         return deffered.promise;

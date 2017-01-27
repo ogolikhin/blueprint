@@ -1,4 +1,4 @@
-import "angular";
+import "./";
 import "angular-mocks";
 import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";

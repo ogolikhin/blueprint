@@ -11,16 +11,25 @@ namespace Model.ArtifactModel.Impl.PredefinedProperties
         [JsonExtensionData]
         public Dictionary<string, object> IconValue { get; set; }
 
+        /// <summary>
+        /// Returns IconAddress. Works for JSON returned from server.
+        /// expected address /svc/bpartifactstore/diagram/actoricon/{artifactId}?versionId={versionId}&addDraft=true&lastSavedTimestamp={TimeStamp}
+        /// </summary>
+        /// <returns>string IconAddress</returns>
         public string GetIconAddress()
         {
             if (IconValue.ContainsKey(outIconKey))
             {
                 return IconValue[outIconKey].ToString();
             }
-            else
-                return null;
+
+            return null;
         }
 
+        /// <summary>
+        /// Sets IconValue. Works for JSON to be sent to server.
+        /// </summary>
+        /// <param name="fileGuid">Guid of the file uploaded to FileStore.</param>
         public void SetIcon (string fileGuid)
         {
             if (IconValue == null)

@@ -8,6 +8,7 @@ using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using TestCommon;
 using Utilities;
 using Common;
@@ -114,11 +115,11 @@ namespace ArtifactStoreTests
 
             // TODO: function to add Actor icon
             var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
+            DateTime expireTime = DateTime.Now.AddDays(2);
             var uploadedFile = Helper.FileStore.AddFile(imageFile, author, expireTime: expireTime, useMultiPartMime: true);
 
             var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
 
             // Execute:
 
@@ -132,7 +133,7 @@ namespace ArtifactStoreTests
             // Verify:
             // TODO: function to validate Actor icon
             string iconAddress = actorDetails.ActorIcon.GetIconAddress();
-            StringAssert.Contains(I18NHelper.ToStringInvariant(actor.Id), iconAddress, "iconAddress should contain artifact ID");
+            StringAssert.Contains(actor.Id.ToStringInvariant(), iconAddress, "iconAddress should contain artifact ID");
             StringAssert.Contains("versionId=1", iconAddress, "iconAddress should contain proper versionID");
         }
 

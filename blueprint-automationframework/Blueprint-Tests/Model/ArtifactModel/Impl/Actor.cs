@@ -57,7 +57,7 @@ namespace Model.ArtifactModel.Impl
             {
                 var actorIconProperty = SpecificPropertyValues.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.ActorIcon);
-                if ((actorIconProperty == null) || (actorIconProperty.CustomPropertyValue == null))
+                if (actorIconProperty?.CustomPropertyValue == null)
                 {
                     return null;
                 }

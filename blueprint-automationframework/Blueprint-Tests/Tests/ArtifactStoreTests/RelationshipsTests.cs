@@ -125,14 +125,12 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceDirection_ReturnsCorrectTraces(TraceDirection direction)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, direction, _user);
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, direction, _user);
 
-            Assert.AreEqual(false, traces[0].IsSuspect,
-                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+            Assert.AreEqual(false, traces[0].IsSuspect, "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
             Relationships relationships = null;
 
@@ -157,8 +155,8 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceHasSuspect_ReturnsCorrectTraces(bool suspected)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.To, _user, isSuspect: suspected);
@@ -187,11 +185,10 @@ namespace ArtifactStoreTests
         public void GetRelationships_DeleteTargetArtifact_ReturnsNoTraces()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.From, _user);
 
             targetArtifact.Delete(_user);
             targetArtifact.Publish(_user);
@@ -215,19 +212,18 @@ namespace ArtifactStoreTests
         public void GetRelationships_DeleteSubArtifact_ReturnsNoTraces()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IProcess process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
 
             var userTasks = process.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
             Assert.That(userTasks.Count > 1, "There should be more than one User Task!");
 
             Assert.AreEqual(1, Helper.Storyteller.Artifacts.Count, "There should only be 1 Process artifact in Storyteller!");
-            IArtifact targetArtifact = Helper.Storyteller.Artifacts[0];
+            var targetArtifact = Helper.Storyteller.Artifacts[0];
 
             int subArtifactId = userTasks[0].Id;
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user, subArtifactId: subArtifactId);
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.To, _user, subArtifactId: subArtifactId);
 
             // Publish the Trace we added.
             sourceArtifact.Publish();
@@ -259,13 +255,12 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact sourceArtifact = Helper.CreateArtifact(_project, author, BaseArtifactType.UseCase);
-            IArtifact targetArtifact = Helper.CreateArtifact(_project, author, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateArtifact(_project, author, BaseArtifactType.UseCase);
+            var targetArtifact = Helper.CreateArtifact(_project, author, BaseArtifactType.UseCase);
             sourceArtifact.Save(author);
             targetArtifact.Save(author);
 
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, author);
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.To, author);
 
             Relationships relationships = null;
 
@@ -370,16 +365,15 @@ namespace ArtifactStoreTests
         public void GetRelationships_ArtifactWithMultipleTraces_ReturnsAllTraces()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            IArtifact thirdArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var thirdArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
                 targetArtifact, TraceDirection.To, _user);
             Assert.AreEqual(1, traces.Count, "No traces were added!");
 
-            traces.AddRange(OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                thirdArtifact, TraceDirection.From, _user));
+            traces.AddRange(OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, thirdArtifact, TraceDirection.From, _user));
             Assert.AreEqual(2, traces.Count, "No traces were added!");
 
             Relationships relationships = null;
@@ -404,7 +398,7 @@ namespace ArtifactStoreTests
         public void GetRelationships_ArtifactWithNoTraces_ReturnsNoTraces()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             Relationships relationships = null;
 
             // Execute & Verify:
@@ -423,20 +417,18 @@ namespace ArtifactStoreTests
         public void GetRelationships_CyclicTraceDependency_ReturnsAllTraces()
         {
             // Setup:
-            IArtifact firstArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact secondArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            IArtifact thirdArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var firstArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var secondArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var thirdArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, firstArtifact,
                 secondArtifact, TraceDirection.To, _user);
             Assert.AreEqual(1, traces.Count, "No traces were added between first & second artifact!");
 
-            traces.AddRange(OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, secondArtifact,
-                thirdArtifact, TraceDirection.To, _user));
+            traces.AddRange(OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, secondArtifact, thirdArtifact, TraceDirection.To, _user));
             Assert.AreEqual(2, traces.Count, "No traces were added between second & third artifact!");
 
-            traces.AddRange(OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, thirdArtifact,
-                firstArtifact, TraceDirection.To, _user));
+            traces.AddRange(OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, thirdArtifact, firstArtifact, TraceDirection.To, _user));
             Assert.AreEqual(3, traces.Count, "No traces were added between third & first artifact!");
 
             Relationships relationships = null;
@@ -454,8 +446,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be 0 other traces!");
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
             ArtifactStoreHelper.AssertTracesAreEqual(traces[1], relationships.ManualTraces[1], checkDirection: false);
-            Assert.AreEqual(TraceDirection.From, relationships.ManualTraces[1].Direction,
-                "The 2nd manual trace should be 'From' the third artifact!");
+            Assert.AreEqual(TraceDirection.From, relationships.ManualTraces[1].Direction, "The 2nd manual trace should be 'From' the third artifact!");
         }
 
         [TestCase]
@@ -468,13 +459,11 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.From, _user);
 
             sourceArtifact.Publish(_user);
 
-            Assert.AreEqual(false, traces[0].IsSuspect,
-                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+            Assert.AreEqual(false, traces[0].IsSuspect, "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
             Helper.AssignProjectRolePermissionsToUser(_viewer, TestHelper.ProjectRole.None, _project, targetArtifact);
 
@@ -507,7 +496,7 @@ namespace ArtifactStoreTests
         public void GetRelationshipsDetails_ManualTrace_ReturnsCorrectTraceDetails()
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
 
             TraceDetails traceDetails = null;
 
@@ -533,7 +522,7 @@ namespace ArtifactStoreTests
             {
                 parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase, parentArtifact);
             }
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, parent: parentArtifact);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor, parent: parentArtifact);
 
             TraceDetails traceDetails = null;
 
@@ -573,7 +562,7 @@ namespace ArtifactStoreTests
         public void GetRelationships_InvalidSubArtifactId_400BadRequest(int fakeSubArtifactId)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             // Execute & Verify:
             Assert.Throws<Http400BadRequestException>(() =>
@@ -593,14 +582,12 @@ namespace ArtifactStoreTests
         public void GetRelationships_ManualTraceUserHasNoAccessToSourceArtifact_403Forbidden()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.To, _user);
 
-            Assert.AreEqual(false, traces[0].IsSuspect,
-                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+            Assert.AreEqual(false, traces[0].IsSuspect, "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
             sourceArtifact.Publish(_user);
 
@@ -622,14 +609,12 @@ namespace ArtifactStoreTests
         public void GetRelationshipsDetails_ManualTraceUserHasNoAccessToTargetArtifact_403Forbidden()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.To, _user);
 
-            Assert.AreEqual(false, traces[0].IsSuspect,
-                "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
+            Assert.AreEqual(false, traces[0].IsSuspect, "IsSuspected should be false after adding a trace without specifying a value for isSuspect!");
 
             sourceArtifact.Publish(_user);
 
@@ -660,8 +645,7 @@ namespace ArtifactStoreTests
             // Execute: Execute GetRelationships with non-existing version ID of the source artifact
             var ex = Assert.Throws<Http404NotFoundException>(() =>
                 Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, versionId: nonExistingVersionId),
-                "Calling GET {0} with non-existing version ID should return 404 NotFound!",
-                RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
+                "Calling GET {0} with non-existing version ID should return 404 NotFound!", RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS);
 
             var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
 
@@ -677,11 +661,10 @@ namespace ArtifactStoreTests
         public void GetRelationships_DeleteSourceArtifact_404NotFound()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.From, _user);
 
             sourceArtifact.Delete(_user);
             sourceArtifact.Publish(_user);
@@ -700,13 +683,12 @@ namespace ArtifactStoreTests
         public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsFalse_404NotFound()
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            var targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
             sourceArtifact.Save(_user);
             targetArtifact.Save(_user);
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.From, _user);
+            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.From, _user);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
@@ -742,7 +724,7 @@ namespace ArtifactStoreTests
         public void GetRelationships_NonExstingSubArtifactId_404NotFound(int fakeSubArtifactId)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             // Verify the artifact doesn't exist.
             Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, fakeSubArtifactId, _user),
@@ -762,17 +744,16 @@ namespace ArtifactStoreTests
         public void GetRelationships_UnpublishedArtifactByOtherUser_404NotFound(bool addDrafts)
         {
             // Setup:
-            IArtifact sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            IArtifact targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
             sourceArtifact.Save();
             targetArtifact.Save();
 
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.To, _user);
 
             Assert.That(traces.Count > 0, "No traces were added!");
 
-            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>

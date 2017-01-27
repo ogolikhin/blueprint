@@ -45,7 +45,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
@@ -68,7 +68,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
             artifact.Save(author);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
@@ -112,7 +112,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
             artifact.Delete(author);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
@@ -134,8 +134,8 @@ namespace ArtifactStoreTests
         public void GetUnpublishedChanges_PublishedArtifactModifiedByDifferentUser_ReturnsEmptyList(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            IUser user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             artifact.Save(user2);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
@@ -156,7 +156,7 @@ namespace ArtifactStoreTests
         public void GetUnpublishedChanges_UserWithNoPermissions_ReturnsEmptyList()
         {
             // Setup:
-            IUser userWithNoPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, instanceAdminRole: null);
+            var userWithNoPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken, instanceAdminRole: null);
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
             // Execute:
@@ -183,9 +183,9 @@ namespace ArtifactStoreTests
             var artifacts = new List<IArtifactBase>();
 
             // Create artifacts in different projects.
-            foreach (IProject project in projects)
+            foreach (var project in projects)
             {
-                IArtifact artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
+                var artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
                 artifacts.Add(artifact);
             }
 
@@ -194,9 +194,9 @@ namespace ArtifactStoreTests
             projectsInReverse.AddRange(projects);
             projectsInReverse.Reverse();
 
-            foreach (IProject project in projectsInReverse)
+            foreach (var project in projectsInReverse)
             {
-                IArtifact artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
+                var artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
                 artifacts.Add(artifact);
             }
 
@@ -222,14 +222,13 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, 2)]
         [TestRail(000)]     // TODO: Add to TestRail once this test is working.
         [Description("Create & publish an artifact, then move it to a different project.  GetUnpublishedChanges.  Verify the artifact and the specified projects are returned.")]
-        public void GetUnpublishedChanges_ArtifactMovedToDifferentProject_ReturnsArtifactDetails(
-            BaseArtifactType artifactType, int numberOfProjects)
+        public void GetUnpublishedChanges_ArtifactMovedToDifferentProject_ReturnsArtifactDetails(BaseArtifactType artifactType, int numberOfProjects)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects);
 
             // Create artifacts in different projects.
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(projects[0], _user, artifactType);
 
             var artifacts = new List<IArtifactBase> { artifact };
 
@@ -292,7 +291,7 @@ namespace ArtifactStoreTests
         public void GetUnpublishedChanges_UnauthorizedUser_401Unauthorized()
         {
             // Setup:
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute:
             Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUnpublishedChanges(unauthorizedUser),

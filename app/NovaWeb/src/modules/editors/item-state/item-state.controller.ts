@@ -56,9 +56,11 @@ export class ItemStateController {
             itemInfo.predefinedType = ItemTypePredefined.Project;
 
             this.projectManager.openProject(itemInfo).then(() => {
+                const projectNode = this.projectManager.getProject(itemInfo.id);
                 const project = this.createArtifact(itemInfo);
                 project.itemTypeId = ItemTypePredefined.Project;
                 project.itemTypeName = "Project";
+                project.description = projectNode ? projectNode.model.description : "";
 
                 const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(project);
 

@@ -15,11 +15,7 @@ export class BpLoadingOverlayController {
     constructor(private loadingOverlayService: ILoadingOverlayService) {
     }
 
-    private get displayOverlay() {
+    public get displayOverlay() {
         return this.loadingOverlayService.displayOverlay;
-    }
-
-    public $onDestroy() {
-//fixme: if block is empty remove it.
     }
 }

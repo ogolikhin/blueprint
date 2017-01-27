@@ -16,6 +16,7 @@ import {INavigationService} from "../../../commonModule/navigation/navigation.se
 
 export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];
+    projectsObservable: Rx.Observable<ExplorerNodeVM[]>;
     selectedId: number;
 
     add(projectId: number): ng.IPromise<void>;
@@ -32,8 +33,9 @@ export interface IProjectExplorerService {
 
 export class ProjectExplorerService implements IProjectExplorerService {
     private factory: TreeNodeVMFactory;
-    public projects: ExplorerNodeVM[];
-    public selectedId: number;
+    private _projects: ExplorerNodeVM[];
+    private projectsSubject: Rx.Subject<ExplorerNodeVM[]>;
+    private _selectedId: number;
 
     static $inject = [
         "$q",
@@ -61,8 +63,31 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 private projectService: IProjectService,
                 private metadataService: IMetaDataService) {
 
-        this.projects = [];
         this.factory = new TreeNodeVMFactory(projectService);
+        this.projectsSubject = new Rx.Subject<ExplorerNodeVM[]>();
+        this.projects = [];
+    }
+
+    public get projects(): ExplorerNodeVM[] {
+        return this._projects;
+    }
+
+    public set projects(val: ExplorerNodeVM[]) {
+        this._projects = val;
+        this.projectsSubject.onNext(val);
+    }
+
+    public get projectsObservable(): Rx.Observable<ExplorerNodeVM[]> {
+        return this.projectsSubject.asObservable();
+    }
+
+    public get selectedId(): number {
+        return this._selectedId;
+    }
+
+    public set selectedId(val: number) {
+        this._selectedId = val;
+        this.triggerProjectsUpdate();
     }
 
     public add(projectId: number): ng.IPromise<void> {
@@ -166,6 +191,8 @@ export class ProjectExplorerService implements IProjectExplorerService {
     }
 
     public refresh(projectId: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
+        this.$log.debug("refreshing project: " + projectId);
+
         const projectNode = this.getProject(projectId);
         if (!projectNode) {
             return this.$q.reject();
@@ -179,11 +206,17 @@ export class ProjectExplorerService implements IProjectExplorerService {
             } else {
                 selectedArtifact = this.selectionManager.getArtifact();
             }
+            this.triggerProjectsUpdate();
 
             // FIXME: refresh
             // return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
             return null;
         });
+    }
+
+    public refreshAll(): ng.IPromise<void> {
+        // TODO: implement
+        return null;
     }
 
     private triggerProjectsUpdate() {

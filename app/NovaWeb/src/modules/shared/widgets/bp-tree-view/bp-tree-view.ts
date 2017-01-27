@@ -33,7 +33,6 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         selectionMode: "<",
         rowHeight: "<",
         rowData: "<",
-        selectedId: "<?",
         rootNodeVisible: "<",
         columns: "<",
         headerHeight: "<",
@@ -54,7 +53,6 @@ export interface IBPTreeViewController extends ng.IComponentController {
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
     rowData: ITreeNode[];
-    selectedId: number;
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
@@ -132,7 +130,6 @@ export class BPTreeViewController implements IBPTreeViewController {
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
     public rowData: ITreeNode[];
-    public selectedId: number;
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
@@ -217,8 +214,7 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (onChangesObj["selectionMode"]
             || onChangesObj["rowData"]
             || onChangesObj["rootNodeVisible"]
-            || onChangesObj["columns"]
-            || onChangesObj["selectedId"]) {
+            || onChangesObj["columns"]) {
 
             this.resetGridAsync(false, 0);
         }

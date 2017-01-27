@@ -168,15 +168,7 @@ export class PageToolbarController {
 
     private refreshTree = ((newArtifactId: number) => {
         const projectId = this._currentArtifact.projectId;
-        let newArtifact: IStatefulArtifact = null;
-        return this.projectManager.refresh(projectId, null, true)
-            .finally(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-
-                this.$timeout(() => {
-                    this.navigationService.navigateTo({id: newArtifactId});
-                });
-            });
+        return this.projectExplorerService.refresh(projectId);
     });
 
     private newArtifactCreationErrorHandler = ((error) => {
@@ -528,7 +520,7 @@ export class PageToolbarController {
     };
 
     public get isProjectOpened(): boolean {
-        return this.projectManager.projectCollection.getValue().length > 0;
+        return this.projectExplorerService.projects.length > 0;
     }
 
     public get isArtifactSelected(): boolean {

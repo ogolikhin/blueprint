@@ -3,7 +3,6 @@
               ng-show="$ctrl.isProjectTreeVisible()"
               row-data="$ctrl.projectExplorerService.projects"
               columns="$ctrl.columns"
-              selected-id="$ctrl.projectExplorerService.selectedId"
               set-selection="$ctrl.setSelectedNode()"
               on-select="$ctrl.onSelect(vm, isSelected)"
               on-grid-reset="$ctrl.onGridReset(isExpanding)">

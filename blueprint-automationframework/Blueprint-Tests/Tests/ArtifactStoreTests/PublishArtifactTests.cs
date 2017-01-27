@@ -76,16 +76,12 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse publishedResponse = null;
 
             Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser),
-                "POST {0} call failed when using it with collection (Id: {1}) contains published artifacts!",
-                PUBLISH_PATH, collectionArtifact.Id);
+                "POST {0} call failed when using it with collection (Id: {1}) contains published artifacts!", PUBLISH_PATH, collectionArtifact.Id);
 
             // Validation: Verify that published collection contains valid data added 
             var collectionArtifactList = new List<IArtifactBase> { collectionArtifact };
 
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
-                publishedResponse,
-                collectionArtifactList
-                );
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(publishedResponse, collectionArtifactList);
 
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
@@ -121,10 +117,7 @@ namespace ArtifactStoreTests
             // Validation: Verify that collection published with users with different permission
             var collectionArtifactList = new List<IArtifactBase> { collectionArtifact };
 
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
-                publishedResponse,
-                collectionArtifactList
-                );
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(publishedResponse, collectionArtifactList);
 
             var collectionRetrievedByUserWithoutPermission = Helper.ArtifactStore.GetCollection(authorWithoutPermission, collectionArtifact.Id);
 
@@ -154,23 +147,19 @@ namespace ArtifactStoreTests
             publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id));
 
             // Execution: Publish the collection with deleted artifacts
-            List<INovaArtifactResponse> deletedArtifacts = new List<INovaArtifactResponse>();
+            var deletedArtifacts = new List<INovaArtifactResponse>();
 
             publishedArtifacts.ForEach(artifact => deletedArtifacts.AddRange(Helper.ArtifactStore.DeleteArtifact(artifact, _authorUser)));
 
             INovaArtifactsAndProjectsResponse publishedResponse = null;
 
             Assert.DoesNotThrow(() => publishedResponse = Helper.ArtifactStore.PublishArtifact(collectionArtifact, _authorUser),
-                "POST {0} call failed when using it with collection (Id: {1}) contains deleted artifacts!",
-                PUBLISH_PATH, collectionArtifact.Id);
+                "POST {0} call failed when using it with collection (Id: {1}) contains deleted artifacts!", PUBLISH_PATH, collectionArtifact.Id);
 
             // Validation: Verify that collection response
             var collectionArtifactList = new List<IArtifactBase> { collectionArtifact };
 
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
-                publishedResponse,
-                collectionArtifactList
-                );
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(publishedResponse, collectionArtifactList);
 
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
@@ -190,7 +179,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, author, artifactType);
             var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, author);
             Assert.AreEqual(int.MaxValue, artifactHistoryBefore[0].VersionId, "Version ID before publish should be {0}!", int.MaxValue);
 
@@ -219,7 +208,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            IArtifact artifactWithMultipleVersions = Helper.CreateAndPublishArtifact(_project, author, artifactType, numberOfVersions: numberOfVersions);
+            var artifactWithMultipleVersions = Helper.CreateAndPublishArtifact(_project, author, artifactType, numberOfVersions: numberOfVersions);
 
             var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, author);
             Assert.AreEqual(numberOfVersions, artifactHistoryBefore[0].VersionId, "Version ID before Nova publish should be {0}!", numberOfVersions);
@@ -269,8 +258,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(numberOfArtifacts, publishResponse.Artifacts.Count, "There should only be {0} published artifact returned!", numberOfArtifacts);
 
-            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                publishResponse, artifacts, expectedVersion: 1);
+            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, artifacts, expectedVersion: 1);
         }
 
         [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Glossary)]
@@ -314,8 +302,7 @@ namespace ArtifactStoreTests
                 expectedVersion = numberOfVersions + 1;
             }
 
-            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                publishResponse, artifactsWithMultipleVersions, expectedVersion);
+            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, artifactsWithMultipleVersions, expectedVersion);
         }
 
         [TestCase(BaseArtifactType.Actor, 2, BaseArtifactType.Process, 3, BaseArtifactType.UseCase, 2)]
@@ -385,8 +372,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(numberOfArtifactsToPublish, publishResponse.Artifacts.Count,
                 "There should only be {0} published artifact returned!", numberOfArtifactsToPublish);
 
-            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                publishResponse, artifactsToPublish, expectedVersion: 1);
+            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, artifactsToPublish, expectedVersion: 1);
 
             AssertArtifactsWereNotPublished(artifactsNotToPublish);
         }
@@ -399,7 +385,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
             artifact.Delete(author);
 
             // Execute:
@@ -443,11 +429,9 @@ namespace ArtifactStoreTests
             allArtifacts.AddRange(artifactsNotPassedToPublish);
 
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
-            Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
-                "There should only be {0} published artifact returned!", allArtifacts.Count);
+            Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count, "There should only be {0} published artifact returned!", allArtifacts.Count);
 
-            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                publishResponse, allArtifacts, expectedVersion: 1);
+            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, allArtifacts, expectedVersion: 1);
         }
 
         [TestCase(BaseArtifactType.Process, 3)]

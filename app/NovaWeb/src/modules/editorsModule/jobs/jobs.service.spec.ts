@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx";
-import {JobsService} from "./jobs.svc";
+import {JobsService} from "./jobs.service";
 import {IJobInfo, JobStatus, JobType} from "./model/models";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 

@@ -1,4 +1,4 @@
-import {IGlossaryService} from "./glossary.svc";
+import {IGlossaryService} from "./glossary.service";
 import {IArtifact, ISubArtifact} from "../../main/models/models";
 
 export class GlossaryServiceMock implements IGlossaryService {

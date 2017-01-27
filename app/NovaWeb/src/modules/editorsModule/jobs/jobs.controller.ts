@@ -5,16 +5,11 @@ import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
-import {IJobsService} from "./jobs.svc";
+import {IJobsService} from "./jobs.service";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
 import {JobAction} from "./jobAction";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {IDownloadService} from "../../commonModule/download/download.service";
-
-export class JobsComponent implements ng.IComponentOptions {
-    public template: string = require("./jobs.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = JobsController;
-}
 
 export class JobsController {
     public static $inject: [string] = [

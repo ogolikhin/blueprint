@@ -1,4 +1,4 @@
-import {IJobsService} from "./jobs.svc";
+import {IJobsService} from "./jobs.service";
 import {IAddJobResult, IJobInfo, IJobResult} from "./model/models";
 
 export class JobsServiceMock implements IJobsService {
@@ -10,7 +10,7 @@ export class JobsServiceMock implements IJobsService {
     public getJobs(page?: number, pageSize?: number): ng.IPromise<IJobResult> {
         return this.$q.resolve<IJobResult>(<IJobResult>{});
     }
-    
+
     public getJob(jobId: number): ng.IPromise<IJobInfo> {
         return this.$q.resolve<IJobInfo>(<IJobInfo>{});
     }

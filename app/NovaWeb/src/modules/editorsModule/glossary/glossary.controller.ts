@@ -3,11 +3,6 @@ import {IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {BpBaseEditor} from "../bp-base-editor";
 
-export class BpGlossary implements ng.IComponentOptions {
-    public template: string = require("./bp-glossary.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BpGlossaryController;
-}
-
 export class BpGlossaryController extends BpBaseEditor {
     public static $inject: [string] = [
         "$log",

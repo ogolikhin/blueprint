@@ -9,9 +9,9 @@ import {StatefulArtifactServices} from "../../managers/artifact-manager/services
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
 import {ComponentTest} from "../../util/component.test";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
-import {BpGlossaryController} from "./bp-glossary";
+import {BpGlossaryController} from "./glossary.controller";
 import {ISubArtifact} from "../../main/models/models";
-import {GlossaryServiceMock} from "./glossary.svc.mock";
+import {GlossaryServiceMock} from "./glossary.service.mock";
 import * as angular from "angular";
 
 describe("Component BP Glossary", () => {

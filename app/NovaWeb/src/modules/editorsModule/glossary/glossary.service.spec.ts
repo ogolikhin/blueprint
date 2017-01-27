@@ -1,7 +1,7 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {IGlossaryService, GlossaryService} from "./glossary.svc";
+import {IGlossaryService, GlossaryService} from "./glossary.service";
 import {IArtifact} from "../../main/models/models";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";

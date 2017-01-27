@@ -1,13 +1,13 @@
 ﻿import * as angular from "angular";
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
-import "./bp-glossary";
+import {GlossaryEditor} from "./glossary";
 import {ArtifactEditors} from "./artifact";
 import "./bp-diagram";
 import "./bp-process";
 import {CollectionEditors} from "./collection";
 import "./unpublished";
-import "./jobs";
+import {JobsEditor} from "./jobs";
 import {ArtifactRoutes} from "./editors.router";
 import {
     IPropertyDescriptor,
@@ -19,14 +19,14 @@ import {ItemStateService} from "./item-state/item-state.svc";
 angular.module("bp.editors", [
         "formly",
         "formlyBootstrap",
-        "bp.editors.glossary",
+        GlossaryEditor,
         ArtifactEditors,
         EditorServices,
         "bp.editors.diagram",
         "bp.editors.process",
         CollectionEditors,
-        "bp.editors.unpublished",
-        "bp.editors.jobs"
+        JobsEditor,
+        "bp.editors.unpublished"
     ])
     .service("itemStateService", ItemStateService)
     .config(ArtifactRoutes);

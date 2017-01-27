@@ -1,8 +1,8 @@
 require("./jobs.scss");
 
-import {JobsService} from "./jobs.svc";
-import {JobsComponent} from "./jobs";
+import {JobsService} from "./jobs.service";
+import {JobsComponent} from "./jobs.component";
 
-angular.module("bp.editors.jobs", [])
+export const JobsEditor = angular.module("jobsEditor", [])
     .service("jobsService", JobsService)
-    .component("jobs", new JobsComponent());
+    .component("jobs", new JobsComponent()).name;

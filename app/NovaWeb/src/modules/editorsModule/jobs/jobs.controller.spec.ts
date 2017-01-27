@@ -6,10 +6,10 @@ import {NavigationServiceMock} from "../../commonModule/navigation/navigation.se
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {IJobsService} from "./jobs.svc";
+import {IJobsService} from "./jobs.service";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
-import {JobsController} from "./jobs";
-import {JobsServiceMock} from "./jobs.svc.mock";
+import {JobsController} from "./jobs.controller";
+import {JobsServiceMock} from "./jobs.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {DownloadServiceMock} from "../../commonModule/download/download.service.mock";
 

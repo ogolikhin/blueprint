@@ -581,6 +581,29 @@ namespace Model.Impl
             return I18NHelper.ToInt32Invariant(response.Content);
         }
 
+        /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
+        public IFile GetActorIcon(IUser user, int actorArtifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_, actorArtifactId,
+                versionId?.ToStringInvariant() ?? string.Empty);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            File file = null;
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    FileType = response.ContentType
+                };
+            }
+
+            return file;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable

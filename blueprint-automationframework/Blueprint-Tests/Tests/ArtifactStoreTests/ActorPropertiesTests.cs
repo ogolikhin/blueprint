@@ -113,22 +113,11 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // TODO: function to add Actor icon
-            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
-            DateTime expireTime = DateTime.Now.AddDays(2);
-            var uploadedFile = Helper.FileStore.AddFile(imageFile, author, expireTime: expireTime, useMultiPartMime: true);
+            var imageFile = CreateAndUploadRandomImageFile(author);
 
             var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
-
-            // Execute:
-
-            var actorIcon = new ActorIconValue();
-            actorIcon.SetIcon(uploadedFile.Guid);
-            actorDetails.ActorIcon = actorIcon;
             actor.Lock(author);
-            Artifact.UpdateArtifact(actor, author, actorDetails, address: Helper.BlueprintServer.Address);
-            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+            var actorDetails = SetActorIconAndValidate(author, actor, imageFile);
 
             // Verify:
             // TODO: function to validate Actor icon
@@ -146,12 +135,10 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // TODO: function to add Actor icon
-            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
-            System.DateTime expireTime = System.DateTime.Now.AddDays(2);
-            var uploadedFile = Helper.FileStore.AddFile(imageFile, author, expireTime: expireTime, useMultiPartMime: true);
+            var uploadedFile = CreateAndUploadRandomImageFile(author);
 
             var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            Actor actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
 
             // Execute:
 
@@ -290,6 +277,53 @@ namespace ArtifactStoreTests
         {
             var actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
             Assert.AreEqual(0, actorRelationships.OtherTraces.Count, "Actor shouldn't have 'other' traces, but it has.");
+        }
+
+        /// <summary>
+        /// Creates and uploads to FileStore random image file.
+        /// </summary>
+        /// <param name="user">User to perform operation.</param>
+        private IFile CreateAndUploadRandomImageFile(IUser user)
+        {
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
+            DateTime expireTime = DateTime.Now.AddDays(2);
+            var uploadedFile = Helper.FileStore.AddFile(imageFile, user, expireTime: expireTime, useMultiPartMime: true);
+            return uploadedFile;
+        }
+
+        /// <summary>
+        /// Set Actor Icon via UpdateArtifact. Artifact should be locked.
+        /// </summary>
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="actorArtifact">Actor artifact to set icon.</param>
+        /// <param name="imageFile">Icon image file.</param>
+        /// <param name="expectedVersionNumber">(optional)Expected version number. Pass null for never published artifact. 1 by default.</param>
+        /// <returns>Actor details</returns>
+        private Actor SetActorIconAndValidate(IUser user, IArtifact actorArtifact, IFile imageFile, int? expectedVersionNumber = 1)
+        {
+            // Setup & Execute:
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actorArtifact.Id);
+            var actorIcon = new ActorIconValue();
+            actorIcon.SetIcon(imageFile.Guid);
+            actorDetails.ActorIcon = actorIcon;
+            Artifact.UpdateArtifact(actorArtifact, user, actorDetails, address: Helper.BlueprintServer.Address);
+            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actorArtifact.Id);
+
+            // Verify:
+            Assert.IsNotNull(actorDetails.ActorIcon, "ActorIcon shouldn't be empty");
+            string iconAddress = actorDetails.ActorIcon.GetIconAddress();
+            string expectedIconAddress = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_, actorArtifact.Id,
+                expectedVersionNumber?.ToStringInvariant() ?? string.Empty);
+            StringAssert.StartsWith(expectedIconAddress, iconAddress, "Icon address should have expected format.");
+
+            // TODO: add get size (resolution) support for image files. Currently server changes original image size to 90*90 and compress it.
+            Helper.ArtifactStore.GetActorIcon(user, actorArtifact.Id, expectedVersionNumber);
+
+            var expirationTime = Helper.FileStore.GetSQLExpiredTime(imageFile.Guid);
+            Assert.IsNotNull(expirationTime, "After saving ExpiredTime for file should be current time.");
+            Assert.IsTrue(DateTimeUtilities.CompareTimePlusOrMinus(expirationTime.Value, actorDetails.LastEditedOn.Value, 1),
+                "ExpirationTime should have expected value.");
+            return actorDetails;
         }
 
         #endregion Private Functions

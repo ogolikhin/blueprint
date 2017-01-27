@@ -9,13 +9,8 @@ export class BpLoadingOverlayComponent implements ng.IComponentOptions {
 }
 
 export class BpLoadingOverlayController {
-
     public static $inject = ["loadingOverlayService"];
 
     constructor(private loadingOverlayService: ILoadingOverlayService) {
-    }
-
-    public isVisible = (): boolean => {
-        return this.loadingOverlayService.displayOverlay;
     }
 }

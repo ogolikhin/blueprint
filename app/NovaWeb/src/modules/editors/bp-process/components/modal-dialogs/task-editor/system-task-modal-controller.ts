@@ -4,7 +4,7 @@ import {IArtifactService, IStatefulArtifactFactory} from "../../../../../manager
 import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IDialogService} from "../../../../../shared";
 import {IModalScope} from "../base-modal-dialog-controller";
-import {SystemTaskDialogModel} from "./sub-artifact-dialog-model";
+import {SystemTaskDialogModel} from "./systemTaskDialogModel";
 import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
@@ -74,7 +74,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             this.dialogModel.personaReference.name;
     }
 
-    protected  getAssociatedArtifact(): IArtifactReference {
+    protected getAssociatedArtifact(): IArtifactReference {
         return this.dialogModel.associatedArtifact;
     }
 

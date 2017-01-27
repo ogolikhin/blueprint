@@ -38,6 +38,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         "$timeout",
         "$anchorScroll",
         "$location",
+        "$q",
         "localization"
     ];
 
@@ -46,6 +47,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
                 private $timeout: ng.ITimeoutService,
                 private $anchorScroll: ng.IAnchorScrollService,
                 private $location: ng.ILocationService,
+                private $q: ng.IQService,
                 private localization: ILocalizationService,
                 $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
                 dialogModel?: DecisionEditorModel) {
@@ -70,10 +72,11 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         return !this.isReadonly && this.isLabelAvailable() && !this.areMergeNodesEmpty();
     }
 
-    public saveData() {
+    public saveData(): ng.IPromise<void> {
         this.populateDecisionChanges();
         this.addNewBranchesToGraph();
         this.removeDeletedBranchesFromGraph();
+        return this.$q.resolve();
     }
 
     public get canAddCondition(): boolean {

@@ -1,3 +1,5 @@
+import {SystemTaskDialogModel} from "./task-editor/systemTaskDialogModel";
+import {UserTaskDialogModel} from "./task-editor/userTaskDialogModel";
 import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
@@ -13,7 +15,7 @@ import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
 import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
 import {NodeType, IProcessLink} from "../diagram/presentation/graph/models/";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
-import {UserTaskDialogModel, SystemTaskDialogModel, IPersonaOption} from "./task-editor/sub-artifact-dialog-model";
+import {IPersonaOption} from "./task-editor/taskDialogModel";
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IArtifactReference} from "../../models/process-models";

@@ -15,7 +15,7 @@ export class BpLoadingOverlayController {
     constructor(private loadingOverlayService: ILoadingOverlayService) {
     }
 
-    public get displayOverlay() {
+    public isVisible = (): boolean => {
         return this.loadingOverlayService.displayOverlay;
     }
 }

@@ -17,7 +17,7 @@
 .loading-overlay__wrapper--visible {
     background-color: rgba($white, .8);
     pointer-events: auto;
-    transition-delay: .2s;
+    transition-delay: .35s;
     transition-duration: 1s;
     transition-property: background-color;
     transition-timing-function: linear;
@@ -43,8 +43,8 @@
 //We transition the spinner as well, otherwise it will appear in full when the background shade is not visible yet
 .loading-overlay__container--visible {
     opacity: 1;
-    transition-delay: .2s;
-    transition-duration: 1s;
+    transition-delay: .35s;
+    transition-duration: .75s;
     transition-property: opacity;
     transition-timing-function: linear;
 }

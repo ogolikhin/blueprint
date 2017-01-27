@@ -1,16 +1,12 @@
-﻿import "angular";
+﻿import "./";
 import "angular-mocks";
-import {LoadingOverlayService, ILoadingOverlayService} from "./loadingOverlay.service";
-import {BpLoadingOverlayController, BpLoadingOverlayComponent} from "./loadingOverlay.controller";
+import {ILoadingOverlayService} from "./loadingOverlay.service";
+import {BpLoadingOverlayController} from "./loadingOverlay.controller";
 
 //The service and component are closely related, so we test both at the same time.
 //See loadingOverlay.service
 
 describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
-    angular.module("loadingOverlay", [])
-        .service("loadingOverlayService", LoadingOverlayService)
-        .component("bpLoadingOverlay", new BpLoadingOverlayComponent());
-
     let controller: BpLoadingOverlayController;
 
     beforeEach(angular.mock.module("loadingOverlay"));
@@ -25,7 +21,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
         // Assert
         expect(loadingOverlayService.displayOverlay).toBe(true);
-        expect(controller.displayOverlay).toBe(true);
+        expect(controller.isVisible()).toBe(true);
     })));
 
     it("hides the overlay if endLoading() is called", (inject((loadingOverlayService: ILoadingOverlayService) => {
@@ -35,7 +31,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
         // Assert
         expect(loadingOverlayService.displayOverlay).toBe(false);
-        expect(controller.displayOverlay).toBe(false);
+        expect(controller.isVisible()).toBe(false);
     })));
 
     it("supports multiple beginLoading() calls", (inject((loadingOverlayService: ILoadingOverlayService) => {
@@ -45,7 +41,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
         // Assert
         expect(loadingOverlayService.displayOverlay).toBe(true);
-        expect(controller.displayOverlay).toBe(true);
+        expect(controller.isVisible()).toBe(true);
     })));
 
     it("hides the overlay only once every beginLoading() call has an endLoading() call", (inject((loadingOverlayService: ILoadingOverlayService) => {
@@ -56,14 +52,14 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
         // Assert
         expect(loadingOverlayService.displayOverlay).toBe(true);
-        expect(controller.displayOverlay).toBe(true);
+        expect(controller.isVisible()).toBe(true);
 
         //Act 2
         loadingOverlayService.endLoading(id2);
 
         //Assert 2
         expect(loadingOverlayService.displayOverlay).toBe(false);
-        expect(controller.displayOverlay).toBe(false);
+        expect(controller.isVisible()).toBe(false);
     })));
 
 
@@ -79,7 +75,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
         //Assert
         expect(loadingOverlayService.displayOverlay).toBe(false);
-        expect(controller.displayOverlay).toBe(false);
+        expect(controller.isVisible()).toBe(false);
     })));
 
     it("throws an error if endLoading() is called twice - does not hide the overlay if beginLoading() was called twice",
@@ -96,7 +92,7 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
             //Assert
             expect(loadingOverlayService.displayOverlay).toBe(true);
-            expect(controller.displayOverlay).toBe(true);
+            expect(controller.isVisible()).toBe(true);
         })));
 
     it("hides the overlay if dispose() is called, even with multiple beginLoading() calls", (inject((loadingOverlayService: ILoadingOverlayService) => {
@@ -107,6 +103,6 @@ describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
 
         //Assert 2
         expect(loadingOverlayService.displayOverlay).toBe(false);
-        expect(controller.displayOverlay).toBe(false);
+        expect(controller.isVisible()).toBe(false);
     })));
 });

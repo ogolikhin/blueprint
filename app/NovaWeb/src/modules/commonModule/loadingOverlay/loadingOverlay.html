@@ -1,6 +1,6 @@
-﻿<div class="loading-overlay__wrapper" ng-class="{'loading-overlay__wrapper--visible': $ctrl.displayOverlay}">
+﻿<div class="loading-overlay__wrapper" ng-class="{'loading-overlay__wrapper--visible': $ctrl.isVisible()}">
     <span class="loading-overlay__container"
-          ng-class="{'loading-overlay__container--visible': $ctrl.displayOverlay}">
+          ng-class="{'loading-overlay__container--visible': $ctrl.isVisible()}">
         <span class="loading-overlay__spinner glyphicon glyphicon-refresh spin"></span>
     </span>
 </div>

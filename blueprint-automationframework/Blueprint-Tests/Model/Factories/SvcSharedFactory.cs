@@ -1,5 +1,4 @@
-﻿using System.Data;
-using Model.Impl;
+﻿using Model.Impl;
 using TestConfig;
 
 namespace Model.Factories
@@ -13,7 +12,7 @@ namespace Model.Factories
         /// <returns>An ISvcShared object.</returns>
         public static ISvcShared CreateArtifactStore(string address)
         {
-            ISvcShared adminStore = new SvcShared(address);
+            var adminStore = new SvcShared(address);
             return adminStore;
         }
 
@@ -24,7 +23,7 @@ namespace Model.Factories
         /// <exception cref="DataException">If there was an error reading required information from the TestConfiguration.</exception>
         public static ISvcShared GetSvcSharedFromTestConfig()
         {
-            TestConfiguration testConfig = TestConfiguration.GetInstance();
+            var testConfig = TestConfiguration.GetInstance();
 
             return CreateArtifactStore(testConfig.BlueprintServerAddress);
         }

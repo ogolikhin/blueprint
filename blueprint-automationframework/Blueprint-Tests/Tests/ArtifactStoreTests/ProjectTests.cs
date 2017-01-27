@@ -44,7 +44,7 @@ namespace ArtifactStoreTests
         public void GetProjectChildrenByProjectId_OK()
         {
             // Setup:
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute & Verify:
             Assert.DoesNotThrow(() =>
@@ -73,7 +73,7 @@ namespace ArtifactStoreTests
         public void GetProjectChildrenByProjectId_UserWithNoPermissionsToProject_403Forbidden()
         {
             // Setup:
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -92,7 +92,7 @@ namespace ArtifactStoreTests
         public void GetProjectChildrenByProjectId_InvalidToken_401Unauthorized()
         {
             // Setup:
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>
@@ -124,7 +124,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
-            IUser viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             // Execute & Verify:
             Assert.DoesNotThrow(() =>
@@ -166,7 +166,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
             // Execute & Verify:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -186,7 +186,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            IUser userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute & Verify:
@@ -207,7 +207,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _user);
-            IUser unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute & Verify:
             Assert.Throws<Http401UnauthorizedException>(() =>

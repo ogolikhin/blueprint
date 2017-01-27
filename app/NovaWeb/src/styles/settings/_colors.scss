@@ -50,7 +50,7 @@
 $white: #fff;
 $black: #000;
 
-$gray-darkest: #333;
+$gray-darker: #333;
 $gray-dark: #616161;
 $gray: #999;
 $gray-light: #aaa;
@@ -67,7 +67,7 @@ $brand-error: #d95f5e;
 $brand-warning: #e4b169;
 
 $disabled-color: $gray-lightest;
-$text-color: $gray-darkest;
+$text-color: $gray-darker;
 $text-highlight-background-color: #ffffb3;
 $text-highlight-color: $black;
 
@@ -101,7 +101,7 @@ $hamburger-layer-color: $brand-secondary;
  Calculated Colors
 
  .text-color							- $text-color
- .gray-darkest					    - gray-darkest
+ .gray-darker					    - gray-darker
  .gray-dark							- gray-dark
  .gray-light							- gray-light
  .gray-lighter						- gray-lighter
@@ -120,8 +120,8 @@ $hamburger-layer-color: $brand-secondary;
     &.text-color {
         background-color: $text-color;
     }
-    &.gray-darkest {
-        background-color: $gray-darkest;
+    &.gray-darker {
+        background-color: $gray-darker;
     }
     &.gray-dark {
         background-color: $gray-dark;
@@ -177,7 +177,7 @@ $hamburger-layer-color: $brand-secondary;
 /*
  Calculated Colors
 
- .gray-darkest                     - Color
+ .gray-darker                     - Color
  .gray-dark                     - Color
  .gray                     - Color
  .gray-light                     - Color
@@ -193,7 +193,7 @@ $hamburger-layer-color: $brand-secondary;
 */
 
 .styleguide-color {
-    &.gray-darkest {
+    &.gray-darker {
         background-color: $gray-base;
     }
     &.gray-dark {

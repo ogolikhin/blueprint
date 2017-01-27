@@ -11,6 +11,7 @@ import {IMessageService} from "../../main/components/messages/message.svc";
 import {MessageType} from "../../main/components/messages/message";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
+import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
 
 export class ItemStateController {
 
@@ -20,6 +21,7 @@ export class ItemStateController {
         "$stateParams",
         "selectionManager",
         "projectManager",
+        "projectExplorerService",
         "messageService",
         "localization",
         "navigationService",
@@ -32,6 +34,7 @@ export class ItemStateController {
     constructor(private $stateParams: ng.ui.IStateParamsService,
                 private selectionManager: ISelectionManager,
                 private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
@@ -140,6 +143,7 @@ export class ItemStateController {
         // do not select artifact in explorer if navigated from another artifact
         if (!this.$stateParams["path"]) {
             this.selectionManager.setExplorerArtifact(artifact);
+            this.projectExplorerService.selectedId = artifact.id;
         }
 
         this.selectionManager.setArtifact(artifact);

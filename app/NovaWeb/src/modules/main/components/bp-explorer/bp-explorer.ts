@@ -1,13 +1,10 @@
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
-import {IProjectManager} from "../../../managers";
 import {IItemChangeSet} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ISelectionManager} from "../../../managers/selection-manager";
 import {Helper} from "../../../shared";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view";
-import {TreeModels} from "../../models";
-import {IMessageService} from "../messages/message.svc";
 import {IProjectExplorerService} from "./project-explorer.service";
 import {ExplorerNodeVM} from "../../models/tree-node-vm-factory";
 
@@ -17,12 +14,10 @@ export class ProjectExplorer implements ng.IComponentOptions {
 }
 
 export interface IProjectExplorerController {
-    // BpTree bindings
     treeApi: IBPTreeViewControllerApi;
-    // projects: ExplorerNodeVM[];
     columns: any[];
     onSelect: (vm: ExplorerNodeVM, isSelected: boolean) => void;
-    // onGridReset: (isExpanding: boolean) => void;
+    onGridReset: (isExpanding: boolean) => void;
 }
 
 export class ProjectExplorerController implements IProjectExplorerController {
@@ -31,7 +26,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     public static $inject: [string] = [
         "$q",
-        "projectManager",
+        "$log",
         "navigationService",
         "selectionManager",
         "$state",
@@ -40,7 +35,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     ];
 
     constructor(private $q: ng.IQService,
-                private projectManager: IProjectManager,
+                private $log: ng.ILogService,
                 private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
                 private $state: ng.ui.IStateService,
@@ -52,21 +47,22 @@ export class ProjectExplorerController implements IProjectExplorerController {
     public $onInit() {
         this.subscribers = [
             // this.projectManager.projectCollection.subscribeOnNext(this.onLoadProject, this),
-            this.selectionManager.explorerArtifactObservable
-                .distinctUntilChanged(item => item ? item.id : -1)
-                .subscribeOnNext(this.setSelectedNode, this),
+            // this.selectionManager.explorerArtifactObservable
+            //     .distinctUntilChanged(artifact => artifact ? artifact.id : -1)
+            //     .map(artifact => {
+            //         return !!artifact ? artifact.id : null;
+            //     })
+            //     .subscribeOnNext(this.setSelectedNode, this),
             this.selectionManager.explorerArtifactObservable
                 .filter(artifact => !!artifact)
                 .flatMap((artifact: IStatefulArtifact) => artifact.getProperyObservable())
-                .subscribeOnNext(this.onSelectedArtifactChange, this)
+                .subscribeOnNext(this.onSelectedArtifactPropertyChange, this)
         ];
     }
 
     public $onDestroy() {
-        this.subscribers = this.subscribers.filter((it: Rx.IDisposable) => {
-            it.dispose();
-            return false;
-        });
+        this.subscribers.forEach((subsciber: Rx.IDisposable) => subsciber.dispose());
+        this.subscribers = [];
     }
 
     public navigateToUnpublishedChanges() {
@@ -90,34 +86,26 @@ export class ProjectExplorerController implements IProjectExplorerController {
      * selected in onGridReset. This allows code that refreshes explorer, then naviages to a new
      * artifact, to work as expected.
      * If selection becomes null, all nodes get deselected.
-     * @param  artifact - stateful artifact, can be null if nothing is selected
+     * @param  artifactId - id of an artifact
      */
-    private setSelectedNode(artifact: IStatefulArtifact) {
-        if (!artifact) {
-            if (this.treeApi) {
-                this.selected = undefined;
-                this.treeApi.deselectAll();
-            }
-            return;
-        }
-
-        const artifactId = artifact.id;
-        if (this.isLoading) {
-            this.pendingSelectedArtifactId = artifactId;
-        } else if (this.treeApi.setSelected((vm: ExplorerNodeVM) => vm.model.id === artifactId)) {
-            this.treeApi.ensureNodeVisible((vm: ExplorerNodeVM) => vm.model.id === artifactId);
-        } else {
-            this.treeApi.deselectAll();
-        }
-    }
-
-    private selected: ExplorerNodeVM;
-    private isLoading: boolean;
-    private pendingSelectedArtifactId: number;
-
-    // private onLoadProject(projects: ExplorerNodeVM[]) {
-    //     this.isLoading = true;
-    //     this.projects = projects.slice(0); // create a copy
+    // private setSelectedNode(artifactId: number) {
+    //     this.$log.debug("setSelectedNode: " + artifactId);
+    //
+    //     if (!_.isFinite(artifactId)) {
+    //         if (this.treeApi) {
+    //             // this.selected = undefined;
+    //             this.treeApi.deselectAll();
+    //         }
+    //         return;
+    //     }
+    //
+    //     if (this.isLoading) {
+    //         this.pendingSelectedArtifactId = artifactId;
+    //     } else if (this.treeApi.setSelected((vm: ExplorerNodeVM) => vm.model.id === artifactId)) {
+    //         this.treeApi.ensureNodeVisible((vm: ExplorerNodeVM) => vm.model.id === artifactId);
+    //     } else {
+    //         this.treeApi.deselectAll();
+    //     }
     // }
 
     public isProjectTreeVisible(): boolean {
@@ -187,10 +175,23 @@ export class ProjectExplorerController implements IProjectExplorerController {
     //     }
     // };
 
-    private onSelectedArtifactChange(changes: IItemChangeSet) {
+    public onGridReset(isExpanding: boolean): void {
+        this.$log.debug("onGridReset: " + isExpanding);
+
+        // if (_.isFinite(this.projectExplorerService.selectedNodeId)) {
+        //     this.treeApi.setSelected((vm: ExplorerNodeVM) => vm.model.id === this.projectExplorerService.selectedNodeId);
+        //     this.treeApi.ensureNodeVisible((vm: ExplorerNodeVM) => vm.model.id === this.projectExplorerService.selectedNodeId);
+        // } else {
+        //     this.treeApi.deselectAll();
+        // }
+    }
+
+    private onSelectedArtifactPropertyChange(changes: IItemChangeSet) {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
         if (changes.item && changes.change) {
+            this.$log.debug("onSelectedArtifactPropertyChange");
+
             this.treeApi.refreshRows((vm: ExplorerNodeVM) => {
                 if (vm.model.id === changes.item.id) {
                     if (changes.change.key in vm.model) {
@@ -205,7 +206,6 @@ export class ProjectExplorerController implements IProjectExplorerController {
 
     // BpTree bindings
     public treeApi: IBPTreeViewControllerApi;
-    // public projects: ExplorerNodeVM[];
     public columns: IColumn[] = [{
         cellClass: (vm: ExplorerNodeVM) => vm.getCellClass(),
         isGroup: true,
@@ -218,13 +218,14 @@ export class ProjectExplorerController implements IProjectExplorerController {
         }
     }];
 
-    private resettingSelection: boolean;
-
     public onSelect = (vm: ExplorerNodeVM, isSelected: boolean): void => {
-        if (!this.resettingSelection && isSelected) {
+        this.$log.debug("onSelect");
+        // this.treeApi.setSelected((node: ExplorerNodeVM) => node.model.id === vm.model.id);
+
+        /*if (!this.resettingSelection && isSelected) {
             //Following has to be a const to restore current selection in case of faling navigation
-            const prevSelected = this.selected;
-            this.selected = vm;
+            // const prevSelected = this.selected;
+            // this.selected = vm;
             // this.navigationService.navigateTo({id: vm.model.id})
             //     .catch((err) => {
             //         this.resettingSelection = true;
@@ -232,5 +233,16 @@ export class ProjectExplorerController implements IProjectExplorerController {
             //     });
         }
         this.resettingSelection = false;
+        */
     };
+
+    public setSelectedNode() {
+        const selectedId = this.projectExplorerService.selectedId;
+        if (_.isFinite(selectedId) && this.treeApi.setSelected((vm: ExplorerNodeVM) => vm.model.id === selectedId)) {
+            this.treeApi.ensureNodeVisible((vm: ExplorerNodeVM) => vm.model.id === selectedId);
+            return;
+        }
+
+        this.treeApi.deselectAll();
+    }
 }

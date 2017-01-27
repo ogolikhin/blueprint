@@ -12,9 +12,11 @@ import {OpenProjectController} from "../dialogs/open-project/open-project";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IArtifact} from "../../models/models";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 
 export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];
+    selectedId: number;
 
     add(projectId: number): ng.IPromise<void>;
 
@@ -31,12 +33,14 @@ export interface IProjectExplorerService {
 export class ProjectExplorerService implements IProjectExplorerService {
     private factory: TreeNodeVMFactory;
     public projects: ExplorerNodeVM[];
+    public selectedId: number;
 
     static $inject = [
         "$q",
         "$timeout",
         "$log",
         "localization",
+        "navigationService",
         "selectionManager",
         "loadingOverlayService",
         "dialogService",
@@ -49,6 +53,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 private $timeout: ng.ITimeoutService,
                 private $log: ng.ILogService,
                 private localization: ILocalizationService,
+                private navigationService: INavigationService,
                 private selectionManager: ISelectionManager,
                 private loadingOverlayService: ILoadingOverlayService,
                 private dialogService: IDialogService,
@@ -82,10 +87,10 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 return this.metadataService.get(projectId)
                     .then(() => {
                         projectNode = this.factory.createExplorerNodeVM(project, true);
+                        this.selectedId = projectNode.model.id;
                         this.projects.unshift(projectNode);
                         this.triggerProjectsUpdate();
-                        // immutable unshift
-                        // this.projects = [projectNode, ...this.projects];
+                        this.navigationService.navigateTo({id: projectId});
 
                     }).catch((err: any) => {
                         if (err) {

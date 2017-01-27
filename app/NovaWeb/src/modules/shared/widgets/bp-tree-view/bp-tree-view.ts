@@ -33,11 +33,13 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         selectionMode: "<",
         rowHeight: "<",
         rowData: "<",
+        selectedId: "<?",
         rootNodeVisible: "<",
         columns: "<",
         headerHeight: "<",
         sizeColumnsToFit: "<",
         // Output
+        setSelection: "&?",
         onSelect: "&?",
         onDoubleClick: "&?",
         onGridReset: "&?"
@@ -52,9 +54,11 @@ export interface IBPTreeViewController extends ng.IComponentController {
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
     rowData: ITreeNode[];
+    selectedId: number;
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
+    setSelection: () => void;
     onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeNode}) => void;
     onGridReset: (param: {isExpanding: boolean}) => void;
@@ -128,10 +132,12 @@ export class BPTreeViewController implements IBPTreeViewController {
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
     public rowData: ITreeNode[];
+    public selectedId: number;
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
     public sizeColumnsToFit: boolean;
+    public setSelection: () => void;
     public onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeNode}) => void;
     public onGridReset: (param: {isExpanding: boolean}) => void;
@@ -208,7 +214,12 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (onChangesObj["selectionMode"] || onChangesObj["rowData"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
+        if (onChangesObj["selectionMode"]
+            || onChangesObj["rowData"]
+            || onChangesObj["rootNodeVisible"]
+            || onChangesObj["columns"]
+            || onChangesObj["selectedId"]) {
+
             this.resetGridAsync(false, 0);
         }
     }
@@ -355,9 +366,12 @@ export class BPTreeViewController implements IBPTreeViewController {
                         if (_.isFunction(this.onGridReset)) {
                             this.onGridReset({isExpanding: isExpanding});
                         }
+
+                        if (_.isFunction(this.setSelection)) {
+                            this.setSelection();
+                        }
                     });
             }
-
         }
         return this.$q.resolve();
     }

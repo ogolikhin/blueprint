@@ -172,6 +172,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             var deleteArtifactResults = DeleteArtifact(
+                Address,
                 this,
                 user,
                 expectedStatusCodes,
@@ -185,6 +186,7 @@ namespace Model.ArtifactModel.Impl
         /// Delete a single artifact on Blueprint server.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
         /// </summary>
+        /// <param name="address">The base address of the Blueprint server.</param>
         /// <param name="artifactToDelete">The list of artifacts to delete</param>
         /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>
@@ -192,7 +194,8 @@ namespace Model.ArtifactModel.Impl
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDelete,
+        public static List<DeleteArtifactResult> DeleteArtifact(string address,
+            IArtifactBase artifactToDelete,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
@@ -201,39 +204,10 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToDelete, nameof(artifactToDelete));
 
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifactToDelete.ProjectId, artifactToDelete.Id);
+            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
 
-            var queryparameters = new Dictionary<string, string>();
-
-            if (deleteChildren ?? artifactToDelete.ShouldDeleteChildren)
-            {
-                Logger.WriteDebug("*** Recursively deleting children for artifact ID: {0}.", artifactToDelete.Id);
-                queryparameters.Add("Recursively", "true");
-            }
-
-            var restApi = new RestApiFacade(artifactToDelete.Address, tokenValue);
-            var response = restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.DELETE,
-                queryParameters: queryparameters,
-                expectedStatusCodes: expectedStatusCodes);
-
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var artifactResults = JsonConvert.DeserializeObject<List<DeleteArtifactResult>>(response.Content);
-            ArtifactBase artifaceBaseToDelete = artifactToDelete as ArtifactBase;
+            var artifactResults = OpenApi.DeleteArtifact(address, artifactToDelete, user, expectedStatusCodes, sendAuthorizationAsCookie, deleteChildren);
 
             foreach (var deletedArtifactResult in artifactResults)
             {

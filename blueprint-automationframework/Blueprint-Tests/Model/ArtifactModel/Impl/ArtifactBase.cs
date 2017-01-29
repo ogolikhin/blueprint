@@ -160,6 +160,7 @@ namespace Model.ArtifactModel.Impl
 
         public List<DeleteArtifactResult> DeletedArtifactResults { get; } = new List<DeleteArtifactResult>();
 
+        /// <seealso cref="IArtifactBase.Delete(IUser, List{HttpStatusCode}, bool, bool?)"/>
         public virtual List<DeleteArtifactResult> Delete(IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false,
@@ -171,69 +172,12 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            var deleteArtifactResults = DeleteArtifact(
-                Address,
-                this,
-                user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie,
-                deleteChildren ?? ShouldDeleteChildren);
+            var deleteArtifactResults = OpenApi.DeleteArtifact(Address, this, user,
+                expectedStatusCodes: expectedStatusCodes,
+                sendAuthorizationAsCookie: sendAuthorizationAsCookie,
+                deleteChildren: deleteChildren ?? ShouldDeleteChildren);
 
             return deleteArtifactResults;
-        }
-
-        /// <summary>
-        /// Delete a single artifact on Blueprint server.
-        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
-        /// </summary>
-        /// <param name="address">The base address of the Blueprint server.</param>
-        /// <param name="artifactToDelete">The list of artifacts to delete</param>
-        /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
-        /// of the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(string address,
-            IArtifactBase artifactToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool? deleteChildren = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactToDelete, nameof(artifactToDelete));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifactToDelete.ProjectId, artifactToDelete.Id);
-            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
-
-            var artifactResults = OpenApi.DeleteArtifact(address, artifactToDelete, user, expectedStatusCodes, sendAuthorizationAsCookie, deleteChildren);
-
-            foreach (var deletedArtifactResult in artifactResults)
-            {
-                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
-                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
-
-                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
-                {
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
-                    {
-                        if (artifactToDelete.IsPublished)
-                        {
-                            artifactToDelete.IsMarkedForDeletion = true;
-                            artifaceBaseToDelete.LockOwner = user;
-                        }
-                        else
-                        {
-                            artifactToDelete.IsDeleted = true;
-                        }
-                    }
-                }
-            }
-
-            return artifactResults;
         }
 
         #endregion Delete methods

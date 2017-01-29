@@ -164,7 +164,49 @@ namespace Model.Impl
 
             var artifactResults = JsonConvert.DeserializeObject<List<DeleteArtifactResult>>(response.Content);
 
+            // For all artifacts that were deleted, update their internal flags to indicate they're marked for deletion.
+            UpdateStateOfDeletedArtifacts(artifactResults, artifactToDelete, user, path);
+
             return artifactResults;
+        }
+
+        /// <summary>
+        /// Updates the internal flags of all artifacts affected by the deleted artifact to indicate they are now marked for deletion.
+        /// </summary>
+        /// <param name="artifactResults">The results of the OpenAPI delete artifact call.</param>
+        /// <param name="artifactToDelete">The main artifact that was deleted.</param>
+        /// <param name="user">The user who deleted the artifact(s).</param>
+        /// <param name="path">The path of the delete REST call.</param>
+        private static void UpdateStateOfDeletedArtifacts(List<DeleteArtifactResult> artifactResults,
+            IArtifactBase artifactToDelete,
+            IUser user,
+            string path)
+        {
+            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
+
+            foreach (var deletedArtifactResult in artifactResults)
+            {
+                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
+                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
+
+                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
+                {
+                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
+                    {
+                        if (artifactToDelete.IsPublished)
+                        {
+                            artifactToDelete.IsMarkedForDeletion = true;
+                            artifaceBaseToDelete.LockOwner = user;
+                        }
+                        else
+                        {
+                            artifactToDelete.IsDeleted = true;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

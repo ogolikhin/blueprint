@@ -59,7 +59,7 @@ namespace Model.ArtifactModel
             IUser user,
             bool? getStatus = null,
             bool? getComments = null,
-            OpenApiArtifact.ArtifactTraceType? getTraces = null,
+            OpenApiTraceTypes? getTraces = null,
             bool? getAttachments = null,
             bool? richTextAsPlain = null,
             bool? getInlineCSS = null,

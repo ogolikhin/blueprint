@@ -646,7 +646,9 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null,
             bool sendAuthorizationAsCookie = false)
         {
-            return OpenApiArtifact.GetVersion(artifact, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            return OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes, sendAuthorizationAsCookie);
         }
 
         /// <summary>

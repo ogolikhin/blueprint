@@ -442,7 +442,7 @@ namespace Model.StorytellerModel.Impl
             return updatedProcess;
         }
 
-        public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
 
@@ -456,12 +456,12 @@ namespace Model.StorytellerModel.Impl
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
 
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcessUpdateResult, NovaProcess>(
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, NovaProcess>(
                 path,
                 RestRequestMethod.PATCH,
                 novaProcess,
                 expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                shouldControlJsonChanges: false);
 
             return restResponse;
         }

@@ -20,6 +20,7 @@ namespace ArtifactStoreTests
     public class ActorPropertiesTests : TestBase
     {
         private IUser _user = null;
+        private IUser _author = null;
 
         private IProject _project = null;
         private List<IProject> _allProjects = null;
@@ -38,6 +39,7 @@ namespace ArtifactStoreTests
             _allProjects = ProjectFactory.GetAllProjects(_user);
             _project = _allProjects.First();
             _project.GetAllOpenApiArtifactTypes(ProjectFactory.Address, _user);
+            _author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
         }
 
         [TearDown]
@@ -80,12 +82,11 @@ namespace ArtifactStoreTests
             // Setup:
             var baseActor= Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute & Verify:
-            Assert.DoesNotThrow(() => SetActorInheritance(actor, baseActor, author), "Saving artifact shouldn't throw any exception, but it does.");
-            CheckActorHasExpectedActorInheritace(actor, baseActor, author);
-            CheckActorHasExpectedTraces(actor, baseActor, author);
+            Assert.DoesNotThrow(() => SetActorInheritance(actor, baseActor, _author), "Saving artifact shouldn't throw any exception, but it does.");
+            CheckActorHasExpectedActorInheritace(actor, baseActor, _author);
+            CheckActorHasExpectedTraces(actor, baseActor, _author);
         }
 
         [TestCase]
@@ -96,13 +97,12 @@ namespace ArtifactStoreTests
             // Setup:
             var baseActor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-            SetActorInheritance(actor, baseActor, author);
+            SetActorInheritance(actor, baseActor, _author);
 
             // Execute & Verify:
-            Assert.DoesNotThrow(() => DeleteActorInheritance(actor, author), "Deleting Actor inheritance shouldn't throw any exception, but it does.");
-            CheckActorHasNoActorInheritace(actor, author);
-            CheckActorHasNoOtherTraces(actor, author);
+            Assert.DoesNotThrow(() => DeleteActorInheritance(actor, _author), "Deleting Actor inheritance shouldn't throw any exception, but it does.");
+            CheckActorHasNoActorInheritace(actor, _author);
+            CheckActorHasNoOtherTraces(actor, _author);
         }
 
         [TestCase]
@@ -111,35 +111,95 @@ namespace ArtifactStoreTests
         public void SetActorIcon_Actor_ValidateReturnedActorIcon()
         {
             // Setup:
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-
-            // TODO: function to add Actor icon
-            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
-            DateTime expireTime = DateTime.Now.AddDays(2);
-            var uploadedFile = Helper.FileStore.AddFile(imageFile, author, expireTime: expireTime, useMultiPartMime: true);
+            var imageFile = CreateAndUploadRandomImageFile(_author);
 
             var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+            actor.Lock(_author);
+
+            // Execute & Verify:
+            SetActorIconAndValidate(_author, actor, imageFile);
+        }
+
+        [TestCase]
+        [TestRail(234413)]
+        [Description("Create and save Actor, set one Actor icon, check that icon has expected values.")]
+        public void SetActorIcon_NeverPublishedActor_ValidateReturnedActorIcon()
+        {
+            // Setup:
+            var imageFile = CreateAndUploadRandomImageFile(_author);
+
+            var actor = Helper.CreateAndSaveArtifact(_project, _author, BaseArtifactType.Actor);
+            actor.Lock(_author);
+
+            // Execute & Verify:
+            SetActorIconAndValidate(_author, actor, imageFile);
+        }
+        
+        [TestCase]
+        [TestRail(234389)]
+        [Description("Create and publish Actor, set one Actor icon, delete Actor icon, check that Actor has no icon.")]
+        public void DeleteActorIcon_ActorWithIcon_ValidateActorHasNoIcon()
+        {
+            // Setup:
+            var imageFile = CreateAndUploadRandomImageFile(_author);
+
+            var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            actor.Lock(_author);
+            SetActorIconAndValidate(_author, actor, imageFile);
+
+            // Execute & Verify:
+            DeleteActorIconAndValidate(_author, actor);
+        }
+
+
+        [TestCase]
+        [TestRail(234417)]
+        [Description("Create Actor, set Actor icon, publish it, delete Actor icon, publish changes, check that icon has expected values for version 1.")]
+        public void GetActorIconWithVersion2_ActorWithIconVersionTwo_IconDeletedVersionThree_ValidateActorIcon()
+        {
+            // Setup:
+            var imageFile = CreateAndUploadRandomImageFile(_author);
+
+            var actor = Helper.CreateAndPublishArtifact(_project, _author, BaseArtifactType.Actor);
+            actor.Lock(_author);
+            SetActorIconAndValidate(_author, actor, imageFile);
+            actor.Publish(_author);
+            actor.Lock(_author);
+            DeleteActorIconAndValidate(_author, actor);
+            actor.Publish(_author);
 
             // Execute:
-
-            var actorIcon = new ActorIconValue();
-            actorIcon.SetIcon(uploadedFile.Guid);
-            actorDetails.ActorIcon = actorIcon;
-            actor.Lock(author);
-            Artifact.UpdateArtifact(actor, author, actorDetails, address: Helper.BlueprintServer.Address);
-            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(author, actor.Id);
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(_author, actor.Id, versionId: 2);
 
             // Verify:
-            // TODO: function to validate Actor icon
-            string iconAddress = actorDetails.ActorIcon.GetIconAddress();
-            StringAssert.Contains(actor.Id.ToStringInvariant(), iconAddress, "iconAddress should contain artifact ID");
-            StringAssert.Contains("versionId=1", iconAddress, "iconAddress should contain proper versionID");
+            ValidateActorIcon(_author, actorDetails, isHistoricalVersion: true);
+        }
+
+        [TestCase]
+        [TestRail(234419)]
+        [Description("Create Actor, set Actor icon, publish it, delete Actor, publish changes, try to get Icon for version 1.")]
+        public void GetHistoricalVersionActorIcon_DeletedActor_ValidateActorIcon()
+        {
+            // Setup:
+            var imageFile = CreateAndUploadRandomImageFile(_author);
+
+            var actor = Helper.CreateAndPublishArtifact(_project, _author, BaseArtifactType.Actor);
+            actor.Lock(_author);
+            SetActorIconAndValidate(_author, actor, imageFile);
+            actor.Publish(_author);
+            actor.Delete(_author);
+            actor.Publish(_author);
+
+            // Execute:
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(_author, actor.Id, versionId: 2);
+
+            // Verify:
+            ValidateActorIcon(_author, actorDetails, isHistoricalVersion: true);
         }
 
         #endregion 200 OK Tests
 
-        #region 409 Conflict Tests
+        #region 40x Conflict Tests
 
         [TestCase]
         [TestRail(182332)]
@@ -149,16 +209,39 @@ namespace ArtifactStoreTests
             // Setup:
             var actor1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             var actor2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            SetActorInheritance(actor2, actor1, author);
+            SetActorInheritance(actor2, actor1, _author);
 
             // Execute & Verify:
-            Assert.Throws<Http409ConflictException>(() => SetActorInheritance(actor1, actor2, author),
+            var ex = Assert.Throws<Http409ConflictException>(() => SetActorInheritance(actor1, actor2, _author),
                 "Attempt to create cyclic reference Actor1 -> Actor2 -> Actor1 should throw 409, but it doesn't.");
+
+            const string expectedMessage = "Cannot set the selected Actor as the Base Actor because it results in a cyclic reference.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship, expectedMessage);
         }
 
-        #endregion 409 Conflict Tests
+        [TestCase]
+        [TestRail(234412)]
+        [Description("Create and publish Actor, set one Actor icon, check that icon has expected values.")]
+        public void SetActorIcon_DeletedFile_Validate404()
+        {
+            // Setup:
+            var imageFile = CreateAndUploadRandomImageFile(_author);
+            Helper.FileStore.DeleteFile(imageFile.Guid, _author);
+
+            var actor = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            actor.Lock(_author);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http404NotFoundException>(() => SetActorIconAndValidate(_author, actor, imageFile),
+                "Attempt to use deleted file should throw 404, but it doesn't.");
+
+            const string expectedMessage = "File with ID:{0} does not exist";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant(expectedMessage, imageFile.Guid));
+        }
+
+        #endregion 40x Conflict Tests
 
         #region Private Functions
 
@@ -257,6 +340,105 @@ namespace ArtifactStoreTests
         {
             var actorRelationships = Helper.ArtifactStore.GetRelationships(user, actor);
             Assert.AreEqual(0, actorRelationships.OtherTraces.Count, "Actor shouldn't have 'other' traces, but it has.");
+        }
+
+        /// <summary>
+        /// Creates and uploads to FileStore random image file.
+        /// </summary>
+        /// <param name="user">User to perform operation.</param>
+        private IFile CreateAndUploadRandomImageFile(IUser user)
+        {
+            var imageFile = ArtifactStoreHelper.CreateRandomImageFile();
+            DateTime expireTime = DateTime.Now.AddDays(2);
+            var uploadedFile = Helper.FileStore.AddFile(imageFile, user, expireTime: expireTime, useMultiPartMime: true);
+            return uploadedFile;
+        }
+
+        /// <summary>
+        /// Set Actor Icon via UpdateArtifact. Artifact should be locked.
+        /// </summary>
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="actorArtifact">Actor artifact to set icon.</param>
+        /// <param name="imageFile">Icon image file.</param>
+        /// <returns>Actor details</returns>
+        private Actor SetActorIconAndValidate(IUser user, IArtifact actorArtifact, IFile imageFile)
+        {
+            // Setup & Execute:
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actorArtifact.Id);
+            var actorIcon = new ActorIconValue();
+            actorIcon.SetIcon(imageFile.Guid);
+            actorDetails.ActorIcon = actorIcon;
+            Artifact.UpdateArtifact(actorArtifact, user, actorDetails, address: Helper.BlueprintServer.Address);
+            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actorArtifact.Id);
+
+            // Verify:
+            Assert.IsNotNull(actorDetails.ActorIcon, "ActorIcon shouldn't be empty");
+
+            ValidateActorIcon(user, actorDetails);
+
+            var expirationTime = Helper.FileStore.GetSQLExpiredTime(imageFile.Guid);
+            Assert.IsNotNull(expirationTime, "After saving ExpiredTime for file should be current time.");
+            Assert.IsTrue(DateTimeUtilities.CompareTimePlusOrMinus(expirationTime.Value, actorDetails.LastSavedOn.Value, 1),
+                "ExpirationTime should have expected value.");
+            return actorDetails;
+        }
+
+        /// <summary>
+        /// Delete Actor Icon via UpdateArtifact. Artifact should be locked.
+        /// </summary>
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="actorArtifact">Actor artifact to delete icon.</param>
+        /// <returns>Actor details</returns>
+        private Actor DeleteActorIconAndValidate(IUser user, IArtifact actorArtifact)
+        {
+            // Setup & Execute:
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actorArtifact.Id);
+            actorDetails.ActorIcon = null;
+            Artifact.UpdateArtifact(actorArtifact, user, actorDetails, address: Helper.BlueprintServer.Address);
+            actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actorArtifact.Id);
+
+            // Verify:
+            Assert.IsNull(actorDetails.ActorIcon, "ActorIcon should be null");
+
+            return actorDetails;
+        }
+
+        /// <summary>
+        /// Validates Actor's icon. Checks that icons url has expected format
+        /// </summary>
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="actorDetails">Actor details</param>
+        /// <param name="isHistoricalVersion">(optional) true if actorDetails is for historical version. false by default.</param>
+        private void ValidateActorIcon(IUser user, Actor actorDetails, bool isHistoricalVersion = false)
+        {
+            string iconAddress = actorDetails.ActorIcon.GetIconAddress();
+
+            int? versionNumber = (actorDetails.Version == -1) ? null : actorDetails.Version;
+
+            string expectedIconAddress;
+            if (isHistoricalVersion)
+            {
+                expectedIconAddress = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_ +
+                "?versionId={1}", actorDetails.Id, versionNumber);
+            }
+            else
+            {
+                expectedIconAddress = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_ +
+                "?versionId={1}&addDraft=true&lastSavedTimestamp=", actorDetails.Id, versionNumber);
+            }
+
+            if (isHistoricalVersion)
+            {
+                Assert.AreEqual(expectedIconAddress, iconAddress, "Icon address should have expected format.");
+            }
+            else
+            {
+                StringAssert.StartsWith(expectedIconAddress, iconAddress, "Icon address should have expected format.");
+            }
+
+            // TODO: add get size (resolution) support for image files. Currently server changes original image size to 90*90 and compress it.
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.GetActorIcon(user, actorDetails.Id, versionNumber),
+                "Getting ActorIcon shouldn't throw an error.");
         }
 
         #endregion Private Functions

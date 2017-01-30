@@ -584,19 +584,11 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
         public IFile GetActorIcon(IUser user, int actorArtifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_, actorArtifactId,
-                versionId?.ToStringInvariant() ?? string.Empty);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_, actorArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            Dictionary<string, string> queryParams = null;
-            if (versionId != null)
-            {
-                queryParams = new Dictionary<string, string> { { "versionId", versionId.ToString() } };
-            }
-            else
-            {
-                queryParams = new Dictionary<string, string> { { "versionId", string.Empty } };
-            }
+            Dictionary<string, string> queryParams = new Dictionary<string, string>{{"versionId", versionId?.ToStringInvariant() ??
+                string.Empty}};
 
             queryParams.Add("addDraft", "true");
 

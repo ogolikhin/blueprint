@@ -167,6 +167,7 @@ namespace Model
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class ArtifactStore
             {
+                public const string ACTORICON_id_                   = "svc/bpartifactstore/diagram/actoricon/{0}";
                 public const string ARTIFACTS                       = "svc/bpartifactstore/artifacts";      // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string COLLECTION_id_                  = "svc/bpartifactstore/collection/{0}"; // Collection
@@ -179,7 +180,6 @@ namespace Model
                 public const string PROCESSUPDATE_id_               = "svc/bpartifactstore/processupdate/{0}";  // NovaProcessController.UpdateNovaProcess
                 public const string STATUS                          = "svc/artifactstore/status";
                 public const string USECASE_id_                     = "svc/bpartifactstore/usecase/{0}";    // NovaUseCaseController.GetUseCase
-                public const string ACTORICON_id_                   = "svc/bpartifactstore/diagram/actoricon/{0}";
 
                 public static class Artifacts
                 {

@@ -138,7 +138,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(234389)]
         [Description("Create and publish Actor, set one Actor icon, delete Actor icon, check that Actor has no icon.")]
-        public void DeleteActorIcon_ActorWithIcon_ValidateReturnedActorIcon()
+        public void DeleteActorIcon_ActorWithIcon_ValidateActorHasNoIcon()
         {
             // Setup:
             var imageFile = CreateAndUploadRandomImageFile(_author);
@@ -155,12 +155,12 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(234417)]
         [Description("Create Actor, set Actor icon, publish it, delete Actor icon, publish changes, check that icon has expected values for version 1.")]
-        public void GetActorIcon_ActorWithIconVersionOne_IconDeletedVersionTwo_ValidateActorIcon()
+        public void GetActorIconWithVersion2_ActorWithIconVersionTwo_IconDeletedVersionThree_ValidateActorIcon()
         {
             // Setup:
             var imageFile = CreateAndUploadRandomImageFile(_author);
 
-            var actor = Helper.CreateAndSaveArtifact(_project, _author, BaseArtifactType.Actor);
+            var actor = Helper.CreateAndPublishArtifact(_project, _author, BaseArtifactType.Actor);
             actor.Lock(_author);
             SetActorIconAndValidate(_author, actor, imageFile);
             actor.Publish(_author);
@@ -169,7 +169,7 @@ namespace ArtifactStoreTests
             actor.Publish(_author);
 
             // Execute:
-            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(_author, actor.Id, versionId: 1);
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(_author, actor.Id, versionId: 2);
 
             // Verify:
             ValidateActorIcon(_author, actorDetails, isHistoricalVersion: true);
@@ -213,8 +213,11 @@ namespace ArtifactStoreTests
             SetActorInheritance(actor2, actor1, _author);
 
             // Execute & Verify:
-            Assert.Throws<Http409ConflictException>(() => SetActorInheritance(actor1, actor2, _author),
+            var ex = Assert.Throws<Http409ConflictException>(() => SetActorInheritance(actor1, actor2, _author),
                 "Attempt to create cyclic reference Actor1 -> Actor2 -> Actor1 should throw 409, but it doesn't.");
+
+            const string expectedMessage = "Cannot set the selected Actor as the Base Actor because it results in a cyclic reference.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CycleRelationship, expectedMessage);
         }
 
         [TestCase]
@@ -230,8 +233,12 @@ namespace ArtifactStoreTests
             actor.Lock(_author);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => SetActorIconAndValidate(_author, actor, imageFile),
+            var ex = Assert.Throws<Http404NotFoundException>(() => SetActorIconAndValidate(_author, actor, imageFile),
                 "Attempt to use deleted file should throw 404, but it doesn't.");
+
+            const string expectedMessage = "File with ID:{0} does not exist";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant(expectedMessage, imageFile.Guid));
         }
 
         #endregion 40x Conflict Tests
@@ -353,7 +360,6 @@ namespace ArtifactStoreTests
         /// <param name="user">User to perform operation.</param>
         /// <param name="actorArtifact">Actor artifact to set icon.</param>
         /// <param name="imageFile">Icon image file.</param>
-        /// <param name="expectedVersionNumber">(optional)Expected version number. Pass null for never published artifact. 1 by default.</param>
         /// <returns>Actor details</returns>
         private Actor SetActorIconAndValidate(IUser user, IArtifact actorArtifact, IFile imageFile)
         {
@@ -397,6 +403,12 @@ namespace ArtifactStoreTests
             return actorDetails;
         }
 
+        /// <summary>
+        /// Validates Actor's icon. Checks that icons url has expected format
+        /// </summary>
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="actorDetails">Actor details</param>
+        /// <param name="isHistoricalVersion">(optional) true if actorDetails is for historical version. false by default.</param>
         private void ValidateActorIcon(IUser user, Actor actorDetails, bool isHistoricalVersion = false)
         {
             string iconAddress = actorDetails.ActorIcon.GetIconAddress();
@@ -415,7 +427,14 @@ namespace ArtifactStoreTests
                 "?versionId={1}&addDraft=true&lastSavedTimestamp=", actorDetails.Id, versionNumber);
             }
 
-            StringAssert.StartsWith(expectedIconAddress, iconAddress, "Icon address should have expected format.");
+            if (isHistoricalVersion)
+            {
+                Assert.AreEqual(expectedIconAddress, iconAddress, "Icon address should have expected format.");
+            }
+            else
+            {
+                StringAssert.StartsWith(expectedIconAddress, iconAddress, "Icon address should have expected format.");
+            }
 
             // TODO: add get size (resolution) support for image files. Currently server changes original image size to 90*90 and compress it.
             Assert.DoesNotThrow(() => Helper.ArtifactStore.GetActorIcon(user, actorDetails.Id, versionNumber),

@@ -53,7 +53,7 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <typeparam name="T">Type of specific property value</typeparam>
         /// <param name="propertyType">Property type to use for search in SpecificPropertyValues list</param>
-        /// <returns></returns>
+        /// <returns>Specific Property Value</returns>
         private T GetSpecificPropertyValue<T>(PropertyTypePredefined propertyType)
         {
             var specificProperty = SpecificPropertyValues.FirstOrDefault(

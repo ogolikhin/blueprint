@@ -479,7 +479,7 @@ namespace Model
         /// <param name="actorArtifactId">Id of artifact or sub-artifact.</param>
         /// <param name="versionId">Id of version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>IFile repsenting Actor's icon</returns>
+        /// <returns>IFile representing Actor's icon</returns>
         IFile GetActorIcon(IUser user, int actorArtifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

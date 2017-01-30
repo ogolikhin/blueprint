@@ -429,7 +429,7 @@ namespace Model.ArtifactModel.Impl
             IUser user,
             bool? getStatus = null,
             bool? getComments = null,
-            ArtifactTraceType? getTraces = null,
+            OpenApiTraceTypes? getTraces = null,
             bool? getAttachments = null,
             bool? richTextAsPlain = null,
             bool? getInlineCSS = null,

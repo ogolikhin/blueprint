@@ -86,7 +86,7 @@ namespace Model.Impl
             // Retrieve the artifact type list for the project 
             var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
             var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, cookies: cookies, shouldControlJsonChanges: false);
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: false);
 
             return artifactTypes;
         }

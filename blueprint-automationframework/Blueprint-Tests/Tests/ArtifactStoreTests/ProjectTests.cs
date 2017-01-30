@@ -40,23 +40,31 @@ namespace ArtifactStoreTests
 
         #region GetProjectChildrenByProjectId tests
 
-        [TestCase]
+        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(BaseArtifactType.Document)]
         [TestRail(125497)]
-        [Description("Executes Get project children call and returns 200 OK if successful")]
-        public void GetProjectChildrenByProjectId_OK()
+        [Description("Executes Get project children call after creating a artifact on the project and Verify that the returned result" +
+            "from the successful response contains the artifact.")]
+        public void GetProjectChildrenByProjectId_CreateArtifact_VerifyResultContainsTheArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            // Execute & Verify:
+            var publishedArtifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+
+            // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;
-            Assert.DoesNotThrow(() =>
-            {
-                returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, viewer);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
+            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, author),
+                "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
 
             // Verify: validate the list of artifacts returned by the REST call.
-            ArtifactStoreHelper.ValidateNovaArtifacts(_project, novaArtifactList: returnedNovaArtifactList);
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project, novaArtifacts: returnedNovaArtifactList);
+
+            var returnedNovaArtifact = returnedNovaArtifactList.Find(a => a.Id.Equals(publishedArtifact.Id));
+
+            Assert.IsNotNull(returnedNovaArtifact, "The returned result from GET {0} doesn't contain the published artifact whose Id is {1}.", PATH_PROJECT_CHILDREN, publishedArtifact.Id);
+
+            ArtifactStoreHelper.ValidateNovaArtifact(_project, returnedNovaArtifact, _project.Id);
         }
 
         [TestCase]
@@ -64,11 +72,16 @@ namespace ArtifactStoreTests
         [Description("Executes Get project children call with a non-existent project ID.  Verifies 404 Not Found is returned.")]
         public void GetProjectChildrenByProjectId_NonExistentProjectId_404NotFound()
         {
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(NON_EXISTING_PROJECT_ID, _adminUser);
             }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", PATH_PROJECT_CHILDREN);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", NON_EXISTING_PROJECT_ID);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
         [TestCase]
@@ -79,7 +92,7 @@ namespace ArtifactStoreTests
             // Setup:
             var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, userWithoutPermission);
@@ -130,16 +143,16 @@ namespace ArtifactStoreTests
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
-            // Execute & Verify:
+            // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
                 returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, viewer);
             }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", REST_ARTIFACT_CHILDREN);
 
-            // Verify: validatie the list of artifacts returned by the REST call.
+            // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
-                novaArtifactList: returnedNovaArtifactList,
+                novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifact,
                 expectedNumberOfArtifacts: 2);
         }
@@ -177,7 +190,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, artifact.Id, userWithoutPermission);
@@ -198,7 +211,7 @@ namespace ArtifactStoreTests
             var userWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             Helper.AssignProjectRolePermissionsToUser(userWithoutPermission, TestHelper.ProjectRole.None, _project, artifact);
 
-            // Execute & Verify:
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, artifact.Id, userWithoutPermission);
@@ -251,7 +264,7 @@ namespace ArtifactStoreTests
             // Save parent to create a draft.
             parentArtifact.Save();
 
-            // Execute & Verify:
+            // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
@@ -260,7 +273,7 @@ namespace ArtifactStoreTests
 
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
-                novaArtifactList: returnedNovaArtifactList,
+                novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifact,
                 expectedNumberOfArtifacts: 2);
         }
@@ -273,7 +286,7 @@ namespace ArtifactStoreTests
             // Setup:
             var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser);
 
-            // Execute & Verify:
+            // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
@@ -282,7 +295,7 @@ namespace ArtifactStoreTests
 
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
-                novaArtifactList: returnedNovaArtifactList,
+                novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifactList[1],
                 expectedNumberOfArtifacts: 1);
         }
@@ -298,7 +311,7 @@ namespace ArtifactStoreTests
             // Save second parent to create a draft.
             parentArtifactList[1].Save();
 
-            // Execute & Verify:
+            // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
@@ -307,7 +320,7 @@ namespace ArtifactStoreTests
 
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
-                novaArtifactList: returnedNovaArtifactList,
+                novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifactList[1],
                 expectedNumberOfArtifacts: 1);
         }
@@ -325,7 +338,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _adminUser);
             parentArtifactList[1].Publish();
 
-            // Execute & Verify:
+            // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;
             Assert.DoesNotThrow(() =>
             {
@@ -335,7 +348,7 @@ namespace ArtifactStoreTests
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(
                 _project,
-                novaArtifactList: returnedNovaArtifactList,
+                novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifactList[1],
                 expectedNumberOfArtifacts: 1);
         }

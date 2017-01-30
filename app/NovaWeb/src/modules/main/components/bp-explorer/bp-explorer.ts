@@ -189,13 +189,18 @@ export class ProjectExplorerController implements IProjectExplorerController {
     private onSelectedArtifactPropertyChange(changes: IItemChangeSet) {
         //If the artifact's name changes (on refresh), we refresh specific node only .
         //To prevent update treenode name while editing the artifact details, use it only for clean artifact.
-        if (changes.item && changes.change) {
-            this.$log.debug("onSelectedArtifactPropertyChange");
-
+        if (changes.item) {
             this.treeApi.refreshRows((vm: ExplorerNodeVM) => {
                 if (vm.model.id === changes.item.id) {
-                    if (changes.change.key in vm.model) {
-                        vm.model[changes.change.key] = changes.change.value;
+                    // Update the model with the changes
+                    if (changes.change) {
+                        if (changes.change.key in vm.model) {
+                            vm.model[changes.change.key] = changes.change.value;
+                        }
+                    } else {
+                        for (let key in vm.model) {
+                            vm.model[key] = changes.item[key];
+                        }
                     }
                     return true;
                 }

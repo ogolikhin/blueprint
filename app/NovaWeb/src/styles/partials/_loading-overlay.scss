@@ -2,31 +2,30 @@ bp-loading-overlay {
 
     div //apply to div instead
     {
+        background-color: rgba($white, 0);
+        height: 100%;
+        left: 0;
+        pointer-events: none;
         position: fixed;
+        top: 0;
         visibility: hidden;
-        z-index: -9001;
-        background-color: rgba(255, 255, 255, 0);
+        width: 100%;
+        z-index: $zindex-overlay;
     }
 
     //The overlay is separate from the overlay-graphic because we use a transition-delay on the graphic
     //This will slow down switching the size/visibility; but we want to prevent clicking right away.
     .overlay,
     .overlay-graphic {
-        position: fixed;
+        pointer-events: auto;
         visibility: visible;
-        z-index: 9000;
-
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
     }
 
     .overlay-graphic {
-        background-color: rgba(255, 255, 255, 0.8);
+        background-color: rgba($white, .8);
 
-        transition-delay: 0.2s;
-        transition-duration: 1.0s;
+        transition-delay: .2s;
+        transition-duration: 1s;
         transition-property: all;
         transition-timing-function: linear;
 
@@ -38,7 +37,7 @@ bp-loading-overlay {
             width: 100%;
             text-align: center;
 
-            color: black;
+            color: $black;
             font-size: 50px;
 
             -webkit-user-select: none;

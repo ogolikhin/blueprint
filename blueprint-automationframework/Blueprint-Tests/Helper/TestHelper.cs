@@ -838,7 +838,7 @@ namespace Helper
 
             var project = allProjects.First(p => (p.Name == projectName));
             project.GetAllNovaArtifactTypes(ArtifactStore, user);
-            project.GetAllArtifactTypes(ProjectFactory.Address, user);
+            project.GetAllOpenApiArtifactTypes(ProjectFactory.Address, user);
 
             return project;
         }

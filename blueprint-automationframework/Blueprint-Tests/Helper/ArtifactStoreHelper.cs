@@ -884,7 +884,7 @@ namespace Helper
                 "No project was found named '{0}'!", customDataProjectName);
 
             var projectCustomData = allProjects.First(p => (p.Name == customDataProjectName));
-            projectCustomData.GetAllArtifactTypes(ProjectFactory.Address, user);
+            projectCustomData.GetAllOpenApiArtifactTypes(ProjectFactory.Address, user);
 
             return projectCustomData;
         }

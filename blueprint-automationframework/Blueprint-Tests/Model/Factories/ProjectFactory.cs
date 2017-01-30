@@ -49,21 +49,17 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string path = RestPaths.OpenApi.PROJECTS;
-
-            var restApi = new RestApiFacade(Address, user.Token?.OpenApiToken);
-            var expectedStatusCodes = new List<HttpStatusCode>() { HttpStatusCode.OK, HttpStatusCode.PartialContent };
-            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            var projects = OpenApi.GetProjects(Address, user);
 
             if (shouldRetrievePropertyTypes)
             {
                 foreach (var project in projects)
                 {
-                    project.GetAllArtifactTypes(Address, user);
+                    project.GetAllOpenApiArtifactTypes(Address, user);
                 }
             }
 
-            return projects.ConvertAll(o => (IProject)o);
+            return projects;
         }
 
         /// <summary>
@@ -94,7 +90,7 @@ namespace Model.Factories
 
             if (shouldRetrieveArtifactTypes)
             {
-                project.GetAllArtifactTypes(address: Address, user: user,
+                project.GetAllOpenApiArtifactTypes(address: Address, user: user,
                     shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
             }
 
@@ -132,7 +128,7 @@ namespace Model.Factories
             {
                 foreach (var project in projects)
                 {
-                    project.GetAllArtifactTypes(address: Address, user: user,
+                    project.GetAllOpenApiArtifactTypes(address: Address, user: user,
                         shouldRetrievePropertyTypes: shouldRetrievePropertyTypes);
                 }
             }

@@ -460,8 +460,7 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should only be {0} published artifact returned!", allArtifacts.Count);
 
-                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                    publishResponse, allArtifacts, expectedVersion: 1);
+                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, allArtifacts, expectedVersion: 1);
             }
             finally
             {
@@ -491,8 +490,7 @@ namespace ArtifactStoreTests
 
             try
             {
-                Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -500,8 +498,7 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(savedArtifacts.Count, publishResponse.Artifacts.Count,
                     "There should only be {0} published artifact returned!", savedArtifacts.Count);
 
-                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                    publishResponse, savedArtifacts, expectedVersion: 1);
+                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, savedArtifacts, expectedVersion: 1);
 
                 AssertArtifactsVersionEquals(publishedArtifacts, expectedVersion: 1);
             }
@@ -526,8 +523,8 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
 
-            IProject firstProject = projects[0];
-            IProject secondProject = projects[1];
+            var firstProject = projects[0];
+            var secondProject = projects[1];
 
             var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, author, artifactType, numberOfArtifacts);
             var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, author, artifactType, numberOfArtifacts);
@@ -548,11 +545,9 @@ namespace ArtifactStoreTests
             expectedProjects.Add(secondProject);
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
-            Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
-                "There should be {0} published artifacts returned!", allArtifacts.Count);
+            Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count, "There should be {0} published artifacts returned!", allArtifacts.Count);
 
-            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                publishResponse, artifactsInFirstProject, expectedVersion: 1);
+            AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, artifactsInFirstProject, expectedVersion: 1);
         }
 
         [TestCase(BaseArtifactType.Process, 3)]
@@ -566,8 +561,8 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projects);
 
-            IProject firstProject = projects[0];
-            IProject secondProject = projects[1];
+            var firstProject = projects[0];
+            var secondProject = projects[1];
 
             var artifactsInFirstProject = Helper.CreateAndSaveMultipleArtifacts(firstProject, author, artifactType, numberOfArtifacts);
             var artifactsInSecondProject = Helper.CreateAndSaveMultipleArtifacts(secondProject, author, artifactType, numberOfArtifacts);
@@ -581,8 +576,7 @@ namespace ArtifactStoreTests
 
             try
             {
-                Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -591,8 +585,7 @@ namespace ArtifactStoreTests
                 expectedProjects.Add(secondProject);
 
                 ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
-                Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
-                    "There should be {0} published artifacts returned!", allArtifacts.Count);
+                Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count, "There should be {0} published artifacts returned!", allArtifacts.Count);
 
                 AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
                     publishResponse, artifactsInFirstProject, expectedVersion: 1);
@@ -638,17 +631,14 @@ namespace ArtifactStoreTests
             try
             {
                 // Execute:
-                Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), user, all: true),
+                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), user, all: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
                 ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, projects);
-                Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count,
-                    "There should be {0} published artifacts returned!", allArtifacts.Count);
+                Assert.AreEqual(allArtifacts.Count, publishResponse.Artifacts.Count, "There should be {0} published artifacts returned!", allArtifacts.Count);
 
-                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
-                    publishResponse, allArtifacts, expectedVersion: 2);
+                AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, allArtifacts, expectedVersion: 2);
             }
             finally
             {
@@ -669,7 +659,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, author, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
@@ -677,8 +667,7 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
                     "'POST {0} should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -698,7 +687,7 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
 
             var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author, defaultCollectionFolder.Id);
             var collectionArtifact = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
@@ -706,8 +695,7 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -730,12 +718,12 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
 
             var novaArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
                 _project, defaultCollectionFolder.Id);
 
-            IArtifact artifact = Helper.WrapNovaArtifact(novaArtifact, _project, author, BaseArtifactType.PrimitiveFolder);
+            var artifact = Helper.WrapNovaArtifact(novaArtifact, _project, author, BaseArtifactType.PrimitiveFolder);
 
             novaArtifact.Description = "Changed";
 
@@ -744,8 +732,7 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
                     "'POST {0} should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -767,11 +754,11 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            INovaArtifact defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
 
             var novaArtifact = Helper.ArtifactStore.GetArtifactDetails(author, defaultCollectionFolder.Id);
 
-            IArtifact artifact = Helper.WrapNovaArtifact(novaArtifact, _project, author, BaseArtifactType.PrimitiveFolder);
+            var artifact = Helper.WrapNovaArtifact(novaArtifact, _project, author, BaseArtifactType.PrimitiveFolder);
 
             novaArtifact.Description = "Changed";
 
@@ -782,8 +769,7 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifact, author),
                     "'POST {0} should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -804,7 +790,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_EmptyArtifactList_BadRequest()
         {
             // Setup:
-            List<IArtifactBase> artifacts = new List<IArtifactBase>();
+            var artifacts = new List<IArtifactBase>();
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.PublishArtifacts(artifacts, _user),
@@ -825,9 +811,9 @@ namespace ArtifactStoreTests
         public void PublishArtifact_InvalidToken_Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
 
-            IUser userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.PublishArtifact(artifact, userWithBadToken),
@@ -849,7 +835,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_PublishedArtifactDeletedByAnotherUser_NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            IUser anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             var artifact = Helper.CreateAndPublishArtifact(_project, anotherUser, artifactType);
 
             artifact.Delete(anotherUser);
@@ -870,7 +856,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_NonExistentArtifactId_NotFound(int nonExistentArtifactId)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Process);
 
             // Replace ProjectId with a fake ID that shouldn't exist.
             artifact.Id = nonExistentArtifactId;
@@ -894,7 +880,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_SinglePublishedArtifact_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
-            IArtifact artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
@@ -912,8 +898,8 @@ namespace ArtifactStoreTests
         public void PublishArtifact_ParentAndChildArtifacts_OnlyPublishChild_Conflict(BaseArtifactType artifactType, int index)
         {
             // Setup:
-            List<IArtifact> artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
-            IArtifact childArtifact = artifactList[index];
+            var artifactList = CreateParentAndTwoChildrenArtifactsAndGetAllArtifacts(artifactType);
+            var childArtifact = artifactList[index];
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(childArtifact, _user),
@@ -936,7 +922,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
-            IArtifact artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishArtifact(projectCustomData, _user, BaseArtifactType.Actor);
             artifact.Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -949,8 +935,7 @@ namespace ArtifactStoreTests
             requestBody = requestBody.Replace(toChange, changeTo);
 
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
@@ -976,7 +961,7 @@ namespace ArtifactStoreTests
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
 
             var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
-            List<IArtifact> artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
+            var artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
             artifactList[index].Lock();
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
@@ -989,8 +974,7 @@ namespace ArtifactStoreTests
             requestBody = requestBody.Replace(toChange, changeTo);
 
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifactList[index].Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, all: true),

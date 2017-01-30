@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
@@ -122,6 +123,25 @@ namespace FileStoreTests
                 // Execute: Add the file to Filestore.
                 Helper.FileStore.AddFile(file, _user, useMultiPartMime: false, chunkSize: chunkSize);
             }, "FileStore should return a Http405MethodNotAllowedException error when PUT method is used by enabling Chunk option at the event of Adding File to FileStore.");
+        }
+
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestRail(234423)]
+        [Description("POST a file without using multipart mime. Verify that the file exists in FileStore.")]
+        public void GetNovaFile_DeletedFile_Returns404(uint fileSize, string fakeFileName, string fileType)
+        {
+            // Setup:
+            var file = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
+
+            Helper.FileStore.DeleteFile(file.Guid, _user);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.FileStore.GetNovaFile(file.Guid, _user));
+
+            // Verify:
+            const string expectedMessage = "File with ID:{0} does not exist";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant(expectedMessage, file.Guid));
         }
     }
 }

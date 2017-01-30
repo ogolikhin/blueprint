@@ -12,7 +12,8 @@ namespace AdminStoreTests
     [Category(Categories.AdminStore)]
     public class InstanceProjectTests : TestBase
     {
-        private const int DEFAULT_FOLDER_ID = 1;
+        private const int DEFAULT_PROJECT_ID = 1;
+        private const string PATH_INSTANCEPROJECTBYID = RestPaths.Svc.AdminStore.Instance.PROJECTS_id_;
         private const int NON_EXISTING_FOLDER_ID = int.MaxValue;
         private readonly string UNAUTHORIZED_TOKEN = new Guid().ToString();
 
@@ -39,12 +40,19 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(123258)]
-        [Description("Gets an existing project and verify 200 OK is returned.")]
-        public void GetProjectById_OK()
+        [Description("Gets an existing project and verify that 200 OK is returned with expected project.")]
+        public void GetProjectById_VerifyGetProjectResult()
         {
+            // Execute:
             /*Executes get project REST call and returns HTTP code*/
             /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) USED */
-            Helper.AdminStore.GetProjectById(DEFAULT_FOLDER_ID, _adminUser);
+            IProject returnedProject = null;
+            Assert.DoesNotThrow(() => returnedProject = Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID, _adminUser),
+                "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, DEFAULT_PROJECT_ID);
+
+            // Verify:
+            Assert.AreEqual(DEFAULT_PROJECT_ID, returnedProject.Id, "Project Id {0} was expected but {1} was returned from the returned project.",
+                DEFAULT_PROJECT_ID, returnedProject.Id);
         }
 
         #endregion 200 OK Tests
@@ -63,7 +71,7 @@ namespace AdminStoreTests
             {
                 /*Executes get project REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.AdminStore.GetProjectById(DEFAULT_FOLDER_ID, _adminUser);
+                Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID, _adminUser);
             }, "AdminStore should return a 401 Unauthorized error when trying to call with expired token");
         }
 
@@ -76,7 +84,7 @@ namespace AdminStoreTests
             {
                 /*Executes get project REST call and returns HTTP code*/
                 /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-                Helper.AdminStore.GetProjectById(DEFAULT_FOLDER_ID);
+                Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID);
             }, "AdminStore should return a 401 Unauthorized error when trying to call without session token");
         }
 

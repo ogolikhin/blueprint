@@ -121,19 +121,17 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        /// <seealso cref="IProject.GetAllOpenApiArtifactTypes(string, IUser, bool, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IProject.GetAllOpenApiArtifactTypes(string, IUser, bool, List{HttpStatusCode})"/>
         public List<OpenApiArtifactType> GetAllOpenApiArtifactTypes(
             string address,
             IUser user,
             bool shouldRetrievePropertyTypes = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var artifactTypes = OpenApi.GetAllArtifactTypes(address, Id, user, shouldRetrievePropertyTypes,
-                expectedStatusCodes, sendAuthorizationAsCookie);
+                expectedStatusCodes);
 
             // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
             if (ArtifactTypes.Any())

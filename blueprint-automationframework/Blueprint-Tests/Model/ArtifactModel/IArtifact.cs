@@ -1,3 +1,4 @@
+using System;
 using Model.ArtifactModel.Impl;
 using System.Collections.Generic;
 using System.Net;
@@ -43,9 +44,8 @@ namespace Model.ArtifactModel
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The historical version of the artifact.</returns>
-        int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets diagram content for RapidReview (Storyteller).

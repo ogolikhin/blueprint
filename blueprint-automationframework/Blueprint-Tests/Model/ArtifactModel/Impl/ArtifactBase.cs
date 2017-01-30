@@ -160,11 +160,10 @@ namespace Model.ArtifactModel.Impl
 
         public List<DeleteArtifactResult> DeletedArtifactResults { get; } = new List<DeleteArtifactResult>();
 
-        /// <seealso cref="IArtifactBase.Delete(IUser, List{HttpStatusCode}, bool, bool?)"/>
+        /// <seealso cref="IArtifactBase.Delete(IUser, bool?, List{HttpStatusCode})"/>
         public virtual List<DeleteArtifactResult> Delete(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool? deleteChildren = null)
+            bool? deleteChildren = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -173,9 +172,8 @@ namespace Model.ArtifactModel.Impl
             }
 
             var deleteArtifactResults = OpenApi.DeleteArtifact(Address, this, user,
-                expectedStatusCodes: expectedStatusCodes,
-                sendAuthorizationAsCookie: sendAuthorizationAsCookie,
-                deleteChildren: deleteChildren ?? ShouldDeleteChildren);
+                deleteChildren: deleteChildren ?? ShouldDeleteChildren,
+                expectedStatusCodes: expectedStatusCodes);
 
             return deleteArtifactResults;
         }
@@ -698,7 +696,7 @@ namespace Model.ArtifactModel.Impl
                 // TODO: See if we can give the user Delete permission if they don't already have it.
                 Logger.WriteDebug("Deleting artifact ID: {0}, and its children for user: '{1}'.", artifact.Id, user.Username);
                 var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
-                artifact.Delete(user, expectedStatusCodes, deleteChildren: true);
+                artifact.Delete(user, deleteChildren: true, expectedStatusCodes: expectedStatusCodes);
             }
         }
     }

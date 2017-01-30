@@ -10,15 +10,12 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using NUnit.Framework;
 using Utilities;
-using Utilities.Facades;
 
 namespace Model.Impl
 {
     [DataContract(Name = "Project", Namespace = "Model")]
     public class Project : IProject
     {
-        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
-
         #region Properties
 
         /// <summary>
@@ -80,6 +77,10 @@ namespace Model.Impl
         public INovaArtifact GetDefaultCollectionFolder(string address, IUser user)
         {
             var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(address, Id, user);
+
+            Assert.That((novaArtifacts != null) && novaArtifacts.Any(),
+                "No artifacts were found in Project ID: {0}.", Id);
+
             return novaArtifacts.Find(a => a.PredefinedType.Value == (int)BaselineAndCollectionTypePredefined.CollectionFolder);
         }
 
@@ -94,23 +95,13 @@ namespace Model.Impl
         /// <seealso cref="IProject.GetProjects(string, IUser)"/>
         public List<IProject> GetProjects(string address, IUser user = null)
         {
-            var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
-            const string path = RestPaths.OpenApi.PROJECTS;
-
-            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
-
-            // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
-            return projects.ConvertAll(o => (IProject)o);
+            return OpenApi.GetProjects(address, user);
         }
 
         /// <seealso cref="IProject.GetProject(string, int, IUser)"/>
         public IProject GetProject(string address, int projectId, IUser user = null)
         {
-            var restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.PROJECTS_id_, projectId);
-            var project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
-
-            return project;
+            return OpenApi.GetProject(address, projectId, user);
         }
 
         /// <summary>
@@ -130,8 +121,8 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        /// <seealso cref="IProject.GetAllArtifactTypes(string, IUser, bool, List{HttpStatusCode}, bool)"/>
-        public List<OpenApiArtifactType> GetAllArtifactTypes(
+        /// <seealso cref="IProject.GetAllOpenApiArtifactTypes(string, IUser, bool, List{HttpStatusCode}, bool)"/>
+        public List<OpenApiArtifactType> GetAllOpenApiArtifactTypes(
             string address,
             IUser user,
             bool shouldRetrievePropertyTypes = false,
@@ -141,28 +132,8 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.MetaData.ARTIFACT_TYPES, Id);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (shouldRetrievePropertyTypes)
-            {
-                queryParameters.Add("PropertyTypes", "true");
-            }
-
-            // Retrieve the artifact type list for the project 
-            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+            var artifactTypes = OpenApi.GetAllArtifactTypes(address, Id, user, shouldRetrievePropertyTypes,
+                expectedStatusCodes, sendAuthorizationAsCookie);
 
             // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
             if (ArtifactTypes.Any())

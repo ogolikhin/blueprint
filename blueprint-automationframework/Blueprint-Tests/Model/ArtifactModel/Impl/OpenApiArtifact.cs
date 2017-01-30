@@ -198,7 +198,8 @@ namespace Model.ArtifactModel.Impl
                     path,
                     restRequestMethod,
                     artifactToSave as ArtifactBase,
-                    expectedStatusCodes: expectedStatusCodes);
+                    expectedStatusCodes: expectedStatusCodes,
+                    shouldControlJsonChanges: false);
 
                 ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact, artifactToSave);
 
@@ -472,7 +473,8 @@ namespace Model.ArtifactModel.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             returnedArtifact.Address = baseAddress;
 

@@ -165,7 +165,8 @@ namespace Model.Impl
             var artifactTypes = restApi.SendRequestAndDeserializeObject<ProjectCustomArtifactTypesResult>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             // Print all returned types for debugging.
             foreach (var artifactType in artifactTypes.ArtifactTypes)
@@ -904,7 +905,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.PATCH,
                 novaArtifactDetails,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return newArtifact;
         }

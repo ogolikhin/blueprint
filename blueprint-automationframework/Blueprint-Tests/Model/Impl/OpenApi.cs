@@ -95,7 +95,7 @@ namespace Model.Impl
 
             // Retrieve the artifact type list for the project 
             var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, cookies: cookies, shouldControlJsonChanges: false);
 
             return artifactTypes;
         }

@@ -180,7 +180,8 @@ namespace Model.ArtifactModel.Impl
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return returnedArtifactInfo;
         }
@@ -335,7 +336,8 @@ namespace Model.ArtifactModel.Impl
                 path,
                 RestRequestMethod.POST,
                 artifactIds,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return returnedArtifactProperties[0];
         }
@@ -787,7 +789,8 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.POST,
                 jsonObject: artifactIds,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
 
             if (expectedLockResults == null)
             {

@@ -960,9 +960,8 @@ namespace Helper
         /// <summary>
         /// Validate list of nova artifacts, currently used from get project/artifact children.
         /// </summary>
-        /// <param name="project">The project artifacts reside.</param>
-        /// <param name="novaArtifacts">list of nova artifacts returned.
-        /// If null, </param>
+        /// <param name="project">The project where artifacts reside.</param>
+        /// <param name="novaArtifacts">list of nova artifacts returned.</param>
         /// <param name="parentArtifact">(optional) parent artifact.
         /// If null, validation work with project Id used as parent Id.</param>
         /// <param name="expectedNumberOfArtifacts">

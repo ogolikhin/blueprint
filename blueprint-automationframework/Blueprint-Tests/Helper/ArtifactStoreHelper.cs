@@ -878,12 +878,13 @@ namespace Helper
         /// <summary>
         /// Validate nova artifact contents
         /// </summary>
-        /// <param name="project">The project where artifacts reside.</param>
+        /// <param name="project">The project where artifact resides.</param>
         /// <param name="novaArtifact">The nova artifact returned from get project/artifact childen.</param>
         /// <param name="parentArtifactId">parent artifact Id for get project/artifact children.</param>
         public static void ValidateNovaArtifact(IProject project, NovaArtifact artifact, int parentArtifactId)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             var novaArtifactTypeForArtifact = project.NovaArtifactTypes.Find(nat => ((int)nat.PredefinedType).Equals((int)artifact.PredefinedType));
 
@@ -895,8 +896,8 @@ namespace Helper
 
             if (artifact.ItemTypeId.Equals(DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID))
             {
-                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID, artifact.ItemTypeId, "itemTypeId should be {0} for the Collections default folder.",
-                    DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID);
+                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
+                    DEFAULT_COLLECTIONS_ROOT_NAME);
 
                 Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Collections default folder.",
                     DEFAULT_COLLECTIONS_ROOT_ORDERINDEX);

@@ -60,11 +60,9 @@ namespace ArtifactStoreTests
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project, novaArtifacts: returnedNovaArtifactList);
 
-            var returnedNovaArtifact = returnedNovaArtifactList.Find(a => a.Id.Equals(publishedArtifact.Id));
+            var returnedNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, publishedArtifact);
 
-            Assert.IsNotNull(returnedNovaArtifact, "The returned result from GET {0} doesn't contain the published artifact whose Id is {1}.", PATH_PROJECT_CHILDREN, publishedArtifact.Id);
-
-            ArtifactStoreHelper.ValidateNovaArtifact(_project, returnedNovaArtifact, _project.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(publishedArtifact, returnedNovaArtifact);
         }
 
         [TestCase]
@@ -155,6 +153,10 @@ namespace ArtifactStoreTests
                 novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifact,
                 expectedNumberOfArtifacts: 2);
+
+            var returnedNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, parentArtifact);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(parentArtifact, returnedNovaArtifact);
         }
 
         [TestCase]
@@ -198,6 +200,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
@@ -219,6 +222,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
+
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
@@ -276,6 +280,10 @@ namespace ArtifactStoreTests
                 novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifact,
                 expectedNumberOfArtifacts: 2);
+
+            var returnedNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, parentArtifact);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(parentArtifact, returnedNovaArtifact);
         }
 
         [TestCase]
@@ -403,6 +411,23 @@ namespace ArtifactStoreTests
             Helper.CreateAndPublishArtifact(project, user, BaseArtifactType.Document, parentArtifact);
 
             return parentArtifactList;
+        }
+
+        /// <summary>
+        /// Find artifact from nova aritfact list 
+        /// </summary>
+        /// <param name="novaArtifacts">List of novaArtifacts</param>
+        /// <param name="artifactToFind">the artifact to find from the novaArtifacts</param>
+        /// <returns>the nova artifact found from novaArtifacts</returns>
+        private NovaArtifact FindArtifactFromNovaArtifacts(
+            List<NovaArtifact> novaArtifacts,
+            IArtifactBase artifactToFind)
+        {
+            var returnedNovaArtifact = novaArtifacts.Find(a => a.Id.Equals(artifactToFind.Id));
+
+            Assert.IsNotNull(returnedNovaArtifact, "The returned result from GET {0} doesn't contain the published artifact whose Id is {1}.", PATH_PROJECT_CHILDREN, artifactToFind.Id);
+
+            return returnedNovaArtifact;
         }
 
         #endregion Private functions

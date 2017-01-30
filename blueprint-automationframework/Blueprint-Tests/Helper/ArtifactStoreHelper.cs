@@ -892,7 +892,7 @@ namespace Helper
 
             Assert.IsNotNull(artifact.Id, "{0} should not be null!", nameof(artifact.Id));
 
-            Assert.IsNotNull(artifact.Name, "{0} should not be null!", nameof(artifact.Name));
+            Assert.IsFalse(string.IsNullOrEmpty(artifact.Name), "name should not be empty but it's {0}", artifact.Name);
 
             if (artifact.ItemTypeId.Equals(DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID))
             {
@@ -907,8 +907,6 @@ namespace Helper
             }
             else
             {
-                Assert.That(string.IsNullOrEmpty(artifact.Name), "name should not be empty.");
-
                 Assert.AreEqual(novaArtifactTypeForArtifact.Id, artifact.ItemTypeId,
                     "itemTypeId {0} for the artifact {1} doesn't exist on the project {2}",
                     artifact.ItemTypeId, artifact.Name, project.Name);

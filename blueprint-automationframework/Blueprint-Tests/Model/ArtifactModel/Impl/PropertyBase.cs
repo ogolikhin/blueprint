@@ -72,7 +72,7 @@ namespace Model.ArtifactModel.Impl
             // or only contain artifact type  without property information
             if (!project.ArtifactTypes.Any() || !project.ArtifactTypes.First().PropertyTypes.Any())
             {
-                project.GetAllArtifactTypes(user: user, address: address,
+                project.GetAllOpenApiArtifactTypes(user: user, address: address,
                     shouldRetrievePropertyTypes: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
             }
 

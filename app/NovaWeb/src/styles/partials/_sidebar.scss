@@ -56,7 +56,7 @@
     position: relative;
     transition: all .4s ease;
     width: $sidebar-size;
-    z-index: $sidebar-z-index;
+    z-index: $zindex-sidebar;
 
     .sidebar-title {
         background: $brand-secondary;

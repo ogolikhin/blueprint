@@ -32,7 +32,7 @@ namespace ArtifactStoreTests
 
             _allProjects = ProjectFactory.GetAllProjects(_user);
             _project = _allProjects.First();
-            _project.GetAllArtifactTypes(ProjectFactory.Address, _user);
+            _project.GetAllOpenApiArtifactTypes(ProjectFactory.Address, _user);
         }
 
         [TearDown]

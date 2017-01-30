@@ -29,7 +29,7 @@
     display: inline-block;
     float: left;
     font-size: $font-size-bigger;
-    z-index: $toolbar-z-index;
+    z-index: $zindex-toolbar;
 }
 
 .page-toolbar__item-button {

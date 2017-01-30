@@ -10,7 +10,7 @@
     padding: 0;
     position: fixed;
     word-wrap: break-word;
-    z-index: $tooltip-z-index;
+    z-index: $zindex-tooltip;
 
     &.show {
         animation: fadeIn .4s;

@@ -2,6 +2,8 @@
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 using System;
 using TestCommon;
@@ -13,11 +15,11 @@ namespace AdminStoreTests
     [Category(Categories.AdminStore)]
     public class InstanceProjectTests : TestBase
     {
-        private const int DEFAULT_PROJECT_ID = 1;
         private const int NON_EXISTING_PROJECT_ID = int.MaxValue;
         private const string PATH_INSTANCEPROJECTBYID = RestPaths.Svc.AdminStore.Instance.PROJECTS_id_;
         private readonly string UNAUTHORIZED_TOKEN = new Guid().ToString();
 
+        private IProject _project = null;
         private IUser _adminUser = null;
 
         #region Setup and Cleanup
@@ -27,6 +29,7 @@ namespace AdminStoreTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            _project = ProjectFactory.GetProject(_adminUser);
         }
 
         [TearDown]
@@ -45,17 +48,40 @@ namespace AdminStoreTests
         public void GetProjectById_VerifyGetProjectResult()
         {
             // Setup:
-            /*Executes get project REST call and returns HTTP code*/
-            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) USED */
+            /* Exsiting default integration project is used since there is no API call available to create project at this point */
 
             // Execute:
-            IProject returnedProject = null;
-            Assert.DoesNotThrow(() => returnedProject = Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID, _adminUser),
-                "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, DEFAULT_PROJECT_ID);
+            InstanceProject returnedProject = null;
+            Assert.DoesNotThrow(() => returnedProject = Helper.AdminStore.GetProjectById(_project.Id, _adminUser),
+                "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, _project.Id);
 
             // Verify:
-            Assert.AreEqual(DEFAULT_PROJECT_ID, returnedProject.Id, "Project Id {0} was expected but {1} was returned from the returned project.",
-                DEFAULT_PROJECT_ID, returnedProject.Id);
+            Assert.AreEqual(_project.Id, returnedProject.Id, "Project Id {0} was expected but {1} was returned from the returned project.",
+                _project.Id, returnedProject.Id);
+
+            ValidateaInstanceProject(returnedProject, _project);
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+        [TestCase]
+        [TestRail(00)]
+        [Description("Gets an existing project and verify that 200 OK is returned with expected project.")]
+        public void GetProjectById_UsingUserWithNoPermissionToProject_VerifyGetProjectResult()
+        {
+            // Setup: Create a user that doesn't have access to the default project
+            //var userWithNoPermissionToProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            /* Exsiting default integration project is used since there is no API call available to create project at this point */
+
+            // Execute:
+            InstanceProject returnedProject = null;
+            Assert.DoesNotThrow(() => returnedProject = Helper.AdminStore.GetProjectById(_project.Id, adminUser),
+                "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, _project.Id);
+
+            // Verify:
+            Assert.AreEqual(_project.Id, returnedProject.Id, "Project Id {0} was expected but {1} was returned from the returned project.",
+                _project.Id, returnedProject.Id);
         }
 
         #endregion 200 OK Tests
@@ -68,11 +94,11 @@ namespace AdminStoreTests
         public void GetProjectById_SendUnauthorizedToken_401Unauthorized()
         {
             // Setup: Get a valid Access Control token for the user (for the new REST calls).
-            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
+            /* Exsiting default integration project is used since there is no API call available to create project at this point */
             _adminUser.SetToken(UNAUTHORIZED_TOKEN);
 
             // Execute and Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID, _adminUser),
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetProjectById(_project.Id, _adminUser),
                 "AdminStore should return a 401 Unauthorized error when trying to call with expired token");
         }
 
@@ -82,10 +108,10 @@ namespace AdminStoreTests
         public void GetProjectById_NoTokenHeader_401Unauthorized()
         {
             // Setup:
-            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
+            /* Exsiting default integration project is used since there is no API call available to create project at this point */
 
             // Execute and Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>  Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID),
+            Assert.Throws<Http401UnauthorizedException>(() =>  Helper.AdminStore.GetProjectById(_project.Id),
                 "AdminStore should return a 401 Unauthorized error when trying to call without session token");
         }
 
@@ -110,5 +136,23 @@ namespace AdminStoreTests
 
         #endregion 404 Not Found Tests
 
+        #region private functions
+        
+        private static void ValidateaInstanceProject(InstanceProject instanceProject, IProject project)
+        {
+            ThrowIf.ArgumentNull(instanceProject, nameof(InstanceProject));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            Assert.AreEqual(project.Id, instanceProject.Id, "Project Id {0} was expected but {1} was returned from the returned project.",
+                project.Id, instanceProject.Id);
+
+            Assert.IsNotNull(instanceProject.Name, "{0} snould not be null!", nameof(instanceProject.Name));
+
+            Assert.IsNotNull(instanceProject.ParentFolderId, "{0} should not be null!", nameof(InstanceProject.ParentFolderId));
+
+            Assert.AreEqual(InstanceItemTypeEnum.Project, instanceProject.Type, "Type {0} was expected but {1} was returned.", InstanceItemTypeEnum.Project, instanceProject.Type);
+        }
+
+        #endregion private functions
     }
 }

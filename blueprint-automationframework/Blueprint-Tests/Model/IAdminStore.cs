@@ -222,7 +222,7 @@ namespace Model
         /// <param name="user">A user object.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Response content.</returns>
-        IProject GetProjectById(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        InstanceProject GetProjectById(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns list of aerifacts for REST request to get folder. 

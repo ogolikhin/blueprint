@@ -15,7 +15,7 @@ namespace Model.ArtifactModel.Impl.PredefinedProperties
         /// Returns IconAddress. Works for JSON returned from server.
         /// expected address /svc/bpartifactstore/diagram/actoricon/{artifactId}?versionId={versionId}&addDraft=true&lastSavedTimestamp={TimeStamp}
         /// </summary>
-        /// <returns>string IconAddress</returns>
+        /// <returns>string IconAddress - /svc/bpartifactstore/diagram/actoricon/{artifactId}?versionId={versionId}&addDraft=true&lastSavedTimestamp={TimeStamp}</returns>
         public string GetIconAddress()
         {
             if (IconValue.ContainsKey(outIconKey))

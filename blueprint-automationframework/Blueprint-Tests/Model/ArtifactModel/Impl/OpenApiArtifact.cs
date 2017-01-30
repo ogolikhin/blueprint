@@ -107,10 +107,9 @@ namespace Model.ArtifactModel.Impl
                 richTextAsPlain: richTextAsPlain);
         }
 
-        /// <seealso cref="IOpenApiArtifact.GetVersion(IUser, List{HttpStatusCode}, bool)" />
+        /// <seealso cref="IOpenApiArtifact.GetVersion(IUser, List{HttpStatusCode})" />
         public int GetVersion(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -118,7 +117,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            int artifactVersion = OpenApi.GetArtifactVersion(Address, this, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            int artifactVersion = OpenApi.GetArtifactVersion(Address, this, user, expectedStatusCodes);
 
             return artifactVersion;
         }

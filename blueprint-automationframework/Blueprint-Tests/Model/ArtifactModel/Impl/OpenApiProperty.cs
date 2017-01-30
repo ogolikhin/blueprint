@@ -25,19 +25,17 @@ namespace Model.ArtifactModel.Impl
         /// <param name="propertyName">the name of the property want to edit</param>
         /// <param name="propertyValue">(Optional) property value for the property. If null, the default value will be used if available</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>An OpenApiProperty with the specified values.</returns>
         public OpenApiProperty SetPropertyAttribute(
             IProject project,
             IUser user,
             BaseArtifactType baseArtifactType,
             string propertyName,
             string propertyValue = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             return SetPropertyAttribute(Address, project, user, baseArtifactType, propertyName, propertyValue,
-                expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>
@@ -52,7 +50,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="usersAndGroups">(optional) If this is a UsersAndGroups property, use this field to set the UsersAndGroups.</param>
         /// <param name="choices">(optional) If this is a Choice property, use this field to set the choices.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>An OpenApiProperty with the specified values.</returns>
         public static OpenApiProperty SetPropertyAttribute(
             string address,
             IProject project,
@@ -63,13 +61,10 @@ namespace Model.ArtifactModel.Impl
             DateTime? dateValue = null,
             List<UsersAndGroups> usersAndGroups = null,
             List<object> choices = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             // Retrieve the deserialized property for the selected base artifact type
-            var returnedPropertyType = GetPropertyType(address, project, user, baseArtifactType, propertyName,
-                expectedStatusCodes, sendAuthorizationAsCookie);
+            var returnedPropertyType = GetPropertyType(address, project, user, baseArtifactType, propertyName, expectedStatusCodes);
 
             // Created and update the property based on information from get artifact types call and user parameter
             var updatedProperty = new OpenApiProperty(address)

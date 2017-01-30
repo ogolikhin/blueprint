@@ -907,6 +907,8 @@ namespace Helper
             }
             else
             {
+                Assert.That(string.IsNullOrEmpty(artifact.Name), "name should not be empty.");
+
                 Assert.AreEqual(novaArtifactTypeForArtifact.Id, artifact.ItemTypeId,
                     "itemTypeId {0} for the artifact {1} doesn't exist on the project {2}",
                     artifact.ItemTypeId, artifact.Name, project.Name);

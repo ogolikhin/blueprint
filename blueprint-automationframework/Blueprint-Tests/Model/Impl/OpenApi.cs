@@ -65,29 +65,15 @@ namespace Model.Impl
         /// <param name="user">The user to authenticate to the the server with.  Defaults to no authentication.</param>
         /// <param name="shouldRetrievePropertyTypes">(optional) Defines whether or not to include property types.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>A list of artifact types which was retrieved for the project.</returns>
         public static List<OpenApiArtifactType> GetAllArtifactTypes(
             string address,
             int projectId,
             IUser user,
             bool shouldRetrievePropertyTypes = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
 
             var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.MetaData.ARTIFACT_TYPES, projectId);
             var queryParameters = new Dictionary<string, string>();
@@ -98,8 +84,9 @@ namespace Model.Impl
             }
 
             // Retrieve the artifact type list for the project 
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
             var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes, cookies: cookies);
+                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
 
             return artifactTypes;
         }
@@ -116,28 +103,17 @@ namespace Model.Impl
         /// <param name="artifactToDelete">The list of artifacts to delete</param>
         /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
         public static List<DeleteArtifactResult> DeleteArtifact(string address,
             IArtifactBase artifactToDelete,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool? deleteChildren = null)
+            bool? deleteChildren = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToDelete, nameof(artifactToDelete));
-
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
 
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifactToDelete.ProjectId,
                 artifactToDelete.Id);
@@ -150,7 +126,7 @@ namespace Model.Impl
                 queryparameters.Add("Recursively", "true");
             }
 
-            var restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
             var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.DELETE,
@@ -297,13 +273,11 @@ namespace Model.Impl
         /// <param name="artifact">The artifact</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The historical version of the artifact.</returns>
         public static int GetArtifactVersion(string address,
             IArtifactBase artifact,
             IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
@@ -313,16 +287,7 @@ namespace Model.Impl
                 user = artifact.CreatedBy;
             }
 
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
             var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifact.ProjectId, artifact.Id);
 
             var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(

@@ -110,10 +110,9 @@ namespace Model
         /// <param name="user">The user to authenticate to the the server with.  Defaults to no authentication.</param>
         /// <param name="shouldRetrievePropertyTypes">(optional) Defines whether or not to include property types.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>a artifact type list which is retrieved for the project</returns>
         List<OpenApiArtifactType> GetAllOpenApiArtifactTypes(string address, IUser user,
-            bool shouldRetrievePropertyTypes = false, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+            bool shouldRetrievePropertyTypes = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Get the all NovaArtifactTypes for the project, update the ArtifactTypes of the project and return the same list

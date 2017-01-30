@@ -992,7 +992,7 @@ namespace ArtifactStoreTests
             Assert.NotNull(artifactDetails.LastSaveInvalid, "LastSaveInvalid should not be null for artifacts with invalid properties!");
             Assert.IsFalse(artifactDetails.LastSaveInvalid.Value, "LastSaveInvalid should be false for artifacts with valid properties!");
 
-            var openApiArtifact = OpenApiArtifact.GetArtifact(Helper.ArtifactStore.Address, _project, artifact.Id, user);
+            var openApiArtifact = OpenApi.GetArtifact(Helper.ArtifactStore.Address, _project, artifact.Id, user);
             ArtifactStoreHelper.AssertArtifactsEqual(updateResult, artifactDetails);
             TestHelper.AssertArtifactsAreEqual(artifact, openApiArtifact);
         }

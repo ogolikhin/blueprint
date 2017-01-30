@@ -132,8 +132,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         public int GetVersion(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -141,7 +140,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            int artifactVersion = GetVersion(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            int artifactVersion = GetVersion(this, user, expectedStatusCodes);
 
             return artifactVersion;
         }
@@ -641,14 +640,14 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifact">The artifact</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The historical version of the artifact.</returns>
         public static int GetVersion(IArtifactBase artifact,
             IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.GetVersion(artifact, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            return OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
         }
 
         /// <summary>

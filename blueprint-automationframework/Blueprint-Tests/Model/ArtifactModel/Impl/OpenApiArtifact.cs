@@ -23,21 +23,6 @@ namespace Model.ArtifactModel.Impl
 
         #endregion Serialized JSON Properties
 
-        #region Enums
-
-        public enum ArtifactTraceType
-        {
-            None,
-            All,
-            Parent,
-            Child,
-            Manual,
-            Reuse,
-            Other
-        }
-
-        #endregion Enums
-
         #region Constructors
 
         /// <summary>
@@ -100,19 +85,19 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
-        /// <seealso cref="IOpenApiArtifact.GetArtifact(IProject,IUser,Nullable{bool},Nullable{bool},System.Nullable{Model.ArtifactModel.Impl.OpenApiArtifact.ArtifactTraceType},Nullable{bool},Nullable{bool},Nullable{bool},Nullable{bool},System.Collections.Generic.List{System.Net.HttpStatusCode})"/>
+        /// <seealso cref="IOpenApiArtifact.GetArtifact(IProject, IUser, bool?, bool?, OpenApiTraceTypes?, bool?, bool?, bool?, bool?, List{HttpStatusCode})"/>
         public IOpenApiArtifact GetArtifact(IProject project,
             IUser user,
             bool? getStatus = null,
             bool? getComments = null,
-            ArtifactTraceType? getTraces = null,
+            OpenApiTraceTypes? getTraces = null,
             bool? getAttachments = null,
             bool? richTextAsPlain = null,
             bool? getInlineCSS = null,
             bool? getContent = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetArtifact(Address, project, Id, user,
+            return OpenApi.GetArtifact(Address, project, Id, user,
                 getAttachments: getAttachments,
                 getComments: getComments,
                 getContent: getContent,
@@ -122,10 +107,9 @@ namespace Model.ArtifactModel.Impl
                 richTextAsPlain: richTextAsPlain);
         }
 
-        /// <seealso cref="IOpenApiArtifact.GetVersion(IUser, List{HttpStatusCode}, bool)" />
+        /// <seealso cref="IOpenApiArtifact.GetVersion(IUser, List{HttpStatusCode})" />
         public int GetVersion(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -133,7 +117,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            int artifactVersion = GetVersion(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            int artifactVersion = OpenApi.GetArtifactVersion(Address, this, user, expectedStatusCodes);
 
             return artifactVersion;
         }
@@ -480,48 +464,6 @@ namespace Model.ArtifactModel.Impl
 
             return returnedArtifact;
         }
-
-        /// <summary>
-        /// Gets the Version property of an Artifact via OpenAPI call
-        /// </summary>
-        /// <param name="artifact">The artifact</param>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The historical version of the artifact.</returns>
-        public static int GetVersion(IArtifactBase artifact,
-            IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            if (user == null)
-            {
-                Assert.NotNull(artifact.CreatedBy, "No user is available to perform GetVersion.");
-                user = artifact.CreatedBy;
-            }
-
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(artifact.Address, tokenValue);
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifact.ProjectId, artifact.Id);
-
-            var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
-
-            return returnedArtifact.Version;
-        }
-
 
         //TODO Investigate if we can use IArtifact instead of ItemId
 

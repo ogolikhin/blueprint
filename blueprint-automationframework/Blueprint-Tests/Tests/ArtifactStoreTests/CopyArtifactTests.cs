@@ -344,7 +344,7 @@ namespace ArtifactStoreTests
 
             // Verify preCreatedArtifact is Reused.
             var sourceBeforeCopy = preCreatedArtifact.GetArtifact(customDataProject, author,
-                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+                getTraces: OpenApiTraceTypes.Reuse);
 
             var reuseTracesBefore = sourceBeforeCopy.Traces.FindAll(t => t.TraceType == OpenApiTraceTypes.Reuse);
             Assert.NotNull(reuseTracesBefore, "No Reuse traces were found in the reused artifact before the copy!");
@@ -364,7 +364,7 @@ namespace ArtifactStoreTests
 
             // Verify Reuse traces of source artifact didn't change.
             var sourceAfterCopy = preCreatedArtifact.GetArtifact(customDataProject, _user,
-                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+                getTraces: OpenApiTraceTypes.Reuse);
 
             var reuseTracesAfter = sourceAfterCopy.Traces.FindAll(t => t.TraceType == OpenApiTraceTypes.Reuse);
             Assert.NotNull(reuseTracesAfter, "No Reuse traces were found in the reused artifact after the copy!");
@@ -376,7 +376,7 @@ namespace ArtifactStoreTests
 
             // Verify preCreatedArtifact is Reused.
             var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author,
-                getTraces: OpenApiArtifact.ArtifactTraceType.Reuse);
+                getTraces: OpenApiTraceTypes.Reuse);
             Assert.IsEmpty(reuseTracesOfCopy.Traces, "There should be no Reuse traces on the copied artifact!");
         }
         

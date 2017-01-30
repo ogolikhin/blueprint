@@ -7,7 +7,7 @@ require("script!mxClient");
 
 import {Diagrams, ConnectorTypes} from "./utils/constants";
 import {DiagramMock, Prop} from "../diagram.mock";
-import {StencilServiceMock} from "../stencil.svc.mock";
+import {StencilServiceMock} from "./stencil.service.mock";
 import {Point} from "../impl/models";
 import {DiagramView} from "./diagram-view";
 

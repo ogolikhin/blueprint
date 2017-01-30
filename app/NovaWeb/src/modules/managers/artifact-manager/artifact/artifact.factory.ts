@@ -15,9 +15,9 @@ import {
     StatefulCollectionArtifact
 } from "../../../editorsModule/configuration/classes/collection-artifact";
 import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editorsModule/glossary/glossary-artifact";
-import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editorsModule/bp-diagram/diagram-artifact";
-import {StatefulUseCaseArtifact} from "../../../editorsModule/bp-diagram/usecase-artifact";
-import {StatefulUseCaseDiagramArtifact} from "../../../editorsModule/bp-diagram/usecase-diagram-artifact";
+import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editorsModule/diagram/diagram-artifact";
+import {StatefulUseCaseArtifact} from "../../../editorsModule/diagram/usecase-artifact";
+import {StatefulUseCaseDiagramArtifact} from "../../../editorsModule/diagram/usecase-diagram-artifact";
 import {
     StatefulArtifactServices,
     IStatefulArtifactServices,

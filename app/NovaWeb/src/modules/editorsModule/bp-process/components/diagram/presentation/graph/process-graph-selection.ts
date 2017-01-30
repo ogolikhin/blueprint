@@ -1,4 +1,4 @@
-﻿import {Node} from "./../../../../../bp-diagram/impl/usecase/layout/flow-graph-objects";
+﻿import {Node} from "./../../../../../diagram/impl/usecase/layout/flow-graph-objects";
 import {IProcessGraph, IDiagramNode} from "./models/process-graph-interfaces";
 import {UserTask} from "./shapes/user-task";
 import {SystemTask} from "./shapes/system-task";
@@ -7,7 +7,7 @@ import {ProcessEvents} from "./../../process-diagram-communication";
 import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessGraphSelectionHelper {
-    private isProgrammaticSelectionChange: boolean = false; 
+    private isProgrammaticSelectionChange: boolean = false;
 
     constructor(private processGraph: IProcessGraph) {
     }
@@ -22,7 +22,7 @@ export class ProcessGraphSelectionHelper {
             if (this.isProgrammaticSelectionChange) {
                 return;
             }
-            
+
             let selectedNodes = this.processGraph.getSelectedNodes();
 
             if (selectedNodes) {
@@ -46,7 +46,7 @@ export class ProcessGraphSelectionHelper {
                     });
 
                     if (selectedNodes.length > 0) {
-                        // highlight edges and copy groups, and notify system that the subartifact 
+                        // highlight edges and copy groups, and notify system that the subartifact
                         // selection has changed. Note: elements array can be empty.
                         this.processGraph.highlightNodeEdges(selectedNodes);
                         this.processGraph.highlightCopyGroups(selectedNodes);
@@ -54,7 +54,7 @@ export class ProcessGraphSelectionHelper {
                 }
 
                 this.notifySelectionChanged(selectedNodes);
-                this.processGraph.highlightBridges();            
+                this.processGraph.highlightBridges();
             }
         });
     }
@@ -110,7 +110,7 @@ export class ProcessGraphSelectionHelper {
 
     private doProgrammaticSelectionChange(changeSelection: () => void): void {
         this.isProgrammaticSelectionChange = true;
-        
+
         try {
             changeSelection();
         } finally {

@@ -11,7 +11,7 @@ import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ItemStateController} from "./item-state.controller";
+import {ItemStateController} from "./itemState.controller";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {Message, MessageType} from "../../main/components/messages/message";

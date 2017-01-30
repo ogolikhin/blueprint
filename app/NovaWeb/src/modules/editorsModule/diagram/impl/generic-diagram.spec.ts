@@ -5,7 +5,7 @@ require("script!mxClient");
 
 import {Shapes, Diagrams} from "./utils/constants";
 import {DiagramMock} from "../diagram.mock";
-import {StencilServiceMock} from "../stencil.svc.mock";
+import {StencilServiceMock} from "./stencil.service.mock";
 import {DiagramView} from "./diagram-view";
 
 describe("Rendering common shapes", () => {

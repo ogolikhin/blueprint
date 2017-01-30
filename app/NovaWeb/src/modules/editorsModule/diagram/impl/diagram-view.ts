@@ -1,5 +1,5 @@
 import {IDiagram, IConnection, IDiagramElement, IHierarchyElement, IPoint} from "./models";
-import {IStencilService} from "./stencil.svc";
+import {IStencilService} from "./stencil.service";
 import {Shapes, ConnectorTypes} from "./utils/constants";
 import {MxFactory, MathExtensions, ConnectionExtensions, HierarchyHelper} from "./utils/helpers";
 import {Style, Styles} from "./utils/style-builder";
@@ -26,7 +26,7 @@ export interface ISelectionListener {
 export class DiagramView implements IDiagramView {
 
     public onDoubleClick: (element: IDiagramElement) => void;
-    
+
     private graph: MxGraph;
 
     private selectionListeners: Array<ISelectionListener> = [];
@@ -35,7 +35,7 @@ export class DiagramView implements IDiagramView {
 
     private disabledUserSelection: boolean;
 
-    private static regesteredStencils: [string];
+    private static registeredStencils: [string];
 
     constructor(divContainer: HTMLElement, private stencilService: IStencilService, private sanitize?: (html: string) => string) {
         // Creates the graph inside the given container
@@ -306,8 +306,8 @@ export class DiagramView implements IDiagramView {
     }
 
     private registerStencils(diagramType: string, stencilService: IStencilService): void {
-        DiagramView.regesteredStencils = DiagramView.regesteredStencils || <any>[];
-        if (DiagramView.regesteredStencils.indexOf(diagramType) >= 0) {
+        DiagramView.registeredStencils = DiagramView.registeredStencils || <any>[];
+        if (DiagramView.registeredStencils.indexOf(diagramType) >= 0) {
             return;
         }
         let stencil = stencilService.getStencil(diagramType);
@@ -321,7 +321,7 @@ export class DiagramView implements IDiagramView {
                 shape = shape.nextSibling;
             }
         }
-        DiagramView.regesteredStencils.push(diagramType);
+        DiagramView.registeredStencils.push(diagramType);
     }
 
     private drawDiagramInternal(diagram: IDiagram, shapeFactory: IShapeTemplateFactory) {

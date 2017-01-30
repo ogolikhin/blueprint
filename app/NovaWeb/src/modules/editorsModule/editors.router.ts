@@ -1,5 +1,5 @@
-import {ItemStateController} from "./item-state/item-state.controller";
-import {IItemStateService} from "./item-state/item-state.service";
+import {ItemStateController} from "./itemState/itemState.controller";
+import {IItemStateService} from "./itemState/itemState.service";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
 
 export class ArtifactRoutes {
@@ -32,7 +32,7 @@ export class ArtifactRoutes {
             })
             .state("main.item", <ng.ui.IState>{
                 url: "/{id:int}?{version:int}&{path:navpath}",
-                template: require("./item-state/item-state.html"),
+                template: require("./itemState/itemState.html"),
                 controller: ItemStateController,
                 controllerAs: "$ctrl",
                 params: {

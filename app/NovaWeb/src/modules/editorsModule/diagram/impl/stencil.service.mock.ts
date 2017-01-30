@@ -1,4 +1,4 @@
-﻿import {IStencilService} from "./impl/stencil.svc";
+﻿import {IStencilService} from "./stencil.service";
 
 export class StencilServiceMock implements IStencilService {
     private readonly parser = new DOMParser();
@@ -7,22 +7,22 @@ export class StencilServiceMock implements IStencilService {
         let data: string;
         switch (diagramType) {
             case "businessprocess":
-                data = require("../../../../libs/mxClient/stencils/bpmn.xml");
+                data = require("../../../../../libs/mxClient/stencils/bpmn.xml");
                 break;
             case "genericdiagram":
-                data = require("../../../../libs/mxClient/stencils/generic.xml");
+                data = require("../../../../../libs/mxClient/stencils/generic.xml");
                 break;
             case "uimockup":
-                data = require("../../../../libs/mxClient/stencils/uimockup.xml");
+                data = require("../../../../../libs/mxClient/stencils/uimockup.xml");
                 break;
             case "storyboard":
-                data = require("../../../../libs/mxClient/stencils/storyboard.xml");
+                data = require("../../../../../libs/mxClient/stencils/storyboard.xml");
                 break;
             case "domaindiagram":
                 data = "";
                 break;
             case "usecasediagram":
-                data = require("../../../../libs/mxClient/stencils/usecasediagram.xml");
+                data = require("../../../../../libs/mxClient/stencils/usecasediagram.xml");
                 break;
             default:
                 throw "Unknown diagram type: " + diagramType;

@@ -1,5 +1,5 @@
 import "angular-sanitize";
-import {IStencilService} from "./impl/stencil.svc";
+import {IStencilService} from "./impl/stencil.service";
 import {DiagramView} from "./impl/diagram-view";
 import {ISelection, IStatefulArtifactFactory} from "../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
@@ -16,12 +16,6 @@ import {ISelectionManager} from "../../managers/selection-manager/selection-mana
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {MessageType, Message} from "../../main/components/messages/message";
 import {BpFormatFilterType} from "../../shared/filters/bp-format/bp-format.filter";
-
-
-export class BPDiagram implements ng.IComponentOptions {
-    public template: string = require("./bp-diagram.html");
-    public controller: ng.Injectable<ng.IControllerConstructor> = BPDiagramController;
-}
 
 export class BPDiagramController extends BpBaseEditor {
 

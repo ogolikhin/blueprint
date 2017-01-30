@@ -11,7 +11,7 @@ import {UiMockupShapeFactory} from "./uimockup-diagram";
 import {IShapeTemplates} from "./abstract-diagram-factory";
 import {IShape, IProp} from "./models";
 import {CalloutShape, IconShape} from "./shapes-library";
-import {StencilServiceMock} from "../stencil.svc.mock";
+import {StencilServiceMock} from "./stencil.service.mock";
 
 export var uiMockupShapesTestHelper = {
     getStyleObject: (styleString: string): any => {

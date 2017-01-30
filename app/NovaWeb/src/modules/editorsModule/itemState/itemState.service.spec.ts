@@ -6,7 +6,7 @@ import {NavigationServiceMock} from "../../commonModule/navigation/navigation.se
 import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
 import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
-import {IItemStateService} from "./item-state.service";
+import {IItemStateService} from "./itemState.service";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";

@@ -293,7 +293,7 @@ namespace Model.Impl
                     RestRequestMethod.GET,
                     queryParameters: queryParameters,
                     expectedStatusCodes: expectedStatusCodes,
-                    shouldControlJsonChanges: true);
+                    shouldControlJsonChanges: false);
 
                 return licenseUsageInfos;
             }

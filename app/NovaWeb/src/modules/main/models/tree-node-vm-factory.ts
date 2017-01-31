@@ -1,3 +1,4 @@
+import {IChangeSet} from "../../managers/artifact-manager/changeset/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {ITreeNode} from "../../shared/widgets/bp-tree-view";
 import {AdminStoreModels, Models} from "./";
@@ -164,6 +165,29 @@ export class ExplorerNodeVM extends HomogeneousTreeNodeVM<Models.IArtifact> {
                 return this.factory.createExplorerNodeVM(it);
             });
         });
+    }
+
+    private static minimalModel: Models.IArtifact = {
+        id: undefined,
+        name: undefined,
+        itemTypeId: undefined,
+        predefinedType: undefined,
+        projectId: undefined,
+        itemTypeIconId: undefined
+    };
+
+    public updateModel(model: Models.IArtifact, change?: IChangeSet) {
+        if (change) {
+            if (change.key in this.model) {
+                this.model[change.key] = change.value;
+            }
+        } else {
+            for (let key in model) {
+                if ((key in this.model || key in ExplorerNodeVM.minimalModel) && !_.isFunction(model[key])) {
+                    this.model[key] = model[key];
+                }
+            }
+        }
     }
 }
 

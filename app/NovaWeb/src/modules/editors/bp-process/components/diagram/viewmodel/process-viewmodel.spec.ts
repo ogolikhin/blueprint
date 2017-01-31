@@ -1,8 +1,6 @@
 import * as angular from "angular";
 import {IArtifactService} from "../../../../../managers/artifact-manager/";
 import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {ProcessServiceMock} from "../../../services/process.svc.mock";
-import {IProcessService} from "../../../services/process.svc";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
 import {Models} from "../../../../../main/models";
@@ -24,7 +22,6 @@ describe("ProcessViewModel", () => {
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("artifactService", ArtifactServiceMock);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("publishService", null);
     }));
@@ -33,7 +30,6 @@ describe("ProcessViewModel", () => {
                        _$q_: ng.IQService,
                        _$log_: ng.ILogService,
                        artifactService: IArtifactService,
-                       processService: IProcessService,
                        loadingOverlayService: ILoadingOverlayService) => {
         $rootScope = _$rootScope_;
         $q = _$q_;
@@ -41,7 +37,7 @@ describe("ProcessViewModel", () => {
         let artitfactServices = new StatefulArtifactServices(
             _$q_, _$log_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null, null
         );
-        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, _$log_, processService);
+        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, _$log_);
     }));
     it("test add stateful Shape", () => {
         //Arrange

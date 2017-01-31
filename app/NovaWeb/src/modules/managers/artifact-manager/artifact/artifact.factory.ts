@@ -1,7 +1,6 @@
 import {IItemInfoService, IItemInfoResult} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";
-import {IProcessService} from "../../../editors/bp-process/services/process.svc";
 import {IProcessShape} from "../../../editors/bp-process/models/process-models";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IArtifact, ISubArtifact} from "../../../main/models/models";
@@ -53,7 +52,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "artifactAttachments",
         "artifactRelationships",
         "metadataService",
-        "processService",
         "itemInfoService",
         "loadingOverlayService",
         "publishService",
@@ -73,7 +71,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private attachmentService: IArtifactAttachmentsService,
                 private relationshipsService: IArtifactRelationshipsService,
                 private metadataService: IMetaDataService,
-                private processService: IProcessService,
                 private itemInfoService: IItemInfoService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private publishService: IUnpublishedArtifactsService,
@@ -184,7 +181,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     private createStatefulProcessArtifact(artifact: IArtifact): IStatefulArtifact {
         let processServices: IStatefulProcessArtifactServices =
-            new StatefulProcessArtifactServices(this.services, this.$q, this.$log, this.processService);
+            new StatefulProcessArtifactServices(this.services, this.$q, this.$log);
 
         return new StatefulProcessArtifact(artifact, processServices);
     }

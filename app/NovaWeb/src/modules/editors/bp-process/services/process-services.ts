@@ -1,15 +1,12 @@
-import {IProcessService} from "./process.svc";
 import {StatefulArtifactServices, IStatefulArtifactServices} from "../../../managers/artifact-manager/services";
 
 export interface IStatefulProcessArtifactServices extends IStatefulArtifactServices {
-    processService: IProcessService;
 }
 export class StatefulProcessArtifactServices extends StatefulArtifactServices implements IStatefulProcessArtifactServices {
 
     constructor(private statefulArtifactServices: IStatefulArtifactServices,
                 $q: ng.IQService,
-                $log: ng.ILogService,
-                private _processService: IProcessService) {
+                $log: ng.ILogService) {
         super(
             $q,
             $log,
@@ -26,9 +23,5 @@ export class StatefulProcessArtifactServices extends StatefulArtifactServices im
             statefulArtifactServices.validationService,
             statefulArtifactServices.propertyDescriptor
         );
-    }
-
-    public get processService(): IProcessService {
-        return this._processService;
     }
 }

@@ -1,7 +1,6 @@
 import * as angular from "angular";
 import {BpProcessHeader} from "./components/header/bp-process-header";
 import {BpProcessEditor} from "./bp-process-editor";
-import {ProcessService} from "./services/process.svc";
 import {BreadcrumbService} from "./services/breadcrumb.svc";
 import {UserStoryService} from "./services/user-story.svc";
 import * as ProcessModels from "./models/process-models";
@@ -27,7 +26,6 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("systemTaskEditor", new SystemTaskEditor())
     .directive("previewWing", PreviewWingDirective.directive)
     .directive("zoomableImage", ZoomableImageDirective.directive)
-    .service("processService", ProcessService)
     .service("shapesFactory", ShapesFactory)
     .service("breadcrumbService", BreadcrumbService)
     .service("communicationManager", CommunicationManager)
@@ -37,11 +35,9 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .directive("cleartext", () => new ClearTextDirective())
     .directive("uploadImage", UploadImageDirective.factory());
 
-export {IProcessService} from "./services/process.svc";
 export {
     BpProcessHeader,
     BpProcessEditor,
-    ProcessService,
     ProcessModels,
     ProcessEnums,
     ICommunicationManager,

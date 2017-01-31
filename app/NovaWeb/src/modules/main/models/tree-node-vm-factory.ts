@@ -190,8 +190,6 @@ export class ExplorerNodeVM extends HomogeneousTreeNodeVM<Models.IArtifact> {
             for (let key in _.pickBy(changes.item, (key, value) => !_.isFunction(value))) {
                 if (key in this.model || key in ExplorerNodeVM.minimalModel) {
                     this.model[key] = changes.item[key];
-                } else {
-                    console.log("not updating " + key);
                 }
             }
         }

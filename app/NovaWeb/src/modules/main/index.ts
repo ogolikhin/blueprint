@@ -17,6 +17,7 @@ import "./services/";
 import "./components";
 import "./services";
 import "./view";
+import "angular-google-analytics";
 import {formlyConfig} from "../editors/";
 
 config.$inject = ["$rootScope", "$state", "$templateCache"];
@@ -43,6 +44,15 @@ if (agGridEnterprise["LicenseManager"] && angular.isFunction(agGridEnterprise["L
     agGridEnterprise["LicenseManager"].setLicenseKey("Blueprint_Software_Systems_Inc._19-May-2016_MTQ5NTE0ODQwMDAwMA==5e9a534267a22bce0af6682e4bbcb799");
 }
 
+configGA.$inject = ["AnalyticsProvider"];
+export function configGA(AnalyticsProvider: any) {
+    let gATrackingCode = window["config"].settings.GATrackingCode;
+    if (gATrackingCode) {
+        AnalyticsProvider.setPageEvent("$stateChangeSuccess");
+        AnalyticsProvider.setAccount(gATrackingCode);
+    }
+}
+
 agGrid.initialiseAgGridWithAngular1(angular);
 angular.module("app.main", [
     "ngAnimate",
@@ -60,10 +70,13 @@ angular.module("app.main", [
     "bp.editors",
     "bp.components",
     "bp.main.services",
-    "bp.main.view"
+    "bp.main.view",
+    "angular-google-analytics"
 ])
+.config (configGA)
     .run(config)
-    .run(formlyConfig);
+    .run(formlyConfig)
+    .run(["Analytics", function(Analytics) { let a = 3; }]);
 
 export {
     Enums,

@@ -27,6 +27,8 @@ namespace Helper
         /// </summary>
         /// <param name="expectedProject">IProject representing a project.</param>
         /// <param name="actualProject">IProject representing a project.</param>
+        /// <param name="convertDescriptionsToPlainText">Indicator if plain text conversion is required for both projects' description values.
+        /// By Default, this is set to false.</param>
         public static void AssertAreEqual(IProject expectedProject, IProject actualProject, bool convertDescriptionsToPlainText = false)
         {
             ThrowIf.ArgumentNull(expectedProject, nameof(expectedProject));
@@ -37,11 +39,13 @@ namespace Helper
             {
                 if (convertDescriptionsToPlainText)
                 {
-                    var plainInstanceProjectDescription = StringUtilities.ConvertHtmlToText(actualProject.Description);
+                    var expectedProjectDescription = StringUtilities.ConvertHtmlToText(expectedProject.Description);
+                    var actualProjectDescription = StringUtilities.ConvertHtmlToText(actualProject.Description);
 
-                    StringAssert.Contains(expectedProject.Description, actualProject.Description,
+
+                    StringAssert.Contains(expectedProjectDescription, actualProjectDescription,
                         "Project Description '{0}' was expected but '{1}' was returned.",
-                        expectedProject.Description, plainInstanceProjectDescription);
+                        expectedProjectDescription, actualProjectDescription);
                 } else
                 {
                     Assert.AreEqual(expectedProject.Description, actualProject.Description,
@@ -70,7 +74,7 @@ namespace Helper
 
             ThrowIf.ArgumentNull(actualInstanceProject, nameof(InstanceProject));
 
-            AssertAreEqual(expectedProject, (IProject)actualInstanceProject, true);
+            AssertAreEqual(expectedProject, (IProject)actualInstanceProject, convertDescriptionsToPlainText: true);
 
             Assert.IsNotNull(actualInstanceProject.ParentFolderId, "{0} should not be null!", nameof(InstanceProject.ParentFolderId));
 

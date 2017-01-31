@@ -8,7 +8,7 @@ import {ISelectionManager} from "../../../managers/selection-manager/selection-m
 import {Helper, IDialogService} from "../../../shared";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRendererParams, ITreeNode} from "../../../shared/widgets/bp-tree-view/";
-import {BpArtifactDetailsEditorController} from "../../artifact/details/artifactDetailsEditor.controller";
+import {BpArtifactDetailsEditorController} from "../../artifactEditor/details/artifactDetailsEditor.controller";
 import {IPropertyDescriptorBuilder} from "../../services";
 import {ICollectionArtifact, IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 import {ICollectionService} from "../collection.service";

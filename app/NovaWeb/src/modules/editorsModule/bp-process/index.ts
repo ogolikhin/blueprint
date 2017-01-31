@@ -1,4 +1,5 @@
-import * as angular from "angular";
+import "angular";
+
 import {BpProcessHeader} from "./components/header/bp-process-header";
 import {BpProcessEditor} from "./bp-process-editor";
 import {ProcessService} from "./services/process.svc";
@@ -18,7 +19,7 @@ import {UserTaskEditor, SystemTaskEditor} from "./components/modal-dialogs/task-
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {ClipboardService} from "./services/clipboard.svc";
 
-angular.module("bp.editors.process", ["ui.bootstrap"])
+export const ProcessEditor = angular.module("bp.editors.process", ["ui.bootstrap"])
     .component("bpProcessHeader", new BpProcessHeader())
     .component("bpProcessEditor", new BpProcessEditor())
     .component("previewCenter", new PreviewCenterComponent())
@@ -35,7 +36,8 @@ angular.module("bp.editors.process", ["ui.bootstrap"])
     .service("clipboardService", ClipboardService)
     .directive("contextualHelp", ContextualHelpDirective.factory())
     .directive("cleartext", () => new ClearTextDirective())
-    .directive("uploadImage", UploadImageDirective.factory());
+    .directive("uploadImage", UploadImageDirective.factory())
+    .name;
 
 export {IProcessService} from "./services/process.svc";
 export {

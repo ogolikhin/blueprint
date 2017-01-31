@@ -1,13 +1,14 @@
-﻿import * as angular from "angular";
+﻿import "angular";
+
 import "angular-formly";
 import "angular-formly-templates-bootstrap";
 import {GlossaryEditor} from "./glossary";
-import {ArtifactEditors} from "./artifact";
+import {ArtifactEditors} from "./artifactEditor";
 import {DiagramEditor} from "./diagram";
-import "./bp-process";
 import {CollectionEditors} from "./collection";
 import {UnpublishedEditor} from "./unpublished";
 import {JobsEditor} from "./jobs";
+
 import {ArtifactRoutes} from "./editors.router";
 import {
     IPropertyDescriptor,
@@ -16,19 +17,21 @@ import {
 } from "./services";
 import {ItemState} from "./itemState";
 
+import {ProcessEditor} from "./bp-process";
+
 angular.module("bp.editors", [
-        "formly",
-        "formlyBootstrap",
-        GlossaryEditor,
-        ArtifactEditors,
-        EditorServices,
-        ItemState,
-        DiagramEditor,
-        "bp.editors.process",
-        CollectionEditors,
-        JobsEditor,
-        UnpublishedEditor
-    ])
+    "formly",
+    "formlyBootstrap",
+    GlossaryEditor,
+    ArtifactEditors,
+    EditorServices,
+    ItemState,
+    DiagramEditor,
+    ProcessEditor,
+    CollectionEditors,
+    JobsEditor,
+    UnpublishedEditor
+])
     .config(ArtifactRoutes);
 
 export {IPropertyDescriptor, IPropertyDescriptorBuilder}

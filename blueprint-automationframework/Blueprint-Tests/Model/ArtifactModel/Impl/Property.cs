@@ -23,20 +23,17 @@ namespace Model.ArtifactModel.Impl
         /// <param name="propertyName">the name of the property want to edit</param>
         /// <param name="propertyValue">(Optional) property value for the property. If null, the default value will be used if available</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <returns>A Property with the specified values.</returns>
         public Property SetPropertyAttribute(
             IProject project,
             IUser user,
             BaseArtifactType baseArtifactType,
             string propertyName,
             string propertyValue = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             // Retrieve the deserialized property for the selected base artifact type
-            var returnedPropertyType = GetPropertyType(project, user, baseArtifactType, propertyName,
-                expectedStatusCodes, sendAuthorizationAsCookie);
+            var returnedPropertyType = GetPropertyType(project, user, baseArtifactType, propertyName, expectedStatusCodes);
 
             // Created and update the property based on information from get artifact types call and user parameter
             var updatedProperty = new Property(Address)

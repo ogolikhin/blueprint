@@ -470,5 +470,16 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Number of artifacts added to Collection</returns>
         int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets image file for Actor's icon
+        /// Runs GET svc/bpartifactstore/diagram/actoricon/{0}?versionId={1}&addDraft=true
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="actorArtifactId">Id of artifact or sub-artifact.</param>
+        /// <param name="versionId">Id of version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>IFile representing Actor's icon</returns>
+        IFile GetActorIcon(IUser user, int actorArtifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

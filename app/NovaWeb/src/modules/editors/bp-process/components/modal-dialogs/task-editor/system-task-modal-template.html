@@ -20,7 +20,7 @@
                            ng-class="{'disabled': $ctrl.isReadonly}"
                            button-label="{{$ctrl.getPersonaLabel()}}">
                 </bp-select>
-                <button class="btn btn-primary btn-small btn-icon__add bp-toolbar__item" type="button"
+                <button class="btn btn-primary btn-small btn-icon__add bp-dropdown__action" type="button"
                         bp-tooltip="{{::$ctrl.localization.get('Tooltip_Browse_Actor')}}"
                         ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
                     <span class="fonticon2-more-menu"></span>
@@ -57,12 +57,12 @@
                     </button>
                     <ul uib-dropdown-menu>
                         <li class="toolbar-menu__item">
-                            <button type="button" class="btn btn-link toolbar-menu__action bp-toolbar__item" ng-click="$ctrl.createNewArtifact()">
+                            <button type="button" class="btn btn-link toolbar-menu__action bp-dropdown__action" ng-click="$ctrl.createNewArtifact()">
                                 {{::$root.config.labels['ST_Include_New_Process_Label']}}
                             </button>
                         </li>
                         <li class="toolbar-menu__item">
-                            <button type="button" class="btn btn-link toolbar-menu__action bp-toolbar__item" ng-click="$ctrl.openIncludePicker()">
+                            <button type="button" class="btn btn-link toolbar-menu__action bp-dropdown__action" ng-click="$ctrl.openIncludePicker()">
                                 {{::$root.config.labels['ST_Include_Existing_Artifact_Label']}}
                             </button>
                         </li>

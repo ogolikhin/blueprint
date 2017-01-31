@@ -74,7 +74,7 @@
 
 // Matching CSS styles for buttons to be used in dropdown menus over anchor tags
 .dropdown-menu {
-  > li > .bp-toolbar__item {
+  > li > .bp-dropdown__action {
     display: block;
     padding: 6px 20px;
     clear: both;
@@ -87,7 +87,7 @@
 }
 
 // Hover/Focus state
-.dropdown-menu > li > .bp-toolbar__item {
+.dropdown-menu > li > .bp-dropdown__action {
   &:hover,
   &:focus {
     text-decoration: none;
@@ -97,7 +97,7 @@
 }
 
 // Active state
-.dropdown-menu > .active > .bp-toolbar__item {
+.dropdown-menu > .active > .bp-dropdown__action {
   &,
   &:hover,
   &:focus {

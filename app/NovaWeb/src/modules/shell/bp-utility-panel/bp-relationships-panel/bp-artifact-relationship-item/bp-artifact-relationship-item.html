@@ -62,7 +62,6 @@
     <div class="icons" ng-if="$ctrl.showActionsPanel">
         <div>
             <input type="checkbox" ng-checked="$ctrl.relationship.isSelected"
-                   bp-tooltip="{{::$ctrl.localization.get('App_UP_Relationships_Select')}}"
                    ng-click="$ctrl.selectTrace()"
                    ng-if="$ctrl.canModifyItem()"/>
         </div>

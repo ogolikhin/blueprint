@@ -1,3 +1,5 @@
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {ISession} from "../../../../../shell/login/session.svc";
 import {ErrorCode} from "../../../../../shell/error/error-code";
 import {Message, MessageType} from "../../../../../main/components/messages/message";
 import {ItemTypePredefined} from "../../../../../main/models/enums";
@@ -47,7 +49,9 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         "statefulArtifactFactory",
         "messageService",
         "artifactService",
-        "loadingOverlayService"
+        "loadingOverlayService",
+        "session",
+        "selectionManager"
     ];
 
     constructor(
@@ -62,6 +66,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         protected messageService: IMessageService,
         protected artifactService: IArtifactService,
         protected loadingOverlayService: ILoadingOverlayService,
+        private session: ISession,
+        private selectionManager: ISelectionManager,
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: T
     ) {
@@ -172,25 +178,38 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             return this.$q.resolve();
         }
 
-        if (associatedArtifact.id < 0) {
+        if (associatedArtifact.id < 0) {      
             let newStatefulArtifact: IStatefulArtifact;
+            let isLockedByOtheruser = false;
 
-            return this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId())
-                .then((newArtifact: IArtifact) => {
-                    return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifact.id);
-                })
-                .then((statefulArtifact: IStatefulArtifact) => {
-                    newStatefulArtifact = statefulArtifact;
-                    return newStatefulArtifact.publish();
-                })
-                .then(() => {
-                    this.setInclude(newStatefulArtifact);
-                })
-                .catch((error: any) => {
+            return this.artifactService.getArtifact(this.dialogModel.artifactId)
+            .then((artifact: IArtifact) => {
+                if (artifact.lockedByUser &&
+                    artifact.lockedByUser.id !== this.session.currentUser.id) {
+                    this.selectionManager.getArtifact().refresh();      
+                    isLockedByOtheruser = true;                  
+                    return this.$q.reject(new ApplicationError(this.localization.get("Artifact_Lock_AlreadyLocked")));
+                }
+
+                return this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId());
+            })
+            .then((newArtifact: IArtifact) => {
+                return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifact.id);
+            })
+            .then((statefulArtifact: IStatefulArtifact) => {
+                newStatefulArtifact = statefulArtifact;
+                return newStatefulArtifact.publish();
+            })
+            .then(() => {
+                this.setInclude(newStatefulArtifact);
+            })
+            .catch((error: any) => {
+                if (!isLockedByOtheruser) {
                     this.onNewArtifactCreationError(error, newStatefulArtifact);
                     this.setAssociatedArtifact(null);
-                    this.$q.reject(error);
-                });
+                }
+                this.$q.reject(error);
+            });      
         }
 
         return this.$q.resolve();

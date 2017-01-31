@@ -442,7 +442,7 @@ namespace Model.StorytellerModel.Impl
             return updatedProcess;
         }
 
-        public NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
+        public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
 
@@ -456,12 +456,12 @@ namespace Model.StorytellerModel.Impl
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
 
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcessUpdateResult, NovaProcess>(
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, NovaProcess>(
                 path,
                 RestRequestMethod.PATCH,
                 novaProcess,
                 expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                shouldControlJsonChanges: false);
 
             return restResponse;
         }
@@ -581,14 +581,14 @@ namespace Model.StorytellerModel.Impl
             return artifact.Discard(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
-        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool? deleteChildren = null)
+        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteProcessArtifact));
 
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
-            return artifact.Delete(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie, deleteChildren: deleteChildren);
+            return artifact.Delete(artifact.CreatedBy, deleteChildren: deleteChildren, expectedStatusCodes: expectedStatusCodes);
         }
 
         public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)

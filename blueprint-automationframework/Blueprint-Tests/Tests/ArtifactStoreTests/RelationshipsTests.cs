@@ -708,7 +708,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor, fakeArtifactId);
 
             // Verify the artifact doesn't exist.
-            Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, sourceArtifact.Id, _user),
+            Assert.Throws<Http404NotFoundException>(() => OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, sourceArtifact.Id, _user),
                 "An artifact with ID: {0} was found, but it shouldn't exist!", sourceArtifact.Id);
 
             // Execute & Verify:
@@ -727,7 +727,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
             // Verify the artifact doesn't exist.
-            Assert.Throws<Http404NotFoundException>(() => OpenApiArtifact.GetArtifact(Helper.BlueprintServer.Address, _project, fakeSubArtifactId, _user),
+            Assert.Throws<Http404NotFoundException>(() => OpenApi.GetArtifact(Helper.BlueprintServer.Address, _project, fakeSubArtifactId, _user),
                 "A sub-artifact with ID: {0} was found, but it shouldn't exist!", fakeSubArtifactId);
 
             // Execute & Verify:

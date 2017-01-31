@@ -44,8 +44,8 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(123258)]
-        [Description("Gets an existing project and verify that 200 OK is returned with expected project.")]
-        public void GetProjectById_VerifyGetProjectResult()
+        [Description("Gets all available projects and verify that 200 OK is returned with expected project.")]
+        public void GetProjectById_GetAllAvailableProjects_VerifyGetProjectResult()
         {
             // Setup: Not required.
 

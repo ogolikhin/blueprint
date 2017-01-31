@@ -52,7 +52,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
                 .subscribeOnNext(this.setSelectedNode, this),
             this.selectionManager.explorerArtifactObservable
                 .filter(artifact => !!artifact)
-                .flatMap((artifact: IStatefulArtifact) => artifact.getProperyObservable())
+                .flatMap((artifact: IStatefulArtifact) => artifact.getPropertyObservable())
                 .subscribeOnNext(this.onSelectedArtifactChange, this)
         ];
     }

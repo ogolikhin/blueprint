@@ -107,7 +107,7 @@ export class StatefulArtifactMock implements IStatefulArtifact, IIStatefulArtifa
     getEffectiveVersion(): number {
         return 0;
     }
-    getProperyObservable(): Rx.Observable<IItemChangeSet> {
+    getPropertyObservable(): Rx.Observable<IItemChangeSet> {
         return new Rx.BehaviorSubject<IItemChangeSet>(null).asObservable();
     }
     validateItem(propertyDescriptors: IPropertyDescriptor[]): boolean {

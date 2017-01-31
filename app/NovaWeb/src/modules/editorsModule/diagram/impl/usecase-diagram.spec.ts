@@ -10,7 +10,7 @@ import {DiagramView} from "./diagram-view";
 import {UCDLinkType} from "./utils/enums";
 
 
-describe("Rendering common shapes", () => {
+describe("Usecase Diagram: Rendering common shapes", () => {
     let element: ng.IAugmentedJQuery;
     let diagramView: DiagramView;
 

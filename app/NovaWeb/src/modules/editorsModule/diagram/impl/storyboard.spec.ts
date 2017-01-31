@@ -8,7 +8,7 @@ import {DiagramMock, Prop} from "../diagram.mock";
 import {StencilServiceMock} from "./stencil.service.mock";
 import {DiagramView} from "./diagram-view";
 
-describe("Rendering common shapes", () => {
+describe("Storyboard: Rendering common shapes", () => {
     let element: ng.IAugmentedJQuery;
     let diagramView: DiagramView;
 

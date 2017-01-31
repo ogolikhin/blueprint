@@ -12,7 +12,7 @@ import {Point} from "../impl/models";
 import {DiagramView} from "./diagram-view";
 
 
-describe("Rendering common shapes", () => {
+describe("Buisness Process Diagram: Rendering common shapes", () => {
     let element: ng.IAugmentedJQuery;
     let diagramView: DiagramView;
 

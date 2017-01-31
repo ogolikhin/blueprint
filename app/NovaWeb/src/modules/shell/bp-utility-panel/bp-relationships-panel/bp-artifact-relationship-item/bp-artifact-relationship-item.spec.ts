@@ -35,7 +35,6 @@ describe("BPArtifactRelationshipItem", () => {
         $provide.service("artifactService", ArtifactService);
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("validationService", ValidationServiceMock);
     }));
 

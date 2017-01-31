@@ -31,7 +31,6 @@ describe("Project", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationService);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);

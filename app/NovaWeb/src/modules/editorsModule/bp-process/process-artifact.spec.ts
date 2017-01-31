@@ -18,7 +18,6 @@ import {SettingsMock} from "../../shell/login/mocks.spec";
 import {ItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
 import * as TestModels from "./models/test-model-factory";
 import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
-import {ProcessServiceMock} from "./services/process.svc.mock";
 import * as angular from "angular";
 import {LoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
@@ -48,7 +47,6 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);

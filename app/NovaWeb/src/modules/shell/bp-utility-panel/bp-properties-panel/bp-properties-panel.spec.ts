@@ -6,8 +6,7 @@ import {LocalizationServiceMock} from "../../../commonModule/localization/locali
 import {createDefaultProcessModel} from "../../../editorsModule/bp-process/models/test-model-factory";
 import {INovaProcess} from "../../../editorsModule/bp-process/process-artifact";
 import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
-import {IPropertyDescriptor} from "../../../editorsModule/services";
-import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
+import {IPropertyDescriptor, PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {Enums, Models} from "../../../main";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
@@ -45,7 +44,6 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
         $provide.service("validationService", ValidationServiceMock);

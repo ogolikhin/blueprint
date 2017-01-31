@@ -20,9 +20,7 @@ import {StatefulUseCaseArtifact} from "../../../editorsModule/diagram/usecase-ar
 import {StatefulUseCaseDiagramArtifact} from "../../../editorsModule/diagram/usecase-diagram-artifact";
 import {
     StatefulArtifactServices,
-    IStatefulArtifactServices,
-    StatefulProcessArtifactServices,
-    IStatefulProcessArtifactServices
+    IStatefulArtifactServices
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
 import {IValidationService} from "../validation/validation.svc";
@@ -53,7 +51,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "artifactAttachments",
         "artifactRelationships",
         "metadataService",
-        "processService",
         "itemInfoService",
         "loadingOverlayService",
         "publishService",
@@ -73,7 +70,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private attachmentService: IArtifactAttachmentsService,
                 private relationshipsService: IArtifactRelationshipsService,
                 private metadataService: IMetaDataService,
-                private processService: IProcessService,
                 private itemInfoService: IItemInfoService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private publishService: IUnpublishedArtifactsService,
@@ -183,10 +179,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     }
 
     private createStatefulProcessArtifact(artifact: IArtifact): IStatefulArtifact {
-        let processServices: IStatefulProcessArtifactServices =
-            new StatefulProcessArtifactServices(this.services, this.$q, this.$log, this.processService);
-
-        return new StatefulProcessArtifact(artifact, processServices);
+        return new StatefulProcessArtifact(artifact, this.services);
     }
 
     private createStatefulProjectArtifact(artifact: IArtifact): IStatefulArtifact {

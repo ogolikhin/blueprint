@@ -452,11 +452,11 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="artifactHistoryVersion">The ArtifactHistoryVersion that was returned.</param>
         /// <param name="expectedArtifactHistoryVersion">The expected ArtifactHistoryVersion values.</param>
-        /// <param name="plusOrMinusSeconds">(optional) Compare Timestamps leniently with +/- this many seconds.</param>
+        /// <param name="plusOrMinusMilliSeconds">(optional) Compare Timestamps leniently with +/- this many milliseconds.</param>
         private static void AssertArtifactHistory(
             ArtifactHistoryVersion artifactHistoryVersion,
             ArtifactHistoryVersion expectedArtifactHistoryVersion,
-            double plusOrMinusSeconds = 60.0)
+            double plusOrMinusMilliSeconds = 60000.0)
         {
             Assert.AreEqual(artifactHistoryVersion.VersionId, expectedArtifactHistoryVersion.VersionId,
                 "VersionId should be {0}, but it is {1}", artifactHistoryVersion.VersionId, expectedArtifactHistoryVersion.VersionId);
@@ -470,7 +470,7 @@ namespace ArtifactStoreTests
                 "UserId should be {0}, but it is {1}", artifactHistoryVersion.UserId, expectedArtifactHistoryVersion.UserId);
 
             // Compare the Timestamps +/- plusOrMinusSeconds because we don't know what the exact time of creation was.
-            Assert.That(artifactHistoryVersion.Timestamp.CompareTimePlusOrMinus(expectedArtifactHistoryVersion.Timestamp, plusOrMinusSeconds),
+            Assert.That(artifactHistoryVersion.Timestamp.CompareTimePlusOrMinusMilliseconds(expectedArtifactHistoryVersion.Timestamp, plusOrMinusMilliSeconds),
                 "Timestamp should be approximately {0}, but it is {1}", expectedArtifactHistoryVersion.Timestamp, artifactHistoryVersion.Timestamp);
         }
 

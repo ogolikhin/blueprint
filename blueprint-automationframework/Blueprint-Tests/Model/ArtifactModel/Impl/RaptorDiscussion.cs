@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using Utilities;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -160,8 +161,8 @@ namespace Model.ArtifactModel.Impl
 
                 // TFS Bug: 4706  Milliseconds are different.
                 // When comparing the dates because RapidReview and Nova return different milliseconds for some reason, so just verify that they're less than 1 second apart.
-                var timeSpan = new TimeSpan(Math.Abs(expectedDiscussion.LastEditedOn.Ticks - actualDiscussion.LastEditedOn.Ticks));
-                Assert.Less(timeSpan.TotalMilliseconds, 1000, MESSAGE, nameof(IDiscussionAdaptor.LastEditedOn));
+                Assert.That(expectedDiscussion.LastEditedOn.CompareTimePlusOrMinusMilliseconds(actualDiscussion.LastEditedOn, 1000),
+                    MESSAGE, nameof(IDiscussionAdaptor.LastEditedOn));
 
                 Assert.AreEqual(expectedDiscussion.Comment, actualDiscussion.Comment, MESSAGE, nameof(IDiscussionAdaptor.Comment));
                 Assert.AreEqual(expectedDiscussion.DiscussionId, actualDiscussion.DiscussionId, MESSAGE, nameof(IDiscussionAdaptor.DiscussionId));

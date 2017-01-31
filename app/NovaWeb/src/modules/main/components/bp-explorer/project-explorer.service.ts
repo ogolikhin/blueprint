@@ -13,11 +13,16 @@ import {ILocalizationService} from "../../../commonModule/localization/localizat
 import {IArtifact} from "../../models/models";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
+import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
 
 export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];
+    projectsChangeObservable: Rx.Observable<IChangeSet>;
     projectsObservable: Rx.Observable<ExplorerNodeVM[]>;
-    selectedId: number;
+    // selectedId: number;
+
+    setSelectionId(id: number);
+    getSelectionId(): number;
 
     add(projectId: number): ng.IPromise<void>;
 
@@ -26,16 +31,22 @@ export interface IProjectExplorerService {
 
     openProject(project: IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
     openProjectWithDialog(): void;
-    openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
+    openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number);
 
-    refresh(projectId: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
+    refresh(projectId: number, selectionId?: number, forceOpen?: boolean);
+    refreshAll();
+
+    getProject(id: number): ExplorerNodeVM;
 }
 
 export class ProjectExplorerService implements IProjectExplorerService {
     private factory: TreeNodeVMFactory;
     private _projects: ExplorerNodeVM[];
+    private projectsChangeSubject: Rx.Subject<IChangeSet>;
     private projectsSubject: Rx.Subject<ExplorerNodeVM[]>;
     private _selectedId: number;
+
+    public projectsChangeObservable: Rx.Observable<IChangeSet>;
 
     static $inject = [
         "$q",
@@ -65,6 +76,9 @@ export class ProjectExplorerService implements IProjectExplorerService {
 
         this.factory = new TreeNodeVMFactory(projectService);
         this.projectsSubject = new Rx.Subject<ExplorerNodeVM[]>();
+        this.projectsChangeSubject = new Rx.Subject<IChangeSet>();
+        this.projectsChangeObservable = this.projectsChangeSubject.asObservable();
+
         this.projects = [];
     }
 
@@ -81,13 +95,25 @@ export class ProjectExplorerService implements IProjectExplorerService {
         return this.projectsSubject.asObservable();
     }
 
-    public get selectedId(): number {
+    // FIXME: remove accessors/mutators
+    private get selectedId(): number {
         return this._selectedId;
     }
 
-    public set selectedId(val: number) {
+    private set selectedId(val: number) {
         this._selectedId = val;
-        this.triggerProjectsUpdate();
+    }
+
+    public setSelectionId(id: number) {
+        this.selectedId = id;
+        const change = {
+            type: ChangeTypeEnum.Select
+        } as IChangeSet;
+        this.projectsChangeSubject.onNext(change);
+    }
+
+    public getSelectionId() {
+        return this.selectedId;
     }
 
     public add(projectId: number): ng.IPromise<void> {
@@ -114,7 +140,13 @@ export class ProjectExplorerService implements IProjectExplorerService {
                         projectNode = this.factory.createExplorerNodeVM(project, true);
                         this.selectedId = projectNode.model.id;
                         this.projects.unshift(projectNode);
-                        this.triggerProjectsUpdate();
+
+                        const change = {
+                            type: ChangeTypeEnum.Add,
+                            value: projectNode
+                        } as IChangeSet;
+                        this.projectsChangeSubject.onNext(change);
+
                         this.navigationService.navigateTo({id: projectId});
 
                     }).catch((err: any) => {
@@ -134,16 +166,26 @@ export class ProjectExplorerService implements IProjectExplorerService {
         this.metadataService.remove(projectId);
         const removedProjects = _.remove(this.projects, project => project.model.projectId === projectId);
         if (removedProjects.length) {
-            removedProjects[0].unloadChildren();
+            if (this.projects.length) {
+                this.selectedId = this.projects[0].model.projectId;
+            }
+            const change = {
+                type: ChangeTypeEnum.Delete,
+                value: removedProjects[0]
+            } as IChangeSet;
+            this.projectsChangeSubject.onNext(change);
         }
-        this.triggerProjectsUpdate();
     }
 
     public removeAll() {
         // FIXME: use remove
         _.forEach(this.projects, project => {
-            this.metadataService.remove(project.model.projectId);
-            project.unloadChildren();
+            this.metadataService.remove(project.model.id);
+            const change = {
+                type: ChangeTypeEnum.Delete,
+                value: project
+            } as IChangeSet;
+            this.projectsChangeSubject.onNext(change);
         });
 
         this.projects = [];
@@ -166,13 +208,65 @@ export class ProjectExplorerService implements IProjectExplorerService {
         });
     }
 
+    private createProjectNode(projectId: number): ng.IPromise<ExplorerNodeVM> {
+        return this.projectService.getProject(projectId).then((projectInfo: IInstanceItem) => {
+            const project = {
+                id: projectInfo.id,
+                name: projectInfo.name,
+                description: projectInfo.description,
+                parentFolderId: undefined,
+                type: InstanceItemType.Project,
+                hasChildren: true,
+                permissions: projectInfo.permissions,
+                projectId: projectId,
+                itemTypeId: ItemTypePredefined.Project,
+                prefix: "PR",
+                itemTypeName: "Project",
+                predefinedType: ItemTypePredefined.Project
+            };
+
+            return this.factory.createExplorerNodeVM(project, true);
+        });
+    }
+
     // FIXME
-    public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {
-        // const artifactToExpand = {} as IArtifact;
-        // artifactToExpand.id = artifactIdToExpand;
-        // artifactToExpand.projectId = projectId;
-        // return this.doRefresh(projectId, artifactToExpand, false);
-        return null;
+    public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number) {
+        return this.projectService.getProjectTree(projectId, artifactIdToExpand, true).then((artifacts: IArtifact[]) => {
+            // const existingProjectNode = this.getProject(projectId);
+            // if (existingProjectNode) {
+                //
+            // }
+            this.metadataService.get(projectId)
+                .then(() => this.createProjectNode(projectId))
+                .then((project: ExplorerNodeVM) => {
+                    //populate it
+                    project.children = artifacts.map((artifact: IArtifact) => this.factory.createExplorerNodeVM(artifact));
+
+                    //open any children that have children
+                    this.openChildNodes(project.children, artifacts);
+
+                    this.selectedId = artifactIdToExpand;
+                    this.projects.unshift(project);
+                    const change = {
+                        type: ChangeTypeEnum.Add,
+                        value: project
+                    } as IChangeSet;
+                    this.projectsChangeSubject.onNext(change);
+                });
+        });
+    }
+
+    private openChildNodes(childrenNodes: ExplorerNodeVM[], childrenData: IArtifact[]) {
+        _.forEach(childrenNodes, (node) => {
+            const childData = childrenData.filter(it => it.id === node.model.id);
+
+            //if it has children - expand the node
+            if (childData[0].hasChildren && childData[0].children) {
+                node.children = childData[0].children.map((it: IArtifact) => this.factory.createExplorerNodeVM(it));
+                node.expanded = true;
+                this.openChildNodes(node.children, childData[0].children);
+            }
+        });
     }
 
     public openProjectWithDialog(): void {
@@ -190,36 +284,44 @@ export class ProjectExplorerService implements IProjectExplorerService {
         return _.find(this.projects, project => project.model.id === id);
     }
 
-    public refresh(projectId: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void> {
+    public refresh(projectId: number, selectionId?: number, forceOpen?: boolean) {
         this.$log.debug("refreshing project: " + projectId);
 
         const projectNode = this.getProject(projectId);
         if (!projectNode) {
-            return this.$q.reject();
+            return;
         }
 
-        return this.selectionManager.autosave().then(() => {
-            let selectedArtifact = {} as IArtifact;
-            if (selectionId) {
-                selectedArtifact.id = selectionId;
-                selectedArtifact.projectId = projectNode.model.id;
-            } else {
-                selectedArtifact = this.selectionManager.getArtifact();
-            }
-            this.triggerProjectsUpdate();
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (selectedArtifact && selectedArtifact.projectId === projectId) {
+            this.selectionManager.autosave().then(() => {
+                this.remove(projectId);
+                this.openProjectAndExpandToNode(projectId, selectedArtifact.id);
+            });
 
-            // FIXME: refresh
-            // return this.doRefresh(projectNode.model.id, selectedArtifact, forceOpen);
-            return null;
+        } else {
+            const change = {
+                type: ChangeTypeEnum.Refresh,
+                value: projectNode
+            } as IChangeSet;
+            this.projectsChangeSubject.onNext(change);
+        }
+    }
+
+    public refreshAll() {
+        return this.selectionManager.autosave().then(() => {
+           this.refreshCurrentArtifact();
+            _.forEach(this.projects, project => {
+                this.refresh(project.model.id);
+            });
         });
     }
 
-    public refreshAll(): ng.IPromise<void> {
-        // TODO: implement
-        return null;
+    private refreshCurrentArtifact() {
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (selectedArtifact) {
+            selectedArtifact.refresh();
+        }
     }
 
-    private triggerProjectsUpdate() {
-        this.projects = this.projects.slice();
-    }
 }

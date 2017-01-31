@@ -20,6 +20,7 @@ import {ICollectionService} from "../../../bp-collection/collection.svc";
 import {IItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../../../../main/components/bp-explorer/project-explorer.service";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -40,6 +41,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "loadingOverlayService",
         "navigationService",
         "projectManager",
+        "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
         "communicationManager",
@@ -61,6 +63,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
                 projectManager: IProjectManager,
+                projectExplorerService: IProjectExplorerService,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
                 private communicationManager: ICommunicationManager,
@@ -81,6 +84,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             loadingOverlayService,
             navigationService,
             projectManager,
+            projectExplorerService,
             metadataService,
             mainBreadcrumbService,
             collectionService,

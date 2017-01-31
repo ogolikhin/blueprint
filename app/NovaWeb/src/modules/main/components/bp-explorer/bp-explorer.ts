@@ -242,7 +242,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     };
 
     public setSelectedNode() {
-        const selectedId = this.projectExplorerService.selectedId;
+        const selectedId = this.projectExplorerService.getSelectionId();
         if (_.isFinite(selectedId) && this.treeApi.setSelected((vm: ExplorerNodeVM) => vm.model.id === selectedId)) {
             this.treeApi.ensureNodeVisible((vm: ExplorerNodeVM) => vm.model.id === selectedId);
             return;

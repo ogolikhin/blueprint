@@ -15,6 +15,7 @@ import {ICollectionService} from "./collection.svc";
 import {IItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -36,6 +37,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "loadingOverlayService",
         "navigationService",
         "projectManager",
+        "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
         "collectionService",
@@ -54,6 +56,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
                 projectManager: IProjectManager,
+                projectExplorerService: IProjectExplorerService,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
                 collectionService: ICollectionService,
@@ -71,6 +74,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             loadingOverlayService,
             navigationService,
             projectManager,
+            projectExplorerService,
             metadataService,
             mainBreadcrumbService,
             collectionService,

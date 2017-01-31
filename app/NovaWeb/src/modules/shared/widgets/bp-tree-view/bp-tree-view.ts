@@ -2,6 +2,8 @@ import * as agGrid from "ag-grid/main";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
+import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
+import {SpawnSyncReturns} from "child_process";
 
 /**
  * Usage:
@@ -33,6 +35,7 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         selectionMode: "<",
         rowHeight: "<",
         rowData: "<",
+        rowDataObservable: "<?",
         rootNodeVisible: "<",
         columns: "<",
         headerHeight: "<",
@@ -53,6 +56,7 @@ export interface IBPTreeViewController extends ng.IComponentController {
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
     rowData: ITreeNode[];
+    rowDataObservable: Rx.Observable<IChangeSet>;
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
@@ -130,6 +134,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
     public rowData: ITreeNode[];
+    public rowDataObservable: Rx.Observable<IChangeSet>;
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
@@ -160,6 +165,11 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
         this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
+
+        if (_.isObject(this.rowDataObservable)) {
+            // TODO: add subscriber array
+            this.rowDataObservable.subscribeOnNext(this.onRowDataChange, this);
+        }
 
         this.options = {
             suppressRowClickSelection: true,
@@ -217,6 +227,62 @@ export class BPTreeViewController implements IBPTreeViewController {
             || onChangesObj["columns"]) {
 
             this.resetGridAsync(false, 0);
+        }
+    }
+
+    private onRowDataChange(change: IChangeSet) {
+        this.$log.debug("onRowDataChange");
+
+        switch (change.type) {
+            case ChangeTypeEnum.Add:
+                this.addRowData(change.value);
+                break;
+
+            case ChangeTypeEnum.Delete:
+                this.deleteRowData(change.value);
+                break;
+
+            case ChangeTypeEnum.Refresh:
+                this.refreshRowData(change.value);
+                break;
+
+            case ChangeTypeEnum.Select:
+                this.selectRowData();
+                break;
+        }
+        // this.options.api.refreshView();
+    }
+
+    private selectRowData() {
+        if (_.isFunction(this.setSelection)) {
+            this.setSelection();
+        }
+    }
+
+    private refreshRowData(node: ITreeNode) {
+        node.unloadChildren();
+        this.loadExpanded(node).finally(() => {
+            this.options.api.setRowData(this.rowData);
+            this.selectRowData();
+        });
+    }
+
+    private deleteRowData(node: ITreeNode) {
+        _.remove(this.rowData, (row: ITreeNode) => {
+            return row.key === node.key;
+        });
+        node.unloadChildren();
+        this.options.api.setRowData(this.rowData);
+        this.selectRowData();
+    }
+
+    private addRowData(node: ITreeNode) {
+        if (node.expanded) {
+            this.loadExpanded(node).then(() => {
+                this.rowData.unshift(node);
+                this.options.api.setRowData(this.rowData);
+                this.selectRowData();
+            });
         }
     }
 
@@ -321,6 +387,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                 this.options.api.setRowData([]);
                 this.options.api.showLoadingOverlay();
             }
+
+            this.options.api.setRowData([]);
 
             if (this.rowData) {
                 return this.$q.all(this.rowData.filter(vm => vm.expanded)

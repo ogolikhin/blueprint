@@ -162,11 +162,11 @@ export class PageToolbarController {
         this.createArtifactService.createNewArtifact(-1, this._currentArtifact, true)
             .then((artifact: IArtifact) => {
                 newArtifactId = artifact.id;
-                return this.projectManager.refresh(this._currentArtifact.projectId, null, true);
+                return this.projectExplorerService.refresh(this._currentArtifact.projectId, null, true);
             })
             .catch(this.newArtifactCreationErrorHandler)
             .finally(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
+                // this.projectManager.triggerProjectCollectionRefresh();
 
                 this.$timeout(() => {
                     this.navigationService.navigateTo({id: newArtifactId});
@@ -313,7 +313,10 @@ export class PageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        let promise: ng.IPromise<any>;
+
+        this.projectExplorerService.refreshAll();
+
+        /*let promise: ng.IPromise<any>;
         let artifact: IStatefulArtifact;
         if (this.isProjectOpened) {
             promise = this.projectManager.refreshAll();
@@ -325,8 +328,9 @@ export class PageToolbarController {
             promise.finally(() => {
                 this.loadingOverlayService.endLoading(refreshAllLoadingId);
             });
-        }
+        }*/
     };
+
     public openTour = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();

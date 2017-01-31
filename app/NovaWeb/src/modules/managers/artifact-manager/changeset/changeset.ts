@@ -3,7 +3,9 @@ import {IIStatefulItem, IStatefulItem} from "../item";
 export enum ChangeTypeEnum {
     Add = 0,
     Update = 1,
-    Delete = 2
+    Delete = 2,
+    Refresh = 3,
+    Select = 4
 }
 
 export interface IChangeSet {

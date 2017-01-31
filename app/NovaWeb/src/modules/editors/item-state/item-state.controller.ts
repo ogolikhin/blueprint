@@ -145,7 +145,7 @@ export class ItemStateController {
         // do not select artifact in explorer if navigated from another artifact
         if (!this.$stateParams["path"]) {
             this.selectionManager.setExplorerArtifact(artifact);
-            this.projectExplorerService.selectedId = artifact.id;
+            this.projectExplorerService.setSelectionId(artifact.id);
         }
 
         this.selectionManager.setArtifact(artifact);

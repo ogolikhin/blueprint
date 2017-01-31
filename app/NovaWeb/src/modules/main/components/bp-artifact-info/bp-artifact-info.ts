@@ -37,6 +37,7 @@ import {Enums} from "../../models";
 import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 enum InfoBannerEnum {
     None = 0,
@@ -65,6 +66,7 @@ export class BpArtifactInfoController {
         "loadingOverlayService",
         "navigationService",
         "projectManager",
+        "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
         "collectionService",
@@ -111,6 +113,7 @@ export class BpArtifactInfoController {
                 protected loadingOverlayService: ILoadingOverlayService,
                 protected navigationService: INavigationService,
                 protected projectManager: IProjectManager,
+                protected projectExplorerService: IProjectExplorerService,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected collectionService: ICollectionService,
@@ -309,7 +312,7 @@ export class BpArtifactInfoController {
             return false;
         }
 
-        const project = this.projectManager.getProject(this.artifact.projectId);
+        const project = this.projectExplorerService.getProject(this.artifact.projectId);
 
         return !project;
     }
@@ -325,7 +328,7 @@ export class BpArtifactInfoController {
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
 
         let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
+        this.projectExplorerService.openProjectAndExpandToNode(projectId, artifactId)
             .finally(() => {
                 //(eventCollection, action, label?, value?, custom?, jQEvent?
                 const label = _.includes(openProjects, projectId) ? "duplicate" : "new";

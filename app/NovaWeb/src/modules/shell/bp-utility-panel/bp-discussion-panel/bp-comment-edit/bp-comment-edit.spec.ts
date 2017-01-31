@@ -49,18 +49,19 @@ describe("Component BPCommentEdit", () => {
             //Arrange
             vm.postComment = () => undefined;
             vm.isWaiting = false;
-            let formatter = {};
-            let body = {};
-            let contentDocument = {
-                body: body
+            const editor = {
+                getContent: () => {
+                    return "";
+                },
+                focus: () => {
+                    return;
+                },
+                formatter: {
+                    register: (a, b) => {
+                        return;
+                    }
+                }
             };
-            let editor = {
-                formatter: formatter,
-                contentDocument: contentDocument
-            };
-            formatter["register"] = (a, b) => undefined;
-            editor["focus"] = () => undefined;
-            body["innerHTML"] = "<p></p>";
             vm.tinymceOptions.init_instance_callback(editor);
             vm.postComment = (): ng.IPromise<any> => {
                 const defer = $q.defer();

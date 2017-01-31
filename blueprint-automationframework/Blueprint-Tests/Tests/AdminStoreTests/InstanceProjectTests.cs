@@ -21,7 +21,6 @@ namespace AdminStoreTests
         private const string PATH_INSTANCEPROJECTBYID = RestPaths.Svc.AdminStore.Instance.PROJECTS_id_;
 
         private IUser _adminUser = null;
-        //private IProject _project = null;
         private List<IProject> _allProjects = null;
         #region Setup and Cleanup
 
@@ -30,7 +29,6 @@ namespace AdminStoreTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            //_project = ProjectFactory.GetProject(_adminUser);
             _allProjects = ProjectFactory.GetAllProjects(_adminUser);
         }
 

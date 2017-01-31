@@ -1,3 +1,5 @@
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {ISession} from "../../../../../shell/login/session.svc";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
@@ -27,6 +29,8 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         messageService: IMessageService,
         artifactService: IArtifactService,
         loadingOverlayService: ILoadingOverlayService,
+        session: ISession,
+        selectionManager: ISelectionManager,
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: SystemTaskDialogModel
     ) {
@@ -41,6 +45,8 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
         messageService,
         artifactService,
         loadingOverlayService,
+        session,
+        selectionManager,
         $uibModalInstance,
         dialogModel);
     }

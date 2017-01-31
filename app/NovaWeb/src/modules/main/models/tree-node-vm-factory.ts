@@ -1,3 +1,4 @@
+import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {ITreeNode} from "../../shared/widgets/bp-tree-view";
 import {AdminStoreModels, Models} from "./";
@@ -15,8 +16,7 @@ abstract class TreeNodeVM<T> implements ITreeNodeVM<T>, ITreeNode {
                 public key: string,
                 public group: boolean,
                 public expanded: boolean,
-                public selectable: boolean,
-                public parentArtifact?: Models.IArtifact) {
+                public selectable: boolean) {
     }
 
     public getCellClass(): string[] {
@@ -87,11 +87,11 @@ export class TreeNodeVMFactory {
 abstract class HomogeneousTreeNodeVM<T> extends TreeNodeVM<T> {
     public children: this[];
 
-    constructor(public model: T,
-                public key: string,
-                public group: boolean,
-                public expanded: boolean,
-                public selectable: boolean) {
+    constructor(model: T,
+                key: string,
+                group: boolean,
+                expanded: boolean,
+                selectable: boolean) {
         super(model, key, group, expanded, selectable);
     }
 
@@ -113,7 +113,7 @@ abstract class HomogeneousTreeNodeVM<T> extends TreeNodeVM<T> {
             found = item;
         } else if (item.children) {
 
-            //todo: we shoudl find a better way to write this as its not very clear. prob lodash has support to do better
+            //todo: we should find a better way to write this as its not very clear. prob lodash has support to do better
             for (let i = 0, it: this;
                  !found &&
                  (it = item.children[i++]);
@@ -165,6 +165,34 @@ export class ExplorerNodeVM extends HomogeneousTreeNodeVM<Models.IArtifact> {
                 return this.factory.createExplorerNodeVM(it);
             });
         });
+    }
+
+    private static minimalModel: Models.IArtifact = {
+        id: undefined,
+        name: undefined,
+        itemTypeId: undefined,
+        predefinedType: undefined,
+        projectId: undefined,
+        itemTypeIconId: undefined
+    };
+
+    /**
+     * Updates the model with changes. Only properties that exist in the model, or in minimalModel are updated.
+     *
+     * @param {IItemChangeSet} changes
+     */
+    public updateModel(changes: IItemChangeSet) {
+        if (changes.change) {
+            if (changes.change.key in this.model || changes.change.key in ExplorerNodeVM.minimalModel) {
+                this.model[changes.change.key] = changes.change.value;
+            }
+        } else {
+            for (let key in _.pickBy(changes.item, (key, value) => !_.isFunction(value))) {
+                if (key in this.model || key in ExplorerNodeVM.minimalModel) {
+                    this.model[key] = changes.item[key];
+                }
+            }
+        }
     }
 }
 
@@ -302,8 +330,8 @@ export class SubArtifactNodeVM extends TreeNodeVM<Models.ISubArtifactNode> {
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.ISubArtifactNode,
                 isSelectable: boolean,
-                parentArtifact: Models.IArtifact) {
-        super(model, String(model.id), model.hasChildren, false, isSelectable, parentArtifact);
+                public parentArtifact: Models.IArtifact) {
+        super(model, String(model.id), model.hasChildren, false, isSelectable);
         this.children = model.children ? model.children.map(child => factory.createSubArtifactNodeVM(project, child, parentArtifact)) : [];
     }
 

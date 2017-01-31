@@ -2130,8 +2130,8 @@ SELECT
 	ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentAuthors',
 	ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentCollaborators',
 	ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentViewers',
-	COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE 0 END) AS 'LoggedFromAnalytics',
-	COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE 0 END) AS 'LoggedFromRestApi'
+	COUNT(CASE WHEN L.Consumer = 2 THEN 1 ELSE 0 END) AS 'UsersFromAnalytics',
+	COUNT(CASE WHEN L.Consumer = 3 THEN 1 ELSE 0 END) AS 'UsersFromRestApi'
 FROM 
 	L
 GROUP BY 

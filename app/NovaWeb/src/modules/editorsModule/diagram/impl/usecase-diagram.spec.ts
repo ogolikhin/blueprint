@@ -25,7 +25,7 @@ describe("Usecase Diagram: Rendering common shapes", () => {
         diagramView = new DiagramView(element[0], stencilService);
     }));
 
-    xit("Use Case Shape Test", () => {
+    it("Use Case Shape Test", () => {
         // Arrange
         const eventShapes = [];
 
@@ -57,7 +57,7 @@ describe("Usecase Diagram: Rendering common shapes", () => {
         expect(actorText.text()).toEqual("Actor: x=100; y=100; width=100; height=100");
     });
 
-    it("Actor Image Shape Test", () => {
+    xit("Actor Image Shape Test", () => {
         // Arrange
         const eventShapes = [];
         const props = new Array<Prop>();

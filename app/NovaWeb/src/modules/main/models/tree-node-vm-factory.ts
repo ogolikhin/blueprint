@@ -1,4 +1,4 @@
-import {IChangeSet} from "../../managers/artifact-manager/changeset/changeset";
+import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {ITreeNode} from "../../shared/widgets/bp-tree-view";
 import {AdminStoreModels, Models} from "./";
@@ -176,15 +176,22 @@ export class ExplorerNodeVM extends HomogeneousTreeNodeVM<Models.IArtifact> {
         itemTypeIconId: undefined
     };
 
-    public updateModel(model: Models.IArtifact, change?: IChangeSet) {
-        if (change) {
-            if (change.key in this.model) {
-                this.model[change.key] = change.value;
+    /**
+     * Updates the model with changes. Only properties that exist in the model, or in minimalModel are updated.
+     *
+     * @param {IItemChangeSet} changes
+     */
+    public updateModel(changes: IItemChangeSet) {
+        if (changes.change) {
+            if (changes.change.key in this.model || changes.change.key in ExplorerNodeVM.minimalModel) {
+                this.model[changes.change.key] = changes.change.value;
             }
         } else {
-            for (let key in model) {
-                if ((key in this.model || key in ExplorerNodeVM.minimalModel) && !_.isFunction(model[key])) {
-                    this.model[key] = model[key];
+            for (let key in _.pickBy(changes.item, (key, value) => !_.isFunction(value))) {
+                if (key in this.model || key in ExplorerNodeVM.minimalModel) {
+                    this.model[key] = changes.item[key];
+                } else {
+                    console.log("not updating " + key);
                 }
             }
         }

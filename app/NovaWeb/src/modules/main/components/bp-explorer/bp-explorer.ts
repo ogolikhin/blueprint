@@ -188,7 +188,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         if (changes.item) {
             this.treeApi.refreshRows((vm: TreeModels.ExplorerNodeVM) => {
                 if (vm.model.id === changes.item.id) {
-                    vm.updateModel(changes.item, changes.change);
+                    vm.updateModel(changes);
                     return true;
                 }
                 return false;

@@ -103,5 +103,34 @@ namespace StorytellerTests
         }
 
         #endregion Tests
+
+        #region Process Validation Tests
+
+        [TestCase]
+        [TestRail(2)]
+        [Description(" " +
+                     ".")]
+        public void UpdateNovaProcess_InvalidProcess_VerifyReturnedCode()
+        {
+            // Setup:
+            // Create and get the default Nova process
+            var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
+            var process = novaProcess.Process;
+
+            // Find precondition task
+            // Find precondition task
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            var newTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+            newTask.Name = string.Empty;
+            // Execute & Verify:
+            // Update and Verify the modified Nova process
+            StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user);
+        }
+
+        #endregion Process Validation Tests
     }
 }

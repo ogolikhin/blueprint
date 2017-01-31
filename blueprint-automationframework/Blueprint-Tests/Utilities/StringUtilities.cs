@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Utilities
 {
@@ -65,6 +67,16 @@ namespace Utilities
         public static string WrapInHTML(string text)
         {
             return ("<html><head></head>" + text + "</html>");
+        }
+
+        /// <summary>
+        /// Convert HTML text into plain text
+        /// </summary>
+        /// <param name="htmlText"> HTML text to convert to plain text</param>
+        /// <returns>plain text</returns>
+        public static string ConvertHtmlToText(string htmlText)
+        {
+            return WebUtility.HtmlDecode( Regex.Replace(htmlText, "<(.|\n)*?>", "") );
         }
     }
 }

@@ -30,6 +30,24 @@ namespace AdminStoreTests
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _allProjects = ProjectFactory.GetAllProjects(_adminUser);
+            foreach(var project in _allProjects)
+            {
+                Helper.AssignProjectRolePermissionsToUser(
+                _adminUser,
+                RolePermissions.Read |
+                RolePermissions.Edit |
+                RolePermissions.Delete |
+                RolePermissions.Trace |
+                RolePermissions.Comment |
+                RolePermissions.StealLock |
+                RolePermissions.CanReport |
+                RolePermissions.Share |
+                RolePermissions.Reuse |
+                RolePermissions.ExcelUpdate |
+                RolePermissions.DeleteAnyComment |
+                RolePermissions.CreateRapidReview,
+                project);
+            }
         }
 
         [TearDown]
@@ -58,7 +76,7 @@ namespace AdminStoreTests
                     "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, project.Id);
 
                 // Verify:
-                AdminStoreHelper.GetProjectByIdValidation(Helper, _adminUser, project, returnedInstanceProject);
+                AdminStoreHelper.AssertAreEqual(Helper, returnedInstanceProject, project);
             }
         }
 

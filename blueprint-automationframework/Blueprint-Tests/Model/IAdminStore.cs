@@ -221,7 +221,7 @@ namespace Model
         /// <param name="projectId">An id of the specific project.</param>
         /// <param name="user">A user object.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Response content.</returns>
+        /// <returns>The requested InstanceProject.</returns>
         InstanceProject GetProjectById(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

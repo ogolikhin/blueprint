@@ -447,7 +447,8 @@ namespace Model.Impl
             var returnedInstanceProject = restApi.SendRequestAndDeserializeObject<InstanceProject>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true
                 );
 
             return returnedInstanceProject;

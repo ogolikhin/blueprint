@@ -18,6 +18,8 @@ namespace Model.Impl
     {
         #region Properties
 
+        #region Serialized JSON Properties
+
         /// <summary>
         /// Id of the project
         /// </summary>
@@ -27,14 +29,16 @@ namespace Model.Impl
         /// <summary>
         /// Name of the project
         /// </summary>
-        [JsonProperty("Name")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
         /// <summary>
         /// Description of the project
         /// </summary>
-        [JsonProperty("Description")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
+
+        #endregion Serialized JSON Properties
 
         /// <summary>
         /// Full path for the project. e.g. /Blueprint/Project

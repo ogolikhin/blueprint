@@ -3,14 +3,20 @@ using System.Runtime.Serialization;
 
 namespace Model.Impl
 {
+    // TODO: Should rename this as InstanceItem as defined in svc/AdminStore/Models/InstanceItem.cs
+    // TODO: Should not inherits from Project
     [DataContract(Name = "InstanceProject", Namespace = "Model")]
     public class InstanceProject : Project
     {
+        #region Properties
+
         /// <summary>
         /// Specifies if project is accessible
         /// </summary>
         [JsonIgnore]
         public bool? IsAccessible { get; set; }
+
+        #region Serialized JSON Properties
 
         /// <summary>
         /// Specifies if project has children artifacts
@@ -30,6 +36,11 @@ namespace Model.Impl
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public RolePermissions? Permissions { get; set; }
+
+        #endregion Serialized JSON Properties
+
+        #endregion Properties
+
     }
 
     public enum InstanceItemTypeEnum

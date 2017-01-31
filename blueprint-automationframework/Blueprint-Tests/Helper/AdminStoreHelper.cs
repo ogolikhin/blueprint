@@ -25,61 +25,54 @@ namespace Helper
         #region Custom Asserts
 
         /// <summary>
-        /// Validate InstanceProject returned from Get ProjectById
+        /// Assert that project1 and project2 are the same.
+        /// </summary>
+        /// <param name="project1">IProject representing a project.</param>
+        /// <param name="project2">IProject representing a project.</param>
+        public static void AssertAreEqual(IProject project1, IProject project2)
+        {
+            ThrowIf.ArgumentNull(project1, nameof(project1));
+            ThrowIf.ArgumentNull(project2, nameof(project2));
+
+            if (!string.IsNullOrEmpty(project2.Description))
+            {
+                var plainInstanceProjectDescription = StringUtilities.ConvertHtmlToText(project1.Description);
+
+                StringAssert.Contains(project2.Description, project1.Description,
+                    "Project Description '{0}' was expected but '{1}' was returned.",
+                    project2.Description, plainInstanceProjectDescription);
+            }
+
+            Assert.AreEqual(project2.Id, project1.Id, "Project Id {0} was expected but {1} was returned.",
+                project2.Id, project1.Id);
+
+            Assert.AreEqual(project2.Name, project1.Name, "Project Name '{0}' was expected but '{1}' was returned.",
+                project2.Name, project1.Name);
+        }
+
+        /// <summary>
+        /// Assert that InstanceProject returned from Get ProjectById is the same as the project
         /// </summary>
         /// <param name="helper">A TestHelper instance.</param>
-        /// <param name="user">A user used to retrieve InstanceProject</param>
         /// <param name="instanceProject">instanceProject that is returned from Get ProjectById</param>
         /// <param name="project">the project used to validate returned instanceProject</param>
-        public static void GetProjectByIdValidation(TestHelper helper, IUser user, IProject project, InstanceProject instanceProject)
+        public static void AssertAreEqual(TestHelper helper, InstanceProject instanceProject, IProject project)
         {
             ThrowIf.ArgumentNull(helper, nameof(helper));
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(instanceProject, nameof(InstanceProject));
+            ThrowIf.ArgumentNull(project, nameof(project));
 
-            Assert.AreEqual(project.Id, instanceProject.Id, "Project Id {0} was expected but {1} was returned.",
-                project.Id, instanceProject.Id);
-
-            Assert.AreEqual(project.Name, instanceProject.Name, "Project Name '{0}' was expected but '{1}' was returned.", project.Name, instanceProject.Name);
+            AssertAreEqual(instanceProject, project);
 
             Assert.IsNotNull(instanceProject.ParentFolderId, "{0} should not be null!", nameof(InstanceProject.ParentFolderId));
 
-            Assert.AreEqual(InstanceItemTypeEnum.Project, instanceProject.Type, "Type '{0}' was expected but '{1}' was returned.", InstanceItemTypeEnum.Project, instanceProject.Type);
-
-            // assign admin-equivalent RolePermission to the project if the user is default instance admin
-            // TODO: This should later move to user creation step
-            if (user.InstanceAdminRole == InstanceAdminRole.DefaultInstanceAdministrator)
-            {
-                helper.AssignProjectRolePermissionsToUser(
-                user,
-                RolePermissions.Read |
-                RolePermissions.Edit |
-                RolePermissions.Delete |
-                RolePermissions.Trace |
-                RolePermissions.Comment |
-                RolePermissions.StealLock |
-                RolePermissions.CanReport |
-                RolePermissions.Share |
-                RolePermissions.Reuse |
-                RolePermissions.ExcelUpdate |
-                RolePermissions.DeleteAnyComment |
-                RolePermissions.CreateRapidReview,
-                project);
-            }
+            Assert.AreEqual(InstanceItemTypeEnum.Project, instanceProject.Type, "Type '{0}' was expected but '{1}' was returned.",
+                InstanceItemTypeEnum.Project, instanceProject.Type);
 
             var permissionForProject = helper.ProjectRoles.Find(p => p.ProjectId.Equals(project.Id))?.Permissions;
 
             Assert.AreEqual(permissionForProject, instanceProject.Permissions,
                 "Permission {0} was expected but {1} is returned.", permissionForProject, instanceProject.Permissions);
-
-            if(!string.IsNullOrEmpty(project.Description))
-            {
-                var plainInstanceProjectDescription = WebUtility.HtmlDecode(
-                    Regex.Replace(instanceProject.Description, "<(.|\n)*?>", "")
-                    );
-                StringAssert.Contains(project.Description, instanceProject.Description, "Project Description '{0}' was expected but '{1}' was returned.", project.Description, plainInstanceProjectDescription);
-            }
         }
 
         #endregion Custom Asserts

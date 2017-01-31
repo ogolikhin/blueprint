@@ -1,9 +1,12 @@
 import "angular";
 import "angular-mocks";
+import "lodash";
 import "rx";
+import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact";
+import {ChangeTypeEnum, IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {AdminStoreModels, Models} from "../models";
-import {ArtifactNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
+import {ArtifactNodeVM, ExplorerNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
 
 describe("TreeNodeVMFactory", () => {
     let projectService: IProjectService;
@@ -122,7 +125,6 @@ describe("TreeNodeVMFactory", () => {
             } as Models.IArtifact;
             const vm = factory.createExplorerNodeVM(model);
 
-
             // Act
             vm.unloadChildren();
 
@@ -153,6 +155,84 @@ describe("TreeNodeVMFactory", () => {
                     $rootScope.$digest(); // Resolves promises
                 }
             ));
+
+        describe("updateModel", () => {
+            it("when change key is in model, update key", () => {
+                // Arrange
+                const model: Models.IArtifact = {id: 1, version: 1};
+                const vm = factory.createExplorerNodeVM(model);
+                const changes: IItemChangeSet = {
+                    item: {} as IStatefulArtifact,
+                    change: {type: ChangeTypeEnum.Update, key: "version", value: 99}
+                };
+
+                // Act
+                vm.updateModel(changes);
+
+                // Assert
+                expect(Object.keys(vm.model).length).toEqual(2);
+                expect(vm.model.id).toEqual(1);
+                expect(vm.model.version).toEqual(99);
+            });
+
+            it("when change key is in minimalModel, update key", () => {
+                // Arrange
+                const model: Models.IArtifact = {id: 1};
+                const vm = factory.createExplorerNodeVM(model);
+                const changes: IItemChangeSet = {
+                    item: {} as IStatefulArtifact,
+                    change: {type: ChangeTypeEnum.Update, key: "itemTypeIconId", value: 456}
+                };
+
+                // Act
+                vm.updateModel(changes);
+
+                // Assert
+                expect(Object.keys(vm.model).length).toEqual(2);
+                expect(vm.model.id).toEqual(1);
+                expect(vm.model.itemTypeIconId).toEqual(456);
+            });
+
+            it("when change key is not in model or minimalModel, don't update key", () => {
+                // Arrange
+                const model: Models.IArtifact = {id: 1};
+                const vm = factory.createExplorerNodeVM(model);
+                const changes: IItemChangeSet = {
+                    item: {} as IStatefulArtifact,
+                    change: {type: ChangeTypeEnum.Update, key: "isDisposed", value: true}
+                };
+
+                // Act
+                vm.updateModel(changes);
+
+                // Assert
+                expect(Object.keys(vm.model).length).toEqual(1);
+                expect(vm.model.id).toEqual(1);
+            });
+
+            it("when change not specified, update only keys in model or minimalMode", () => {
+                // Arrange
+                const model: Models.IArtifact = {id: 1, version: 1};
+                const vm = factory.createExplorerNodeVM(model);
+                const changes: IItemChangeSet = {
+                    item: new StatefulArtifact({
+                        id: 1,
+                        version: 99,
+                        itemTypeIconId: 456
+                    }, undefined)
+                };
+                console.log(changes.item);
+
+                // Act
+                vm.updateModel(changes);
+
+                // Assert
+                expect(Object.keys(vm.model).sort()).toEqual(["id", "itemTypeIconId", "itemTypeId", "name", "predefinedType", "projectId", "version"]);
+                expect(vm.model.id).toEqual(1);
+                expect(vm.model.version).toEqual(99);
+                expect(vm.model.itemTypeIconId).toEqual(456);
+            });
+        });
     });
 
     describe("InstanceItemNodeVM", () => {

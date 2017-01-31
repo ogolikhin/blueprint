@@ -87,7 +87,7 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         this.unsubscribe();
 
         if (collectionArtifact) {
-            this.collectionSubscriber = collectionArtifact.getProperyObservable()
+            this.collectionSubscriber = collectionArtifact.getPropertyObservable()
                 .filter(changes => changes.change && changes.item &&
                 changes.change.key === Models.PropertyTypePredefined.CollectionContent)
                 .subscribeOnNext(this.onCollectionArtifactsChanged);

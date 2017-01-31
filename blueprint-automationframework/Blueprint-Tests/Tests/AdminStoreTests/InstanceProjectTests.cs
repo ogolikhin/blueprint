@@ -12,7 +12,7 @@ using Utilities;
 
 namespace AdminStoreTests
 {
-    // TODO: Exsiting default integration project is used since there is no API call available to create project at this point
+    // TODO: Existing default integration project is used since there is no API call available to create project at this point
     [TestFixture]
     [Category(Categories.AdminStore)]
     public class InstanceProjectTests : TestBase

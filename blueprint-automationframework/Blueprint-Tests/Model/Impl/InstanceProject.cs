@@ -8,14 +8,6 @@ namespace Model.Impl
     [DataContract(Name = "InstanceProject", Namespace = "Model")]
     public class InstanceProject : Project
     {
-        #region Properties
-
-        /// <summary>
-        /// Specifies if project is accessible
-        /// </summary>
-        [JsonIgnore]
-        public bool? IsAccessible { get; set; }
-
         #region Serialized JSON Properties
 
         /// <summary>
@@ -38,9 +30,6 @@ namespace Model.Impl
         public RolePermissions? Permissions { get; set; }
 
         #endregion Serialized JSON Properties
-
-        #endregion Properties
-
     }
 
     public enum InstanceItemTypeEnum

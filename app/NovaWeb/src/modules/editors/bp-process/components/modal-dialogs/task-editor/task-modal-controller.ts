@@ -160,7 +160,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         const savingDataOverlayId = this.loadingOverlayService.beginLoading();
 
         if (this.isReadonly) {
-            return this.$q.reject(this.localization.get("App_Save_Artifact_Error_409_116"));
+            return this.$q.reject(new Error("Changes cannot be made or saved as this is a read-only item"));
         }
 
         return this.applyAssociatedArtifactChanges()

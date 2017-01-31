@@ -1,12 +1,15 @@
 ﻿using Common;
 using Model;
 using Model.ArtifactModel;
+using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 using Utilities;
 
 namespace Helper
@@ -14,6 +17,72 @@ namespace Helper
 
     public static class AdminStoreHelper
     {
+
+        #region Project Management
+
+        #endregion Project Management
+
+        #region Custom Asserts
+
+        /// <summary>
+        /// Validate InstanceProject returned from Get ProjectById
+        /// </summary>
+        /// <param name="helper">A TestHelper instance.</param>
+        /// <param name="user">A user used to retrieve InstanceProject</param>
+        /// <param name="instanceProject">instanceProject that is returned from Get ProjectById</param>
+        /// <param name="project">the project used to validate returned instanceProject</param>
+        public static void GetProjectByIdValidation(TestHelper helper, IUser user, IProject project, InstanceProject instanceProject)
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(instanceProject, nameof(InstanceProject));
+
+            Assert.AreEqual(project.Id, instanceProject.Id, "Project Id {0} was expected but {1} was returned.",
+                project.Id, instanceProject.Id);
+
+            Assert.AreEqual(project.Name, instanceProject.Name, "Project Name '{0}' was expected but '{1}' was returned.", project.Name, instanceProject.Name);
+
+            Assert.IsNotNull(instanceProject.ParentFolderId, "{0} should not be null!", nameof(InstanceProject.ParentFolderId));
+
+            Assert.AreEqual(InstanceItemTypeEnum.Project, instanceProject.Type, "Type '{0}' was expected but '{1}' was returned.", InstanceItemTypeEnum.Project, instanceProject.Type);
+
+            // assign admin-equivalent RolePermission to the project if the user is default instance admin
+            // TODO: This should later move to user creation step
+            if (user.InstanceAdminRole == InstanceAdminRole.DefaultInstanceAdministrator)
+            {
+                helper.AssignProjectRolePermissionsToUser(
+                user,
+                RolePermissions.Read |
+                RolePermissions.Edit |
+                RolePermissions.Delete |
+                RolePermissions.Trace |
+                RolePermissions.Comment |
+                RolePermissions.StealLock |
+                RolePermissions.CanReport |
+                RolePermissions.Share |
+                RolePermissions.Reuse |
+                RolePermissions.ExcelUpdate |
+                RolePermissions.DeleteAnyComment |
+                RolePermissions.CreateRapidReview,
+                project);
+            }
+
+            var permissionForProject = helper.ProjectRoles.Find(p => p.ProjectId.Equals(project.Id))?.Permissions;
+
+            Assert.AreEqual(permissionForProject, instanceProject.Permissions,
+                "Permission {0} was expected but {1} is returned.", permissionForProject, instanceProject.Permissions);
+
+            if(!string.IsNullOrEmpty(project.Description))
+            {
+                var plainInstanceProjectDescription = WebUtility.HtmlDecode(
+                    Regex.Replace(instanceProject.Description, "<(.|\n)*?>", "")
+                    );
+                StringAssert.Contains(project.Description, instanceProject.Description, "Project Description '{0}' was expected but '{1}' was returned.", project.Description, plainInstanceProjectDescription);
+            }
+        }
+
+        #endregion Custom Asserts
 
         #region Job Management
 

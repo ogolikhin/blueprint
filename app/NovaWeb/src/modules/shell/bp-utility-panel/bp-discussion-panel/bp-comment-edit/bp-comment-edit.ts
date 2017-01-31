@@ -228,7 +228,7 @@ export class BPCommentEditController {
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postComment({comment: this.commentEditor ? (<any>this.commentEditor).contentDocument.body.innerHTML : ""}).finally(() => {
+            this.postComment({comment: this.commentEditor ? this.commentEditor.getContent() : ""}).finally(() => {
                 this.isWaiting = false;
             });
         }

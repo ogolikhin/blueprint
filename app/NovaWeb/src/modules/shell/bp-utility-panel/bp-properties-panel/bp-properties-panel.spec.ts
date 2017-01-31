@@ -5,7 +5,6 @@ import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {createDefaultProcessModel} from "../../../editors/bp-process/models/test-model-factory";
 import {INovaProcess} from "../../../editors/bp-process/process-artifact";
-import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
@@ -45,7 +44,6 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
         $provide.service("validationService", ValidationServiceMock);

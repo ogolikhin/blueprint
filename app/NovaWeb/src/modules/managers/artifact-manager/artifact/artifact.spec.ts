@@ -1,7 +1,6 @@
 import "angular-mocks";
 import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
 import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
 import {IMessageService} from "../../../main/components/messages/message.svc";
@@ -41,7 +40,6 @@ describe("Artifact", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);

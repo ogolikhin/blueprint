@@ -27,7 +27,7 @@ export interface IStatefulItem extends Models.IArtifact {
     errorObservable(): Rx.Observable<IApplicationError>;
     unsubscribe(): void;
     getEffectiveVersion(): number;
-    getProperyObservable(): Rx.Observable<IItemChangeSet>;
+    getPropertyObservable(): Rx.Observable<IItemChangeSet>;
     validateItem(propertyDescriptors: IPropertyDescriptor[]): boolean;
     isReuseSettingSRO(reuseSetting: Enums.ReuseSettings): boolean;
 }
@@ -89,7 +89,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this._propertyChangeSubject;
     }
 
-    public getProperyObservable(): Rx.Observable<IItemChangeSet> {
+    public getPropertyObservable(): Rx.Observable<IItemChangeSet> {
         return this.propertyChange.filter(it => !!it).asObservable();
     }
 

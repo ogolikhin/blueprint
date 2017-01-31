@@ -1,3 +1,6 @@
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
+import {ISession} from "../../../../../shell/login/session.svc";
 require("script!mxClient");
 import * as angular from "angular";
 import "angular-mocks";
@@ -12,7 +15,7 @@ import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/arti
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {UserTask} from "../../diagram/presentation/graph/shapes/user-task";
-import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
+import {ModalServiceInstanceMock, SessionSvcMock} from "../../../../../shell/login/mocks.spec";
 import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactReference, NodeType} from "../../diagram/presentation/graph/models";
 import {UserTaskDialogModel} from "./userTaskDialogModel";
@@ -35,6 +38,8 @@ describe("UserTaskModalController", () => {
     let loadingOverlayService: ILoadingOverlayService;
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let dialogService: IDialogService;
+    let session: ISession;
+    let selectionManager: ISelectionManager;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
@@ -45,6 +50,8 @@ describe("UserTaskModalController", () => {
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("session", SessionSvcMock);
+        $provide.service("selectionManager", SelectionManagerMock);
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
@@ -57,6 +64,8 @@ describe("UserTaskModalController", () => {
                        _messageService_: IMessageService,
                        _artifactService_: IArtifactService,
                        _loadingOverlayService_: ILoadingOverlayService,
+                       _session_: ISession,
+                       _selectionManager_: ISelectionManager,
                        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance) => {
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
@@ -67,6 +76,8 @@ describe("UserTaskModalController", () => {
         messageService = _messageService_;
         artifactService = _artifactService_;
         loadingOverlayService = _loadingOverlayService_;
+        session = _session_;
+        selectionManager = _selectionManager_;
         $uibModalInstance = _$uibModalInstance_;
     }));
 
@@ -106,6 +117,8 @@ describe("UserTaskModalController", () => {
                 messageService,
                 artifactService,
                 loadingOverlayService,
+                session,
+                selectionManager,
                 $uibModalInstance,
                 model);
         });

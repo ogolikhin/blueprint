@@ -132,7 +132,7 @@ export class BpArtifactInfoController {
                 this.artifact.artifactState.onStateChange
                     .debounce(100)
                     .subscribeOnNext(this.onArtifactStateChanged, this),
-                this.artifact.getProperyObservable()
+                this.artifact.getPropertyObservable()
                     .distinctUntilChanged(changes => changes.item && changes.item.name)
                     .subscribeOnNext(this.onArtifactPropertyChanged, this)
             );

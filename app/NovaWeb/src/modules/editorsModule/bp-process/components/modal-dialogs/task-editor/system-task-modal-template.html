@@ -1,7 +1,3 @@
-<script type="text/ng-template" id="includeTemplate.html">
-    <a href="" tabindex="-1" ng-bind-html="match.label | highlight:query"
-       ng-attr-title="{{ match.model.projectName + '\u000A' + match.label}}"></a>
-</script>
 <div class="modal-header storyteller-modal-header">
     <h3 class="modal-title" style="display: inline-block">{{$ctrl.getActiveHeader()}}</h3>
     <h3 ng-if="!$ctrl.getActiveHeader()" class="modal-title" style="color: red; display: inline-block" ng-cloak>
@@ -24,7 +20,7 @@
                            ng-class="{'disabled': $ctrl.isReadonly}"
                            button-label="{{$ctrl.getPersonaLabel()}}">
                 </bp-select>
-                <button class="btn btn-primary btn-small btn-icon__add" type="button"
+                <button class="btn btn-primary btn-small btn-icon__add bp-dropdown__action" type="button"
                         bp-tooltip="{{::$ctrl.localization.get('Tooltip_Browse_Actor')}}"
                         ng-click="$ctrl.openActorPicker()" ng-disabled="$ctrl.isReadonly">
                     <span class="fonticon2-more-menu"></span>
@@ -61,14 +57,14 @@
                     </button>
                     <ul uib-dropdown-menu>
                         <li class="toolbar-menu__item">
-                            <a href='' class="toolbar-menu__action" ng-click="$ctrl.createNewArtifact()">
+                            <button type="button" class="btn btn-link toolbar-menu__action bp-dropdown__action" ng-click="$ctrl.createNewArtifact()">
                                 {{::$root.config.labels['ST_Include_New_Process_Label']}}
-                            </a>
+                            </button>
                         </li>
                         <li class="toolbar-menu__item">
-                            <a href='' class="toolbar-menu__action" ng-click="$ctrl.openIncludePicker()">
+                            <button type="button" class="btn btn-link toolbar-menu__action bp-dropdown__action" ng-click="$ctrl.openIncludePicker()">
                                 {{::$root.config.labels['ST_Include_Existing_Artifact_Label']}}
-                            </a>
+                            </button>
                         </li>
                     </ul>
                 </div>

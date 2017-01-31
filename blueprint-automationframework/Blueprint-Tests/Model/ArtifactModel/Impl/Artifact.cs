@@ -351,6 +351,7 @@ namespace Model.ArtifactModel.Impl
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+
             return PostRaptorDiscussion(Address, Id, comment, user, expectedStatusCodes);
         }
 
@@ -361,6 +362,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
+
             return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
@@ -369,6 +371,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
+
             return DeleteRaptorDiscussion(Address, Id, discussionToDelete, user, expectedStatusCodes);
         }
 
@@ -377,6 +380,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
+
             return AddArtifactAttachment(Address, ProjectId, Id, file, user, expectedStatusCodes);
         }
 
@@ -385,6 +389,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
+
             return AddSubArtifactAttachment(Address, ProjectId, Id, subArtifactId, file,
                 user, expectedStatusCodes);
         }
@@ -974,7 +979,7 @@ namespace Model.ArtifactModel.Impl
         {
             return OpenApiArtifact.DeleteRaptorReply(address, itemId, replyToDelete, user, expectedStatusCodes);
         }
-
+        
         /// <summary>
         /// add attachment to the specified artifact
         /// </summary>
@@ -1009,7 +1014,7 @@ namespace Model.ArtifactModel.Impl
             return OpenApiArtifact.AddSubArtifactAttachment(address, projectId,
                 artifactId, subArtifactId, file, user, expectedStatusCodes);
         }
-
+        
         #endregion Static Methods
     }
 

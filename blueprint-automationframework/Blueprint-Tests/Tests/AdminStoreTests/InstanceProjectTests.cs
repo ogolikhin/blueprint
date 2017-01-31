@@ -110,7 +110,7 @@ namespace AdminStoreTests
         [TestCase]
         [TestRail(234444)]
         [Description("Gets an existing project with the user doesn't have permission to the project and verify that it returns 403 Forbidden response.")]
-        public void GetProjectById_UsingUserWithNoPermissionToProject_403Frobidden()
+        public void GetProjectById_UsingUserWithNoPermissionToProject_403Forbidden()
         {
             // Setup: Create a user that doesn't have access to the default project
             var userWithNoPermissionToProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _allProjects.First());

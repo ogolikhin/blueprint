@@ -56,6 +56,8 @@ export class BPCommentEditController {
         // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
         font_formats: "Open Sans='Open Sans';Arial=Arial;Cambria=Cambria;Calibri=Calibri;Courier New='Courier New';" +
         "Times New Roman='Times New Roman';Trebuchet MS='Trebuchet MS';Verdana=Verdana;",
+        // https://www.tinymce.com/docs/configure/content-filtering/#force_hex_style_colors
+        force_hex_style_colors: true,
         // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
         paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles
         paste_remove_styles_if_webkit: true, // https://www.tinymce.com/docs/plugins/paste/#paste_remove_styles_if_webkit
@@ -226,7 +228,7 @@ export class BPCommentEditController {
     public callPostComment() {
         if (!this.isWaiting) {
             this.isWaiting = true;
-            this.postComment({comment: this.commentEditor ? (<any>this.commentEditor).contentDocument.body.innerHTML : ""}).finally(() => {
+            this.postComment({comment: this.commentEditor ? this.commentEditor.getContent() : ""}).finally(() => {
                 this.isWaiting = false;
             });
         }

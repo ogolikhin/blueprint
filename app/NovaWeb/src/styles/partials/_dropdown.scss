@@ -71,3 +71,39 @@
         outline: none;
     }
 }
+
+// Matching CSS styles for buttons to be used in dropdown menus over anchor tags
+.dropdown-menu {
+  > li > .bp-dropdown__action {
+    display: block;
+    padding: 6px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: $line-height-base;
+    color: $dropdown-link-color;
+    white-space: nowrap; // prevent links from randomly breaking onto new lines
+    width: 100%;
+  }
+}
+
+// Hover/Focus state
+.dropdown-menu > li > .bp-dropdown__action {
+  &:hover,
+  &:focus {
+    text-decoration: none;
+    color: $dropdown-link-hover-color;
+    background-color: $dropdown-link-hover-bg;
+  }
+}
+
+// Active state
+.dropdown-menu > .active > .bp-dropdown__action {
+  &,
+  &:hover,
+  &:focus {
+    color: $dropdown-link-active-color;
+    text-decoration: none;
+    outline: 0;
+    background-color: $dropdown-link-active-bg;
+  }
+}

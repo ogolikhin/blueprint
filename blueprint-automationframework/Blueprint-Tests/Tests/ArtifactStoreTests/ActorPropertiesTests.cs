@@ -421,19 +421,12 @@ namespace ArtifactStoreTests
             {
                 expectedIconAddress = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_ +
                 "?versionId={1}", actorDetails.Id, versionNumber);
+                Assert.AreEqual(expectedIconAddress, iconAddress, "Icon address should have expected format.");
             }
             else
             {
                 expectedIconAddress = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_ +
                 "?versionId={1}&addDraft=true&lastSavedTimestamp=", actorDetails.Id, versionNumber);
-            }
-
-            if (isHistoricalVersion)
-            {
-                Assert.AreEqual(expectedIconAddress, iconAddress, "Icon address should have expected format.");
-            }
-            else
-            {
                 StringAssert.StartsWith(expectedIconAddress, iconAddress, "Icon address should have expected format.");
             }
 

@@ -253,12 +253,9 @@ namespace Model.Impl
 
             SerializationUtilities.CheckJson(artifactDetails, response.Content);
 
-            if (artifactDetails.PredefinedType != null)
-            {
-                return ArtifactFactory.ConvertToSpecificArtifact(artifactDetails, response.Content);
-            }
+            Assert.IsNotNull(artifactDetails.PredefinedType, "PredefinedType shouldn't be null.");
 
-            return artifactDetails;
+            return ArtifactFactory.ConvertToSpecificArtifact(artifactDetails, response.Content);
         }
 
         /// <seealso cref="IArtifactStore.GetDiagramArtifact(IUser, int, int?, List{HttpStatusCode})"/>
@@ -587,7 +584,7 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_, actorArtifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            Dictionary<string, string> queryParams = new Dictionary<string, string>{{"versionId", versionId?.ToStringInvariant() ??
+            var queryParams = new Dictionary<string, string>{{"versionId", versionId?.ToStringInvariant() ??
                 string.Empty}};
 
             queryParams.Add("addDraft", "true");

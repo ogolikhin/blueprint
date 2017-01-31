@@ -25,52 +25,62 @@ namespace Helper
         /// <summary>
         /// Assert that project1 and project2 are the same.
         /// </summary>
-        /// <param name="project1">IProject representing a project.</param>
-        /// <param name="project2">IProject representing a project.</param>
-        public static void AssertAreEqual(IProject project1, IProject project2)
+        /// <param name="expectedProject">IProject representing a project.</param>
+        /// <param name="actualProject">IProject representing a project.</param>
+        public static void AssertAreEqual(IProject expectedProject, IProject actualProject, bool convertDescriptionsToPlainText = false)
         {
-            ThrowIf.ArgumentNull(project1, nameof(project1));
-            ThrowIf.ArgumentNull(project2, nameof(project2));
+            ThrowIf.ArgumentNull(expectedProject, nameof(expectedProject));
+            ThrowIf.ArgumentNull(actualProject, nameof(actualProject));
 
-            if (!string.IsNullOrEmpty(project2.Description))
+            
+            if (!string.IsNullOrEmpty(actualProject.Description))
             {
-                var plainInstanceProjectDescription = StringUtilities.ConvertHtmlToText(project1.Description);
+                if (convertDescriptionsToPlainText)
+                {
+                    var plainInstanceProjectDescription = StringUtilities.ConvertHtmlToText(actualProject.Description);
 
-                StringAssert.Contains(project2.Description, project1.Description,
-                    "Project Description '{0}' was expected but '{1}' was returned.",
-                    project2.Description, plainInstanceProjectDescription);
+                    StringAssert.Contains(expectedProject.Description, actualProject.Description,
+                        "Project Description '{0}' was expected but '{1}' was returned.",
+                        expectedProject.Description, plainInstanceProjectDescription);
+                } else
+                {
+                    Assert.AreEqual(expectedProject.Description, actualProject.Description,
+                        "Project Description '{0}' was expected but {1} was returned.",
+                        expectedProject.Description, actualProject.Description);
+                }
             }
 
-            Assert.AreEqual(project2.Id, project1.Id, "Project Id {0} was expected but {1} was returned.",
-                project2.Id, project1.Id);
+            Assert.AreEqual(expectedProject.Id, actualProject.Id, "Project Id {0} was expected but {1} was returned.",
+                expectedProject.Id, actualProject.Id);
 
-            Assert.AreEqual(project2.Name, project1.Name, "Project Name '{0}' was expected but '{1}' was returned.",
-                project2.Name, project1.Name);
+            Assert.AreEqual(expectedProject.Name, actualProject.Name, "Project Name '{0}' was expected but '{1}' was returned.",
+                expectedProject.Name, actualProject.Name);
         }
 
         /// <summary>
         /// Assert that InstanceProject returned from Get ProjectById is the same as the project
         /// </summary>
         /// <param name="helper">A TestHelper instance.</param>
-        /// <param name="instanceProject">instanceProject that is returned from Get ProjectById</param>
-        /// <param name="project">the project used to validate returned instanceProject</param>
-        public static void AssertAreEqual(TestHelper helper, InstanceProject instanceProject, IProject project)
+        /// <param name="expectedProject">the project used to compare with returned instanceProject</param>
+        /// <param name="actualInstanceProject">instanceProject that is returned from Get ProjectById</param>
+        public static void AssertAreEqual(TestHelper helper, IProject expectedProject, InstanceProject actualInstanceProject)
         {
             ThrowIf.ArgumentNull(helper, nameof(helper));
-            ThrowIf.ArgumentNull(instanceProject, nameof(InstanceProject));
-            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(expectedProject, nameof(expectedProject));
 
-            AssertAreEqual(instanceProject, project);
+            ThrowIf.ArgumentNull(actualInstanceProject, nameof(InstanceProject));
 
-            Assert.IsNotNull(instanceProject.ParentFolderId, "{0} should not be null!", nameof(InstanceProject.ParentFolderId));
+            AssertAreEqual(expectedProject, (IProject)actualInstanceProject, true);
 
-            Assert.AreEqual(InstanceItemTypeEnum.Project, instanceProject.Type, "Type '{0}' was expected but '{1}' was returned.",
-                InstanceItemTypeEnum.Project, instanceProject.Type);
+            Assert.IsNotNull(actualInstanceProject.ParentFolderId, "{0} should not be null!", nameof(InstanceProject.ParentFolderId));
 
-            var permissionForProject = helper.ProjectRoles.Find(p => p.ProjectId.Equals(project.Id))?.Permissions;
+            Assert.AreEqual(InstanceItemTypeEnum.Project, actualInstanceProject.Type, "Type '{0}' was expected but '{1}' was returned.",
+                InstanceItemTypeEnum.Project, actualInstanceProject.Type);
 
-            Assert.AreEqual(permissionForProject, instanceProject.Permissions,
-                "Permission {0} was expected but {1} is returned.", permissionForProject, instanceProject.Permissions);
+            var expectedPermissionForProject = helper.ProjectRoles.Find(p => p.ProjectId.Equals(expectedProject.Id))?.Permissions;
+
+            Assert.AreEqual(expectedPermissionForProject, actualInstanceProject.Permissions,
+                "Permission {0} was expected but {1} is returned.", expectedPermissionForProject, actualInstanceProject.Permissions);
         }
 
         #endregion Custom Asserts

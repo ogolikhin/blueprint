@@ -76,7 +76,7 @@ namespace AdminStoreTests
                     "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, project.Id);
 
                 // Verify:
-                AdminStoreHelper.AssertAreEqual(Helper, returnedInstanceProject, project);
+                AdminStoreHelper.AssertAreEqual(Helper, project, returnedInstanceProject);
             }
         }
 

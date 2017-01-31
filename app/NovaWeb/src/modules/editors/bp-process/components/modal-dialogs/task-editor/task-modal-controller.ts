@@ -191,7 +191,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                     return this.$q.reject(new ApplicationError(this.localization.get("Artifact_Lock_AlreadyLocked")));
                 }
 
-                this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId());
+                return this.createArtifactService.createNewArtifact(this.dialogModel.artifactId, null, false, associatedArtifact.name, this.getItemTypeId());
             })
             .then((newArtifact: IArtifact) => {
                 return this.statefulArtifactFactory.createStatefulArtifactFromId(newArtifact.id);

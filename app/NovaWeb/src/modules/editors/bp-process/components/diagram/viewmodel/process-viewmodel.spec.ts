@@ -7,15 +7,13 @@ import {Models} from "../../../../../main/models";
 import {ProcessViewModel} from "./process-viewmodel";
 import * as TestModels from "../../../models/test-model-factory";
 import {
-    IStatefulProcessArtifactServices,
-    StatefulArtifactServices,
-    StatefulProcessArtifactServices
+    StatefulArtifactServices
 } from "../../../../../managers/artifact-manager/services";
 import {LoadingOverlayService, ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ProcessShapeType} from "../../../models/enums";
 
 describe("ProcessViewModel", () => {
-    let services: IStatefulProcessArtifactServices;
+    let services: StatefulArtifactServices;
     let $q: ng.IQService;
     let $log: ng.ILogService;
     let $rootScope: ng.IRootScopeService;
@@ -34,10 +32,10 @@ describe("ProcessViewModel", () => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         $log = _$log_;
-        let artitfactServices = new StatefulArtifactServices(
+        services = new StatefulArtifactServices(
             _$q_, _$log_, null, null, null, null, artifactService, null, null, null, loadingOverlayService, null, null, null
         );
-        services = new StatefulProcessArtifactServices(artitfactServices, _$q_, _$log_);
+        //services =  new StatefulProcessArtifactServices(artitfactServices, _$q_, _$log_);
     }));
     it("test add stateful Shape", () => {
         //Arrange

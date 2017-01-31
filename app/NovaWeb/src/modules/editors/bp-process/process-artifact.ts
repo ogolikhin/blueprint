@@ -3,7 +3,7 @@ import {ProcessType} from "./models/enums";
 import {IProcess, IProcessShape, IProcessLink} from "./models/process-models";
 import {IHashMapOfPropertyValues, ItemTypePredefined} from "./models/process-models";
 import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
-import {IStatefulProcessArtifactServices} from "./services/process-services";
+import {StatefulArtifactServices, IStatefulArtifactServices} from "../../managers/artifact-manager/services";
 import {StatefulProcessSubArtifact} from "./process-subartifact";
 import {IArtifactReference} from "./models/process-models";
 import {ProcessModelProcessor} from "./services/process-model-processor";
@@ -28,7 +28,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     public userTaskPersonaReferenceList: IArtifactReference[];
     public systemTaskPersonaReferenceList: IArtifactReference[];
 
-    constructor(artifact: Models.IArtifact, protected services: IStatefulProcessArtifactServices) {
+    constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
     }
 
@@ -45,7 +45,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
         return this.prefix;
     }
 
-    public getServices(): IStatefulProcessArtifactServices {
+    public getServices(): IStatefulArtifactServices {
         return this.services;
     }
 

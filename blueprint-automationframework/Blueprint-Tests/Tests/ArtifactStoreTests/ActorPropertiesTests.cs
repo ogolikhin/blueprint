@@ -378,8 +378,9 @@ namespace ArtifactStoreTests
 
             var expirationTime = Helper.FileStore.GetSQLExpiredTime(imageFile.Guid);
             Assert.IsNotNull(expirationTime, "After saving ExpiredTime for file should be current time.");
-            Assert.IsTrue(DateTimeUtilities.CompareTimePlusOrMinus(expirationTime.Value, actorDetails.LastSavedOn.Value, 1),
-                "ExpirationTime should have expected value.");
+            Assert.IsTrue(expirationTime.Value.CompareTimePlusOrMinusMilliseconds(actorDetails.LastSavedOn.Value, 1000),
+                "ExpirationTime should have expected value.  ExpiredTime in DB is: {0}, but LastSavedOn is: {1}",
+                expirationTime.Value, actorDetails.LastSavedOn.Value);
             return actorDetails;
         }
 
@@ -420,19 +421,12 @@ namespace ArtifactStoreTests
             {
                 expectedIconAddress = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_ +
                 "?versionId={1}", actorDetails.Id, versionNumber);
+                Assert.AreEqual(expectedIconAddress, iconAddress, "Icon address should have expected format.");
             }
             else
             {
                 expectedIconAddress = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_ +
                 "?versionId={1}&addDraft=true&lastSavedTimestamp=", actorDetails.Id, versionNumber);
-            }
-
-            if (isHistoricalVersion)
-            {
-                Assert.AreEqual(expectedIconAddress, iconAddress, "Icon address should have expected format.");
-            }
-            else
-            {
                 StringAssert.StartsWith(expectedIconAddress, iconAddress, "Icon address should have expected format.");
             }
 

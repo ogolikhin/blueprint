@@ -23,21 +23,6 @@ namespace Model.ArtifactModel.Impl
 
         #endregion Serialized JSON Properties
 
-        #region Enums
-
-        public enum ArtifactTraceType
-        {
-            None,
-            All,
-            Parent,
-            Child,
-            Manual,
-            Reuse,
-            Other
-        }
-
-        #endregion Enums
-
         #region Constructors
 
         /// <summary>
@@ -100,19 +85,19 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
-        /// <seealso cref="IOpenApiArtifact.GetArtifact(IProject,IUser,Nullable{bool},Nullable{bool},System.Nullable{Model.ArtifactModel.Impl.OpenApiArtifact.ArtifactTraceType},Nullable{bool},Nullable{bool},Nullable{bool},Nullable{bool},System.Collections.Generic.List{System.Net.HttpStatusCode})"/>
+        /// <seealso cref="IOpenApiArtifact.GetArtifact(IProject, IUser, bool?, bool?, OpenApiTraceTypes?, bool?, bool?, bool?, bool?, List{HttpStatusCode})"/>
         public IOpenApiArtifact GetArtifact(IProject project,
             IUser user,
             bool? getStatus = null,
             bool? getComments = null,
-            ArtifactTraceType? getTraces = null,
+            OpenApiTraceTypes? getTraces = null,
             bool? getAttachments = null,
             bool? richTextAsPlain = null,
             bool? getInlineCSS = null,
             bool? getContent = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetArtifact(Address, project, Id, user,
+            return OpenApi.GetArtifact(Address, project, Id, user,
                 getAttachments: getAttachments,
                 getComments: getComments,
                 getContent: getContent,
@@ -122,10 +107,9 @@ namespace Model.ArtifactModel.Impl
                 richTextAsPlain: richTextAsPlain);
         }
 
-        /// <seealso cref="IOpenApiArtifact.GetVersion(IUser, List{HttpStatusCode}, bool)" />
+        /// <seealso cref="IOpenApiArtifact.GetVersion(IUser, List{HttpStatusCode})" />
         public int GetVersion(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -133,7 +117,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            int artifactVersion = GetVersion(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            int artifactVersion = OpenApi.GetArtifactVersion(Address, this, user, expectedStatusCodes);
 
             return artifactVersion;
         }
@@ -410,116 +394,6 @@ namespace Model.ArtifactModel.Impl
 
             return artifactResults.ConvertAll(o => (DiscardArtifactResult)o);
         }
-
-        /// <summary>
-        /// Retrieves a single artifact by Project ID and Artifact ID and returns information about the artifact.
-        /// (Runs:  /api/v1/projects/{projectId}/artifacts/{artifactId}  with the following optional query parameters:
-        /// status={status}, comments={comments}, traces={traces}, attachments={attachments}, richtextasplain={richtextasplain}, inlinecss={inlinecss}, content={content})
-        /// </summary>
-        /// <param name="baseAddress">The base address of the Blueprint server.</param>
-        /// <param name="project">The project where the artifact exists.</param>
-        /// <param name="artifactId">The ID of the artifact.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="getStatus">(optional) Defines whether or not the status of the artifact should be loaded.  The default is false if not specified.
-        /// The default is true if the parameter is included in the URI with no given value.</param>
-        /// <param name="getComments">(optional) Indicates whether to retreive comments of the artifact.  The default is false if not specified.
-        /// The default is true if the parameter is included in the URI with no given value.</param>
-        /// <param name="getTraces">(optional) Indicates whether to retrieve traces of the artifact.  The default is None if not specified.
-        /// The default is All if the parameter is included in the URI with no given value.</param>
-        /// <param name="getAttachments">(optional) Indicates whether to retrieve information about the attachments of the artifact.  The default is false if not specified.
-        /// The default is true if the parameter is included in the URI with no given value.</param>
-        /// <param name="richTextAsPlain">(optional) Defines whether or not to retrieve all rich-text properties as Plain Text instead of HTML.  The default is false if not specified.
-        /// The default is true if the parameter is included in the URI with no given value.</param>
-        /// <param name="getInlineCSS">(optional) Defines whether or not to retrieve all rich-text properties with locally defined or inline styles.  The default is false if not specified.
-        /// The default is true if the parameter is included in the URI with no given value.  When this parameter is set to false, rich-text properties return internal styles that are defined
-        /// within the &lt;head&gt; section of the HTML.</param>
-        /// <param name="getContent">(optional) Defines whether or not to retrieve the artifact's content.  The default is false if not specified.
-        /// Defines whether or not to retrieve the artifact's content. This parameter can be set to true or false. The default is false if not specified. The default is true if the parameter is included in the URI with no given value.
-        /// The default is true if the parameter is included in the URI with no given value.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only 200 OK is expected.</param>
-        /// <returns>The artifact with all the additional details you requested.</returns>
-        public static IOpenApiArtifact GetArtifact(string baseAddress,
-            IProject project,
-            int artifactId,
-            IUser user,
-            bool? getStatus = null,
-            bool? getComments = null,
-            ArtifactTraceType? getTraces = null,
-            bool? getAttachments = null,
-            bool? richTextAsPlain = null,
-            bool? getInlineCSS = null,
-            bool? getContent = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(baseAddress, nameof(baseAddress));
-            ThrowIf.ArgumentNull(project, nameof(project));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (getAttachments != null) { queryParameters.Add("Attachments", getAttachments.ToString()); }
-            if (getComments != null) { queryParameters.Add("Comments", getComments.ToString()); }
-            if (getContent != null) { queryParameters.Add("Content", getContent.ToString()); }
-            if (getInlineCSS != null) { queryParameters.Add("InlineCSS", getInlineCSS.ToString()); }
-            if (getStatus != null) { queryParameters.Add("Status", getStatus.ToString()); }
-            if (getTraces != null) { queryParameters.Add("Traces", getTraces.ToString()); }
-            if (richTextAsPlain != null) { queryParameters.Add("RichTextAsPlain", richTextAsPlain.ToString()); }
-
-            var restApi = new RestApiFacade(baseAddress, user.Token?.OpenApiToken);
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, project.Id, artifactId);
-
-            var returnedArtifact = restApi.SendRequestAndDeserializeObject<OpenApiArtifact>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
-
-            returnedArtifact.Address = baseAddress;
-
-            return returnedArtifact;
-        }
-
-        /// <summary>
-        /// Gets the Version property of an Artifact via OpenAPI call
-        /// </summary>
-        /// <param name="artifact">The artifact</param>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The historical version of the artifact.</returns>
-        public static int GetVersion(IArtifactBase artifact,
-            IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            if (user == null)
-            {
-                Assert.NotNull(artifact.CreatedBy, "No user is available to perform GetVersion.");
-                user = artifact.CreatedBy;
-            }
-
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(artifact.Address, tokenValue);
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifact.ProjectId, artifact.Id);
-
-            var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
-
-            return returnedArtifact.Version;
-        }
-
 
         //TODO Investigate if we can use IArtifact instead of ItemId
 

@@ -15,8 +15,7 @@ abstract class TreeNodeVM<T> implements ITreeNodeVM<T>, ITreeNode {
                 public key: string,
                 public group: boolean,
                 public expanded: boolean,
-                public selectable: boolean,
-                public parentArtifact?: Models.IArtifact) {
+                public selectable: boolean) {
     }
 
     public getCellClass(): string[] {
@@ -87,11 +86,11 @@ export class TreeNodeVMFactory {
 abstract class HomogeneousTreeNodeVM<T> extends TreeNodeVM<T> {
     public children: this[];
 
-    constructor(public model: T,
-                public key: string,
-                public group: boolean,
-                public expanded: boolean,
-                public selectable: boolean) {
+    constructor(model: T,
+                key: string,
+                group: boolean,
+                expanded: boolean,
+                selectable: boolean) {
         super(model, key, group, expanded, selectable);
     }
 
@@ -113,7 +112,7 @@ abstract class HomogeneousTreeNodeVM<T> extends TreeNodeVM<T> {
             found = item;
         } else if (item.children) {
 
-            //todo: we shoudl find a better way to write this as its not very clear. prob lodash has support to do better
+            //todo: we should find a better way to write this as its not very clear. prob lodash has support to do better
             for (let i = 0, it: this;
                  !found &&
                  (it = item.children[i++]);
@@ -302,8 +301,8 @@ export class SubArtifactNodeVM extends TreeNodeVM<Models.ISubArtifactNode> {
                 public project: AdminStoreModels.IInstanceItem,
                 model: Models.ISubArtifactNode,
                 isSelectable: boolean,
-                parentArtifact: Models.IArtifact) {
-        super(model, String(model.id), model.hasChildren, false, isSelectable, parentArtifact);
+                public parentArtifact: Models.IArtifact) {
+        super(model, String(model.id), model.hasChildren, false, isSelectable);
         this.children = model.children ? model.children.map(child => factory.createSubArtifactNodeVM(project, child, parentArtifact)) : [];
     }
 

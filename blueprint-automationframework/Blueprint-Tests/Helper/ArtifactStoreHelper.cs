@@ -26,6 +26,11 @@ namespace Helper
     [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is expected in a Helper class.
     public static class ArtifactStoreHelper
     {
+        private const string DEFAULT_COLLECTIONS_ROOT_NAME = "Collections";
+        private const int DEFAULT_COLLECTIONS_ROOT_ORDERINDEX = -1;
+        private const int DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID = -2;
+        private const string DEFAULT_COLLECTIONS_ROOT_PREFIX = "_CFL";
+
         #region Custom Asserts
 
         /// <summary>
@@ -853,6 +858,133 @@ namespace Helper
         }
 
         #endregion Collection Methods
+
+        #region NovaArtifact Validations
+
+        /// <summary>
+        /// Validate total number of artifact, currently used from get project/artifact children.
+        /// </summary>
+        /// <param name="novaArtifacts">The list of artifacts returned.</param>
+        /// <param name="expectedNumberOfArtifacts">expected number of artifacts.</param>
+        public static void ValidateNovaArtifactsCount(List<NovaArtifact> novaArtifacts, int expectedNumberOfArtifacts)
+        {
+            ThrowIf.ArgumentNull(novaArtifacts, nameof(novaArtifacts));
+
+            Assert.AreEqual(expectedNumberOfArtifacts, novaArtifacts.Count(),
+                "expected number of nova artifacts is {0} but {1} is returned.",
+                expectedNumberOfArtifacts, novaArtifacts.Count());
+        }
+        
+        /// <summary>
+        /// Validate nova artifact contents
+        /// </summary>
+        /// <param name="project">The project where artifact resides.</param>
+        /// <param name="novaArtifact">The nova artifact returned from get project/artifact childen.</param>
+        /// <param name="parentArtifactId">parent artifact Id for get project/artifact children.</param>
+        public static void ValidateNovaArtifact(IProject project, NovaArtifact artifact, int parentArtifactId)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            var novaArtifactTypeForArtifact = project.NovaArtifactTypes.Find(nat => ((int)nat.PredefinedType).Equals((int)artifact.PredefinedType));
+
+            Assert.IsNotNull(artifact.HasChildren, "{0} should not be null!", nameof(artifact.HasChildren));
+
+            Assert.IsNotNull(artifact.Id, "{0} should not be null!", nameof(artifact.Id));
+
+            Assert.IsFalse(string.IsNullOrEmpty(artifact.Name), "name should not be empty but it's {0}", artifact.Name);
+
+            if (artifact.ItemTypeId.Equals(DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID))
+            {
+                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
+                    DEFAULT_COLLECTIONS_ROOT_NAME);
+
+                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Collections default folder.",
+                    DEFAULT_COLLECTIONS_ROOT_ORDERINDEX);
+
+                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Collections default folder.",
+                    DEFAULT_COLLECTIONS_ROOT_PREFIX);
+            }
+            else
+            {
+                Assert.AreEqual(novaArtifactTypeForArtifact.Id, artifact.ItemTypeId,
+                    "itemTypeId {0} for the artifact {1} doesn't exist on the project {2}",
+                    artifact.ItemTypeId, artifact.Name, project.Name);
+
+                Assert.GreaterOrEqual(artifact.OrderIndex, 0,
+                    "orderIndex for the artifact {0} should be greater than or equal to zero but returned {1}.",
+                    artifact.Name, artifact.OrderIndex);
+
+                Assert.AreEqual(novaArtifactTypeForArtifact.Prefix, artifact.Prefix,
+                    "prefix {0} for the artifact {1} doesn't exist on the project {2}",
+                    artifact.Prefix, artifact.Name, project.Name);
+
+            }
+
+            Assert.AreEqual(parentArtifactId, artifact.ParentId, "parentId for the artifact {0} should be {1} but {2} is returned.",
+                    artifact.Name, parentArtifactId, artifact.ParentId);
+
+            Assert.IsNotNull(artifact.Permissions, "{0} should not be null!", nameof(artifact.Permissions));
+
+            Assert.AreEqual((int)novaArtifactTypeForArtifact.PredefinedType, (int)artifact.PredefinedType,
+                "predefinedType {0} for the artifact {1} doesn't exist on the project {2}",
+                artifact.PredefinedType.ToString(), artifact.Name, project.Name);
+
+            Assert.AreEqual(project.Id, artifact.ProjectId, "projectId for the artifact {0} should be {1} but {2} is returned",
+                artifact.Name, project.Id, artifact.ProjectId);
+
+            Assert.That(artifact.Version >= 1, "version should be non-zero positive!");
+        }
+
+        // TODO: Update content validation portion when more information is available
+        /// <summary>
+        /// Validate list of nova artifacts' contents
+        /// </summary>
+        /// <param name="project">The project where artifacts reside.</param>
+        /// <param name="novaArtifacts">list of nova artifacts, currently used from get project/artifact childen.</param>
+        /// <param name="parentArtifact">(optional) parent artifact.
+        /// If null, validation work for the nova artifact list.</param>
+        public static void ValidateNovaArtifactsContents(IProject project, List<NovaArtifact> novaArtifacts, IArtifactBase parentArtifact = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(novaArtifacts, nameof(novaArtifacts));
+
+            var parentArtifactId = (parentArtifact == null) ? project.Id : parentArtifact.Id;
+
+            foreach (var artifact in novaArtifacts)
+            {
+                ValidateNovaArtifact(project, artifact, parentArtifactId);
+            }
+        }
+
+        /// <summary>
+        /// Validate list of nova artifacts, currently used from get project/artifact children.
+        /// </summary>
+        /// <param name="project">The project where artifacts reside.</param>
+        /// <param name="novaArtifacts">list of nova artifacts returned.</param>
+        /// <param name="parentArtifact">(optional) parent artifact.
+        /// If null, validation work with project Id used as parent Id.</param>
+        /// <param name="expectedNumberOfArtifacts">
+        /// (optional) expected number of artifacts.
+        /// If null, only validate returned artifacts contents</param>
+        public static void ValidateNovaArtifacts(
+            IProject project,
+            List<NovaArtifact> novaArtifacts,
+            IArtifactBase parentArtifact = null,
+            int expectedNumberOfArtifacts = 0
+            )
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            if (expectedNumberOfArtifacts != 0)
+            {
+                ValidateNovaArtifactsCount(novaArtifacts, expectedNumberOfArtifacts);
+            }
+
+            ValidateNovaArtifactsContents(project, novaArtifacts, parentArtifact);
+        }
+
+        #endregion NovaArtifact Validations
 
         /// <summary>
         /// Gets Inline Image Id from html of the artifact rich text property.

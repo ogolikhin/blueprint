@@ -549,7 +549,7 @@ describe("BPTreeViewController", () => {
     });
 
     describe("ag-grid event handlers", () => {
-        it("onRowGroupOpened, when group, sets expanded", inject(($rootScope: ng.IRootScopeService) => {
+        it("onRowGroupOpened, when group, sets expanded", () => {
             // Arrange
             const vm = {
                 group: true,
@@ -562,11 +562,10 @@ describe("BPTreeViewController", () => {
 
             // Act
             controller.onRowGroupOpened({node: node});
-            $rootScope.$digest();
 
             // Assert
             expect(vm.expanded).toEqual(true);
-        }));
+        });
 
         it("onRowGroupOpened, when loads asynchronously, calls resetGridAsync correctly", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
             // Arrange
@@ -624,23 +623,6 @@ describe("BPTreeViewController", () => {
             // Assert
             expect(vm.expanded).toEqual(false);
         });
-
-        it("onRowGroupOpened, when try to call this function one more time while promise is not resolved", inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
-            // Arrange
-            const vm = jasmine.createSpyObj("vm", ["loadChildrenAsync"]) as ITreeNode;
-            (vm.loadChildrenAsync as jasmine.Spy).and.returnValue($q.reject());
-            vm.group = true;
-            vm.expanded = true;
-            const node = {data: vm, expanded: true} as agGrid.RowNode;
-
-            // Act
-            controller.onRowGroupOpened({node: node});
-            controller.onRowGroupOpened({node: node});
-
-            // Assert
-            expect(vm.loadChildrenAsync).toHaveBeenCalledTimes(1);
-            $rootScope.$digest(); // Resolves promises
-        }));
 
         it("onCellClicked, when event target is outside the cell value div, does not call setSelectedParams", () => {
             // Arrange

@@ -1,9 +1,12 @@
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
+import {ISession} from "../../../../../shell/login/session.svc";
 require("script!mxClient");
 import * as angular from "angular";
 import "angular-mocks";
 import "rx";
 import "../../..";
-import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
+import {ModalServiceInstanceMock, SessionSvcMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {NodeType} from "../../diagram/presentation/graph/models";
@@ -46,7 +49,10 @@ describe("SystemTaskModalController", () => {
 
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let dialogService: IDialogService;
-    let communicationManager: ICommunicationManager;
+    let communicationManager: ICommunicationManager; 
+    
+    let session: ISession;
+    let selectionManager: ISelectionManager;
 
     let _window: any = window;
     _window.executionEnvironmentDetector = ExecutionEnvironmentDetectorMock;
@@ -61,6 +67,9 @@ describe("SystemTaskModalController", () => {
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
+        $provide.service("session", SessionSvcMock);
+        $provide.service("selectionManager", SelectionManagerMock);
+
     }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,
@@ -74,6 +83,8 @@ describe("SystemTaskModalController", () => {
                        _messageService_: IMessageService,
                        _artifactService_: IArtifactService,
                        _loadingOverlayService_: ILoadingOverlayService,
+                       _session_: ISession,
+                       _selectionManager_: ISelectionManager,
                        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance) => {
         $rootScope = _$rootScope_;
         $timeout = _$timeout_;
@@ -85,6 +96,8 @@ describe("SystemTaskModalController", () => {
         messageService = _messageService_;
         artifactService = _artifactService_;
         loadingOverlayService = _loadingOverlayService_;
+        session = _session_;
+        selectionManager = _selectionManager_;
         $uibModalInstance = _$uibModalInstance_;
         $rootScope["config"] = {};
         $rootScope["config"].labels = {};
@@ -124,6 +137,8 @@ describe("SystemTaskModalController", () => {
                 messageService,
                 artifactService,
                 loadingOverlayService,
+                session,
+                selectionManager,
                 $uibModalInstance,
                 model);
 
@@ -155,6 +170,8 @@ describe("SystemTaskModalController", () => {
                 messageService,
                 artifactService,
                 loadingOverlayService,
+                session,
+                selectionManager,
                 $uibModalInstance,
                 model);
             const artifactReference: IArtifactReference = <IArtifactReference>{
@@ -187,6 +204,8 @@ describe("SystemTaskModalController", () => {
                 messageService,
                 artifactService,
                 loadingOverlayService,
+                session,
+                selectionManager,
                 $uibModalInstance,
                 model);
 
@@ -226,6 +245,8 @@ describe("SystemTaskModalController", () => {
                 messageService,
                 artifactService,
                 loadingOverlayService,
+                session,
+                selectionManager,
                 $uibModalInstance,
                 model);
 
@@ -276,6 +297,8 @@ describe("SystemTaskModalController", () => {
                 messageService,
                 artifactService,
                 loadingOverlayService,
+                session,
+                selectionManager,
                 $uibModalInstance,
                 model);
 
@@ -365,6 +388,8 @@ describe("SystemTaskModalController", () => {
                 messageService,
                 artifactService,
                 loadingOverlayService,
+                session,
+                selectionManager,
                 $uibModalInstance,
                 model);
             });

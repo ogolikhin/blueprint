@@ -574,7 +574,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return navigationPath;
         }

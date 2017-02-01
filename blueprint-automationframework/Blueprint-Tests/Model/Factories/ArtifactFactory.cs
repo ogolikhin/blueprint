@@ -141,8 +141,8 @@ namespace Model.Factories
         /// <summary>
         /// Tries to convert NovaArtifactDetails to specific artifact type (now it works for Actor).
         /// </summary>
-        /// <param name="artifactDetails">.</param>
-        /// <param name="artifactDetailsJSON">User for authentication.</param>
+        /// <param name="artifactDetails">artifactDetails object.</param>
+        /// <param name="artifactDetailsJSON">JSON representation of artifactDetails.</param>
         /// <returns>Object of specific artifact type.</returns>
         public static NovaArtifactDetails ConvertToSpecificArtifact(NovaArtifactDetails artifactDetails, string artifactDetailsJSON)
         {

@@ -68,7 +68,7 @@ describe("BpArtifactInfo", () => {
                 dispose: undefined
             },
             getObservable: () => artifactObservable,
-            getProperyObservable: () => propertyObservable
+            getPropertyObservable: () => propertyObservable
         };
         selectionManager = <ISelectionManager>{
             artifactObservable: artifactObservable,
@@ -164,7 +164,7 @@ describe("BpArtifactInfo", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
-            const spy = spyOn(selectionManager.getArtifact().getProperyObservable(), "subscribeOnNext").and.callThrough();
+            const spy = spyOn(selectionManager.getArtifact().getPropertyObservable(), "subscribeOnNext").and.callThrough();
 
             // act
             const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;

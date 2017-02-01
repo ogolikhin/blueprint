@@ -5,7 +5,6 @@ import "angular-mocks";
 import "angular-sanitize";
 import "angular-ui-router";
 import {HttpStatusCode} from "../../../../commonModule/httpInterceptor/http-status-code";
-import {ProcessServiceMock} from "../../../../editors/bp-process/services/process.svc.mock";
 import {IRelationship} from "../../../../main/models/relationshipModels";
 import {StatefulArtifactFactory} from "../../../../managers/artifact-manager/artifact/artifact.factory";
 import {ArtifactService} from "../../../../managers/artifact-manager/artifact/artifact.svc";
@@ -35,7 +34,6 @@ describe("BPArtifactRelationshipItem", () => {
         $provide.service("artifactService", ArtifactService);
         $provide.service("artifactAttachments", ArtifactAttachmentsService);
         $provide.service("artifactRelationships", ArtifactRelationshipsMock);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("validationService", ValidationServiceMock);
     }));
 

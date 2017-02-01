@@ -312,12 +312,12 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var mainProject = _projects.FirstOrDefault();
-            mainProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
-
             var secondProject = _projects.LastOrDefault();
-            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(secondProject, _user, baseArtifactType);
+            secondProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(mainProject, _user, ItemTypePredefined.Process);
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
+
+            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(secondProject, _user, ItemTypePredefined.Process);
 
             var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id).Find(sa => sa.DisplayName.Equals(Process.DefaultUserTaskName));
             var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, userTaskSubArtifact.Id);

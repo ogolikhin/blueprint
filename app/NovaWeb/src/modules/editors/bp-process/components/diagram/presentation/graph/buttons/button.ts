@@ -146,7 +146,7 @@ export class Button extends DiagramElement implements IOverlayHandler, IMouseEve
     }
 
     public onMouseDown(sender, evt) {
-        if (this.isEnabled && this.clickAction) {
+        if (this.isEnabled && this.clickAction && evt.which === 1) {
             this.clickAction();
         }
     }

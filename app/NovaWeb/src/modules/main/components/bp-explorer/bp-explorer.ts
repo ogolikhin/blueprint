@@ -216,7 +216,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     }];
 
     public onSelect = (vm: ExplorerNodeVM, isSelected: boolean): void => {
-        this.$log.debug("onSelect");
+        this.$log.debug("bpExplorer.onSelect() - unused");
         // this.treeApi.setSelected((node: ExplorerNodeVM) => node.model.id === vm.model.id);
 
         /*if (!this.resettingSelection && isSelected) {
@@ -234,6 +234,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
     };
 
     public setSelectedNode() {
+        this.$log.debug("bpExplorer.setSelectedNode()");
         const selectedId = this.projectExplorerService.getSelectionId();
         if (_.isFinite(selectedId) && this.treeApi.setSelected((vm: ExplorerNodeVM) => vm.model.id === selectedId)) {
             this.treeApi.ensureNodeVisible((vm: ExplorerNodeVM) => vm.model.id === selectedId);

@@ -31,7 +31,7 @@ export interface IProjectExplorerService {
 
     openProject(project: IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
     openProjectWithDialog(): void;
-    openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number);
+    openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
 
     refresh(projectId: number, selectionId?: number, forceOpen?: boolean);
     refreshAll();
@@ -230,14 +230,32 @@ export class ProjectExplorerService implements IProjectExplorerService {
     }
 
     // FIXME
-    public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number) {
+    public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {
+        const openProjectIndex = _.findIndex(this.projects, project => project.model.id === projectId);
+
+        return this.metadataService.get(projectId)
+            .then(() => this.getProjectExpandedToNode(projectId, artifactIdToExpand))
+            .then(project => {
+                this.selectedId = artifactIdToExpand;
+
+                // replace exising project
+                if (_.isUndefined(openProjectIndex)) {
+                    this.projects.unshift(project);
+                } else {
+                    this.projects.splice(openProjectIndex, 1, project);
+                }
+
+                const change = {
+                    type: ChangeTypeEnum.Add,
+                    value: project
+                } as IChangeSet;
+                this.projectsChangeSubject.onNext(change);
+            });
+    }
+
+    private getProjectExpandedToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<ExplorerNodeVM> {
         return this.projectService.getProjectTree(projectId, artifactIdToExpand, true).then((artifacts: IArtifact[]) => {
-            // const existingProjectNode = this.getProject(projectId);
-            // if (existingProjectNode) {
-                //
-            // }
-            this.metadataService.get(projectId)
-                .then(() => this.createProjectNode(projectId))
+            return this.createProjectNode(projectId)
                 .then((project: ExplorerNodeVM) => {
                     //populate it
                     project.children = artifacts.map((artifact: IArtifact) => this.factory.createExplorerNodeVM(artifact));
@@ -245,24 +263,18 @@ export class ProjectExplorerService implements IProjectExplorerService {
                     //open any children that have children
                     this.openChildNodes(project.children, artifacts);
 
-                    this.selectedId = artifactIdToExpand;
-                    this.projects.unshift(project);
-                    const change = {
-                        type: ChangeTypeEnum.Add,
-                        value: project
-                    } as IChangeSet;
-                    this.projectsChangeSubject.onNext(change);
+                    return project;
                 });
         });
     }
 
     private openChildNodes(childrenNodes: ExplorerNodeVM[], childrenData: IArtifact[]) {
-        _.forEach(childrenNodes, (node) => {
-            const childData = childrenData.filter(it => it.id === node.model.id);
+        _.forEach(childrenNodes, (node: ExplorerNodeVM) => {
+            const childData = childrenData.filter(artifact => artifact.id === node.model.id);
 
             //if it has children - expand the node
             if (childData[0].hasChildren && childData[0].children) {
-                node.children = childData[0].children.map((it: IArtifact) => this.factory.createExplorerNodeVM(it));
+                node.children = childData[0].children.map(artifact => this.factory.createExplorerNodeVM(artifact));
                 node.expanded = true;
                 this.openChildNodes(node.children, childData[0].children);
             }

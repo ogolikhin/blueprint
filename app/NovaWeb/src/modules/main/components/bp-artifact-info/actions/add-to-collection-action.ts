@@ -10,7 +10,7 @@ import {
 import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
-import {ICollectionService} from "../../../../editors/bp-collection/collection.svc";
+import {ICollectionService} from "../../../../editorsModule/collection/collection.service";
 import {ErrorCode} from "../../../../shell/error/error-code";
 import {IItemInfoService, IItemInfoResult} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../messages/message.svc";

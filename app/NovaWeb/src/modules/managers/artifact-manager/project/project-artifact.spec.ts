@@ -1,8 +1,8 @@
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ProcessServiceMock} from "../../../editors/bp-process/services/process.svc.mock";
-import {PropertyDescriptorBuilderMock} from "../../../editors/configuration/property-descriptor-builder.mock";
-import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
+import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
+import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {Enums, Models} from "../../../main/models";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
@@ -31,7 +31,6 @@ describe("Project", () => {
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("metadataService", MetaDataService);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
-        $provide.service("processService", ProcessServiceMock);
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationService);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);

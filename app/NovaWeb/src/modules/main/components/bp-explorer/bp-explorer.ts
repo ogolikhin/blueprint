@@ -55,7 +55,8 @@ export class ProjectExplorerController implements IProjectExplorerController {
             //     .subscribeOnNext(this.setSelectedNode, this),
             this.selectionManager.explorerArtifactObservable
                 .filter(artifact => !!artifact)
-                .flatMap((artifact: IStatefulArtifact) => artifact.getProperyObservable())
+                // Selection change always causes a property change, so skip that
+                .flatMap((artifact: IStatefulArtifact) => artifact.getPropertyObservable().skip(1))
                 .subscribeOnNext(this.onSelectedArtifactPropertyChange, this)
         ];
     }
@@ -192,16 +193,7 @@ export class ProjectExplorerController implements IProjectExplorerController {
         if (changes.item) {
             this.treeApi.refreshRows((vm: ExplorerNodeVM) => {
                 if (vm.model.id === changes.item.id) {
-                    // Update the model with the changes
-                    if (changes.change) {
-                        if (changes.change.key in vm.model) {
-                            vm.model[changes.change.key] = changes.change.value;
-                        }
-                    } else {
-                        for (let key in vm.model) {
-                            vm.model[key] = changes.item[key];
-                        }
-                    }
+                    vm.updateModel(changes);
                     return true;
                 }
                 return false;

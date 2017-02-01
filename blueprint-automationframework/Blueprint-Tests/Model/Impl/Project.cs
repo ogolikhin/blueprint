@@ -18,6 +18,8 @@ namespace Model.Impl
     {
         #region Properties
 
+        #region Serialized JSON Properties
+
         /// <summary>
         /// Id of the project
         /// </summary>
@@ -27,14 +29,16 @@ namespace Model.Impl
         /// <summary>
         /// Name of the project
         /// </summary>
-        [JsonProperty("Name")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
         /// <summary>
         /// Description of the project
         /// </summary>
-        [JsonProperty("Description")]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
+
+        #endregion Serialized JSON Properties
 
         /// <summary>
         /// Full path for the project. e.g. /Blueprint/Project
@@ -121,19 +125,17 @@ namespace Model.Impl
             return I18NHelper.FormatInvariant("[Project]: Id={0}, Name={1}, Description={2}, Location={3}", Id, Name, Description, Location);
         }
 
-        /// <seealso cref="IProject.GetAllOpenApiArtifactTypes(string, IUser, bool, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IProject.GetAllOpenApiArtifactTypes(string, IUser, bool, List{HttpStatusCode})"/>
         public List<OpenApiArtifactType> GetAllOpenApiArtifactTypes(
             string address,
             IUser user,
             bool shouldRetrievePropertyTypes = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var artifactTypes = OpenApi.GetAllArtifactTypes(address, Id, user, shouldRetrievePropertyTypes,
-                expectedStatusCodes, sendAuthorizationAsCookie);
+                expectedStatusCodes);
 
             // Clean and repopulate ArtifactTypes if there is any element exist for ArtifactTypes
             if (ArtifactTypes.Any())

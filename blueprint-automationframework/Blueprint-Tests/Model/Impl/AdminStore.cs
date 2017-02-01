@@ -439,17 +439,19 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetProjectById(int, IUser, List{HttpStatusCode})"/>
-        public IProject GetProjectById(int id, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public InstanceProject GetProjectById(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.PROJECTS_id_, id);
-            string token = user?.Token?.AccessControlToken;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Instance.PROJECTS_id_, projectId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            var response = GetResponseFromRequest(path, id, token, expectedStatusCodes);
+            var returnedInstanceProject = restApi.SendRequestAndDeserializeObject<InstanceProject>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true
+                );
 
-            var project = JsonConvert.DeserializeObject<InstanceProject>(response.Content);
-            Assert.IsNotNull(project, "Object could not be deserialized properly");
-
-            return project;
+            return returnedInstanceProject;
         }
 
         /// <seealso cref="IAdminStore.GetCustomUserIcon(int, IUser, List{HttpStatusCode})"/>
@@ -571,7 +573,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return navigationPath;
         }

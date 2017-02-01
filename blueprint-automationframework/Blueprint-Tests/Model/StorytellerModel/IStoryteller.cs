@@ -197,8 +197,8 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to update a Nova process</param>
         /// <param name="novaProcess">The Nova process to update</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>The updated Nova process result</returns>
-        NovaProcessUpdateResult UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>The updated Nova process</returns>
+        NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Update a Process but only return the JSON response as a string. (Used only when a response other than a process object
@@ -237,12 +237,11 @@ namespace Model.StorytellerModel
         /// Delete a process artifact
         /// </summary>
         /// <param name="artifact">The artifact to be deleted</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false, bool? deleteChildren = null);
+        List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete a Nova process artifact

@@ -8,6 +8,7 @@ using Model.Factories;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Model.Impl;
 using TestCommon;
 using Utilities;
 
@@ -55,7 +56,7 @@ namespace ArtifactStoreTests
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
             var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            var retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
+            var retrievedArtifact = OpenApi.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
             INovaArtifactDetails artifactDetails = null;
 
@@ -88,7 +89,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
 
             // Verify:
-            var retrievedArtifactVersion = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
+            var retrievedArtifactVersion = OpenApi.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)
@@ -104,7 +105,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            var retrievedArtifactVersion1 = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
+            var retrievedArtifactVersion1 = OpenApi.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
             artifact.Save();
             artifact.Publish();
@@ -134,7 +135,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            var retrievedArtifactVersion1 = OpenApiArtifact.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
+            var retrievedArtifactVersion1 = OpenApi.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
 
             artifact.Save();
             artifact.Publish();

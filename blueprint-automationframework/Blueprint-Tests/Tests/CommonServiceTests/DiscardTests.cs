@@ -7,6 +7,7 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Model.Impl;
 using TestCommon;
 using Utilities;
 
@@ -65,7 +66,7 @@ namespace CommonServiceTests
 
             Assert.DoesNotThrow(() =>
             {
-                retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+                retrievedArtifact = OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
             }, "GetArtifact() failed after discarding a published artifact!");
 
             TestHelper.AssertArtifactsAreEqual(artifact, retrievedArtifact);
@@ -100,7 +101,7 @@ namespace CommonServiceTests
             // Make sure the artifact really is discarded.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+                OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
             }, "Artifact {0} still exists after it was discarded!", artifact.Id);
         }
 
@@ -135,7 +136,7 @@ namespace CommonServiceTests
 
             Assert.DoesNotThrow(() =>
             {
-                retrievedArtifact = OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+                retrievedArtifact = OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
             }, "GetArtifact() failed after discarding a published artifact!");
 
             TestHelper.AssertArtifactsAreEqual(artifact, retrievedArtifact);
@@ -172,7 +173,7 @@ namespace CommonServiceTests
             // Make sure the artifact really is still deleted.
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                OpenApiArtifact.GetArtifact(artifact.Address, _project, artifact.Id, _user);
+                OpenApi.GetArtifact(artifact.Address, _project, artifact.Id, _user);
             }, "Deleted Artifact {0} exists after it was discarded!", artifact.Id);
         }
     }

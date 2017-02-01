@@ -82,7 +82,7 @@ module.exports = {
             {from: '../src/fonts', to: './novaweb/fonts'},
             {from: '../src/images', to: './novaweb/static/images'},
 
-            {from: '../src/modules/editors/bp-process/styles/images', to: './novaweb/static/bp-process/images'},
+            {from: '../src/modules/editorsModule/bp-process/styles/images', to: './novaweb/static/bp-process/images'},
             {from: '../src/images/icons', to: './novaweb/static/images/icons'}
         ], {
             ignore: ['*.spec.js']

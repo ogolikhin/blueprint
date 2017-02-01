@@ -132,8 +132,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         public int GetVersion(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -141,7 +140,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            int artifactVersion = GetVersion(this, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            int artifactVersion = GetVersion(this, user, expectedStatusCodes);
 
             return artifactVersion;
         }
@@ -180,7 +179,8 @@ namespace Model.ArtifactModel.Impl
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return returnedArtifactInfo;
         }
@@ -335,7 +335,8 @@ namespace Model.ArtifactModel.Impl
                 path,
                 RestRequestMethod.POST,
                 artifactIds,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return returnedArtifactProperties[0];
         }
@@ -352,6 +353,7 @@ namespace Model.ArtifactModel.Impl
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+
             return PostRaptorDiscussion(Address, Id, comment, user, expectedStatusCodes);
         }
 
@@ -362,6 +364,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
+
             return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
@@ -370,6 +373,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
+
             return DeleteRaptorDiscussion(Address, Id, discussionToDelete, user, expectedStatusCodes);
         }
 
@@ -378,6 +382,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
+
             return AddArtifactAttachment(Address, ProjectId, Id, file, user, expectedStatusCodes);
         }
 
@@ -386,6 +391,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
+
             return AddSubArtifactAttachment(Address, ProjectId, Id, subArtifactId, file,
                 user, expectedStatusCodes);
         }
@@ -639,14 +645,14 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifact">The artifact</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The historical version of the artifact.</returns>
         public static int GetVersion(IArtifactBase artifact,
             IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.GetVersion(artifact, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            return OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
         }
 
         /// <summary>
@@ -787,7 +793,8 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.POST,
                 jsonObject: artifactIds,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
 
             if (expectedLockResults == null)
             {
@@ -975,7 +982,7 @@ namespace Model.ArtifactModel.Impl
         {
             return OpenApiArtifact.DeleteRaptorReply(address, itemId, replyToDelete, user, expectedStatusCodes);
         }
-
+        
         /// <summary>
         /// add attachment to the specified artifact
         /// </summary>
@@ -1010,7 +1017,7 @@ namespace Model.ArtifactModel.Impl
             return OpenApiArtifact.AddSubArtifactAttachment(address, projectId,
                 artifactId, subArtifactId, file, user, expectedStatusCodes);
         }
-
+        
         #endregion Static Methods
     }
 

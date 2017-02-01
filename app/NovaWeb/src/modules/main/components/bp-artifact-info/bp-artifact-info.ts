@@ -32,7 +32,7 @@ import {
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
-import {ICollectionService} from "../../../editors/bp-collection/collection.svc";
+import {ICollectionService} from "../../../editorsModule/collection/collection.service";
 import {Enums} from "../../models";
 import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../messages/message.svc";
@@ -135,7 +135,7 @@ export class BpArtifactInfoController {
                 this.artifact.artifactState.onStateChange
                     .debounce(100)
                     .subscribeOnNext(this.onArtifactStateChanged, this),
-                this.artifact.getProperyObservable()
+                this.artifact.getPropertyObservable()
                     .distinctUntilChanged(changes => changes.item && changes.item.name)
                     .subscribeOnNext(this.onArtifactPropertyChanged, this)
             );

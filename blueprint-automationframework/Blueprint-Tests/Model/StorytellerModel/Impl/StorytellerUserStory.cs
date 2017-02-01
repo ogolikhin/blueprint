@@ -114,8 +114,13 @@ namespace Model.StorytellerModel.Impl
             
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<UpdateResult<StorytellerProperty>, List<StorytellerProperty>>(path,
-                RestRequestMethod.PATCH, jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty }, expectedStatusCodes: expectedStatusCodes);
+            var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<UpdateResult<StorytellerProperty>, List<StorytellerProperty>>(
+                path,
+                RestRequestMethod.PATCH, 
+                jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty }, 
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
             return userstoryUpdateResult;
         }
     }

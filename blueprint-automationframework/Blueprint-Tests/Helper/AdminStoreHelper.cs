@@ -1,6 +1,7 @@
 ﻿using Common;
 using Model;
 using Model.ArtifactModel;
+using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Impl;
 using NUnit.Framework;
@@ -14,6 +15,78 @@ namespace Helper
 
     public static class AdminStoreHelper
     {
+
+        #region Project Management
+
+        #endregion Project Management
+
+        #region Custom Asserts
+
+        /// <summary>
+        /// Assert that project1 and project2 are the same.
+        /// </summary>
+        /// <param name="expectedProject">IProject representing a project.</param>
+        /// <param name="actualProject">IProject representing a project.</param>
+        /// <param name="convertDescriptionsToPlainText">Indicator if plain text conversion is required for both projects' description values.
+        /// By Default, this is set to false.</param>
+        public static void AssertAreEqual(IProject expectedProject, IProject actualProject, bool convertDescriptionsToPlainText = false)
+        {
+            ThrowIf.ArgumentNull(expectedProject, nameof(expectedProject));
+            ThrowIf.ArgumentNull(actualProject, nameof(actualProject));
+
+            
+            if (!string.IsNullOrEmpty(actualProject.Description))
+            {
+                if (convertDescriptionsToPlainText)
+                {
+                    var expectedProjectDescription = StringUtilities.ConvertHtmlToText(expectedProject.Description);
+                    var actualProjectDescription = StringUtilities.ConvertHtmlToText(actualProject.Description);
+
+                    Assert.AreEqual(expectedProjectDescription, actualProjectDescription,
+                        "Project Description '{0}' was expected but '{1}' was returned.",
+                        expectedProjectDescription, actualProjectDescription);
+                } else
+                {
+                    Assert.AreEqual(expectedProject.Description, actualProject.Description,
+                        "Project Description '{0}' was expected but {1} was returned.",
+                        expectedProject.Description, actualProject.Description);
+                }
+            }
+
+            Assert.AreEqual(expectedProject.Id, actualProject.Id, "Project Id {0} was expected but {1} was returned.",
+                expectedProject.Id, actualProject.Id);
+
+            Assert.AreEqual(expectedProject.Name, actualProject.Name, "Project Name '{0}' was expected but '{1}' was returned.",
+                expectedProject.Name, actualProject.Name);
+        }
+
+        /// <summary>
+        /// Assert that InstanceProject returned from Get ProjectById is the same as the project
+        /// </summary>
+        /// <param name="helper">A TestHelper instance.</param>
+        /// <param name="expectedProject">the project used to compare with returned instanceProject</param>
+        /// <param name="actualInstanceProject">instanceProject that is returned from Get ProjectById</param>
+        public static void AssertAreEqual(TestHelper helper, IProject expectedProject, InstanceProject actualInstanceProject)
+        {
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(expectedProject, nameof(expectedProject));
+
+            ThrowIf.ArgumentNull(actualInstanceProject, nameof(InstanceProject));
+
+            AssertAreEqual(expectedProject, (IProject)actualInstanceProject, convertDescriptionsToPlainText: true);
+
+            Assert.IsNotNull(actualInstanceProject.ParentFolderId, "{0} should not be null!", nameof(InstanceProject.ParentFolderId));
+
+            Assert.AreEqual(InstanceItemTypeEnum.Project, actualInstanceProject.Type, "Type '{0}' was expected but '{1}' was returned.",
+                InstanceItemTypeEnum.Project, actualInstanceProject.Type);
+
+            var expectedPermissionForProject = helper.ProjectRoles.Find(p => p.ProjectId.Equals(expectedProject.Id))?.Permissions;
+
+            Assert.AreEqual(expectedPermissionForProject, actualInstanceProject.Permissions,
+                "Permission {0} was expected but {1} is returned.", expectedPermissionForProject, actualInstanceProject.Permissions);
+        }
+
+        #endregion Custom Asserts
 
         #region Job Management
 

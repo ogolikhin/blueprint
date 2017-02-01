@@ -165,7 +165,8 @@ namespace Model.Impl
             var artifactTypes = restApi.SendRequestAndDeserializeObject<ProjectCustomArtifactTypesResult>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             // Print all returned types for debugging.
             foreach (var artifactType in artifactTypes.ArtifactTypes)
@@ -195,7 +196,8 @@ namespace Model.Impl
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
         }
 
         /// <seealso cref="IArtifactStore.GetProjectChildrenByProjectId(int, IUser, List{HttpStatusCode})"/>
@@ -227,7 +229,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             var ret = novaArtifacts.ConvertAll(o => (INovaArtifact)o);
             return ret;
@@ -253,12 +256,9 @@ namespace Model.Impl
 
             SerializationUtilities.CheckJson(artifactDetails, response.Content);
 
-            if (artifactDetails.PredefinedType != null)
-            {
-                return ArtifactFactory.ConvertToSpecificArtifact(artifactDetails, response.Content);
-            }
+            Assert.IsNotNull(artifactDetails.PredefinedType, "PredefinedType shouldn't be null.");
 
-            return artifactDetails;
+            return ArtifactFactory.ConvertToSpecificArtifact(artifactDetails, response.Content);
         }
 
         /// <seealso cref="IArtifactStore.GetDiagramArtifact(IUser, int, int?, List{HttpStatusCode})"/>
@@ -278,7 +278,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
         }
 
         /// <seealso cref="IArtifactStore.GetGlossaryArtifact(IUser, int, int?, List{HttpStatusCode})"/>
@@ -298,7 +299,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
         }
 
         /// <seealso cref="IArtifactStore.GetUseCaseArtifact(IUser, int, int?, List{HttpStatusCode})"/>
@@ -318,7 +320,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -579,6 +582,33 @@ namespace Model.Impl
             var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.POST, requestBody,
                 contentType: "application/json", expectedStatusCodes: expectedStatusCodes);
             return I18NHelper.ToInt32Invariant(response.Content);
+        }
+
+        /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
+        public IFile GetActorIcon(IUser user, int actorArtifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ACTORICON_id_, actorArtifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var queryParams = new Dictionary<string, string>{{"versionId", versionId?.ToStringInvariant() ??
+                string.Empty}};
+
+            queryParams.Add("addDraft", "true");
+
+            File file = null;
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                file = new File
+                {
+                    Content = response.RawBytes.ToArray(),
+                    FileType = response.ContentType
+                };
+            }
+
+            return file;
         }
 
         #endregion Members inherited from IArtifactStore
@@ -904,7 +934,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.PATCH,
                 novaArtifactDetails,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return newArtifact;
         }
@@ -1019,7 +1050,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
                 return attachment;
             }
@@ -1057,7 +1089,8 @@ namespace Model.Impl
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
         }
 
         /// <summary>
@@ -1106,7 +1139,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return relationships;
         }

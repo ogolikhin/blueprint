@@ -59,7 +59,7 @@ namespace Model.ArtifactModel
             IUser user,
             bool? getStatus = null,
             bool? getComments = null,
-            OpenApiArtifact.ArtifactTraceType? getTraces = null,
+            OpenApiTraceTypes? getTraces = null,
             bool? getAttachments = null,
             bool? richTextAsPlain = null,
             bool? getInlineCSS = null,
@@ -71,9 +71,8 @@ namespace Model.ArtifactModel
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The historical version of the artifact.</returns>
-        int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Add trace between this artifact and a target artifact, with specified trace properties.

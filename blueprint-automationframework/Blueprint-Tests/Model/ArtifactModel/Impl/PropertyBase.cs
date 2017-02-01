@@ -30,18 +30,15 @@ namespace Model.ArtifactModel.Impl
         /// <param name="baseArtifactType">The base artifact type of the property being requested</param>
         /// <param name="propertyName">The name of the property for which the property type is being requested</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The property type of the property</returns>
         public OpenApiPropertyType GetPropertyType(
             IProject project,
             IUser user,
             BaseArtifactType baseArtifactType,
             string propertyName,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetPropertyType(Address, project, user, baseArtifactType, propertyName, expectedStatusCodes, sendAuthorizationAsCookie);
+            return GetPropertyType(Address, project, user, baseArtifactType, propertyName, expectedStatusCodes);
         }
 
         /// <summary>
@@ -53,7 +50,6 @@ namespace Model.ArtifactModel.Impl
         /// <param name="baseArtifactType">The base artifact type of the property being requested</param>
         /// <param name="propertyName">The name of the property for which the property type is being requested</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The property type of the property</returns>
         public static OpenApiPropertyType GetPropertyType(
             string address,
@@ -61,9 +57,7 @@ namespace Model.ArtifactModel.Impl
             IUser user,
             BaseArtifactType baseArtifactType,
             string propertyName,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false
-            )
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -73,7 +67,7 @@ namespace Model.ArtifactModel.Impl
             if (!project.ArtifactTypes.Any() || !project.ArtifactTypes.First().PropertyTypes.Any())
             {
                 project.GetAllOpenApiArtifactTypes(user: user, address: address,
-                    shouldRetrievePropertyTypes: true, expectedStatusCodes: expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+                    shouldRetrievePropertyTypes: true, expectedStatusCodes: expectedStatusCodes);
             }
 
             // Retrive the artifactType for the selected base artifact type

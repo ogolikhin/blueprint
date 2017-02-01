@@ -160,10 +160,10 @@ namespace Model.ArtifactModel.Impl
 
         public List<DeleteArtifactResult> DeletedArtifactResults { get; } = new List<DeleteArtifactResult>();
 
+        /// <seealso cref="IArtifactBase.Delete(IUser, bool?, List{HttpStatusCode})"/>
         public virtual List<DeleteArtifactResult> Delete(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool? deleteChildren = null)
+            bool? deleteChildren = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -171,95 +171,11 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            var deleteArtifactResults = DeleteArtifact(
-                this,
-                user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie,
-                deleteChildren ?? ShouldDeleteChildren);
-
-            return deleteArtifactResults;
-        }
-
-        /// <summary>
-        /// Delete a single artifact on Blueprint server.
-        /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
-        /// </summary>
-        /// <param name="artifactToDelete">The list of artifacts to delete</param>
-        /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
-        /// of the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(IArtifactBase artifactToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
-            bool? deleteChildren = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactToDelete, nameof(artifactToDelete));
-
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifactToDelete.ProjectId, artifactToDelete.Id);
-
-            var queryparameters = new Dictionary<string, string>();
-
-            if (deleteChildren ?? artifactToDelete.ShouldDeleteChildren)
-            {
-                Logger.WriteDebug("*** Recursively deleting children for artifact ID: {0}.", artifactToDelete.Id);
-                queryparameters.Add("Recursively", "true");
-            }
-
-            var restApi = new RestApiFacade(artifactToDelete.Address, tokenValue);
-            var response = restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.DELETE,
-                queryParameters: queryparameters,
+            var deleteArtifactResults = OpenApi.DeleteArtifact(Address, this, user,
+                deleteChildren: deleteChildren ?? ShouldDeleteChildren,
                 expectedStatusCodes: expectedStatusCodes);
 
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var artifactResults = JsonConvert.DeserializeObject<List<DeleteArtifactResult>>(response.Content);
-            ArtifactBase artifaceBaseToDelete = artifactToDelete as ArtifactBase;
-
-            foreach (var deletedArtifactResult in artifactResults)
-            {
-                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
-                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
-
-                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
-                {
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
-                    {
-                        if (artifactToDelete.IsPublished)
-                        {
-                            artifactToDelete.IsMarkedForDeletion = true;
-                            artifaceBaseToDelete.LockOwner = user;
-                        }
-                        else
-                        {
-                            artifactToDelete.IsDeleted = true;
-                        }
-                    }
-                }
-            }
-
-            return artifactResults;
+            return deleteArtifactResults;
         }
 
         #endregion Delete methods
@@ -322,7 +238,8 @@ namespace Model.ArtifactModel.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return response;
         }
@@ -780,7 +697,7 @@ namespace Model.ArtifactModel.Impl
                 // TODO: See if we can give the user Delete permission if they don't already have it.
                 Logger.WriteDebug("Deleting artifact ID: {0}, and its children for user: '{1}'.", artifact.Id, user.Username);
                 var expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.NotFound };
-                artifact.Delete(user, expectedStatusCodes, deleteChildren: true);
+                artifact.Delete(user, deleteChildren: true, expectedStatusCodes: expectedStatusCodes);
             }
         }
     }

@@ -80,9 +80,6 @@ export interface ITreeNode {
     /** Each row in the dom will have an attribute row-id='key' */
     key: string;
 
-    /** when true node is in process of expanding */
-    isExpanding?: boolean;
-
     /** If true, can be selected; otherwise, it can not. */
     selectable: boolean;
     /** Function returning a promise of an array of children, or undefined if children are provided through children. */
@@ -495,27 +492,23 @@ export class BPTreeViewController implements IBPTreeViewController {
                 row.classList.remove(node.expanded ? "ag-row-group-contracted" : "ag-row-group-expanded");
                 row.classList.add(node.expanded ? "ag-row-group-expanded" : "ag-row-group-contracted");
             }
+            vm.expanded = node.expanded;
             if (node.expanded) {
-                if (!vm.isExpanding) {
-                    vm.isExpanding = true; // Temporarily prevent expanding
-                    if (row) {
-                        row.classList.add("ag-row-loading");
-                    }
-                    this.loadExpanded(vm)
-                        .then(() => {
-                            this.resetGridAsync(true);
-                        })
-                        .catch(reason => this.messageService.addError(reason || "Artifact_NotFound"))
-                        .finally(() => {
-                            if (row) {
-                                row.classList.remove("ag-row-loading");
-                            }
-                            vm.expanded = node.expanded;
-                            vm.isExpanding = false; // Allow expanding again
-                        });
+                if (row) {
+                    row.classList.add("ag-row-loading");
                 }
-
-            } else {
+                this.loadExpanded(vm)
+                    .then(() => {
+                        this.resetGridAsync(true);
+                    })
+                    .catch(reason => this.messageService.addError(reason || "Artifact_NotFound"))
+                    .finally(() => {
+                        if (row) {
+                            row.classList.remove("ag-row-loading");
+                        }
+                    });
+            }
+            if (!vm.expanded) {
                 /*if the children can be unloaded, do it now*/
                 if (_.isFunction(vm.unloadChildren)) {
                     /* ag-Grid: adding and removing rows is not supported when using nodeChildDetailsFunc, ie it is not supported if providing groups*
@@ -526,7 +519,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                     node.childrenAfterSort = [];
                     vm.unloadChildren();
                 }
-                vm.expanded = node.expanded;
             }
         }
     };

@@ -18,7 +18,7 @@ import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
 import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
-import {CollectionServiceMock} from "../../../editors/bp-collection/collection.svc.mock";
+import {CollectionServiceMock} from "../../../editorsModule/collection/collection.service.mock";
 import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
 import {MessageServiceMock} from "../messages/message.mock";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
@@ -68,7 +68,7 @@ describe("BpArtifactInfo", () => {
                 dispose: undefined
             },
             getObservable: () => artifactObservable,
-            getProperyObservable: () => propertyObservable
+            getPropertyObservable: () => propertyObservable
         };
         selectionManager = <ISelectionManager>{
             artifactObservable: artifactObservable,
@@ -164,7 +164,7 @@ describe("BpArtifactInfo", () => {
             // arrange
             const element = "<bp-artifact-info></bp-artifact-info>";
             const scope = $rootScope.$new();
-            const spy = spyOn(selectionManager.getArtifact().getProperyObservable(), "subscribeOnNext").and.callThrough();
+            const spy = spyOn(selectionManager.getArtifact().getPropertyObservable(), "subscribeOnNext").and.callThrough();
 
             // act
             const controller = $compile(element)(scope).controller("bpArtifactInfo") as BpArtifactInfoController;

@@ -527,7 +527,8 @@ namespace Model.Impl
                 RestRequestMethod.DELETE,
                 new List<OpenApiTrace> { traceToDelete },
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             if (expectedStatusCodes.Contains(HttpStatusCode.OK))
             {

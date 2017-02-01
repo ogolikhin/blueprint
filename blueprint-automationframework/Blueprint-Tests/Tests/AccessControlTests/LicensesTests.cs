@@ -5,7 +5,6 @@ using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
-using System.Linq;
 using TestCommon;
 using Utilities;
 
@@ -125,6 +124,7 @@ namespace AccessControlTests
 
         #region GetLicenseUsage tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug: https://trello.com/c/T2Lpe0Th
         [Category(Categories.GoldenData)]
         [TestCase(null, null, false)]
         [TestCase(2016, 9, false)]
@@ -190,6 +190,8 @@ namespace AccessControlTests
 
                 const int FIRST_YEAR_IN_DB = 2016;
                 const int FIRST_MONTH_IN_DB = 9;
+                const int JANUARY_2017 = 201701;
+                const int NOVEMBER_2016 = 201611;
 
                 // If we passed null month & year, default to the first month & year in the golden data.
                 year = year ?? FIRST_YEAR_IN_DB;
@@ -203,21 +205,30 @@ namespace AccessControlTests
                 }
 
                 // First verify that the license usage starts from the month & year we requested.
-                int? yearMonth = year * 100 + month;
-                Assert.AreEqual(yearMonth, licenseUsageInfo.Summary.First().YearMonth, "The year and month should be {0}!", yearMonth);
-                Assert.AreEqual(yearMonth, licenseUsageInfo.UserActivities.First().YearMonth, "The year and month should be {0}!", yearMonth);
+                int yearMonth = (int)(year * 100 + month);
 
-                var licenseUsageSummary = licenseUsageInfo.Summary.Find(u => u.YearMonth.Equals(201610));
-                var licenseUserActivity = licenseUsageInfo.UserActivities.Find(u => u.YearMonth.Equals(201610));
+                if (yearMonth < JANUARY_2017)
+                {
+                    var licenseUsageSummary = licenseUsageInfo.Summary.Find(u => u.YearMonth.Equals(yearMonth));
+                    var licenseUserActivity = licenseUsageInfo.UserActivities.Find(u => u.YearMonth.Equals(yearMonth));
 
-                VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201610, uniqueAuthors: 1);
-                VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: 201610);
+                    if (yearMonth == NOVEMBER_2016)
+                    {
+                        VerifyLicenseUsageValues(licenseUsageSummary, yearMonth, uniqueAuthors: 2);
+                    }
+                    else
+                    {
+                        VerifyLicenseUsageValues(licenseUsageSummary, yearMonth, uniqueAuthors: 1);
+                    }
+                    VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: yearMonth);
 
-                licenseUsageSummary = licenseUsageInfo.Summary.ToList().Find(u => u.YearMonth.Equals(201611));
-                licenseUserActivity = licenseUsageInfo.UserActivities.ToList().Find(u => u.YearMonth.Equals(201611));
+                    licenseUsageSummary = licenseUsageInfo.Summary.Find(u => u.YearMonth.Equals(JANUARY_2017));
+                    licenseUserActivity = licenseUsageInfo.UserActivities.Find(u => u.YearMonth.Equals(JANUARY_2017));
 
-                VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201611, uniqueAuthors: 2);
-                VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: 201611);
+                    VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201701, uniqueAuthors: 4, uniqueCollaborators: 3, uniqueViewers: 4, usersFromRestApi: 0,
+                        usersFromAnalytics: 0, maxConcurrentAuthors: 2, maxConcurrentCollaborators: 2, maxConcurrentViewers: 3);
+                    VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: JANUARY_2017);
+                }
             }
             else
             {
@@ -232,17 +243,17 @@ namespace AccessControlTests
         /// <param name="licenseUsageSummary">The LicenseUsageSummary to verify.</param>
         /// <param name="yearMonth">The expected year and month.</param>
         /// <param name="uniqueAuthors">The expected uniqueAuthors.</param>
-        private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors)
+        /// <param name="uniqueCollaborators">The expected uniqueCollaborators.</param>
+        /// <param name="uniqueViewers">The expected uniqueViewers.</param>
+        /// <param name="usersFromAnalytics">The expected usersFromAnalytics.</param>
+        /// <param name="usersFromRestApi">The expected usersFromRestApi.</param>
+        /// <param name="maxConcurrentAuthors">The expected maxConcurrentAuthors.</param>
+        /// <param name="maxConcurrentCollaborators">The expected maxConcurrentCollaborators.</param>
+        /// <param name="maxConcurrentViewers">The expected maxConcurrentViewers.</param>
+        private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors, int uniqueCollaborators = 0,
+            int uniqueViewers = 0, int usersFromAnalytics = 0, int usersFromRestApi = 0, int maxConcurrentAuthors = 1, int maxConcurrentCollaborators = 0, 
+            int maxConcurrentViewers = 0)
         {
-            // These properties are always the same in our Golden DB (so far).
-            const int uniqueCollaborators = 1;
-            const int uniqueViewers = 0;
-            const int maxConcurrentViewers = 0;
-            const int maxConcurrentAuthors = 1;
-            const int maxConcurrentCollaborators = 0;
-            const int usersFromAnalytics = 0;
-            const int usersFromRestApi = 0;
-
             Assert.AreEqual(yearMonth, licenseUsageSummary.YearMonth, "The yearMonth should be {0}!", yearMonth);
             Assert.AreEqual(uniqueAuthors, licenseUsageSummary.UniqueAuthors, "UniqueAuthors should be {0}!", uniqueAuthors);
             Assert.AreEqual(uniqueCollaborators, licenseUsageSummary.UniqueCollaborators, "UniqueCollaborators should be {0}!", uniqueCollaborators);

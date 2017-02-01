@@ -713,15 +713,13 @@ namespace Model.StorytellerModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<PublishArtifactResult> PublishProcessArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
-            bool shouldKeepLock = false,
-            bool sendAuthorizationAsCookie = false)
+            bool shouldKeepLock = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcessArtifacts));
 
@@ -730,8 +728,7 @@ namespace Model.StorytellerModel.Impl
                 address, 
                 user, 
                 shouldKeepLock, 
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
         }
 
         #endregion Static Methods

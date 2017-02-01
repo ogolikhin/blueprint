@@ -17,7 +17,7 @@ import "./services/";
 import "./components";
 import "./services";
 import "./view";
-import {formlyConfig} from "../editors/";
+import {formlyConfig} from "../editorsModule/";
 
 config.$inject = ["$rootScope", "$state", "$templateCache"];
 
@@ -62,6 +62,7 @@ angular.module("app.main", [
     "bp.main.services",
     "bp.main.view"
 ])
+    .config(($animateProvider: angular.animate.IAnimateProvider) => $animateProvider.classNameFilter(/^(?:(?!ng-animate-disabled).)*$/))
     .run(config)
     .run(formlyConfig);
 

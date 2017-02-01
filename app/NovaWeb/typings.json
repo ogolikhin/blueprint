@@ -14,5 +14,8 @@
     },
     "globalDevDependencies": {
         "angular-mocks": "registry:dt/angular-mocks#1.5.0+20160608104721"
+    },
+    "dependencies": {
+        "angular-animate": "registry:dt/angular-animate#1.5.0+20161206185711"
     }
 }

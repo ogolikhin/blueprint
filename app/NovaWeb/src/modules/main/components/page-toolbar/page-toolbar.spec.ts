@@ -1,6 +1,6 @@
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {CreateArtifactService, ICreateArtifactService} from "../projectControls/create-artifact.svc";
-import {JobsServiceMock} from "../../../editors/jobs/jobs.svc.mock";
+import {JobsServiceMock} from "../../../editorsModule/jobs/jobs.service.mock";
 import "angular";
 import "angular-mocks";
 import "angular-ui-router";
@@ -15,7 +15,7 @@ import {LoadingOverlayService} from "../../../commonModule/loadingOverlay/loadin
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {SessionSvc, ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
-import {UnpublishedArtifactsServiceMock} from "../../../editors/unpublished/unpublished.svc.mock";
+import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {IMessageService} from "../messages/message.svc";

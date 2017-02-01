@@ -43,7 +43,7 @@
 <div class="project-wrapper">
     <div class="artifact-picker-container">
         <!--fixme: ng-if is better than ng-show. for statements using || create a controller function to bind to-->
-        <div class="search-wrapper" ng-show="$ctrl.isSearching || $ctrl.searchResults">
+        <div class="search-wrapper ng-animate-disabled" ng-show="$ctrl.isSearching || $ctrl.searchResults">
             <div class="search-message" ng-if="$ctrl.isSearching">
                 {{::$ctrl.localization.get('Label_Searching')}}
             </div>
@@ -90,7 +90,7 @@
             </div>
         </div>
         <!--fixme: ng-if is better than ng-hide. for statements using || create a controller function to bind to-->
-        <div class="grid-wrapper" ng-hide="$ctrl.isSearching || $ctrl.searchResults">
+        <div class="grid-wrapper ng-animate-disabled" ng-hide="$ctrl.isSearching || $ctrl.searchResults">
             <div class="grid-header">
                 <!--fixme: i should not have ng-click, wrap in button-->
                 <i ng-if="$ctrl.project" class="project-navigation fonticon2-arrow-double-left"

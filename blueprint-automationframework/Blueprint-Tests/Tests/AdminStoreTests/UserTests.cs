@@ -288,7 +288,7 @@ namespace AdminStoreTests
         /// <param name="length">legth of password to create.</param>
         /// <param name="skipLengthRequirement">boolean indicator that if the password length validation is required.
         /// By default, the validation is enforced.</param>
-        /// <returns></returns>
+        /// <returns>valid password</returns>
         private static string CreateValidPassword(uint length, bool skipLengthRequirement = false)
         {
             if (((length >= MinPasswordLength) && (length <= MaxPasswordLength)) || skipLengthRequirement)

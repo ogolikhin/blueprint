@@ -80,7 +80,7 @@ module.exports = {
             {from: '../src/fonts', to: './fonts'},
             {from: '../src/images', to: './static/images'},
 
-            {from: '../src/modules/editors/bp-process/styles/images', to: './static/bp-process/images'},
+            {from: '../src/modules/editorsModule/bp-process/styles/images', to: './static/bp-process/images'},
             {from: '../src/images/icons', to: './static/images/icons'}
         ], {
             ignore: ['*.spec.js']

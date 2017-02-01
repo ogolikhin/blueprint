@@ -6,7 +6,7 @@ import {ComponentTest} from "../util/component.test";
 import {AppController} from "./app.component";
 import {INavigationService} from "../commonModule/navigation/navigation.service";
 import {NavigationServiceMock} from "../commonModule/navigation/navigation.service.mock";
-import {UnpublishedArtifactsServiceMock} from "../editors/unpublished/unpublished.svc.mock";
+import {UnpublishedArtifactsServiceMock} from "../editorsModule/unpublished/unpublished.service.mock";
 import {IUser} from "./login/auth.svc";
 
 describe("Component AppComponent", () => {

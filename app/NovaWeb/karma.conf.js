@@ -51,7 +51,7 @@ module.exports = function (config) {
                 nocache: false
             },
             {
-                pattern: './src/modules/editors/bp-process/styles/images/*.svg',
+                pattern: './src/modules/editorsModule/bp-process/styles/images/*.svg',
                 watched: false,
                 included: false,
                 served: true,
@@ -70,7 +70,7 @@ module.exports = function (config) {
             '/novaweb/static/unsupported-nofont.html': '/base/src/unsupported-browser/unsupported-nofont.html',
             '/novaweb/libs/mxClient/images/': '/base/libs/mxClient/images/',
             '/novaweb/static/images/': '/base/src/styles/images/',
-            '/novaweb/static/bp-process/images/': '/base/src/modules/editors/bp-process/styles/images/'
+            '/novaweb/static/bp-process/images/': '/base/src/modules/editorsModule/bp-process/styles/images/'
         },
         mime: {
             'text/x-typescript': ['ts','tsx']

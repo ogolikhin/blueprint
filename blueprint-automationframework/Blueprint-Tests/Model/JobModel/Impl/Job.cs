@@ -59,7 +59,8 @@ namespace Model.JobModel.Impl
                 path,
                 RestRequestMethod.POST,
                 almJob,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return returnedAlmChangeSummaryJob;
         }

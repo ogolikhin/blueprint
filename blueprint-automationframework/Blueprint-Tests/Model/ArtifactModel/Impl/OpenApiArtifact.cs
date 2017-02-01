@@ -401,7 +401,8 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
 
             return response;
         }
@@ -453,7 +454,9 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
+
             Logger.WriteDebug("Response for search artifact by name: {0}", response);
 
             return response.ConvertAll(o => (IArtifactBase)o);

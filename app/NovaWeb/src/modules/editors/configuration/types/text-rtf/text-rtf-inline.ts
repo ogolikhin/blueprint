@@ -73,6 +73,8 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
                 object_resizing: false, // https://www.tinymce.com/docs/configure/advanced-editing-behavior/#object_resizing
                 // https://www.tinymce.com/docs/configure/content-formatting/#font_formats
                 font_formats: this.fontFormats(),
+                // https://www.tinymce.com/docs/configure/content-filtering/#force_hex_style_colors
+                force_hex_style_colors: true,
                 convert_urls: false, // https://www.tinymce.com/docs/configure/url-handling/#convert_urls
                 // paste_enable_default_filters: false, // https://www.tinymce.com/docs/plugins/paste/#paste_enable_default_filters
                 paste_webkit_styles: "none", // https://www.tinymce.com/docs/plugins/paste/#paste_webkit_styles

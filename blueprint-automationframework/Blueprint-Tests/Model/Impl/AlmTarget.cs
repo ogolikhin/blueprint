@@ -43,7 +43,11 @@ namespace Model.Impl
             var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALMTARGETS, project.Id);
 
-            var almTargets = restApi.SendRequestAndDeserializeObject<List<AlmTarget>>(path, RestRequestMethod.GET, expectedStatusCodes: expectedStatusCodes);
+            var almTargets = restApi.SendRequestAndDeserializeObject<List<AlmTarget>>(
+                path, 
+                RestRequestMethod.GET, 
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return almTargets.ConvertAll(o => (IAlmTarget)o);
         }

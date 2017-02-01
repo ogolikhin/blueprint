@@ -9,7 +9,7 @@ export class AnalyticsConfig {
                 $windowProvider: ng.IServiceProvider) {
 
         const $window = $windowProvider.$get();
-        const gATrackingCode = $window.config.settings.GATrackingCode;
+        const gATrackingCode = _.get($window, "config.settings.GATrackingCode");
 
         if (gATrackingCode) {
             AnalyticsProvider.setPageEvent("$stateChangeSuccess");

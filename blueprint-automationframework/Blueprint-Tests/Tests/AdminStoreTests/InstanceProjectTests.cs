@@ -2,31 +2,52 @@
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
-using System;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 
 namespace AdminStoreTests
 {
+    // TODO: Existing default integration project is used since there is no API call available to create project at this point
     [TestFixture]
     [Category(Categories.AdminStore)]
     public class InstanceProjectTests : TestBase
     {
-        private const int DEFAULT_PROJECT_ID = 1;
         private const int NON_EXISTING_PROJECT_ID = int.MaxValue;
         private const string PATH_INSTANCEPROJECTBYID = RestPaths.Svc.AdminStore.Instance.PROJECTS_id_;
-        private readonly string UNAUTHORIZED_TOKEN = new Guid().ToString();
 
         private IUser _adminUser = null;
-
+        private List<IProject> _allProjects = null;
         #region Setup and Cleanup
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _allProjects = ProjectFactory.GetAllProjects(_adminUser);
+            foreach(var project in _allProjects)
+            {
+                Helper.AssignProjectRolePermissionsToUser(
+                _adminUser,
+                RolePermissions.Read |
+                RolePermissions.Edit |
+                RolePermissions.Delete |
+                RolePermissions.Trace |
+                RolePermissions.Comment |
+                RolePermissions.StealLock |
+                RolePermissions.CanReport |
+                RolePermissions.Share |
+                RolePermissions.Reuse |
+                RolePermissions.ExcelUpdate |
+                RolePermissions.DeleteAnyComment |
+                RolePermissions.CreateRapidReview,
+                project);
+            }
         }
 
         [TearDown]
@@ -41,21 +62,22 @@ namespace AdminStoreTests
 
         [TestCase]
         [TestRail(123258)]
-        [Description("Gets an existing project and verify that 200 OK is returned with expected project.")]
-        public void GetProjectById_VerifyGetProjectResult()
+        [Description("Gets all available projects and verify that 200 OK is returned with expected project.")]
+        public void GetProjectById_GetAllAvailableProjects_VerifyGetProjectResult()
         {
-            // Setup:
-            /*Executes get project REST call and returns HTTP code*/
-            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) USED */
+            // Setup: Not required.
 
-            // Execute:
-            IProject returnedProject = null;
-            Assert.DoesNotThrow(() => returnedProject = Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID, _adminUser),
-                "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, DEFAULT_PROJECT_ID);
+            // Execute and Verify: GetProject for all existing projects
+            foreach(var project in _allProjects)
+            {
+                // Execute:
+                InstanceProject returnedInstanceProject = null;
+                Assert.DoesNotThrow(() => returnedInstanceProject = Helper.AdminStore.GetProjectById(project.Id, _adminUser),
+                    "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, project.Id);
 
-            // Verify:
-            Assert.AreEqual(DEFAULT_PROJECT_ID, returnedProject.Id, "Project Id {0} was expected but {1} was returned from the returned project.",
-                DEFAULT_PROJECT_ID, returnedProject.Id);
+                // Verify:
+                AdminStoreHelper.AssertAreEqual(Helper, project, returnedInstanceProject);
+            }
         }
 
         #endregion 200 OK Tests
@@ -67,13 +89,18 @@ namespace AdminStoreTests
         [Description("Gets an existing project but sends an unauthorized token and verifies '401 Unauthorized' is returned.")]
         public void GetProjectById_SendUnauthorizedToken_401Unauthorized()
         {
-            // Setup: Get a valid Access Control token for the user (for the new REST calls).
-            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
-            _adminUser.SetToken(UNAUTHORIZED_TOKEN);
+            // Setup: 
+            var userWithInvalidToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
-            // Execute and Verify:
-            Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID, _adminUser),
-                "AdminStore should return a 401 Unauthorized error when trying to call with expired token");
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.GetProjectById(_allProjects.First().Id, userWithInvalidToken),
+                "AdminStore should return a 401 Unauthorized error when trying to call with invalid token");
+
+            // Verify:
+            const string expectedExceptionMessage = "Token is invalid";
+
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
+                "{0} was not found in returned message of GET ProjectById which has invalid token", expectedExceptionMessage);
         }
 
         [TestCase]
@@ -82,14 +109,41 @@ namespace AdminStoreTests
         public void GetProjectById_NoTokenHeader_401Unauthorized()
         {
             // Setup:
-            /*CURRENTLY, DUE TO INABILITY TO CREATE POJECT ONLY, EXISTING PROJECT (id = 1) IS USED */
 
-            // Execute and Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>  Helper.AdminStore.GetProjectById(DEFAULT_PROJECT_ID),
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>  Helper.AdminStore.GetProjectById(_allProjects.First().Id),
                 "AdminStore should return a 401 Unauthorized error when trying to call without session token");
+
+            // Verify:
+            const string expectedExceptionMessage = "Token is missing or malformed";
+
+            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
+                "{0} was not found in returned message of GET ProjectById which has no session token.", expectedExceptionMessage);
         }
 
         #endregion 401 Unauthorized Tests
+
+        #region 403 Forbidden Tests
+
+        [TestCase]
+        [TestRail(234444)]
+        [Description("Gets an existing project with the user doesn't have permission to the project and verify that it returns 403 Forbidden response.")]
+        public void GetProjectById_UsingUserWithNoPermissionToProject_403Forbidden()
+        {
+            // Setup: Create a user that doesn't have access to the default project
+            var userWithNoPermissionToProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _allProjects.First());
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.AdminStore.GetProjectById(_allProjects.First().Id, userWithNoPermissionToProject),
+                "GET {0} using the user with no permission to the project with Id {1} should return a 403 Forbidden.", PATH_INSTANCEPROJECTBYID, _allProjects.First().Id);
+
+            // Verify:
+            var expectedMessage = I18NHelper.FormatInvariant("The user does not have permissions for Project (Id:{0}).", _allProjects.First().Id) ;
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
+        }
+
+        #endregion 403 Forbidden Tests
 
         #region 404 Not Found Tests
 
@@ -109,6 +163,5 @@ namespace AdminStoreTests
         }
 
         #endregion 404 Not Found Tests
-
     }
 }

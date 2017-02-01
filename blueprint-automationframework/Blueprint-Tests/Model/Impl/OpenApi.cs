@@ -16,8 +16,6 @@ namespace Model.Impl
     /// </summary>
     public static class OpenApi
     {
-        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
-
         #region Project methods
 
         /// <sumary>
@@ -188,6 +186,78 @@ namespace Model.Impl
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Creates a new OpenAPI artifact.  The state of the artifactToSave object isn't updated.
+        /// (Runs:  'POST api/v1/projects/{projectId}/artifacts')
+        /// </summary>
+        /// <param name="artifactToSave">The artifact to save.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
+        /// <returns>The OpenAPI result which includes the newly created artifact as well as success/failure info.</returns>
+        public static OpenApiAddArtifactResult CreateArtifact(IArtifactBase artifactToSave,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToSave.ProjectId);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            var restApi = new RestApiFacade(artifactToSave.Address, user.Token?.OpenApiToken);
+            var artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiAddArtifactResult, ArtifactBase>(
+                path,
+                RestRequestMethod.POST,
+                artifactToSave as ArtifactBase,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return artifactResult;
+        }
+
+        /// <summary>
+        /// Saves (updates) an existing OpenAPI artifact.  The state of the artifactToUpdate object isn't updated.
+        /// (Runs:  'PATCH api/v1/projects/{0}/artifacts')
+        /// </summary>
+        /// <param name="artifactToUpdate">The artifact to update.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="propertiesToUpdate">A list of properties to be updated with their new values.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The OpenAPI result which includes the newly created artifact as well as success/failure info.</returns>
+        public static List<OpenApiUpdateArtifactResult> UpdateArtifact(IArtifactBase artifactToUpdate,
+            IUser user,
+            List<OpenApiPropertyForUpdate> propertiesToUpdate,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
+            ThrowIf.ArgumentNull(propertiesToUpdate, nameof(propertiesToUpdate));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToUpdate.ProjectId);
+
+            // Create a copy of the artifact to update that only includes the properties to be updated
+            var artifactWithPropertyToUpdate = new OpenApiArtifactForUpdate
+            {
+                Id = artifactToUpdate.Id,
+                Properties = propertiesToUpdate
+            };
+
+            var artifactsToUpdate = new List<OpenApiArtifactForUpdate> { artifactWithPropertyToUpdate };
+
+            var restApi = new RestApiFacade(artifactToUpdate.Address, user.Token?.OpenApiToken);
+            var updateResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiUpdateArtifactResult>, List<OpenApiArtifactForUpdate>>(
+                path,
+                RestRequestMethod.PATCH,
+                artifactsToUpdate,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return updateResultList;
         }
 
         /// <summary>

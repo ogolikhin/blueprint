@@ -76,7 +76,11 @@ namespace Utilities
         /// <returns>plain text</returns>
         public static string ConvertHtmlToText(string htmlText)
         {
-            return WebUtility.HtmlDecode( Regex.Replace(htmlText, "<(.|\n)*?>", "") );
+            string plainText = WebUtility.HtmlDecode( Regex.Replace(htmlText, "<(.|\n)*?>", "") );
+            //TODO: Better way of removing zero-width space from htmlText?
+            char ZeroWidthSpace = (char)8203;
+            string resultPlainText = plainText.Trim(ZeroWidthSpace);
+            return resultPlainText;
         }
     }
 }

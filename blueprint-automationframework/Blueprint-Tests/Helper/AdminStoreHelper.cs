@@ -42,8 +42,7 @@ namespace Helper
                     var expectedProjectDescription = StringUtilities.ConvertHtmlToText(expectedProject.Description);
                     var actualProjectDescription = StringUtilities.ConvertHtmlToText(actualProject.Description);
 
-
-                    StringAssert.Contains(expectedProjectDescription, actualProjectDescription,
+                    Assert.AreEqual(expectedProjectDescription, actualProjectDescription,
                         "Project Description '{0}' was expected but '{1}' was returned.",
                         expectedProjectDescription, actualProjectDescription);
                 } else

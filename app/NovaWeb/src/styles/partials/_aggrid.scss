@@ -239,6 +239,10 @@ $aggrid-text-indent: 6px;
         }
     }
 
+    .ag-row-loading .ag-cell .ag-group-value .ag-group-value-wrapper bp-item-type-icon {
+        padding:0;
+    }
+
     .ag-group-value-wrapper i::before {
         box-sizing: border-box;
         color: $brand-secondary;

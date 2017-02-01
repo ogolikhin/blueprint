@@ -2,6 +2,18 @@
     display: inline-block;
 }
 
+.ag-row-loading .item-icon__image {
+    display: none;
+}
+
+.item-loading{
+    display: none !important;
+}
+
+.ag-row-loading .item-loading{
+    display: inline-block !important;
+}
+
 .item-icon__image--fallback ~ .item-icon__icon--fallback {
     display: none !important;
 }

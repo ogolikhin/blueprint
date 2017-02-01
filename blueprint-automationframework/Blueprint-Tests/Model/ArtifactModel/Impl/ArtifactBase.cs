@@ -158,10 +158,10 @@ namespace Model.ArtifactModel.Impl
 
         #region Delete methods
 
-        public List<DeleteArtifactResult> DeletedArtifactResults { get; } = new List<DeleteArtifactResult>();
+        public List<OpenApiDeleteArtifactResult> DeletedArtifactResults { get; } = new List<OpenApiDeleteArtifactResult>();
 
         /// <seealso cref="IArtifactBase.Delete(IUser, bool?, List{HttpStatusCode})"/>
-        public virtual List<DeleteArtifactResult> Delete(IUser user = null,
+        public virtual List<OpenApiDeleteArtifactResult> Delete(IUser user = null,
             bool? deleteChildren = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -175,7 +175,48 @@ namespace Model.ArtifactModel.Impl
                 deleteChildren: deleteChildren ?? ShouldDeleteChildren,
                 expectedStatusCodes: expectedStatusCodes);
 
+            UpdateStateOfDeletedArtifacts(deleteArtifactResults, this, user, Address);
+
             return deleteArtifactResults;
+        }
+
+        /// <summary>
+        /// Updates the internal flags of all artifacts affected by the deleted artifact to indicate they are now marked for deletion.
+        /// </summary>
+        /// <param name="artifactResults">The results of the OpenAPI delete artifact call.</param>
+        /// <param name="artifactToDelete">The main artifact that was deleted.</param>
+        /// <param name="user">The user who deleted the artifact(s).</param>
+        /// <param name="path">The path of the delete REST call.</param>
+        private static void UpdateStateOfDeletedArtifacts(List<OpenApiDeleteArtifactResult> artifactResults,
+            IArtifactBase artifactToDelete,
+            IUser user,
+            string path)
+        {
+            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
+
+            foreach (var deletedArtifactResult in artifactResults)
+            {
+                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
+                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
+
+                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
+                {
+                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
+                    {
+                        if (artifactToDelete.IsPublished)
+                        {
+                            artifactToDelete.IsMarkedForDeletion = true;
+                            artifaceBaseToDelete.LockOwner = user;
+                        }
+                        else
+                        {
+                            artifactToDelete.IsDeleted = true;
+                        }
+                    }
+                }
+            }
         }
 
         #endregion Delete methods

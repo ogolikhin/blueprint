@@ -94,7 +94,7 @@ namespace Model.ArtifactModel
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        List<DeleteArtifactResult> Delete(IUser user = null,
+        List<OpenApiDeleteArtifactResult> Delete(IUser user = null,
             bool? deleteChildren = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 

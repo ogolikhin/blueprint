@@ -99,17 +99,18 @@ namespace Model.Impl
         #region Artifact methods
 
         /// <summary>
-        /// Delete a single artifact on Blueprint server.
+        /// Delete a single artifact on Blueprint server.  The state of the artifactToDelete object isn't updated.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
+        /// (Runs:  'DELETE api/v1/projects/{projectId}/artifacts/{artifactId}')
         /// </summary>
         /// <param name="address">The base address of the Blueprint server.</param>
         /// <param name="artifactToDelete">The list of artifacts to delete</param>
         /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(string address,
+        public static List<OpenApiDeleteArtifactResult> DeleteArtifact(string address,
             IArtifactBase artifactToDelete,
             IUser user,
             bool? deleteChildren = null,
@@ -130,62 +131,13 @@ namespace Model.Impl
             }
 
             var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
-            var response = restApi.SendRequestAndGetResponse(
+            var deleteArtifactResults = restApi.SendRequestAndDeserializeObject<List<OpenApiDeleteArtifactResult>>(
                 path,
                 RestRequestMethod.DELETE,
                 queryParameters: queryparameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var artifactResults = JsonConvert.DeserializeObject<List<DeleteArtifactResult>>(response.Content);
-
-            // For all artifacts that were deleted, update their internal flags to indicate they're marked for deletion.
-            UpdateStateOfDeletedArtifacts(artifactResults, artifactToDelete, user, path);
-
-            return artifactResults;
-        }
-
-        /// <summary>
-        /// Updates the internal flags of all artifacts affected by the deleted artifact to indicate they are now marked for deletion.
-        /// </summary>
-        /// <param name="artifactResults">The results of the OpenAPI delete artifact call.</param>
-        /// <param name="artifactToDelete">The main artifact that was deleted.</param>
-        /// <param name="user">The user who deleted the artifact(s).</param>
-        /// <param name="path">The path of the delete REST call.</param>
-        private static void UpdateStateOfDeletedArtifacts(List<DeleteArtifactResult> artifactResults,
-            IArtifactBase artifactToDelete,
-            IUser user,
-            string path)
-        {
-            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
-
-            foreach (var deletedArtifactResult in artifactResults)
-            {
-                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
-                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
-
-                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
-                {
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
-                    {
-                        if (artifactToDelete.IsPublished)
-                        {
-                            artifactToDelete.IsMarkedForDeletion = true;
-                            artifaceBaseToDelete.LockOwner = user;
-                        }
-                        else
-                        {
-                            artifactToDelete.IsDeleted = true;
-                        }
-                    }
-                }
-            }
+            return deleteArtifactResults;
         }
 
         /// <summary>

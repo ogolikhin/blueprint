@@ -157,7 +157,7 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                var artifactResult = OpenApi.PostNewArtifact(artifactToSave, user, expectedStatusCodes);
+                var artifactResult = OpenApi.CreateArtifact(artifactToSave, user, expectedStatusCodes);
 
                 ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact, artifactToSave);
 
@@ -250,7 +250,7 @@ namespace Model.ArtifactModel.Impl
 
             Assert.That(artifactToUpdate.Id != 0, "Artifact Id cannot be 0 to perform an update.");
 
-            var updateResultList = OpenApi.PatchArtifact(artifactToUpdate, user, propertiesToUpdate, expectedStatusCodes);
+            var updateResultList = OpenApi.UpdateArtifact(artifactToUpdate, user, propertiesToUpdate, expectedStatusCodes);
 
             Assert.IsNotEmpty(updateResultList, "No artifact results were returned");
             Assert.AreEqual(1, updateResultList.Count, "Only a single artifact was updated, but multiple artifact results were returned");

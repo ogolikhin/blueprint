@@ -301,13 +301,11 @@
     padding-top: 10px;
 }
 
-.page-heading {
-    .process-breadcrumbs {
-        border: 0;
-        font-size: 12px;
-        height: auto;
-        padding: 0;
-    }
+.editor-breadcrumbs .breadcrumbs {
+    border: 0;
+    font-size: 12px;
+    height: 15px;
+    padding: 0;
 }
 
 bp-process-type-toggle {

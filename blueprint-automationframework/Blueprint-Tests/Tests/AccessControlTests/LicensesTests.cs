@@ -124,6 +124,7 @@ namespace AccessControlTests
 
         #region GetLicenseUsage tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug: https://trello.com/c/T2Lpe0Th
         [Category(Categories.GoldenData)]
         [TestCase(null, null, false)]
         [TestCase(2016, 9, false)]
@@ -190,6 +191,7 @@ namespace AccessControlTests
                 const int FIRST_YEAR_IN_DB = 2016;
                 const int FIRST_MONTH_IN_DB = 9;
                 const int JANUARY_2017 = 201701;
+                const int NOVEMBER_2016 = 201611;
 
                 // If we passed null month & year, default to the first month & year in the golden data.
                 year = year ?? FIRST_YEAR_IN_DB;
@@ -210,7 +212,7 @@ namespace AccessControlTests
                     var licenseUsageSummary = licenseUsageInfo.Summary.Find(u => u.YearMonth.Equals(yearMonth));
                     var licenseUserActivity = licenseUsageInfo.UserActivities.Find(u => u.YearMonth.Equals(yearMonth));
 
-                    if (yearMonth == 2016)
+                    if (yearMonth == NOVEMBER_2016)
                     {
                         VerifyLicenseUsageValues(licenseUsageSummary, yearMonth, uniqueAuthors: 2);
                     }
@@ -223,8 +225,8 @@ namespace AccessControlTests
                     licenseUsageSummary = licenseUsageInfo.Summary.Find(u => u.YearMonth.Equals(JANUARY_2017));
                     licenseUserActivity = licenseUsageInfo.UserActivities.Find(u => u.YearMonth.Equals(JANUARY_2017));
 
-                    VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201701, uniqueAuthors: 5, uniqueCollaborators: 3, uniqueViewers: 4, usersFromRestApi: 2,
-                        usersFromAnalytics: 2, maxConcurrentAuthors: 2, maxConcurrentCollaborators: 2, maxConcurrentViewers: 3);
+                    VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201701, uniqueAuthors: 4, uniqueCollaborators: 3, uniqueViewers: 4, usersFromRestApi: 0,
+                        usersFromAnalytics: 0, maxConcurrentAuthors: 2, maxConcurrentCollaborators: 2, maxConcurrentViewers: 3);
                     VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: JANUARY_2017);
                 }
             }
@@ -241,7 +243,14 @@ namespace AccessControlTests
         /// <param name="licenseUsageSummary">The LicenseUsageSummary to verify.</param>
         /// <param name="yearMonth">The expected year and month.</param>
         /// <param name="uniqueAuthors">The expected uniqueAuthors.</param>
-        private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors, int uniqueCollaborators = 1,
+        /// <param name="uniqueAuthors">The expected uniqueCollaborators.</param>
+        /// <param name="uniqueAuthors">The expected uniqueViewers.</param>
+        /// <param name="uniqueAuthors">The expected usersFromAnalytics.</param>
+        /// <param name="uniqueAuthors">The expected usersFromRestApi.</param>
+        /// <param name="uniqueAuthors">The expected maxConcurrentAuthors.</param>
+        /// <param name="uniqueAuthors">The expected maxConcurrentCollaborators.</param>
+        /// <param name="uniqueAuthors">The expected maxConcurrentViewers.</param>
+        private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors, int uniqueCollaborators = 0,
             int uniqueViewers = 0, int usersFromAnalytics = 0, int usersFromRestApi = 0, int maxConcurrentAuthors = 1, int maxConcurrentCollaborators = 0, 
             int maxConcurrentViewers = 0)
         {

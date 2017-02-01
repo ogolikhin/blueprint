@@ -189,7 +189,7 @@ namespace AccessControlTests
                 Assert.IsNotEmpty(licenseUsageInfo.UserActivities, "UserActivities has no values!");
 
                 const int FIRST_YEAR_IN_DB = 2016;
-                const int FIRST_MONTH_IN_DB = 09;
+                const int FIRST_MONTH_IN_DB = 9;
                 const int JANUARY_2017 = 201701;
 
                 // If we passed null month & year, default to the first month & year in the golden data.

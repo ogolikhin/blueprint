@@ -1,6 +1,8 @@
 ﻿import "./";
 import "angular-mocks";
-import {ILoadingOverlayService} from "./loadingOverlay.service";
+import {ComponentTest} from "../../util/component.test";
+import {LoadingOverlayService, ILoadingOverlayService} from "./loadingOverlay.service";
+import {BpLoadingOverlayController} from "./loadingOverlay.controller";
 
 describe("Service LoadingOverlayService + Component LoadingOverlay", () => {
     beforeEach(angular.mock.module("loadingOverlay"));

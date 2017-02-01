@@ -274,7 +274,8 @@ namespace Model.StorytellerModel.Impl
                 path,
                 RestRequestMethod.POST,
                 additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
             if (shouldDeleteChildren)
@@ -319,7 +320,8 @@ namespace Model.StorytellerModel.Impl
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
 
             return response;
         }
@@ -379,7 +381,8 @@ namespace Model.StorytellerModel.Impl
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
 
             return response.ConvertAll(o => (IProcess)o);
         }
@@ -414,7 +417,8 @@ namespace Model.StorytellerModel.Impl
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
 
             return response;
         }
@@ -561,8 +565,12 @@ namespace Model.StorytellerModel.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
-            restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(path, RestRequestMethod.POST, new List<int> { process.Id },
-                expectedStatusCodes: expectedStatusCodes);
+            restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(
+                path, 
+                RestRequestMethod.POST, 
+                new List<int> { process.Id },
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             // Mark artifact in artifact list as published
             MarkArtifactAsPublished(process.Id);
@@ -610,7 +618,11 @@ namespace Model.StorytellerModel.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(path, RestRequestMethod.DELETE, expectedStatusCodes: expectedStatusCodes);
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+                path, 
+                RestRequestMethod.DELETE, 
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
         }
         
         public int GetStorytellerShapeLimitFromDb

@@ -2,8 +2,8 @@ import {IStatefulArtifactFactory} from "./";
 import {IStatefulArtifact, StatefulArtifact, StatefulProcessSubArtifact} from "../artifact";
 import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
 import {Models} from "../../../main/models";
-import {IProcessShape, IProcess} from "../../../editors/bp-process/models/process-models";
-import {StatefulProcessArtifact} from "../../../editors/bp-process/process-artifact";
+import {IProcessShape, IProcess} from "../../../editorsModule/bp-process/models/process-models";
+import {StatefulProcessArtifact} from "../../../editorsModule/bp-process/process-artifact";
 
 export interface IStatefulArtifactFactoryMock extends IStatefulArtifactFactory {
     populateStatefulProcessWithProcessModel(statefulArtifact: StatefulProcessArtifact, process: IProcess);

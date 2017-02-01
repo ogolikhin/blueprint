@@ -8,7 +8,7 @@ import {IArtifactRelationships} from "../relationships";
 import {Models, Enums, Relationships} from "../../../main/models";
 import {IDocumentRefs} from "../docrefs";
 import {IApplicationError} from "../../../shell/error/applicationError";
-import {IPropertyDescriptor} from "../../../editors/configuration/property-descriptor-builder";
+import {IPropertyDescriptor} from "../../../editorsModule/services";
 import {IStatefulArtifactServices} from "../services";
 import {ISubArtifactCollection} from "../sub-artifact";
 import {IArtifactAttachment, IArtifactDocRef} from "../../../managers/artifact-manager";

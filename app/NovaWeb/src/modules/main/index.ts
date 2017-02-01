@@ -17,7 +17,7 @@ import "./services/";
 import "./components";
 import "./services";
 import "./view";
-import {formlyConfig} from "../editors/";
+import {formlyConfig} from "../editorsModule/";
 
 config.$inject = ["$rootScope", "$state", "$templateCache"];
 

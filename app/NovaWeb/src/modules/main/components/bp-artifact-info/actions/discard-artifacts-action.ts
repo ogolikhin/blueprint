@@ -4,7 +4,7 @@ import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/lo
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IArtifact, IPublishResultSet} from "../../../models/models";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
-import {IUnpublishedArtifactsService} from "../../../../editors/unpublished/unpublished.svc";
+import {IUnpublishedArtifactsService} from "../../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../messages/message.svc";
 
 export class DiscardArtifactsAction extends BPButtonAction {

@@ -1,4 +1,6 @@
 import "angular";
+import "angular-ui-bootstrap";
+
 import {ConfigurationModule} from "./configuration";
 import {HttpInterceptorModule} from "./httpInterceptor";
 import {FileUpload} from "./fileUpload";
@@ -9,11 +11,10 @@ import {ItemInfo} from "./itemInfo";
 import {Navigation} from "./navigation";
 import {Download} from "./download";
 import {CoreServices} from "./services/index";
-import * as uiBootstrap from "angular-ui-bootstrap";
 
 export const CommonModule = angular.module("commonModule", [
     "ui.router",
-    uiBootstrap,
+    "ui.bootstrap",
     Navigation,
     ItemInfo,
     FileUpload,

@@ -243,13 +243,13 @@ namespace AccessControlTests
         /// <param name="licenseUsageSummary">The LicenseUsageSummary to verify.</param>
         /// <param name="yearMonth">The expected year and month.</param>
         /// <param name="uniqueAuthors">The expected uniqueAuthors.</param>
-        /// <param name="uniqueAuthors">The expected uniqueCollaborators.</param>
-        /// <param name="uniqueAuthors">The expected uniqueViewers.</param>
-        /// <param name="uniqueAuthors">The expected usersFromAnalytics.</param>
-        /// <param name="uniqueAuthors">The expected usersFromRestApi.</param>
-        /// <param name="uniqueAuthors">The expected maxConcurrentAuthors.</param>
-        /// <param name="uniqueAuthors">The expected maxConcurrentCollaborators.</param>
-        /// <param name="uniqueAuthors">The expected maxConcurrentViewers.</param>
+        /// <param name="uniqueCollaborators">The expected uniqueCollaborators.</param>
+        /// <param name="uniqueViewers">The expected uniqueViewers.</param>
+        /// <param name="usersFromAnalytics">The expected usersFromAnalytics.</param>
+        /// <param name="usersFromRestApi">The expected usersFromRestApi.</param>
+        /// <param name="maxConcurrentAuthors">The expected maxConcurrentAuthors.</param>
+        /// <param name="maxConcurrentCollaborators">The expected maxConcurrentCollaborators.</param>
+        /// <param name="maxConcurrentViewers">The expected maxConcurrentViewers.</param>
         private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors, int uniqueCollaborators = 0,
             int uniqueViewers = 0, int usersFromAnalytics = 0, int usersFromRestApi = 0, int maxConcurrentAuthors = 1, int maxConcurrentCollaborators = 0, 
             int maxConcurrentViewers = 0)

@@ -44,14 +44,14 @@ namespace ArtifactStoreTests
             Helper?.Dispose();
         }
 
-        #region Process tests
+        #region Positive tests
 
         [TestCase]
         [TestRail(165964)]
         [Description("Create default process, add user task, delete default user task, save process, get list of subartifacts - check that it has expected content.")]
         public void GetSubArtifacts_ProcessWithDeletedDefaultAndAddedNewUserTask_ReturnsCorrectSubArtifactsList()
         {
-            // Create and get the default process
+            // Setup:
             var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _projects.FirstOrDefault(), _user);
 
             // Get list containing default user task
@@ -65,15 +65,14 @@ namespace ArtifactStoreTests
 
             Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
 
-            // Add user/system Task immediately after the precondition
             returnedProcess.AddUserAndSystemTask(preconditionOutgoingLink);
 
             returnedProcess.DeleteUserAndSystemTask(userTask[0]);
-                        
-            // Update and Verify the modified process
+
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
-            CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
+            // Verify:
+            CheckSubArtifacts(_user, returnedProcess.Id, 5); //at this stage Process should have 5 subartifacts
         }
 
         [TestCase]
@@ -312,21 +311,41 @@ namespace ArtifactStoreTests
             // Setup: Get projects available from testing environment
             var mainProject = _projects.FirstOrDefault();
             var secondProject = _projects.LastOrDefault();
+/*
+//            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, BaseArtifactType.UseCase);
 
-            // Create artifact
-            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
+            var process = Helper.CreateAndPublishArtifact(mainProject, _user, BaseArtifactType.Process);
 
-            // Create and get the default process in a different project from the previously created artifact
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, secondProject, _user);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, process.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, process.Id);
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, process, subArtifacts, _user);
+*/                        
+                                    // Create artifact
+                                    var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
 
-            // Add an inline trace to the default user task in the process and publish the process
-            var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var descriptionProperty = StorytellerTestHelper.FindPropertyValue("description", defaultUserTask.PropertyValues).Value;
-            descriptionProperty.Value = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
+                                    // Create and get the default process in a different project from the previously created artifact
+                                    var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, secondProject, _user);
+
+                                    // Add an inline trace to the default user task in the process and publish the process
+                                    var defaultUserTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+                                    var descriptionProperty = StorytellerTestHelper.FindPropertyValue("description", defaultUserTask.PropertyValues).Value;
+                                    descriptionProperty.Value = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
+
+//            CSharpUtilities.SetProperty(defaultUserTask.PropertyValues[2].PropertyName, descriptionProperty.Value, defaultUserTask);
+
+//var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, returnedProcess.Id);
+
+//            var subArtifact = Helper.ArtifactStore.GetSubartifact(_user, artifactDetails.Id, defaultUserTask.Id);
+
+//            subArtifact.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
 
             Helper.Storyteller.UpdateProcess(_user, returnedProcess);
-            Helper.Storyteller.PublishProcess(_user, returnedProcess);
-
+                        Helper.Storyteller.PublishProcess(_user, returnedProcess);
+            
+/*
+            var descriptionProperty = StorytellerTestHelper.FindPropertyValue("description", novaSubArtifacts[0].SpecificPropertyValues.).Value;
+            descriptionProperty.Value = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
+*/
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, returnedProcess.Id);
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -348,8 +367,6 @@ namespace ArtifactStoreTests
 
             CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
         }
-
-        #endregion Process tests
 
         #region Custom data tests
 
@@ -493,6 +510,8 @@ namespace ArtifactStoreTests
 
         #endregion Custom Data
 
+        #endregion Positive Tests
+
         #region 403 Forbidden
 
         [TestCase(BaseArtifactType.Process)]
@@ -634,8 +653,13 @@ namespace ArtifactStoreTests
 
             foreach (var s in subArtifacts)
             {
-                Assert.AreEqual(artifactId, s.ParentId, "ParentId of subartifact must be equal to Id of the process.");
+                Assert.AreEqual(artifactId, s.ParentId, "ParentId of sub-artifact must be equal to Id of the process.");
                 Assert.IsFalse(s.HasChildren, "Process subartifacts doesn't have children.");
+
+                var subArtifact = Helper.ArtifactStore.GetSubartifact(user, artifactId, s.Id);
+
+                ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s), Helper.ArtifactStore, _user, skipOrderIndex: true,
+                    skipSpecificPropertyValues: true);
             }
         }
 

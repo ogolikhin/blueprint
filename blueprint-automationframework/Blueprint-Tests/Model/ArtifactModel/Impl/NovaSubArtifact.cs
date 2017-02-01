@@ -1,8 +1,29 @@
+using Utilities;
+
 namespace Model.ArtifactModel.Impl
 {
     // Taken from:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaSubArtifact.cs
     public class NovaSubArtifact : NovaItem
     {
+        public NovaSubArtifact(SubArtifact subartifact)
+        {
+            ThrowIf.ArgumentNull(subartifact, nameof(subartifact));
+
+            Name = subartifact.DisplayName;
+            Id = subartifact.Id;
+            ItemTypeId = subartifact.ItemTypeId;
+            ParentId = subartifact.ParentId;
+            PredefinedType = subartifact.PredefinedType;
+            Prefix = subartifact.Prefix;
+            IsDeleted = false;
+            ItemTypeVersionId = 1;
+        }
+
+        public NovaSubArtifact()
+        {
+
+        }
+
         #region Serialized JSON Properties
 
         public bool? IsDeleted { get; set; }

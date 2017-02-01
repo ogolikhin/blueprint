@@ -417,7 +417,7 @@ namespace Helper
         /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false,
+            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false, bool skipSpecificPropertyValues = false,
             Attachments.CompareOptions compareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
@@ -461,20 +461,23 @@ namespace Helper
                 AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
             }
 
-            Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
-            
-            // Compare each property in SpecificPropertyValues.
-            foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
+            if (!skipSpecificPropertyValues)
             {
-                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
-                "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
+                Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count,actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
 
-                // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
-                if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                // Compare each property in SpecificPropertyValues.
+                foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
                 {
-                    var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+                    Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                    "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
 
-                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
+                    if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                    {
+                        var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                        AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    }
                 }
             }
 

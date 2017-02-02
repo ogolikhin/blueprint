@@ -91,6 +91,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                 .finally(() => {
                     this.loadingOverlayService.endLoading(getArtifactLoadingId);
                 });
+        } else {
+            this.everPublished = true;
         }
     }
 

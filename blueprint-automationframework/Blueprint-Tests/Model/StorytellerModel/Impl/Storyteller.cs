@@ -540,6 +540,7 @@ namespace Model.StorytellerModel.Impl
             return artifactResult.Content;
         }
 
+        /// <seealso cref="IStoryteller.PublishProcess(IUser, IProcess, List{HttpStatusCode}, bool)"/>
         public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcess));
@@ -565,15 +566,17 @@ namespace Model.StorytellerModel.Impl
             var restApi = new RestApiFacade(Address, tokenValue);
 
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
-            restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<int>>(
+            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(
                 path, 
                 RestRequestMethod.POST, 
                 new List<int> { process.Id },
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
+                expectedStatusCodes: expectedStatusCodes);
 
-            // Mark artifact in artifact list as published
-            MarkArtifactAsPublished(process.Id);
+            if (publishResults?[0].StatusCode == NovaPublishArtifactResult.Result.Success)
+            {
+                // Mark artifact in artifact list as published.
+                MarkArtifactAsPublished(process.Id);
+            }
 
             return restApi.Content;
         }
@@ -713,15 +716,13 @@ namespace Model.StorytellerModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<PublishArtifactResult> PublishProcessArtifacts(List<IArtifactBase> artifactsToPublish,
+        public static List<OpenApiPublishArtifactResult> PublishProcessArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null,
-            bool shouldKeepLock = false,
-            bool sendAuthorizationAsCookie = false)
+            bool shouldKeepLock = false)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcessArtifacts));
 
@@ -730,8 +731,7 @@ namespace Model.StorytellerModel.Impl
                 address, 
                 user, 
                 shouldKeepLock, 
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
         }
 
         #endregion Static Methods

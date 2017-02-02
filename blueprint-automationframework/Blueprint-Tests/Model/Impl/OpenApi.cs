@@ -20,6 +20,7 @@ namespace Model.Impl
 
         /// <sumary>
         /// Get a project based on the project ID on the Blueprint server.
+        /// (Runs:  'GET api/v1/projects/{projectId}')
         /// </sumary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="projectId">The ID of the project need to be retrieved.</param>
@@ -36,6 +37,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Gets a list of all projects on the Blueprint server.
+        /// (Runs:  'GET api/v1/projects')
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="user">(optional) The user to authenticate to the server with.  Defaults to no authentication.</param>
@@ -57,7 +59,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Get the all Artifact Types for the specified project.
-        /// Runs 'GET api/v1/projects/projectId/metadata/artifactTypes' with optional 'PropertyTypes' parameter.
+        /// (Runs 'GET api/v1/projects/projectId/metadata/artifactTypes' with optional 'PropertyTypes' parameter.)
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="projectId">The ID of the project whose artifact types you want to get.</param>
@@ -101,6 +103,7 @@ namespace Model.Impl
         /// <summary>
         /// Delete a single artifact on Blueprint server.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
+        /// (Runs:  'DELETE api/v1/projects/{projectId}/artifacts/{artifactId}')
         /// </summary>
         /// <param name="address">The base address of the Blueprint server.</param>
         /// <param name="artifactToDelete">The list of artifacts to delete</param>
@@ -262,7 +265,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Retrieves a single artifact by Project ID and Artifact ID and returns information about the artifact.
-        /// (Runs:  /api/v1/projects/{projectId}/artifacts/{artifactId}  with the following optional query parameters:
+        /// (Runs:  'GET /api/v1/projects/{projectId}/artifacts/{artifactId}'  with the following optional query parameters:
         /// status={status}, comments={comments}, traces={traces}, attachments={attachments}, richtextasplain={richtextasplain}, inlinecss={inlinecss}, content={content})
         /// </summary>
         /// <param name="baseAddress">The base address of the Blueprint server.</param>
@@ -343,12 +346,13 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Gets the Version property of an Artifact via OpenAPI call
+        /// Gets the Version property of an Artifact via OpenAPI call.
+        /// (Runs:  'GET /api/v1/projects/{projectId}/artifacts/{artifactId}')
         /// </summary>
         /// <param name="address">The base address of the Blueprint server.</param>
         /// <param name="artifact">The artifact</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The historical version of the artifact.</returns>
         public static int GetArtifactVersion(string address,
             IArtifactBase artifact,
@@ -363,13 +367,7 @@ namespace Model.Impl
                 user = artifact.CreatedBy;
             }
 
-            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifact.ProjectId, artifact.Id);
-
-            var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+            var returnedArtifact = GetArtifact(address, artifact.Project, artifact.Id, user, expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifact.Version;
         }
@@ -380,6 +378,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Add attachment to the specified artifact.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/attachments')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="projectId">Id of project containing artifact to add attachment.</param>
@@ -401,6 +400,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Add attachment to the specified sub-artifact.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/subartifacts/{subArtifactId}/attachments')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="projectId">Id of project containing artifact to add attachment.</param>
@@ -473,6 +473,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Add trace between two artifacts (or artifact and sub-artifact) with specified properties.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/traces')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="sourceArtifact">The first artifact to which the call adds a trace.</param>
@@ -484,7 +485,7 @@ namespace Model.Impl
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be added.</param>
         /// <param name="reconcileWithTwoWay">(optional) Indicates how to handle the existence of an inverse trace.  If set to true, and an inverse trace already exists,
         ///   the request does not return an error; instead, the trace Type is set to TwoWay.  The default is null and acts the same as false.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
         public static List<OpenApiTrace> AddTrace(string address,
             IArtifactBase sourceArtifact,
@@ -544,6 +545,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Delete trace between two artifacts (or artifact and sub-artifact) with specified properties.
+        /// (Runs:  'DELETE /api/v1/projects/{projectId}/artifacts/{artifactId}/traces')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="sourceArtifact">The first artifact to which the call deletes a trace.</param>
@@ -615,6 +617,52 @@ namespace Model.Impl
 
         #endregion Trace methods
 
+        #region Version Control methods
 
+        /// <summary>
+        /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts).
+        /// NOTE: This function won't update the internal status flags used by automation.
+        /// (Runs:  'POST api/v1/vc/publish')
+        /// </summary>
+        /// <param name="artifactsToPublish">The list of artifacts to publish</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
+        /// <returns>The list of OpenApiPublishArtifactResult objects created by the publish artifacts request.</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<OpenApiPublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
+            string address,
+            IUser user,
+            bool shouldKeepLock = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
+
+            var additionalHeaders = new Dictionary<string, string>();
+
+            if (shouldKeepLock)
+            {
+                additionalHeaders.Add("KeepLock", "true");
+            }
+
+            // Create a list of OpenApiPublishRequest from the artifacts to publish with the minimum required properties.
+            var publishRequestArtifacts = new List<OpenApiPublishRequest>();
+
+            artifactsToPublish.ForEach(a => publishRequestArtifacts.Add(new OpenApiPublishRequest(a)));
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiPublishArtifactResult>, List<OpenApiPublishRequest>>(
+                RestPaths.OpenApi.VersionControl.PUBLISH,
+                RestRequestMethod.POST,
+                publishRequestArtifacts,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return publishedResultList;
+        }
+
+        #endregion Version Control methods
     }
 }

@@ -76,6 +76,7 @@
     <Compile Include="ArtifactModel\Impl\NovaProcess.cs" />
     <Compile Include="ArtifactModel\Impl\NovaSubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\NovaVersionControlArtifactInfo.cs" />
+    <Compile Include="ArtifactModel\Impl\OpenApiPublishRequest.cs" />
     <Compile Include="ArtifactModel\Impl\PredefinedProperties\ActorIconValue.cs" />
     <Compile Include="ArtifactModel\Impl\PredefinedProperties\ActorInheritanceValue.cs" />
     <Compile Include="ArtifactModel\Impl\PredefinedProperties\CollectionContentValue.cs" />

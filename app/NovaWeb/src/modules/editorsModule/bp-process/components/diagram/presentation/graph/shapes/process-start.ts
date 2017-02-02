@@ -43,6 +43,12 @@ export class ProcessStart extends DiagramNode<IProcessShape> {
             this.PROCESS_START_WIDTH, this.PROCESS_START_HEIGHT, "shape=ellipse;strokeColor=#d4d5da;strokeWidth=3;fillColor=#ffffff;" +
             "labelWidth=45;verticalLabelPosition=bottom;fontColor=#000000;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=11;editable=0");
         graph.startNode = this;
+
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
+
+        this.addAlert = _.bind(this.addAlertIcon, this, graph.getMxGraph());
+        this.removeAlert = _.bind(this.removeAlertIcon, this, graph.getMxGraph());
+
         return this;
     }
 

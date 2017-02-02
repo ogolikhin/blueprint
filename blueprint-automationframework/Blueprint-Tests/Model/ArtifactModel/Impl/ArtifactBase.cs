@@ -248,10 +248,10 @@ namespace Model.ArtifactModel.Impl
 
         #region Publish methods
 
+        /// <seealso cref="IArtifactBase.Publish(IUser, bool, List{HttpStatusCode})"/>
         public virtual void Publish(IUser user = null,
             bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -261,7 +261,7 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToPublish = new List<IArtifactBase> { this };
 
-            PublishArtifacts(artifactToPublish, Address, user, shouldKeepLock, expectedStatusCodes, sendAuthorizationAsCookie);
+            PublishArtifacts(artifactToPublish, Address, user, shouldKeepLock, expectedStatusCodes);
         }
 
         /// <summary>
@@ -271,44 +271,19 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
+        /// <returns>The list of OpenApiPublishArtifactResult objects created by the publish artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<PublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
+        public static List<OpenApiPublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
             bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
 
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var additionalHeaders = new Dictionary<string, string>();
-
-            if (shouldKeepLock)
-            {
-                additionalHeaders.Add("KeepLock", "true");
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
-                RestPaths.OpenApi.VersionControl.PUBLISH,
-                RestRequestMethod.POST,
-                artifactsToPublish,
-                additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes);
+            var publishedResultList = OpenApi.PublishArtifacts(artifactsToPublish, address, user, shouldKeepLock, expectedStatusCodes);
 
             var deletedArtifactsList = new List<IArtifactBase>();
 

@@ -24,7 +24,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private ORIGIN_DIAMETER = 8;
 
     private DEFAULT_BORDER_COLOR: string = "#53BBED";
-    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED"; 
+    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED";
 
     private origin: DiagramNodeElement;
     private header: DiagramNodeElement;
@@ -36,7 +36,7 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
     private detailsButton: Button;
     private linkButton: Button;
     private mockupButton: Button;
-    private rootScope: ng.IRootScopeService; 
+    private rootScope: ng.IRootScopeService;
 
     public callout: DiagramNodeElement;
 
@@ -409,6 +409,9 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(graph, this, null, this.SYSTEM_TASK_WIDTH, this.SYSTEM_TASK_HEIGHT, null,
             mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, this.SYSTEM_TASK_WIDTH / 2, this.SYSTEM_TASK_HEIGHT / 2);
+
+        this.addAlert = _.bind(this.addAlertIcon, this, graph);
+        this.removeAlert = _.bind(this.removeAlertIcon, this, graph);
     }
 
     public setCellVisible(graph: MxGraph, value: boolean) {

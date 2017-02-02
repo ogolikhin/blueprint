@@ -7,8 +7,6 @@ export interface IMetaData {
 
     getArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]>;
     getSubArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]>;
-
-    getProcessSubArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]>;
 }
 
 export class MetaData implements IMetaData {
@@ -30,25 +28,8 @@ export class MetaData implements IMetaData {
 
     public getSubArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]> {
         return this.item.getServices().metaDataService
-        .getSubArtifactPropertyTypes(this.item.projectId, (itemType) => { 
+        .getSubArtifactPropertyTypes(this.item.projectId, (itemType) => {
             return itemType.id === this.item.itemTypeId;
         });
     }
-    
-    public getProcessSubArtifactPropertyTypes(): ng.IPromise<Models.IPropertyType[]> {
-        return this.item.getServices().metaDataService
-        .getSubArtifactPropertyTypes(this.item.projectId, (itemType) => { 
-            return itemType.predefinedType === Models.ItemTypePredefined.PROShape;
-        });
-    }
-
-    // public getArtifactPropertyType(propertyTypeId?: number): Models.IPropertyType[] {
-    //     return this.getArtifactPropertyTypes().filter((it: Models.IPropertyType) => it.id === propertyTypeId);
-    // }
-
-    // public getSubArtifactPropertyType(propertyTypeId?: number): Models.IPropertyType[] {
-    //     return this.getSubArtifactPropertyTypes().filter((it: Models.IPropertyType) => it.id === propertyTypeId);
-    // }
-
-
 }

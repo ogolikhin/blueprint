@@ -33,6 +33,7 @@ describe("BpArtifactInfo", () => {
     let loadingOverlayService: ILoadingOverlayService;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
+    let validationSubject: Rx.Subject<number[]>;
     let stateSubject: Rx.BehaviorSubject<IArtifactState>;
     let propertySubject: Rx.BehaviorSubject<IItemChangeSet>;
 
@@ -41,6 +42,7 @@ describe("BpArtifactInfo", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         mainWindowSubject = new Rx.BehaviorSubject<IMainWindow>(<IMainWindow>{});
         artifactSubject = new Rx.BehaviorSubject<IStatefulArtifact>(undefined);
+        validationSubject = new Rx.Subject<number[]>();
         stateSubject = new Rx.BehaviorSubject<IArtifactState>(undefined);
         propertySubject = new Rx.BehaviorSubject<IItemChangeSet>(undefined);
 
@@ -49,6 +51,7 @@ describe("BpArtifactInfo", () => {
         };
 
         const artifactObservable = artifactSubject.asObservable();
+        const validationObservable =  validationSubject.asObservable();
         const stateObservable = stateSubject.asObservable();
         stateObservable.debounce = () => stateObservable;
         const propertyObservable = propertySubject.filter(changeSet => !!changeSet).asObservable();
@@ -68,6 +71,7 @@ describe("BpArtifactInfo", () => {
                 dispose: undefined
             },
             getObservable: () => artifactObservable,
+            getValidationObservable: () => validationObservable,
             getPropertyObservable: () => propertyObservable
         };
         selectionManager = <ISelectionManager>{

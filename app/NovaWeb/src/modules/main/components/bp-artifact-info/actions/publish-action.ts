@@ -12,8 +12,7 @@ export class PublishAction extends BPButtonAction {
         private artifact: IStatefulArtifact,
         private localization: ILocalizationService,
         private messageService: IMessageService,
-        private loadingOverlayService: ILoadingOverlayService,
-        private dialogService: IDialogService
+        private loadingOverlayService: ILoadingOverlayService
     ) {
         super();
 
@@ -27,9 +26,6 @@ export class PublishAction extends BPButtonAction {
 
         if (!this.loadingOverlayService) {
             throw new Error("Loading overlay service not provided or is null");
-        }
-        if (!this.dialogService) {
-            throw new Error("Dialog service not provided or is null");
         }
     }
 

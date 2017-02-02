@@ -5,6 +5,8 @@ namespace Model.ArtifactModel.Impl
     // Taken from:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaSubArtifact.cs
     public class NovaSubArtifact : NovaItem
     {
+        #region Constructors
+
         public NovaSubArtifact(SubArtifact subartifact)
         {
             ThrowIf.ArgumentNull(subartifact, nameof(subartifact));
@@ -16,13 +18,15 @@ namespace Model.ArtifactModel.Impl
             PredefinedType = subartifact.PredefinedType;
             Prefix = subartifact.Prefix;
             IsDeleted = false;
-            ItemTypeVersionId = 1;
+
         }
 
         public NovaSubArtifact()
         {
 
         }
+
+        #endregion Constructors
 
         #region Serialized JSON Properties
 

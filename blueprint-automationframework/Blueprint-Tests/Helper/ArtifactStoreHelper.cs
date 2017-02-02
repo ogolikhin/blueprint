@@ -417,7 +417,7 @@ namespace Helper
         /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false, bool skipSpecificPropertyValues = false,
+            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipItemTypeVersionId = false, bool skipTraces = false, bool skipSpecificPropertyValues = false,
             Attachments.CompareOptions compareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
@@ -443,7 +443,12 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.ItemTypeId, actualSubArtifact.ItemTypeId, "The ItemTypeId parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.ItemTypeName, actualSubArtifact.ItemTypeName, "The ItemTypeName parameters don't match!");
-            Assert.AreEqual(expectedSubArtifact.ItemTypeVersionId, actualSubArtifact.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+
+            if (!skipItemTypeVersionId)
+            {
+                Assert.AreEqual(expectedSubArtifact.ItemTypeVersionId, actualSubArtifact.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+            }
+
             Assert.AreEqual(expectedSubArtifact.ItemTypeIconId, actualSubArtifact.ItemTypeIconId, "The ItemTypeIconId parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.Prefix, actualSubArtifact.Prefix, "The Prefix parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");

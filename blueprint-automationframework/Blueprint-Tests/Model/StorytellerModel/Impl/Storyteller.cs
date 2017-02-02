@@ -592,7 +592,7 @@ namespace Model.StorytellerModel.Impl
             return artifact.Discard(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
         }
 
-        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<OpenApiDeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteProcessArtifact));
 

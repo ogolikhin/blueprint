@@ -131,11 +131,21 @@ namespace Model.Impl
             }
 
             var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
-            var deleteArtifactResults = restApi.SendRequestAndDeserializeObject<List<OpenApiDeleteArtifactResult>>(
+            var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.DELETE,
                 queryParameters: queryparameters,
                 expectedStatusCodes: expectedStatusCodes);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return new List<OpenApiDeleteArtifactResult>();
+            }
+
+            // NOTE: We have to deserialize separately instead of calling restApi.SendRequestAndDeserializeObject() because if a test gets a 404 in
+            // the Dispose(), it'll fail to deserialize and throw an exception.
+            // TODO: Fix this limitation in the Dispose() method.
+            var deleteArtifactResults = JsonConvert.DeserializeObject<List<OpenApiDeleteArtifactResult>>(response.Content);
 
             return deleteArtifactResults;
         }

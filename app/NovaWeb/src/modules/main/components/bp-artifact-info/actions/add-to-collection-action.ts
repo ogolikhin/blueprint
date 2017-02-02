@@ -1,6 +1,5 @@
 import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager} from "../../../../managers";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {
     AddArtifactToCollectionDialogController,
@@ -14,6 +13,7 @@ import {ICollectionService} from "../../../../editorsModule/collection/collectio
 import {ErrorCode} from "../../../../shell/error/error-code";
 import {IItemInfoService, IItemInfoResult} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../messages/message.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class AddToCollectionAction extends BPDropdownAction {
 
@@ -23,7 +23,7 @@ export class AddToCollectionAction extends BPDropdownAction {
                 private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService,
@@ -56,8 +56,8 @@ export class AddToCollectionAction extends BPDropdownAction {
     private loadProjectIfNeeded() {
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
-        if (!this.projectManager.getProject(this.artifact.projectId)) {
-            loadProjectPromise = this.projectManager.add(this.artifact.projectId);
+        if (!this.projectExplorerService.getProject(this.artifact.projectId)) {
+            loadProjectPromise = this.projectExplorerService.add(this.artifact.projectId);
         } else {
             loadProjectPromise = this.$q.resolve();
         }

@@ -1,17 +1,17 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager} from "../../../../managers";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {IMessageService} from "../../messages/message.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class DiscardAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         private localization: ILocalizationService,
         private messageService: IMessageService,
-        private projectManager: IProjectManager,
+        private projectExplorerService: IProjectExplorerService,
         private loadingOverlayService: ILoadingOverlayService,
         private navigationService: INavigationService
     ) {
@@ -25,8 +25,8 @@ export class DiscardAction extends BPButtonAction {
             throw new Error("Message service not provided or is null");
         }
 
-        if (!this.projectManager) {
-            throw new Error("Project manager not provided or is null");
+        if (!this.projectExplorerService) {
+            throw new Error("Project explorer service not provided or is null");
         }
 
         if (!this.loadingOverlayService) {
@@ -54,9 +54,8 @@ export class DiscardAction extends BPButtonAction {
     public execute(): void {
         this.artifact.discardArtifact()
             .then(() => {
-                if (this.projectManager.projectCollection.getValue().length > 0) {
-                    this.projectManager.refresh(this.artifact.projectId)
-                        .then(() => this.projectManager.triggerProjectCollectionRefresh());
+                if (this.projectExplorerService.projects.length) {
+                    this.projectExplorerService.refresh(this.artifact.projectId);
                 } else {
                     // If artifact has never been published, navigate back to the main page;
                     // otherwise, refresh the artifact

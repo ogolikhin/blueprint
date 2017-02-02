@@ -1,6 +1,5 @@
 import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager} from "../../../../managers";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {
     MoveCopyArtifactPickerDialogController,
@@ -14,6 +13,7 @@ import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {IMessageService} from "../../messages/message.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class MoveCopyAction extends BPDropdownAction {
     private actionType: MoveCopyActionType;
@@ -23,7 +23,7 @@ export class MoveCopyAction extends BPDropdownAction {
                 private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService) {
@@ -33,8 +33,8 @@ export class MoveCopyAction extends BPDropdownAction {
             throw new Error("Localization service not provided or is null");
         }
 
-        if (!projectManager) {
-            throw new Error("Project manager not provided or is null");
+        if (!projectExplorerService) {
+            throw new Error("Project explorer service not provided or is null");
         }
 
         if (!dialogService) {
@@ -106,8 +106,8 @@ export class MoveCopyAction extends BPDropdownAction {
     private loadProjectIfNeeded() {
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
-        if (!this.projectManager.getProject(this.artifact.projectId)) {
-            loadProjectPromise = this.projectManager.add(this.artifact.projectId);
+        if (!this.projectExplorerService.getProject(this.artifact.projectId)) {
+            loadProjectPromise = this.projectExplorerService.add(this.artifact.projectId);
         } else {
             loadProjectPromise = this.$q.resolve();
         }
@@ -179,7 +179,7 @@ export class MoveCopyAction extends BPDropdownAction {
         const artifacts: Models.IArtifact[] = result.artifacts;
         if (artifacts && artifacts.length === 1) {
             let insertMethod: MoveCopyArtifactInsertMethod = result.insertMethod;
-            return this.projectManager.calculateOrderIndex(insertMethod, result.artifacts[0]);
+            return this.projectExplorerService.calculateOrderIndex(insertMethod, result.artifacts[0]);
         } else {
             return this.$q.reject("No artifact provided");
         }
@@ -199,39 +199,23 @@ export class MoveCopyAction extends BPDropdownAction {
         return this.$q.resolve(null);
     }
 
-    private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
-        //finally, move the artifact
-        return this.artifact
-        .move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
-        .then(() => {
-            //refresh project
-            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
-            this.projectManager.refresh(this.artifact.projectId).then(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-            }).finally(() => {
-                this.loadingOverlayService.endLoading(refreshLoadingOverlayId);
+    private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void> {
+        return this.artifact.move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
+            .then(() => {
+                this.projectExplorerService.refresh(this.artifact.projectId);
             });
-        });
     }
 
-    private copyArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
+    private copyArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void> {
         //finally, move the artifact
-        return this.artifact
-        .copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
-        .then((result: Models.ICopyResultSet) => {
-            let selectionId = result && result.artifact ? result.artifact.id : null;
-            //refresh project
-            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
-            this.projectManager.refresh(this.artifact.projectId, selectionId).then(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
+        return this.artifact.copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
+            .then((result: Models.ICopyResultSet) => {
+                //refresh project
+                const selectionId = result && result.artifact ? result.artifact.id : null;
                 if (selectionId) {
-                    this.$timeout(() => {
-                        this.navigationService.navigateTo({id: selectionId});
-                    });
+                    this.projectExplorerService.setSelectionId(selectionId);
                 }
-            }).finally(() => {
-                this.loadingOverlayService.endLoading(refreshLoadingOverlayId);
+                this.projectExplorerService.refresh(this.artifact.projectId, selectionId);
             });
-        });
     }
 }

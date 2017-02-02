@@ -344,12 +344,12 @@ export class BpArtifactInfoController {
         const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService, this.dialogService);
         const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService, this.dialogService);
         const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
-            this.projectManager, this.loadingOverlayService, this.navigationService);
-        const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
+            this.projectExplorerService, this.loadingOverlayService, this.navigationService);
+        const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectExplorerService, this.loadingOverlayService,
             this.metadataService, this.mainBreadcrumbService);
-        const moveCopyAction = new MoveCopyAction(this.$q, this.$timeout, this.artifact, this.localization, this.messageService, this.projectManager,
+        const moveCopyAction = new MoveCopyAction(this.$q, this.$timeout, this.artifact, this.localization, this.messageService, this.projectExplorerService,
             this.dialogService, this.navigationService, this.loadingOverlayService);
-        const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+        const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectExplorerService,
             this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService, this.itemInfoService);
         const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 

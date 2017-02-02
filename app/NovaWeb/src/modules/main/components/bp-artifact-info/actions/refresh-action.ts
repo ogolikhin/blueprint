@@ -1,16 +1,16 @@
 import {BPButtonAction} from "../../../../shared";
-import {IProjectManager} from "../../../../managers/project-manager";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class RefreshAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         private localization: ILocalizationService,
-        private projectManager: IProjectManager,
+        private projectExplorerService: IProjectExplorerService,
         private loadingOverlayService: ILoadingOverlayService,
         private metaDataService: IMetaDataService,
         private mainBreadcrumbService: IMainBreadcrumbService
@@ -25,8 +25,8 @@ export class RefreshAction extends BPButtonAction {
             throw new Error("Localization service not provided or is null");
         }
 
-        if (!this.projectManager) {
-            throw new Error("Project manager not provided or is null");
+        if (!this.projectExplorerService) {
+            throw new Error("Project explorer service not provided or is null");
         }
 
         if (!this.loadingOverlayService) {
@@ -65,17 +65,14 @@ export class RefreshAction extends BPButtonAction {
     }
 
     public execute(): void {
-        const overlayId = this.loadingOverlayService.beginLoading();
-
         if (this.artifact.predefinedType === ItemTypePredefined.Project) {
-            this.projectManager.refreshCurrent()
-                .finally(() => {
-                    this.projectManager.triggerProjectCollectionRefresh();
-                    this.loadingOverlayService.endLoading(overlayId);
-                });
+            this.projectExplorerService.refresh(this.artifact.id);
+
         } else {
             //project is getting refreshed by listening to selection in bp-page-content
             this.mainBreadcrumbService.reloadBreadcrumbs(this.artifact);
+
+            const overlayId = this.loadingOverlayService.beginLoading();
             this.artifact.refresh()
                 .finally(() => this.loadingOverlayService.endLoading(overlayId));
         }

@@ -14,6 +14,7 @@ import {IArtifact} from "../../models/models";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
+import {MoveCopyArtifactInsertMethod} from "../dialogs/move-copy-artifact/move-copy-artifact";
 
 export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];
@@ -37,6 +38,9 @@ export interface IProjectExplorerService {
     refreshAll();
 
     getProject(id: number): ExplorerNodeVM;
+
+    // misc
+    calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: IArtifact): ng.IPromise<number>;
 }
 
 export class ProjectExplorerService implements IProjectExplorerService {
@@ -336,4 +340,55 @@ export class ProjectExplorerService implements IProjectExplorerService {
         }
     }
 
+    private getArtifactNode(id: number): ExplorerNodeVM {
+        let found: ExplorerNodeVM;
+        _.find(this.projects, project => {
+            found = project.getNode(model => model.id === id);
+            return found;
+        });
+        return found;
+    };
+
+    // FIXME: clean up method
+    public calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: IArtifact): ng.IPromise<number> {
+        let promise: ng.IPromise<void>;
+        let orderIndex: number;
+        let index: number;
+
+        let siblings: IArtifact[];
+        const parentArtifactNode: ExplorerNodeVM = this.getArtifactNode(selectedArtifact.parentId);
+
+        //if parent isn't found, or if its children aren't loaded
+        if (!parentArtifactNode || (!parentArtifactNode.children || parentArtifactNode.children.length === 0)) {
+            //get children from server
+            promise = this.projectService.getArtifacts(selectedArtifact.projectId, selectedArtifact.parentId)
+                .then((data: IArtifact[]) => {
+                    siblings = data;
+                });
+        } else {
+            //otherwise, get children from cache
+            siblings = _.map(parentArtifactNode.children, (node) => node.model);
+            promise = this.$q.resolve();
+        }
+
+        return promise.then(() => {
+            //sort by order index
+            siblings = _.sortBy(siblings, (a) => a.orderIndex);
+            index = _.findIndex(siblings, (a) => a.id === selectedArtifact.id);
+
+            //compute new order index
+            if (index === 0 && insertMethod === MoveCopyArtifactInsertMethod.Above) { //first
+                orderIndex = selectedArtifact.orderIndex / 2;
+            } else if (index === siblings.length - 1 && insertMethod === MoveCopyArtifactInsertMethod.Below) { //last
+                orderIndex = selectedArtifact.orderIndex + 10;
+            } else {    //in between
+                if (insertMethod === MoveCopyArtifactInsertMethod.Above) {
+                    orderIndex = (siblings[index - 1].orderIndex + selectedArtifact.orderIndex) / 2;
+                } else if (insertMethod === MoveCopyArtifactInsertMethod.Below) {
+                    orderIndex = (siblings[index + 1].orderIndex + selectedArtifact.orderIndex) / 2;
+                }
+            }
+            return orderIndex;
+        });
+    }
 }

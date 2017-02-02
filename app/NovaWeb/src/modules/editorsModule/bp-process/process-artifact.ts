@@ -67,11 +67,16 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
          return this.services.artifactService.getArtifactModel<INovaProcess>(url, id, versionId);
     }
 
-    protected updateArtifact(changes: Models.IArtifact): ng.IPromise<Models.IArtifact> {
+    protected updateArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<Models.IArtifact> {
         const url = `/svc/bpartifactstore/processupdate/${changes.id}`;
         const processor = new ProcessModelProcessor();
         (<INovaProcess>changes).process = processor.processModelBeforeSave(this);
-        return this.services.artifactService.updateArtifact(url, changes);
+        const config: ng.IRequestShortcutConfig = {
+            params: {
+                autoSave: autoSave
+            }
+        };
+        return this.services.artifactService.updateArtifact(url, changes, config);
     }
 
     protected initialize(artifact: Models.IArtifact): void {

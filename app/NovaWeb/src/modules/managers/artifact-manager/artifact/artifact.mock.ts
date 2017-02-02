@@ -64,6 +64,9 @@ export class StatefulArtifactMock implements IStatefulArtifact, IIStatefulArtifa
     getObservable(): Rx.Observable<IStatefulArtifact> {
         return new Rx.BehaviorSubject<IStatefulArtifact>(this).asObservable();
     }
+    getValidationObservable(): Rx.Observable<number[]> {
+        return new Rx.Subject<number[]>().asObservable();
+    }
     move(newParentId: number, orderIndex?: number): ng.IPromise<void> {
         return this.$q.resolve();
     }

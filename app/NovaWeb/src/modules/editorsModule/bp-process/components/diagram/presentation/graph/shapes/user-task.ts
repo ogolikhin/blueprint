@@ -42,7 +42,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private BUTTON_SIZE = 16;
 
     private DEFAULT_BORDER_COLOR: string = "#D4D5DA";
-    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED"; 
+    private HIGHLIGHT_BORDER_COLOR: string = "#53BBED";
 
     private header: mxCell;
     private personaLabel: ILabel;
@@ -53,7 +53,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     private previewButton: Button;
     private linkButton: Button;
     private rootScope: any;
-     
+
     constructor(model: IUserTaskShape, rootScope: any, private nodeFactorySettings: NodeFactorySettings = null,
                 private shapesFactoryService: ShapesFactory) {
         super(model);
@@ -63,6 +63,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         this.initButtons(model.id.toString(), nodeFactorySettings);
 
         this.initChildElements();
+
     }
 
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
@@ -354,7 +355,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
 
         mxGraph.insertVertex(this, "HB" + this.model.id.toString(), null, 0.5, 0.5, this.USER_TASK_WIDTH - 1, 3,
             "shape=rectangle;strokeColor=none;fillColor=#009CDE;editable=0;selectable=0");
-        
+
         mxGraph.insertVertex(this, "FB" + this.model.id.toString(), null, 0.5, this.USER_TASK_HEIGHT - 35, this.USER_TASK_WIDTH - 1, 1,
             "shape=rectangle;strokeColor=none;fillColor=#D4D5DA;editable=0;selectable=0");
 
@@ -398,8 +399,12 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         // header overlays
 
         const personaIcon = "/novaweb/static/bp-process/images/defaultuser.svg";
+
         this.addOverlay(mxGraph, this, personaIcon, 24, 24, this.rootScope.config.labels["ST_Persona_Label"],
             mxConstants.ALIGN_LEFT, mxConstants.ALIGN_TOP, 18, 22);
+
+        this.addAlert = _.bind(this.addAlertIcon, this, mxGraph);
+        this.removeAlert = _.bind(this.removeAlertIcon, this, mxGraph);
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(mxGraph, this, null, this.USER_TASK_WIDTH, this.USER_TASK_HEIGHT, null, mxConstants.ALIGN_LEFT,
@@ -481,7 +486,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     }
 
     public get canCopy(): boolean {
-        return true; 
+        return true;
     }
 
     public canDelete(): boolean {
@@ -491,7 +496,7 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
     public canGenerateUserStory(): boolean {
         return true;
     }
-    
+
     public getNodeType() {
         return NodeType.UserTask;
     }

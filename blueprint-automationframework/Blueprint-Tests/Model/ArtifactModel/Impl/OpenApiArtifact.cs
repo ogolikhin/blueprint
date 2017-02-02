@@ -702,12 +702,28 @@ namespace Model.ArtifactModel.Impl
             bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApi.AddTrace(address, sourceArtifact, targetArtifact, traceDirection, user,
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            var openApiTraces = OpenApi.AddTrace(address, sourceArtifact, targetArtifact, traceDirection, user,
                 traceType: traceType,
                 isSuspect: isSuspect,
                 subArtifactId: subArtifactId,
                 reconcileWithTwoWay: reconcileWithTwoWay,
                 expectedStatusCodes: expectedStatusCodes);
+
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.Created))
+            {
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.Created, openApiTraces[0].ResultCode);
+
+                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
+                    sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
+
+                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
+            }
+
+            return openApiTraces;
         }
 
         /// <summary>
@@ -736,11 +752,23 @@ namespace Model.ArtifactModel.Impl
             bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApi.DeleteTrace(address, sourceArtifact, targetArtifact, traceDirection, user, traceType,
+            var openApiTraces = OpenApi.DeleteTrace(address, sourceArtifact, targetArtifact, traceDirection, user, traceType,
                 isSuspect: isSuspect,
                 subArtifactId: subArtifactId,
                 reconcileWithTwoWay: reconcileWithTwoWay,
                 expectedStatusCodes: expectedStatusCodes);
+
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
+            {
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
+
+                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
+
+                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
+            }
+
+            return openApiTraces;
         }
 
         #endregion Static Methods

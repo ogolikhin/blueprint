@@ -81,15 +81,19 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
         this.isIncludeError = false;
 
-        let getArtifactLoadingId = this.loadingOverlayService.beginLoading();
+        if (!this.isReadonly) {
+            let getArtifactLoadingId = this.loadingOverlayService.beginLoading();
 
-        this.artifactService.getArtifact(this.dialogModel.artifactId)
-            .then((artifact) => {
-                this.everPublished = artifact.version > 0;
-            })
-            .finally(() => {
-                this.loadingOverlayService.endLoading(getArtifactLoadingId);
-            });
+            this.artifactService.getArtifact(this.dialogModel.artifactId)
+                .then((artifact) => {
+                    this.everPublished = artifact.version > 0;
+                })
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(getArtifactLoadingId);
+                });
+        } else {
+            this.everPublished = true;
+        }
     }
 
     public get isReadonly(): boolean {
@@ -346,6 +350,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     };
 
     private canCleanField(): boolean {
-        return !this.dialogModel.isReadonly;
+        return !this.isReadonly;
     }
 }

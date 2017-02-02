@@ -535,6 +535,7 @@ ST_ProcessType_BusinessProcess_Label, "Business Process mode"
 ST_ProcessType_UserToSystemProcess_Label, "User-System Process mode"
 ST_ProcessType_RegenerateUS_Message, "Regenerate user stories to synchronize your changes."
 ST_ProcessType_RegenerateUSS_Message, "Published artifacts include one or more Processes. Regenerate corresponding user stories to synchronize changes"
+ST_Process_Validation_Error,"Validation error found!"
 ST_Process_Include_Creation_Validation_Error_409_121, "The Process '{0}' (ID:{1}) has been created and saved, but has issues with property values that prevent it from being published and included. Please open the Process and review its properties. After publishing it, you can include it."
 
 # Breadcrumb

@@ -44,8 +44,13 @@ export class ProcessEnd extends DiagramNode<IProcessShape> {
             " foldable = 0; editable = 0");
         graph.endNode = this;
 
+        this.processDiagramManager = graph.viewModel.communicationManager.processDiagramCommunication;
+
         graph.getMxGraph().insertVertex(this, "C" + this.model.id.toString(), null, (this.PROCESS_END_WIDTH / 2) - 5,
             (this.PROCESS_END_HEIGHT / 2) - 5, 10, 10, "shape=ellipse;strokeColor=none;fillColor=#d4d5da;editable=0;selectable=0");
+
+        this.addAlert = _.bind(this.addAlertIcon, this, graph.getMxGraph());
+        this.removeAlert = _.bind(this.removeAlertIcon, this, graph.getMxGraph());
 
         return this;
     }

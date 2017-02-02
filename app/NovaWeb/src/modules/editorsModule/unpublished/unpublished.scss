@@ -7,6 +7,18 @@
     font-size: 1.2rem;
 }
 
+.unpublished__header-left {
+    position:absolute;
+    top: 6px !important;
+    left:35px !important;
+}
+
+.unpublished__header-right {
+    position:absolute;
+    top: 10px !important;
+    right:40px !important;
+}
+
 .unpublished__checkbox-col {
     padding: 8px 25px;
     width: 20px;

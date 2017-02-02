@@ -631,7 +631,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         /// <seealso cref="IStoryteller.DeleteProcessArtifact(IArtifact, bool?, List{HttpStatusCode})"/>
-        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<OpenApiDeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteProcessArtifact));
 

@@ -240,7 +240,7 @@ namespace Model.StorytellerModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<OpenApiDeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete a Nova process artifact

@@ -94,7 +94,7 @@ namespace Model.ArtifactModel.Impl
         public List<NovaDiscardArtifactResult> DiscardResults { get; set; }
     }
 
-    public class DeleteArtifactResult
+    public class OpenApiDeleteArtifactResult
     {
         public int ArtifactId { get; set; }
         public string Message { get; set; }

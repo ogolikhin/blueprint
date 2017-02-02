@@ -8,9 +8,18 @@
     font-size: 1.2rem;
 }
 
-.jobs__checkbox-col {
-    padding: 8px 25px;
-    width: 20px;
+.jobs__header-wrapper {
+    .jobs__header-left {
+        position:absolute;
+        top: 6px;
+        left:35px;
+    }
+
+    .jobs__header-right {
+        position:absolute;
+        top: 10px;
+        right:40px;
+    }
 }
 
 .jobs__icon-col {
@@ -73,12 +82,12 @@
     &:focus, &:hover {
         background: $tree-hover-background;
     }
-    
+
     .jobs__icon--size::before,
     .jobs__icon--size::after {
         font-size: 1.5rem;
     }
-        
+
     .progress {
         max-width: 200px;
         box-shadow: none;
@@ -93,8 +102,8 @@
 }
 
 .jobs__action-icons--color {
-    color: $text-color;      
-      
+    color: $text-color;
+
     &:focus, &:hover {
         color: $brand-secondary;
     }

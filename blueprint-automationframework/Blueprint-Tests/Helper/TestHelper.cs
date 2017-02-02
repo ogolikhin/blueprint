@@ -68,8 +68,9 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             var artifactIds = deletedArtifactIds as IList<int> ?? deletedArtifactIds.ToList();
+
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), String.Join(", ", artifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), string.Join(", ", artifactIds));
 
             foreach (var deletedArtifactId in artifactIds)
             {
@@ -86,13 +87,44 @@ namespace Helper
             }
         }
 
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
+        public void NotifyArtifactDiscarded(IEnumerable<int> discardedArtifactIds)
+        {
+            ThrowIf.ArgumentNull(discardedArtifactIds, nameof(discardedArtifactIds));
+            var artifactIds = discardedArtifactIds as int[] ?? discardedArtifactIds.ToArray();
+
+            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDiscarded), string.Join(", ", artifactIds));
+
+            var artifactsToRemove = new List<int>();
+
+            foreach (var discardedArtifactId in artifactIds)
+            {
+                Artifacts.ForEach(a =>
+                {
+                    if ((a.Id == discardedArtifactId) && !a.IsPublished)
+                    {
+                        a.IsDeleted = true;
+                        a.IsPublished = false;
+                        a.IsSaved = false;
+                        a.Status.IsLocked = false;
+
+                        artifactsToRemove.Add(a.Id);
+                    }
+                });
+
+                Artifacts.RemoveAll(a => a.Id == discardedArtifactId);
+            }
+        }
+
         /// <seealso cref="IArtifactObserver.NotifyArtifactPublish(IEnumerable{int})" />
         public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
             var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
+
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublish), String.Join(", ", artifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublish), string.Join(", ", artifactIds));
 
             foreach (var publishedArtifactId in artifactIds)
             {

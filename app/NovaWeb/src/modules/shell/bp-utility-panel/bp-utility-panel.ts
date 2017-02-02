@@ -141,7 +141,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         if (this.emptySelection(selection) || selection.multiSelect) {
             this.hidePanels();
         } else if (item) {
-            this.propertySubscriber = item.getProperyObservable().subscribeOnNext(this.updateItem);
+            this.propertySubscriber = item.getPropertyObservable().subscribeOnNext(this.updateItem);
             this.toggleHistoryPanel(selection);
             this.togglePropertiesPanel(selection);
             this.toggleFilesPanel(selection);

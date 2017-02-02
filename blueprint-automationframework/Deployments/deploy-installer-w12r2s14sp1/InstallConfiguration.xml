@@ -10,8 +10,6 @@
     <SiteAuxiliaryPort>9101</SiteAuxiliaryPort>
     <IsHTTP>false</IsHTTP>
     <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
-    <PhoneHomeSendUsageInfo>false</PhoneHomeSendUsageInfo>
-    <PhoneHomeSendSystemInfo>false</PhoneHomeSendSystemInfo>
     <ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
   </BlueprintWebInfo>
   <ALMInfo>

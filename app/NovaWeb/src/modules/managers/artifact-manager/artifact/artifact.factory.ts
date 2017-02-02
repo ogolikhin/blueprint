@@ -1,8 +1,8 @@
 import {IItemInfoService, IItemInfoResult} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";
-import {IProcessService} from "../../../editors/bp-process/services/process.svc";
-import {IProcessShape} from "../../../editors/bp-process/models/process-models";
+import {IProcessService} from "../../../editorsModule/bp-process/services/process.svc";
+import {IProcessShape} from "../../../editorsModule/bp-process/models/process-models";
 import {ItemTypePredefined} from "../../../main/models/enums";
 import {IArtifact, ISubArtifact} from "../../../main/models/models";
 import {IArtifactAttachmentsService} from "../attachments";
@@ -13,24 +13,22 @@ import {IArtifactRelationshipsService} from "../relationships";
 import {
     IStatefulCollectionArtifact,
     StatefulCollectionArtifact
-} from "../../../editors/bp-collection/collection-artifact";
-import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editors/bp-glossary/glossary-artifact";
-import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editors/bp-diagram/diagram-artifact";
-import {StatefulUseCaseArtifact} from "../../../editors/bp-diagram/usecase-artifact";
-import {StatefulUseCaseDiagramArtifact} from "../../../editors/bp-diagram/usecase-diagram-artifact";
+} from "../../../editorsModule/configuration/classes/collection-artifact";
+import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editorsModule/glossary/glossary-artifact";
+import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editorsModule/diagram/diagram-artifact";
+import {StatefulUseCaseArtifact} from "../../../editorsModule/diagram/usecase-artifact";
+import {StatefulUseCaseDiagramArtifact} from "../../../editorsModule/diagram/usecase-diagram-artifact";
 import {
     StatefulArtifactServices,
-    IStatefulArtifactServices,
-    StatefulProcessArtifactServices,
-    IStatefulProcessArtifactServices
+    IStatefulArtifactServices
 } from "../services";
 import {IArtifactService} from "./artifact.svc";
 import {IValidationService} from "../validation/validation.svc";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {StatefulProjectArtifact} from "../project/project-artifact";
-import {IPropertyDescriptorBuilder} from "../../../editors/configuration/property-descriptor-builder";
-import {IUnpublishedArtifactsService} from "../../../editors/unpublished/unpublished.svc";
+import {IPropertyDescriptorBuilder} from "../../../editorsModule/services";
+import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 
 export interface IStatefulArtifactFactory {
@@ -53,7 +51,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
         "artifactAttachments",
         "artifactRelationships",
         "metadataService",
-        "processService",
         "itemInfoService",
         "loadingOverlayService",
         "publishService",
@@ -73,7 +70,6 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 private attachmentService: IArtifactAttachmentsService,
                 private relationshipsService: IArtifactRelationshipsService,
                 private metadataService: IMetaDataService,
-                private processService: IProcessService,
                 private itemInfoService: IItemInfoService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private publishService: IUnpublishedArtifactsService,
@@ -183,10 +179,7 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
     }
 
     private createStatefulProcessArtifact(artifact: IArtifact): IStatefulArtifact {
-        let processServices: IStatefulProcessArtifactServices =
-            new StatefulProcessArtifactServices(this.services, this.$q, this.$log, this.processService);
-
-        return new StatefulProcessArtifact(artifact, processServices);
+        return new StatefulProcessArtifact(artifact, this.services);
     }
 
     private createStatefulProjectArtifact(artifact: IArtifact): IStatefulArtifact {

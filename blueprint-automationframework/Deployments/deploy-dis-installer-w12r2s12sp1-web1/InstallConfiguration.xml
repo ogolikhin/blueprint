@@ -11,9 +11,6 @@
     <SiteHostName>deploy-installer-w12r2s12sp1.blueprintsys.net</SiteHostName>
     <EnableHTTPSBinding>false</EnableHTTPSBinding>
     <IsAppPoolAccountCustom>false</IsAppPoolAccountCustom>
-    <PhoneHomeSendUsageInfo>true</PhoneHomeSendUsageInfo>
-    <PhoneHomeSendSystemInfo>true</PhoneHomeSendSystemInfo>
-    <PhoneHomeDBAdminUsername>sa</PhoneHomeDBAdminUsername>
     <ActivationKey>2A5HT-DS4MR-998WL-EXFFS-5AMXF</ActivationKey>
   </BlueprintWebInfo>
   <ALMInfo>

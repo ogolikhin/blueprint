@@ -82,6 +82,10 @@ $aggrid-text-indent: 6px;
                 height: #{$aggrid-row-height - 2px};
                 vertical-align: bottom;
             }
+
+            .item-icon__loading {
+                display: none;
+            }
         }
 
         // ag-grid has a bug which causes ag-row-group-expanded/contracted not to reflect the actual status
@@ -237,6 +241,18 @@ $aggrid-text-indent: 6px;
             height: 12px;
             width: 12px;
         }
+    }
+
+    .ag-row-loading .ag-cell .ag-group-value .ag-group-value-wrapper bp-item-type-icon {
+        padding:0;
+    }
+
+    .ag-row-loading .ag-cell .item-icon__loading {
+        display: inline-block;
+    }
+
+    .ag-row-loading .item-icon__image {
+        display: none;
     }
 
     .ag-group-value-wrapper i::before {

@@ -61,7 +61,8 @@ namespace Model.Impl
                 RestPaths.Svc.Shared.Users.SEARCH,
                 RestRequestMethod.GET,
                 queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
         }
 
         #endregion Members inherited from ISvcShared

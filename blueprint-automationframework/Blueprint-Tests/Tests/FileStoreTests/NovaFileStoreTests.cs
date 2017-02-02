@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
@@ -122,6 +123,45 @@ namespace FileStoreTests
                 // Execute: Add the file to Filestore.
                 Helper.FileStore.AddFile(file, _user, useMultiPartMime: false, chunkSize: chunkSize);
             }, "FileStore should return a Http405MethodNotAllowedException error when PUT method is used by enabling Chunk option at the event of Adding File to FileStore.");
+        }
+
+        [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
+        [TestRail(234423)]
+        [Description("Add file to FileStore, delete it (it set Expiration Date to now), try to get file - it should return 404.")]
+        public void GetNovaFile_DeletedFile_Returns404(uint fileSize, string fakeFileName, string fileType)
+        {
+            // Setup:
+            var file = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _user);
+
+            Helper.FileStore.DeleteFile(file.Guid, _user);// TODO: if FileStore delete works as expected it is equivalent of setting ExpirationDate to Now - so test 234423 is equivalent of 234445
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.FileStore.GetNovaFile(file.Guid, _user));
+
+            // Verify:
+            const string expectedMessage = "File with ID:{0} does not exist";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant(expectedMessage, file.Guid));
+        }
+
+        [TestCase((uint)0, "0KB_File.txt", "text/plain")]
+        [TestRail(234445)]
+        [Description("Add file to FileStore, delete it (it set Expiration Date to now), try to get file - it should return 404.")]
+        public void GetNovaFile_FileWithExpiredDateInThePast_Returns404(uint fileSize, string fakeFileName, string fileType)
+        {
+            // Setup:
+            var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+
+            var expireTime = DateTime.Now;
+            var storedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.FileStore.GetNovaFile(file.Guid, _user));
+
+            // Verify:
+            const string expectedMessage = "File with ID:{0} does not exist";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound,
+                I18NHelper.FormatInvariant(expectedMessage, storedFile.Guid));
         }
     }
 }

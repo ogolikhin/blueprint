@@ -333,7 +333,7 @@ namespace Utilities.Facades
             Dictionary<string, string> queryParameters = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             Dictionary<string, string> cookies = null,
-            bool shouldControlJsonChanges = false)
+            bool shouldControlJsonChanges = true)
             where T1 : new()
             where T2 : new()
         {
@@ -405,7 +405,7 @@ namespace Utilities.Facades
            Dictionary<string, string> queryParameters = null,
            List<HttpStatusCode> expectedStatusCodes = null,
            Dictionary<string, string> cookies = null,
-           bool shouldControlJsonChanges = false) where T : new()
+           bool shouldControlJsonChanges = true) where T : new()
         {
             return SendRequestAndDeserializeObject<T, List<string>>(resourcePath,
                 method,

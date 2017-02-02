@@ -8,7 +8,7 @@ import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay
 import {
     UnpublishedArtifactsService,
     IUnpublishedArtifactsService
-} from "../../../../editors/unpublished/unpublished.svc";
+} from "../../../../editorsModule/unpublished/unpublished.service";
 import {IArtifact} from "../../../models/models";
 import {DiscardArtifactsAction} from "./discard-artifacts-action";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";

@@ -48,10 +48,10 @@ namespace Model.ArtifactModel.Impl
 
         #region Methods
 
+        /// <seealso cref="Artifact.Save(IUser, bool, List{HttpStatusCode})"/>
         public void Save(IUser user = null,
             bool shouldGetLockForUpdate = true,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             // If CreatedBy is null, then this save is adding the artifact.  User must not be null.
             if (CreatedBy == null)
@@ -67,7 +67,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes, sendAuthorizationAsCookie);
+            SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes);
         }
 
         public List<DiscardArtifactResult> Discard(IUser user = null,
@@ -179,7 +179,8 @@ namespace Model.ArtifactModel.Impl
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return returnedArtifactInfo;
         }
@@ -334,7 +335,8 @@ namespace Model.ArtifactModel.Impl
                 path,
                 RestRequestMethod.POST,
                 artifactIds,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             return returnedArtifactProperties[0];
         }
@@ -351,6 +353,7 @@ namespace Model.ArtifactModel.Impl
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
+
             return PostRaptorDiscussion(Address, Id, comment, user, expectedStatusCodes);
         }
 
@@ -361,6 +364,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
+
             return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
@@ -369,6 +373,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
+
             return DeleteRaptorDiscussion(Address, Id, discussionToDelete, user, expectedStatusCodes);
         }
 
@@ -377,6 +382,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
+
             return AddArtifactAttachment(Address, ProjectId, Id, file, user, expectedStatusCodes);
         }
 
@@ -385,6 +391,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
+
             return AddSubArtifactAttachment(Address, ProjectId, Id, subArtifactId, file,
                 user, expectedStatusCodes);
         }
@@ -400,12 +407,10 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user saving the artifact.</param>
         /// <param name="shouldGetLockForUpdate">(optional) Pass false if you don't want to get a lock before trying to update the artifact.  Default is true.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
         public static void SaveArtifact(IArtifactBase artifactToSave,
             IUser user,
             bool shouldGetLockForUpdate = true,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
@@ -420,7 +425,7 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+                OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes);
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
@@ -786,7 +791,8 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.POST,
                 jsonObject: artifactIds,
                 expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
+                cookies: cookies,
+                shouldControlJsonChanges: false);
 
             if (expectedLockResults == null)
             {
@@ -974,7 +980,7 @@ namespace Model.ArtifactModel.Impl
         {
             return OpenApiArtifact.DeleteRaptorReply(address, itemId, replyToDelete, user, expectedStatusCodes);
         }
-
+        
         /// <summary>
         /// add attachment to the specified artifact
         /// </summary>
@@ -1009,7 +1015,7 @@ namespace Model.ArtifactModel.Impl
             return OpenApiArtifact.AddSubArtifactAttachment(address, projectId,
                 artifactId, subArtifactId, file, user, expectedStatusCodes);
         }
-
+        
         #endregion Static Methods
     }
 

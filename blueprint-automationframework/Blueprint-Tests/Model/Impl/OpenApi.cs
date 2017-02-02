@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Common;
 using Model.ArtifactModel;
@@ -15,8 +16,6 @@ namespace Model.Impl
     /// </summary>
     public static class OpenApi
     {
-        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
-
         #region Project methods
 
         /// <sumary>
@@ -85,8 +84,12 @@ namespace Model.Impl
 
             // Retrieve the artifact type list for the project 
             var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
-            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(path, RestRequestMethod.GET,
-                queryParameters: queryParameters, expectedStatusCodes: expectedStatusCodes);
+            var artifactTypes = restApi.SendRequestAndDeserializeObject<List<OpenApiArtifactType>>(
+                path, 
+                RestRequestMethod.GET,
+                queryParameters: queryParameters, 
+                expectedStatusCodes: expectedStatusCodes, 
+                shouldControlJsonChanges: false);
 
             return artifactTypes;
         }
@@ -186,6 +189,78 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Creates a new OpenAPI artifact.  The state of the artifactToSave object isn't updated.
+        /// (Runs:  'POST api/v1/projects/{projectId}/artifacts')
+        /// </summary>
+        /// <param name="artifactToSave">The artifact to save.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
+        /// <returns>The OpenAPI result which includes the newly created artifact as well as success/failure info.</returns>
+        public static OpenApiAddArtifactResult CreateArtifact(IArtifactBase artifactToSave,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToSave.ProjectId);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            var restApi = new RestApiFacade(artifactToSave.Address, user.Token?.OpenApiToken);
+            var artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiAddArtifactResult, ArtifactBase>(
+                path,
+                RestRequestMethod.POST,
+                artifactToSave as ArtifactBase,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return artifactResult;
+        }
+
+        /// <summary>
+        /// Saves (updates) an existing OpenAPI artifact.  The state of the artifactToUpdate object isn't updated.
+        /// (Runs:  'PATCH api/v1/projects/{0}/artifacts')
+        /// </summary>
+        /// <param name="artifactToUpdate">The artifact to update.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="propertiesToUpdate">A list of properties to be updated with their new values.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The OpenAPI result which includes the newly created artifact as well as success/failure info.</returns>
+        public static List<OpenApiUpdateArtifactResult> UpdateArtifact(IArtifactBase artifactToUpdate,
+            IUser user,
+            List<OpenApiPropertyForUpdate> propertiesToUpdate,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
+            ThrowIf.ArgumentNull(propertiesToUpdate, nameof(propertiesToUpdate));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToUpdate.ProjectId);
+
+            // Create a copy of the artifact to update that only includes the properties to be updated
+            var artifactWithPropertyToUpdate = new OpenApiArtifactForUpdate
+            {
+                Id = artifactToUpdate.Id,
+                Properties = propertiesToUpdate
+            };
+
+            var artifactsToUpdate = new List<OpenApiArtifactForUpdate> { artifactWithPropertyToUpdate };
+
+            var restApi = new RestApiFacade(artifactToUpdate.Address, user.Token?.OpenApiToken);
+            var updateResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiUpdateArtifactResult>, List<OpenApiArtifactForUpdate>>(
+                path,
+                RestRequestMethod.PATCH,
+                artifactsToUpdate,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return updateResultList;
+        }
+
+        /// <summary>
         /// Retrieves a single artifact by Project ID and Artifact ID and returns information about the artifact.
         /// (Runs:  /api/v1/projects/{projectId}/artifacts/{artifactId}  with the following optional query parameters:
         /// status={status}, comments={comments}, traces={traces}, attachments={attachments}, richtextasplain={richtextasplain}, inlinecss={inlinecss}, content={content})
@@ -259,7 +334,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
 
             returnedArtifact.Address = baseAddress;
 
@@ -299,6 +375,246 @@ namespace Model.Impl
         }
 
         #endregion Artifact methods
+
+        #region Attachment methods
+
+        /// <summary>
+        /// Add attachment to the specified artifact.
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment.</param>
+        /// <param name="artifactId">Id of artifact to add attachment.</param>
+        /// <param name="file">File to attach.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
+        /// <returns>OpenApiAttachment object.</returns>
+        public static OpenApiAttachment AddArtifactAttachment(string address,
+            int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.ATTACHMENTS, projectId, artifactId);
+
+            return AddItemAttachment(address, path, file, user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Add attachment to the specified sub-artifact.
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="projectId">Id of project containing artifact to add attachment.</param>
+        /// <param name="artifactId">Id of artifact to add attachment.</param>
+        /// <param name="subArtifactId">Id of subartifact to attach file.</param>
+        /// <param name="file">File to attach.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
+        /// <returns>OpenApiAttachment object.</returns>
+        public static OpenApiAttachment AddSubArtifactAttachment(string address,
+            int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.SubArtifacts_id_.ATTACHMENTS,
+                projectId, artifactId, subArtifactId);
+
+            return AddItemAttachment(address, path, file, user, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Add attachment to the specified artifact/subartifact.
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="path">Path to add attachment.</param>
+        /// <param name="file">File to attach.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
+        /// <returns>OpenApiAttachment object.</returns>
+        private static OpenApiAttachment AddItemAttachment(string address,
+            string path, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(file, nameof(file));
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+            var additionalHeaders = new Dictionary<string, string>();
+
+            if (!string.IsNullOrEmpty(file.FileType))
+            {
+                additionalHeaders.Add("Content-Type", file.FileType);
+            }
+
+            if (!string.IsNullOrEmpty(file.FileName))
+            {
+                additionalHeaders.Add("Content-Disposition",
+                    I18NHelper.FormatInvariant("form-data; name=attachment; filename=\"{0}\"",
+                        System.Web.HttpUtility.UrlPathEncode(file.FileName)));
+            }
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST,
+                fileName: file.FileName,
+                fileContent: file.Content.ToArray(),
+                contentType: file.FileType,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return JsonConvert.DeserializeObject<OpenApiAttachment>(response.Content);
+        }
+
+        #endregion Attachment methods
+
+        #region Trace methods
+
+        /// <summary>
+        /// Add trace between two artifacts (or artifact and sub-artifact) with specified properties.
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="sourceArtifact">The first artifact to which the call adds a trace.</param>
+        /// <param name="targetArtifact">The second artifact to which the call adds a trace.</param>
+        /// <param name="traceDirection">The direction of the trace 'To', 'From', 'Both'.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="traceType">(optional) The type of the trace - default is: 'Manual'.</param>
+        /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be added.</param>
+        /// <param name="reconcileWithTwoWay">(optional) Indicates how to handle the existence of an inverse trace.  If set to true, and an inverse trace already exists,
+        ///   the request does not return an error; instead, the trace Type is set to TwoWay.  The default is null and acts the same as false.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
+        public static List<OpenApiTrace> AddTrace(string address,
+            IArtifactBase sourceArtifact,
+            IArtifactBase targetArtifact,   // TODO: Create an AddTrace() that takes a list of target artifacts.
+            TraceDirection traceDirection,
+            IUser user,
+            OpenApiTraceTypes traceType = OpenApiTraceTypes.Manual,
+            bool isSuspect = false,
+            int? subArtifactId = null,
+            bool? reconcileWithTwoWay = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.TRACES,
+                sourceArtifact.ProjectId, sourceArtifact.Id);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
+            }
+
+            Dictionary<string, string> queryParameters = null;
+
+            if (reconcileWithTwoWay != null)
+            {
+                queryParameters = new Dictionary<string, string> { { "reconcilewithtwoway", reconcileWithTwoWay.ToString() } };
+            }
+
+            var traceToCreate = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
+                traceDirection, traceType, isSuspect, subArtifactId);
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+
+            var openApiTraces = restApi.SendRequestAndDeserializeObject<List<OpenApiTrace>, List<OpenApiTrace>>(
+                path,
+                RestRequestMethod.POST,
+                new List<OpenApiTrace> { traceToCreate },
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes);
+
+            if (expectedStatusCodes.Contains(HttpStatusCode.Created))
+            {
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.Created, openApiTraces[0].ResultCode);
+
+                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
+                    sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
+
+                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
+            }
+
+            return openApiTraces;
+        }
+
+        /// <summary>
+        /// Delete trace between two artifacts (or artifact and sub-artifact) with specified properties.
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="sourceArtifact">The first artifact to which the call deletes a trace.</param>
+        /// <param name="targetArtifact">The second artifact to which the call deletes a trace.</param>
+        /// <param name="traceDirection">The direction of the trace 'To', 'From', 'Both'.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="traceType">(optional) The type of the trace - default is: 'Manual'.</param>
+        /// <param name="isSuspect">(optional) Should trace be marked as suspected.</param>
+        /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be deleted.</param>
+        /// <param name="reconcileWithTwoWay">(optional) Indicates how to handle the existence of an inverse trace.  If set to true, and an inverse trace already exists,
+        ///     the request does not return an error; instead, the trace Type is set to TwoWay.  The default is null and acts the same as false.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>List of OpenApiTrace objects for all traces that were deleted.</returns>
+        public static List<OpenApiTrace> DeleteTrace(string address,
+            IArtifactBase sourceArtifact,
+            IArtifactBase targetArtifact,   // TODO: Create an DeleteTrace() that takes a list of target artifacts.
+            TraceDirection traceDirection,
+            IUser user,
+            OpenApiTraceTypes traceType = OpenApiTraceTypes.Manual,
+            bool isSuspect = false,
+            int? subArtifactId = null,
+            bool? reconcileWithTwoWay = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.Artifacts_id_.TRACES,
+                sourceArtifact.ProjectId, sourceArtifact.Id);
+
+            if (expectedStatusCodes == null)
+            {
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
+            }
+
+            Dictionary<string, string> queryParameters = null;
+
+            if (reconcileWithTwoWay != null)
+            {
+                queryParameters = new Dictionary<string, string> { { "reconcilewithtwoway", reconcileWithTwoWay.ToString() } };
+            }
+
+            var traceToDelete = new OpenApiTrace(targetArtifact.ProjectId, targetArtifact,
+                traceDirection, traceType, isSuspect, subArtifactId);
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+
+            var openApiTraces = restApi.SendRequestAndDeserializeObject<List<OpenApiTrace>, List<OpenApiTrace>>(
+                path,
+                RestRequestMethod.DELETE,
+                new List<OpenApiTrace> { traceToDelete },
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            if (expectedStatusCodes.Contains(HttpStatusCode.OK))
+            {
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
+
+                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
+
+                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
+            }
+
+            return openApiTraces;
+        }
+
+        #endregion Trace methods
+
 
     }
 }

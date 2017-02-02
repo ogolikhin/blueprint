@@ -88,28 +88,6 @@ export class SaveAction extends BPButtonAction {
     }
 
     public execute(): void {
-        if (this.artifact.predefinedType === ItemTypePredefined.Process) {
-            this.artifact.metadata.getProcessSubArtifactPropertyTypes().then((subArtifactsPropertyTypes) => {
-                if (subArtifactsPropertyTypes.filter(a => 
-                    (a.isRequired && a.propertyTypePredefined !== PropertyTypePredefined.Name) || a.isValidated)
-                    .length > 0) {
-                    let dialogSettings = <IDialogSettings>{
-                        type: DialogTypeEnum.Confirm,
-                        header: this.localization.get("App_DialogTitle_Confirmation"),
-                        message: this.localization.get("App_Possible_SubArtifact_Validation_Error"),
-                        okButton: "Ok",
-                        cancelButton: null,
-                        css: "nova-messaging"
-                    };
-                    this.dialogService.open(dialogSettings).then(() => {
-                        this.executeInternal();
-                    });
-                } else {
-                    this.executeInternal();
-                }
-            });
-        } else {
-            this.executeInternal();
-        }
+        this.executeInternal();
     }
 }

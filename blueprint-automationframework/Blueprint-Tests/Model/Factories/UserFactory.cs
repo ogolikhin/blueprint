@@ -71,6 +71,25 @@ namespace Model.Factories
             return user;
         }
 
+        /// <summary>
+        /// Creates a new user object with random values, but with the username, password, and displayname specified
+        /// and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="displayname">The displayname</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user object.</returns>
+        public static IUser CreateUserAndAddToDatabase(string username, string password, string displayname,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
+        {
+            var user = CreateUserOnly(username, password, source, displayname);
+            user.InstanceAdminRole = instanceAdminRole;
+            user.CreateUser();
+            return user;
+        }
 
         /// <summary>
         /// Creates a new user object with random values.
@@ -90,9 +109,10 @@ namespace Model.Factories
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
+        /// <param name="displayname">The displayname.</param>
         /// <param name="source">(optional) Where the user exists.</param>
         /// <returns>A new user object.</returns>
-        public static IUser CreateUserOnly(string username, string password, UserSource source = UserSource.Database)
+        public static IUser CreateUserOnly(string username, string password, UserSource source = UserSource.Database, string displayname = null)
         {
             User user;
 
@@ -116,7 +136,7 @@ namespace Model.Factories
             user.FirstName = RandomGenerator.RandomAlphaNumeric(10);
             user.InstanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator;
             user.LastName = RandomGenerator.RandomAlphaNumeric(10);
-            user.DisplayName = I18NHelper.FormatInvariant("{0} {1}", user.FirstName, user.LastName);
+            user.DisplayName = displayname ?? I18NHelper.FormatInvariant("{0} {1}", user.FirstName, user.LastName);
             user.License = LicenseType.Author;
             user.Title = RandomGenerator.RandomAlphaNumeric(10);
 

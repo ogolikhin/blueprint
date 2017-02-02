@@ -564,36 +564,7 @@ namespace ArtifactStoreTests
             public const string POSTCONDITION = "Post Condition";
             public const string STEP = "Step {0}";
         }
-        /*
-                /// <summary>
-                /// Checks sub-artifacts within an artifact for number of sub-artifacts, sub-artifact parent Id and if sub-artifact has children
-                /// </summary>
-                /// <param name="user">User to authenticate with</param>
-                /// <param name="artifactId">artifact Id</param>
-                /// <param name="expectedSubArtifactsNumber">Number of expected sub-artifacts in the artifact</param>
-                private void CheckSubArtifacts(IUser user, int artifactId, int expectedSubArtifactsNumber)
-                {
-                    List<SubArtifact> subArtifacts = null;
 
-                    Assert.DoesNotThrow(() =>
-                    {
-                        subArtifacts = Helper.ArtifactStore.GetSubartifacts(user, artifactId);
-                    }, "GetSubartifacts shouldn't throw an error.");
-
-                    Assert.AreEqual(expectedSubArtifactsNumber, subArtifacts.Count, "Number of subartifacts must be correct.");
-
-                    foreach (var s in subArtifacts)
-                    {
-                        Assert.AreEqual(artifactId, s.ParentId, "ParentId of sub-artifact must be equal to Id of the process.");
-                        Assert.IsFalse(s.HasChildren, "Process subartifacts doesn't have children.");
-
-                        var subArtifact = Helper.ArtifactStore.GetSubartifact(user, artifactId, s.Id);
-
-                        ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s), Helper.ArtifactStore, _user, skipOrderIndex: true,
-                            skipSpecificPropertyValues: true);
-                    }
-                }
-        */
         /// <summary>
         /// Checks sub-artifacts within an artifact for number of sub-artifacts, sub-artifact parent Id and if sub-artifact has children
         /// </summary>

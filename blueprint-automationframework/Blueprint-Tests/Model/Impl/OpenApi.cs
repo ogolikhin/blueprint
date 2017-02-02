@@ -351,7 +351,11 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         public static OpenApiAttachment AddArtifactAttachment(string address,
-            int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            int projectId,
+            int artifactId,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -373,7 +377,12 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         public static OpenApiAttachment AddSubArtifactAttachment(string address,
-            int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            int projectId,
+            int artifactId,
+            int subArtifactId,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -394,7 +403,10 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         private static OpenApiAttachment AddItemAttachment(string address,
-            string path, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            string path,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -490,17 +502,6 @@ namespace Model.Impl
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-            if (expectedStatusCodes.Contains(HttpStatusCode.Created))
-            {
-                Assert.AreEqual(1, openApiTraces.Count);
-                Assert.AreEqual((int)HttpStatusCode.Created, openApiTraces[0].ResultCode);
-
-                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
-                    sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
-
-                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
-            }
-
             return openApiTraces;
         }
 
@@ -561,16 +562,6 @@ namespace Model.Impl
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
-
-            if (expectedStatusCodes.Contains(HttpStatusCode.OK))
-            {
-                Assert.AreEqual(1, openApiTraces.Count);
-                Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
-
-                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
-
-                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
-            }
 
             return openApiTraces;
         }

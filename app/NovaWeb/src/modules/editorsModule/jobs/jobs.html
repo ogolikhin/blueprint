@@ -1,10 +1,12 @@
-<div class="jobs__header-left">
-    <h4>{{$ctrl.localization.get("Jobs_Label")}}</h4>
-</div>
-<div class="jobs__header-right">
-        <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" ng-click="$ctrl.loadPage(1)" ng-disabled="$ctrl.isLoading">
-            <span>{{$ctrl.localization.get("Jobs_Button_Label_GetJobs")}}</span>
-        </button>
+<div class="jobs__header-wrapper">
+    <div class="jobs__header-left">
+        <h4>{{$ctrl.localization.get("Jobs_Label")}}</h4>
+    </div>
+    <div class="jobs__header-right">
+            <button class="toolbar-button btn btn-secondary btn-small ng-binding ng-scope" ng-click="$ctrl.loadPage(1)" ng-disabled="$ctrl.isLoading">
+                <span>{{$ctrl.localization.get("Jobs_Button_Label_GetJobs")}}</span>
+            </button>
+    </div>
 </div>
 
 <div class="page-content">

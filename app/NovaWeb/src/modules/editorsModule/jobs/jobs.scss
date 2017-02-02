@@ -8,16 +8,18 @@
     font-size: 1.2rem;
 }
 
-.jobs__header-left {
-    position:absolute;
-    top: 6px !important;
-    left:35px !important;
-}
+.jobs__header-wrapper {
+    .jobs__header-left {
+        position:absolute;
+        top: 6px;
+        left:35px;
+    }
 
-.jobs__header-right {
-    position:absolute;
-    top: 10px !important;
-    right:40px !important;
+    .jobs__header-right {
+        position:absolute;
+        top: 10px;
+        right:40px;
+    }
 }
 
 .jobs__icon-col {

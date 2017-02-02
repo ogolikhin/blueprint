@@ -7,7 +7,7 @@ namespace Model.ArtifactModel.Impl
     {
         #region Constructors
 
-        public NovaSubArtifact(SubArtifact subartifact)
+        public NovaSubArtifact(SubArtifact subartifact, int itemTypeVersionId)
         {
             ThrowIf.ArgumentNull(subartifact, nameof(subartifact));
 
@@ -18,7 +18,7 @@ namespace Model.ArtifactModel.Impl
             PredefinedType = subartifact.PredefinedType;
             Prefix = subartifact.Prefix;
             IsDeleted = false;
-
+            ItemTypeVersionId = itemTypeVersionId;
         }
 
         public NovaSubArtifact()

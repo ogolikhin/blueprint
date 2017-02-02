@@ -189,13 +189,14 @@ namespace ArtifactStoreTests
             // Get process subartifact via Nova call
             NovaSubArtifact subArtifact = null;
 
+            // Execute:
             Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id, updatedDefaultUserTask.Id), 
                 "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
             ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: true);
 
-            CheckSubArtifacts(_user, processArtifact.Id, 5);    //at this stage Process should have 5 subartifacts
+            CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);    //at this stage Process should have 5 subartifacts
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
@@ -236,9 +237,9 @@ namespace ArtifactStoreTests
             inlineTraceArtifact.Delete();
             inlineTraceArtifact.Publish();
 
-            // Get process subartifact via Nova call
             NovaSubArtifact subArtifact = null;
 
+            // Execute:
             Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(_user, updatedProcess.Id, updatedDefaultUserTask.Id), 
                 "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
@@ -284,19 +285,18 @@ namespace ArtifactStoreTests
 
             StringAssert.Contains(subArtifactChangeSet.Description, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
-            // Create user with a permission only on second project
             var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, secondProject);
 
-            // Get process subartifact via Nova call
             NovaSubArtifact subArtifact = null;
 
+            // Execute:
             Assert.DoesNotThrow(() => subArtifact = Helper.ArtifactStore.GetSubartifact(userWithPermissionOnSecondProject, updatedProcess.Id,
                 updatedDefaultUserTask.Id), "GetSubartifactDetails call failed when using the following subartifact ID: {0}!", updatedDefaultUserTask.Id);
 
             // Verify:
             ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: false);
 
-            CheckSubArtifacts(_user, processArtifact.Id, 5);    //at this stage Process should have 5 subartifacts
+            CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);    //at this stage Process should have 5 subartifacts
         }
 
         #region Custom data tests
@@ -600,7 +600,7 @@ namespace ArtifactStoreTests
         /// <param name="user">User to authenticate with</param>
         /// <param name="artifactId">artifact Id</param>
         /// <param name="expectedSubArtifactsNumber">Number of expected sub-artifacts in the artifact</param>
-        private void CheckSubArtifacts(IUser user, int artifactId, int expectedSubArtifactsNumber)
+        private void CheckSubArtifacts(IUser user, int artifactId, int expectedSubArtifactsNumber, int itemTypeVersionId = 1)
         {
             List<SubArtifact> subArtifacts = null;
 
@@ -613,13 +613,12 @@ namespace ArtifactStoreTests
 
             foreach (var s in subArtifacts)
             {
-                Assert.AreEqual(artifactId, s.ParentId, "ParentId of sub-artifact must be equal to Id of the process.");
                 Assert.IsFalse(s.HasChildren, "Process sub-artifacts doesn't have children.");
 
                 var subArtifact = Helper.ArtifactStore.GetSubartifact(user, artifactId, s.Id);
                 
-                ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s), Helper.ArtifactStore, _user, skipOrderIndex: true,
-                skipSpecificPropertyValues: true);
+                ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s, itemTypeVersionId), Helper.ArtifactStore, _user, s.ParentId, 
+                    skipOrderIndex: true, skipDescription: true, skipCustomProperties: true, skipSpecificPropertyValues: true);
             }
         }
         #endregion Private Methods

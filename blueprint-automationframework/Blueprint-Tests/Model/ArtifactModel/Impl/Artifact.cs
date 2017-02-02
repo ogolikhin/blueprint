@@ -70,9 +70,9 @@ namespace Model.ArtifactModel.Impl
             SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.Discard(IUser, List{HttpStatusCode})"/>
         public List<DiscardArtifactResult> Discard(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -86,8 +86,7 @@ namespace Model.ArtifactModel.Impl
                 artifactToDiscard, 
                 Address, 
                 user, 
-                expectedStatusCodes, 
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
 
             foreach (var discardArtifactResult in discardArtifactResults)
             {
@@ -558,21 +557,18 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             return OpenApiArtifact.DiscardArtifacts(
                 artifactsToDiscard,
                 address,
                 user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
         }
 
         /// <summary>

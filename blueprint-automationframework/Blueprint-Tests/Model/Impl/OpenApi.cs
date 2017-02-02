@@ -620,6 +620,37 @@ namespace Model.Impl
         #region Version Control methods
 
         /// <summary>
+        /// Discard changes to artifact(s) from Blueprint
+        /// </summary>
+        /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
+            string address,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+
+            // Create a list of OpenApiVersionControlRequest from the artifacts to publish with the minimum required properties.
+            var discardRequestArtifacts = new List<OpenApiVersionControlRequest>();
+            artifactsToDiscard.ForEach(a => discardRequestArtifacts.Add(new OpenApiVersionControlRequest(a)));
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiVersionControlRequest>>(
+                RestPaths.OpenApi.VersionControl.DISCARD,
+                RestRequestMethod.POST,
+                discardRequestArtifacts,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return artifactResults;
+        }
+
+        /// <summary>
         /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts).
         /// NOTE: This function won't update the internal status flags used by automation.
         /// (Runs:  'POST api/v1/vc/publish')
@@ -647,13 +678,12 @@ namespace Model.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            // Create a list of OpenApiPublishRequest from the artifacts to publish with the minimum required properties.
-            var publishRequestArtifacts = new List<OpenApiPublishRequest>();
-
-            artifactsToPublish.ForEach(a => publishRequestArtifacts.Add(new OpenApiPublishRequest(a)));
+            // Create a list of OpenApiVersionControlRequest from the artifacts to publish with the minimum required properties.
+            var publishRequestArtifacts = new List<OpenApiVersionControlRequest>();
+            artifactsToPublish.ForEach(a => publishRequestArtifacts.Add(new OpenApiVersionControlRequest(a)));
 
             var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
-            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiPublishArtifactResult>, List<OpenApiPublishRequest>>(
+            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiPublishArtifactResult>, List<OpenApiVersionControlRequest>>(
                 RestPaths.OpenApi.VersionControl.PUBLISH,
                 RestRequestMethod.POST,
                 publishRequestArtifacts,

@@ -442,6 +442,56 @@ namespace ArtifactStoreTests
 
         #endregion Positive Tests
 
+        #region 401 Unauthorized
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(234585)]
+        [Description("Create & publish artifact with subartifacts.  User tries to get sub-artifact with bad tokens.  Verify it returns 401 Unauthorized.")]
+        public void GetSubArtifactDetails_UserWithBadToken_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            // Execute
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifact(userWithBadToken, artifact.Id, subArtifacts[0].Id);
+            }, "'GET {0}' should return 401 Unauthorized when user has bad token!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
+
+            // Verify
+            const string expectedExceptionMessage = "Unauthorized call";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} was not found in returned message of copy published artifact which has no token in a header.", expectedExceptionMessage);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(234586)]
+        [Description("Create & publish artifact with subartifacts.  User tries to get sub-artifact with no token in header.  Verify it returns 401 Unauthorized.")]
+        public void GetSubArtifactDetails_NoTokenInHeader_401Unauthorized(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
+            // Execute
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifact(user: null, artifactId: artifact.Id, subArtifactId: subArtifacts[0].Id);
+            }, "'GET {0}' should return 401 Unauthorized when there is no token in a header!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
+
+            // Verify
+            const string expectedExceptionMessage = "Unauthorized call";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                    "{0} was not found in returned message of copy published artifact which has no token in a header.", expectedExceptionMessage);
+        }
+
+        #endregion 401 Unauthorized
+
         #region 403 Forbidden
 
         [TestCase(BaseArtifactType.Process)]
@@ -551,6 +601,70 @@ namespace ArtifactStoreTests
         }
 
         #endregion 403 Forbidden
+
+        #region 404 Not Found
+
+        [TestCase(BaseArtifactType.Process, int.MaxValue)]
+        [TestRail(182511)]
+        [Description("Create & publish artifact with subartifacts.  User tries to find sub-artifact that does not exists.  Verify it returns 404 Not Found.")]
+        public void GetSubArtifactDetails_NonExistingSubArtifact_404NotFound(BaseArtifactType artifactType, int subArtifactId)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Execute
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, subArtifactId);
+            }, "'GET {0}' should return 404 Not Found when passed a non-existing ID of sub-artifact!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
+
+            // Verify
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
+        }
+
+        [TestCase]
+        [TestRail(234587)]
+        [Description("Create & save artifact with sub-artifacts.  Delete sub-artifact.  Verify it returns 404 Not Found.")]
+        public void GetSubArtifactDetails_DeletedSubArtifact_404NotFound()
+        {
+            // Setup:
+            var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
+
+            // Find precondition task
+            var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
+
+            // Find outgoing process link for precondition task
+            var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
+
+            Assert.IsNotNull(preconditionOutgoingLink, "Process link was not found.");
+
+            // Add user/system Task immediately after the precondition
+            var userTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            // Save the process
+            var returnedProcess = Helper.Storyteller.UpdateProcess(_user, process);
+
+            var userTaskToBeDeleted = returnedProcess.GetProcessShapeByShapeName(userTask.Name);
+
+            returnedProcess.DeleteUserAndSystemTask(userTaskToBeDeleted);
+
+            // Update and Verify the modified process
+            StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
+
+            // Execute
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
+            {
+                Helper.ArtifactStore.GetSubartifact(_user, process.Id, userTaskToBeDeleted.Id);
+            }, "'GET {0}' should return 404 Not Found when passed a non-existing ID of sub-artifact!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
+
+            // Verify
+            // Bug: Wrong message returned http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5106
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
+                "You have attempted to access an artifact that does not exist or has been deleted.");
+        }
+
+        #endregion 404 Not Found
 
         #region Private Methods
 

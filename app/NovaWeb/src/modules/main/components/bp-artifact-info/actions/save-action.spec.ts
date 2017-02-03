@@ -42,7 +42,7 @@ describe("SaveAction", () => {
 
             // act
             try {
-                new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+                new SaveAction(artifact, localization, messageService, loadingOverlayService);
             } catch (exception) {
                 error = exception;
             }
@@ -63,7 +63,7 @@ describe("SaveAction", () => {
 
             // act
             try {
-                new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+                new SaveAction(artifact, localization, messageService, loadingOverlayService);
             } catch (exception) {
                 error = exception;
             }
@@ -84,7 +84,7 @@ describe("SaveAction", () => {
 
             // act
             try {
-                new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+                new SaveAction(artifact, localization, messageService, loadingOverlayService);
             } catch (exception) {
                 error = exception;
             }
@@ -102,7 +102,7 @@ describe("SaveAction", () => {
             const artifact: IStatefulArtifact = null;
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -118,7 +118,7 @@ describe("SaveAction", () => {
             artifact.artifactState.readonly = true;
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -140,7 +140,7 @@ describe("SaveAction", () => {
                 });
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -159,7 +159,7 @@ describe("SaveAction", () => {
                 });
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -178,7 +178,7 @@ describe("SaveAction", () => {
                 });
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
             // assert
             expect(saveAction.disabled).toBe(true);
@@ -201,7 +201,7 @@ describe("SaveAction", () => {
             artifact.artifactState.dirty = true;
 
             // act
-            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
 
             // assert
             expect(saveAction.disabled).toBe(false);
@@ -227,7 +227,7 @@ describe("SaveAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-            saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService, dialogService);
+            saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
             saveSpy = spyOn(artifact, "save");
             addErrorSpy = spyOn(messageService, "addError").and.callThrough();
             beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();

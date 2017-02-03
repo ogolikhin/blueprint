@@ -36,7 +36,7 @@ export class ProcessGraph implements IProcessGraph {
     public nodeLabelEditor: NodeLabelEditor;
     public globalScope: IScopeContext;
     public dragDropHandler: IDragDropHandler;
-    public systemTaskErrorPresented: boolean = false;
+    public systemTaskErrorPresented: number = 0;
     private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
@@ -551,7 +551,7 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public onValidation(invalidShapes: number[]): void {
-        let systemTaskErrorPresented = false;
+        let systemTaskErrorPresented: number = 0;
 
         for (const shape of _.difference(invalidShapes, this.invalidShapes)) {
             const task = <IDiagramNode>this.getNodeById((shape).toString());
@@ -559,7 +559,7 @@ export class ProcessGraph implements IProcessGraph {
                 task.isValid = false;
 
                 if (task instanceof SystemTask) {
-                    systemTaskErrorPresented = true;
+                    systemTaskErrorPresented++;
                 }
             }
         }
@@ -568,11 +568,15 @@ export class ProcessGraph implements IProcessGraph {
             const task = <IDiagramNode>this.getNodeById((shape).toString());
             if (task) {
                 task.isValid = true;
+
+                if (task instanceof SystemTask) {
+                    systemTaskErrorPresented--;
+                }
             }
         }
 
         this.invalidShapes = invalidShapes;
-        this.systemTaskErrorPresented = systemTaskErrorPresented;
+        this.systemTaskErrorPresented = this.systemTaskErrorPresented + systemTaskErrorPresented;
     }
 
     public onUserStoriesGenerated(userStories: IUserStory[]): void {

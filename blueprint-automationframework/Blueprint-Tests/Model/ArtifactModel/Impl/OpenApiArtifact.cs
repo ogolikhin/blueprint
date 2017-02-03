@@ -66,10 +66,9 @@ namespace Model.ArtifactModel.Impl
             SaveArtifact(this, user, expectedStatusCodes);
         }
 
-
+        /// <seealso cref="IOpenApiArtifact.Discard(IUser, List{HttpStatusCode})"/>
         public List<DiscardArtifactResult> Discard(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -79,7 +78,7 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToDiscard = new List<IArtifactBase> { this };
 
-            var discardArtifactResults = DiscardArtifacts(artifactToDiscard, Address, user, expectedStatusCodes, sendAuthorizationAsCookie);
+            var discardArtifactResults = DiscardArtifacts(artifactToDiscard, Address, user, expectedStatusCodes);
 
             return discardArtifactResults;
         }
@@ -305,58 +304,36 @@ namespace Model.ArtifactModel.Impl
         /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
 
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            // TODO Why do we need to make copies of artifacts here?  Add comment
-
-            var artifactObjectList = artifactsToDiscard.Select(artifact =>
-                new ArtifactBase(artifact.Address, artifact.Id, artifact.ProjectId)).ToList();
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<ArtifactBase>>(
-                RestPaths.OpenApi.VersionControl.DISCARD,
-                RestRequestMethod.POST,
-                artifactObjectList,
-                expectedStatusCodes: expectedStatusCodes);
+            var artifactResults = OpenApi.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes);
 
             var discardedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 
             // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
             foreach (var discardedResult in discardedResultList)
             {
-                var discardedArtifact = artifactObjectList.Find(a => a.Id.Equals(discardedResult.ArtifactId));
+                var discardedArtifact = artifactsToDiscard.Find(a => a.Id.Equals(discardedResult.ArtifactId));
                 discardedArtifact.IsSaved = false;
                 discardedArtifact.IsMarkedForDeletion = false;
 
                 Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, discardedResult.ResultCode);
             }
 
-            Assert.That(discardedResultList.Count.Equals(artifactObjectList.Count),
+            Assert.AreEqual(artifactsToDiscard.Count, discardedResultList.Count,
                 "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
-                artifactObjectList.Count, discardedResultList.Count);
+                artifactsToDiscard.Count, discardedResultList.Count);
 
-            return artifactResults.ConvertAll(o => (DiscardArtifactResult)o);
+            return artifactResults;
         }
 
         //TODO Investigate if we can use IArtifact instead of ItemId
@@ -702,12 +679,28 @@ namespace Model.ArtifactModel.Impl
             bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApi.AddTrace(address, sourceArtifact, targetArtifact, traceDirection, user,
+            ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
+            ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
+
+            var openApiTraces = OpenApi.AddTrace(address, sourceArtifact, targetArtifact, traceDirection, user,
                 traceType: traceType,
                 isSuspect: isSuspect,
                 subArtifactId: subArtifactId,
                 reconcileWithTwoWay: reconcileWithTwoWay,
                 expectedStatusCodes: expectedStatusCodes);
+
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.Created))
+            {
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.Created, openApiTraces[0].ResultCode);
+
+                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
+                    sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
+
+                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
+            }
+
+            return openApiTraces;
         }
 
         /// <summary>
@@ -736,11 +729,23 @@ namespace Model.ArtifactModel.Impl
             bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApi.DeleteTrace(address, sourceArtifact, targetArtifact, traceDirection, user, traceType,
+            var openApiTraces = OpenApi.DeleteTrace(address, sourceArtifact, targetArtifact, traceDirection, user, traceType,
                 isSuspect: isSuspect,
                 subArtifactId: subArtifactId,
                 reconcileWithTwoWay: reconcileWithTwoWay,
                 expectedStatusCodes: expectedStatusCodes);
+
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
+            {
+                Assert.AreEqual(1, openApiTraces.Count);
+                Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
+
+                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
+
+                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
+            }
+
+            return openApiTraces;
         }
 
         #endregion Static Methods

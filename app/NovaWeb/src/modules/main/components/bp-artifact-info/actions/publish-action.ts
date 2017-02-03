@@ -12,8 +12,7 @@ export class PublishAction extends BPButtonAction {
         private artifact: IStatefulArtifact,
         private localization: ILocalizationService,
         private messageService: IMessageService,
-        private loadingOverlayService: ILoadingOverlayService,
-        private dialogService: IDialogService
+        private loadingOverlayService: ILoadingOverlayService
     ) {
         super();
 
@@ -27,9 +26,6 @@ export class PublishAction extends BPButtonAction {
 
         if (!this.loadingOverlayService) {
             throw new Error("Loading overlay service not provided or is null");
-        }
-        if (!this.dialogService) {
-            throw new Error("Dialog service not provided or is null");
         }
     }
 
@@ -64,28 +60,6 @@ export class PublishAction extends BPButtonAction {
     }
 
     public execute(): void {
-        if (this.artifact.predefinedType === ItemTypePredefined.Process) {
-            this.artifact.metadata.getProcessSubArtifactPropertyTypes().then((subArtifactsPropertyTypes) => {
-                if (subArtifactsPropertyTypes.filter(a => 
-                    (a.isRequired && a.propertyTypePredefined !== PropertyTypePredefined.Name) || a.isValidated)
-                    .length > 0) {
-                    let dialogSettings = <IDialogSettings>{
-                        type: DialogTypeEnum.Confirm,
-                        header: this.localization.get("App_DialogTitle_Confirmation"),
-                        message: this.localization.get("App_Possible_SubArtifact_Validation_Error"),
-                        okButton: "Ok",
-                        cancelButton: null,
-                        css: "nova-messaging"
-                    };
-                    this.dialogService.open(dialogSettings).then(() => {
-                        this.executeInternal();
-                    });
-                } else {
-                    this.executeInternal();
-                }
-            });
-        } else {
-            this.executeInternal();
-        }
+        this.executeInternal();
     }
 }

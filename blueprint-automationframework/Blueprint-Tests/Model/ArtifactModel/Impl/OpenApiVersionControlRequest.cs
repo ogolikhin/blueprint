@@ -3,9 +3,9 @@
 namespace Model.ArtifactModel.Impl
 {
     /// <summary>
-    /// A class containing the minimum required values needed by an OpenAPI publish request.
+    /// A class containing the minimum required values needed by an OpenAPI discard or publish request.
     /// </summary>
-    public class OpenApiPublishRequest
+    public class OpenApiVersionControlRequest
     {
         #region Serialized JSON properties
 
@@ -15,10 +15,10 @@ namespace Model.ArtifactModel.Impl
         #endregion Serialized JSON properties
 
         /// <summary>
-        /// Constructs a new OpenApiPublishRequest from the specified artifact.
+        /// Constructs a new OpenApiVersionControlRequest from the specified artifact.
         /// </summary>
-        /// <param name="artifact">The artifact to be published.</param>
-        public OpenApiPublishRequest(IArtifactBase artifact)
+        /// <param name="artifact">The artifact to be discarded/published.</param>
+        public OpenApiVersionControlRequest(IArtifactBase artifact)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 

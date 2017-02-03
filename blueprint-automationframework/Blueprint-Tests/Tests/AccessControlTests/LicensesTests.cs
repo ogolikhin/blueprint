@@ -124,7 +124,6 @@ namespace AccessControlTests
 
         #region GetLicenseUsage tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Bug: https://trello.com/c/T2Lpe0Th
         [Category(Categories.GoldenData)]
         [TestCase(null, null, false)]
         [TestCase(2016, 9, false)]

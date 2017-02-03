@@ -225,7 +225,7 @@ namespace AccessControlTests
                     licenseUsageSummary = licenseUsageInfo.Summary.Find(u => u.YearMonth.Equals(JANUARY_2017));
                     licenseUserActivity = licenseUsageInfo.UserActivities.Find(u => u.YearMonth.Equals(JANUARY_2017));
 
-                    VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201701, uniqueAuthors: 4, uniqueCollaborators: 3, uniqueViewers: 4, usersFromRestApi: 0,
+                    VerifyLicenseUsageValues(licenseUsageSummary, yearMonth: 201701, uniqueAuthors: 4, uniqueCollaborators: 3, uniqueViewers: 6, usersFromRestApi: 0,
                         usersFromAnalytics: 0, maxConcurrentAuthors: 2, maxConcurrentCollaborators: 2, maxConcurrentViewers: 3);
                     VerifyLicenseUserActivityValues(licenseUserActivity, userId: 1, licenseType: 3, yearMonth: JANUARY_2017);
                 }

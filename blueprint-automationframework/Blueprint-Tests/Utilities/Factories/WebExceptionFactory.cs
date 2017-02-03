@@ -62,7 +62,7 @@ namespace Utilities.Factories
                 default:
                     if (innerExceptionMsg == null)
                     {
-                        innerExceptionMsg = String.Empty;
+                        innerExceptionMsg = string.Empty;
                     }
 
                     ex = new HttpRequestBaseException(I18NHelper.FormatInvariant("Unrecognized status code {0} recieved!  Inner Exception = '{1}'", statusCode, innerExceptionMsg));

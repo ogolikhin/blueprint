@@ -101,7 +101,7 @@ namespace Model.Impl
         #region Artifact methods
 
         /// <summary>
-        /// Delete a single artifact on Blueprint server.
+        /// Delete a single artifact on Blueprint server.  The state of the artifactToDelete object isn't updated.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
         /// (Runs:  'DELETE api/v1/projects/{projectId}/artifacts/{artifactId}')
         /// </summary>
@@ -110,9 +110,9 @@ namespace Model.Impl
         /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(string address,
+        public static List<OpenApiDeleteArtifactResult> DeleteArtifact(string address,
             IArtifactBase artifactToDelete,
             IUser user,
             bool? deleteChildren = null,
@@ -141,54 +141,15 @@ namespace Model.Impl
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null;
+                return new List<OpenApiDeleteArtifactResult>();
             }
 
-            var artifactResults = JsonConvert.DeserializeObject<List<DeleteArtifactResult>>(response.Content);
+            // NOTE: We have to deserialize separately instead of calling restApi.SendRequestAndDeserializeObject() because if a test gets a 404 in
+            // the Dispose(), it'll fail to deserialize and throw an exception.
+            // TODO: Fix this limitation in the Dispose() method.
+            var deleteArtifactResults = JsonConvert.DeserializeObject<List<OpenApiDeleteArtifactResult>>(response.Content);
 
-            // For all artifacts that were deleted, update their internal flags to indicate they're marked for deletion.
-            UpdateStateOfDeletedArtifacts(artifactResults, artifactToDelete, user, path);
-
-            return artifactResults;
-        }
-
-        /// <summary>
-        /// Updates the internal flags of all artifacts affected by the deleted artifact to indicate they are now marked for deletion.
-        /// </summary>
-        /// <param name="artifactResults">The results of the OpenAPI delete artifact call.</param>
-        /// <param name="artifactToDelete">The main artifact that was deleted.</param>
-        /// <param name="user">The user who deleted the artifact(s).</param>
-        /// <param name="path">The path of the delete REST call.</param>
-        private static void UpdateStateOfDeletedArtifacts(List<DeleteArtifactResult> artifactResults,
-            IArtifactBase artifactToDelete,
-            IUser user,
-            string path)
-        {
-            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
-
-            foreach (var deletedArtifactResult in artifactResults)
-            {
-                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
-                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
-
-                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
-                {
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
-                    {
-                        if (artifactToDelete.IsPublished)
-                        {
-                            artifactToDelete.IsMarkedForDeletion = true;
-                            artifaceBaseToDelete.LockOwner = user;
-                        }
-                        else
-                        {
-                            artifactToDelete.IsDeleted = true;
-                        }
-                    }
-                }
-            }
+            return deleteArtifactResults;
         }
 
         /// <summary>
@@ -388,7 +349,11 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         public static OpenApiAttachment AddArtifactAttachment(string address,
-            int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            int projectId,
+            int artifactId,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -411,7 +376,12 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         public static OpenApiAttachment AddSubArtifactAttachment(string address,
-            int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            int projectId,
+            int artifactId,
+            int subArtifactId,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -432,7 +402,10 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         private static OpenApiAttachment AddItemAttachment(string address,
-            string path, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            string path,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -529,17 +502,6 @@ namespace Model.Impl
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-            if (expectedStatusCodes.Contains(HttpStatusCode.Created))
-            {
-                Assert.AreEqual(1, openApiTraces.Count);
-                Assert.AreEqual((int)HttpStatusCode.Created, openApiTraces[0].ResultCode);
-
-                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
-                    sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
-
-                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
-            }
-
             return openApiTraces;
         }
 
@@ -602,22 +564,43 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
 
-            if (expectedStatusCodes.Contains(HttpStatusCode.OK))
-            {
-                Assert.AreEqual(1, openApiTraces.Count);
-                Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
-
-                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
-
-                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
-            }
-
             return openApiTraces;
         }
 
         #endregion Trace methods
 
         #region Version Control methods
+
+        /// <summary>
+        /// Discard changes to artifact(s) from Blueprint
+        /// </summary>
+        /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
+            string address,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+
+            // Create a list of OpenApiVersionControlRequest from the artifacts to publish with the minimum required properties.
+            var discardRequestArtifacts = new List<OpenApiVersionControlRequest>();
+            artifactsToDiscard.ForEach(a => discardRequestArtifacts.Add(new OpenApiVersionControlRequest(a)));
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiVersionControlRequest>>(
+                RestPaths.OpenApi.VersionControl.DISCARD,
+                RestRequestMethod.POST,
+                discardRequestArtifacts,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return artifactResults;
+        }
 
         /// <summary>
         /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts).
@@ -647,13 +630,12 @@ namespace Model.Impl
                 additionalHeaders.Add("KeepLock", "true");
             }
 
-            // Create a list of OpenApiPublishRequest from the artifacts to publish with the minimum required properties.
-            var publishRequestArtifacts = new List<OpenApiPublishRequest>();
-
-            artifactsToPublish.ForEach(a => publishRequestArtifacts.Add(new OpenApiPublishRequest(a)));
+            // Create a list of OpenApiVersionControlRequest from the artifacts to publish with the minimum required properties.
+            var publishRequestArtifacts = new List<OpenApiVersionControlRequest>();
+            artifactsToPublish.ForEach(a => publishRequestArtifacts.Add(new OpenApiVersionControlRequest(a)));
 
             var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
-            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiPublishArtifactResult>, List<OpenApiPublishRequest>>(
+            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiPublishArtifactResult>, List<OpenApiVersionControlRequest>>(
                 RestPaths.OpenApi.VersionControl.PUBLISH,
                 RestRequestMethod.POST,
                 publishRequestArtifacts,

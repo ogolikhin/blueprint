@@ -11,6 +11,12 @@ namespace Model.ArtifactModel
         void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds);
 
         /// <summary>
+        /// Notifies this observer about artifacts that were discarded.  If the artifact was never published, it is removed from the artifact list.
+        /// </summary>
+        /// <param name="discardedArtifactIds">The list of artifact IDs that were discarded.</param>
+        void NotifyArtifactDiscarded(IEnumerable<int> discardedArtifactIds);
+
+        /// <summary>
         /// Notifies this observer about artifacts that were published.
         /// </summary>
         /// <param name="publishedArtifactIds">The list of artifact IDs that were published.</param>

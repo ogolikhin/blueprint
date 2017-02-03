@@ -44,6 +44,7 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             var artifactIds = deletedArtifactIds as int[] ?? deletedArtifactIds.ToArray();
+
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(Storyteller), nameof(NotifyArtifactDeletion), string.Join(", ", artifactIds));
 
@@ -59,7 +60,38 @@ namespace Model.StorytellerModel.Impl
                         a.Status.IsLocked = false;
                     }
                 });
+
                 Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
+            }
+        }
+
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
+        public void NotifyArtifactDiscarded(IEnumerable<int> discardedArtifactIds)
+        {
+            ThrowIf.ArgumentNull(discardedArtifactIds, nameof(discardedArtifactIds));
+            var artifactIds = discardedArtifactIds as int[] ?? discardedArtifactIds.ToArray();
+
+            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
+                nameof(Storyteller), nameof(NotifyArtifactDiscarded), string.Join(", ", artifactIds));
+
+            var artifactsToRemove = new List<int>();
+
+            foreach (var discardedArtifactId in artifactIds)
+            {
+                Artifacts.ForEach(a =>
+                {
+                    if ((a.Id == discardedArtifactId) && !a.IsPublished)
+                    {
+                        a.IsDeleted = true;
+                        a.IsPublished = false;
+                        a.IsSaved = false;
+                        a.Status.IsLocked = false;
+
+                        artifactsToRemove.Add(a.Id);
+                    }
+                });
+
+                Artifacts.RemoveAll(a => a.Id == discardedArtifactId);
             }
         }
 
@@ -68,8 +100,9 @@ namespace Model.StorytellerModel.Impl
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
             var artifactIds = publishedArtifactIds as int[] ?? publishedArtifactIds.ToArray();
+
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(NotifyArtifactPublish), String.Join(", ", artifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactPublish), string.Join(", ", artifactIds));
 
             foreach (var publishedArtifactId in artifactIds)
             {
@@ -581,25 +614,35 @@ namespace Model.StorytellerModel.Impl
             return restApi.Content;
         }
 
+        /// <seealso cref="IStoryteller.DiscardProcessArtifact(IArtifact, List{HttpStatusCode})"/>
         public List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact,
-            List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DiscardProcessArtifact));
 
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
-            return artifact.Discard(artifact.CreatedBy, expectedStatusCodes, sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+            var discardedArtifacts = artifact.Discard(artifact.CreatedBy, expectedStatusCodes);
+            var discardedArtifactIds = discardedArtifacts.Select(a => a.ArtifactId);
+
+            NotifyArtifactDiscarded(discardedArtifactIds);
+
+            return discardedArtifacts;
         }
 
-        public List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IStoryteller.DeleteProcessArtifact(IArtifact, bool?, List{HttpStatusCode})"/>
+        public List<OpenApiDeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteProcessArtifact));
 
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            Artifacts.Remove(Artifacts.First(i => i.Id.Equals(artifact.Id)));
-            return artifact.Delete(artifact.CreatedBy, deleteChildren: deleteChildren, expectedStatusCodes: expectedStatusCodes);
+            var deletedArtifacts = artifact.Delete(artifact.CreatedBy, deleteChildren: deleteChildren, expectedStatusCodes: expectedStatusCodes);
+            var deletedArtifactIds = deletedArtifacts.Select(a => a.ArtifactId);
+
+            NotifyArtifactDeletion(deletedArtifactIds);
+
+            return deletedArtifacts;
         }
 
         public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
@@ -693,19 +736,16 @@ namespace Model.StorytellerModel.Impl
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<DiscardArtifactResult> DiscardProcessArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DiscardProcessArtifacts));
 
-            return Artifact.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes,
-                sendAuthorizationAsCookie);
+            return Artifact.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes);
         }
 
         /// <summary>

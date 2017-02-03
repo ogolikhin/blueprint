@@ -34,7 +34,7 @@ export interface IProjectExplorerService {
     openProjectWithDialog(): void;
     openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
 
-    refresh(projectId: number, selectionId?: number, forceOpen?: boolean);
+    refresh(projectId: number, expandToArtifact?: IArtifact);
     refreshAll();
 
     getProject(id: number): ExplorerNodeVM;
@@ -300,7 +300,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
         return _.find(this.projects, project => project.model.id === id);
     }
 
-    public refresh(projectId: number, selectionId?: number, forceOpen?: boolean) {
+    public refresh(projectId: number, expandToArtifact?: IArtifact) {
         this.$log.debug("refreshing project: " + projectId);
 
         const projectNode = this.getProject(projectId);
@@ -308,20 +308,22 @@ export class ProjectExplorerService implements IProjectExplorerService {
             return;
         }
 
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (selectedArtifact && selectedArtifact.projectId === projectId) {
-            this.selectionManager.autosave().then(() => {
-                this.remove(projectId);
-                this.openProjectAndExpandToNode(projectId, selectedArtifact.id);
-            });
+        const change = {
+            type: ChangeTypeEnum.Refresh
+        } as IChangeSet;
 
-        } else {
-            const change = {
-                type: ChangeTypeEnum.Refresh,
-                value: projectNode
-            } as IChangeSet;
-            this.projectsChangeSubject.onNext(change);
-        }
+        this.selectionManager.autosave().then(() => {
+            if (expandToArtifact && expandToArtifact.projectId === projectId) {
+                this.getProjectExpandedToNode(projectId, expandToArtifact.id)
+                    .then(project => {
+                        change.value = project;
+                            this.projectsChangeSubject.onNext(change);
+                        });
+            } else {
+                change.value = projectNode;
+                this.projectsChangeSubject.onNext(change);
+            }
+        });
     }
 
     public refreshAll() {

@@ -211,11 +211,11 @@ export class MoveCopyAction extends BPDropdownAction {
         return this.artifact.copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
             .then((result: Models.ICopyResultSet) => {
                 //refresh project
-                const selectionId = result && result.artifact ? result.artifact.id : null;
-                if (selectionId) {
-                    this.projectExplorerService.setSelectionId(selectionId);
+                const selection = result && result.artifact ? result.artifact : null;
+                if (selection) {
+                    this.projectExplorerService.setSelectionId(selection.id);
                 }
-                this.projectExplorerService.refresh(this.artifact.projectId, selectionId);
+                this.projectExplorerService.refresh(this.artifact.projectId, selection ? selection : null);
             });
     }
 }

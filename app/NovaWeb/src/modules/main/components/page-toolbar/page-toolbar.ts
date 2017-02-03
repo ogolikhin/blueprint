@@ -157,22 +157,15 @@ export class PageToolbarController {
             event.preventDefault();
         }
 
-        let newArtifactId;
-
         this.createArtifactService.createNewArtifact(-1, this._currentArtifact, true)
             .then((artifact: IArtifact) => {
-                newArtifactId = artifact.id;
-                return this.projectExplorerService.refresh(this._currentArtifact.projectId, null, true);
-            })
-            .catch(this.newArtifactCreationErrorHandler)
-            .finally(() => {
-                // this.projectManager.triggerProjectCollectionRefresh();
-
-                this.$timeout(() => {
-                    this.navigationService.navigateTo({id: newArtifactId});
+                // this.projectExplorerService.setSelectionId(artifact.id);
+                this.navigationService.navigateTo({id: artifact.id}).then(() => {
+                    this.projectExplorerService.refresh(this._currentArtifact.projectId, artifact);
                 });
-            });
-    }
+            })
+            .catch(this.newArtifactCreationErrorHandler);
+    };
 
     private newArtifactCreationErrorHandler = ((error: any) => {
         if (error === "cancel") {

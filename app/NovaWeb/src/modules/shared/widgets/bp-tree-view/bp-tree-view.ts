@@ -257,6 +257,7 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     private refreshRowData(node: ITreeNode) {
+        // FIXME: don't unload if the node is already fully loaded
         node.unloadChildren();
         this.loadExpanded(node).finally(() => {
             this.options.api.setRowData(this.rowData);

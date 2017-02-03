@@ -467,7 +467,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    allArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }
@@ -507,7 +507,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    savedArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    savedArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }
@@ -595,7 +595,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    allArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }
@@ -645,7 +645,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    allArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }

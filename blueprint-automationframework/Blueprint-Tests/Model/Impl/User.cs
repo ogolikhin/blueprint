@@ -166,11 +166,11 @@ namespace Model.Impl
             Assert.IsTrue(rowsAffected == 1, "Updated more than one row in Users table!");
         }
 
-        public void ChangeLastPasswordChangeTimestampByDateTime(DateTime dateTime)
+        public void ChangeLastPasswordChangeTimestamp(DateTime dateTime)
         {
             string updatedDateString = dateTime.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
 
-            string query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET LastInvalidLogonTimeStamp = '{0}' WHERE UserId = {1}",
+            string query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET LastPasswordChangeTimestamp = '{0}' WHERE UserId = {1}",
                 updatedDateString, Id);
             int rowsAffected = ExecuteUpdateBinarySqlQuery(query);
             Assert.IsTrue(rowsAffected == 1, "Update more than one row in Users table!");

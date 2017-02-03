@@ -65,7 +65,7 @@ namespace Model
         /// Change LastPassswordChangeTimestamp.
         /// </summary>
         /// <param name="dateTime">dataTime representing new value for LastPassswordChangeTimestamp.</param>
-        void ChangeLastPasswordChangeTimestampByDateTime(DateTime dateTime);
+        void ChangeLastPasswordChangeTimestamp(DateTime dateTime);
 
         /// <summary>
         /// Sets the token for this user.

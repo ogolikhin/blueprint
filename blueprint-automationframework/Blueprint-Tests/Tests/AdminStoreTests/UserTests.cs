@@ -27,8 +27,15 @@ namespace AdminStoreTests
             Helper = new Helper.TestHelper();
 
             _adminUser = Helper.CreateUserAndAddToDatabase(
-                username: CreateValidPassword(MinPasswordLength),
-                password: CreateValidPassword(MinPasswordLength),
+                // TODO: Improve CreateUser(UserSource source = UserSource.Database) to handle special charactors properly.
+                // After that, replace belows with:
+                // - username: CreateValidPassword(MinPasswordLength)
+                // - password: CreateValidPassword(MinPasswordLength)
+                // Tests require this setup are below and both are not implemented yet: 
+                // - ResetUserPassword_SendUserNameAsNewPassword_400BadRequest
+                // - ResetUserPassword_SendDisplayNameAsNewPassword_400BadRequest
+                username: RandomGenerator.RandomAlphaNumeric(MinPasswordLength),
+                password: RandomGenerator.RandomAlphaNumeric(MinPasswordLength),
                 displayname: CreateValidPassword(MinPasswordLength)
                 );
         }
@@ -64,7 +71,6 @@ namespace AdminStoreTests
             VerifyLogin(Helper, _adminUser.Username, newPassword);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(MinPasswordLength)]
         [TestCase(MaxPasswordLength)]
         [TestRail(234571)]
@@ -78,8 +84,8 @@ namespace AdminStoreTests
             _adminUser.Password = successfullyChangedPassword;
 
             // Execute: Attempt to change the password again after the 24-hours password reset cooldown period.
-            DateTime alteredLastPasswordChangeTimestamp = DateTime.Now - new TimeSpan(45, 0, 0);
-            _adminUser.ChangeLastPasswordChangeTimestampByDateTime(alteredLastPasswordChangeTimestamp);
+            DateTime alteredLastPasswordChangeTimestamp = DateTime.Now.AddHours(-25);
+            _adminUser.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
 
             string newPassword = CreateValidPassword(length);
 
@@ -95,7 +101,6 @@ namespace AdminStoreTests
 
         #region 400 Bad Request Tests
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [TestCase(MinPasswordLength)]
         [TestCase(MaxPasswordLength)]
         [TestRail(234569)]
@@ -211,8 +216,8 @@ namespace AdminStoreTests
         //TODO: enable and update this test once User Story 4560:[Security] Enforce server side password validation for Expired Password dialog is completed.
         [TestCase]
         [TestRail(234560)]
-        [Description("Try to reset the user's password to a string value identical to the user's name." +
-            "Verify that 400 BadRequest response and that the user still can login with its password.")]
+        [Description("Try to reset the user's password to a string value identical to the username of the user." +
+            "Verify that 400 BadRequest is returned and that the user still can login with its password.")]
         public void ResetUserPassword_SendUserNameAsNewPassword_400BadRequest()
         {
             // Execute:
@@ -396,7 +401,7 @@ namespace AdminStoreTests
         /// <summary>
         /// Verifies that the user can login with its current password.
         /// </summary>
-        /// <param name="helper">>TestHelper instance.</param>
+        /// <param name="helper">TestHelper instance.</param>
         /// <param name="username">Username for the user to login.</param>
         /// <param name="password">Password for the user to login.</param>
         private static void VerifyLogin(TestHelper helper, string username, string password)

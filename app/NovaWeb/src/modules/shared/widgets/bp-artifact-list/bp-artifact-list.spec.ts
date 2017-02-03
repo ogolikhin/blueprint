@@ -1,13 +1,10 @@
-import "angular";
+import "./";
 import "angular-mocks";
 import "lodash";
 import {IBPArtifactListController, BPArtifactListComponent, BPArtifactListController} from "./bp-artifact-list";
 import {Models} from "../../../main/models";
 
 describe("BPArtifactListComponent", () => {
-    angular.module("bp.widgets.artifactList", [])
-        .component("bpArtifactList", new BPArtifactListComponent());
-
     // the mock contains:
     // - 253 artifacts from project 469556 (Product Management - Release 6.2.1)
     // - 1 artifact from project 1 (Performance Test Main Project)

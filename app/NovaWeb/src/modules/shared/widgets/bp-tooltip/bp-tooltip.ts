@@ -1,4 +1,5 @@
-import * as angular from "angular";
+import "lodash";
+import {ISettingsService} from "../../../commonModule/configuration/settings.service";
 
 export class BPTooltip implements ng.IDirective {
     public restrict = "A";
@@ -12,7 +13,14 @@ export class BPTooltip implements ng.IDirective {
     // };
 
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery): void => {
-        const defaultLimit = 250; // default limit after which the tooltip will get automatically truncated
+        const maxLimit = 500; // this is the max limit for tooltips' length, no matter the settings
+        const fallbackLimit = 250; // default limit in case no settings can be found
+        const defaultLimit = this.settings.getNumber("StorytellerMaxTooltipCharLength", fallbackLimit, 0, maxLimit);
+
+        // if limit is 0, tooltips won't be shown at all
+        if (defaultLimit === 0) {
+            return;
+        }
 
         let observer;
 
@@ -170,15 +178,13 @@ export class BPTooltip implements ng.IDirective {
         }
     };
 
-    public static factory() {
-        const directive = (//list of dependencies
-        ) => new BPTooltip(
-            //list of other dependencies
-        );
+    constructor(private settings: ISettingsService) {
+    }
 
-        directive["$inject"] = [
-            //list of other dependencies
-        ];
+    public static factory() {
+        const directive = (settings: ISettingsService) => new BPTooltip(settings);
+
+        directive["$inject"] = ["settings"];
 
         return directive;
     }

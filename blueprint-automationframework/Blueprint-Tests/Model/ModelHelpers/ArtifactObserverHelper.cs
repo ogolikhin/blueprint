@@ -13,7 +13,7 @@ namespace Model.ModelHelpers
         /// <param name="artifacts">The list of artifacts to update by removing all artifacts whose Ids appear in the list
         ///     of deleted artifact IDs.</param>
         /// <param name="deletedArtifactIds">The list of artifact IDs that were deleted.</param>
-        public static void NotifyArtifactDeletion<T>(List<T> artifacts, IEnumerable<int> deletedArtifactIds) where T : IArtifactBase
+        public static void NotifyArtifactDeleted<T>(List<T> artifacts, IEnumerable<int> deletedArtifactIds) where T : IArtifactBase
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
@@ -78,7 +78,7 @@ namespace Model.ModelHelpers
         /// <param name="artifacts">The list of artifacts to update by removing all artifacts that are marked for deletion whose Ids
         ///     appear in the list of published artifact IDs.</param>
         /// <param name="publishedArtifactIds">The list of artifact IDs that were published.</param>
-        public static void NotifyArtifactPublish<T>(List<T> artifacts, IEnumerable<int> publishedArtifactIds) where T : IArtifactBase
+        public static void NotifyArtifactPublished<T>(List<T> artifacts, IEnumerable<int> publishedArtifactIds) where T : IArtifactBase
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));

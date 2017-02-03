@@ -64,16 +64,16 @@ namespace Helper
 
         #region IArtifactObserver methods
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
-        public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
+        public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             var artifactIds = deletedArtifactIds as IList<int> ?? deletedArtifactIds.ToList();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), string.Join(", ", artifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeleted), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDeletion(Artifacts, deletedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
@@ -88,16 +88,16 @@ namespace Helper
             ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
         }
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactPublish(IEnumerable{int})" />
-        public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
+        public void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
             var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublish), string.Join(", ", artifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactPublish(Artifacts, publishedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
         }
 
         #endregion IArtifactObserver methods

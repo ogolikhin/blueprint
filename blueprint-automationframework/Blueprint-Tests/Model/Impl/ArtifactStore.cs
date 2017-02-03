@@ -1338,14 +1338,14 @@ namespace Model.Impl
 
                 if (deletedArtifactsList.Any())
                 {
-                    deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
+                    deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
                 }
 
                 if (otherPublishedArtifactsList.Any())
                 {
                     if (artifacts.Any())
                     {
-                        artifacts[0]?.NotifyArtifactPublish(otherPublishedArtifactsList);
+                        artifacts[0]?.NotifyArtifactPublished(otherPublishedArtifactsList);
                     }
 
                     Assert.That((all != null) && (all.Value == true),

@@ -40,16 +40,16 @@ namespace Model.StorytellerModel.Impl
 
         #region IArtifactObserver methods
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
-        public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
+        public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             var artifactIds = deletedArtifactIds as int[] ?? deletedArtifactIds.ToArray();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(NotifyArtifactDeletion), string.Join(", ", artifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactDeleted), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDeletion(Artifacts, deletedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
@@ -64,16 +64,16 @@ namespace Model.StorytellerModel.Impl
             ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
         }
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactPublish(IEnumerable{int})" />
-        public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
+        public void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
             var artifactIds = publishedArtifactIds as int[] ?? publishedArtifactIds.ToArray();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(NotifyArtifactPublish), string.Join(", ", artifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactPublish(Artifacts, publishedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
         }
 
         #endregion IArtifactObserver methods
@@ -588,7 +588,7 @@ namespace Model.StorytellerModel.Impl
             var deletedArtifacts = artifact.Delete(artifact.CreatedBy, deleteChildren: deleteChildren, expectedStatusCodes: expectedStatusCodes);
             var deletedArtifactIds = deletedArtifacts.Select(a => a.ArtifactId);
 
-            NotifyArtifactDeletion(deletedArtifactIds);
+            NotifyArtifactDeleted(deletedArtifactIds);
 
             return deletedArtifacts;
         }

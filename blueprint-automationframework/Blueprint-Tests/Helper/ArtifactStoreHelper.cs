@@ -34,17 +34,17 @@ namespace Helper
         /// <summary>
         /// This class describes which properties should be compared in sub-artifacts.
         /// </summary>
-        public class PropertyCompareOptions
+        public class ArtifactPropertyCompareOptions
         {
             /// <summary>Should the sub-artifact Id properties be compared?</summary>
-            public bool CompareSubArtifactIds { get; set; } = true;
+            public bool CompareArtifactIds { get; set; } = true;
             /// <summary>Should the OrderIndex properties be compared?</summary>
             public bool CompareOrderIndeces { get; set; } = true;
             /// <summary>Should the Description properties be compared?</summary>
             public bool CompareDescriptions { get; set; } = true;
             /// <summary>Should the Traces properties be compared?</summary>
             public bool CompareTraces { get; set; } = true;
-            /// <summary>Should the SpecivicPropertyValues properties be compared?</summary>
+            /// <summary>Should the SpecificPropertyValues properties be compared?</summary>
             public bool CompareSpecificPropertyValues { get; set; } = true;
             /// <summary>Should the CustomProperties properties be compared?</summary>
             public bool CompareCustomProperties { get; set; } = true;
@@ -434,7 +434,7 @@ namespace Helper
         /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
+            int? expectedParentId = null, ArtifactPropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -443,7 +443,7 @@ namespace Helper
 
             Assert.AreEqual(expectedSubArtifact.IsDeleted, actualSubArtifact.IsDeleted, "The IsDeleted parameters don't match!");
 
-            if (propertyCompareOptions.CompareSubArtifactIds)
+            if (propertyCompareOptions.CompareArtifactIds)
             {
                 Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
             }
@@ -1777,7 +1777,7 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
 
-            return I18NHelper.FormatInvariant("<html><head></head><p>{0}</p></html>", text);
+            return I18NHelper.FormatInvariant(StringUtilities.WrapInHTML("<p>" + text + "</p>"));
         }
 
         /// <summary>

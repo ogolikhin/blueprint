@@ -195,7 +195,7 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: true);
 
-            CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);    //at this stage Process should have 5 subartifacts
+            CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
@@ -295,7 +295,7 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: false);
 
-            CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);    //at this stage Process should have 5 subartifacts
+            CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
         #region Custom data tests
@@ -354,7 +354,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Business Process Diagram from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectBPDiagram_ReturnsCorrectSubArtifactsList()
         {
-            CheckSubArtifacts(_user, businessProcessDiagramId, 17);
+            CheckSubArtifacts(_user, businessProcessDiagramId, expectedSubArtifactsNumber: 17);
         }
 
         [Category(Categories.CustomData)]
@@ -363,7 +363,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Business Process Diagram from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectDomainDiagram_ReturnsCorrectSubArtifactsList()
         {
-            CheckSubArtifacts(_user, domainDiagramId, 7);
+            CheckSubArtifacts(_user, domainDiagramId, expectedSubArtifactsNumber: 7);
         }
 
         [Category(Categories.CustomData)]
@@ -372,7 +372,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Business Process Diagram from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectGenericDiagram_ReturnsCorrectSubArtifactsList()
         {
-            CheckSubArtifacts(_user, genericDiagramId, 14);
+            CheckSubArtifacts(_user, genericDiagramId, expectedSubArtifactsNumber: 14);
         }
 
         [Category(Categories.CustomData)]
@@ -381,7 +381,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Glossary from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectGlossary_ReturnsCorrectSubArtifactsList()
         {
-            CheckSubArtifacts(_user, glossaryId, 2);
+            CheckSubArtifacts(_user, glossaryId, expectedSubArtifactsNumber: 2);
         }
 
         [Category(Categories.CustomData)]
@@ -426,7 +426,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Glossary from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectUIMockup_ReturnsCorrectSubArtifactsList()
         {
-            CheckSubArtifacts(_user, uiMockupId, 27);
+            CheckSubArtifacts(_user, uiMockupId, expectedSubArtifactsNumber: 27);
         }
 
         [Category(Categories.CustomData)]
@@ -588,7 +588,7 @@ namespace ArtifactStoreTests
 
                 var subArtifact = Helper.ArtifactStore.GetSubartifact(user, artifactId, s.Id);
 
-                var propertyCompareOptions = new ArtifactStoreHelper.PropertyCompareOptions()
+                var propertyCompareOptions = new ArtifactStoreHelper.ArtifactPropertyCompareOptions()
                 {
                     CompareOrderIndeces = false,
                     CompareDescriptions = false,

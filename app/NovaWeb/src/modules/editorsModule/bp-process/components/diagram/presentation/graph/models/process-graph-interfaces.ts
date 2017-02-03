@@ -101,7 +101,7 @@ export interface IProcessGraph {
     globalScope: IScopeContext;
     defaultNextIdsProvider: INextIdsProvider;
     notifyUpdateInModel: INotifyModelChanged;
-    systemTaskErrorPresented?: boolean;
+    systemTaskErrorPresented?: number;
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getHtmlElement(): HTMLElement;

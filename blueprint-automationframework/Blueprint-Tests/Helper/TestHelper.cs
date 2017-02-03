@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Model.ModelHelpers;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -63,28 +64,16 @@ namespace Helper
 
         #region IArtifactObserver methods
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
-        public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
+        public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             var artifactIds = deletedArtifactIds as IList<int> ?? deletedArtifactIds.ToList();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), string.Join(", ", artifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeleted), string.Join(", ", artifactIds));
 
-            foreach (var deletedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    if (a.Id == deletedArtifactId)
-                    {
-                        a.IsDeleted = true;
-                        a.IsPublished = false;
-                        a.IsSaved = false;
-                    }
-                });
-                Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
-            }
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
@@ -96,59 +85,19 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactDiscarded), string.Join(", ", artifactIds));
 
-            var artifactsToRemove = new List<int>();
-
-            foreach (var discardedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    if ((a.Id == discardedArtifactId) && !a.IsPublished)
-                    {
-                        a.IsDeleted = true;
-                        a.IsPublished = false;
-                        a.IsSaved = false;
-                        a.Status.IsLocked = false;
-
-                        artifactsToRemove.Add(a.Id);
-                    }
-                });
-
-                Artifacts.RemoveAll(a => a.Id == discardedArtifactId);
-            }
+            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
         }
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactPublish(IEnumerable{int})" />
-        public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
+        public void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
             var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublish), string.Join(", ", artifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            foreach (var publishedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    a.LockOwner = null;
-
-                    if (a.Id == publishedArtifactId)
-                    {
-                        if (a.IsMarkedForDeletion)
-                        {
-                            a.IsDeleted = true;
-                            a.IsPublished = false;
-                        }
-                        else
-                        {
-                            a.IsPublished = true;
-                        }
-
-                        a.IsSaved = false;
-                    }
-                });
-                Artifacts.RemoveAll(a => a.Id == publishedArtifactId);
-            }
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
         }
 
         #endregion IArtifactObserver methods

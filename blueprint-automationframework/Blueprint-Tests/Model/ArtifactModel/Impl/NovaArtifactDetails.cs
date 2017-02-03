@@ -402,7 +402,8 @@ namespace Model.ArtifactModel.Impl
         ActorInheritance = 4128,
         DocumentFile = 4129,
         Collection = 4135,
-        ActorIcon = 8202
+        ActorIcon = 8202,
+        PlainTextProperty = 16384 //is it correct?
     }
 
     public class CustomProperty
@@ -423,7 +424,7 @@ namespace Model.ArtifactModel.Impl
 
         public int? PrimitiveType { get; set; }
 
-        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Include)]
         public object CustomPropertyValue { get; set; }
 
         [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]

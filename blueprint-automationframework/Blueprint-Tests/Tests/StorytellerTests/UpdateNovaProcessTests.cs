@@ -118,16 +118,37 @@ namespace StorytellerTests
             var process = novaProcess.Process;
 
             // Find precondition task
-            // Find precondition task
             var preconditionTask = process.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
 
             // Find outgoing process link for precondition task
             var preconditionOutgoingLink = process.GetOutgoingLinkForShape(preconditionTask);
 
-            var newTask = process.AddUserAndSystemTask(preconditionOutgoingLink);
-            newTask.Name = string.Empty;
-            // Execute & Verify:
-            // Update and Verify the modified Nova process
+            var newTask1 = process.AddUserAndSystemTask(preconditionOutgoingLink);
+
+            var newTaskSubArtifact = new Model.ArtifactModel.Impl.NovaSubArtifact();
+            newTaskSubArtifact.Id = newTask1.Id;
+
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            const string multiLineRTPropertyName = "Std-Text-Required-HasDefault";
+                        
+            /*var customProperty = novaProcess.CustomPropertyValues.Find(p => p.Name == multiLineRTProperty);
+            Assert.NotNull(customProperty, "Couldn't find a Custom Property named: {0}!", multiLineRTProperty);
+
+            customProperty.CustomPropertyValue = propertyContent;*/
+            Model.ArtifactModel.Impl.CustomProperty customProperty = new Model.ArtifactModel.Impl.CustomProperty();
+            customProperty.Name = multiLineRTPropertyName;
+            customProperty.PropertyTypeId = 592; // find a way to get/find '592' from server data
+            customProperty.PropertyTypeVersionId = 0;
+            customProperty.PropertyType = Model.ArtifactModel.Impl.PropertyTypePredefined.PlainTextProperty;
+            customProperty.IsMultipleAllowed = false;
+            customProperty.IsRichText = false;
+            customProperty.PrimitiveType = 0;
+            customProperty.CustomPropertyValue = null; //it should fail because property is required
+
+            newTaskSubArtifact.CustomPropertyValues.Add(customProperty);
+            novaProcess.SubArtifacts = new List<Model.ArtifactModel.Impl.NovaSubArtifact> { newTaskSubArtifact };
+            //novaProcess.SubArtifacts.Add(newTaskSubArtifact);
             StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user);
         }
 

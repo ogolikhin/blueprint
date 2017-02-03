@@ -212,7 +212,7 @@ export class ProcessDiagram {
     private shapeValidated = (shapesIds: number[]) => {
         this.graph.onValidation(shapesIds);
 
-        if (this.graph.systemTaskErrorPresented) {
+        if (this.graph.systemTaskErrorPresented > 0) {
             this.processTypeChanged(ProcessType.UserToSystemProcess);
         }
     };

@@ -27,6 +27,7 @@ import {ILocalizationService} from "../../../../../../commonModule/localization/
 import {IClipboardService} from "../../../../services/clipboard.svc";
 import {IFileUploadService} from "../../../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {SystemTask} from "./shapes/system-task";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -35,6 +36,7 @@ export class ProcessGraph implements IProcessGraph {
     public nodeLabelEditor: NodeLabelEditor;
     public globalScope: IScopeContext;
     public dragDropHandler: IDragDropHandler;
+    public systemTaskErrorPresented: number = 0;
     private mxgraph: MxGraph;
     private isIe11: boolean;
     private selectionHelper: ProcessGraphSelectionHelper = null;
@@ -48,6 +50,7 @@ export class ProcessGraph implements IProcessGraph {
     private selectionChangedHandler: string = null;
     private minNoOfShapesAddedPerSystemDecision: number = 1;
     private minNoOfShapesAddedPerUserDecision: number = 2;
+    private invalidShapes: number[] = [];
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
         return this.viewModel.communicationManager.processDiagramCommunication;
@@ -547,6 +550,35 @@ export class ProcessGraph implements IProcessGraph {
         return null;
     }
 
+    public onValidation(invalidShapes: number[]): void {
+        let systemTaskErrorPresented: number = 0;
+
+        for (const shape of _.difference(invalidShapes, this.invalidShapes)) {
+            const task = <IDiagramNode>this.getNodeById((shape).toString());
+            if (task) {
+                task.isValid = false;
+
+                if (task instanceof SystemTask) {
+                    systemTaskErrorPresented++;
+                }
+            }
+        }
+
+        for (const shape of _.difference(this.invalidShapes, invalidShapes)) {
+            const task = <IDiagramNode>this.getNodeById((shape).toString());
+            if (task) {
+                task.isValid = true;
+
+                if (task instanceof SystemTask) {
+                    systemTaskErrorPresented--;
+                }
+            }
+        }
+
+        this.invalidShapes = invalidShapes;
+        this.systemTaskErrorPresented = this.systemTaskErrorPresented + systemTaskErrorPresented;
+    }
+
     public onUserStoriesGenerated(userStories: IUserStory[]): void {
         for (const userStory of userStories) {
             const userTask = <IUserTask>this.getNodeById(userStory.processTaskId.toString());
@@ -627,6 +659,7 @@ export class ProcessGraph implements IProcessGraph {
     public notifyUpdateInModel: INotifyModelChanged = (nodeChange: NodeChange, selectedId: number) => {
         this.viewModel.communicationManager.processDiagramCommunication.modelUpdate(selectedId);
         this.updateProcessChangedState(selectedId, nodeChange);
+
     }
 
     public setSystemTasksVisible(value: boolean): void {
@@ -667,6 +700,18 @@ export class ProcessGraph implements IProcessGraph {
                     if (cell.getNodeType() === NodeType.SystemTask) {
                         this.logInfo("Call cell.setCellVisible, value = " + value);
                         cell.setCellVisible(this.mxgraph, value);
+
+                        if (this.invalidShapes.indexOf(parseInt(cell.id, 10)) > -1) {
+
+                            //this code show and hide system tasks alert when change view mode for process
+                            if (!value) {
+                                cell.isValid = true;
+                            } else {
+                                if (cell.isValid) {
+                                    cell.isValid = false;
+                                }
+                            }
+                        }
                     }
 
                     if (cell.getNodeType() === NodeType.SystemDecision && !this.viewModel.isReadonly) {

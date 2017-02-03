@@ -131,6 +131,9 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             this.DECISION_HEIGHT / 2
         );
 
+        this.addAlert = _.bind(this.addAlertIcon, this, mxGraph, -10, 20);
+        this.removeAlert = _.bind(this.removeAlertIcon, this, mxGraph);
+
         return this;
     }
 

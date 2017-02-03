@@ -8,7 +8,9 @@ export enum ProcessEvents {
     UserStoriesGenerated,
     PersonaReferenceUpdated,
     OpenUtilityPanel,
-    SelectionChanged
+    SelectionChanged,
+    ShapesValidated,
+    OpenProperties
 }
 
 export interface IProcessDiagramCommunication {
@@ -32,6 +34,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
     private setPersonaReferenceUpdatedSubject: ICommunicationWrapper;
     private setOpenUtilityPanelSubject: ICommunicationWrapper;
     private setSelectionChangedSubject: ICommunicationWrapper;
+    private setOpenPropertiesSubject: ICommunicationWrapper;
 
     constructor() {
         // Create subjects
@@ -43,6 +46,7 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setPersonaReferenceUpdatedSubject = new CommunicationWrapper();
         this.setOpenUtilityPanelSubject = new CommunicationWrapper();
         this.setSelectionChangedSubject = new CommunicationWrapper();
+        this.setOpenPropertiesSubject = new CommunicationWrapper();
     };
 
     // Model update
@@ -91,6 +95,11 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
 
             case ProcessEvents.OpenUtilityPanel: {
                     result = this.setOpenUtilityPanelSubject.subscribe(observer);
+                }
+                break;
+
+            case ProcessEvents.OpenProperties: {
+                    result = this.setOpenPropertiesSubject.subscribe(observer);
                 }
                 break;
 
@@ -144,6 +153,11 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                 }
                 break;
 
+            case ProcessEvents.OpenProperties: {
+                    this.setOpenPropertiesSubject.disposeObserver(observer);
+                }
+                break;
+
             case ProcessEvents.SelectionChanged: {
                     this.setSelectionChangedSubject.disposeObserver(observer);
                 }
@@ -193,6 +207,11 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
                 }
                 break;
 
+            case ProcessEvents.OpenProperties: {
+                    this.setOpenPropertiesSubject.notify({});
+                }
+                break;
+
             case ProcessEvents.SelectionChanged: {
                 this.setSelectionChangedSubject.notify(eventPayload);
             }
@@ -208,5 +227,6 @@ export class ProcessDiagramCommunication implements IProcessDiagramCommunication
         this.setUserStoriesGeneratedSubject.dispose();
         this.setPersonaReferenceUpdatedSubject.dispose();
         this.setSelectionChangedSubject.dispose();
+        this.setOpenPropertiesSubject.dispose();
     }
 }

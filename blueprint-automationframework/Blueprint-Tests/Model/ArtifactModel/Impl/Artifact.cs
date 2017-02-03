@@ -48,10 +48,10 @@ namespace Model.ArtifactModel.Impl
 
         #region Methods
 
+        /// <seealso cref="Artifact.Save(IUser, bool, List{HttpStatusCode})"/>
         public void Save(IUser user = null,
             bool shouldGetLockForUpdate = true,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             // If CreatedBy is null, then this save is adding the artifact.  User must not be null.
             if (CreatedBy == null)
@@ -67,12 +67,12 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes, sendAuthorizationAsCookie);
+            SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.Discard(IUser, List{HttpStatusCode})"/>
         public List<DiscardArtifactResult> Discard(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -86,8 +86,7 @@ namespace Model.ArtifactModel.Impl
                 artifactToDiscard, 
                 Address, 
                 user, 
-                expectedStatusCodes, 
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
 
             foreach (var discardArtifactResult in discardArtifactResults)
             {
@@ -407,12 +406,10 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user saving the artifact.</param>
         /// <param name="shouldGetLockForUpdate">(optional) Pass false if you don't want to get a lock before trying to update the artifact.  Default is true.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
         public static void SaveArtifact(IArtifactBase artifactToSave,
             IUser user,
             bool shouldGetLockForUpdate = true,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
@@ -427,7 +424,7 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+                OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes);
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
@@ -560,21 +557,18 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             return OpenApiArtifact.DiscardArtifacts(
                 artifactsToDiscard,
                 address,
                 user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
         }
 
         /// <summary>

@@ -974,7 +974,7 @@ namespace Model.Impl
                     var artifaceBaseToDelete = artifact as ArtifactBase;
 
                     // Hack: This is needed until we can refactor ArtifactBase better.
-                    var deletedArtifactResult = new DeleteArtifactResult
+                    var deletedArtifactResult = new OpenApiDeleteArtifactResult
                     {
                         ArtifactId = deletedArtifact.Id,
                         ResultCode = HttpStatusCode.OK

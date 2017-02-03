@@ -11,8 +11,10 @@ import "./pagination";
 import "./dialogs/open-project";
 import "./messages";
 import "./projectControls";
+import "./analytics";
 
 angular.module("bp.components", [
+    "bp.components.analytics",
     "bp.components.messages",
     "bp.components.momentDateFilter",
     "bp.components.momentDateTimeFilter",

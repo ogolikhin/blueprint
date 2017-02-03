@@ -62,6 +62,7 @@ angular.module("app.main", [
     "bp.main.services",
     "bp.main.view"
 ])
+    .config(($animateProvider: angular.animate.IAnimateProvider) => $animateProvider.classNameFilter(/^(?:(?!ng-animate-disabled).)*$/))
     .run(config)
     .run(formlyConfig);
 

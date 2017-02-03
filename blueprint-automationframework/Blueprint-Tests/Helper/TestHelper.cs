@@ -1171,12 +1171,15 @@ namespace Helper
 
             var almTarget = AlmTarget.GetAlmTargets(address, user, project).First();
             Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
+
             var jobsToBeFound = new List<IOpenAPIJob>();
+
             for (int i = 0; i < numberOfJobsToBeCreated; i++)
             {
-                var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
+                var openAPIJob = OpenApi.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
                 jobsToBeFound.Add(openAPIJob);
             }
+
             jobsToBeFound.Reverse();
             return jobsToBeFound;
         }

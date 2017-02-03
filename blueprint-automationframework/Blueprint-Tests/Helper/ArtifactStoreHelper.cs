@@ -31,6 +31,25 @@ namespace Helper
         private const int DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID = -2;
         private const string DEFAULT_COLLECTIONS_ROOT_PREFIX = "_CFL";
 
+        /// <summary>
+        /// This class describes which properties should be compared in sub-artifacts.
+        /// </summary>
+        public class PropertyCompareOptions
+        {
+            /// <summary>Should the sub-artifact Id properties be compared?</summary>
+            public bool CompareSubArtifactIds { get; set; } = true;
+            /// <summary>Should the OrderIndex properties be compared?</summary>
+            public bool CompareOrderIndeces { get; set; } = true;
+            /// <summary>Should the Description properties be compared?</summary>
+            public bool CompareDescriptions { get; set; } = true;
+            /// <summary>Should the Traces properties be compared?</summary>
+            public bool CompareTraces { get; set; } = true;
+            /// <summary>Should the SpecivicPropertyValues properties be compared?</summary>
+            public bool CompareSpecificPropertyValues { get; set; } = true;
+            /// <summary>Should the CustomProperties properties be compared?</summary>
+            public bool CompareCustomProperties { get; set; } = true;
+        }
+
         #region Custom Asserts
 
         /// <summary>
@@ -411,25 +430,20 @@ namespace Helper
         /// <param name="user">User to authenticate with.</param>
         /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
         ///     should have the same ParentId.</param>
-        /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
-        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
-        /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
-        /// <param name="skipTraces">(optional) Pass true to skip comparison of the trace Relationships.</param>
-        /// <param name="skipSpecificPropertyValues">(optional) Pass true to skip comparison of the property values.</param>
-        /// <param name="skipCustomProperties">(optional) Pass true to skip comparison of the custom properties.</param>
-        /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <param name="propertyCompareOptions">(optional) Specifies which properties to compare.  By default, all properties are compared.</param>
+        /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipDescription = false, bool skipTraces = false, 
-            bool skipSpecificPropertyValues = false, bool skipCustomProperties = false, Attachments.CompareOptions compareOptions = null)
+            int? expectedParentId = null, PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            ThrowIf.ArgumentNull(propertyCompareOptions, nameof(propertyCompareOptions));
 
             Assert.AreEqual(expectedSubArtifact.IsDeleted, actualSubArtifact.IsDeleted, "The IsDeleted parameters don't match!");
 
-            if (!skipId)
+            if (propertyCompareOptions.CompareSubArtifactIds)
             {
                 Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
             }
@@ -437,14 +451,14 @@ namespace Helper
             expectedParentId = expectedParentId ?? expectedSubArtifact.ParentId;
             Assert.AreEqual(expectedParentId, actualSubArtifact.ParentId, "The ParentId parameters don't match!");
 
-            if (!skipOrderIndex)
+            if (propertyCompareOptions.CompareOrderIndeces)
             {
                 Assert.AreEqual(expectedSubArtifact.OrderIndex, actualSubArtifact.OrderIndex, "The OrderIndex parameters don't match!");
             }
 
             Assert.AreEqual(expectedSubArtifact.Name, actualSubArtifact.Name, "The Name parameters don't match!");
 
-            if (!skipDescription)
+            if (propertyCompareOptions.CompareDescriptions)
             {
                 Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
             }
@@ -457,7 +471,7 @@ namespace Helper
             Assert.AreEqual(expectedSubArtifact.Prefix, actualSubArtifact.Prefix, "The Prefix parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");
 
-            if (!skipCustomProperties)
+            if (propertyCompareOptions.CompareCustomProperties)
             {
                 Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, 
                     "The number of Custom Properties is different!");
@@ -474,7 +488,7 @@ namespace Helper
                 }
             }
 
-            if (!skipSpecificPropertyValues)
+            if (propertyCompareOptions.CompareSpecificPropertyValues)
             {
                 Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count,actualSubArtifact.SpecificPropertyValues.Count, 
                     "The number of Specific Property Values is different!");
@@ -507,10 +521,10 @@ namespace Helper
             var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
             var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
 
-            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, compareOptions);
+            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, attachmentCompareOptions);
 
             // Get and compare sub-artifact Traces.
-            if (!skipTraces)
+            if (propertyCompareOptions.CompareTraces)
             {
                 var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
                     expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
@@ -1763,7 +1777,7 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
 
-            return I18NHelper.FormatInvariant("<p>{0}</p>", text);
+            return I18NHelper.FormatInvariant("<html><head></head><p>{0}</p></html>", text);
         }
 
         /// <summary>

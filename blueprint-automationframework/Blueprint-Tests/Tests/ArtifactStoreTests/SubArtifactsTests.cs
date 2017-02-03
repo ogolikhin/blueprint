@@ -21,8 +21,7 @@ namespace ArtifactStoreTests
     public class SubArtifactsTests : TestBase
     {
         private IUser _user = null;
-
-        private List<IProject> _projects;
+        private IProject _project = null;
 
         private int businessProcessDiagramId = 33;
         private int domainDiagramId = 31;
@@ -36,7 +35,7 @@ namespace ArtifactStoreTests
         {
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _projects = ProjectFactory.GetAllProjects(_user, shouldRetrievePropertyTypes: true);
+            _project = ProjectFactory.GetProject(_user);
         }
 
         [TearDown]
@@ -53,7 +52,7 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_ProcessWithDeletedDefaultAndAddedNewUserTask_ReturnsCorrectSubArtifactsList()
         {
             // Setup:
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _projects.FirstOrDefault(), _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Get list containing default user task
             var userTask = returnedProcess.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -73,7 +72,7 @@ namespace ArtifactStoreTests
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
             // Verify:
-            CheckSubArtifacts(_user, returnedProcess.Id, 5); //at this stage Process should have 5 subartifacts
+            CheckSubArtifacts(_user, returnedProcess.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
         [TestCase]
@@ -82,7 +81,7 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_ProcessWithUserDecisionAfterPrecondition_ReturnsCorrectSubArtifactsList()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _projects.FirstOrDefault(), _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
             // Find precondition task
             var preconditionTask = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -99,7 +98,7 @@ namespace ArtifactStoreTests
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
-            CheckSubArtifacts(_user, returnedProcess.Id, 8);//at this stage Process should have 8 subartifacts
+            CheckSubArtifacts(_user, returnedProcess.Id, expectedSubArtifactsNumber: 8, itemTypeVersionId: 2);
         }
 
         [TestCase]
@@ -108,9 +107,9 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_Process_ReturnsCorrectSubArtifactsList()
         {
             // Create and get the default process
-            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _projects.FirstOrDefault(), _user);
+            var returnedProcess = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);
 
-            CheckSubArtifacts(_user, returnedProcess.Id, 5);//at this stage Process should have 5 subartifacts
+            CheckSubArtifacts(_user, returnedProcess.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -119,11 +118,9 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_DeletedProcess_ReturnsEmptySubArtifactsList(BaseArtifactType artifactType)
         {
             // Setup
-            var project = _projects[0];
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
-
-            var process = Helper.CreateAndPublishArtifact(project, author, artifactType);
+            var process = Helper.CreateAndPublishArtifact(_project, author, artifactType);
 
             process.Delete(author);
 
@@ -149,8 +146,10 @@ namespace ArtifactStoreTests
             BaseArtifactType baseArtifactType)
         {
             // Setup:
-            var mainProject = _projects.FirstOrDefault();
-            var secondProject = _projects.LastOrDefault();
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+
+            var mainProject = projects[0];
+            var secondProject = projects[1];
             secondProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
@@ -159,7 +158,7 @@ namespace ArtifactStoreTests
 
             var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id).Find(sa => sa.DisplayName.Equals(Process.DefaultUserTaskName));
             var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, userTaskSubArtifact.Id);
-            subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact }); ;
+            subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
@@ -173,7 +172,7 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            StringAssert.Contains(subArtifactChangeSet.Description, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
+            Assert.AreEqual(subArtifactChangeSet.Description, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
             // Execute:
             inlineTraceArtifact.Lock();
@@ -206,15 +205,14 @@ namespace ArtifactStoreTests
                      "Verify inline trace added. Delete new artifact name and publish.  Verify inline trace in process subartifact is marked " +
                      "as invalid.")]
         public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactThenDeleteArtifact_VerifyInlineTraceIsMarkedInvalid(
-               BaseArtifactType baseArtifactType)
+            BaseArtifactType baseArtifactType)
         {
             // Setup:
-            var mainProject = _projects.FirstOrDefault();
-            mainProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
+            var inlineTraceArtifact = Helper.CreateAndPublishArtifact(_project, _user, baseArtifactType);
 
-            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(mainProject, _user, ItemTypePredefined.Process);
+            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(_project, _user, ItemTypePredefined.Process);
 
             var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id).Find(sa => sa.DisplayName.Equals(Process.DefaultUserTaskName));
             var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, userTaskSubArtifact.Id);
@@ -232,7 +230,7 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            StringAssert.Contains(subArtifactChangeSet.Description, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
+            Assert.AreEqual(subArtifactChangeSet.Description, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
             inlineTraceArtifact.Delete();
             inlineTraceArtifact.Publish();
@@ -246,7 +244,7 @@ namespace ArtifactStoreTests
             // Verify:
             ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, inlineTraceArtifact, validInlineTraceLink: false);
 
-            CheckSubArtifacts(_user, processArtifact.Id, 5);    //at this stage Process should have 5 subartifacts
+            CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
@@ -259,8 +257,9 @@ namespace ArtifactStoreTests
             BaseArtifactType baseArtifactType)
         {
             // Setup:
-            var mainProject = _projects.FirstOrDefault();
-            var secondProject = _projects.LastOrDefault();
+            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            var mainProject = projects[0];
+            var secondProject = projects[1];
             secondProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var inlineTraceArtifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
@@ -283,9 +282,9 @@ namespace ArtifactStoreTests
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
-            StringAssert.Contains(subArtifactChangeSet.Description, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
+            Assert.AreEqual(subArtifactChangeSet.Description, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
-            var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, secondProject);
+            var userWithPermissionOnSecondProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, secondProject);
 
             NovaSubArtifact subArtifact = null;
 
@@ -451,10 +450,10 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
-            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute
             Assert.Throws<Http403ForbiddenException>(() =>
@@ -474,11 +473,11 @@ namespace ArtifactStoreTests
         public void GetSubArtifacts_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            var parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            var child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
+            var parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var child = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent);
 
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
-            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _project, parent);
 
             // Execute
             Assert.Throws<Http403ForbiddenException>(() =>
@@ -497,10 +496,10 @@ namespace ArtifactStoreTests
         public void GetSubArtifactDetails_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
-            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], artifact);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _project, artifact);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
@@ -527,11 +526,11 @@ namespace ArtifactStoreTests
         public void GetSubArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
-            var parent = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            var child = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType, parent);
+            var parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var child = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent);
 
-            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projects[0]);
-            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _projects[0], parent);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(viewer, TestHelper.ProjectRole.None, _project, parent);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, child.Id);
 
@@ -571,6 +570,7 @@ namespace ArtifactStoreTests
         /// <param name="user">User to authenticate with</param>
         /// <param name="artifactId">artifact Id</param>
         /// <param name="expectedSubArtifactsNumber">Number of expected sub-artifacts in the artifact</param>
+        /// <param name="itemTypeVersionId">ItemTypeVersionId for NovaSubArtifact created from SubArtifact</param>
         private void CheckSubArtifacts(IUser user, int artifactId, int expectedSubArtifactsNumber, int itemTypeVersionId = 1)
         {
             List<SubArtifact> subArtifacts = null;
@@ -584,14 +584,23 @@ namespace ArtifactStoreTests
 
             foreach (var s in subArtifacts)
             {
-                Assert.IsFalse(s.HasChildren, "Process sub-artifacts doesn't have children.");
+                Assert.IsFalse(s.HasChildren, "Process sub-artifacts should never have children.");
 
                 var subArtifact = Helper.ArtifactStore.GetSubartifact(user, artifactId, s.Id);
-                
-                ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s, itemTypeVersionId), Helper.ArtifactStore, _user, s.ParentId, 
-                    skipOrderIndex: true, skipDescription: true, skipCustomProperties: true, skipSpecificPropertyValues: true);
+
+                var propertyCompareOptions = new ArtifactStoreHelper.PropertyCompareOptions()
+                {
+                    CompareOrderIndeces = false,
+                    CompareDescriptions = false,
+                    CompareCustomProperties = false,
+                    CompareSpecificPropertyValues = false
+                };
+
+                ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s, itemTypeVersionId), Helper.ArtifactStore, _user, s.ParentId,
+                    propertyCompareOptions);
             }
         }
+
         #endregion Private Methods
     }
 }

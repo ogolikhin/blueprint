@@ -1,13 +1,10 @@
-import "angular";
+import "./";
 import "angular-mocks";
 import "lodash";
-import {IBPItemTypeIconController, BPItemTypeIconComponent, BPItemTypeIconController} from "./bp-item-icon";
+import {IBPItemTypeIconController, BPItemTypeIconController} from "./bp-item-icon";
 import {Models} from "../../../main/models";
 
 describe("BPArtifactListComponent", () => {
-    angular.module("bp.widgets.itemicon", [])
-        .component("bpItemTypeIcon", new BPItemTypeIconComponent());
-
     let bindings: IBPItemTypeIconController;
     let componentController: ng.IComponentControllerService;
     let controller: BPItemTypeIconController;

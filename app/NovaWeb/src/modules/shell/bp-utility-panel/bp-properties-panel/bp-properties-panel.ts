@@ -38,6 +38,7 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     public activeTab: number;
 
     public isLoading: boolean = false;
+    public hasArtifactEverBeenSavedOrPublished: boolean = false;
 
     public systemFields: AngularFormly.IFieldConfigurationObject[];
     public customFields: AngularFormly.IFieldConfigurationObject[];
@@ -99,14 +100,17 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
             this.selectedArtifact = artifact;
             this.selectedSubArtifact = subArtifact;
             if (Helper.hasArtifactEverBeenSavedOrPublished(subArtifact)) {
+                this.hasArtifactEverBeenSavedOrPublished = true;
                 this.subArtifactSubscriber = this.selectedSubArtifact.getObservable().subscribe(this.onUpdate);
             } else {
+                this.hasArtifactEverBeenSavedOrPublished = false;
                 this.reset();
             }
             // for new selection
         } else if (artifact) {
             this.selectedSubArtifact = null;
             this.selectedArtifact = artifact;
+            this.hasArtifactEverBeenSavedOrPublished = Helper.hasArtifactEverBeenSavedOrPublished(artifact);
             this.artifactSubscriber = this.selectedArtifact.getObservable().subscribe(this.onUpdate);
 
         } else {

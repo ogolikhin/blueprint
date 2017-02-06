@@ -1248,6 +1248,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Act
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_InheritancePicker_Title', 'en-US', N'Select Actor')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_SameBaseActor_ErrorMessage', 'en-US', N'Actor cannot be set as its own parent')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Properties_No_Properties', 'en-US', N'No properties available')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Properties_Unsaved_No_Properties', 'en-US', N'The item you selected has not been saved or published. No properties available.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_200', 'en-US', N'The artifact has been saved.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_400', 'en-US', N'An error has occurred and the artifact {0} is no longer valid. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_404', 'en-US', N'Sorry, but the artifact {0} cannot be saved because it has been deleted or moved. Please Refresh All.')

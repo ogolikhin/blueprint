@@ -15,7 +15,10 @@ export class BPTooltip implements ng.IDirective {
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery): void => {
         const maxLimit = 500; // this is the max limit for tooltips' length, no matter the settings
         const fallbackLimit = 250; // default limit in case no settings can be found
-        const defaultLimit = this.settings.getNumber("StorytellerMaxTooltipCharLength", fallbackLimit, 0, maxLimit);
+        let defaultLimit = this.settings.getNumber("StorytellerMaxTooltipCharLength", fallbackLimit, -Infinity, maxLimit);
+        if (defaultLimit < 0 || !_.isSafeInteger(defaultLimit)) {
+            defaultLimit = fallbackLimit;
+        }
 
         // if limit is 0, tooltips won't be shown at all
         if (defaultLimit === 0) {

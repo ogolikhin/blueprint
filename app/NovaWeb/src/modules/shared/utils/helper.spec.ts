@@ -183,6 +183,31 @@ describe("setFontFamilyOrOpenSans", () => {
         expect((<HTMLElement> p[7].firstElementChild.firstElementChild).style.fontFamily).toContain("Verdana");
         expect((<HTMLElement> p[8].firstElementChild.firstElementChild).style.fontFamily).toContain("Open Sans");
     });
+
+    it("should add Open Sans for text with images without changing the order of the content", () => {
+        // Arrange/Act
+        const text1 = "There is an image after me ";
+        const text2 = " and another after me ";
+        const imgSrc = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"; // 1x1 transparent GIF
+        const node = document.createElement("div");
+        node.innerHTML = `<p>${text1}<img src="${imgSrc}" />${text2}<img src="${imgSrc}" /></p>`;
+
+        Helper.setFontFamilyOrOpenSans(node);
+
+        const p = node.querySelector("p") as HTMLElement;
+
+        // Assert
+        expect(p.childElementCount).toBe(4);
+        expect(p.textContent).toBe(text1 + text2);
+        expect(p.children[0].tagName.toUpperCase()).toBe("SPAN");
+        expect(p.children[0].textContent).toBe(text1);
+        expect((<HTMLElement>p.children[0]).style.fontFamily).toContain("Open Sans");
+        expect(p.children[2].tagName.toUpperCase()).toBe("SPAN");
+        expect(p.children[2].textContent).toBe(text2);
+        expect((<HTMLElement>p.children[2]).style.fontFamily).toContain("Open Sans");
+        expect(p.children[1].tagName.toUpperCase()).toBe("IMG");
+        expect(p.children[3].tagName.toUpperCase()).toBe("IMG");
+    });
 });
 
 describe("autoLinkURLText", () => {

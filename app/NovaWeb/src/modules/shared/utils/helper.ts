@@ -155,6 +155,7 @@ export class Helper {
                         if (parent.tagName.toUpperCase() !== "SPAN") {
                             const span = document.createElement("SPAN");
                             span.style.fontFamily = fontFamily;
+                            // since child is a text node, we can directly get the text without fear of missing any formatting
                             span.textContent = child.textContent;
                             parent.replaceChild(span, child);
                         } else {

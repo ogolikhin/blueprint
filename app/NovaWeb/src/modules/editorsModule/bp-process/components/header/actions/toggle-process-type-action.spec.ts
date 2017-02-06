@@ -42,7 +42,7 @@ describe("ToggleProcessTypeAction", () => {
             // act
             try {
                 new ToggleProcessTypeAction(
-                    null, 
+                    null,
                     communicationManager.toolbarCommunicationManager,
                     localization
                 );
@@ -63,7 +63,7 @@ describe("ToggleProcessTypeAction", () => {
             // act
             try {
                 new ToggleProcessTypeAction(
-                    process, 
+                    process,
                     null,
                     localization
                 );
@@ -84,7 +84,7 @@ describe("ToggleProcessTypeAction", () => {
             // act
             try {
                 new ToggleProcessTypeAction(
-                    process, 
+                    process,
                     communicationManager.toolbarCommunicationManager,
                     null
                 );
@@ -135,8 +135,8 @@ describe("ToggleProcessTypeAction", () => {
             const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
             spyOn(process, "getObservable").and.returnValue(subject);
             const action = new ToggleProcessTypeAction(
-                process, 
-                communicationManager.toolbarCommunicationManager, 
+                process,
+                communicationManager.toolbarCommunicationManager,
                 localization
             );
 
@@ -153,8 +153,8 @@ describe("ToggleProcessTypeAction", () => {
             const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
             spyOn(process, "getObservable").and.returnValue(subject);
             const action = new ToggleProcessTypeAction(
-                process, 
-                communicationManager.toolbarCommunicationManager, 
+                process,
+                communicationManager.toolbarCommunicationManager,
                 localization
             );
 
@@ -171,8 +171,8 @@ describe("ToggleProcessTypeAction", () => {
             const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
             spyOn(process, "getObservable").and.returnValue(subject);
             const action = new ToggleProcessTypeAction(
-                process, 
-                communicationManager.toolbarCommunicationManager, 
+                process,
+                communicationManager.toolbarCommunicationManager,
                 localization
             );
 
@@ -191,8 +191,8 @@ describe("ToggleProcessTypeAction", () => {
 
             // act
             const action = new ToggleProcessTypeAction(
-                process, 
-                communicationManager.toolbarCommunicationManager, 
+                process,
+                communicationManager.toolbarCommunicationManager,
                 localization
             );
 
@@ -206,8 +206,8 @@ describe("ToggleProcessTypeAction", () => {
             const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
             spyOn(process, "getObservable").and.returnValue(subject);
             const action = new ToggleProcessTypeAction(
-                process, 
-                communicationManager.toolbarCommunicationManager, 
+                process,
+                communicationManager.toolbarCommunicationManager,
                 localization
             );
             const toggleSpy = spyOn(communicationManager.toolbarCommunicationManager, "toggleProcessType");
@@ -228,7 +228,7 @@ describe("ToggleProcessTypeAction", () => {
             const subject = new Rx.BehaviorSubject<StatefulProcessArtifact>(process);
             spyOn(process, "getObservable").and.returnValue(subject);
             const action = new ToggleProcessTypeAction(process, communicationManager.toolbarCommunicationManager, localization);
-            const spy = spyOn(action, "onArtifactChanged");
+            const spy = spyOn(action, "onArtifactLoaded");
             action.dispose();
 
             // act

@@ -689,11 +689,12 @@ namespace ArtifactStoreTests
         #region Artifact Properties tests
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault", null)]
+        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault", "", Explicit = true, Reason = IgnoreReasons.ProductBug)] // Bug: 5086
         [TestRail(195433)]
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
             "Verify 409 Conflict is returned at the event of publishing the invalid change.")]
-        public void UpdateArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType, string artifactCustomPropertyName)
+        public void UpdateArtifact_ChangeTextPropertyWithEmptyOrNull_Verify409Conflict(ItemTypePredefined itemType, string artifactCustomPropertyName, string subArtifactCustomPropertyValue)
         {
             // Setup: Set the required custom text property value for the target sub artifact with empty content
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
@@ -701,7 +702,6 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
             var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
-            var subArtifactCustomPropertyValue = "";
             var artifactDetailsChangeSet = CreateArtifactChangeSet(author, projectCustomData, artifact, artifactCustomPropertyName, subArtifactCustomPropertyValue);
 
             // Execute:Attempt to update the target sub artifact with empty content

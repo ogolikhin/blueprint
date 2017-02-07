@@ -766,6 +766,7 @@ namespace ArtifactStoreTests
         private const int CU_NUMBER_PROPERTY_ID = 120;
         private const int CU_DATE_PROPERTY_ID = 119;
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug: 5133
         [Category(Categories.CustomData)]
         [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
         [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.

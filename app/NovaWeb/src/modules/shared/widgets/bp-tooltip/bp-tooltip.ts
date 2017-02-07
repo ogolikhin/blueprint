@@ -118,9 +118,11 @@ export class BPTooltip implements ng.IDirective {
                 let scrollWidth = _.max([elem.scrollWidth, _.round(width)]);
                 let scrollHeight = _.max([elem.scrollHeight, height]);
 
-                if (!isTriggerJustAWrapper(elem) &&
-                    (width < scrollWidth || height < scrollHeight)) {
-                    return true;
+                if (!isTriggerJustAWrapper(elem)) {
+                    // to account for decimal difference in font rendering, as getBoundingClientRect().width returns a float slightly smaller
+                    // than the element.scrollWidth when there's no visible overflow
+                    const adjustedWidth = width > _.floor(width) + .6 ? _.ceil(width) : width;
+                    return adjustedWidth < scrollWidth || height < scrollHeight;
                 }
 
                 if (isTriggerJustAWrapper(elem)) {
@@ -130,10 +132,13 @@ export class BPTooltip implements ng.IDirective {
                     const availableHeight = height - parseFloat(computedStyle.marginTop) - parseFloat(computedStyle.marginBottom);
 
                     clientRect = child.getBoundingClientRect();
-                    scrollWidth = _.max([scrollWidth, child.scrollWidth, _.round(clientRect.width)]);
-                    scrollHeight = _.max([scrollHeight, child.scrollHeight, _.ceil(clientRect.height)]);
+                    scrollWidth = _.max([child.scrollWidth, _.round(clientRect.width)]);
+                    scrollHeight = _.max([child.scrollHeight, _.ceil(clientRect.height)]);
 
-                    return availableWidth < scrollWidth || availableHeight < scrollHeight;
+                    // to account for decimal difference in font rendering, as getBoundingClientRect().width returns a float slightly smaller
+                    // than the element.scrollWidth when there's no visible overflow
+                    const adjustedAvailableWidth = availableWidth > _.floor(availableWidth) + .6 ? _.ceil(availableWidth) : availableWidth;
+                    return adjustedAvailableWidth < scrollWidth || availableHeight < scrollHeight;
                 }
 
                 return false;

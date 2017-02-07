@@ -229,8 +229,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.$q.when(project).then(project => this.project = project);
     }
 
-    private isNodeSelectable = (item) => {
-        return item.selectable = (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
+    private isNodeSelectable = (item: Models.IArtifact | Models.ISubArtifactNode) => {
+        return (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
             (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1);
     }
 

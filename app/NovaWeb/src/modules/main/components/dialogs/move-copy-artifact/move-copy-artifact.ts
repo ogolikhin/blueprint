@@ -66,7 +66,8 @@ export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialo
                 return item.predefinedType === Enums.ItemTypePredefined.CollectionFolder;
             } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
                 //or move as a sibling to something with a collection folder as parent (or the main Collections fo1lder)
-                return !(item.predefinedType === Enums.ItemTypePredefined.CollectionFolder && item.parentId === item.projectId);
+                return !(item.predefinedType === Enums.ItemTypePredefined.CollectionFolder
+                && item.itemTypeId === Enums.ItemTypePredefined.Collections);
             }
         }
 

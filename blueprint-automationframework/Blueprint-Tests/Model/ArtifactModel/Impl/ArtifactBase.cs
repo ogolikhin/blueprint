@@ -357,7 +357,7 @@ namespace Model.ArtifactModel.Impl
 
             if (deletedArtifactsList.Any())
             {
-                deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
+                deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
             }
 
             Assert.That(publishedResultList.Count.Equals(artifactsToPublish.Count),
@@ -391,8 +391,8 @@ namespace Model.ArtifactModel.Impl
             ArtifactObservers?.Remove(observer);
         }
 
-        /// <seealso cref="NotifyArtifactDeletion(List{IArtifactBase})"/>
-        public void NotifyArtifactDeletion(List<IArtifactBase> deletedArtifactsList)
+        /// <seealso cref="NotifyArtifactDeleted(List{IArtifactBase})"/>
+        public void NotifyArtifactDeleted(List<IArtifactBase> deletedArtifactsList)
         {
             ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
 
@@ -404,12 +404,12 @@ namespace Model.ArtifactModel.Impl
                     select result.ArtifactId;
 
                 Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
-                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
+                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeleted(deletedArtifactIds));
             }
         }
 
-        /// <seealso cref="NotifyArtifactPublish(List{INovaArtifactResponse})"/>
-        public void NotifyArtifactPublish(List<INovaArtifactResponse> publishedArtifactsList)
+        /// <seealso cref="NotifyArtifactPublished(List{INovaArtifactResponse})"/>
+        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
         {
             ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
 
@@ -419,7 +419,7 @@ namespace Model.ArtifactModel.Impl
                 select result.Id;
 
             Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", publishedArtifactIds));
-            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(publishedArtifactIds));
+            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublished(publishedArtifactIds));
         }
 
         #endregion IArtifactObservable methods

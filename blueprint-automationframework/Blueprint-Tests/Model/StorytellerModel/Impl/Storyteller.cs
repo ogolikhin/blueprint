@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using Model.ArtifactModel.Enums;
+using Model.ModelHelpers;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -39,30 +40,16 @@ namespace Model.StorytellerModel.Impl
 
         #region IArtifactObserver methods
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
-        public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
+        public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             var artifactIds = deletedArtifactIds as int[] ?? deletedArtifactIds.ToArray();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(NotifyArtifactDeletion), string.Join(", ", artifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactDeleted), string.Join(", ", artifactIds));
 
-            foreach (var deletedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    if (a.Id == deletedArtifactId)
-                    {
-                        a.IsDeleted = true;
-                        a.IsPublished = false;
-                        a.IsSaved = false;
-                        a.Status.IsLocked = false;
-                    }
-                });
-
-                Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
-            }
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
@@ -74,58 +61,19 @@ namespace Model.StorytellerModel.Impl
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(Storyteller), nameof(NotifyArtifactDiscarded), string.Join(", ", artifactIds));
 
-            var artifactsToRemove = new List<int>();
-
-            foreach (var discardedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    if ((a.Id == discardedArtifactId) && !a.IsPublished)
-                    {
-                        a.IsDeleted = true;
-                        a.IsPublished = false;
-                        a.IsSaved = false;
-                        a.Status.IsLocked = false;
-
-                        artifactsToRemove.Add(a.Id);
-                    }
-                });
-
-                Artifacts.RemoveAll(a => a.Id == discardedArtifactId);
-            }
+            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
         }
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactPublish(IEnumerable{int})" />
-        public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
+        public void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
             var artifactIds = publishedArtifactIds as int[] ?? publishedArtifactIds.ToArray();
 
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(Storyteller), nameof(NotifyArtifactPublish), string.Join(", ", artifactIds));
+                nameof(Storyteller), nameof(NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            foreach (var publishedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    if (a.Id == publishedArtifactId)
-                    {
-                        if (a.IsMarkedForDeletion)
-                        {
-                            a.IsDeleted = true;
-                            a.IsPublished = false;
-                        }
-                        else
-                        {
-                            a.IsPublished = true;
-                        }
-
-                        a.IsSaved = false;
-                        a.Status.IsLocked = false;
-                    }
-                });
-                Artifacts.RemoveAll(a => a.Id == publishedArtifactId);
-            }
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
         }
 
         #endregion IArtifactObserver methods
@@ -640,7 +588,7 @@ namespace Model.StorytellerModel.Impl
             var deletedArtifacts = artifact.Delete(artifact.CreatedBy, deleteChildren: deleteChildren, expectedStatusCodes: expectedStatusCodes);
             var deletedArtifactIds = deletedArtifacts.Select(a => a.ArtifactId);
 
-            NotifyArtifactDeletion(deletedArtifactIds);
+            NotifyArtifactDeleted(deletedArtifactIds);
 
             return deletedArtifacts;
         }

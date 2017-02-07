@@ -397,15 +397,17 @@ namespace ArtifactStoreTests
 
             var trace = new NovaTrace(artifact);
 
-            artifactDetails.Traces = new List<NovaTrace> { trace};
-
-            var traceToItselfMessage = new ServiceErrorMessage("Cannot add a trace to item itself", InternalApiErrorCodes.CannotSaveOverDependencies);
+            artifactDetails.Traces = new List<NovaTrace> { trace };
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => { Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails, traceToItselfMessage);
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                Artifact.UpdateArtifact(artifact, _authorUser, artifactDetails);
             }, "Trace creation should throw 409 error.");
 
             // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies,
+                "Cannot add a trace to item itself");
+
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Artifact should have no traces.");
         }
@@ -431,16 +433,15 @@ namespace ArtifactStoreTests
 
             artifactDetails.SubArtifacts = novaSubArtifacts;  // Add SubArtifacts to Artifact details of without SubArtifacts supports
 
-            var addSubArtifactsToNoSubartifactsSupportArtifactMessage = new ServiceErrorMessage(
-                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.",
-                InternalApiErrorCodes.CannotSaveOverDependencies);
-
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => { Artifact.UpdateArtifact(artifactWithNoSubArtifactSupport, _authorUser,
-                    artifactDetails, expectedServiceErrorMessage: addSubArtifactsToNoSubartifactsSupportArtifactMessage);
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                Artifact.UpdateArtifact(artifactWithNoSubArtifactSupport, _authorUser, artifactDetails);
             }, "Trace creation should throw 409 error.");
 
             // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies,
+                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.");   // Bug: 5107  Needs a better error message.
+
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifactWithNoSubArtifactSupport,
                 addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "No traces should be created.");
@@ -457,16 +458,16 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Edit | RolePermissions.Delete, _projectTest, artifact);
 
-            var traceToItselfMessage = new ServiceErrorMessage( "Cannot perform save, the artifact provided is attempting to override a read-only property.",
-                InternalApiErrorCodes.CannotSaveDueToReadOnly);
-
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
-                    traceDirection: TraceDirection.From, changeType: ChangeType.Create,
-                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    traceDirection: TraceDirection.From, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
                 },"Trace creation shouldn't throw any error.");
 
             // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveDueToReadOnly,
+                "Cannot perform save, the artifact provided is attempting to override a read-only property.");
+
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
@@ -484,16 +485,16 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Delete, _projectTest, targetArtifact);
 
-            var traceToItselfMessage = new ServiceErrorMessage( "Cannot perform save, the artifact provided is attempting to override a read-only property.",
-                InternalApiErrorCodes.CannotSaveDueToReadOnly);
-
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
-                    traceDirection: TraceDirection.From, changeType: ChangeType.Create,
-                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    traceDirection: TraceDirection.From, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
             }, "Adding a trace when the user doesn't have Edit permission for the trace target should return 409 Conflict!");
 
             // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveDueToReadOnly,
+                "Cannot perform save, the artifact provided is attempting to override a read-only property.");
+
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
@@ -511,16 +512,16 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read, _projectTest, targetArtifact);
 
-            var traceToItselfMessage = new ServiceErrorMessage("Cannot perform save, the artifact provided is attempting to override a read-only property.",
-                InternalApiErrorCodes.CannotSaveDueToReadOnly);
-
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
-                    traceDirection: TraceDirection.From, changeType: ChangeType.Create,
-                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: traceToItselfMessage);
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, artifact, targetArtifact,
+                    traceDirection: TraceDirection.From, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
             }, "Adding a trace with a user that has no access to the target artifact should return 409 Conflict!");
 
             // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveDueToReadOnly,
+                "Cannot perform save, the artifact provided is attempting to override a read-only property.");
+
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, artifact, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
@@ -542,17 +543,16 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             var projectArtifact = ArtifactFactory.CreateArtifact(_projectTest, _adminUser, BaseArtifactType.Glossary, nonValidItemId);
 
-            var wrongArtifactTypeMessage = new ServiceErrorMessage(
-                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.",
-                InternalApiErrorCodes.CannotSaveOverDependencies);
-
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_adminUser, artifact, projectArtifact, traceDirection: TraceDirection.To, changeType: ChangeType.Create,
-                    artifactStore: Helper.ArtifactStore, expectedErrorMessage: wrongArtifactTypeMessage);
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_adminUser, artifact, projectArtifact,
+                    traceDirection: TraceDirection.To, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
             }, "Adding a trace to an invalid (unsupported) artifact type should return 409 Conflict!");
 
             // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies,
+                "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.");   // Bug: 5107  Needs a better error message.
+
             var relationships = Helper.ArtifactStore.GetRelationships(_adminUser, artifact, addDrafts: true);
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Artifact shouldn't have any traces.");
         }

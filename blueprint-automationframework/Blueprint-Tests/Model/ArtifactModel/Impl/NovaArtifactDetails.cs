@@ -49,8 +49,8 @@ namespace Model.ArtifactModel.Impl
             NovaArtifactObservers?.Remove(observer);
         }
 
-        /// <seealso cref="NotifyArtifactDeletion(List{INovaArtifactBase})"/>
-        public void NotifyArtifactDeletion(List<INovaArtifactBase> deletedArtifactsList)
+        /// <seealso cref="NotifyArtifactDeleted(List{INovaArtifactBase})"/>
+        public void NotifyArtifactDeleted(List<INovaArtifactBase> deletedArtifactsList)
         {
             ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
 
@@ -60,12 +60,12 @@ namespace Model.ArtifactModel.Impl
                 var artifactIds = ((NovaArtifact) deletedArtifact).DeletedArtifactIds;
 
                 Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", artifactIds));
-                deletedArtifact.NovaArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(artifactIds));
+                deletedArtifact.NovaArtifactObservers?.ForEach(o => o.NotifyArtifactDeleted(artifactIds));
             }
         }
 
-        /// <seealso cref="NotifyArtifactPublish(List{INovaArtifactResponse})"/>
-        public void NotifyArtifactPublish(List<INovaArtifactResponse> publishedArtifactsList)
+        /// <seealso cref="NotifyArtifactPublished(List{INovaArtifactResponse})"/>
+        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
         {
             ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
 
@@ -78,7 +78,7 @@ namespace Model.ArtifactModel.Impl
             var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
 
             Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", artifactIds));
-            NovaArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(artifactIds));
+            NovaArtifactObservers?.ForEach(o => o.NotifyArtifactPublished(artifactIds));
         }
 
         #endregion IArtifactObservable methods

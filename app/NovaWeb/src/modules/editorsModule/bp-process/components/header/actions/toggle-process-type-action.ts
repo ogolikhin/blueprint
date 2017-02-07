@@ -1,7 +1,11 @@
+import "rx";
+import {IPropertyValue} from "../../../../../main/models/models";
+import {IItemChangeSet} from "../../../../../managers/artifact-manager/changeset";
+import {IArtifactState} from "../../../../../managers/artifact-manager";
 import {BPToggleAction, BPToggleItemAction} from "../../../../../shared";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {ProcessType} from "../../../models/enums";
-import {ReuseSettings} from "../../../../../main/models/enums";
+import {PropertyTypePredefined, ReuseSettings} from "../../../../../main/models/enums";
 import {IToolbarCommunication} from "../toolbar-communication";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 
@@ -55,7 +59,8 @@ export class ToggleProcessTypeAction extends BPToggleAction {
 
         this.subscribers = [];
         this.subscribers.push(
-            process.getObservable().subscribeOnNext(this.onArtifactChanged, this)
+            process.getObservable().subscribeOnNext(this.onArtifactLoaded, this),
+            process.getPropertyObservable().subscribeOnNext(this.onPropertyChanged, this)
         );
     }
 
@@ -71,11 +76,28 @@ export class ToggleProcessTypeAction extends BPToggleAction {
         }
     }
 
-    private onArtifactChanged(process: StatefulProcessArtifact): void {
+    private onPropertyChanged(changeSet: IItemChangeSet): void {
+        if (changeSet && changeSet.change) {
+            const value = <IPropertyValue>changeSet.change.value;
+
+            if (value && value.propertyTypePredefined === PropertyTypePredefined.ClientType) {
+                this.onProcessTypeChanged(<StatefulProcessArtifact>changeSet.item);
+            }
+        }
+    }
+
+    private onArtifactLoaded(process: StatefulProcessArtifact): void {
         if (process) {
-            // case when artifact is loaded
-            this._currentValue = process.propertyValues["clientType"].value;
+            this.onProcessTypeChanged(process);
             this.loaded = true;
         }
+    }
+
+    private onProcessTypeChanged(process: StatefulProcessArtifact): void {
+        if (!process || !process.propertyValues) {
+            return;
+        }
+
+        this._currentValue = process.propertyValues["clientType"].value;
     }
 }

@@ -1,4 +1,5 @@
-import * as angular from "angular";
+import "lodash";
+import {ISettingsService} from "../../../commonModule/configuration/settings.service";
 
 export class BPTooltip implements ng.IDirective {
     public restrict = "A";
@@ -12,7 +13,17 @@ export class BPTooltip implements ng.IDirective {
     // };
 
     public link: Function = ($scope: ng.IScope, $element: ng.IAugmentedJQuery): void => {
-        const defaultLimit = 250; // default limit after which the tooltip will get automatically truncated
+        const maxLimit = 500; // this is the max limit for tooltips' length, no matter the settings
+        const fallbackLimit = 250; // default limit in case no settings can be found
+        let defaultLimit = this.settings.getNumber("StorytellerMaxTooltipCharLength", fallbackLimit, -Infinity, maxLimit);
+        if (defaultLimit < 0 || !_.isSafeInteger(defaultLimit)) {
+            defaultLimit = fallbackLimit;
+        }
+
+        // if limit is 0, tooltips won't be shown at all
+        if (defaultLimit === 0) {
+            return;
+        }
 
         let observer;
 
@@ -107,9 +118,11 @@ export class BPTooltip implements ng.IDirective {
                 let scrollWidth = _.max([elem.scrollWidth, _.round(width)]);
                 let scrollHeight = _.max([elem.scrollHeight, height]);
 
-                if (!isTriggerJustAWrapper(elem) &&
-                    (width < scrollWidth || height < scrollHeight)) {
-                    return true;
+                if (!isTriggerJustAWrapper(elem)) {
+                    // to account for decimal difference in font rendering, as getBoundingClientRect().width returns a float slightly smaller
+                    // than the element.scrollWidth when there's no visible overflow
+                    const adjustedWidth = width > _.floor(width) + .5 ? _.ceil(width) : width;
+                    return adjustedWidth < scrollWidth || height < scrollHeight;
                 }
 
                 if (isTriggerJustAWrapper(elem)) {
@@ -119,10 +132,13 @@ export class BPTooltip implements ng.IDirective {
                     const availableHeight = height - parseFloat(computedStyle.marginTop) - parseFloat(computedStyle.marginBottom);
 
                     clientRect = child.getBoundingClientRect();
-                    scrollWidth = _.max([scrollWidth, child.scrollWidth, _.round(clientRect.width)]);
-                    scrollHeight = _.max([scrollHeight, child.scrollHeight, _.ceil(clientRect.height)]);
+                    scrollWidth = _.max([child.scrollWidth, _.round(clientRect.width)]);
+                    scrollHeight = _.max([child.scrollHeight, _.ceil(clientRect.height)]);
 
-                    return availableWidth < scrollWidth || availableHeight < scrollHeight;
+                    // to account for decimal difference in font rendering, as getBoundingClientRect().width returns a float slightly smaller
+                    // than the element.scrollWidth when there's no visible overflow
+                    const adjustedAvailableWidth = availableWidth > _.floor(availableWidth) + .5 ? _.ceil(availableWidth) : availableWidth;
+                    return adjustedAvailableWidth < scrollWidth || availableHeight < scrollHeight;
                 }
 
                 return false;
@@ -170,15 +186,13 @@ export class BPTooltip implements ng.IDirective {
         }
     };
 
-    public static factory() {
-        const directive = (//list of dependencies
-        ) => new BPTooltip(
-            //list of other dependencies
-        );
+    constructor(private settings: ISettingsService) {
+    }
 
-        directive["$inject"] = [
-            //list of other dependencies
-        ];
+    public static factory() {
+        const directive = (settings: ISettingsService) => new BPTooltip(settings);
+
+        directive["$inject"] = ["settings"];
 
         return directive;
     }

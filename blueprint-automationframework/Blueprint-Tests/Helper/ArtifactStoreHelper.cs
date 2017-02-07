@@ -1791,10 +1791,14 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
-        /// <param name="expectedErrorMessage">(optional)Expected error message.</param>
-        public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
-            ChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
-            bool? isSuspect = null, NovaItem targetSubArtifact = null, IServiceErrorMessage expectedErrorMessage = null)
+        public static void UpdateManualArtifactTraceAndSave(IUser user,
+            IArtifact artifact,
+            IArtifactBase traceTarget,
+            ChangeType changeType,
+            IArtifactStore artifactStore,
+            TraceDirection traceDirection = TraceDirection.From,
+            bool? isSuspect = null,
+            NovaItem targetSubArtifact = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1818,8 +1822,7 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address,
-                expectedServiceErrorMessage: expectedErrorMessage);
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
             // TODO: add assertions about changed traces
         }
 

@@ -506,7 +506,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             } else if (error.errorCode === 124) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_124");
             } else if (error.errorCode === 133) {
-                message = "Sub artifacts validation failed";
+                message = error.message;
                 const errorContent = error.errorContent as number[];
                 this.validationSubject.onNext(errorContent);
             } else {

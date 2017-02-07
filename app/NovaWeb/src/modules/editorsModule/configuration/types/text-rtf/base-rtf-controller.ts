@@ -363,8 +363,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
         editor.on("Change", (e) => {
             if (e && _.isObject(e.lastLevel)) { // tinyMce emits a 2 change events per actual change
-                if (!this.$scope.options["data"].isFresh &&
-                    (this.isDirty || this.contentBuffer !== editor.getContent() || this.hasChangedFormat() || this.isLinkPopupOpen)) {
+                if (this.isDirty || this.contentBuffer !== editor.getContent() || this.hasChangedFormat() || this.isLinkPopupOpen) {
                     this.triggerChange();
                 }
             }
@@ -393,17 +392,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected pastePostProcess = (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-        const clonedContent = args.node.cloneNode(true);
-        Helper.stripExternalImages(clonedContent);
-        const filteredClonedContent = clonedContent.outerHTML;
-
-        if (Helper.hasNonTextTags(filteredClonedContent) || Helper.tagsContainText(filteredClonedContent)) {
-            this.normalizeHtml(args.node, !this.isSingleLine);
-            Helper.stripExternalImages(args.node);
-            Helper.removeAttributeFromNode(args.node, "id");
-        } else {
-            args.preventDefault();
-        }
+        this.normalizeHtml(args.node, !this.isSingleLine);
+        Helper.removeAttributeFromNode(args.node, "id");
     };
 
     protected pastePreProcess(plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
@@ -412,8 +402,13 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
         content = content.replace(/, ?serif([;'"])/gi, "$1");
         content = content.replace(/, ?monospace([;'"])/gi, "$1");
+
+        const filteredContent = Helper.stripExternalImages(content);
+        if (Helper.hasNonTextTags(filteredContent) || Helper.tagsContainText(filteredContent)) {
+            content = filteredContent;
+        }
         args.content = content;
-    };
+    }
 
     protected hasChangedFormat(): boolean {
         const colorRegEx = /(#[a-f0-9]{6})/gi;

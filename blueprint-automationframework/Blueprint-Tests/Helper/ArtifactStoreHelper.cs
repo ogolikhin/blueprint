@@ -31,25 +31,6 @@ namespace Helper
         private const int DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID = -2;
         private const string DEFAULT_COLLECTIONS_ROOT_PREFIX = "_CFL";
 
-        /// <summary>
-        /// This class describes which properties should be compared in sub-artifacts.
-        /// </summary>
-        public class ArtifactPropertyCompareOptions
-        {
-            /// <summary>Should the sub-artifact Id properties be compared?</summary>
-            public bool CompareArtifactIds { get; set; } = true;
-            /// <summary>Should the OrderIndex properties be compared?</summary>
-            public bool CompareOrderIndeces { get; set; } = true;
-            /// <summary>Should the Description properties be compared?</summary>
-            public bool CompareDescriptions { get; set; } = true;
-            /// <summary>Should the Traces properties be compared?</summary>
-            public bool CompareTraces { get; set; } = true;
-            /// <summary>Should the SpecificPropertyValues properties be compared?</summary>
-            public bool CompareSpecificPropertyValues { get; set; } = true;
-            /// <summary>Should the CustomProperties properties be compared?</summary>
-            public bool CompareCustomProperties { get; set; } = true;
-        }
-
         #region Custom Asserts
 
         /// <summary>
@@ -434,7 +415,7 @@ namespace Helper
         /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, ArtifactPropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
+            int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
@@ -1791,10 +1772,14 @@ namespace Helper
         /// <param name="artifactStore">IArtifactStore.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
-        /// <param name="expectedErrorMessage">(optional)Expected error message.</param>
-        public static void UpdateManualArtifactTraceAndSave(IUser user, IArtifact artifact, IArtifactBase traceTarget,
-            ChangeType changeType, IArtifactStore artifactStore, TraceDirection traceDirection = TraceDirection.From,
-            bool? isSuspect = null, NovaItem targetSubArtifact = null, IServiceErrorMessage expectedErrorMessage = null)
+        public static void UpdateManualArtifactTraceAndSave(IUser user,
+            IArtifact artifact,
+            IArtifactBase traceTarget,
+            ChangeType changeType,
+            IArtifactStore artifactStore,
+            TraceDirection traceDirection = TraceDirection.From,
+            bool? isSuspect = null,
+            NovaItem targetSubArtifact = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
@@ -1818,8 +1803,7 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address,
-                expectedServiceErrorMessage: expectedErrorMessage);
+            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
             // TODO: add assertions about changed traces
         }
 

@@ -4,6 +4,9 @@ using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.JobModel;
+using Model.JobModel.Enums;
+using Model.JobModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -646,5 +649,44 @@ namespace Model.Impl
         }
 
         #endregion Version Control methods
+
+        #region ALM Jobs methods
+
+        /// <summary>
+        /// Add ALM ChangeSummary Job using OpenAPI.
+        /// </summary>
+        /// <param name="address">The base URL of the API.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="project">The project to have the ALM ChangeSummary job.</param>
+        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
+        /// <param name="almTarget">The ALM target.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>OpenAPIJob that contains information for ALM ChangeSummary Job.</returns>
+        public static IOpenAPIJob AddAlmChangeSummaryJob(string address,
+            IUser user,
+            IProject project,
+            int baselineOrReviewId,
+            IAlmTarget almTarget,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(almTarget, nameof(almTarget));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALM.Targets_id_.JOBS, project.Id, almTarget.Id);
+            var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId);
+
+            var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
+            var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
+                path,
+                RestRequestMethod.POST,
+                almJob,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return returnedAlmChangeSummaryJob;
+        }
+
+        #endregion ALM Jobs methods
     }
 }

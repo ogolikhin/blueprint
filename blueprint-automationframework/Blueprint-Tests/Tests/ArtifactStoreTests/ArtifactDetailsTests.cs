@@ -27,6 +27,8 @@ namespace ArtifactStoreTests
             public string Message { get; set; }
         }
 
+        private const string GET_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
+
         private IUser _user = null;
         private List<IProject> _projects = null;
 
@@ -65,7 +67,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(viewer, artifact.Id);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
 
@@ -86,7 +88,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             // Verify:
             var retrievedArtifactVersion = OpenApi.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
@@ -116,7 +118,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             // Execute:
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
@@ -148,7 +150,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId: 1);
-            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             // Verify:
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
@@ -161,7 +163,8 @@ namespace ArtifactStoreTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182509)]
-        [Description("Create two artifacts: main artifact that has inline trace to inline trace artifact. Update the inline trace artifact information - Verify that GetArtifactDetails call returns updated inline trace information.")]
+        [Description("Create two artifacts: main artifact that has inline trace to inline trace artifact. Update the inline trace artifact information - Verify that " +
+            "GetArtifactDetails call returns updated inline trace information.")]
         public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(
             BaseArtifactType baseArtifactType)
         {
@@ -186,8 +189,13 @@ namespace ArtifactStoreTests
 
             // Update and publish the inline trace artifact
             inlineTraceArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
-                "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
+
+            Assert.DoesNotThrow(() =>
+            {
+                inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user,
+                    artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
+            }, "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
+
             inlineTraceArtifact.Publish();
 
             // Execute: Get ArtifactDetails for main artifact
@@ -219,8 +227,13 @@ namespace ArtifactStoreTests
 
             // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateMainArtifact),
-                "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
+
+            Assert.DoesNotThrow(() =>
+            {
+                inlineTraceArtifactDetails = Artifact.UpdateArtifact(mainArtifact, _user,
+                    artifactDetailsChanges: artifactDetailsToUpdateMainArtifact);
+            }, "UpdateArtifact call failed when using the following artifact ID: {0}!", mainArtifact.Id);
+
             mainArtifact.Publish();
 
             // Update inline trace artifact information
@@ -229,8 +242,13 @@ namespace ArtifactStoreTests
 
             // Update and publish the inline trace artifact
             inlineTraceArtifact.Lock();
-            Assert.DoesNotThrow(() => inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact),
-                "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
+
+            Assert.DoesNotThrow(() =>
+            {
+                inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user,
+                    artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
+            }, "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
+
             inlineTraceArtifact.Publish();
 
             // Execute: Get ArtifactDetails for main artifact
@@ -274,7 +292,8 @@ namespace ArtifactStoreTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182550)]
-        [Description("Create two artifacts: main and inline trace on different project. - Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission for the inline trace artifact")]
+        [Description("Create two artifacts: main and inline trace on different project. - Verify that GetArtifactDetails call returns invalid inline trace link if " +
+            "the user doesn't have the access permission for the inline trace artifact")]
         public void GetArtifactDetails_GetArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTraceLink(
             BaseArtifactType baseArtifactType)
         {
@@ -322,7 +341,7 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDetails(user: null, artifactId: artifact.Id);
             }, "'GET {0}' should return 401 Unauthorized when passed a valid artifact ID but no Session-Token in the header!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                GET_ARTIFACT_ID_PATH);
         }
 
         [TestCase]
@@ -337,7 +356,7 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDetails(unauthorizedUser, artifact.Id);
             }, "'GET {0}' should return 401 Unauthorized when passed a valid artifact ID but an unauthorized token!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                GET_ARTIFACT_ID_PATH);
         }
 
         #endregion 401 Unauthorized Tests
@@ -358,7 +377,7 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDetails(viewer, artifact.Id);
             }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                GET_ARTIFACT_ID_PATH);
 
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
@@ -379,11 +398,14 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactDetails(unauthorizedUser, artifact.Id, versionId: 1);
-            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'GET {0}' should return 403 Forbidden when passed a valid artifact ID but the user doesn't have permission to view the artifact!",
+                GET_ARTIFACT_ID_PATH);
 
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
 
-            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content, "If called by a user without permission to the artifact, we should get an error message of '{0}'!", expectedMessage);
+            AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
+                "If called by a user without permission to the artifact, we should get an error message of '{0}'!",
+                expectedMessage);
         }
 
         [TestCase]
@@ -402,7 +424,7 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDetails(viewer, child.Id, versionId: 1);
             }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
-                            RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                GET_ARTIFACT_ID_PATH);
 
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", child.Id);
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,
@@ -425,7 +447,7 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDetails(user2, artifact.Id);
             }, "'GET {0}' should return 404 Not Found when passed an unpublished artifact ID with a different user!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                GET_ARTIFACT_ID_PATH);
         }
 
         [TestCase(0)]
@@ -438,7 +460,7 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDetails(_user, artifactId);
             }, "'GET {0}' should return 404 Not Found when passed an artifact ID that doesn't exist!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                GET_ARTIFACT_ID_PATH);
         }
 
         [TestCase(0)]
@@ -453,7 +475,7 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id, versionId);
             }, "'GET {0}' should return 404 Not Found when passed an artifact ID that doesn't exist!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                GET_ARTIFACT_ID_PATH);
 
             const string expectedMessage = "You have attempted to access an item that does not exist or you do not have permission to view.";
             AssertJsonResponseEquals(expectedMessage, ex.RestResponse.Content,

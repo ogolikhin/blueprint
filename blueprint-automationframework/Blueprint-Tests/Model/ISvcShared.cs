@@ -1,12 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 
 namespace Model
 {
     public interface ISvcShared : IDisposable
     {
+        #region Artifact methods
+
+        /// <summary>
+        /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint.
+        /// (Runs:  'POST /svc/shared/artifacts/discard')
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        List<NovaDiscardArtifactResult> DiscardArtifacts(IUser user,
+            List<IArtifactBase> artifactsToDiscard,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        #endregion Artifact methods
+
         /// <summary>
         /// Searches for users or groups that match the search criteria.
         /// </summary>

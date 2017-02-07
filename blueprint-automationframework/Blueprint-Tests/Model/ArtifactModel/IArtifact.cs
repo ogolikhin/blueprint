@@ -19,7 +19,7 @@ namespace Model.ArtifactModel
         /// <summary>
         /// Discard changes to an artifact on Blueprint server.
         /// </summary>
-        /// <param name="user">The user to authenticate to Blueprint. If null, attempts to discard changes using the credentials
+        /// <param name="user">The user to authenticate to Blueprint.  If null, attempts to discard changes using the credentials
         /// of the user that created the artifact. </param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The DiscardedArtifactResult list after discard artifact call</returns>
@@ -27,14 +27,13 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Discard changes to an artifact on Blueprint server using NOVA endpoint (not OpenAPI).
-        /// (Runs: /svc/shared/artifacts/discard)
+        /// (Runs: 'POST /svc/shared/artifacts/discard')
         /// </summary>
-        /// <param name="user">The user to authenticate to Blueprint. If null, attempts to discard changes using the credentials
-        /// of the user that created the artifact. </param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The NovaDiscardArtifactResult list after discard artifact call</returns>
-        List<NovaDiscardArtifactResult> NovaDiscard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        /// <param name="user">The user to authenticate to Blueprint.  If null, attempts to discard changes using the credentials
+        ///     of the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The NovaDiscardArtifactResult list after discard artifact call.</returns>
+        List<NovaDiscardArtifactResult> NovaDiscard(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets the Version property of an Artifact.

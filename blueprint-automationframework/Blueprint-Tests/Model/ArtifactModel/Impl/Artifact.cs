@@ -99,9 +99,9 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
+        /// <seealso cref="IArtifact.NovaDiscard(IUser, List{HttpStatusCode})"/>
         public List<NovaDiscardArtifactResult> NovaDiscard(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -111,23 +111,10 @@ namespace Model.ArtifactModel.Impl
 
             var artifactsToDiscard = new List<IArtifactBase> { this };
 
-            var discardArtifactResults = NovaDiscardArtifacts(
-                artifactsToDiscard,
-                Address,
+            return NovaDiscardArtifacts(Address,
                 user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
-
-            foreach (var discardArtifactResult in discardArtifactResults)
-            {
-                if (discardArtifactResult.Result == NovaDiscardArtifactResult.ResultCode.Success)
-                {
-                    IsSaved = false;
-                    IsMarkedForDeletion = false;
-                }
-            }
-
-            return discardArtifactResults;
+                artifactsToDiscard,
+                expectedStatusCodes);
         }
 
         public int GetVersion(IUser user = null,
@@ -552,62 +539,23 @@ namespace Model.ArtifactModel.Impl
         /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint (not OpenAPI).
         /// (Runs:  /svc/shared/artifacts/discard)
         /// </summary>
-        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
-        /// <param name="address">The base url of the API</param>
+        /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<NovaDiscardArtifactResult> NovaDiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
-            string address,
+        public static List<NovaDiscardArtifactResult> NovaDiscardArtifacts(string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<IArtifactBase> artifactsToDiscard,
+
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+            var discardResults = SvcShared.DiscardArtifacts(address, user, artifactsToDiscard, expectedStatusCodes);
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            SvcShared.UpdateStatusOfArtifactsThatWereDiscarded(discardResults, artifactsToDiscard);
 
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
-            var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
-                RestPaths.Svc.Shared.Artifacts.DISCARD,
-                RestRequestMethod.POST,
-                artifactsIds,
-                expectedStatusCodes: expectedStatusCodes);
-
-            var discardedResultList = artifactResults.DiscardResults;
-
-            // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
-            foreach (var discardedResult in discardedResultList)
-            {
-                var discardedArtifact = artifactsToDiscard.Find(a => a.Id.Equals(discardedResult.ArtifactId) &&
-                    discardedResult.Result == NovaDiscardArtifactResult.ResultCode.Success);
-
-                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, (int)discardedResult.Result);
-
-                if (discardedArtifact != null)
-                {
-                    discardedArtifact.IsSaved = false;
-                    discardedArtifact.IsMarkedForDeletion = false;
-                }
-            }
-
-            Assert.That(discardedResultList.Count.Equals(artifactsToDiscard.Count),
-                "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
-                artifactsToDiscard.Count, discardedResultList.Count);
-
-            return discardedResultList;
+            return discardResults;
         }
 
         /// <summary>

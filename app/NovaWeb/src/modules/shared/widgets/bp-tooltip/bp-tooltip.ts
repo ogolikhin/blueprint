@@ -121,7 +121,7 @@ export class BPTooltip implements ng.IDirective {
                 if (!isTriggerJustAWrapper(elem)) {
                     // to account for decimal difference in font rendering, as getBoundingClientRect().width returns a float slightly smaller
                     // than the element.scrollWidth when there's no visible overflow
-                    const adjustedWidth = width > _.floor(width) + .6 ? _.ceil(width) : width;
+                    const adjustedWidth = width > _.floor(width) + .5 ? _.ceil(width) : width;
                     return adjustedWidth < scrollWidth || height < scrollHeight;
                 }
 
@@ -137,7 +137,7 @@ export class BPTooltip implements ng.IDirective {
 
                     // to account for decimal difference in font rendering, as getBoundingClientRect().width returns a float slightly smaller
                     // than the element.scrollWidth when there's no visible overflow
-                    const adjustedAvailableWidth = availableWidth > _.floor(availableWidth) + .6 ? _.ceil(availableWidth) : availableWidth;
+                    const adjustedAvailableWidth = availableWidth > _.floor(availableWidth) + .5 ? _.ceil(availableWidth) : availableWidth;
                     return adjustedAvailableWidth < scrollWidth || availableHeight < scrollHeight;
                 }
 

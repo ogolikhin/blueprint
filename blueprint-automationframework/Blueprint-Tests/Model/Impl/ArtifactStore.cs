@@ -907,7 +907,7 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.POST,
                 jsonBody,
-                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true); // TODO: find a way to set shouldControlJsonChanges=true
+                expectedStatusCodes: expectedStatusCodes);
 
             return newArtifact;
         }

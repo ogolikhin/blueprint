@@ -54,8 +54,9 @@ SELECT
 	ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentAuthors',
 	ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentCollaborators',
 	ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentViewers',
-	SUM(CASE WHEN L.Consumer = 2 THEN 1 ELSE 0 END) AS 'UsersFromAnalytics',
-	SUM(CASE WHEN L.Consumer = 3 THEN 1 ELSE 0 END) AS 'UsersFromRestApi'
+	-- following two fields need to be set to 0 because actual data is stored in maid DB
+	0 AS 'UsersFromAnalytics',
+	0 AS 'UsersFromRestApi'
 FROM 
 	L
 GROUP BY 

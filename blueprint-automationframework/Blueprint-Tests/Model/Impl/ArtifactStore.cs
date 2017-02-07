@@ -1447,6 +1447,117 @@ namespace Model.Impl
             return traceDetails;
         }
 
+        #region Process methods
+
+        /// <summary>
+        /// Delete a Nova process artifact
+        /// (Runs:  'DELETE 'svc/bpartifactstore/artifacts/{0}')
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user credentials for the request to delete a Nova process.</param>
+        /// <param name="novaProcess">The Nova process artifact to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The list of Nova Artifacts that were deleted.</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public static List<NovaArtifact> DeleteNovaProcessArtifact(string address,
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(DeleteNovaProcessArtifact));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
+
+            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+        }
+
+        /// <summary>
+        /// Get a Nova Process (Storyteller 2.1+)
+        /// (Runs:  'GET svc/bpartifactstore/process/{0}')
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user credentials for the request to get a process.</param>
+        /// <param name="artifactId">Id of the process artifact from which the process is obtained.</param>
+        /// <param name="versionIndex">(optional) The version of the process artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The requested Nova process object.</returns>
+        public static NovaProcess GetNovaProcess(string address,
+            IUser user,
+            int artifactId,
+            int? versionIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(GetNovaProcess));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESS_id_, artifactId);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (versionIndex.HasValue)
+            {
+                queryParameters.Add("versionId", versionIndex.ToString());
+            }
+
+            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(ArtifactStore), artifactId);
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+            var response = restApi.SendRequestAndDeserializeObject<NovaProcess>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response;
+        }
+
+        /// <summary>
+        /// Update a Nova Process (Storyteller 2.1+)
+        /// (Runs:  'PATCH svc/bpartifactstore/processupdate/{0}')
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="user">The user credentials for the request to update a Nova process.</param>
+        /// <param name="novaProcess">The Nova process to update</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The updated Nova process.</returns>
+        public static NovaProcess UpdateNovaProcess(string address,
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(UpdateNovaProcess));
+
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESSUPDATE_id_, novaProcess.Id);
+
+            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, NovaProcess>(
+                path,
+                RestRequestMethod.PATCH,
+                novaProcess,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return restResponse;
+        }
+
+        #endregion Process methods
+
         #endregion Static members
     }
 }

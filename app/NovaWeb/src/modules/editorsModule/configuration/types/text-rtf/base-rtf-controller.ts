@@ -402,12 +402,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
         content = content.replace(/, ?serif([;'"])/gi, "$1");
         content = content.replace(/, ?monospace([;'"])/gi, "$1");
-        args.content = content;
 
-        const filteredContent = Helper.stripExternalImages(args.content);
+        const filteredContent = Helper.stripExternalImages(content);
         if (Helper.hasNonTextTags(filteredContent) || Helper.tagsContainText(filteredContent)) {
-            args.content = filteredContent;
+            content = filteredContent;
         }
+        args.content = content;
     }
 
     protected hasChangedFormat(): boolean {

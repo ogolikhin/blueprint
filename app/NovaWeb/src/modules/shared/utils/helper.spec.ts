@@ -306,7 +306,6 @@ describe("Remove tags from an HTML element", () => {
 });
 
 describe("Remove external images", () => {
-    const parser = new DOMParser();
     const html = document.createElement("div");
     html.innerHTML = `<p>Test</p>
                       <span>Another</span>
@@ -316,6 +315,7 @@ describe("Remove external images", () => {
                       <img src="https://www.blah.com/test.png" />
                       <img src="https://blah.com/test.png" />
                       <img src="https://cdn.blah.com/test.png" />
+                      <img src="https://i.blah.com/test.png" />
                       <img src="//cdn.blah.com/test.png" />
                       <img src="//localhost/test.png" />
                       <img src="//localhost:8000/test.png" />
@@ -324,10 +324,10 @@ describe("Remove external images", () => {
 
     it("only keep 2 images that are internal", () => {
         // Act
-        Helper.stripExternalImages(html);
+        const stripped = Helper.stripExternalImages(html.outerHTML);
 
         // Assert
-        const result = angular.element(html);
+        const result = angular.element(stripped);
         expect(result.find("img").length).toBe(2);
     });
 });

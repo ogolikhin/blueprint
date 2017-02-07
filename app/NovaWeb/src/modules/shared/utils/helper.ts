@@ -251,17 +251,20 @@ export class Helper {
         return div.innerHTML;
     }
 
-    public static stripExternalImages(content: HTMLElement) {
-        const externalUrl = new RegExp("^(?:[a-z]+:)?\/\/", "i");
-        const ngContent = angular.element(content);
+    public static stripExternalImages(content: string): string {
+        const node = document.createElement("div");
+        node.innerHTML = Helper.replaceImgSrc(content, true);
 
-        const images = ngContent.find("img");
-        angular.forEach(images, image => {
-            const url = image.getAttribute("src");
+        const externalUrl = new RegExp("^(?:[a-z]+:)?\/\/", "i");
+        const images = node.getElementsByTagName("img");
+        _.forEachRight(images, (image: HTMLImageElement | any) => {
+            const url = image.dataset.tempSrc;
             if (externalUrl.test(url)) {
-                angular.element(image).remove();
+                image.parentNode.removeChild(image);
             }
         });
+
+        return Helper.replaceImgSrc(node.innerHTML, false);
     }
 
     public static hasDesiredPermissions(artifact: IStatefulArtifact, permissions: Enums.RolePermissions): boolean {

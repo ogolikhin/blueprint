@@ -382,6 +382,10 @@ export class UserTask extends DiagramNode<IUserTaskShape> implements IUserTask {
         return this;
     }
 
+    public setEditMode(): void {
+       this.textLabel.setEditMode();
+    }
+
     private addOverlays(mxGraph: MxGraph) {
 
         let overlays = mxGraph.getCellOverlays(this);

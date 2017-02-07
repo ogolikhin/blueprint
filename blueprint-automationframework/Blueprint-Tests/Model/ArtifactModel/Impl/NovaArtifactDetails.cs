@@ -402,8 +402,7 @@ namespace Model.ArtifactModel.Impl
         ActorInheritance = 4128,
         DocumentFile = 4129,
         Collection = 4135,
-        ActorIcon = 8202,
-        PlainTextProperty = 16384 //is it correct?
+        ActorIcon = 8202
     }
 
     public class CustomProperty

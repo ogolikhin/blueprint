@@ -14,6 +14,8 @@ export class AnalyticsConfig {
         if (gATrackingCode) {
             AnalyticsProvider.setPageEvent("$stateChangeSuccess");
             AnalyticsProvider.setAccount(gATrackingCode);
+            AnalyticsProvider.trackUrlParams(true);
+
         } else {
             AnalyticsProvider.startOffline(true);
             AnalyticsProvider.disableAnalytics(true);

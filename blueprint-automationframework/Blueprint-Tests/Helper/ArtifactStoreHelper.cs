@@ -411,22 +411,20 @@ namespace Helper
         /// <param name="user">User to authenticate with.</param>
         /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
         ///     should have the same ParentId.</param>
-        /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
-        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
-        /// <param name="skipTraces">(optional) Pass true to skip comparison of the trace Relationships.</param>
-        /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <param name="propertyCompareOptions">(optional) Specifies which properties to compare.  By default, all properties are compared.</param>
+        /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false,
-            Attachments.CompareOptions compareOptions = null)
+            int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            ThrowIf.ArgumentNull(propertyCompareOptions, nameof(propertyCompareOptions));
 
             Assert.AreEqual(expectedSubArtifact.IsDeleted, actualSubArtifact.IsDeleted, "The IsDeleted parameters don't match!");
 
-            if (!skipId)
+            if (propertyCompareOptions.CompareArtifactIds)
             {
                 Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
             }
@@ -434,47 +432,61 @@ namespace Helper
             expectedParentId = expectedParentId ?? expectedSubArtifact.ParentId;
             Assert.AreEqual(expectedParentId, actualSubArtifact.ParentId, "The ParentId parameters don't match!");
 
-            if (!skipOrderIndex)
+            if (propertyCompareOptions.CompareOrderIndeces)
             {
                 Assert.AreEqual(expectedSubArtifact.OrderIndex, actualSubArtifact.OrderIndex, "The OrderIndex parameters don't match!");
             }
 
             Assert.AreEqual(expectedSubArtifact.Name, actualSubArtifact.Name, "The Name parameters don't match!");
-            Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
+
+            if (propertyCompareOptions.CompareDescriptions)
+            {
+                Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
+            }
             Assert.AreEqual(expectedSubArtifact.ItemTypeId, actualSubArtifact.ItemTypeId, "The ItemTypeId parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.ItemTypeName, actualSubArtifact.ItemTypeName, "The ItemTypeName parameters don't match!");
+
             Assert.AreEqual(expectedSubArtifact.ItemTypeVersionId, actualSubArtifact.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+
             Assert.AreEqual(expectedSubArtifact.ItemTypeIconId, actualSubArtifact.ItemTypeIconId, "The ItemTypeIconId parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.Prefix, actualSubArtifact.Prefix, "The Prefix parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");
 
-            Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
-            
-            // Compare each property in CustomPropertiess.
-            foreach (var expectedProperty in expectedSubArtifact.CustomPropertyValues)
+            if (propertyCompareOptions.CompareCustomProperties)
             {
-                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
-                "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
+                Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, 
+                    "The number of Custom Properties is different!");
 
-                var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
-
-                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
-            }
-
-            Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
-            
-            // Compare each property in SpecificPropertyValues.
-            foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
-            {
-                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
-                "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
-
-                // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
-                if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                // Compare each property in CustomProperties.
+                foreach (var expectedProperty in expectedSubArtifact.CustomPropertyValues)
                 {
-                    var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+                    Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                    "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
+
+                    var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
 
                     AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                }
+            }
+
+            if (propertyCompareOptions.CompareSpecificPropertyValues)
+            {
+                Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count,actualSubArtifact.SpecificPropertyValues.Count, 
+                    "The number of Specific Property Values is different!");
+
+                // Compare each property in SpecificPropertyValues.
+                foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
+                {
+                    Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                    "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
+
+                    // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
+                    if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                    {
+                        var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                        AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    }
                 }
             }
 
@@ -490,10 +502,10 @@ namespace Helper
             var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
             var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
 
-            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, compareOptions);
+            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, attachmentCompareOptions);
 
             // Get and compare sub-artifact Traces.
-            if (!skipTraces)
+            if (propertyCompareOptions.CompareTraces)
             {
                 var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
                     expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
@@ -1746,7 +1758,7 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
 
-            return I18NHelper.FormatInvariant("<p>{0}</p>", text);
+            return I18NHelper.FormatInvariant(StringUtilities.WrapInHTML("<p>" + text + "</p>"));
         }
 
         /// <summary>

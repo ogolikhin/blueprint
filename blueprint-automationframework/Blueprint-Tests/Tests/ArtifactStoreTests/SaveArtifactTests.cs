@@ -690,8 +690,8 @@ namespace ArtifactStoreTests
 
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault", null)]
-        //        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault", "")]
-        //        Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5086
+        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault", "", Explicit = true, Reason = IgnoreReasons.ProductBug)] // Bug: 5086
+
         [TestRail(195433)]
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
             "Verify 409 Conflict is returned at the event of publishing the invalid change.")]

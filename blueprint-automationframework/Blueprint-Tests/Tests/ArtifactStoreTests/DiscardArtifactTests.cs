@@ -21,6 +21,7 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
         private const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+        private const string UPDATE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
 
         [SetUp]
         public void SetUp()
@@ -228,7 +229,7 @@ namespace ArtifactStoreTests
                 artifact.Lock(author);
 
                 Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, author), 
-                    "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_); 
+                    "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH); 
             }
 
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null; 
@@ -269,7 +270,7 @@ namespace ArtifactStoreTests
             firstArtifact.Lock(author);
 
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, firstArtifact.Id, author),
-                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
 

@@ -1525,7 +1525,7 @@ namespace ArtifactStoreTests
                 var sourceSubArtifact = Helper.ArtifactStore.GetSubartifact(user, sourceArtifact.Id, sourceSubArtifacts[i].Id);
                 var copiedSubArtifact = Helper.ArtifactStore.GetSubartifact(user, copiedArtifact.Id, copiedSubArtifacts[i].Id);
 
-                var propertyCompareOptions = new ArtifactStoreHelper.ArtifactPropertyCompareOptions()
+                var propertyCompareOptions = new NovaItem.PropertyCompareOptions()
                 {
                     CompareArtifactIds = false,
                     CompareTraces = !skipSubArtifactTraces

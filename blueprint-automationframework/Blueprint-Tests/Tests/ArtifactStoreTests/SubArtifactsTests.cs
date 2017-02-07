@@ -588,7 +588,7 @@ namespace ArtifactStoreTests
 
                 var subArtifact = Helper.ArtifactStore.GetSubartifact(user, artifactId, s.Id);
 
-                var propertyCompareOptions = new ArtifactStoreHelper.ArtifactPropertyCompareOptions()
+                var propertyCompareOptions = new NovaItem.PropertyCompareOptions()
                 {
                     CompareOrderIndeces = false,
                     CompareDescriptions = false,

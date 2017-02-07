@@ -392,17 +392,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     };
 
     protected pastePostProcess = (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_postprocess
-        const clonedContent = args.node.cloneNode(true);
-        Helper.stripExternalImages(clonedContent);
-        const filteredClonedContent = clonedContent.outerHTML;
-
-        if (Helper.hasNonTextTags(filteredClonedContent) || Helper.tagsContainText(filteredClonedContent)) {
-            this.normalizeHtml(args.node, !this.isSingleLine);
-            Helper.stripExternalImages(args.node);
-            Helper.removeAttributeFromNode(args.node, "id");
-        } else {
-            args.preventDefault();
-        }
+        this.normalizeHtml(args.node, !this.isSingleLine);
+        Helper.removeAttributeFromNode(args.node, "id");
     };
 
     protected pastePreProcess(plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
@@ -412,7 +403,12 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         content = content.replace(/, ?serif([;'"])/gi, "$1");
         content = content.replace(/, ?monospace([;'"])/gi, "$1");
         args.content = content;
-    };
+
+        const filteredContent = Helper.stripExternalImages(args.content);
+        if (Helper.hasNonTextTags(filteredContent) || Helper.tagsContainText(filteredContent)) {
+            args.content = filteredContent;
+        }
+    }
 
     protected hasChangedFormat(): boolean {
         const colorRegEx = /(#[a-f0-9]{6})/gi;

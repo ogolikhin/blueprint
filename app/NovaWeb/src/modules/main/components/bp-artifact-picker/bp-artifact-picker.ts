@@ -166,8 +166,15 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
                 this.treeApi.deselectAll();
             },
             updateSelectableNodes: (): void => {
-                this.treeApi.updateSelectableNodes((item) => (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
-                (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
+                if (this.searchResults) {
+                    _.each(this.searchResults, (item) => {
+                        item.selectable = (!this.isItemSelectable || this.isItemSelectable({item: item.model})) &&
+                        (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.model.predefinedType) !== -1);
+                    });
+                } else {
+                    this.treeApi.updateSelectableNodes((item) => (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
+                    (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
+                }
             }
         };
         this.selectionMode = _.isString(this.selectionMode) ? this.selectionMode : "single";

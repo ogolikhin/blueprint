@@ -30,13 +30,13 @@ namespace AdminStoreTests
                 // TODO: Improve CreateUser(UserSource source = UserSource.Database) to handle special charactors properly.
                 // After that, replace belows with:
                 // - username: CreateValidPassword(MinPasswordLength)
-                // - password: CreateValidPassword(MinPasswordLength)
+                // - displayname: CreateValidPassword(MinPasswordLength)
                 // Tests require this setup are below and both are not implemented yet: 
                 // - ResetUserPassword_SendUserNameAsNewPassword_400BadRequest
                 // - ResetUserPassword_SendDisplayNameAsNewPassword_400BadRequest
                 username: RandomGenerator.RandomAlphaNumeric(MinPasswordLength),
-                password: RandomGenerator.RandomAlphaNumeric(MinPasswordLength),
-                displayname: CreateValidPassword(MinPasswordLength)
+                password: CreateValidPassword(MinPasswordLength),
+                displayname: RandomGenerator.RandomAlphaNumeric(MinPasswordLength)
                 );
         }
 
@@ -101,19 +101,22 @@ namespace AdminStoreTests
 
         #region 400 Bad Request Tests
 
-        [TestCase(MinPasswordLength)]
-        [TestCase(MaxPasswordLength)]
+        [TestCase(MinPasswordLength, 1)]
+        [TestCase(MaxPasswordLength, 16)]
         [TestRail(234569)]
         [Description("Try to reset the user's password which was changed within 24-hours password reset cooldown period." +
             "Verify that 400 BadRequest response and that the user still can login with its password.")]
-        public void ResetUserPassword_ChangingPasswordWithin24HoursCooldown_400BadRequest(uint length)
+        public void ResetUserPassword_ChangingPasswordWithin24HoursCooldown_400BadRequest(uint length, int hoursPassedAfterPasswordReset)
         {
             // Setup: Reset the password with valid new password
             string changedPassword = CreateValidPassword(length);
             Helper.AdminStore.ResetPassword(_adminUser, changedPassword);
             _adminUser.Password = changedPassword;
 
-            // Execute: Attempt to change the password again immediately after resetting the password.
+            // Execute: Attempt to change the password again after resetting the password.
+            DateTime alteredLastPasswordChangeTimestamp = DateTime.Now.AddHours(-hoursPassedAfterPasswordReset);
+            _adminUser.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
+
             string newPassword = CreateValidPassword(length); 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: newPassword),

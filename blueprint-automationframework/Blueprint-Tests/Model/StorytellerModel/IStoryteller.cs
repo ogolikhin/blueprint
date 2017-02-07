@@ -228,10 +228,9 @@ namespace Model.StorytellerModel
         /// </summary>
         /// <param name="artifact">The artifact with changes to be discarded</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The List of DiscardArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        List<DiscardArtifactResult> DiscardProcessArtifact(IArtifact artifact, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete a process artifact
@@ -241,7 +240,7 @@ namespace Model.StorytellerModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The List of DeleteArtifactResult after the call</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<DeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null);
+        List<OpenApiDeleteArtifactResult> DeleteProcessArtifact(IArtifact artifact, bool? deleteChildren = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Delete a Nova process artifact

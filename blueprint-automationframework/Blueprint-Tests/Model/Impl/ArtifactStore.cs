@@ -974,7 +974,7 @@ namespace Model.Impl
                     var artifaceBaseToDelete = artifact as ArtifactBase;
 
                     // Hack: This is needed until we can refactor ArtifactBase better.
-                    var deletedArtifactResult = new DeleteArtifactResult
+                    var deletedArtifactResult = new OpenApiDeleteArtifactResult
                     {
                         ArtifactId = deletedArtifact.Id,
                         ResultCode = HttpStatusCode.OK
@@ -1338,14 +1338,14 @@ namespace Model.Impl
 
                 if (deletedArtifactsList.Any())
                 {
-                    deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
+                    deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
                 }
 
                 if (otherPublishedArtifactsList.Any())
                 {
                     if (artifacts.Any())
                     {
-                        artifacts[0]?.NotifyArtifactPublish(otherPublishedArtifactsList);
+                        artifacts[0]?.NotifyArtifactPublished(otherPublishedArtifactsList);
                     }
 
                     Assert.That((all != null) && (all.Value == true),

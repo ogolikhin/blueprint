@@ -218,6 +218,7 @@ App_Properties_Actor_StepOf_System,"System (Expected Outcome)"
 App_Properties_Actor_InheritancePicker_Title,"Select Actor"
 App_Properties_Actor_SameBaseActor_ErrorMessage,"Actor cannot be set as its own parent"
 App_UP_Properties_No_Properties,"No properties available"
+App_UP_Properties_Unsaved_No_Properties,"The item you selected has not been saved or published. No properties available."
 
 App_Save_Artifact_Error_200,"The artifact has been saved."
 App_Save_Artifact_Error_400,"An error has occurred and the artifact {0} is no longer valid. Please contact an administrator.<br><br>"
@@ -535,6 +536,7 @@ ST_ProcessType_BusinessProcess_Label, "Business Process mode"
 ST_ProcessType_UserToSystemProcess_Label, "User-System Process mode"
 ST_ProcessType_RegenerateUS_Message, "Regenerate user stories to synchronize your changes."
 ST_ProcessType_RegenerateUSS_Message, "Published artifacts include one or more Processes. Regenerate corresponding user stories to synchronize changes"
+ST_Process_Validation_Error,"Validation error found!"
 ST_Process_Include_Creation_Validation_Error_409_121, "The Process '{0}' (ID:{1}) has been created and saved, but has issues with property values that prevent it from being published and included. Please open the Process and review its properties. After publishing it, you can include it."
 
 # Breadcrumb

@@ -101,7 +101,7 @@ export interface IProcessGraph {
     globalScope: IScopeContext;
     defaultNextIdsProvider: INextIdsProvider;
     notifyUpdateInModel: INotifyModelChanged;
-
+    systemTaskErrorPresented?: number;
     getMxGraph(): MxGraph;
     getMxGraphModel(): MxGraphModel;
     getHtmlElement(): HTMLElement;
@@ -124,6 +124,7 @@ export interface IProcessGraph {
     setSystemTasksVisible(value: boolean): void;
     clearSelection(): void;
     onUserStoriesGenerated(userStories: IUserStory[]): void;
+    onValidation(invalidShapes: number[]): void;
     copySelectedShapes(): void;
     insertSelectedShapes(edge: MxCell): void;
     getSelectedNodes(): IDiagramNode[];
@@ -190,6 +191,7 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     column: number;
     newShapeColor: string;
     canCopy: boolean;
+    isValid?: boolean;
 
     getId(): string;
     setId(value: string);

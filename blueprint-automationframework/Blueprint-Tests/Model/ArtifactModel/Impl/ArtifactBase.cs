@@ -158,10 +158,10 @@ namespace Model.ArtifactModel.Impl
 
         #region Delete methods
 
-        public List<DeleteArtifactResult> DeletedArtifactResults { get; } = new List<DeleteArtifactResult>();
+        public List<OpenApiDeleteArtifactResult> DeletedArtifactResults { get; } = new List<OpenApiDeleteArtifactResult>();
 
         /// <seealso cref="IArtifactBase.Delete(IUser, bool?, List{HttpStatusCode})"/>
-        public virtual List<DeleteArtifactResult> Delete(IUser user = null,
+        public virtual List<OpenApiDeleteArtifactResult> Delete(IUser user = null,
             bool? deleteChildren = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -175,7 +175,48 @@ namespace Model.ArtifactModel.Impl
                 deleteChildren: deleteChildren ?? ShouldDeleteChildren,
                 expectedStatusCodes: expectedStatusCodes);
 
+            UpdateStateOfDeletedArtifacts(deleteArtifactResults, this, user, Address);
+
             return deleteArtifactResults;
+        }
+
+        /// <summary>
+        /// Updates the internal flags of all artifacts affected by the deleted artifact to indicate they are now marked for deletion.
+        /// </summary>
+        /// <param name="artifactResults">The results of the OpenAPI delete artifact call.</param>
+        /// <param name="artifactToDelete">The main artifact that was deleted.</param>
+        /// <param name="user">The user who deleted the artifact(s).</param>
+        /// <param name="path">The path of the delete REST call.</param>
+        private static void UpdateStateOfDeletedArtifacts(List<OpenApiDeleteArtifactResult> artifactResults,
+            IArtifactBase artifactToDelete,
+            IUser user,
+            string path)
+        {
+            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
+
+            foreach (var deletedArtifactResult in artifactResults)
+            {
+                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
+                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
+
+                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
+                {
+                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
+                    {
+                        if (artifactToDelete.IsPublished)
+                        {
+                            artifactToDelete.IsMarkedForDeletion = true;
+                            artifaceBaseToDelete.LockOwner = user;
+                        }
+                        else
+                        {
+                            artifactToDelete.IsDeleted = true;
+                        }
+                    }
+                }
+            }
         }
 
         #endregion Delete methods
@@ -248,10 +289,10 @@ namespace Model.ArtifactModel.Impl
 
         #region Publish methods
 
+        /// <seealso cref="IArtifactBase.Publish(IUser, bool, List{HttpStatusCode})"/>
         public virtual void Publish(IUser user = null,
             bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -261,7 +302,7 @@ namespace Model.ArtifactModel.Impl
 
             var artifactToPublish = new List<IArtifactBase> { this };
 
-            PublishArtifacts(artifactToPublish, Address, user, shouldKeepLock, expectedStatusCodes, sendAuthorizationAsCookie);
+            PublishArtifacts(artifactToPublish, Address, user, shouldKeepLock, expectedStatusCodes);
         }
 
         /// <summary>
@@ -271,44 +312,19 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the Open API</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of PublishArtifactResult objects created by the publish artifacts request</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
+        /// <returns>The list of OpenApiPublishArtifactResult objects created by the publish artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<PublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
+        public static List<OpenApiPublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
             string address,
             IUser user,
             bool shouldKeepLock = false,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
 
-            string tokenValue = user.Token?.OpenApiToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var additionalHeaders = new Dictionary<string, string>();
-
-            if (shouldKeepLock)
-            {
-                additionalHeaders.Add("KeepLock", "true");
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<PublishArtifactResult>, List<IArtifactBase>>(
-                RestPaths.OpenApi.VersionControl.PUBLISH,
-                RestRequestMethod.POST,
-                artifactsToPublish,
-                additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes);
+            var publishedResultList = OpenApi.PublishArtifacts(artifactsToPublish, address, user, shouldKeepLock, expectedStatusCodes);
 
             var deletedArtifactsList = new List<IArtifactBase>();
 
@@ -341,7 +357,7 @@ namespace Model.ArtifactModel.Impl
 
             if (deletedArtifactsList.Any())
             {
-                deletedArtifactsList[0]?.NotifyArtifactDeletion(deletedArtifactsList);
+                deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
             }
 
             Assert.That(publishedResultList.Count.Equals(artifactsToPublish.Count),
@@ -375,8 +391,8 @@ namespace Model.ArtifactModel.Impl
             ArtifactObservers?.Remove(observer);
         }
 
-        /// <seealso cref="NotifyArtifactDeletion(List{IArtifactBase})"/>
-        public void NotifyArtifactDeletion(List<IArtifactBase> deletedArtifactsList)
+        /// <seealso cref="NotifyArtifactDeleted(List{IArtifactBase})"/>
+        public void NotifyArtifactDeleted(List<IArtifactBase> deletedArtifactsList)
         {
             ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
 
@@ -388,12 +404,12 @@ namespace Model.ArtifactModel.Impl
                     select result.ArtifactId;
 
                 Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
-                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeletion(deletedArtifactIds));
+                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeleted(deletedArtifactIds));
             }
         }
 
-        /// <seealso cref="NotifyArtifactPublish(List{INovaArtifactResponse})"/>
-        public void NotifyArtifactPublish(List<INovaArtifactResponse> publishedArtifactsList)
+        /// <seealso cref="NotifyArtifactPublished(List{INovaArtifactResponse})"/>
+        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
         {
             ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
 
@@ -403,7 +419,7 @@ namespace Model.ArtifactModel.Impl
                 select result.Id;
 
             Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", publishedArtifactIds));
-            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublish(publishedArtifactIds));
+            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublished(publishedArtifactIds));
         }
 
         #endregion IArtifactObservable methods

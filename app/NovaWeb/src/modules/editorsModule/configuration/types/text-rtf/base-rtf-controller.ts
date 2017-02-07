@@ -363,8 +363,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
         editor.on("Change", (e) => {
             if (e && _.isObject(e.lastLevel)) { // tinyMce emits a 2 change events per actual change
-                if (!this.$scope.options["data"].isFresh &&
-                    (this.isDirty || this.contentBuffer !== editor.getContent() || this.hasChangedFormat() || this.isLinkPopupOpen)) {
+                if (this.isDirty || this.contentBuffer !== editor.getContent() || this.hasChangedFormat() || this.isLinkPopupOpen) {
                     this.triggerChange();
                 }
             }

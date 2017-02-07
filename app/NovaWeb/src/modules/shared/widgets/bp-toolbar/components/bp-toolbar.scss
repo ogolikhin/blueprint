@@ -50,6 +50,17 @@
 .toolbar-menu__container {
     .toolbar-menu__dropdown {
         padding: 0;
+
+        > li {
+            &:first-child > .toolbar-menu__action,
+            &.toolbar-menu__separator:first-child ~ li > .toolbar-menu__action {
+                border-radius: 4px 4px 0 0;
+            }
+
+            &:last-child > .toolbar-menu__action {
+                border-radius: 0 0 4px 4px;
+            }
+        }
     }
 
     .toolbar-menu__action {

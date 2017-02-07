@@ -19,6 +19,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private List<IProject> _allProjects = null;
+        private string invalidProcessMessage = "The artifact cannot be saved. Please ensure all values are correct.";
 
         #region Setup and Cleanup
 
@@ -138,7 +139,7 @@ namespace StorytellerTests
 
             // Verify:
             TestHelper.ValidateProcessValidationError(ex.RestResponse, InternalApiErrorCodes.ProcessValidationFailed,
-                "Validation failed", new List<int> { process.Shapes[userTaskShapeIndex].Id });
+                invalidProcessMessage, new List<int> { process.Shapes[userTaskShapeIndex].Id });
         }
 
         [Category(Categories.CustomData)]
@@ -170,7 +171,7 @@ namespace StorytellerTests
 
             // Verify:
             TestHelper.ValidateProcessValidationError(ex.RestResponse, InternalApiErrorCodes.ProcessValidationFailed,
-                "Validation failed", new List<int> { process.Shapes[userTaskShapeIndex].Id });
+                invalidProcessMessage, new List<int> { process.Shapes[userTaskShapeIndex].Id });
         }
 
         [Category(Categories.CustomData)]
@@ -219,7 +220,7 @@ namespace StorytellerTests
 
             // Verify:
             TestHelper.ValidateProcessValidationError(ex.RestResponse, InternalApiErrorCodes.ProcessValidationFailed,
-                "Validation failed", new List<int> { process.Shapes[0].Id, process.Shapes[1].Id });
+                invalidProcessMessage, new List<int> { process.Shapes[0].Id, process.Shapes[1].Id });
         }
 
         #endregion Process Validation Tests

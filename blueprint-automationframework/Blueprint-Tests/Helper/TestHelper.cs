@@ -1370,7 +1370,7 @@ namespace Helper
         /// <param name="restResponse">The RestResponse that was returned.</param>
         /// <param name="expectedErrorCode">The expected error code.</param>
         /// <param name="expectedErrorMessage">The expected error message.</param>
-        /// <param name="invalidShapeIds">The expected list of shape's ids.</param>
+        /// <param name="expectedInvalidShapeIds">The expected list of shape's ids.</param>
         public static void ValidateProcessValidationError(RestResponse restResponse, int expectedErrorCode,
             string expectedErrorMessage, List<int> invalidShapeIds)
         {
@@ -1395,7 +1395,8 @@ namespace Helper
                 "Number of invalid shapes should have expected value.");
             foreach (int id in invalidShapeIds)
             {
-                Assert.True(processValidationError.ErrorContent.Exists(shapeId => shapeId == id), "...");
+                Assert.True(processValidationError.ErrorContent.Exists(shapeId => shapeId == id),
+                    "List of invalid shapes id should contain expected values.");
             }
         }
 

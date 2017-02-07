@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TestCommon;
 using Utilities;
+using Model.ArtifactModel.Impl;
 
 namespace StorytellerTests
 {
@@ -19,7 +20,7 @@ namespace StorytellerTests
         private IUser _user;
         private IProject _project;
         private List<IProject> _allProjects = null;
-        private string invalidProcessMessage = "The artifact cannot be saved. Please ensure all values are correct.";
+        private const string INVALID_PROCESS_MESSAGE = "The artifact cannot be saved. Please ensure all values are correct.";
 
         #region Setup and Cleanup
 
@@ -124,54 +125,52 @@ namespace StorytellerTests
             // Setup:
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
             var process = novaProcess.Process;
-            int userTaskShapeIndex = 2;
+            int shapeIndex = 2;
 
-            var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, process.Id, process.Shapes[userTaskShapeIndex].Id);
+            var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, process.Id, process.Shapes[shapeIndex].Id);
             var customPropertyNullValue = ArtifactStoreHelper.SetCustomPropertyToNull(userTaskSubArtifact.CustomPropertyValues,
                 customPropertyName);
 
             userTaskSubArtifact = TestHelper.CreateSubArtifactChangeSet(userTaskSubArtifact, customPropertyNullValue);
-            novaProcess.SubArtifacts = new List<Model.ArtifactModel.Impl.NovaSubArtifact> { userTaskSubArtifact };
+            novaProcess.SubArtifacts = new List<NovaSubArtifact> { userTaskSubArtifact };
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess,
-                Helper.Storyteller, _user), "Should throw 409 exception.");
+                Helper.Storyteller, _user), "Process Update should throw 409 exception when shapes have invalid Custom Property values.");
 
             // Verify:
             TestHelper.ValidateProcessValidationError(ex.RestResponse, InternalApiErrorCodes.ProcessValidationFailed,
-                invalidProcessMessage, new List<int> { process.Shapes[userTaskShapeIndex].Id });
+                INVALID_PROCESS_MESSAGE, new List<int> { process.Shapes[shapeIndex].Id });
         }
 
         [Category(Categories.CustomData)]
-        [TestCase("Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault")]
-        [TestCase("Std-Date-Required-Validated-Min-Max-HasDefault")]
+        [TestCase("Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 14)]
+        [TestCase("Std-Date-Required-Validated-Min-Max-HasDefault", 14)]
         [TestRail(234611)]
         [Description("Create Process, try to update it - set user task required, validated property with default value " +
                      "to invalid value, verify returned error message and shape Id.")]
-        public void UpdateNovaProcess_SetValidatedRequiredShapePropertyToInvalidValue_VerifyReturnedError(string customPropertyName)
+        public void UpdateNovaProcess_SetValidatedRequiredShapePropertyToInvalidValue_VerifyReturnedError(string customPropertyName, int invalidValue)
         {
             // Setup:
             var novaProcess = StorytellerTestHelper.CreateAndGetDefaultNovaProcess(Helper.Storyteller, _project, _user);
             var process = novaProcess.Process;
 
-            int userTaskShapeIndex = 2;
+            int shapeIndex = 2;
 
-            int invalidNumber = 14;
+            var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, process.Id, process.Shapes[shapeIndex].Id);
+            var customPropertyInvalidValue = ArtifactStoreHelper.SetCustomProperty(userTaskSubArtifact.CustomPropertyValues,
+                _project, PropertyPrimitiveType.Number, customPropertyName, invalidValue);
 
-            var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, process.Id, process.Shapes[userTaskShapeIndex].Id);
-            var customPropertyNullValue = ArtifactStoreHelper.SetCustomProperty(userTaskSubArtifact.CustomPropertyValues,
-                _project, Model.ArtifactModel.Impl.PropertyPrimitiveType.Number, customPropertyName, invalidNumber);
-
-            userTaskSubArtifact = TestHelper.CreateSubArtifactChangeSet(userTaskSubArtifact, customPropertyNullValue);
-            novaProcess.SubArtifacts = new List<Model.ArtifactModel.Impl.NovaSubArtifact> { userTaskSubArtifact };
+            userTaskSubArtifact = TestHelper.CreateSubArtifactChangeSet(userTaskSubArtifact, customPropertyInvalidValue);
+            novaProcess.SubArtifacts = new List<NovaSubArtifact> { userTaskSubArtifact };
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user),
-                "Should throw 409 exception.");
+                "Process Update should throw 409 exception when shapes have invalid Custom Property values.");
 
             // Verify:
             TestHelper.ValidateProcessValidationError(ex.RestResponse, InternalApiErrorCodes.ProcessValidationFailed,
-                invalidProcessMessage, new List<int> { process.Shapes[userTaskShapeIndex].Id });
+                INVALID_PROCESS_MESSAGE, new List<int> { process.Shapes[shapeIndex].Id });
         }
 
         [Category(Categories.CustomData)]
@@ -188,15 +187,15 @@ namespace StorytellerTests
 
             string customPropertyName = "Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault";
             
-            int invalidNumber = 14;
-            int validNumber = 2;
+            const int invalidNumber = 14;
+            const int validNumber = 2;
 
-            List<Model.ArtifactModel.Impl.NovaSubArtifact> shapeSubArtifacts = new List<Model.ArtifactModel.Impl.NovaSubArtifact>();
+            List<NovaSubArtifact> shapeSubArtifacts = new List<NovaSubArtifact>();
             for (int i = 0; i < 3; i++)
             {
                 
-                var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, process.Id, process.Shapes[i].Id);
-                shapeSubArtifacts.Add(userTaskSubArtifact);
+                var shapeSubArtifact = Helper.ArtifactStore.GetSubartifact(_user, process.Id, process.Shapes[i].Id);
+                shapeSubArtifacts.Add(shapeSubArtifact);
             }
 
             var customPropertyNullValue = ArtifactStoreHelper.SetCustomPropertyToNull(shapeSubArtifacts[0].CustomPropertyValues,
@@ -204,23 +203,23 @@ namespace StorytellerTests
             shapeSubArtifacts[0] = TestHelper.CreateSubArtifactChangeSet(shapeSubArtifacts[0], customPropertyNullValue);
 
             var customPropertyNewValue = ArtifactStoreHelper.SetCustomProperty(shapeSubArtifacts[1].CustomPropertyValues,
-                _project, Model.ArtifactModel.Impl.PropertyPrimitiveType.Number, customPropertyName, invalidNumber);
+                _project, PropertyPrimitiveType.Number, customPropertyName, invalidNumber);
             shapeSubArtifacts[1] = TestHelper.CreateSubArtifactChangeSet(shapeSubArtifacts[1], customPropertyNewValue);
 
             customPropertyNewValue = ArtifactStoreHelper.SetCustomProperty(shapeSubArtifacts[2].CustomPropertyValues,
-                _project, Model.ArtifactModel.Impl.PropertyPrimitiveType.Number, customPropertyName, validNumber);
+                _project, PropertyPrimitiveType.Number, customPropertyName, validNumber);
             shapeSubArtifacts[2] = TestHelper.CreateSubArtifactChangeSet(shapeSubArtifacts[2], customPropertyNewValue);
 
-            novaProcess.SubArtifacts = new List<Model.ArtifactModel.Impl.NovaSubArtifact> { shapeSubArtifacts[0],
+            novaProcess.SubArtifacts = new List<NovaSubArtifact> { shapeSubArtifacts[0],
                 shapeSubArtifacts[1], shapeSubArtifacts[2] };
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => StorytellerTestHelper.UpdateAndVerifyNovaProcess(novaProcess, Helper.Storyteller, _user),
-                "Should throw 409 exception.");
+                "Process Update should throw 409 exception when shapes have invalid Custom Property values.");
 
             // Verify:
             TestHelper.ValidateProcessValidationError(ex.RestResponse, InternalApiErrorCodes.ProcessValidationFailed,
-                invalidProcessMessage, new List<int> { process.Shapes[0].Id, process.Shapes[1].Id });
+                INVALID_PROCESS_MESSAGE, new List<int> { process.Shapes[0].Id, process.Shapes[1].Id });
         }
 
         #endregion Process Validation Tests

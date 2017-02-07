@@ -423,7 +423,7 @@ namespace Model.ArtifactModel.Impl
 
         public int? PrimitiveType { get; set; }
 
-        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Include)]
         public object CustomPropertyValue { get; set; }
 
         [JsonProperty("isReuseReadOnly", NullValueHandling = NullValueHandling.Ignore)]

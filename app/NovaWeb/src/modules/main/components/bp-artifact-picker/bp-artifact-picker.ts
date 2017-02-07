@@ -168,13 +168,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             updateSelectableNodes: (): void => {
                 if (this.searchResults) {
                     _.each(this.searchResults, (item) => {
-                        item.selectable = (!this.isItemSelectable || this.isItemSelectable({item: item.model})) &&
-                        (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.model.predefinedType) !== -1);
+                        item.selectable = this.isNodeSelectable(item.model);
                     });
-                } else {
-                    this.treeApi.updateSelectableNodes((item) => (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
-                    (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1));
                 }
+
+                this.treeApi.updateSelectableNodes((item) => this.isNodeSelectable(item));
             }
         };
         this.selectionMode = _.isString(this.selectionMode) ? this.selectionMode : "single";
@@ -229,6 +227,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             }
         }
         this.$q.when(project).then(project => this.project = project);
+    }
+
+    private isNodeSelectable = (item) => {
+        return item.selectable = (!this.isItemSelectable || this.isItemSelectable({item: item})) &&
+            (!this.selectableItemTypes || this.selectableItemTypes.indexOf(item.predefinedType) !== -1);
     }
 
     public $onDestroy(): void {

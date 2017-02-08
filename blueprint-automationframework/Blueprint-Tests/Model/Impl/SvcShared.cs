@@ -174,6 +174,35 @@ namespace Model.Impl
             }
         }
 
+        /// <summary>
+        /// Publish a list of artifacts on Blueprint server.  This is only used in Storyteller.
+        /// (Runs: 'POST /svc/shared/artifacts/publish')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user saving the artifact.</param>
+        /// <param name="artifactsToPublish">The IDs of the artifacts to publish.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Results of Publish operation.</returns>
+        public static List<NovaPublishArtifactResult> PublishArtifacts(string address,
+            IUser user,
+            List<int> artifactsToPublish,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
+
+            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactsToPublish,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return publishResults;
+        }
+
         #endregion Artifacts methods
 
         #region User and Group methods

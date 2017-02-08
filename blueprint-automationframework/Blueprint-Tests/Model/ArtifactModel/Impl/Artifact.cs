@@ -326,11 +326,10 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactProperties[0];
         }
 
-        /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode}, bool)"/>
-        public NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode})"/>
+        public NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return StorytellerPublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes,
-                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+            return StorytellerPublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.PostRaptorDiscussion(string, IUser, List{HttpStatusCode})"/>
@@ -692,41 +691,30 @@ namespace Model.ArtifactModel.Impl
 
         /// <summary>
         /// Publish a single artifact on Blueprint server.  This is only used in Storyteller.
-        /// (Runs: /svc/shared/artifacts/publish)
+        /// (Runs: 'POST /svc/shared/artifacts/publish')
         /// </summary>
-        /// <param name="artifactToPublish">The artifact to publish</param>
-        /// <param name="user">The user saving the artifact</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Resut of Publish operation</returns>
+        /// <param name="artifactToPublish">The artifact to publish.</param>
+        /// <param name="user">The user saving the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Result of Publish operation.</returns>
         public static NovaPublishArtifactResult StorytellerPublishArtifact(IArtifactBase artifactToPublish,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToPublish, nameof(artifactToPublish));
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
-            var restApi = new RestApiFacade(artifactToPublish.Address, tokenValue);
-
-            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
+            
+            var publishResults = SvcShared.PublishArtifacts(artifactToPublish.Address,
+                user,
                 new List<int> { artifactToPublish.Id },
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes);
 
             if (publishResults[0].StatusCode == NovaPublishArtifactResult.Result.Success)
             {
                 artifactToPublish.IsPublished = true;
                 artifactToPublish.IsSaved = false;
             }
+
             return publishResults[0];
         }
 

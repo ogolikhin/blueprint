@@ -117,13 +117,13 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Publish the artifact on Blueprint server.  This is only used by Storyteller.
-        /// (Runs: /svc/shared/artifacts/publish)
+        /// (Runs: 'POST /svc/shared/artifacts/publish')
         /// </summary>
-        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials
-        /// of the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        /// <param name="user">(optional) The user to authenticate to Blueprint.  If null, attempts to save using the credentials
+        ///     of the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Results of Publish operation.</returns>
+        NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Creates new discussion for the specified artifact/subartifact using Raptor REST API.

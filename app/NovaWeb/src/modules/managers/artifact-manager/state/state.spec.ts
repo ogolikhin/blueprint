@@ -4,13 +4,12 @@ import "rx/dist/rx.lite";
 import {LockedByEnum, LockResultEnum, RolePermissions} from "../../../main/models/enums";
 import {IArtifact, ItemTypePredefined} from "../../../main/models/models";
 import {ISession} from "../../../shell/login/session.svc";
-import {SessionSvcMock} from "../../../shell/login//mocks.spec";
-import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
 import {StatefulArtifact, IStatefulArtifact, IIStatefulArtifact} from "../artifact/artifact";
 import {IArtifactService} from "../artifact/artifact.svc";
 import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
 import {StatefulArtifactServices, IStatefulArtifactServices} from "../services";
 import {IArtifactState} from "./state";
+import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 
 describe("ArtifactState", () => {
     let $q: ng.IQService;
@@ -31,15 +30,15 @@ describe("ArtifactState", () => {
         $log = _$log_;
         session = new SessionSvcMock($q);
         const services = new StatefulArtifactServices(
-            $q, 
+            $q,
             $log,
-            session, 
-            null, 
-            null, 
-            null, 
-            artifactService, 
+            session,
+            null,
+            null,
+            null,
+            artifactService,
             null, null, null, null, null, null, null);
-        artifact = createArtifact(services); 
+        artifact = createArtifact(services);
     }));
 
     describe("initialize", () => {
@@ -174,7 +173,7 @@ describe("ArtifactState", () => {
             expect(artifact.artifactState.lockOwner).toBe(currentUserName);
         });
     });
-    
+
     describe("setState", () => {
         it("throws error for falsy newState", () => {
             // arrange
@@ -186,7 +185,7 @@ describe("ArtifactState", () => {
             } catch (err) {
                 error = err;
             }
-            
+
             // assert
             expect(error).toBeDefined();
             expect(error.message).toEqual("newState is invalid");
@@ -278,7 +277,7 @@ describe("ArtifactState", () => {
         it("changes readonly to true when readonly is false and historical is true", () => {
             // arrange
             artifact.artifactState.readonly = false;
-            
+
             // act
             artifact.artifactState.historical = true;
 
@@ -289,7 +288,7 @@ describe("ArtifactState", () => {
         it("doesn't change readonly when readonly is true and historical is true", () => {
             // arrange
             artifact.artifactState.readonly = true;
-            
+
             // act
             artifact.artifactState.historical = true;
 
@@ -300,7 +299,7 @@ describe("ArtifactState", () => {
         it("doesn't change readonly when readonly is false and historical is false", () => {
             // arrange
             artifact.artifactState.readonly = false;
-            
+
             // act
             artifact.artifactState.historical = false;
 
@@ -311,7 +310,7 @@ describe("ArtifactState", () => {
         it("doesn't change readonly when readonly is true and historical is false", () => {
             // arrange
             artifact.artifactState.readonly = true;
-            
+
             // act
             artifact.artifactState.historical = false;
 
@@ -346,7 +345,7 @@ describe("ArtifactState", () => {
         it("changes readonly to true when readonly is false and deleted is true", () => {
             // arrange
             artifact.artifactState.readonly = false;
-            
+
             // act
             artifact.artifactState.deleted = true;
 
@@ -357,7 +356,7 @@ describe("ArtifactState", () => {
         it("doesn't change readonly when readonly is true and deleted is true", () => {
             // arrange
             artifact.artifactState.readonly = true;
-            
+
             // act
             artifact.artifactState.deleted = true;
 
@@ -368,7 +367,7 @@ describe("ArtifactState", () => {
         it("doesn't change readonly when readonly is false and deleted is false", () => {
             // arrange
             artifact.artifactState.readonly = false;
-            
+
             // act
             artifact.artifactState.deleted = false;
 
@@ -379,7 +378,7 @@ describe("ArtifactState", () => {
         it("doesn't change readonly when readonly is true and deleted is false", () => {
             // arrange
             artifact.artifactState.readonly = true;
-            
+
             // act
             artifact.artifactState.deleted = false;
 
@@ -556,7 +555,7 @@ describe("ArtifactState", () => {
             },
             version: version
         };
-        
+
         return new StatefulArtifact(artifactModel, services);
     }
 });

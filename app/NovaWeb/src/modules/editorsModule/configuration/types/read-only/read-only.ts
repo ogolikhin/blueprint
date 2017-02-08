@@ -105,10 +105,10 @@ export class BpFieldReadOnlyController {
                                 break;
                             }
                         }
-                    } else if (angular.isObject(newValue) && newValue.customValue) {
-                        newValue = newValue.customValue;
-                        tooltip = newValue;
                     }
+                } else if (angular.isObject(newValue) && newValue.customValue) {
+                    newValue = newValue.customValue;
+                    tooltip = newValue;
                 }
                 break;
             case Enums.PrimitiveType.User:

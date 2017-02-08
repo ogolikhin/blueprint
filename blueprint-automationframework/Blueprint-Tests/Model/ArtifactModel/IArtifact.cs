@@ -103,7 +103,7 @@ namespace Model.ArtifactModel
         RapidReviewProperties GetPropertiesForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Lock Artifact(s).
+        /// Lock this Artifact.
         /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact ID in the request body)
         /// </summary>
         /// <param name="user">The user locking the artifact.</param>

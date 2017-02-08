@@ -298,6 +298,63 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
+        [TestCase]
+        [TestRail(234614)]
+        [Description("Create & publish a UseCase artifact.  Get use case sub-artifacts.  Verify that properties are set to default values.")]
+        public void GetSubArtifacts_PublishAndGetUseCaseSubArtifacts_ReturnsCorrectSubArtifactsList()
+        {
+            // Setup:
+            var useCaseArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            // Execute
+            List<SubArtifact> subArtifacts = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, useCaseArtifact.Id);
+            }, "GetSubartifacts should return 200 OK when sent with valid parameters!");
+
+            // Verify
+            VerifyUseCaseSubArtifacts(subArtifacts, useCaseArtifact.Id, subArtifactAmount: 3);
+        }
+
+        [TestCase]
+        [TestRail(234615)]
+        [Description("Create & publish a use case artifact.  Get use case sub-artifacts one by one.  Verify that properties are set to default values.")]
+        public void GetSubArtifact_PublishAndGetUseCaseSubArtifacts_ReturnsCorrectSubArtifactsList()
+        {
+            // Setup:
+            var useCaseArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
+
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, useCaseArtifact.Id);
+
+            var propertyCompareOptions = new NovaItem.PropertyCompareOptions()
+            {
+                CompareOrderIndeces = false,
+                CompareDescriptions = false,
+                CompareCustomProperties = false,
+                CompareSpecificPropertyValues = false
+            };
+
+            // Execute & Verify
+            foreach (var s in subArtifacts)
+            {
+                NovaSubArtifact subArtifact = null;
+
+                Assert.DoesNotThrow(() =>
+                {
+                    subArtifact = Helper.ArtifactStore.GetSubartifact(viewer, useCaseArtifact.Id, s.Id);
+                }, "GetSubartifact should return 200 OK when sent with valid parameters!");
+
+                ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s, itemTypeVersionId: 1), Helper.ArtifactStore,
+                    _user, s.ParentId, propertyCompareOptions);
+            }
+        }
+
         #region Custom data tests
 
         [Category(Categories.CustomData)]
@@ -322,27 +379,7 @@ namespace ArtifactStoreTests
             }, "GetSubartifacts should return 200 OK when sent with valid parameters!");
 
             // Verify
-            // Test that returned JSON corresponds to the Use Case structure
-            Assert.AreEqual(4, subArtifacts.Count, "Use Case must have 4 subartifacts - Pre Condition, Post Condition and 2 steps.");
-
-            foreach (var s in subArtifacts)
-            {
-                Assert.AreEqual(USECASE_ID, s.ParentId, "ParentId for subartifact of Use Case must be equal to Use Case Id.");
-            }
-
-            Assert.AreEqual(UseCaseDisplayNames.PRECONDITION, subArtifacts[0].DisplayName, "DisplayName for Precondition should have expected name.");
-            Assert.AreEqual(UseCaseDisplayNames.POSTCONDITION, subArtifacts[1].DisplayName, "DisplayName for Postcondition should have expected name.");
-
-            for (int i = 2; i < subArtifacts.Count; i++)
-            {
-                Assert.AreEqual(I18NHelper.FormatInvariant(UseCaseDisplayNames.STEP, i - 1),
-                    subArtifacts[i].DisplayName, "DisplayName for Step should have expected name.");
-            }
-
-            for (int i = 0; i < 3; i++)
-            {
-                Assert.IsFalse(subArtifacts[i].HasChildren, "This subartifacts shouldn't have children.");
-            }
+            VerifyUseCaseSubArtifacts(subArtifacts, USECASE_ID, subArtifactAmount: 4);
 
             Assert.IsTrue(subArtifacts[3].HasChildren, "This step must have child.");
             Assert.AreEqual(1, subArtifacts[3].Children.Count(), "This step must have child.");
@@ -712,6 +749,36 @@ namespace ArtifactStoreTests
 
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(subArtifact, new NovaSubArtifact(s, itemTypeVersionId), Helper.ArtifactStore, _user, s.ParentId,
                     propertyCompareOptions);
+            }
+        }
+
+        /// <summary>
+        /// This is to verify properties of UseCase sub-artifacts returned from getSubArtifact call
+        /// </summary>
+        /// <param name="subArtifacts">List of sub-artifacts</param>
+        /// <param name="useCaseId">UseCase Id</param>
+        /// <param name="subArtifactAmount">Amount of sub-artifact returned</param>
+        private static void VerifyUseCaseSubArtifacts(List<SubArtifact> subArtifacts, int useCaseId, int subArtifactAmount)
+        {
+            Assert.AreEqual(subArtifactAmount, subArtifacts.Count, "Use Case must have 4 subartifacts - Pre Condition, Post Condition and 2 steps.");
+
+            foreach (var s in subArtifacts)
+            {
+                Assert.AreEqual(useCaseId, s.ParentId, "ParentId for subartifact of Use Case must be equal to Use Case Id.");
+            }
+
+            Assert.AreEqual(UseCaseDisplayNames.PRECONDITION, subArtifacts[0].DisplayName, "DisplayName for Precondition should have expected name.");
+            Assert.AreEqual(UseCaseDisplayNames.POSTCONDITION, subArtifacts[1].DisplayName, "DisplayName for Postcondition should have expected name.");
+
+            for (int i = 2; i < subArtifacts.Count; i++)
+            {
+                Assert.AreEqual(I18NHelper.FormatInvariant(UseCaseDisplayNames.STEP, i - 1), subArtifacts[i].DisplayName,
+                    "DisplayName for Step should have expected name.");
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                Assert.IsFalse(subArtifacts[i].HasChildren, "This subartifacts shouldn't have children.");
             }
         }
 

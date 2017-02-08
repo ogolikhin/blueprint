@@ -11,6 +11,7 @@ import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {IDownloadService} from "../../../../commonModule/download/download.service";
 import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
+import {LicenseServiceMock} from "../../../license/license.svc.mock";
 
 describe("Component BP Artifact Attachment Item", () => {
 
@@ -21,6 +22,7 @@ describe("Component BP Artifact Attachment Item", () => {
         $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("downloadService", DownloadServiceMock);
+        $provide.service("licenseService", LicenseServiceMock);
     }));
 
     let componentTest: ComponentTest<BPAttachmentItemController>;

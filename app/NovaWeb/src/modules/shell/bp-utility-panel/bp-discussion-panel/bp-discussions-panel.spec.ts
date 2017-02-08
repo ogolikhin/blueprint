@@ -19,6 +19,8 @@ import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
 import {IDiscussion, IReply} from "./artifact-discussions.svc";
 import {BPDiscussionPanelController} from "./bp-discussions-panel";
 import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {LicenseServiceMock} from "../../license/license.svc.mock";
+import {SessionSvcMock} from "../../login/session.svc.mock";
 
 let setInitialArtifact = ($q: ng.IQService, artifactService: ArtifactServiceMock): IStatefulArtifact => {
     const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);
@@ -47,6 +49,8 @@ describe("Component BPDiscussionPanel", () => {
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
+        $provide.service("licenseService", LicenseServiceMock);
+        $provide.service("session", SessionSvcMock);
     }));
 
     beforeEach(inject((selectionManager: SelectionManagerMock) => {

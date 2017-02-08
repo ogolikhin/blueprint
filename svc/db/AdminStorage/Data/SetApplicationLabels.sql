@@ -144,6 +144,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Max_Filesize_Error', 'en-US', N'The file exceeds')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Max_Attachments_Error', 'en-US', N'The artifact has the maximum number of attachments.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Have_Wrong_Type', 'en-US', N'The attachment has wrong file type.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Image_Wrong_Type', 'en-US', N'Specified image type isn''t supported.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Error', 'en-US', N'Upload error.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Empty', 'en-US', N'There are no files to upload.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Total_Failed', 'en-US', N'Total items failed:')

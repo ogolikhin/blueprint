@@ -6,7 +6,6 @@ import {IClipboardService} from "../editorsModule/bp-process/services/clipboard.
 import {IMessageService} from "../main/components/messages/message.svc";
 import {MessageType} from "../main/components/messages/message";
 
-
 export class AppRoutes {
 
     public static $inject = [
@@ -50,10 +49,8 @@ export class AppRoutes {
                 template: "<bp-main-view></bp-main-view>",
                 controller: MainStateController,
                 resolve: {
-                    authenticated: ["session", "licenseService", "$q", (session: ISession, licenseService: ILicenseService, $q: ng.IQService) => {
-                        return licenseService.getServerLicenseValidity().then((isServerLicenseValid) => {
-                            return isServerLicenseValid ? session.ensureAuthenticated() : $q.when(false);
-                        });
+                    authenticated: ["session", "isServerLicenseValid", "$q", (session: ISession, isServerLicenseValid: boolean, $q: ng.IQService) => {
+                        return isServerLicenseValid ? session.ensureAuthenticated() : $q.when(false);
                     }],
                     isServerLicenseValid: ["licenseService", (licenseService: ILicenseService) => {
                         return licenseService.getServerLicenseValidity();
@@ -63,7 +60,8 @@ export class AppRoutes {
             .state("logout", {
                 controller: LogoutStateController,
                 resolve: {
-                    saved: ["selectionManager", (sm: ISelectionManager) => { return sm.autosave(); }]                    }
+                    saved: ["selectionManager", (sm: ISelectionManager) => { return sm.autosave(); }]
+                }
             })
             .state("error", {
                 url: "/error",
@@ -77,35 +75,24 @@ export class AppRoutes {
 }
 
 export class MainStateController {
-
-    public mainState = "main";
-
     public static $inject = [
         "$rootScope",
-        "$window",
         "$state",
         "$log",
         "selectionManager",
         "isServerLicenseValid",
-        "session",
-        "projectManager",
-        "navigationService",
         "messageService"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
-                private $window: ng.IWindowService,
-                private $state: angular.ui.IStateService,
+                private $state: ng.ui.IStateService,
                 private $log: ng.ILogService,
                 private selectionManager: ISelectionManager,
                 private isServerLicenseValid: boolean,
-                private session: ISession,
-                private projectManager: IProjectManager,
-                private navigation: INavigationService,
                 private messageService: IMessageService) {
 
         $rootScope.$on("$stateChangeStart", this.stateChangeStart);
-        $rootScope.$on("$stateChangeSuccess", this.stateChangeSuccess);
+        $rootScope.$on("$stateChangeSuccess", this.onStateChangeSuccess);
 
         if (!isServerLicenseValid) {
             $state.go("licenseError");
@@ -116,13 +103,12 @@ export class MainStateController {
         return from.indexOf(stateName) > -1 && to.indexOf(stateName) === -1;
     }
 
-    private stateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
+    private onStateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams, fromState: ng.ui.IState, fromParams) => {
         if (this.isLeavingState("main.item", fromState.name, toState.name)) {
             this.$log.info("Leaving artifact state, clearing selection...");
             this.selectionManager.clearAll();
         }
 
-        this.updateAppTitle();
         if (["logout", "error", "licenseError"].indexOf(toState.name) !== -1) {
             this.messageService.clearMessages(true);
         } else if (toState.name === "main") { // initial state with no project open
@@ -133,11 +119,6 @@ export class MainStateController {
     };
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
-        this.$log.info(
-            "state transition: %c" + fromState.name + "%c -> %c" + toState.name + "%c " + JSON.stringify(toParams)
-            , "color: blue", "color: black", "color: blue", "color: black"
-        );
-
         if (!this.isServerLicenseValid) {
             //Prevent leaving the license error state.
             if (toState.name !== "licenseError") {
@@ -146,22 +127,10 @@ export class MainStateController {
             }
         }
     };
-
-    private updateAppTitle() {
-        const artifact = this.selectionManager.getArtifact();
-
-        let title: string;
-        if (artifact) {
-            title = `${artifact.prefix}${artifact.id}: ${artifact.name}`;
-        } else {
-            title = "Storyteller";
-        }
-        this.$window.document.title = title;
-    }
 }
 
 export class LogoutStateController {
-public static $inject = [
+    public static $inject = [
         "$log",
         "session",
         "projectManager",

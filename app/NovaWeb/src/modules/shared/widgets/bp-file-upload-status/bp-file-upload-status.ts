@@ -141,7 +141,11 @@ export class BpFileUploadStatusController extends BaseDialogController {
                 return result;
             })
             .catch((error: any) => {
-                f.errorMessage = error && error.message || this.localization.get("App_UP_Attachments_Upload_Error", "Upload error.");
+                if (error.statusCode === 400) {
+                    f.errorMessage = this.localization.get("App_UP_Attachments_Have_Wrong_Type");    
+                } else {
+                    f.errorMessage = this.localization.get("App_UP_Attachments_Upload_Error", "Upload error.");
+                }
                 f.progress = 0;
                 f.isFailed = true;
                 f.isComplete = false;

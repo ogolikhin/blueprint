@@ -14,7 +14,7 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         public class PropertyCompareOptions
         {
-            /// <summary>Should the sub-artifact Id properties be compared?</summary>
+            /// <summary>Should the Id properties be compared?</summary>
             public bool CompareArtifactIds { get; set; } = true;
             /// <summary>Should the OrderIndex properties be compared?</summary>
             public bool CompareOrderIndeces { get; set; } = true;

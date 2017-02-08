@@ -29,6 +29,11 @@ export function appRun($rootScope: ng.IRootScopeService,
         const resolves = $state.$current.locals.globals as any;
         updateAppTitle(resolves.title);
 
+        if (isLeavingState("main.item", fromState.name, toState.name)) {
+            this.$log.info("Leaving artifact state, clearing selection...");
+            this.selectionManager.clearAll();
+        }
+
         if (["logout", "error", "licenseError"].indexOf(toState.name) !== -1) {
             messageService.clearMessages(true);
         } else if (toState.name === "main") { // initial state with no project open
@@ -36,6 +41,10 @@ export function appRun($rootScope: ng.IRootScopeService,
         } else {
             messageService.clearMessages();
         }
+    }
+
+    function isLeavingState(stateName: string, from: string, to: string): boolean {
+        return from.indexOf(stateName) > -1 && to.indexOf(stateName) === -1;
     }
 
     function updateAppTitle(title: string) {

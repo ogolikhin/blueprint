@@ -47,10 +47,8 @@ export class AppRoutes {
                 template: "<bp-main-view></bp-main-view>",
                 controller: MainStateController,
                 resolve: {
-                    authenticated: ["session", "licenseService", "$q", (session: ISession, licenseService: ILicenseService, $q: ng.IQService) => {
-                        return licenseService.getServerLicenseValidity().then((isServerLicenseValid) => {
-                            return isServerLicenseValid ? session.ensureAuthenticated() : $q.when(false);
-                        });
+                    authenticated: ["session", "isServerLicenseValid", "$q", (session: ISession, isServerLicenseValid: boolean, $q: ng.IQService) => {
+                        return isServerLicenseValid ? session.ensureAuthenticated() : $q.when(false);
                     }],
                     isServerLicenseValid: ["licenseService", (licenseService: ILicenseService) => {
                         return licenseService.getServerLicenseValidity();
@@ -60,7 +58,8 @@ export class AppRoutes {
             .state("logout", {
                 controller: LogoutStateController,
                 resolve: {
-                    saved: ["selectionManager", (sm: ISelectionManager) => { return sm.autosave(); }]                    }
+                    saved: ["selectionManager", (sm: ISelectionManager) => { return sm.autosave(); }]
+                }
             })
             .state("error", {
                 url: "/error",
@@ -77,27 +76,18 @@ export class MainStateController {
     public static $inject = [
         "$rootScope",
         "$state",
-        "$log",
-        "isServerLicenseValid",
-        "selectionManager"
+        "isServerLicenseValid"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
                 private $state: ng.ui.IStateService,
-                private $log: ng.ILogService,
-                private isServerLicenseValid: boolean,
-                private selectionManager: ISelectionManager) {
+                private isServerLicenseValid: boolean) {
 
-        $rootScope.$on("$stateChangeStart", this.stateChangeStart);
         $rootScope.$on("$stateChangeStart", this.stateChangeStart);
 
         if (!isServerLicenseValid) {
             $state.go("licenseError");
         }
-    }
-
-    private isLeavingState(stateName: string, from: string, to: string): boolean {
-        return from.indexOf(stateName) > -1 && to.indexOf(stateName) === -1;
     }
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
@@ -107,13 +97,6 @@ export class MainStateController {
                 event.preventDefault();
                 this.$state.go("licenseError");
             }
-        }
-    };
-
-    private stateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams, fromState: ng.ui.IState, fromParams) => {
-        if (this.isLeavingState("main.item", fromState.name, toState.name)) {
-            this.$log.info("Leaving artifact state, clearing selection...");
-            this.selectionManager.clearAll();
         }
     };
 }

@@ -9,6 +9,8 @@ import {ArtifactDiscussionsMock} from "../artifact-discussions.mock";
 import {DialogService} from "../../../../shared/widgets/bp-dialog/bp-dialog";
 import {HttpStatusCode} from "../../../../commonModule/httpInterceptor/http-status-code";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {LicenseServiceMock} from "../../../license/license.svc.mock";
+import {SessionSvcMock} from "../../../login/session.svc.mock";
 
 describe("Component BPArtifactDiscussionItem", () => {
 
@@ -26,6 +28,8 @@ describe("Component BPArtifactDiscussionItem", () => {
         $provide.service("artifactDiscussions", ArtifactDiscussionsMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogService);
+        $provide.service("licenseService", LicenseServiceMock);
+        $provide.service("session", SessionSvcMock);
     }));
 
     beforeEach(() => {

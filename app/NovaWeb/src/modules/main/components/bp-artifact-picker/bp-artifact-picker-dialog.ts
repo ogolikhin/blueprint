@@ -16,6 +16,7 @@ export interface IArtifactPickerOptions {
     selectionMode?: "single" | "multiple" | "checkbox";
     showProjects?: boolean;
     showArtifacts?: boolean;
+    showBaselinesAndReviews?: boolean;
     showCollections?: boolean;
     showSubArtifacts?: boolean;
 }

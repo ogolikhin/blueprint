@@ -77,15 +77,21 @@ export class MetaDataService implements IMetaDataService {
                     //add specific types
                     result.data.artifactTypes.unshift(
                         <IItemType>{
-                            id: -1,
+                            id: ItemTypePredefined.Project,
                             name: this.localization.get("Label_Project"),
                             predefinedType: ItemTypePredefined.Project,
                             customPropertyTypeIds: []
                         },
                         <IItemType>{
-                            id: -2,
+                            id: ItemTypePredefined.Collections,
                             name: this.localization.get("Label_Collections"),
                             predefinedType: ItemTypePredefined.CollectionFolder,
+                            customPropertyTypeIds: []
+                        },
+                        <IItemType>{
+                            id: ItemTypePredefined.BaselinesAndReviews,
+                            name: this.localization.get("Label_BaselinesAndReviews"),
+                            predefinedType: ItemTypePredefined.BaselineFolder,
                             customPropertyTypeIds: []
                         }
                     );

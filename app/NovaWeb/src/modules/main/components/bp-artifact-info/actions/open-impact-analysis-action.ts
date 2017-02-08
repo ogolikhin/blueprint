@@ -46,13 +46,13 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
 
         const invalidTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.ArtifactCollection,
             ItemTypePredefined.Collections,
-            ItemTypePredefined.CollectionFolder,
-            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.BaselinesAndReviews,
             ItemTypePredefined.BaselineFolder,
-            ItemTypePredefined.Baseline,
-            ItemTypePredefined.ArtifactReviewPackage
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.ArtifactReviewPackage,
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
         ];
 
         if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {

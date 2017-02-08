@@ -45,6 +45,10 @@ export class AddToCollectionAction extends BPDropdownAction {
         const invalidTypes = [
             ItemTypePredefined.Project,
             ItemTypePredefined.Collections,
+            ItemTypePredefined.BaselinesAndReviews,
+            ItemTypePredefined.BaselineFolder,
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.ArtifactReviewPackage,
             ItemTypePredefined.CollectionFolder,
             ItemTypePredefined.ArtifactCollection
         ];

@@ -77,7 +77,8 @@ export class DeleteAction extends BPButtonAction {
 
         const invalidTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.Collections
+            ItemTypePredefined.Collections,
+            ItemTypePredefined.BaselinesAndReviews
         ];
 
         if (invalidTypes.indexOf(this.artifact.itemTypeId) >= 0) {

@@ -114,6 +114,8 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             this.itemTypeId = item.itemTypeId;
             if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
                 this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
+            } else if (item.itemTypeId === ItemTypePredefined.BaselinesAndReviews && item.predefinedType === ItemTypePredefined.BaselineFolder) {
+                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.BaselinesAndReviews] || "");
             } else {
                 this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
             }
@@ -199,7 +201,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
 
     private toggleDiscussionsPanel(selection: ISelection) {
         const artifact = selection.artifact;
-        if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder
+        if (artifact && (artifact.predefinedType === ItemTypePredefined.BaselineFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
+            || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
+            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || artifact.predefinedType === ItemTypePredefined.Project)) {
             this.hidePanel(PanelType.Discussions);
@@ -213,7 +218,10 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         const subArtifact = selection.subArtifact;
         if (subArtifact
             || (artifact &&
-            (artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            (artifact.predefinedType === ItemTypePredefined.BaselineFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
+            || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
+            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || artifact.predefinedType === ItemTypePredefined.Project))) {
             this.hidePanel(PanelType.History);
@@ -249,6 +257,9 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         const artifact = selection.artifact;
 
         if (artifact && (artifact.predefinedType === ItemTypePredefined.Document
+            || artifact.predefinedType === ItemTypePredefined.BaselineFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
+            || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || artifact.predefinedType === ItemTypePredefined.Project)) {
@@ -261,10 +272,12 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     private toggleRelationshipsPanel(selection: ISelection) {
         const artifact = selection.artifact;
 
-        if (artifact && (artifact.predefinedType === ItemTypePredefined.CollectionFolder ||
-            artifact.predefinedType === ItemTypePredefined.Collections ||
-            artifact.predefinedType === ItemTypePredefined.ArtifactCollection ||
-            artifact.predefinedType === ItemTypePredefined.Project)) {
+        if (artifact && (artifact.predefinedType === ItemTypePredefined.BaselineFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
+            || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
+            || artifact.predefinedType === ItemTypePredefined.CollectionFolder
+            || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
+            || artifact.predefinedType === ItemTypePredefined.Project)) {
             this.hidePanel(PanelType.Relationships);
         } else {
             this.showPanel(PanelType.Relationships);

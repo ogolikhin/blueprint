@@ -1,6 +1,5 @@
 /*This folder will become root*/
 import "rx/dist/rx.lite.js";
-import "./.";
 import {AppComponent} from "./app.component";
 import {AuthSvc, IUser} from "./login/auth.svc";
 import {SessionSvc, ISession} from "./login/session.svc";

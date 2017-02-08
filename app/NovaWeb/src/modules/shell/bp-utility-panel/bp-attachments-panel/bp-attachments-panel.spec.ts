@@ -17,11 +17,11 @@ import {SelectionManagerMock} from "../../../managers/selection-manager/selectio
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ComponentTest} from "../../../util/component.test";
 import {LicenseServiceMock} from "../../license/license.svc.mock";
-import {SessionSvcMock} from "../../login/mocks.spec";
 import {BPAttachmentsPanelController} from "./bp-attachments-panel";
 import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {SessionSvcMock} from "../../login/session.svc.mock";
 
 describe("Component BP Attachments Panel", () => {
 

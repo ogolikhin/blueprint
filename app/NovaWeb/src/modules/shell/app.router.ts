@@ -3,6 +3,8 @@ import {IProjectManager, ISelectionManager} from "../managers";
 import {INavigationService} from "../commonModule/navigation/navigation.service";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "../editorsModule/bp-process/services/clipboard.svc";
+import {IMessageService} from "../main/components/messages/message.svc";
+import {MessageType} from "../main/components/messages/message";
 
 export class AppRoutes {
 
@@ -76,19 +78,45 @@ export class MainStateController {
     public static $inject = [
         "$rootScope",
         "$state",
-        "isServerLicenseValid"
+        "$log",
+        "selectionManager",
+        "isServerLicenseValid",
+        "messageService"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
                 private $state: ng.ui.IStateService,
-                private isServerLicenseValid: boolean) {
+                private $log: ng.ILogService,
+                private selectionManager: ISelectionManager,
+                private isServerLicenseValid: boolean,
+                private messageService: IMessageService) {
 
         $rootScope.$on("$stateChangeStart", this.stateChangeStart);
+        $rootScope.$on("$stateChangeSuccess", this.onStateChangeSuccess);
 
         if (!isServerLicenseValid) {
             $state.go("licenseError");
         }
     }
+
+    private isLeavingState(stateName: string, from: string, to: string): boolean {
+        return from.indexOf(stateName) > -1 && to.indexOf(stateName) === -1;
+    }
+
+    private onStateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams, fromState: ng.ui.IState, fromParams) => {
+        if (this.isLeavingState("main.item", fromState.name, toState.name)) {
+            this.$log.info("Leaving artifact state, clearing selection...");
+            this.selectionManager.clearAll();
+        }
+
+        if (["logout", "error", "licenseError"].indexOf(toState.name) !== -1) {
+            this.messageService.clearMessages(true);
+        } else if (toState.name === "main") { // initial state with no project open
+            this.messageService.clearMessages(false, [MessageType.Deleted]);
+        } else {
+            this.messageService.clearMessages();
+        }
+    };
 
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
         if (!this.isServerLicenseValid) {

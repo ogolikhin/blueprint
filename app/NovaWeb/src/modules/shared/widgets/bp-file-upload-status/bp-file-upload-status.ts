@@ -2,6 +2,7 @@ import {IDialogSettings, BaseDialogController} from "../bp-dialog";
 import {FiletypeParser} from "../../utils/filetypeParser";
 import {IFileResult} from "../../../commonModule/fileUpload/fileUpload.service";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 
 export interface IUploadStatusDialogData {
     files: File[];
@@ -141,8 +142,8 @@ export class BpFileUploadStatusController extends BaseDialogController {
                 return result;
             })
             .catch((error: any) => {
-                if (error.statusCode === 400) {
-                    f.errorMessage = this.localization.get("App_UP_Attachments_Have_Wrong_Type");    
+                if (error.statusCode === HttpStatusCode.BadRequest && error.errorCode === 131) {
+                    f.errorMessage = this.localization.get("App_UP_Attachments_Image_Wrong_Type");    
                 } else {
                     f.errorMessage = this.localization.get("App_UP_Attachments_Upload_Error", "Upload error.");
                 }

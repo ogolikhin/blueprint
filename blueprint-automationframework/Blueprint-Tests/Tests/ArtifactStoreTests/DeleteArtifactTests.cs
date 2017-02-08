@@ -19,6 +19,8 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class DeleteArtifactTests : TestBase
     {
+        private const string DELETE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
+
         private IUser _user = null;
         private IProject _project = null;
 
@@ -52,7 +54,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
@@ -80,7 +82,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
-                "'DELETE {0}' should return 200 OK if a valid {1} ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactType);
+                "'DELETE {0}' should return 200 OK if a valid {1} ID is sent!", DELETE_ARTIFACT_ID_PATH, artifactType);
 
             // Verify:
             artifact.IsDeleted = true;
@@ -104,7 +106,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, authorUser),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
@@ -127,7 +129,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
@@ -153,7 +155,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain[indexToDelete], _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             int expectedArtifactCount = artifactChain.Count - indexToDelete;
@@ -180,7 +182,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain[indexToDelete], _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             int expectedArtifactCount = artifactChain.Count - indexToDelete;
@@ -206,7 +208,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
             
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
                 
             // Verify:
             int expectedArtifactCount = artifactChain.Count;
@@ -234,7 +236,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain.First(), _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             int expectedArtifactCount = artifactChain.Count;
@@ -263,7 +265,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(targetArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             VerifyArtifactIsDeleted(targetArtifact);
@@ -289,7 +291,7 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(targetArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             VerifyArtifactIsDeleted(targetArtifact);
@@ -321,12 +323,12 @@ namespace ArtifactStoreTests
             List<INovaArtifactResponse> deletedArtifacts = null;
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(grandParentArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             Helper.ArtifactStore.PublishArtifacts(artifacts: null, user: _user, all: true);
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(parentArtifact, _user),
-                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             var parentAndChild = artifactChain.GetRange(1, 2);
@@ -773,7 +775,7 @@ namespace ArtifactStoreTests
 
                 Assert.That(deletedArtifacts.Exists(a => a.Id == artifact.Id),
                     "The list of deleted artifacts returned by 'DELETE {0}' didn't contain an artifact with ID: {1}!",
-                    RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifact.Id);
+                    DELETE_ARTIFACT_ID_PATH, artifact.Id);
             }
         }
 

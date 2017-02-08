@@ -23,7 +23,7 @@ import {MessageType} from "../../../main/components/messages/message";
 import {ErrorCode} from "../../../shell/error/error-code";
 import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
-import {SessionSvcMock} from "../../../shell/login/mocks.spec";
+import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;

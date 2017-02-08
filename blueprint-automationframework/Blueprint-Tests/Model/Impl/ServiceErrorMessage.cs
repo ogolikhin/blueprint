@@ -1,5 +1,6 @@
 ﻿
 using NUnit.Framework;
+using System.Collections.Generic;
 using Utilities;
 
 namespace Model.Impl
@@ -36,6 +37,16 @@ namespace Model.Impl
 
             Assert.AreEqual(expectedErrorMessage.ErrorCode, actualError.ErrorCode, "The ErrorCode's don't match!");
             Assert.AreEqual(expectedErrorMessage.Message, actualError.Message, "The Messages don't match!");
+        }
+    }
+
+    public class ProcessValidationError : ServiceErrorMessage
+    {
+        public List<int> ErrorContent { set; get; } = new List<int>();
+
+        public ProcessValidationError(string message, int errorCode) : base(message, errorCode)
+        {
+
         }
     }
 }

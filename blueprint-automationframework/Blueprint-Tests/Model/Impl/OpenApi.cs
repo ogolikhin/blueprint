@@ -4,6 +4,9 @@ using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.JobModel;
+using Model.JobModel.Enums;
+using Model.JobModel.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -16,12 +19,11 @@ namespace Model.Impl
     /// </summary>
     public static class OpenApi
     {
-        private const string SessionTokenCookieName = "BLUEPRINT_SESSION_TOKEN";
-
         #region Project methods
 
         /// <sumary>
         /// Get a project based on the project ID on the Blueprint server.
+        /// (Runs:  'GET api/v1/projects/{projectId}')
         /// </sumary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="projectId">The ID of the project need to be retrieved.</param>
@@ -38,6 +40,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Gets a list of all projects on the Blueprint server.
+        /// (Runs:  'GET api/v1/projects')
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="user">(optional) The user to authenticate to the server with.  Defaults to no authentication.</param>
@@ -59,7 +62,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Get the all Artifact Types for the specified project.
-        /// Runs 'GET api/v1/projects/projectId/metadata/artifactTypes' with optional 'PropertyTypes' parameter.
+        /// (Runs 'GET api/v1/projects/projectId/metadata/artifactTypes' with optional 'PropertyTypes' parameter.)
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="projectId">The ID of the project whose artifact types you want to get.</param>
@@ -101,17 +104,18 @@ namespace Model.Impl
         #region Artifact methods
 
         /// <summary>
-        /// Delete a single artifact on Blueprint server.
+        /// Delete a single artifact on Blueprint server.  The state of the artifactToDelete object isn't updated.
         /// To delete artifact permanently, Publish must be called after the Delete, otherwise the deletion can be discarded.
+        /// (Runs:  'DELETE api/v1/projects/{projectId}/artifacts/{artifactId}')
         /// </summary>
         /// <param name="address">The base address of the Blueprint server.</param>
         /// <param name="artifactToDelete">The list of artifacts to delete</param>
         /// <param name="user">The user deleting the artifact. If null, attempts to delete using the credentials
         /// of the user that created the artifact.</param>
         /// <param name="deleteChildren">(optional) Specifies whether or not to also delete all child artifacts of the specified artifact</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
         /// <returns>The DeletedArtifactResult list after delete artifact call</returns>
-        public static List<DeleteArtifactResult> DeleteArtifact(string address,
+        public static List<OpenApiDeleteArtifactResult> DeleteArtifact(string address,
             IArtifactBase artifactToDelete,
             IUser user,
             bool? deleteChildren = null,
@@ -140,59 +144,92 @@ namespace Model.Impl
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return null;
+                return new List<OpenApiDeleteArtifactResult>();
             }
 
-            var artifactResults = JsonConvert.DeserializeObject<List<DeleteArtifactResult>>(response.Content);
+            // NOTE: We have to deserialize separately instead of calling restApi.SendRequestAndDeserializeObject() because if a test gets a 404 in
+            // the Dispose(), it'll fail to deserialize and throw an exception.
+            // TODO: Fix this limitation in the Dispose() method.
+            var deleteArtifactResults = JsonConvert.DeserializeObject<List<OpenApiDeleteArtifactResult>>(response.Content);
 
-            // For all artifacts that were deleted, update their internal flags to indicate they're marked for deletion.
-            UpdateStateOfDeletedArtifacts(artifactResults, artifactToDelete, user, path);
-
-            return artifactResults;
+            return deleteArtifactResults;
         }
 
         /// <summary>
-        /// Updates the internal flags of all artifacts affected by the deleted artifact to indicate they are now marked for deletion.
+        /// Creates a new OpenAPI artifact.  The state of the artifactToSave object isn't updated.
+        /// (Runs:  'POST api/v1/projects/{projectId}/artifacts')
         /// </summary>
-        /// <param name="artifactResults">The results of the OpenAPI delete artifact call.</param>
-        /// <param name="artifactToDelete">The main artifact that was deleted.</param>
-        /// <param name="user">The user who deleted the artifact(s).</param>
-        /// <param name="path">The path of the delete REST call.</param>
-        private static void UpdateStateOfDeletedArtifacts(List<DeleteArtifactResult> artifactResults,
-            IArtifactBase artifactToDelete,
+        /// <param name="artifactToSave">The artifact to save.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
+        /// <returns>The OpenAPI result which includes the newly created artifact as well as success/failure info.</returns>
+        public static OpenApiAddArtifactResult CreateArtifact(IArtifactBase artifactToSave,
             IUser user,
-            string path)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var artifaceBaseToDelete = artifactToDelete as ArtifactBase;
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
 
-            foreach (var deletedArtifactResult in artifactResults)
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToSave.ProjectId);
+
+            if (expectedStatusCodes == null)
             {
-                Logger.WriteDebug("DELETE {0} returned following: ArtifactId: {1} Message: {2}, ResultCode: {3}",
-                    path, deletedArtifactResult.ArtifactId, deletedArtifactResult.Message, deletedArtifactResult.ResultCode);
-
-                if (deletedArtifactResult.ResultCode == HttpStatusCode.OK)
-                {
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifactResult.ArtifactId == artifactToDelete.Id)
-                    {
-                        if (artifactToDelete.IsPublished)
-                        {
-                            artifactToDelete.IsMarkedForDeletion = true;
-                            artifaceBaseToDelete.LockOwner = user;
-                        }
-                        else
-                        {
-                            artifactToDelete.IsDeleted = true;
-                        }
-                    }
-                }
+                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
             }
+
+            var restApi = new RestApiFacade(artifactToSave.Address, user.Token?.OpenApiToken);
+            var artifactResult = restApi.SendRequestAndDeserializeObject<OpenApiAddArtifactResult, ArtifactBase>(
+                path,
+                RestRequestMethod.POST,
+                artifactToSave as ArtifactBase,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return artifactResult;
+        }
+
+        /// <summary>
+        /// Saves (updates) an existing OpenAPI artifact.  The state of the artifactToUpdate object isn't updated.
+        /// (Runs:  'PATCH api/v1/projects/{0}/artifacts')
+        /// </summary>
+        /// <param name="artifactToUpdate">The artifact to update.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="propertiesToUpdate">A list of properties to be updated with their new values.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The OpenAPI result which includes the newly created artifact as well as success/failure info.</returns>
+        public static List<OpenApiUpdateArtifactResult> UpdateArtifact(IArtifactBase artifactToUpdate,
+            IUser user,
+            List<OpenApiPropertyForUpdate> propertiesToUpdate,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
+            ThrowIf.ArgumentNull(propertiesToUpdate, nameof(propertiesToUpdate));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS, artifactToUpdate.ProjectId);
+
+            // Create a copy of the artifact to update that only includes the properties to be updated
+            var artifactWithPropertyToUpdate = new OpenApiArtifactForUpdate
+            {
+                Id = artifactToUpdate.Id,
+                Properties = propertiesToUpdate
+            };
+
+            var artifactsToUpdate = new List<OpenApiArtifactForUpdate> { artifactWithPropertyToUpdate };
+
+            var restApi = new RestApiFacade(artifactToUpdate.Address, user.Token?.OpenApiToken);
+            var updateResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiUpdateArtifactResult>, List<OpenApiArtifactForUpdate>>(
+                path,
+                RestRequestMethod.PATCH,
+                artifactsToUpdate,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return updateResultList;
         }
 
         /// <summary>
         /// Retrieves a single artifact by Project ID and Artifact ID and returns information about the artifact.
-        /// (Runs:  /api/v1/projects/{projectId}/artifacts/{artifactId}  with the following optional query parameters:
+        /// (Runs:  'GET /api/v1/projects/{projectId}/artifacts/{artifactId}'  with the following optional query parameters:
         /// status={status}, comments={comments}, traces={traces}, attachments={attachments}, richtextasplain={richtextasplain}, inlinecss={inlinecss}, content={content})
         /// </summary>
         /// <param name="baseAddress">The base address of the Blueprint server.</param>
@@ -273,12 +310,13 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Gets the Version property of an Artifact via OpenAPI call
+        /// Gets the Version property of an Artifact via OpenAPI call.
+        /// (Runs:  'GET /api/v1/projects/{projectId}/artifacts/{artifactId}')
         /// </summary>
         /// <param name="address">The base address of the Blueprint server.</param>
         /// <param name="artifact">The artifact</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>The historical version of the artifact.</returns>
         public static int GetArtifactVersion(string address,
             IArtifactBase artifact,
@@ -293,13 +331,7 @@ namespace Model.Impl
                 user = artifact.CreatedBy;
             }
 
-            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
-            var path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ARTIFACTS_id_, artifact.ProjectId, artifact.Id);
-
-            var returnedArtifact = restApi.SendRequestAndDeserializeObject<ArtifactBase>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+            var returnedArtifact = GetArtifact(address, artifact.Project, artifact.Id, user, expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifact.Version;
         }
@@ -310,6 +342,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Add attachment to the specified artifact.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/attachments')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="projectId">Id of project containing artifact to add attachment.</param>
@@ -319,7 +352,11 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         public static OpenApiAttachment AddArtifactAttachment(string address,
-            int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            int projectId,
+            int artifactId,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -331,6 +368,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Add attachment to the specified sub-artifact.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/subartifacts/{subArtifactId}/attachments')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="projectId">Id of project containing artifact to add attachment.</param>
@@ -341,7 +379,12 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         public static OpenApiAttachment AddSubArtifactAttachment(string address,
-            int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            int projectId,
+            int artifactId,
+            int subArtifactId,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -362,7 +405,10 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>OpenApiAttachment object.</returns>
         private static OpenApiAttachment AddItemAttachment(string address,
-            string path, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            string path,
+            IFile file,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(file, nameof(file));
@@ -403,6 +449,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Add trace between two artifacts (or artifact and sub-artifact) with specified properties.
+        /// (Runs:  'POST /api/v1/projects/{projectId}/artifacts/{artifactId}/traces')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="sourceArtifact">The first artifact to which the call adds a trace.</param>
@@ -414,7 +461,7 @@ namespace Model.Impl
         /// <param name="subArtifactId">(optional) The ID of a sub-artifact of the target artifact to which the trace should be added.</param>
         /// <param name="reconcileWithTwoWay">(optional) Indicates how to handle the existence of an inverse trace.  If set to true, and an inverse trace already exists,
         ///   the request does not return an error; instead, the trace Type is set to TwoWay.  The default is null and acts the same as false.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>List of OpenApiTrace objects for all traces that were added.</returns>
         public static List<OpenApiTrace> AddTrace(string address,
             IArtifactBase sourceArtifact,
@@ -458,22 +505,12 @@ namespace Model.Impl
                 queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes);
 
-            if (expectedStatusCodes.Contains(HttpStatusCode.Created))
-            {
-                Assert.AreEqual(1, openApiTraces.Count);
-                Assert.AreEqual((int)HttpStatusCode.Created, openApiTraces[0].ResultCode);
-
-                string traceCreatedMessage = I18NHelper.FormatInvariant("Trace between {0} and {1} added successfully.",
-                    sourceArtifact.Id, subArtifactId ?? targetArtifact.Id);
-
-                Assert.AreEqual(traceCreatedMessage, openApiTraces[0].Message);
-            }
-
             return openApiTraces;
         }
 
         /// <summary>
         /// Delete trace between two artifacts (or artifact and sub-artifact) with specified properties.
+        /// (Runs:  'DELETE /api/v1/projects/{projectId}/artifacts/{artifactId}/traces')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="sourceArtifact">The first artifact to which the call deletes a trace.</param>
@@ -530,21 +567,126 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
 
-            if (expectedStatusCodes.Contains(HttpStatusCode.OK))
-            {
-                Assert.AreEqual(1, openApiTraces.Count);
-                Assert.AreEqual((int)HttpStatusCode.OK, openApiTraces[0].ResultCode);
-
-                string traceDeletedMessage = I18NHelper.FormatInvariant("Trace has been successfully deleted.");
-
-                Assert.AreEqual(traceDeletedMessage, openApiTraces[0].Message);
-            }
-
             return openApiTraces;
         }
 
         #endregion Trace methods
 
+        #region Version Control methods
 
+        /// <summary>
+        /// Discard changes to artifact(s) from Blueprint
+        /// </summary>
+        /// <param name="artifactsToDiscard">The artifact(s) to be discarded.</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
+            string address,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+
+            // Create a list of OpenApiVersionControlRequest from the artifacts to publish with the minimum required properties.
+            var discardRequestArtifacts = new List<OpenApiVersionControlRequest>();
+            artifactsToDiscard.ForEach(a => discardRequestArtifacts.Add(new OpenApiVersionControlRequest(a)));
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+            var artifactResults = restApi.SendRequestAndDeserializeObject<List<DiscardArtifactResult>, List<OpenApiVersionControlRequest>>(
+                RestPaths.OpenApi.VersionControl.DISCARD,
+                RestRequestMethod.POST,
+                discardRequestArtifacts,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return artifactResults;
+        }
+
+        /// <summary>
+        /// Publish Artifact(s) (Used when publishing a single artifact OR a list of artifacts).
+        /// NOTE: This function won't update the internal status flags used by automation.
+        /// (Runs:  'POST api/v1/vc/publish')
+        /// </summary>
+        /// <param name="artifactsToPublish">The list of artifacts to publish</param>
+        /// <param name="address">The base url of the Open API</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="shouldKeepLock">(optional) Boolean parameter which defines whether or not to keep the lock after publishing the artfacts</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
+        /// <returns>The list of OpenApiPublishArtifactResult objects created by the publish artifacts request.</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<OpenApiPublishArtifactResult> PublishArtifacts(List<IArtifactBase> artifactsToPublish,
+            string address,
+            IUser user,
+            bool shouldKeepLock = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
+
+            var additionalHeaders = new Dictionary<string, string>();
+
+            if (shouldKeepLock)
+            {
+                additionalHeaders.Add("KeepLock", "true");
+            }
+
+            // Create a list of OpenApiVersionControlRequest from the artifacts to publish with the minimum required properties.
+            var publishRequestArtifacts = new List<OpenApiVersionControlRequest>();
+            artifactsToPublish.ForEach(a => publishRequestArtifacts.Add(new OpenApiVersionControlRequest(a)));
+
+            var restApi = new RestApiFacade(address, user.Token?.OpenApiToken);
+            var publishedResultList = restApi.SendRequestAndDeserializeObject<List<OpenApiPublishArtifactResult>, List<OpenApiVersionControlRequest>>(
+                RestPaths.OpenApi.VersionControl.PUBLISH,
+                RestRequestMethod.POST,
+                publishRequestArtifacts,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return publishedResultList;
+        }
+
+        #endregion Version Control methods
+
+        #region ALM Jobs methods
+
+        /// <summary>
+        /// Add ALM ChangeSummary Job using OpenAPI.
+        /// </summary>
+        /// <param name="address">The base URL of the API.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="project">The project to have the ALM ChangeSummary job.</param>
+        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
+        /// <param name="almTarget">The ALM target.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>OpenAPIJob that contains information for ALM ChangeSummary Job.</returns>
+        public static IOpenAPIJob AddAlmChangeSummaryJob(string address,
+            IUser user,
+            IProject project,
+            int baselineOrReviewId,
+            IAlmTarget almTarget,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(almTarget, nameof(almTarget));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALM.Targets_id_.JOBS, project.Id, almTarget.Id);
+            var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId);
+
+            var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
+            var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
+                path,
+                RestRequestMethod.POST,
+                almJob,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return returnedAlmChangeSummaryJob;
+        }
+
+        #endregion ALM Jobs methods
     }
 }

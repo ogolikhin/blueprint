@@ -23,7 +23,8 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class PublishArtifactTests : TestBase
     {
-        const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
+        private const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
+        private const string UPDATE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
 
         private IUser _user = null;
         private IUser _authorUser = null;
@@ -467,7 +468,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    allArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }
@@ -507,7 +508,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    savedArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    savedArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }
@@ -595,7 +596,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    allArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }
@@ -645,7 +646,7 @@ namespace ArtifactStoreTests
                 // This is needed so the Dispose() in the TearDown doesn't fail.
                 if (publishResponse != null)
                 {
-                    allArtifacts.First().NotifyArtifactPublish(publishResponse.Artifacts);
+                    allArtifacts.First().NotifyArtifactPublished(publishResponse.Artifacts);
                 }
             }
         }
@@ -935,7 +936,7 @@ namespace ArtifactStoreTests
             requestBody = requestBody.Replace(toChange, changeTo);
 
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, _user),
@@ -974,7 +975,7 @@ namespace ArtifactStoreTests
             requestBody = requestBody.Replace(toChange, changeTo);
 
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.BlueprintServer.Address, requestBody, artifactList[index].Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, all: true),

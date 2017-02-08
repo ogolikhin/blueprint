@@ -101,7 +101,7 @@ bp-properties-panel {
             }
 
             .ui-select-single {
-                min-width: $properties-min-width;
+                min-width: $properties-min-width - 12px;
 
                 .ui-select-toggle {
                     max-width: $property-input-width;
@@ -183,9 +183,5 @@ bp-properties-panel {
         .formly {
             min-width: 100%;
         }
-    }
-
-    .properties.collapsed .content.system-properties {
-        height: #{$property-min-height * 2};
     }
 }

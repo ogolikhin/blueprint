@@ -48,10 +48,10 @@ namespace Model.ArtifactModel.Impl
 
         #region Methods
 
+        /// <seealso cref="Artifact.Save(IUser, bool, List{HttpStatusCode})"/>
         public void Save(IUser user = null,
             bool shouldGetLockForUpdate = true,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             // If CreatedBy is null, then this save is adding the artifact.  User must not be null.
             if (CreatedBy == null)
@@ -67,12 +67,12 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes, sendAuthorizationAsCookie);
+            SaveArtifact(this, user, shouldGetLockForUpdate, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.Discard(IUser, List{HttpStatusCode})"/>
         public List<DiscardArtifactResult> Discard(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -86,8 +86,7 @@ namespace Model.ArtifactModel.Impl
                 artifactToDiscard, 
                 Address, 
                 user, 
-                expectedStatusCodes, 
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
 
             foreach (var discardArtifactResult in discardArtifactResults)
             {
@@ -407,12 +406,10 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user saving the artifact.</param>
         /// <param name="shouldGetLockForUpdate">(optional) Pass false if you don't want to get a lock before trying to update the artifact.  Default is true.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
         public static void SaveArtifact(IArtifactBase artifactToSave,
             IUser user,
             bool shouldGetLockForUpdate = true,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToSave, nameof(artifactToSave));
@@ -427,7 +424,7 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes, sendAuthorizationAsCookie);
+                OpenApiArtifact.SaveArtifact(artifactToSave, user, expectedStatusCodes);
             }
             else if (restRequestMethod == RestRequestMethod.PATCH)
             {
@@ -451,22 +448,20 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user updating the artifact.</param>
         /// <param name="artifactDetailsChanges">(optional) The changes to make to the artifact.  This should contain the bare minimum changes that you want to make.
         ///     By default if null is passed, this function will make a random change to the 'Description' property.</param>
-        /// <param name="expectedServiceErrorMessage">(optional)Expected error message.</param>
         /// <param name="address">(optional) The address of the ArtifactStore service.  If null, the Address property of the artifactToUpdate is used.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>        
+        /// <returns>The ArtifactDetails that was sent to ArtifactStore to be saved.</returns>
         public static NovaArtifactDetails UpdateArtifact(IArtifactBase artifactToUpdate,
             IUser user,
             NovaArtifactDetails artifactDetailsChanges = null,
-            IServiceErrorMessage expectedServiceErrorMessage = null,
             string address = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
+            // TODO: Simplify this function.  It's insanely complicated.
+
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToUpdate, nameof(artifactToUpdate));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactToUpdate.Id);
             var artifactChanges = artifactDetailsChanges;
 
             if (artifactChanges == null)
@@ -499,58 +494,37 @@ namespace Model.ArtifactModel.Impl
                 });
             }
 
-            var restApi = new RestApiFacade(address, tokenValue);
+            ArtifactStore.UpdateArtifact(address, user, artifactChanges, expectedStatusCodes);
 
-            try {
-                restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                bodyObject: artifactChanges,
-                expectedStatusCodes: expectedStatusCodes);
-
-                if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
-                {
-                    artifactToUpdate.IsSaved = true;
-
-                    if (user?.Token?.OpenApiToken == null)
-                    {
-                        // We need an OpenAPI token to make the GetProject call below.
-                        Assert.NotNull(artifactToUpdate.Project, "Project is null and we don't have an OpenAPI token!");
-                    }
-
-                    var project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
-                    var artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
-
-                    // Copy updated properties into original artifact.
-                    if (artifactDetailsChanges == null)
-                    {
-                        artifactBaseToUpdate.Id = artifactToUpdate.Id;
-                        artifactBaseToUpdate.ProjectId = artifactToUpdate.ProjectId;
-                        artifactBaseToUpdate.Version = artifactToUpdate.Version;
-                        artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty(nameof(NovaArtifactDetails.Description), artifactChanges.Description, project, user);
-                    }
-                    else
-                    {
-                        artifactBaseToUpdate.ReplacePropertiesWithPropertiesFromSourceArtifactDetails(artifactChanges, project, user);
-                    }
-                }
-
-                artifactChanges.ItemTypeId = itemTypeId; //restore ItemTypeId
-                return artifactChanges;
-            }
-
-            catch (Exception)
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
-                Logger.WriteDebug("Content = '{0}'", restApi.Content);
+                artifactToUpdate.IsSaved = true;
 
-                if (expectedServiceErrorMessage != null)
+                if (user?.Token?.OpenApiToken == null)
                 {
-                    var serviceErrorMessage = JsonConvert.DeserializeObject<ServiceErrorMessage>(restApi.Content);
-                    serviceErrorMessage.AssertEquals(expectedServiceErrorMessage);
+                    // We need an OpenAPI token to make the GetProject call below.
+                    Assert.NotNull(artifactToUpdate.Project, "Project is null and we don't have an OpenAPI token!");
                 }
 
-                throw;
+                var project = artifactToUpdate.Project ?? ProjectFactory.CreateProject().GetProject(address, artifactToUpdate.ProjectId, user);
+                var artifactBaseToUpdate = artifactToUpdate as ArtifactBase;
+
+                // Copy updated properties into original artifact.
+                if (artifactDetailsChanges == null)
+                {
+                    artifactBaseToUpdate.Id = artifactToUpdate.Id;
+                    artifactBaseToUpdate.ProjectId = artifactToUpdate.ProjectId;
+                    artifactBaseToUpdate.Version = artifactToUpdate.Version;
+                    artifactBaseToUpdate.AddOrReplaceTextOrChoiceValueProperty(nameof(NovaArtifactDetails.Description), artifactChanges.Description, project, user);
+                }
+                else
+                {
+                    artifactBaseToUpdate.ReplacePropertiesWithPropertiesFromSourceArtifactDetails(artifactChanges, project, user);
+                }
             }
+
+            artifactChanges.ItemTypeId = itemTypeId; //restore ItemTypeId
+            return artifactChanges;
         }
 
         /// <summary>
@@ -560,21 +534,18 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the API</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<DiscardArtifactResult> DiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
             string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             return OpenApiArtifact.DiscardArtifacts(
                 artifactsToDiscard,
                 address,
                 user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
         }
 
         /// <summary>

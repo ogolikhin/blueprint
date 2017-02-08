@@ -7,7 +7,7 @@ export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult
     constructor(
         public model: T,
         private onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean,
-        public readonly selectable: boolean = true,
+        public selectable: boolean = true,
         public project?: AdminStoreModels.IInstanceItem) {
     }
 

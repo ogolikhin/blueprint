@@ -1,6 +1,7 @@
 import {ItemStateController} from "./itemState/itemState.controller";
 import {IItemStateService} from "./itemState/itemState.service";
 import {ISelectionManager} from "../managers/selection-manager/selection-manager";
+import {IItemInfoResult} from "../commonModule/itemInfo/itemInfo.service";
 
 export class ArtifactRoutes {
 
@@ -45,6 +46,9 @@ export class ArtifactRoutes {
 
                         const id = parseInt($stateParams["id"], 10);
                         return itemStateService.getItemInfoResult(id);
+                    }],
+                    title: ["itemInfo", (itemInfo: IItemInfoResult) => {
+                        return `${itemInfo.prefix}${itemInfo.id}: ${itemInfo.name}`;
                     }],
                     saved: ["selectionManager", (sm: ISelectionManager) => sm.autosave()]
                 }

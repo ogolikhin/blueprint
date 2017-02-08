@@ -1060,6 +1060,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Max_Filesize_Error', 'en-US', N'The file exceeds')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Max_Attachments_Error', 'en-US', N'The artifact has the maximum number of attachments.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Have_Wrong_Type', 'en-US', N'The attachment has wrong file type.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Image_Wrong_Type', 'en-US', N'Specified image type isn''t supported.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Error', 'en-US', N'Upload error.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Empty', 'en-US', N'There are no files to upload.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Attachments_Upload_Total_Failed', 'en-US', N'Total items failed:')
@@ -1132,6 +1133,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Act
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_InheritancePicker_Title', 'en-US', N'Select Actor')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Properties_Actor_SameBaseActor_ErrorMessage', 'en-US', N'Actor cannot be set as its own parent')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Properties_No_Properties', 'en-US', N'No properties available')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_UP_Properties_Unsaved_No_Properties', 'en-US', N'The item you selected has not been saved or published. No properties available.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_200', 'en-US', N'The artifact has been saved.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_400', 'en-US', N'An error has occurred and the artifact {0} is no longer valid. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_404', 'en-US', N'Sorry, but the artifact {0} cannot be saved because it has been deleted or moved. Please Refresh All.')
@@ -1414,6 +1416,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_Bus
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_UserToSystemProcess_Label', 'en-US', N'User-System Process mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_RegenerateUS_Message', 'en-US', N'Regenerate user stories to synchronize your changes.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_ProcessType_RegenerateUSS_Message', 'en-US', N'Published artifacts include one or more Processes. Regenerate corresponding user stories to synchronize changes')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Process_Validation_Error', 'en-US', N'Validation error found!')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Process_Include_Creation_Validation_Error_409_121', 'en-US', N'The Process ''{0}'' (ID:{1}) has been created and saved, but has issues with property values that prevent it from being published and included. Please open the Process and review its properties. After publishing it, you can include it.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Breadcrumb_InaccessibleArtifact', 'en-US', N'<Inaccessible>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_US_Generate_Dropdown_Tooltip', 'en-US', N'User Stories')
@@ -2066,7 +2069,7 @@ FROM
 WHERE 
 	@startMonth < @currentMonth AND
 	la.ConsumerType = 1 AND 
-	la.ActionType = 1 --and UserLicenseType in (3,2) 
+	la.ActionType = 1 
 GROUP BY 
 	la.UserId, YEAR(la.[TimeStamp])* 100 + MONTH(la.[TimeStamp])
 ORDER BY 
@@ -2135,8 +2138,9 @@ SELECT
 	ISNULL(MAX(CASE WHEN L.CountLicense = 3 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentAuthors',
 	ISNULL(MAX(CASE WHEN L.CountLicense = 2 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentCollaborators',
 	ISNULL(MAX(CASE WHEN L.CountLicense = 1 THEN L.[Count] ELSE 0 END), 0) AS 'MaxConcurrentViewers',
-	SUM(CASE WHEN L.Consumer = 2 THEN 1 ELSE 0 END) AS 'UsersFromAnalytics',
-	SUM(CASE WHEN L.Consumer = 3 THEN 1 ELSE 0 END) AS 'UsersFromRestApi'
+	-- following two fields need to be set to 0 because actual data is stored in maid DB
+	0 AS 'UsersFromAnalytics',
+	0 AS 'UsersFromRestApi'
 FROM 
 	L
 GROUP BY 

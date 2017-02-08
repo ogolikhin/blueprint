@@ -1,4 +1,4 @@
-import {IBPButtonOrDropdownAction} from "../actions";
+import {IBPButtonOrDropdownAction, BPButtonOrDropdownSeparator} from "../actions";
 
 export class BPToolbarMenu implements ng.IComponentOptions {
     public controller: ng.Injectable<ng.IControllerConstructor> = BPToolbarMenuController;

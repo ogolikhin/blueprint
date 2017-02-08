@@ -604,7 +604,7 @@ namespace ArtifactStoreTests
                 CompareUsers = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, compareOptions: compareOptions);
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, attachmentCompareOptions: compareOptions);
         }
 
         [Category(Categories.CustomData)]
@@ -657,7 +657,7 @@ namespace ArtifactStoreTests
                 CompareUsers = false
             };
 
-            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, compareOptions: compareOptions);
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceArtifactDetails, copyResult.Artifact, attachmentCompareOptions: compareOptions);
         }
 
         [TestCase]
@@ -695,7 +695,7 @@ namespace ArtifactStoreTests
             };
 
             AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,
-                skipSubArtifactTraces: true, compareOptions: compareOptions);
+                skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions);
 
             var childArtifacts = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, copyResult.Artifact.Id, _user);
 
@@ -800,7 +800,7 @@ namespace ArtifactStoreTests
             };
 
             AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,
-                skipSubArtifactTraces: true, compareOptions: compareOptions);
+                skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions);
 
             var copiedProcess = Helper.Storyteller.GetProcess(_user, copyResult.Artifact.Id);
 
@@ -1506,10 +1506,10 @@ namespace ArtifactStoreTests
         /// <param name="sourceArtifact">The original source artifact.</param>
         /// <param name="copiedArtifact">The new copied artifact.</param>
         /// <param name="skipSubArtifactTraces">(optional) Pass true to skip comparison of the SubArtifact trace Relationships.</param>
-        /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the sub-artifact properties are different between the source and copied artifacts.</exception>
         private void AssertCopiedSubArtifactsAreEqualToOriginal(IUser user, INovaArtifactBase sourceArtifact, INovaArtifactBase copiedArtifact,
-            bool skipSubArtifactTraces = false, Attachments.CompareOptions compareOptions = null)
+            bool skipSubArtifactTraces = false, Attachments.CompareOptions attachmentCompareOptions = null)
         {
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(copiedArtifact, nameof(copiedArtifact));
@@ -1525,8 +1525,13 @@ namespace ArtifactStoreTests
                 var sourceSubArtifact = Helper.ArtifactStore.GetSubartifact(user, sourceArtifact.Id, sourceSubArtifacts[i].Id);
                 var copiedSubArtifact = Helper.ArtifactStore.GetSubartifact(user, copiedArtifact.Id, copiedSubArtifacts[i].Id);
 
+                var propertyCompareOptions = new NovaItem.PropertyCompareOptions()
+                {
+                    CompareArtifactIds = false,
+                    CompareTraces = !skipSubArtifactTraces
+                };
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(sourceSubArtifact, copiedSubArtifact, Helper.ArtifactStore, user,
-                    skipId: true, skipTraces: skipSubArtifactTraces, expectedParentId: copiedArtifact.Id, compareOptions: compareOptions);
+                     copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions);
             }
         }
 

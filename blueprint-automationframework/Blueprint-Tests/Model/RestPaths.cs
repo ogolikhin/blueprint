@@ -16,7 +16,7 @@ namespace Model
             public const string PROJECTS_id_                        = "api/v1/projects/{0}";
             public const string PROJECTS                            = "api/v1/projects";
 
-            [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
+            [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class Projects_id_
             {
                 public const string ARTIFACTS_id_                   = "api/v1/projects/{0}/artifacts/{1}";

@@ -31,6 +31,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
+    getValidationObservable(): Rx.Observable<number[]>;
 }
 
 // TODO: explore the possibility of using an internal interface for services
@@ -43,6 +44,8 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     protected _subject: Rx.BehaviorSubject<IStatefulArtifact>;
     protected _subArtifactCollection: ISubArtifactCollection;
+
+    private _validationSubject: Rx.Subject<Array<number>>;
 
     constructor(artifact: Models.IArtifact, protected services: IStatefulArtifactServices) {
         super(artifact, services);
@@ -80,6 +83,17 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             this._subject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
         }
         return this._subject;
+    }
+
+    protected get validationSubject(): Rx.Subject<number[]> {
+        if (!this._validationSubject) {
+            this._validationSubject = new Rx.Subject<number[]>();
+        }
+        return this._validationSubject;
+    }
+
+    public getValidationObservable(): Rx.Observable<number[]> {
+        return this.validationSubject.asObservable();
     }
 
     protected initialize(artifact: Models.IArtifact): void {
@@ -437,12 +451,12 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             return this.services.$q.reject(error);
         });
     }
-    protected updateArtifact(changes: Models.IArtifact): ng.IPromise<Models.IArtifact> {
+    protected updateArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<Models.IArtifact> {
         const url = `/svc/bpartifactstore/artifacts/${changes.id}`;
         return this.services.artifactService.updateArtifact(url, changes);
     }
     private saveArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<IStatefulArtifact> {
-        return this.updateArtifact(changes).catch((error) => {
+        return this.updateArtifact(changes, autoSave).catch((error) => {
             // if error is undefined it means that it handled on upper level (http-error-interceptor.ts)
             if (error) {
                 return this.services.$q.reject(this.handleSaveError(error));
@@ -491,6 +505,10 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_123");
             } else if (error.errorCode === 124) {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409_124");
+            } else if (error.errorCode === 133) {
+                message = error.message;
+                const errorContent = error.errorContent as number[];
+                this.validationSubject.onNext(errorContent);
             } else {
                 message = this.services.localizationService.get("App_Save_Artifact_Error_409");
             }
@@ -699,9 +717,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
             const isItemValid = this.validateItem(propertyTypes);
 
             if (isItemValid) {
-                return this.subArtifactCollection.validate().catch((error) => {
-                    return this.services.$q.reject(error);
-                });
+                return this.services.$q.resolve();
             }
 
             const message: string = `The artifact ${this.prefix + this.id.toString()} cannot be saved. Please ensure all values are correct.`;

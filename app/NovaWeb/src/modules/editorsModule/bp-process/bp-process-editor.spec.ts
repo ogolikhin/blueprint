@@ -17,6 +17,7 @@ import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.s
 import {IFileUploadService} from "../../commonModule/fileUpload/";
 import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {ISubArtifactCollection} from "../../managers/artifact-manager/sub-artifact/sub-artifact-collection";
 
 describe("BpProcessEditor", () => {
     let $q: ng.IQService;
@@ -26,6 +27,7 @@ describe("BpProcessEditor", () => {
     let selectionManager: ISelectionManager;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
+    let validationSubject: Rx.Subject<number[]>;
     let subArtifactSubject: Rx.BehaviorSubject<IStatefulSubArtifact>;
     let utilityPanelService:IUtilityPanelService;
     let fileUploadService:IFileUploadService;
@@ -36,6 +38,7 @@ describe("BpProcessEditor", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         mainWindowSubject = new Rx.BehaviorSubject<IMainWindow>(<IMainWindow>{});
         artifactSubject = new Rx.BehaviorSubject<IStatefulArtifact>(<IStatefulArtifact>{});
+        validationSubject = new Rx.Subject<number[]>();
         subArtifactSubject = new Rx.BehaviorSubject<IStatefulSubArtifact>(<IStatefulSubArtifact>{});
 
         windowManager = <IWindowManager>{
@@ -47,7 +50,9 @@ describe("BpProcessEditor", () => {
             getArtifact: () => <IStatefulArtifact>{
                 id: 1,
                 getObservable: () => artifactSubject.asObservable(),
-                subArtifactCollection: {get: (id: number) => { /* no op */ }}
+                getValidationObservable: () => validationSubject.asObservable(),
+                subArtifactCollection: <any>{
+                    get: (id: number) => { /* no op */ }}
             },
             setSubArtifact: (subArtifact: IStatefulSubArtifact) => { /* no op */ },
             clearSubArtifact: () => { /* no op */ }

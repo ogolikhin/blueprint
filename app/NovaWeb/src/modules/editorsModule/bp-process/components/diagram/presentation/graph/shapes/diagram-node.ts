@@ -1,18 +1,21 @@
 import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
-import {ArtifactUpdateType} from  "../../../../../models/enums";
-import * as Enums from "../../../../../../../main/models/enums";
 import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";
 import {DiagramNodeElement} from "./diagram-element";
-import {ElementType, Direction, NodeType, NodeChange} from "./../models/";
+import {ElementType, Direction, NodeType} from "./../models/";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
 import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {ProcessEvents} from "../../../process-diagram-communication";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
     direction: Direction;
     model: T;
     protected dialogManager: IModalDialogCommunication;
- 
+    public alertOverlay: mxCellOverlay;
+    public addAlert: Function;
+    public removeAlert: Function;
+    private _isValid: boolean;
+
     public get newShapeColor(): string {
         return "#F7F1CF";
     }
@@ -21,6 +24,52 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         super(model.id.toString(), ElementType.Shape);
 
         this.model = model;
+    }
+
+    protected addAlertIcon(mxGraph: MxGraph, x: number = -10, y: number = -12) {
+        const image = this.getImageSource("alert.svg");
+        const width = 16;
+        const height = 16;
+        const tooltip = "Validation error found!";
+        this.alertOverlay = this.addOverlay(mxGraph, this, image, width, height, tooltip,
+            mxConstants.ALIGN_RIGHT, mxConstants.ALIGN_TOP, x, y);
+
+        this.alertOverlay.addListener("click", () => {
+            this.processDiagramManager.action(ProcessEvents.OpenProperties);
+        });
+    }
+
+    protected removeAlertIcon(mxGraph: MxGraph) {
+        if (this.alertOverlay) {
+            _.remove(mxGraph.getCellOverlays(this), {mxObjectId: this.alertOverlay["mxObjectId"]});
+            if (mxGraph.refresh) {
+                mxGraph.refresh(this);
+            }
+            this.alertOverlay["removeListener"]("click", this.openProperties);
+            this.alertOverlay = null;
+        }
+    }
+
+    protected openProperties = () => {
+        this.processDiagramManager.action(ProcessEvents.OpenProperties);
+    }
+
+    public get isValid() {
+        return this._isValid;
+    }
+
+    public set isValid(isValid: boolean) {
+        if (!isValid) {
+            if (_.isFunction(this.addAlert)) {
+                this._isValid = false;
+                this.addAlert();
+            }
+        } else {
+            if (_.isFunction(this.removeAlert)) {
+                this._isValid = true;
+                this.removeAlert();
+            }
+        }
     }
 
     public getNode(): IDiagramNode {
@@ -41,7 +90,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     protected setLabelPropertyValue(value: string) {
        this.setPropertyValue("label", value);
-      
+
     }
 
     protected updateCellLabel(value: string) {
@@ -242,7 +291,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
         return this.model.propertyValues[propertyName].value;
     }
-    
+
     protected setPropertyValue(propertyName: string, newValue: any): boolean {
         if (this.model == null || this.model.propertyValues == null || this.model.propertyValues[propertyName] == null) {
             return false;
@@ -270,7 +319,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
                     processSubArtifact.specialProperties.set(propertyTypePredefined, newValue);
                 }
             }
-        }            
+        }
     }
     protected getParentId(): number {
         return this.model.parentId;
@@ -297,10 +346,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     public highlight(mxGraph: MxGraph, color?: string) {
-        // override in descendant shape classes 
+        // override in descendant shape classes
     }
-    
+
     public clearHighlight(mxGraph: MxGraph) {
-        // override in descendant shape classes 
+        // override in descendant shape classes
     }
 }

@@ -26,6 +26,8 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class SaveArtifactTests : TestBase
     {
+        private const string UPDATE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
+
         private IUser _user = null;
         private IProject _project = null;
         private List<IProject> _allProjects = null;
@@ -488,7 +490,7 @@ namespace ArtifactStoreTests
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if an empty body is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                UPDATE_ARTIFACT_ID_PATH);
 
             const string expectedMessage = "Artifact not provided.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -511,7 +513,7 @@ namespace ArtifactStoreTests
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
             }, "'PATCH {0}' should return 400 Bad Request if a corrupt JSON body is sent!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                UPDATE_ARTIFACT_ID_PATH);
 
             const string expectedMessage = "Artifact not provided.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -533,7 +535,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user);
-            }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'PATCH {0}' should return 400 Bad Request if the 'Id' property is missing in the JSON body!", UPDATE_ARTIFACT_ID_PATH);
 
             const string expectedMessage = "Artifact not provided.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -556,7 +558,7 @@ namespace ArtifactStoreTests
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, wrongArtifactId, _user);
             }, "'PATCH {0}' should return 400 Bad Request if the Artifact ID in the URL is different than in the body!",
-                RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                UPDATE_ARTIFACT_ID_PATH);
 
             const string expectedMessage = "Artifact does not match Id of request.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -580,7 +582,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifactDetails.Id, _user);
-            }, "'PATCH {0}' should return 400 Bad Request if the artifact name property is empty!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'PATCH {0}' should return 400 Bad Request if the artifact name property is empty!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NameCannotBeEmpty, "The Item name cannot be empty");
@@ -599,7 +601,7 @@ namespace ArtifactStoreTests
 
             // Execute & Verify:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithNoToken),
-                "'PATCH {0}' should return 401 Unauthorized if no Session-Token header is passed!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 401 Unauthorized if no Session-Token header is passed!", UPDATE_ARTIFACT_ID_PATH);
 
             const string expectedMessage = "Unauthorized call.";
             AssertStringMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -617,7 +619,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.Save(userWithBadToken, shouldGetLockForUpdate: false),
-                "'PATCH {0}' should return 401 Unauthorized if an invalid token is passed!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 401 Unauthorized if an invalid token is passed!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify
             const string expectedMessage = "Unauthorized call";
@@ -637,7 +639,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.Save(userWithoutPermission, shouldGetLockForUpdate: false),
-                "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 403 Forbidden if the user doesn't have permission to update artifacts!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
@@ -658,7 +660,7 @@ namespace ArtifactStoreTests
 
             // Execute & Verify:
             var ex = Assert.Throws<Http404NotFoundException>(() => Artifact.UpdateArtifact(artifact, _user),
-                "'PATCH {0}' should return 404 Not Found if the Artifact ID doesn't exist!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 404 Not Found if the Artifact ID doesn't exist!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify the message, but skip for Id == 0 because in that case IIS returns the generic HTML 404 response.
             if (artifact.Id != 0)
@@ -680,7 +682,7 @@ namespace ArtifactStoreTests
 
             // Execute & Verify:
             var ex = Assert.Throws<Http404NotFoundException>(() => Artifact.UpdateArtifact(artifact, _user),
-                "'PATCH {0}' should return 404 Not Found if the artifact was deleted!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 404 Not Found if the artifact was deleted!", UPDATE_ARTIFACT_ID_PATH);
 
             const string expectedMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedMessage);
@@ -689,11 +691,12 @@ namespace ArtifactStoreTests
         #region Artifact Properties tests
 
         [Category(Categories.CustomData)]
-        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault")]
+        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault", null)]
+        [TestCase(ItemTypePredefined.Process, "Std-Text-Required-RT-Multi-HasDefault", "", Explicit = true, Reason = IgnoreReasons.ProductBug)] // Bug: 5086
         [TestRail(195433)]
         [Description("Create & publish an artifact.  Update a text property in a sub artifact with no contents, save and publish.  " +
             "Verify 409 Conflict is returned at the event of publishing the invalid change.")]
-        public void UpdateArtifact_ChangeTextPropertyWithEmpty_Verify409Conflict(ItemTypePredefined itemType, string artifactCustomPropertyName)
+        public void UpdateArtifact_ChangeTextPropertyWithEmptyOrNull_Verify409Conflict(ItemTypePredefined itemType, string artifactCustomPropertyName, string subArtifactCustomPropertyValue)
         {
             // Setup: Set the required custom text property value for the target sub artifact with empty content
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
@@ -701,18 +704,20 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, projectCustomData);
             var artifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projectCustomData, author, itemType);
 
-            var subArtifactCustomPropertyValue = "";
             var artifactDetailsChangeSet = CreateArtifactChangeSet(author, projectCustomData, artifact, artifactCustomPropertyName, subArtifactCustomPropertyValue);
 
             // Execute:Attempt to update the target sub artifact with empty content
             artifact.Lock(author);
             Helper.ArtifactStore.UpdateArtifact(author, artifactDetailsChangeSet);
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author), "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifact(artifact, author),
+                "'POST {0}' should return 409 Conflict if the artifact containing invalid change!", RestPaths.Svc.ArtifactStore.ARTIFACTS);
 
             // Verify: Check that returned custom property name equals to default custom property since the requsted updated is invalid
             // Validation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);
-            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode, "Error code for PublishArtifact with the artifact containing invalid change should be {0}", InternalApiErrorCodes.CannotPublishOverValidationErrors);
+            Assert.AreEqual(InternalApiErrorCodes.CannotPublishOverValidationErrors, serviceErrorMessage.ErrorCode,
+                "Error code for PublishArtifact with the artifact containing invalid change should be {0}",
+                InternalApiErrorCodes.CannotPublishOverValidationErrors);
         }
 
         #endregion Artifact Properties tests
@@ -766,6 +771,7 @@ namespace ArtifactStoreTests
         private const int CU_NUMBER_PROPERTY_ID = 120;
         private const int CU_DATE_PROPERTY_ID = 119;
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Bug: 5133
         [Category(Categories.CustomData)]
         [TestCase("value\":10.0", "value\":\"A\"", CU_NUMBER_PROPERTY_ID)]   // Insert String into Numeric field.
         [TestCase("value\":\"20", "value\":\"A", CU_DATE_PROPERTY_ID)]       // Insert String into Date field.
@@ -789,7 +795,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user);
-            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+            }, "'PATCH {0}' should return 200 OK even if the value is set to wrong type!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -831,7 +837,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -866,7 +872,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -898,7 +904,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             Assert.DoesNotThrow(() => ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, requestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 200 OK if properties are out of range!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Verify:
             var artifactDetailsAfter = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
@@ -939,7 +945,7 @@ namespace ArtifactStoreTests
             // Execute & Verify:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
                 ArtifactStoreHelper.UpdateInvalidArtifact(Helper.ArtifactStore.Address, modifiedRequestBody, artifact.Id, _user),
-                "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 400 Bad Request if the value is set to wrong type!", UPDATE_ARTIFACT_ID_PATH);
 
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
         }
@@ -956,7 +962,7 @@ namespace ArtifactStoreTests
 
             // Execute & Verify:
             var ex = Assert.Throws<Http409ConflictException>(() => Artifact.UpdateArtifact(artifact, _user),
-                "'PATCH {0}' should return 409 Conflict if the user didn't lock on the artifact first", RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                "'PATCH {0}' should return 409 Conflict if the user didn't lock on the artifact first", UPDATE_ARTIFACT_ID_PATH);
 
             const string expectedError = "The artifact is not locked.";
             AssertRestResponseMessageIsCorrect(ex.RestResponse, expectedError);
@@ -1073,7 +1079,12 @@ namespace ArtifactStoreTests
         /// <param name="subArtifactCustomPropertyName">custom property name for the sub artifact to update</param>
         /// <param name="subArtifactCustomPropertyValue">custom property value for the sub artifact to update</param>
         /// <returns>NovaSubArtifact that contains the change for the sub artifact</returns>
-        private NovaSubArtifact CreateSubArtifactChangeSet(IUser user, IProject project, IArtifact artifact, string subArtifactDisplayName, string subArtifactCustomPropertyName, object subArtifactCustomPropertyValue)
+        private NovaSubArtifact CreateSubArtifactChangeSet(IUser user,
+            IProject project,
+            IArtifact artifact,
+            string subArtifactDisplayName,
+            string subArtifactCustomPropertyName,
+            object subArtifactCustomPropertyValue)
         {
             var subArtifact = Helper.ArtifactStore.GetSubartifacts(user, artifact.Id).Find(sa => sa.DisplayName.Equals(subArtifactDisplayName));
             var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(user, artifact.Id, subArtifact.Id);
@@ -1155,7 +1166,7 @@ namespace ArtifactStoreTests
             var result = JsonConvert.DeserializeObject<SaveArtifactResult>(restReponse.Content);
 
             Assert.AreEqual(expectedMessage, result.Message, "The wrong message was returned by '{0} {1}'.",
-                requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                requestMethod, UPDATE_ARTIFACT_ID_PATH);
         }
 
         /// <summary>
@@ -1169,7 +1180,7 @@ namespace ArtifactStoreTests
             string result = JsonConvert.DeserializeObject<string>(restResponse.Content);
 
             Assert.AreEqual(expectedMessage, result, "The wrong message was returned by '{0} {1}'.",
-                requestMethod, RestPaths.Svc.ArtifactStore.ARTIFACTS_id_);
+                requestMethod, UPDATE_ARTIFACT_ID_PATH);
         }
         
         #endregion Private functions

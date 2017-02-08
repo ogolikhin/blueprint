@@ -35,7 +35,10 @@ export class ProcessDiagram {
     private navigateToAssociatedArtifactHandler: string;
     private userStoriesGeneratedHandler: string;
     private openUtilityPanelHandler: string;
+    private openPropertiesHandler: string;
     private selectionChangedHandler: string;
+    private validationHandler: string;
+    private validationSubscriber: Rx.Disposable;
 
     constructor(private $rootScope: ng.IRootScopeService,
                 private $scope: ng.IScope,
@@ -63,11 +66,22 @@ export class ProcessDiagram {
         this.checkParams(process.id, htmlElement);
         this.htmlElement = htmlElement;
 
+        if (this.validationSubscriber) {
+            this.validationSubscriber.dispose();
+            this.validationSubscriber = null;
+        }
+
         this.processModel = <IProcess>process;
         this.processArtifact = <IStatefulProcessArtifact>process;
         // #DEBUG
         //this.selectionManager.subArtifactObservable
         //    .subscribeOnNext(this.onSubArtifactChanged, this);
+
+        if (this.processArtifact) {
+            this.validationSubscriber = this.processArtifact.getValidationObservable().subscribeOnNext((shapesIds) => {
+                this.shapeValidated(shapesIds);
+            });
+        }
 
         this.onLoad(this.processModel);
     }
@@ -114,9 +128,13 @@ export class ProcessDiagram {
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.OpenProperties, this.openPropertiesHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
             this.processViewModel.communicationManager.processDiagramCommunication
                 .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
+            this.processViewModel.communicationManager.processDiagramCommunication
+                .unregister(ProcessEvents.ShapesValidated, this.validationHandler);
 
         }
 
@@ -130,10 +148,14 @@ export class ProcessDiagram {
             .register(ProcessEvents.NavigateToAssociatedArtifact, this.navigateToAssociatedArtifact);
         this.openUtilityPanelHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.OpenUtilityPanel, this.openUtilityPanel);
+        this.openPropertiesHandler = this.processViewModel.communicationManager.processDiagramCommunication
+            .register(ProcessEvents.OpenProperties, this.openProperties);
         this.userStoriesGeneratedHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.UserStoriesGenerated, this.userStoriesGenerated);
         this.selectionChangedHandler = this.processViewModel.communicationManager.processDiagramCommunication
             .register(ProcessEvents.SelectionChanged, this.onDiagramSelectionChanged);
+        this.validationHandler = this.communicationManager.processDiagramCommunication
+            .register(ProcessEvents.ShapesValidated, this.shapeValidated);
 
         return this.processViewModel;
     }
@@ -174,6 +196,10 @@ export class ProcessDiagram {
         this.utilityPanelService.openPanelAsync(PanelType.Discussions);
     };
 
+    private openProperties = () => {
+        this.utilityPanelService.openPanelAsync(PanelType.Properties);
+    };
+
     private recreateProcessGraph = (selectedNodeId: number = undefined) => {
         this.graph.destroy();
         this.createProcessGraph(this.processViewModel, true, selectedNodeId);
@@ -181,6 +207,14 @@ export class ProcessDiagram {
 
     private userStoriesGenerated = (userStories: IUserStory[]) => {
         this.graph.onUserStoriesGenerated(userStories);
+    };
+
+    private shapeValidated = (shapesIds: number[]) => {
+        this.graph.onValidation(shapesIds);
+
+        if (this.graph.systemTaskErrorPresented > 0) {
+            this.processTypeChanged(ProcessType.UserToSystemProcess);
+        }
     };
 
     private createProcessGraph(processViewModel: IProcessViewModel,
@@ -321,10 +355,19 @@ export class ProcessDiagram {
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.OpenUtilityPanel, this.openUtilityPanelHandler);
                 this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.OpenProperties, this.openPropertiesHandler);
+                this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.UserStoriesGenerated, this.userStoriesGeneratedHandler);
                 this.communicationManager.processDiagramCommunication
                     .unregister(ProcessEvents.SelectionChanged, this.selectionChangedHandler);
+                this.communicationManager.processDiagramCommunication
+                    .unregister(ProcessEvents.ShapesValidated, this.validationHandler);
             }
+        }
+
+        if (this.validationSubscriber) {
+            this.validationSubscriber.dispose();
+            this.validationSubscriber = null;
         }
 
         if (this.graph) {

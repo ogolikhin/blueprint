@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Model.ModelHelpers;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -63,60 +64,40 @@ namespace Helper
 
         #region IArtifactObserver methods
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactDeletion(IEnumerable{int})" />
-        public void NotifyArtifactDeletion(IEnumerable<int> deletedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
+        public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
         {
             ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
             var artifactIds = deletedArtifactIds as IList<int> ?? deletedArtifactIds.ToList();
-            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeletion), String.Join(", ", artifactIds));
 
-            foreach (var deletedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    if (a.Id == deletedArtifactId)
-                    {
-                        a.IsDeleted = true;
-                        a.IsPublished = false;
-                        a.IsSaved = false;
-                    }
-                });
-                Artifacts.RemoveAll(a => a.Id == deletedArtifactId);
-            }
+            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeleted), string.Join(", ", artifactIds));
+
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
         }
 
-        /// <seealso cref="IArtifactObserver.NotifyArtifactPublish(IEnumerable{int})" />
-        public void NotifyArtifactPublish(IEnumerable<int> publishedArtifactIds)
+        /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
+        public void NotifyArtifactDiscarded(IEnumerable<int> discardedArtifactIds)
+        {
+            ThrowIf.ArgumentNull(discardedArtifactIds, nameof(discardedArtifactIds));
+            var artifactIds = discardedArtifactIds as int[] ?? discardedArtifactIds.ToArray();
+
+            Logger.WriteTrace("*** {0}.{1}({2}) was called.",
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactDiscarded), string.Join(", ", artifactIds));
+
+            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
+        }
+
+        /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
+        public void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds)
         {
             ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
             var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
+
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
-                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublish), String.Join(", ", artifactIds));
+                nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            foreach (var publishedArtifactId in artifactIds)
-            {
-                Artifacts.ForEach(a =>
-                {
-                    a.LockOwner = null;
-
-                    if (a.Id == publishedArtifactId)
-                    {
-                        if (a.IsMarkedForDeletion)
-                        {
-                            a.IsDeleted = true;
-                            a.IsPublished = false;
-                        }
-                        else
-                        {
-                            a.IsPublished = true;
-                        }
-
-                        a.IsSaved = false;
-                    }
-                });
-                Artifacts.RemoveAll(a => a.Id == publishedArtifactId);
-            }
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
         }
 
         #endregion IArtifactObserver methods
@@ -880,6 +861,25 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new user object with random values, but with the username, password, and displayname specified
+        /// and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="displayname">The displayname.</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user object.</returns>
+        public IUser CreateUserAndAddToDatabase(string username, string password, string displayname,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
+        {
+            var user = UserFactory.CreateUserAndAddToDatabase(username, password, displayname, instanceAdminRole, source);
+            Users.Add(user);
+            return user;
+        }
+
+        /// <summary>
         /// Used to specify which type of session tokens to get for the user.
         /// </summary>
         [Flags]
@@ -1139,12 +1139,15 @@ namespace Helper
 
             var almTarget = AlmTarget.GetAlmTargets(address, user, project).First();
             Assert.IsNotNull(almTarget, "ALM target does not exist on the project {0}!", project.Name);
+
             var jobsToBeFound = new List<IOpenAPIJob>();
+
             for (int i = 0; i < numberOfJobsToBeCreated; i++)
             {
-                var openAPIJob = OpenAPIJob.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
+                var openAPIJob = OpenApi.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
                 jobsToBeFound.Add(openAPIJob);
             }
+
             jobsToBeFound.Reverse();
             return jobsToBeFound;
         }
@@ -1330,6 +1333,42 @@ namespace Helper
             }, "Failed to deserialize the content of the REST response into a string!");
 
             Assert.AreEqual(expectedErrorMessage, errorMessage, "The error message received doesn't match what we expected!");
+        }
+
+        /// <summary>
+        /// Verifies that the content returned in the rest response contains the specified ProcessValidationError.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorCode">The expected error code.</param>
+        /// <param name="expectedErrorMessage">The expected error message.</param>
+        /// <param name="expectedInvalidShapeIds">The expected list of shape's ids.</param>
+        public static void ValidateProcessValidationError(RestResponse restResponse, int expectedErrorCode,
+            string expectedErrorMessage, List<int> invalidShapeIds)
+        {
+            ThrowIf.ArgumentNull(invalidShapeIds, nameof(invalidShapeIds));
+            ProcessValidationError processValidationError = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                processValidationError = JsonConvert.DeserializeObject<ProcessValidationError>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a ProcessValidationError object!");
+
+            var expectedError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+                expectedErrorCode,
+                expectedErrorMessage);
+
+            var actualError = ServiceErrorMessageFactory.CreateServiceErrorMessage(
+                processValidationError.ErrorCode,
+                processValidationError.Message);
+            actualError.AssertEquals(expectedError);
+
+            Assert.AreEqual(invalidShapeIds.Count, processValidationError.ErrorContent.Count,
+                "Number of invalid shapes should have expected value.");
+            foreach (int id in invalidShapeIds)
+            {
+                Assert.True(processValidationError.ErrorContent.Exists(shapeId => shapeId == id),
+                    "List of invalid shapes id should contain expected values.");
+            }
         }
 
         #endregion Custom Asserts

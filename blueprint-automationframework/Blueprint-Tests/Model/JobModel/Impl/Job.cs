@@ -1,10 +1,5 @@
-﻿using Common;
-using Model.JobModel.Enums;
+﻿using Model.JobModel.Enums;
 using System;
-using System.Collections.Generic;
-using System.Net;
-using Utilities;
-using Utilities.Facades;
 
 namespace Model.JobModel.Impl
 {
@@ -27,45 +22,6 @@ namespace Model.JobModel.Impl
         public int? ProjectId { get; set; }
 
         #endregion properties
-
-        #region static methods
-
-        /// <summary>
-        /// Add ALM ChangeSummary Job using OpenAPI.
-        /// </summary>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="project">The project to have the ALM ChangeSummary job.</param>
-        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
-        /// <param name="almTarget">The ALM target</param>"
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>OpenAPIJob that contains information for ALM ChangeSummary Job.</returns>
-        public static IOpenAPIJob AddAlmChangeSummaryJob(string address,
-            IUser user,
-            IProject project,
-            int baselineOrReviewId,
-            IAlmTarget almTarget,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(project, nameof(project));
-            ThrowIf.ArgumentNull(almTarget, nameof(almTarget));
-
-            RestApiFacade restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
-
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALM.Targets_id_.JOBS, project.Id, almTarget.Id);
-            var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId);
-            var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
-                path,
-                RestRequestMethod.POST,
-                almJob,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return returnedAlmChangeSummaryJob;
-        }
-
-        #endregion static methods
     }
 
     public class JobInfo : IJobInfo
@@ -112,16 +68,14 @@ namespace Model.JobModel.Impl
         }
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
-        /// <param name="address">The URI address of the artifact.</param>
+        /// <param name="almJobType">The type of ALM job.</param>
         /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
-        /// <param name="almTarget">The ALM Target</param>
-
         public AlmJob(AlmJobType almJobType, int baselineOrReviewId)
         {
             this.AlmJobType = almJobType.ToString();
-            this.JobParameters = new JobParameters()
+            this.JobParameters = new JobParameters
             {
                 Type = "ChangeSummaryParameters",
                 IsImageGenerationRequired = false,

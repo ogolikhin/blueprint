@@ -131,13 +131,12 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        /// <seealso cref="IArtifact.Lock(IUser, LockResult, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IArtifact.Lock(IUser, LockResult, List{HttpStatusCode})"/>
         public LockResultInfo Lock(IUser user = null,
             LockResult expectedLockResult = LockResult.Success,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return Lock(this, Address, user, expectedLockResult, expectedStatusCodes, sendAuthorizationAsCookie);
+            return Lock(this, Address, user, expectedLockResult, expectedStatusCodes);
         }
 
         public ArtifactInfo GetArtifactInfo(IUser user = null,
@@ -638,14 +637,12 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
         ///     If null, only Success is expected.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
         /// <returns>The artifact lock result information</returns>
         public static LockResultInfo Lock(IArtifactBase artifact,
             string address,
             IUser user = null,
             LockResult expectedLockResult = LockResult.Success,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -660,10 +657,9 @@ namespace Model.ArtifactModel.Impl
                 address,
                 user,
                 new List<LockResult> { expectedLockResult },
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
 
-            Assert.That(artifactLockResults.Count == 1, "Multiple lock artifact results were returned when 1 was expected.");
+            Assert.AreEqual(1, artifactLockResults.Count, "Multiple lock artifact results were returned when 1 was expected.");
 
             var artifactLockResult = artifactLockResults.First();
 
@@ -672,76 +668,26 @@ namespace Model.ArtifactModel.Impl
 
         /// <summary>
         /// Lock Artifact(s).
-        /// (Runs:  POST /svc/shared/artifacts/lock  with artifact IDs in the request body)
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
         /// </summary>
-        /// <param name="artifactsToLock">The list of artifacts to lock</param>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="user">The user locking the artifact</param>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactsToLock">The list of artifacts to lock.</param>
         /// <param name="expectedLockResults">(optional) A list of expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
         ///     If null, only Success is expected.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>List of LockResultInfo for the locked artifacts</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
         public static List<LockResultInfo> LockArtifacts(List<IArtifactBase> artifactsToLock,
             string address,
             IUser user,
             List<LockResult> expectedLockResults = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
+            var lockResults = SvcShared.LockArtifacts(address, user, artifactsToLock, expectedStatusCodes);
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            SvcShared.UpdateStatusOfArtifactsThatWereLocked(lockResults, user, artifactsToLock, expectedLockResults);
 
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var artifactIds = (
-                from IArtifactBase artifact in artifactsToLock
-                select artifact.Id).ToList();
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
-                RestPaths.Svc.Shared.Artifacts.LOCK,
-                RestRequestMethod.POST,
-                jsonObject: artifactIds,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies,
-                shouldControlJsonChanges: false);
-
-            if (expectedLockResults == null)
-            {
-                expectedLockResults = new List<LockResult> { LockResult.Success };
-            }
-
-            // Update artifacts with lock info.
-            foreach (var artifact in artifactsToLock)
-            {
-                var lockResultInfo = response.Find(x => x.Info.ArtifactId == artifact.Id);
-
-                Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
-
-                if (lockResultInfo.Result == LockResult.Success)
-                {
-                    artifact.LockOwner = user;
-                    artifact.Status.IsLocked = true;
-                }
-
-                if (restApi.StatusCode == HttpStatusCode.OK)
-                {
-                    Assert.That(expectedLockResults.Contains(lockResultInfo.Result),
-                        "We expected the lock Result to be one of: [{0}], but it was: {1}!",
-                        string.Join(", ", expectedLockResults), lockResultInfo.Result);
-                }
-            }
-
-            return response;
+            return lockResults;
         }
 
         /// <summary>

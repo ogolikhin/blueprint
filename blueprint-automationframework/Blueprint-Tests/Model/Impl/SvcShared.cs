@@ -101,7 +101,82 @@ namespace Model.Impl
                 artifactsToDiscard.Count, discardResults.Count);
         }
 
+        /// <summary>
+        /// Lock Artifact(s).  NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactsToLock">The list of artifacts to lock.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        public static List<LockResultInfo> LockArtifacts(string address,
+            IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
+
+            var artifactIds = (
+                from IArtifactBase artifact in artifactsToLock
+                select artifact.Id).ToList();
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var lockResults = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
+                RestPaths.Svc.Shared.Artifacts.LOCK,
+                RestRequestMethod.POST,
+                jsonObject: artifactIds,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return lockResults;
+        }
+
+        /// <summary>
+        /// Updates the IsLocked and LockOwner flags to false for all artifacts that were successfully locked.
+        /// </summary>
+        /// <param name="lockResults">The results returned from the Lock REST call.</param>
+        /// <param name="user">The user that performed the Lock operation.</param>
+        /// <param name="artifactsToLock">The list of artifacts that you attempted to lock.</param>
+        /// <param name="expectedLockResults">(optional) The expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
+        public static void UpdateStatusOfArtifactsThatWereLocked(List<LockResultInfo> lockResults,
+            IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<LockResult> expectedLockResults = null)
+        {
+            ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
+            ThrowIf.ArgumentNull(lockResults, nameof(lockResults));
+
+            if (expectedLockResults == null)
+            {
+                expectedLockResults = new List<LockResult> { LockResult.Success };
+            }
+
+            // Update artifacts with lock info.
+            foreach (var artifact in artifactsToLock)
+            {
+                var lockResultInfo = lockResults.Find(x => x.Info.ArtifactId == artifact.Id);
+
+                Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
+
+                if (lockResultInfo.Result == LockResult.Success)
+                {
+                    artifact.LockOwner = user;
+                    artifact.Status.IsLocked = true;
+                }
+
+                Assert.That(expectedLockResults.Contains(lockResultInfo.Result),
+                    "We expected the lock Result to be one of: [{0}], but it was: {1}!",
+                    string.Join(", ", expectedLockResults), lockResultInfo.Result);
+            }
+        }
+
         #endregion Artifacts methods
+
+        #region User and Group methods
 
         /// <seealso cref="ISvcShared.FindUserOrGroup(IUser, string, bool?, int?, bool?, List{HttpStatusCode})"/>
         public List<UserOrGroupInfo> FindUserOrGroup(IUser user, 
@@ -144,6 +219,8 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
         }
+
+        #endregion User and Group methods
 
         #endregion Members inherited from ISvcShared
 

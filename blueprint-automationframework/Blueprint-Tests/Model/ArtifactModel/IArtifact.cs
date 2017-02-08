@@ -103,16 +103,17 @@ namespace Model.ArtifactModel
         RapidReviewProperties GetPropertiesForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
-        /// Lock this Artifact.
-        /// (Runs:  /svc/shared/artifacts/lock  with artifact ID in the request body)
+        /// Lock Artifact(s).
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact ID in the request body)
         /// </summary>
-        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to save using the credentials
-        ///     of the user that created the artifact.</param>
-        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The artifact lock result information</returns>
-        LockResultInfo Lock(IUser user = null, LockResult expectedLockResult = LockResult.Success, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The LockResultInfo for the locked artifact.</returns>
+        LockResultInfo Lock(IUser user = null,
+            LockResult expectedLockResult = LockResult.Success,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Publish the artifact on Blueprint server.  This is only used by Storyteller.

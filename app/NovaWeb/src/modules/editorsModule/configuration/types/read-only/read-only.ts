@@ -95,21 +95,22 @@ export class BpFieldReadOnlyController {
                 break;
             case Enums.PrimitiveType.Choice:
                 newValue = this.currentModelVal || (data ? data.defaultValidValueId : null);
-                if (!data.isMultipleAllowed && data.validValues) {
-                    if (_.isNumber(newValue)) {
-                        let values = data.validValues;
-                        for (let key in values) {
-                            if (values[key].id === newValue) {
-                                newValue = values[key].value;
-                                tooltip = newValue;
-                                break;
-                            }
-                        }
-                    } else if (angular.isObject(newValue) && newValue.customValue) {
-                        newValue = newValue.customValue;
-                        tooltip = newValue;
+                if (_.isObject(newValue) && newValue.customValue) {
+                    newValue = newValue.customValue;
+                } else if (_.isNumber(newValue)) {
+                    if (_.isArray(data.validValues)) {
+                       newValue = (_.find(data.validValues, {id: newValue} ) as any ||  {id: newValue}).value;
+                    }
+                } else if (_.isArray(newValue)) {
+                    if (_.isArray(data.validValues)) {
+                       newValue = _.map(_.filter(data.validValues as [any], it => {
+                           return _.includes(newValue, it.id);
+                       }) || [],  it => {
+                           return it.value;
+                       });
                     }
                 }
+                tooltip = newValue;
                 break;
             case Enums.PrimitiveType.User:
                 if (angular.isArray(this.currentModelVal)) {

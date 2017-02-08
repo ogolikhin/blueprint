@@ -42,7 +42,7 @@ export class SessionSvc implements ISession {
     private _loginMsg: string;
     private _prevLogin: string;
     private _isExpired: boolean;
-    private _isLoginModalOpen: boolean;
+    private _loginDialogPromise: ng.IPromise<any>;
     private _isForceSameUsername: boolean;
 
     public get currentUser(): IUser {
@@ -114,7 +114,7 @@ export class SessionSvc implements ISession {
 
     public onExpired(): ng.IPromise<any> {
 
-        if (!this._isExpired) {
+        if (!this._isExpired && !this._loginDialogPromise) {
             this._isExpired = true;
             this.onExpiredDefer = this.$q.defer();
             this._loginMsg = this.localization.get("Login_Session_Timeout");
@@ -122,12 +122,18 @@ export class SessionSvc implements ISession {
             this.showLogin(this.onExpiredDefer);
         }
 
-        return this.onExpiredDefer.promise;
+        if (this._loginDialogPromise) {
+            return this._loginDialogPromise;
+        } else {
+            return this.$q.resolve();
+        }
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {
-        if (this._currentUser || this._isLoginModalOpen) {
+        if (this._currentUser) {
             return this.$q.resolve();
+        } else if (this._loginDialogPromise) {
+            return this._loginDialogPromise;
         }
         const defer = this.$q.defer();
         this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
@@ -150,7 +156,7 @@ export class SessionSvc implements ISession {
     }
 
     private showLogin = (done: ng.IDeferred<any>, error?: Error): void => {
-        this.dialogService.open(<IDialogSettings>{
+        this._loginDialogPromise = this.dialogService.open(<IDialogSettings>{
             template: require("./login.html"),
             css: "nova-login",
             controller: LoginCtrl,
@@ -159,7 +165,6 @@ export class SessionSvc implements ISession {
             backdrop: false,
             bindToController: true
         }).then((result: ILoginInfo) => {
-            this._isLoginModalOpen = true;
             if (result) {
                 let confirmationDialog: ng.ui.bootstrap.IModalServiceInstance;
                 if (result.loginSuccessful) {
@@ -210,7 +215,7 @@ export class SessionSvc implements ISession {
                 this.showLogin(done);
             }
         }).finally(() => {
-            this._isLoginModalOpen = false;
+            this._loginDialogPromise = null;
         });
     };
 

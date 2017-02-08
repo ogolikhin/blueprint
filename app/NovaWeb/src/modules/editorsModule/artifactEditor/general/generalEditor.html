@@ -6,13 +6,13 @@
 <div class="artifact-overview" ng-if="!$ctrl.isLoading">
     <div class="content" ng-if="$ctrl.isLoaded">
         <form novalidate>
-            <div class="properties" ng-class="{'collapsed': isSystemPropertiesCollapsed || !userInteracted}">
+            <div class="properties system-properties__container" ng-class="{'is-collapsed': isSystemPropertiesCollapsed || !userInteracted}">
                 <div class="heading"
                      ng-click="isSystemPropertiesCollapsed = isSystemPropertiesCollapsed === undefined ? false : !isSystemPropertiesCollapsed; userInteracted = true;">
                     {{::$root.config.labels['App_Properties_System_Properties_Label']}}
                 </div>
-                <div class="system-properties content collapse"
-                     ng-class="{'in': !isSystemPropertiesCollapsed && !!userInteracted}">
+                <div class="system-properties content"
+                     ng-class="{'is-collapsed': isSystemPropertiesCollapsed || !userInteracted}">
                     <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
                     </formly-form>
                 </div>

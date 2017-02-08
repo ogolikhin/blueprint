@@ -6,12 +6,13 @@
 <div class="artifact-overview" ng-if="!$ctrl.isLoading">
     <div class="content">
         <form novalidate>
-            <div class="properties" ng-class="{'collapsed': $ctrl.isSystemPropertiesCollapsed}"
+            <div class="properties system-properties__container" ng-class="{'is-collapsed': $ctrl.isSystemPropertiesCollapsed}"
                  ng-if="$ctrl.isSystemPropertyAvailable">
                 <div class="heading" ng-click="$ctrl.isSystemPropertiesCollapsed = !$ctrl.isSystemPropertiesCollapsed">
                     {{::$root.config.labels['App_Properties_System_Properties_Label']}}
                 </div>
-                <div class="system-properties content collapse" ng-class="{'in': !$ctrl.isSystemPropertiesCollapsed}">
+                <div class="system-properties content"
+                     ng-class="{'is-collapsed': $ctrl.isSystemPropertiesCollapsed}">
                     <formly-form model="$ctrl.model" fields="$ctrl.systemFields">
                     </formly-form>
                 </div>
@@ -29,12 +30,12 @@
                 </div>
             </div>
 
-            <div class="properties" ng-class="{'collapsed': isSpecificPropertiesCollapsed}">
+            <div class="properties specific-properties__container" ng-class="{'is-collapsed': isSpecificPropertiesCollapsed}">
                 <div class="heading" ng-click="isSpecificPropertiesCollapsed = !isSpecificPropertiesCollapsed">
                     {{::$ctrl.localization.get('Artifact_Collection_Content_Header')}}
                 </div>
                 <div class="specific-properties content"
-                     uib-collapse="isSpecificPropertiesCollapsed"
+                     ng-class="{'is-collapsed': isSpecificPropertiesCollapsed}"
                      ng-if="$ctrl.rowData && $ctrl.rowData.length > 0">
                     <div class="collection__bulk__actions text-right" ng-show="$ctrl.selectedVMs.length">
                         {{$ctrl.itemsSelected}} <i class="icon icon__normal fonticon2-delete" ng-click="$ctrl.bulkDelete()"
@@ -54,7 +55,7 @@
                           on-grid-reset="$ctrl.onGridReset(isExpanding)"/>
                 </div>
                 <div class="specific-properties content"
-                     uib-collapse="isSpecificPropertiesCollapsed"
+                     ng-class="{'is-collapsed': isSpecificPropertiesCollapsed}"
                      ng-hide="$ctrl.rowData && $ctrl.rowData.length > 0">
                         <div class="empty-collection text-center" >
                             <table class="empty-collection__table">
@@ -76,12 +77,12 @@
                         </div>
                 </div>
             </div>
-            <div class="properties" ng-class="{'collapsed': isAdditionalPropertiesCollapsed}"
+            <div class="properties additional-properties__container" ng-class="{'is-collapsed': isAdditionalPropertiesCollapsed}"
                  ng-if="$ctrl.isCustomPropertyAvailable">
                 <div class="heading" ng-click="isAdditionalPropertiesCollapsed = !isAdditionalPropertiesCollapsed">
                     {{::$root.config.labels['App_Properties_Additional_Properties_Label']}}
                 </div>
-                <div class="additional-properties content" uib-collapse="isAdditionalPropertiesCollapsed">
+                <div class="additional-properties content" ng-class="{'is-collapsed': isAdditionalPropertiesCollapsed}">
                     <formly-form model="$ctrl.model" fields="$ctrl.customFields">
                     </formly-form>
                 </div>

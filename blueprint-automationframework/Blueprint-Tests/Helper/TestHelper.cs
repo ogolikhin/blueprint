@@ -861,6 +861,25 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new user object with random values, but with the username, password, and displayname specified
+        /// and adds it to the Blueprint database.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="displayname">The displayname.</param>
+        /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
+        /// <param name="source">(optional) Where the user exists.</param>
+        /// <returns>A new user object.</returns>
+        public IUser CreateUserAndAddToDatabase(string username, string password, string displayname,
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database)
+        {
+            var user = UserFactory.CreateUserAndAddToDatabase(username, password, displayname, instanceAdminRole, source);
+            Users.Add(user);
+            return user;
+        }
+
+        /// <summary>
         /// Used to specify which type of session tokens to get for the user.
         /// </summary>
         [Flags]

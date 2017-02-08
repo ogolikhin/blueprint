@@ -109,6 +109,7 @@ namespace StorytellerTests
 
         #region Process Validation Tests
 
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [Category(Categories.CustomData)]
         [TestCase("Std-Choice-Required-HasDefault")]
         [TestCase("Std-Date-Required-HasDefault")]
@@ -143,6 +144,7 @@ namespace StorytellerTests
                 INVALID_PROCESS_MESSAGE, new List<int> { process.Shapes[shapeIndex].Id });
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [Category(Categories.CustomData)]
         [TestCase("Std-Number-Required-Validated-DecPlaces-Min-Max-HasDefault", 14)]
         [TestCase("Std-Date-Required-Validated-Min-Max-HasDefault", 14)]
@@ -173,6 +175,7 @@ namespace StorytellerTests
                 INVALID_PROCESS_MESSAGE, new List<int> { process.Shapes[shapeIndex].Id });
         }
 
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [Category(Categories.CustomData)]
         [TestCase]
         [TestRail(234612)]

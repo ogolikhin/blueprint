@@ -98,9 +98,17 @@ export class BpFieldReadOnlyController {
                 if (_.isObject(newValue) && newValue.customValue) {
                     newValue = newValue.customValue;
                 } else if (_.isNumber(newValue)) {
-                    newValue = _.intersection([newValue], _.isArray(data.validValues) ? data.validValues : [newValue]);
+                    if (_.isArray(data.validValues)) {
+                       newValue = (_.find(data.validValues, {id: newValue} ) as any ||  {id: newValue}).value;
+                    }
                 } else if (_.isArray(newValue)) {
-                    newValue = _.intersection(newValue, _.isArray(data.validValues) ? data.validValues : newValue);
+                    if (_.isArray(data.validValues)) {
+                       newValue = _.map(_.filter(data.validValues as [any], it => {
+                           return _.includes(newValue, it.id);
+                       }) || [],  it => {
+                           return it.value;
+                       });
+                    }
                 }
                 tooltip = newValue;
                 break;

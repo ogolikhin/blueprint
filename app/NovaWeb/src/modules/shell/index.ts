@@ -33,11 +33,8 @@ import {MentionService} from "./bp-utility-panel/bp-discussion-panel/bp-comment-
 import "../shared/filters";
 import {ILicenseService, LicenseService} from "./license/license.svc";
 import {CommonModule} from "./../commonModule";
-
-export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
-export {IServerLogger} from "./log/server-logger.svc";
-export {ILicenseService, LicenseService} from "./license/license.svc";
 import {HeartbeatService} from "./login/heartbeat.service";
+import {appRun} from "./app.run";
 
 angular.module("app.shell", [
     "bp.filters",
@@ -71,7 +68,8 @@ angular.module("app.shell", [
     .component("error", new ErrorComponent())
     .config(Logger)
     .config(AppRoutes)
-    .config(initializeInterceptors);
+    .config(initializeInterceptors)
+    .run(appRun);
 
 function initializeInterceptors($httpProvider: ng.IHttpProvider) {
     $httpProvider.interceptors.push("sessionTokenInterceptor");
@@ -80,3 +78,7 @@ function initializeInterceptors($httpProvider: ng.IHttpProvider) {
 }
 
 initializeInterceptors.$inject = ["$httpProvider"];
+
+export {IUser, ISession, RelationshipDetailsService, IRelationshipDetailsService}
+export {IServerLogger} from "./log/server-logger.svc";
+export {ILicenseService, LicenseService} from "./license/license.svc";

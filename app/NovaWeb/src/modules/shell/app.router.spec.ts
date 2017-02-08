@@ -81,7 +81,7 @@ describe("AppRouter", () => {
 
     describe("$stateChangeSuccess", () => {
         beforeEach(() => {
-            ctrl = new MainStateController($rootScope, $window, $state, $log, selectionManager, isServerLicenseValid, null, null, null, messageService);
+            ctrl = new MainStateController($rootScope, $state, $log, isServerLicenseValid, selectionManager);
         });
 
         it("should change title if navigating to an artifact", () => {

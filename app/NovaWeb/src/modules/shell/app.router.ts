@@ -3,9 +3,6 @@ import {IProjectManager, ISelectionManager} from "../managers";
 import {INavigationService} from "../commonModule/navigation/navigation.service";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "../editorsModule/bp-process/services/clipboard.svc";
-import {IMessageService} from "../main/components/messages/message.svc";
-import {MessageType} from "../main/components/messages/message";
-
 
 export class AppRoutes {
 
@@ -77,35 +74,22 @@ export class AppRoutes {
 }
 
 export class MainStateController {
-
-    public mainState = "main";
-
     public static $inject = [
         "$rootScope",
-        "$window",
         "$state",
         "$log",
-        "selectionManager",
         "isServerLicenseValid",
-        "session",
-        "projectManager",
-        "navigationService",
-        "messageService"
+        "selectionManager"
     ];
 
     constructor(private $rootScope: ng.IRootScopeService,
-                private $window: ng.IWindowService,
-                private $state: angular.ui.IStateService,
+                private $state: ng.ui.IStateService,
                 private $log: ng.ILogService,
-                private selectionManager: ISelectionManager,
                 private isServerLicenseValid: boolean,
-                private session: ISession,
-                private projectManager: IProjectManager,
-                private navigation: INavigationService,
-                private messageService: IMessageService) {
+                private selectionManager: ISelectionManager) {
 
         $rootScope.$on("$stateChangeStart", this.stateChangeStart);
-        $rootScope.$on("$stateChangeSuccess", this.stateChangeSuccess);
+        $rootScope.$on("$stateChangeStart", this.stateChangeStart);
 
         if (!isServerLicenseValid) {
             $state.go("licenseError");
@@ -116,28 +100,7 @@ export class MainStateController {
         return from.indexOf(stateName) > -1 && to.indexOf(stateName) === -1;
     }
 
-    private stateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
-        if (this.isLeavingState("main.item", fromState.name, toState.name)) {
-            this.$log.info("Leaving artifact state, clearing selection...");
-            this.selectionManager.clearAll();
-        }
-
-        this.updateAppTitle();
-        if (["logout", "error", "licenseError"].indexOf(toState.name) !== -1) {
-            this.messageService.clearMessages(true);
-        } else if (toState.name === "main") { // initial state with no project open
-            this.messageService.clearMessages(false, [MessageType.Deleted]);
-        } else {
-            this.messageService.clearMessages();
-        }
-    };
-
     private stateChangeStart = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams: any, fromState: ng.ui.IState, fromParams) => {
-        this.$log.info(
-            "state transition: %c" + fromState.name + "%c -> %c" + toState.name + "%c " + JSON.stringify(toParams)
-            , "color: blue", "color: black", "color: blue", "color: black"
-        );
-
         if (!this.isServerLicenseValid) {
             //Prevent leaving the license error state.
             if (toState.name !== "licenseError") {
@@ -147,21 +110,16 @@ export class MainStateController {
         }
     };
 
-    private updateAppTitle() {
-        const artifact = this.selectionManager.getArtifact();
-
-        let title: string;
-        if (artifact) {
-            title = `${artifact.prefix}${artifact.id}: ${artifact.name}`;
-        } else {
-            title = "Storyteller";
+    private stateChangeSuccess = (event: ng.IAngularEvent, toState: ng.ui.IState, toParams, fromState: ng.ui.IState, fromParams) => {
+        if (this.isLeavingState("main.item", fromState.name, toState.name)) {
+            this.$log.info("Leaving artifact state, clearing selection...");
+            this.selectionManager.clearAll();
         }
-        this.$window.document.title = title;
-    }
+    };
 }
 
 export class LogoutStateController {
-public static $inject = [
+    public static $inject = [
         "$log",
         "session",
         "projectManager",

@@ -120,7 +120,8 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         this.model = this.editor.getModel();
 
         const pageBodyWrapper = this.$window.document.querySelector(".page-body-wrapper") as HTMLElement;
-        if (pageBodyWrapper) {
+        const mutationObserver = window["MutationObserver"];
+        if (pageBodyWrapper && !_.isUndefined(mutationObserver)) {
             this.fieldObserver = new MutationObserver(mutations => {
                 for (let m in mutations) {
                     let mutation = mutations[m];

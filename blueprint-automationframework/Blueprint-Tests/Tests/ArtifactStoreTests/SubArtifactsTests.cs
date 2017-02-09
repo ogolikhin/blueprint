@@ -136,10 +136,9 @@ namespace ArtifactStoreTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182596)]
-        [Description("Create default process and new artifact in a different project from the process. Add inline trace that points to the new " +
-                     "artifact from a process subartifact.  Verify inline trace added. Modify new artifact name and publish.  Verify inline trace " +
-                     "in process subartifact is updated with the modifed artifact name from the other project.")]
-        public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactInDifferentProjectThenModifyArtifactName_VerifyInlineTraceUpdatedInProcess(
+        [Description("Create default process and new artifact in a different project from the process. Add inline trace that points to the artifact from a process " +
+            "subartifact.  Verify inline trace added. Modify the artifact name and publish.  Verify inline trace in process subartifact is updated with a new name.")]
+        public void GetSubArtifact_CreateInlineTraceFromProcessSubArtifactToArtifactInDifferentProject_ModifyArtifactName_VerifyInlineTraceUpdatedInProcess(
             BaseArtifactType baseArtifactType)
         {
             // Setup:
@@ -188,10 +187,9 @@ namespace ArtifactStoreTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182559)]
-        [Description("Create default process and new artifact. Add inline trace that points to the new artifact from a process subartifact." +
-                     "Verify inline trace added. Delete the artifact and publish.  Verify inline trace in process subartifact is marked " +
-                     "as invalid.")]
-        public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactThenDeleteArtifact_VerifyInlineTraceIsMarkedInvalid(
+        [Description("Create default process and new artifact. Add inline trace that points to the artifact from a process subartifact.  Verify inline trace added. " +
+            "Delete the artifact and publish.  Verify inline trace in process subartifact is marked as invalid.")]
+        public void GetSubArtifact_CreateInlineTraceFromProcessSubArtifactToArtifact_DeleteArtifact_VerifyInlineTraceIsMarkedInvalid(
             BaseArtifactType baseArtifactType)
         {
             // Setup:
@@ -227,10 +225,10 @@ namespace ArtifactStoreTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182600)]
-        [Description("Create default process and new artifact. Add inline trace that points to the artifact from a process subartifact in different project." +
+        [Description("Create default process and new artifact in deifferent project. Add inline trace that points to the artifact from a process subartifact." +
                      "Verify inline trace added. Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission " + 
                      "for the inline trace artifact")]
-        public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactGetSubArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_VerifyInlineTraceIsMarkedInvalid(
+        public void GetSubArtifact_CreateInlineTraceFromProcessSubArtifactToArtifact_UserWithoutPermissionToInlineTraceArtifact_VerifyInlineTraceIsMarkedInvalid(
             BaseArtifactType baseArtifactType)
         {
             // Setup:
@@ -458,7 +456,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(234585)]
         [Description("Create & publish artifact with subartifacts.  User tries to get sub-artifact with bad tokens.  Verify it returns 401 Unauthorized.")]
-        public void GetSubArtifactDetails_UserWithBadToken_401Unauthorized(BaseArtifactType artifactType)
+        public void GetSubArtifact_UserWithBadToken_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -482,7 +480,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(234586)]
         [Description("Create & publish artifact with subartifacts.  User tries to get sub-artifact with no token in header.  Verify it returns 401 Unauthorized.")]
-        public void GetSubArtifactDetails_NoTokenInHeader_401Unauthorized(BaseArtifactType artifactType)
+        public void GetSubArtifact_NoTokenInHeader_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -554,7 +552,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process)]
         [TestRail(191099)]
         [Description("Create & publish an artifact with sub-artifacts, GetSubArtifactDetails with a user that doesn't have access to the artifact.  Verify it returns 403 Forbidden.")]
-        public void GetSubArtifactDetails_PublishedArtifactUserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
+        public void GetSubArtifact_PublishedArtifact_UserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -584,7 +582,7 @@ namespace ArtifactStoreTests
         [TestRail(191100)]
         [Description("Create & publish parent & child artifacts.  Make sure viewer does not have access to parent.  Viewer request GetSubArtifactDetails from child artifact.  " +
             "Verify it returns 403 Forbidden.")]
-        public void GetSubArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
+        public void GetSubArtifact_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
             var parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -618,7 +616,7 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Process, int.MaxValue)]
         [TestRail(182511)]
         [Description("Create & publish artifact with subartifacts.  User tries to find sub-artifact that does not exists.  Verify it returns 404 Not Found.")]
-        public void GetSubArtifactDetails_NonExistingSubArtifact_404NotFound(BaseArtifactType artifactType, int subArtifactId)
+        public void GetSubArtifact_NonExistingSubArtifact_404NotFound(BaseArtifactType artifactType, int subArtifactId)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
@@ -637,7 +635,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(234587)]
         [Description("Create & save artifact with sub-artifacts.  Delete sub-artifact.  Verify it returns 404 Not Found.")]
-        public void GetSubArtifactDetails_DeletedSubArtifact_404NotFound()
+        public void GetSubArtifact_DeletedSubArtifact_404NotFound()
         {
             // Setup:
             var process = StorytellerTestHelper.CreateAndGetDefaultProcess(Helper.Storyteller, _project, _user);

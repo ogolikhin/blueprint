@@ -135,16 +135,9 @@ export class SessionSvc implements ISession {
         this._loginMsg = this.localization.get("Login_Session_EnterCredentials");
         this._isForceSameUsername = false;
         if (SessionTokenHelper.hasSessionToken()) {
-            return this.auth.getCurrentUser().then(user => {
-                    this._currentUser = user;
-                }
-            ).finally(() => {
-                if (this._currentUser) {
-                    return this.$q.resolve();
-                } else {
-                    return this.showLogin();
-                }
-            });
+            return this.auth.getCurrentUser()
+            .then(user => this._currentUser = user)
+            .catch(() => this.showLogin());
         } else {
             return this.showLogin();
         }

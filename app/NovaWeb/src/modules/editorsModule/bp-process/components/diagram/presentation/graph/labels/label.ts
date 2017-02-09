@@ -6,12 +6,13 @@ export interface ILabel {
     text: string;
     setVisible(value: boolean);
     labelType: LabelType;
+    setEditMode(): void;
     dispose();
     // hook up event listeners
     onTextChange;
     onClick;
-    onDblClick; 
-    
+    onDblClick;
+
 }
 
 export enum LabelType {
@@ -116,13 +117,13 @@ export class Label implements ILabel {
     private executionEnvironmentDetector: any;
     private beforeEditText: string;
 
-    // event listeners 
+    // event listeners
     private textChangeListeners: Array<any> = [];
     private clickEventListeners: Array<any> = [];
     private dblClickEventListeners: Array<any> = [];
 
     constructor(
-        private _labelType: LabelType, 
+        private _labelType: LabelType,
         private container: HTMLElement,
         private parentId: string,
         private id: string,
@@ -148,7 +149,7 @@ export class Label implements ILabel {
     public get labelType(): LabelType {
         return this._labelType;
     }
-   
+
     public get text() {
         return this._labelText;
     }
@@ -166,7 +167,7 @@ export class Label implements ILabel {
         }
 
         this.visible = value;
-        
+
         if (this.wrapperDiv != null) {
             this.wrapperDiv.style.visibility = this.visibility;
             this.div.style.visibility = this.visibility;
@@ -182,7 +183,7 @@ export class Label implements ILabel {
         let ver = parseInt(myBrowser.version, 10);
         return (myBrowser.msie && (ver === 11));
     }
-    
+
     private onEdit = (e) => {
         if (this.visible && this.mode === divMode.VIEW) {
             this.setEditMode();
@@ -264,7 +265,7 @@ export class Label implements ILabel {
         tmpStr = tmpStr.replace(/\r\n/g, " ").replace(/\r/g, " ").replace(/\n/g, " ");
 
         if (tmpStr.length <= this.maxTextLength) {
-            this.div.innerText = tmpStr;            
+            this.div.innerText = tmpStr;
         } else {
             this.div.innerText = tmpStr.substring(0, this.maxTextLength - 1);
         }
@@ -277,7 +278,7 @@ export class Label implements ILabel {
             const innerText = this.div.innerText.replace(/\n/g, "");
             this._labelText = innerText;
             this.raiseTextChangeEvent(innerText);
-             
+
             //window.console.log("update() ");
             this.setViewMode();
         }
@@ -287,7 +288,7 @@ export class Label implements ILabel {
         this.div.innerText = Helper.limitChars(this._labelText, this.maxVisibleTextLength);
     }
 
-    private setEditMode() {
+    public setEditMode() {
         this.div.removeEventListener("blur", this.onBlur, true);
 
         window.focus();
@@ -354,7 +355,7 @@ export class Label implements ILabel {
             this.setShortText();
         } else {
             this.div.style.backgroundColor = this.style.editBackColor;
-        }        
+        }
     }
 
     private onBlur = (e) => {
@@ -417,7 +418,7 @@ export class Label implements ILabel {
             this.setEventListenersForTextLabel();
         } else if (this.labelType === LabelType.Persona) {
             this.setEventListenersForPersonaLabel();
-        } 
+        }
     }
 
     private setEventListenersForTextLabel() {
@@ -439,8 +440,8 @@ export class Label implements ILabel {
         angular.element(this.div).on("labeldblclick", (e) => this.raiseDblClickEvent());
     }
 
-    // using this event interface we can wire up 
-    // external handlers for label events 
+    // using this event interface we can wire up
+    // external handlers for label events
 
     public set onTextChange(listener) {
         if (listener) {
@@ -510,13 +511,13 @@ export class Label implements ILabel {
 
         this.dblClickEventListeners.length = 0;
         delete this.dblClickEventListeners;
-        
+
     }
 
     private numberToPx(val: number): string {
         return `${val}px`;
     }
-    
+
     //#UNUSED
     //private numberToPt(val: number): string {
     //    return `${val}pt`;

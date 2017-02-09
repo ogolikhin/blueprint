@@ -69,4 +69,25 @@ describe("ProcessStart test", () => {
         //Assert
         expect(graph.getNodeById("30").getNodeType()).toEqual(NodeType.ProcessStart);
     });
+
+    it("Test ProcessStart node is not editable, setEditMode failes", () => {
+        // Arrange
+        const testModel = new ProcessShapeModel(30);
+        testModel.propertyValues = shapesFactory.createPropertyValuesForSystemTaskShape();
+        testModel.propertyValues["clientType"].value = ProcessShapeType.Start;
+        testModel.propertyValues["x"].value = 0;
+
+        const processModel = new ProcessModel();
+        const viewModel = new ProcessViewModel(processModel, communicationManager);
+
+        // Act
+        const graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory);
+
+        const node = new ProcessStart(testModel);
+        node.render(graph, 30, 30, false);
+
+        //Assert
+       expect(node.setEditMode).toThrow();
+    });
+
 });

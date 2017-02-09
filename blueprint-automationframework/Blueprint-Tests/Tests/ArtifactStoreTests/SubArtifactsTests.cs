@@ -137,7 +137,7 @@ namespace ArtifactStoreTests
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182596)]
         [Description("Create default process and new artifact in a different project from the process. Add inline trace that points to the new " +
-                     "artifact to a process subartifact.  Verify inline trace added. Modify new artifact name and publish.  Verify inline trace " +
+                     "artifact from a process subartifact.  Verify inline trace added. Modify new artifact name and publish.  Verify inline trace " +
                      "in process subartifact is updated with the modifed artifact name from the other project.")]
         public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactInDifferentProjectThenModifyArtifactName_VerifyInlineTraceUpdatedInProcess(
             BaseArtifactType baseArtifactType)
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
 
             var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(secondProject, _user, ItemTypePredefined.Process);
 
-            var expectedDescriptionProperty = CreateTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
+            var expectedDescriptionProperty = CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
 
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
@@ -186,7 +186,6 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
-//        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182559)]
         [Description("Create default process and new artifact. Add inline trace that points to the new artifact from a process subartifact." +
@@ -202,18 +201,7 @@ namespace ArtifactStoreTests
 
             var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(_project, _user, ItemTypePredefined.Process);
 
-            var expectedDescriptionProperty = CreateTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
-            /*
-            var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id).Find(sa => sa.DisplayName.Equals(Process.DefaultUserTaskName));
-            var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, userTaskSubArtifact.Id);
-            subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact }); ;
-
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-            artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
-
-            processArtifact.Lock(_user);
-            Helper.ArtifactStore.UpdateArtifact(_user, artifactDetails);
-            Helper.ArtifactStore.PublishArtifact(processArtifact, _user); */
+            var expectedDescriptionProperty = CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
 
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
@@ -237,12 +225,11 @@ namespace ArtifactStoreTests
             CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
         }
 
-//        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182600)]
-        [Description("Create default process and new artifact. Add inline trace that points to the new artifact to a process subartifact in different project." +
-                     "Verify inline trace added. Delete new artifact name and publish.  Verify that GetArtifactDetails call returns invalid " +
-                     "inline trace link if the user doesn't have the access permission for the inline trace artifact")]
+        [Description("Create default process and new artifact. Add inline trace that points to the artifact from a process subartifact in different project." +
+                     "Verify inline trace added. Verify that GetArtifactDetails call returns invalid inline trace link if the user doesn't have the access permission " + 
+                     "for the inline trace artifact")]
         public void GetSubArtifacts_CreateInlineTraceFromProcessSubArtifactToArtifactGetSubArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_VerifyInlineTraceIsMarkedInvalid(
             BaseArtifactType baseArtifactType)
         {
@@ -256,19 +243,8 @@ namespace ArtifactStoreTests
 
             var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(secondProject, _user, ItemTypePredefined.Process);
 
-            var expectedDescriptionProperty = CreateTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
-            /*
-                        var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id).Find(sa => sa.DisplayName.Equals(Process.DefaultUserTaskName));
-                        var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, userTaskSubArtifact.Id);
-                        subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact }); ;
+            var expectedDescriptionProperty = CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
 
-                        var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
-                        artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };
-
-                        processArtifact.Lock(_user);
-                        Helper.ArtifactStore.UpdateArtifact(_user, artifactDetails);
-                        Helper.ArtifactStore.PublishArtifact(processArtifact, _user);
-            */
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
@@ -383,8 +359,9 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Business Process Diagram from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectBPDiagram_ReturnsCorrectSubArtifactsList()
         {
+            //Execute & Verify:
             CheckSubArtifacts(_user, businessProcessDiagramId, expectedSubArtifactsNumber: 17);
-        }
+        } 
 
         [Category(Categories.CustomData)]
         [TestCase]
@@ -392,6 +369,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Business Process Diagram from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectDomainDiagram_ReturnsCorrectSubArtifactsList()
         {
+            // Execute & Verify:
             CheckSubArtifacts(_user, domainDiagramId, expectedSubArtifactsNumber: 7);
         }
 
@@ -401,6 +379,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Business Process Diagram from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectGenericDiagram_ReturnsCorrectSubArtifactsList()
         {
+            // Execute & Verify:
             CheckSubArtifacts(_user, genericDiagramId, expectedSubArtifactsNumber: 14);
         }
 
@@ -410,6 +389,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Glossary from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectGlossary_ReturnsCorrectSubArtifactsList()
         {
+            // Execute & Verify:
             CheckSubArtifacts(_user, glossaryId, expectedSubArtifactsNumber: 2);
         }
 
@@ -455,6 +435,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Glossary from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectUIMockup_ReturnsCorrectSubArtifactsList()
         {
+            // Execute & Verify:
             CheckSubArtifacts(_user, uiMockupId, expectedSubArtifactsNumber: 27);
         }
 
@@ -464,6 +445,7 @@ namespace ArtifactStoreTests
         [Description("GetSubartifacts for Glossary from Custom Data project. Check that results have expected content.")]
         public void GetSubArtifacts_CustomProjectUseCaseDiagram_ReturnsCorrectSubArtifactsList()
         {
+            // Execute & Verify:
             CheckSubArtifacts(_user, useCaseDiagramId, 7);
         }
 
@@ -604,7 +586,7 @@ namespace ArtifactStoreTests
             "Verify it returns 403 Forbidden.")]
         public void GetSubArtifactDetails_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
         {
-            // Setup
+            // Setup:
             var parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
             var child = Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent);
 
@@ -617,14 +599,14 @@ namespace ArtifactStoreTests
             Assert.IsNotEmpty(subArtifacts, "This artifact does not have sub-artifacts!");
             int subArtifactId = subArtifacts[0].Id;
 
-            // Execute
+            // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetSubartifact(viewer, child.Id, subArtifactId);
             }, "'GET {0}' should return 403 Forbidden when passed a valid child artifact ID but the user doesn't have permission to view parent artifact!",
                RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
-            // Verify
+            // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
                 I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", child.Id));
         }
@@ -641,13 +623,13 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            // Execute
+            // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetSubartifact(_user, artifact.Id, subArtifactId);
             }, "'GET {0}' should return 404 Not Found when passed a non-existing ID of sub-artifact!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
-            // Verify
+            // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
         }
@@ -681,13 +663,13 @@ namespace ArtifactStoreTests
             // Update and Verify the modified process
             StorytellerTestHelper.UpdateAndVerifyProcess(returnedProcess, Helper.Storyteller, _user);
 
-            // Execute
+            // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetSubartifact(_user, process.Id, userTaskToBeDeleted.Id);
             }, "'GET {0}' should return 404 Not Found when passed a non-existing ID of sub-artifact!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
-            // Verify
+            // Verify:
             // Bug: Wrong message returned http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5106
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
                 "You have attempted to access an artifact that does not exist or has been deleted.");
@@ -774,11 +756,17 @@ namespace ArtifactStoreTests
             }
         }
 
-        private string CreateTraceFromProcessSubArtifactToArtifactAndPublish(IArtifact processArtifact, IArtifact inlineTraceArtifact)
+        /// <summary>
+        /// Creates inline trace between process sub-artifact and another artifact
+        /// </summary>
+        /// <param name="processArtifact">Process artifact</param>
+        /// <param name="artifact">Another artifact</param>
+        /// <returns>Expected updated description with inline trace</returns>
+        private string CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(IArtifact processArtifact, IArtifact artifact)
         {
             var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifacts(_user, processArtifact.Id).Find(sa => sa.DisplayName.Equals(Process.DefaultUserTaskName));
             var subArtifactChangeSet = Helper.ArtifactStore.GetSubartifact(_user, processArtifact.Id, userTaskSubArtifact.Id);
-            subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { inlineTraceArtifact });
+            subArtifactChangeSet.Description = ArtifactStoreHelper.CreateTextForProcessInlineTrace(new List<IArtifact> { artifact });
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, processArtifact.Id);
             artifactDetails.SubArtifacts = new List<NovaSubArtifact>() { subArtifactChangeSet };

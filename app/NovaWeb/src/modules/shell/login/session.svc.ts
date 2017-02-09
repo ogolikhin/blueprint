@@ -177,7 +177,6 @@ export class SessionSvc implements ISession {
                             return this.loginWithSaml(true).then(
                                 () => {
                                     this._isExpired = false;
-                                    this._loginDialogPromise = null;
                                     return this.$q.resolve();
                                 },
                                 (err) => {
@@ -198,7 +197,6 @@ export class SessionSvc implements ISession {
                             return this.login(result.userName, result.password, true).then(
                                 () => {
                                     this._isExpired = false;
-                                    this._loginDialogPromise = null;
                                     return this.$q.resolve();
                                 },
                                 (err) => {
@@ -218,7 +216,7 @@ export class SessionSvc implements ISession {
             } else {
                 return this.showLogin();
             }
-        }).catch(() => {
+        }).finally(() => {
             this._loginDialogPromise = null;
         });
         return this._loginDialogPromise;

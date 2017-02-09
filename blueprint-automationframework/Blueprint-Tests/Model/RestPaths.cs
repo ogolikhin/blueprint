@@ -22,7 +22,6 @@ namespace Model
             {
                 public const string ARTIFACTS_id_                   = "api/v1/projects/{0}/artifacts/{1}";
                 public const string ARTIFACTS                       = "api/v1/projects/{0}/artifacts";
-                public const string ALMTARGETS                      = "api/v1/projects/{0}/alm/targets";
 
                 public static class Artifacts_id_
                 {
@@ -37,6 +36,8 @@ namespace Model
 
                 public static class ALM
                 {
+                    public const string TARGETS                     = "api/v1/projects/{0}/alm/targets";
+
                     public static class Targets_id_
                     {
                         public const string JOBS                    = "api/v1/projects/{0}/alm/targets/{1}/jobs";

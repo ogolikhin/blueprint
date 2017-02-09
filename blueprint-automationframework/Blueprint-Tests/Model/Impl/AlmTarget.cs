@@ -41,7 +41,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(project, nameof(project));
 
             var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
-            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALMTARGETS, project.Id);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALM.TARGETS, project.Id);
 
             var almTargets = restApi.SendRequestAndDeserializeObject<List<AlmTarget>>(
                 path, 

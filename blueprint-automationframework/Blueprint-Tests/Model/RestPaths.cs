@@ -13,6 +13,7 @@ namespace Model
         [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
         public static class OpenApi
         {
+            public const string LOGIN                               = "authentication/v1/login";
             public const string PROJECTS_id_                        = "api/v1/projects/{0}";
             public const string PROJECTS                            = "api/v1/projects";
 

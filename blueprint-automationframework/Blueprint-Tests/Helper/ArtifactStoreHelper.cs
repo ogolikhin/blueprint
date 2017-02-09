@@ -891,7 +891,7 @@ namespace Helper
         /// Validate nova artifact contents
         /// </summary>
         /// <param name="project">The project where artifact resides.</param>
-        /// <param name="novaArtifact">The nova artifact returned from get project/artifact childen.</param>
+        /// <param name="artifact">The nova artifact returned from get project/artifact childen.</param>
         /// <param name="parentArtifactId">parent artifact Id for get project/artifact children.</param>
         public static void ValidateNovaArtifact(IProject project, NovaArtifact artifact, int parentArtifactId)
         {
@@ -1019,8 +1019,7 @@ namespace Helper
         /// <returns>The custom data project.</returns>
         public static IProject GetCustomDataProject(IUser user)
         {
-            List<IProject> allProjects = null;
-            allProjects = ProjectFactory.GetAllProjects(user);
+            var allProjects = ProjectFactory.GetAllProjects(user);
 
             const string customDataProjectName = TestHelper.GoldenDataProject.CustomData;
 
@@ -1458,7 +1457,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// deletes file from the artifact (Save changes).
+        /// Deletes file from the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
@@ -1470,11 +1469,12 @@ namespace Helper
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            var attachments = artifactStore.GetAttachments(artifact, user);
+            Assert.IsNotNull(attachments, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachments.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
 
-            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            var fileToDelete = attachments.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
@@ -1507,6 +1507,7 @@ namespace Helper
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
 
             var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
@@ -1554,9 +1555,8 @@ namespace Helper
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
             ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
 
-            string inlineTraceText = null;
-
-            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\">" +
+            string inlineTraceText = I18NHelper.FormatInvariant(
+                "<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\">" +
                 "<div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, " +
                 "BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" " +
                 "target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; " +

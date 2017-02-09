@@ -110,8 +110,6 @@ export class SessionSvc implements ISession {
         return defer.promise;
     }
 
-    private onExpiredDefer: ng.IDeferred<any>;
-
     public onExpired(): ng.IPromise<any> {
 
         if (!this._isExpired && !this._loginDialogPromise) {
@@ -122,11 +120,9 @@ export class SessionSvc implements ISession {
         }
 
         if (this._loginDialogPromise) {
-            return this._loginDialogPromise;
-        } else {
             this._loginDialogPromise = this.$q.resolve();
-            return this._loginDialogPromise;
         }
+        return this._loginDialogPromise;
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {
@@ -154,7 +150,7 @@ export class SessionSvc implements ISession {
         }
     }
 
-    private showLogin = (error?: Error): ng.IPromise<any> => {
+    private showLogin = (): ng.IPromise<any> => {
         this._loginDialogPromise = this.dialogService.open(<IDialogSettings>{
             template: require("./login.html"),
             css: "nova-login",
@@ -170,49 +166,29 @@ export class SessionSvc implements ISession {
                     this._isExpired = false;
                     this._loginDialogPromise = null;
                     return this.$q.resolve();
-                } else if (result.samlLogin) {
+                } 
+
+                if (result.samlLogin) {
                     this._loginDialogPromise = this.dialogService
                         .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
-                        .then(() => {
-                            return this.loginWithSaml(true).then(
-                                () => {
-                                    this._isExpired = false;
-                                    return this.$q.resolve();
-                                },
-                                (err) => {
-                                    return this.showLogin(err);
-                                });
-                        })
-                        .catch(() => {
-                            return this.showLogin();
-                        })
-                        .finally(() => {
-                            confirmationDialog = null;
-                        });
-                        return this._loginDialogPromise;
-                } else if (result.userName && result.password) {
-                    this._loginDialogPromise = this.dialogService
-                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
-                        .then(() => {
-                            return this.login(result.userName, result.password, true).then(
-                                () => {
-                                    this._isExpired = false;
-                                    return this.$q.resolve();
-                                },
-                                (err) => {
-                                    return this.showLogin(err);
-                                });
-                        })
-                        .catch(() => {
-                            return this.showLogin();
-                        })
-                        .finally(() => {
-                            confirmationDialog = null;
-                        });
-                        return this._loginDialogPromise;
-                } else {
-                    return this.showLogin();
+                        .then(() => this.loginWithSaml(true))
+                        .then(() => this._isExpired = false)
+                        .catch(() => this.showLogin())
+                        .finally(() => confirmationDialog = null);
+                    return this._loginDialogPromise;
                 }
+                
+                if (result.userName && result.password) {
+                    this._loginDialogPromise = this.dialogService
+                        .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
+                        .then(() => this.login(result.userName, result.password, true))
+                        .then(() => this._isExpired = false)
+                        .catch(() => this.showLogin())
+                        .finally(() => confirmationDialog = null);
+                    return this._loginDialogPromise;
+                } 
+                return this.showLogin();
+                
             } else {
                 return this.showLogin();
             }

@@ -119,7 +119,7 @@ export class SessionSvc implements ISession {
             return this.showLogin();
         }
 
-        if (this._loginDialogPromise) {
+        if (!this._loginDialogPromise) {
             this._loginDialogPromise = this.$q.resolve();
         }
         return this._loginDialogPromise;

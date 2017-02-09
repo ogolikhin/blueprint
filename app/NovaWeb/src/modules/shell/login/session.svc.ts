@@ -174,7 +174,7 @@ export class SessionSvc implements ISession {
                     this._loginDialogPromise = this.dialogService
                         .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
                         .then(() => {
-                            this.loginWithSaml(true).then(
+                            return this.loginWithSaml(true).then(
                                 () => {
                                     this._isExpired = false;
                                     this._loginDialogPromise = null;
@@ -185,7 +185,7 @@ export class SessionSvc implements ISession {
                                 });
                         })
                         .catch(() => {
-                            this.showLogin();
+                            return this.showLogin();
                         })
                         .finally(() => {
                             confirmationDialog = null;
@@ -195,7 +195,7 @@ export class SessionSvc implements ISession {
                     this._loginDialogPromise = this.dialogService
                         .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
                         .then(() => {
-                            this.login(result.userName, result.password, true).then(
+                            return this.login(result.userName, result.password, true).then(
                                 () => {
                                     this._isExpired = false;
                                     this._loginDialogPromise = null;

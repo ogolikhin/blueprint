@@ -1457,7 +1457,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// deletes file from the artifact (Save changes).
+        /// Deletes file from the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
@@ -1469,11 +1469,11 @@ namespace Helper
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            var attachments = artifactStore.GetAttachments(artifact, user);
+            Assert.IsNotNull(attachments, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachments.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
 
-            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            var fileToDelete = attachments.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
             Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 

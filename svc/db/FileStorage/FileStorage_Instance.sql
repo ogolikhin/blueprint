@@ -775,7 +775,7 @@ GO
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------
-EXEC [FileStore].[SetSchemaVersion] @value = N'8.0.0';
+EXEC [FileStore].[SetSchemaVersion] @value = N'8.1.0';
 GO
 -- --------------------------------------------------
 

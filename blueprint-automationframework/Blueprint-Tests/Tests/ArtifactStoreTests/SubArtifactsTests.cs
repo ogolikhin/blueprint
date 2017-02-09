@@ -753,14 +753,14 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// This is to verify properties of UseCase sub-artifacts returned from getSubArtifact call
+        /// This is to verify properties of UseCase sub-artifacts returned from getSubArtifact and getSubArtifacts calls
         /// </summary>
         /// <param name="subArtifacts">List of sub-artifacts</param>
         /// <param name="useCaseId">UseCase Id</param>
-        /// <param name="subArtifactAmount">Amount of sub-artifact returned</param>
-        private static void VerifyUseCaseSubArtifacts(List<SubArtifact> subArtifacts, int useCaseId, int subArtifactAmount)
+        /// <param name="expectedSubArtifactCount">Amount of sub-artifact returned</param>
+        private static void VerifyUseCaseSubArtifacts(List<SubArtifact> subArtifacts, int useCaseId, int expectedSubArtifactCount)
         {
-            Assert.AreEqual(subArtifactAmount, subArtifacts.Count, "Use Case must have 4 subartifacts - Pre Condition, Post Condition and 2 steps.");
+            Assert.AreEqual(expectedSubArtifactCount, subArtifacts.Count, "Use Case must have 4 subartifacts - Pre Condition, Post Condition and 2 steps.");
 
             foreach (var s in subArtifacts)
             {

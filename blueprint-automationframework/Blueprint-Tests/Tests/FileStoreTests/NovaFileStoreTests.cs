@@ -146,13 +146,13 @@ namespace FileStoreTests
 
         [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestRail(234445)]
-        [Description("Add file to FileStore, delete it (it set Expiration Date to now), try to get file - it should return 404.")]
+        [Description("Add file to FileStore, set the file Expiration Date to 1 hour ago, try to get file - it should return 404.")]
         public void GetNovaFile_FileWithExpiredDateInThePast_Returns404(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup:
             var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            var expireTime = DateTime.Now;
+            var expireTime = DateTime.Now.AddHours(-1);
             var storedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime);
 
             // Execute:

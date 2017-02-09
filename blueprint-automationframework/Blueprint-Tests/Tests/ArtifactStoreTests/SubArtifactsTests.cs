@@ -317,7 +317,7 @@ namespace ArtifactStoreTests
             }, "GetSubartifacts should return 200 OK when sent with valid parameters!");
 
             // Verify
-            VerifyUseCaseSubArtifacts(subArtifacts, useCaseArtifact.Id, subArtifactAmount: 3);
+            VerifyUseCaseSubArtifacts(subArtifacts, useCaseArtifact.Id, expectedSubArtifactCount: 3);
         }
 
         [TestCase]
@@ -379,7 +379,7 @@ namespace ArtifactStoreTests
             }, "GetSubartifacts should return 200 OK when sent with valid parameters!");
 
             // Verify
-            VerifyUseCaseSubArtifacts(subArtifacts, USECASE_ID, subArtifactAmount: 4);
+            VerifyUseCaseSubArtifacts(subArtifacts, USECASE_ID, expectedSubArtifactCount: 4);
 
             Assert.IsTrue(subArtifacts[3].HasChildren, "This step must have child.");
             Assert.AreEqual(1, subArtifacts[3].Children.Count(), "This step must have child.");

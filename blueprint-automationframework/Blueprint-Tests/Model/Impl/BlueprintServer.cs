@@ -102,7 +102,7 @@ namespace Model.Impl
             {
                 try
                 {
-                    response = restApi.SendRequestAndGetResponse("authentication/v1/login", RestRequestMethod.GET);
+                    response = restApi.SendRequestAndGetResponse(RestPaths.OpenApi.LOGIN, RestRequestMethod.GET);
                     break;
                 }
                 catch (WebException e)

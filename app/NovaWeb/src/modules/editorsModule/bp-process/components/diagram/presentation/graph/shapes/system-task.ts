@@ -387,6 +387,10 @@ export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystem
         return this;
     }
 
+    public setEditMode(): void {
+       this.textLabel.setEditMode();
+    }
+
     private addOverlays(graph: MxGraph) {
         let overlays = graph.getCellOverlays(this);
 

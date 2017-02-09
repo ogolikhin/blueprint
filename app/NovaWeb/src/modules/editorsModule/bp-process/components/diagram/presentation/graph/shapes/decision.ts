@@ -137,6 +137,10 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         return this;
     }
 
+    public setEditMode(): void {
+       this.textLabel.setEditMode();
+    }
+
     public highlight(mxGraph: MxGraph, color?: string) {
         if (!color) {
             color = this.HIGHLIGHT_BORDER_COLOR;

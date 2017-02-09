@@ -215,6 +215,7 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getLabelCell(): MxCell;
     highlight(mxGraph: MxGraph, color?: string): void;
     clearHighlight(mxGraph: MxGraph): void;
+    setEditMode(): void;
 }
 
 export interface IDiagramElement extends MxCell {

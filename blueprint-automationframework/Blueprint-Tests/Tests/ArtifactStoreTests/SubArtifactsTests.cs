@@ -753,7 +753,7 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// This is to verify properties of UseCase sub-artifacts returned from getSubArtifact and getSubArtifacts calls
+        /// This is to verify properties of UseCase sub-artifacts returned from getSubArtifacts call
         /// </summary>
         /// <param name="subArtifacts">List of sub-artifacts</param>
         /// <param name="useCaseId">UseCase Id</param>

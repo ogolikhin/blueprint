@@ -239,7 +239,6 @@ $icon-review: '\e865';
 }
 
 /* '' */
-
 .icon-collection-folder:before {
     content: $icon-folder;
 }
@@ -248,14 +247,21 @@ $icon-review: '\e865';
 .icon-collections:before {
     content: $icon-collections;
 }
+
 .icon-artifact-baseline:before {
     content: $icon-baseline;
 }
+
 .icon-baseline-folder:before {
-    content: $icon-baseline;
+    content: $icon-folder;
 }
+
 .icon-artifact-review-package:before {
     content: $icon-review;
+}
+
+.icon-baselines-and-reviews:before {
+    content: $icon-baseline;
 }
 
 // ''

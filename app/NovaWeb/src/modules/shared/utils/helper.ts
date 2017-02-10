@@ -207,9 +207,13 @@ export class Helper {
     public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
         const nonStandardTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.ArtifactCollection,
             ItemTypePredefined.Collections,
-            ItemTypePredefined.CollectionFolder
+            ItemTypePredefined.BaselinesAndReviews,
+            ItemTypePredefined.BaselineFolder,
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.ArtifactReviewPackage,
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
         ];
 
         return artifact && artifact.predefinedType != null && nonStandardTypes.indexOf(artifact.predefinedType) === -1;

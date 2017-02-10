@@ -24,8 +24,9 @@ export enum PropertyLookupEnum {
 }
 
 export enum ItemTypePredefined {
-    Project = -1,       // for client use only
-    Collections = -2,   // for client use only
+    Project = -1,             // for client use only
+    Collections = -2,         // for client use only
+    BaselinesAndReviews = -3, // for client use only
 
     None = 0,
     BaselineArtifactGroup = 256,

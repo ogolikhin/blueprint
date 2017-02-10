@@ -101,6 +101,7 @@ export class ProcessGraph implements IProcessGraph {
         // non movable
         this.mxgraph.setCellsMovable(false);
         this.mxgraph.isCellSelectable = this.isCellSelectable;
+        this.mxgraph.foldingEnabled = false;
         ConnectorStyles.createStyles();
         NodeShapes.register(this.mxgraph);
         this.addMouseEventListener(this.mxgraph);

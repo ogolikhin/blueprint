@@ -247,8 +247,7 @@ export class SubArtifactEditorModalOpener {
 
             // We do not display change merge node option for first branch
             if (index !== 0) {
-                const mergeNodeId: string = decision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
-                mergePoint = graph.getNodeById(mergeNodeId);
+                mergePoint = graph.getMergeNode(decision.model.id, outgoingLink.orderindex);
             }
 
             const validMergeNodes: IDiagramNode[] = graph.getValidMergeNodes(outgoingLink);

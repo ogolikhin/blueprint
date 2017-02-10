@@ -114,6 +114,7 @@ export interface IProcessGraph {
     getLink(sourceId: number, destinationId: number): IProcessLink;
     getScope(id: number): IScopeContext;
     getShapeById(id: number): IProcessShape;
+    getMergeNode(decisionId: number, orderIndex: number): IDiagramNode;
     getValidMergeNodes(condition: IProcessLink): IDiagramNode[];
     getNodeById(id: string): IDiagramNode;
     getNextLinks(id: number): IProcessLink[];
@@ -255,8 +256,6 @@ export interface IUserTask extends ITask {
 }
 
 export interface IDecision extends IDiagramNode, IMenuContainer {
-    getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
     setLabelWithRedrawUi(value: string);
-    getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
 }
 

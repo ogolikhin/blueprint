@@ -964,6 +964,12 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.getShapeById(id);
     }
 
+    public getMergeNode(decisionId: number, orderIndex: number): IDiagramNode {
+        const branchLink = this.getDecisionBranchDestLinkForIndex(decisionId, orderIndex);
+        const destinationId = branchLink.destinationId;
+        return this.getNodeById(destinationId.toString());
+    }
+
     public getValidMergeNodes(condition: IProcessLink): IDiagramNode[] {
         // find all nodes in current condition
         let scopeContext: IScopeContext = null;

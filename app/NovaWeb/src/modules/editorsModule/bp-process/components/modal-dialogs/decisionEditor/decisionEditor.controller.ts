@@ -1,5 +1,5 @@
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
-import {DecisionEditorModel} from "./decisionEditorModel";
+import {DecisionEditorModel} from "./decisionEditor.model";
 import {IProcessLink} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";

@@ -4,7 +4,7 @@ import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communica
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
-import {DecisionEditorModel} from "./decisionEditor/decisionEditorModel";
+import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
 import {
     IProcessGraph,
     IDiagramNode,

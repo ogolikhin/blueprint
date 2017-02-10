@@ -2,7 +2,7 @@ import * as angular from "angular";
 import "angular-mocks";
 require("script!mxClient");
 import "../../..";
-import {DecisionEditorModel} from "./decisionEditorModel";
+import {DecisionEditorModel} from "./decisionEditor.model";
 import {DecisionEditorController} from "./decisionEditor.controller";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";

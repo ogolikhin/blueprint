@@ -23,7 +23,7 @@ describe("DecisionEditorController", () => {
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let noop = () => {/*noop*/};
 
-    beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
+    beforeEach(angular.mock.module("decisionEditor", ($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("localization", LocalizationServiceMock);
     }));

@@ -16,7 +16,7 @@ import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory
 import {ICondition} from "../diagram/presentation/graph/models";
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
-import {DecisionEditorModel} from "./decision-editor/decision-editor-model";
+import {DecisionEditorModel} from "./decisionEditor/decisionEditorModel";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {SystemTaskDialogModel} from "./task-editor/systemTaskDialogModel";
 import {UserTaskDialogModel} from "./task-editor/userTaskDialogModel";

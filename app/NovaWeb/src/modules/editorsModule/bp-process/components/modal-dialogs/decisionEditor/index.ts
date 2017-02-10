@@ -1,3 +1,3 @@
 export {
     DecisionEditor
-} from "./decision-editor";
+} from "./decisionEditor";

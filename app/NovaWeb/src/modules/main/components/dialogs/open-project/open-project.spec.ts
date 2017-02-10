@@ -62,7 +62,7 @@ describe("OpenProjectController", () => {
         expect(controller.returnValue).toEqual(undefined);
     }));
 
-    it("onDoubleClick, sets selection and calls ok", inject(($browser) => {
+    it("onDoubleClick, when a project, sets selection and return value and calls ok", inject(($browser) => {
         // Arrange
         const model = {
             id: 8,
@@ -81,5 +81,26 @@ describe("OpenProjectController", () => {
         expect(controller.selectedDescription).toBeUndefined();
         expect(controller.returnValue).toEqual(model);
         expect(controller.ok).toHaveBeenCalled();
+    }));
+
+    it("onDoubleClick, when a folder, sets selection, clears return value and does not call ok", inject(($browser) => {
+        // Arrange
+        const model = {
+            id: 9,
+            name: "jkl",
+            type: AdminStoreModels.InstanceItemType.Folder
+        } as AdminStoreModels.IInstanceItem;
+        const vm = new TreeModels.InstanceItemNodeVM(undefined, model);
+        spyOn(controller, "ok");
+
+        // Act
+        controller.onDoubleClick(vm);
+
+        // Assert
+        $browser.defer.flush(); // wait for $applyAsync()
+        expect(controller.selectedName).toEqual("jkl");
+        expect(controller.selectedDescription).toBeUndefined();
+        expect(controller.returnValue).toBeUndefined();
+        expect(controller.ok).not.toHaveBeenCalled();
     }));
 });

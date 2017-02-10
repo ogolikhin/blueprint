@@ -13,16 +13,15 @@ import {UploadImageDirective} from "./components/modal-dialogs/upload-image";
 import {PreviewCenterComponent} from "./components/modal-dialogs/user-story-preview/preview-center";
 import {PreviewWingDirective} from "./components/modal-dialogs/user-story-preview/preview-wing";
 import {ZoomableImageDirective} from "./components/modal-dialogs/user-story-preview/zoomable-image";
-import {DecisionEditor} from "./components/modal-dialogs/decision-editor";
+import {DecisionEditorModule} from "./components/modal-dialogs/decisionEditor";
 import {UserTaskEditor, SystemTaskEditor} from "./components/modal-dialogs/task-editor";
 import {ShapesFactory} from "./components/diagram/presentation/graph/shapes/shapes-factory";
 import {ClipboardService} from "./services/clipboard.svc";
 
-export const ProcessEditor = angular.module("bp.editors.process", ["ui.bootstrap"])
+export const ProcessEditor = angular.module("bp.editors.process", ["ui.bootstrap", DecisionEditorModule])
     .component("bpProcessHeader", new BpProcessHeader())
     .component("bpProcessEditor", new BpProcessEditor())
     .component("previewCenter", new PreviewCenterComponent())
-    .component("decisionEditor", new DecisionEditor())
     .component("userTaskEditor", new UserTaskEditor())
     .component("systemTaskEditor", new SystemTaskEditor())
     .directive("previewWing", PreviewWingDirective.directive)

@@ -2,8 +2,8 @@ import * as angular from "angular";
 import "angular-mocks";
 require("script!mxClient");
 import "../../..";
-import {DecisionEditorModel} from "./decision-editor-model";
-import {DecisionEditorController} from "./decision-editor-controller";
+import {DecisionEditorModel} from "./decisionEditor.model";
+import {DecisionEditorController} from "./decisionEditor.controller";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
@@ -23,7 +23,7 @@ describe("DecisionEditorController", () => {
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let noop = () => {/*noop*/};
 
-    beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
+    beforeEach(angular.mock.module("decisionEditor", ($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("localization", LocalizationServiceMock);
     }));

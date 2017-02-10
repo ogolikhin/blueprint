@@ -20,6 +20,7 @@ import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/a
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {IMessageService} from "../messages/message.svc";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
+import {ProjectExplorerService, IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 describe("Page Toolbar:", () => {
     let _$q: ng.IQService;
@@ -85,6 +86,7 @@ describe("Page Toolbar:", () => {
                        localization: LocalizationServiceMock,
                        dialogService: IDialogService,
                        projectManager: IProjectManager,
+                       projectExplorerService: IProjectExplorerService,
                        selectionManager: SelectionManagerMock,
                        publishService: UnpublishedArtifactsServiceMock,
                        messageService: IMessageService,
@@ -114,6 +116,7 @@ describe("Page Toolbar:", () => {
         localization,
         dialogService,
         projectManager,
+        projectExplorerService,
         selectionManager,
         publishService,
         messageService,

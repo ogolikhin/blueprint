@@ -20,7 +20,6 @@ export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];
     projectsChangeObservable: Rx.Observable<IChangeSet>;
     projectsObservable: Rx.Observable<ExplorerNodeVM[]>;
-    // selectedId: number;
 
     setSelectionId(id: number);
     getSelectionId(): number;
@@ -99,17 +98,8 @@ export class ProjectExplorerService implements IProjectExplorerService {
         return this.projectsSubject.asObservable();
     }
 
-    // FIXME: remove accessors/mutators
-    private get selectedId(): number {
-        return this._selectedId;
-    }
-
-    private set selectedId(val: number) {
-        this._selectedId = val;
-    }
-
     public setSelectionId(id: number) {
-        this.selectedId = id;
+        this._selectedId = id;
         const change = {
             type: ChangeTypeEnum.Select
         } as IChangeSet;
@@ -117,7 +107,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
     }
 
     public getSelectionId() {
-        return this.selectedId;
+        return this._selectedId;
     }
 
     public add(projectId: number): ng.IPromise<void> {
@@ -142,16 +132,19 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 return this.metadataService.get(projectId)
                     .then(() => {
                         projectNode = this.factory.createExplorerNodeVM(project, true);
-                        this.selectedId = projectNode.model.id;
+                        this._selectedId = projectNode.model.id;
                         this.projects.unshift(projectNode);
 
-                        const change = {
-                            type: ChangeTypeEnum.Add,
-                            value: projectNode
-                        } as IChangeSet;
-                        this.projectsChangeSubject.onNext(change);
+                        // FIXME: maybe return a promise here
+                        projectNode.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
+                            projectNode.children = children;
 
-                        this.navigationService.navigateTo({id: projectId});
+                            const change = {
+                                type: ChangeTypeEnum.Update
+                            } as IChangeSet;
+                            this.projectsChangeSubject.onNext(change);
+                            this.navigationService.navigateTo({id: projectId});
+                        });
 
                     }).catch((err: any) => {
                         if (err) {
@@ -171,28 +164,21 @@ export class ProjectExplorerService implements IProjectExplorerService {
         const removedProjects = _.remove(this.projects, project => project.model.projectId === projectId);
         if (removedProjects.length) {
             if (this.projects.length) {
-                this.selectedId = this.projects[0].model.projectId;
+                this._selectedId = this.projects[0].model.projectId;
             }
+
+            removedProjects[0].unloadChildren();
             const change = {
-                type: ChangeTypeEnum.Delete,
-                value: removedProjects[0]
+                type: ChangeTypeEnum.Update
             } as IChangeSet;
             this.projectsChangeSubject.onNext(change);
         }
     }
 
     public removeAll() {
-        // FIXME: use remove
-        _.forEach(this.projects, project => {
-            this.metadataService.remove(project.model.id);
-            const change = {
-                type: ChangeTypeEnum.Delete,
-                value: project
-            } as IChangeSet;
-            this.projectsChangeSubject.onNext(change);
+        _.forEachRight(this.projects, project => {
+            this.remove(project.model.id);
         });
-
-        this.projects = [];
     }
 
     // opens and selects project
@@ -233,14 +219,14 @@ export class ProjectExplorerService implements IProjectExplorerService {
         });
     }
 
-    // FIXME
+    // FIXME: add project error checking
     public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {
         const openProjectIndex = _.findIndex(this.projects, project => project.model.id === projectId);
 
         return this.metadataService.get(projectId)
             .then(() => this.getProjectExpandedToNode(projectId, artifactIdToExpand))
             .then(project => {
-                this.selectedId = artifactIdToExpand;
+                this._selectedId = artifactIdToExpand;
 
                 // replace exising project
                 if (_.isUndefined(openProjectIndex)) {
@@ -250,8 +236,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 }
 
                 const change = {
-                    type: ChangeTypeEnum.Add,
-                    value: project
+                    type: ChangeTypeEnum.Update
                 } as IChangeSet;
                 this.projectsChangeSubject.onNext(change);
             });
@@ -308,20 +293,28 @@ export class ProjectExplorerService implements IProjectExplorerService {
             return;
         }
 
-        const change = {
-            type: ChangeTypeEnum.Refresh
-        } as IChangeSet;
-
+        const change = {} as IChangeSet;
         this.selectionManager.autosave().then(() => {
             if (expandToArtifact && expandToArtifact.projectId === projectId) {
                 this.getProjectExpandedToNode(projectId, expandToArtifact.id)
                     .then(project => {
                         change.value = project;
-                            this.projectsChangeSubject.onNext(change);
+                            const index = _.findIndex(this.projects, p => p.model.id === p.model.id);
+                            this.projects[index].unloadChildren();
+                            this.projects.splice(index, 1, project);
+
+                            project.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
+                                change.type = ChangeTypeEnum.Update;
+                                this.projectsChangeSubject.onNext(change);
+                            });
                         });
             } else {
-                change.value = projectNode;
-                this.projectsChangeSubject.onNext(change);
+                projectNode.unloadChildren();
+                projectNode.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
+                    projectNode.children = children;
+                    change.type = ChangeTypeEnum.Update;
+                    this.projectsChangeSubject.onNext(change);
+                });
             }
         });
     }

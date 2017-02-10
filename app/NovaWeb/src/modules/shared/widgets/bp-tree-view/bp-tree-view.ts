@@ -228,60 +228,31 @@ export class BPTreeViewController implements IBPTreeViewController {
     }
 
     private onRowDataChange(change: IChangeSet) {
-        this.$log.debug("onRowDataChange");
-
         switch (change.type) {
-            case ChangeTypeEnum.Add:
-                this.addRowData(change.value);
-                break;
-
-            case ChangeTypeEnum.Delete:
-                this.deleteRowData(change.value);
-                break;
-
-            case ChangeTypeEnum.Refresh:
-                this.refreshRowData(change.value);
-                break;
-
             case ChangeTypeEnum.Select:
                 this.selectRowData();
                 break;
+
+            case ChangeTypeEnum.Update:
+                this.updateRowData();
+                break;
+
+            default:
+                throw new Error("Unrecognized row data observable type");
         }
-        // this.options.api.refreshView();
     }
 
     private selectRowData() {
         if (_.isFunction(this.setSelection)) {
-            this.setSelection();
-        }
-    }
-
-    private refreshRowData(node: ITreeNode) {
-        // FIXME: don't unload if the node is already fully loaded
-        node.unloadChildren();
-        this.loadExpanded(node).finally(() => {
-            this.options.api.setRowData(this.rowData);
-            this.selectRowData();
-        });
-    }
-
-    private deleteRowData(node: ITreeNode) {
-        _.remove(this.rowData, (row: ITreeNode) => {
-            return row.key === node.key;
-        });
-        node.unloadChildren();
-        this.options.api.setRowData(this.rowData);
-        this.selectRowData();
-    }
-
-    private addRowData(node: ITreeNode) {
-        if (node.expanded) {
-            this.loadExpanded(node).then(() => {
-                this.rowData.unshift(node);
-                this.options.api.setRowData(this.rowData);
-                this.selectRowData();
+            this.$timeout(() => {
+                this.setSelection();
             });
         }
+    }
+
+    private updateRowData() {
+        this.options.api.setRowData(this.rowData);
+        this.selectRowData();
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

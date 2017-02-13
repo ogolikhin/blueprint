@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using Utilities;
 
@@ -8,13 +9,15 @@ namespace Model.Impl
     {
         protected UserDataModel UserData { get; set; }
 
-        public UserSource Source { get; }
+        [JsonIgnore]
+        public UserSource Source { get { return UserSource.Database; } }
 
         #region Serialized JSON Properties
 
         public int Id
         {
             get { return UserData.Id; }
+            set { UserData.Id = value; }
         }
         public string Username
         {

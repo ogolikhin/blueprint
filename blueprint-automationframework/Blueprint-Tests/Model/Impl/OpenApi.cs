@@ -576,6 +576,7 @@ namespace Model.Impl
 
         /// <summary>
         /// This is to create user with different properties in open API
+        /// (Runs:  'POST /api/v1/users/create')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="userWhoCreatesAnotherUser">A user that has permission to create users.</param>
@@ -589,7 +590,7 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(userWhoCreatesAnotherUser, nameof(userWhoCreatesAnotherUser));
 
             var restApi = new RestApiFacade(address, userWhoCreatesAnotherUser.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.USERS_CREATE;
+            string path = RestPaths.OpenApi.Users.CREATE;
 
             return restApi.SendRequestAndDeserializeObject<OpenApiUser, OpenApiUser>(
                 path,

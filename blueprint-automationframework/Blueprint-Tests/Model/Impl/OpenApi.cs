@@ -574,14 +574,23 @@ namespace Model.Impl
 
         #region User methods
 
-        public static OpenApiUser CreateUser(string address, IUser instanceAdminUuser, OpenApiUser userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <summary>
+        /// This is to create user with different properties in open API
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="instanceAdminUser">Instance administrator</param>
+        /// <param name="userToCreate">User that instance admin wants to create</param>
+        /// <param name="expectedStatusCodes"></param>
+        /// <returns>(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>User, which was created.</returns>
+        public static OpenApiUser CreateUser(string address, IUser instanceAdminUser, OpenApiUser userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
-            ThrowIf.ArgumentNull(instanceAdminUuser, nameof(instanceAdminUuser));
+            ThrowIf.ArgumentNull(instanceAdminUser, nameof(instanceAdminUser));
 
-            var restApi = new RestApiFacade(address, instanceAdminUuser.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.CREATE_USER;
+            var restApi = new RestApiFacade(address, instanceAdminUser.Token?.OpenApiToken);
+            string path = RestPaths.OpenApi.USERS_CREATE;
 
             return restApi.SendRequestAndDeserializeObject<OpenApiUser, OpenApiUser>(
                 path,

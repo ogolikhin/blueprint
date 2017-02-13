@@ -15,7 +15,6 @@ namespace Model.Impl
         public string Title { get; set; }
         public string Department { get; set; }
         public string Password { get; set; }
-        public UserSource Source { get; set; }
         public List<IGroup> GroupMembership { get; set; }
         public InstanceAdminRole? InstanceAdminRole { get; set; }
         public bool? ExpirePassword { get; set; }

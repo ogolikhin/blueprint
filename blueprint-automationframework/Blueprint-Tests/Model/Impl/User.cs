@@ -32,6 +32,7 @@ namespace Model.Impl
         // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
         public LicenseType License { get; set; }
         public IEnumerable<byte> Picture { get; set; }
+        public virtual UserSource Source { get { return UserSource.Unknown; } }
         public IBlueprintToken Token { get; set; } = new BlueprintToken();
 
         // These are fields not included by IUser:
@@ -95,11 +96,6 @@ namespace Model.Impl
         {
             get { return UserData.Password; }
             set { UserData.Password = value; }
-        }
-        public virtual UserSource Source
-        {
-            get { return UserSource.Unknown; }
-            set { UserData.Source = value; }
         }
         public List<IGroup> GroupMembership
         {

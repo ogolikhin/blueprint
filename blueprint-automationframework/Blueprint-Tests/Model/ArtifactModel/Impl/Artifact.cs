@@ -3,7 +3,6 @@ using Model.ArtifactModel.Adaptors;
 using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -551,9 +550,39 @@ namespace Model.ArtifactModel.Impl
         {
             var discardResults = SvcShared.DiscardArtifacts(address, user, artifactsToDiscard, expectedStatusCodes);
 
-            SvcShared.UpdateStatusOfArtifactsThatWereDiscarded(discardResults, artifactsToDiscard);
+            UpdateStatusOfArtifactsThatWereDiscarded(discardResults, artifactsToDiscard);
 
             return discardResults;
+        }
+
+        /// <summary>
+        /// Updates the IsSaved and IsMarkedForDeletion flags to false for all artifacts that were successfully discarded.
+        /// </summary>
+        /// <param name="discardResults">The results returned from the Discard REST call.</param>
+        /// <param name="artifactsToDiscard">The list of artifacts that you attempted to discard.</param>
+        public static void UpdateStatusOfArtifactsThatWereDiscarded(List<NovaDiscardArtifactResult> discardResults, List<IArtifactBase> artifactsToDiscard)
+        {
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+            ThrowIf.ArgumentNull(discardResults, nameof(discardResults));
+
+            // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
+            foreach (var discardedResult in discardResults)
+            {
+                var discardedArtifact = artifactsToDiscard.Find(a => (a.Id == discardedResult.ArtifactId) &&
+                                                                     (discardedResult.Result == NovaDiscardArtifactResult.ResultCode.Success));
+
+                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, (int)discardedResult.Result);
+
+                if (discardedArtifact != null)
+                {
+                    discardedArtifact.IsSaved = false;
+                    discardedArtifact.IsMarkedForDeletion = false;
+                }
+            }
+
+            Assert.That(discardResults.Count.Equals(artifactsToDiscard.Count),
+                "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
+                artifactsToDiscard.Count, discardResults.Count);
         }
 
         /// <summary>
@@ -684,9 +713,49 @@ namespace Model.ArtifactModel.Impl
         {
             var lockResults = SvcShared.LockArtifacts(address, user, artifactsToLock, expectedStatusCodes);
 
-            SvcShared.UpdateStatusOfArtifactsThatWereLocked(lockResults, user, artifactsToLock, expectedLockResults);
+            UpdateStatusOfArtifactsThatWereLocked(lockResults, user, artifactsToLock, expectedLockResults);
 
             return lockResults;
+        }
+
+        /// <summary>
+        /// Updates the IsLocked and LockOwner flags to false for all artifacts that were successfully locked.
+        /// </summary>
+        /// <param name="lockResults">The results returned from the Lock REST call.</param>
+        /// <param name="user">The user that performed the Lock operation.</param>
+        /// <param name="artifactsToLock">The list of artifacts that you attempted to lock.</param>
+        /// <param name="expectedLockResults">(optional) The expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
+        public static void UpdateStatusOfArtifactsThatWereLocked(List<LockResultInfo> lockResults,
+            IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<LockResult> expectedLockResults = null)
+        {
+            ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
+            ThrowIf.ArgumentNull(lockResults, nameof(lockResults));
+
+            if (expectedLockResults == null)
+            {
+                expectedLockResults = new List<LockResult> { LockResult.Success };
+            }
+
+            // Update artifacts with lock info.
+            foreach (var artifact in artifactsToLock)
+            {
+                var lockResultInfo = lockResults.Find(x => x.Info.ArtifactId == artifact.Id);
+
+                Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
+
+                if (lockResultInfo.Result == LockResult.Success)
+                {
+                    artifact.LockOwner = user;
+                    artifact.Status.IsLocked = true;
+                }
+
+                Assert.That(expectedLockResults.Contains(lockResultInfo.Result),
+                    "We expected the lock Result to be one of: [{0}], but it was: {1}!",
+                    String.Join(", ", expectedLockResults), lockResultInfo.Result);
+            }
         }
 
         /// <summary>

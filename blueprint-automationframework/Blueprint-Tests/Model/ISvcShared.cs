@@ -12,6 +12,7 @@ namespace Model
 
         /// <summary>
         /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint.
+        /// NOTE: The internal status flags of the artifacts are NOT updated.
         /// (Runs:  'POST /svc/shared/artifacts/discard')
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
@@ -21,6 +22,32 @@ namespace Model
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<NovaDiscardArtifactResult> DiscardArtifacts(IUser user,
             List<IArtifactBase> artifactsToDiscard,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Lock Artifact(s).
+        /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactsToLock">The list of artifacts to lock.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        List<LockResultInfo> LockArtifacts(IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publish a list of artifacts on Blueprint server.  This is only used in Storyteller.
+        /// NOTE: The internal IsSaved and IsPublished flags are NOT updated by this function.
+        /// (Runs: 'POST /svc/shared/artifacts/publish')
+        /// </summary>
+        /// <param name="user">The user saving the artifact.</param>
+        /// <param name="artifactsToPublish">The IDs of the artifacts to publish.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Results of Publish operation.</returns>
+        List<NovaPublishArtifactResult> PublishArtifacts(IUser user,
+            List<int> artifactsToPublish,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Artifact methods

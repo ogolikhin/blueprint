@@ -5,7 +5,6 @@ using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
-using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -33,11 +32,7 @@ namespace Model.Impl
             List<IArtifactBase> artifactsToDiscard,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var discardResults = DiscardArtifacts(Address, user, artifactsToDiscard, expectedStatusCodes);
-
-            UpdateStatusOfArtifactsThatWereDiscarded(discardResults, artifactsToDiscard);
-
-            return discardResults;
+            return DiscardArtifacts(Address, user, artifactsToDiscard, expectedStatusCodes);
         }
 
         /// <summary>
@@ -71,38 +66,17 @@ namespace Model.Impl
             return artifactResults.DiscardResults;
         }
 
-        /// <summary>
-        /// Updates the IsSaved and IsMarkedForDeletion flags to false for all artifacts that were successfully discarded.
-        /// </summary>
-        /// <param name="discardResults">The results returned from the Discard REST call.</param>
-        /// <param name="artifactsToDiscard">The list of artifacts that you attempted to discard.</param>
-        public static void UpdateStatusOfArtifactsThatWereDiscarded(List<NovaDiscardArtifactResult> discardResults, List<IArtifactBase> artifactsToDiscard)
+        /// <seealso cref="ISvcShared.LockArtifacts(IUser, List{IArtifactBase}, List{HttpStatusCode})"/>
+        public List<LockResultInfo> LockArtifacts(IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
-            ThrowIf.ArgumentNull(discardResults, nameof(discardResults));
-
-            // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
-            foreach (var discardedResult in discardResults)
-            {
-                var discardedArtifact = artifactsToDiscard.Find(a => (a.Id == discardedResult.ArtifactId) &&
-                    (discardedResult.Result == NovaDiscardArtifactResult.ResultCode.Success));
-
-                Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, (int)discardedResult.Result);
-
-                if (discardedArtifact != null)
-                {
-                    discardedArtifact.IsSaved = false;
-                    discardedArtifact.IsMarkedForDeletion = false;
-                }
-            }
-
-            Assert.That(discardResults.Count.Equals(artifactsToDiscard.Count),
-                "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
-                artifactsToDiscard.Count, discardResults.Count);
+            return LockArtifacts(Address, user, artifactsToLock, expectedStatusCodes);
         }
 
         /// <summary>
-        /// Lock Artifact(s).  NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// Lock Artifact(s).
+        /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
         /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
@@ -134,48 +108,17 @@ namespace Model.Impl
             return lockResults;
         }
 
-        /// <summary>
-        /// Updates the IsLocked and LockOwner flags to false for all artifacts that were successfully locked.
-        /// </summary>
-        /// <param name="lockResults">The results returned from the Lock REST call.</param>
-        /// <param name="user">The user that performed the Lock operation.</param>
-        /// <param name="artifactsToLock">The list of artifacts that you attempted to lock.</param>
-        /// <param name="expectedLockResults">(optional) The expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
-        ///     If null, only Success is expected.</param>
-        public static void UpdateStatusOfArtifactsThatWereLocked(List<LockResultInfo> lockResults,
-            IUser user,
-            List<IArtifactBase> artifactsToLock,
-            List<LockResult> expectedLockResults = null)
+        /// <seealso cref="ISvcShared.PublishArtifacts(IUser, List{int}, List{HttpStatusCode})"/>
+        public List<NovaPublishArtifactResult> PublishArtifacts(IUser user,
+            List<int> artifactsToPublish,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
-            ThrowIf.ArgumentNull(lockResults, nameof(lockResults));
-
-            if (expectedLockResults == null)
-            {
-                expectedLockResults = new List<LockResult> { LockResult.Success };
-            }
-
-            // Update artifacts with lock info.
-            foreach (var artifact in artifactsToLock)
-            {
-                var lockResultInfo = lockResults.Find(x => x.Info.ArtifactId == artifact.Id);
-
-                Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
-
-                if (lockResultInfo.Result == LockResult.Success)
-                {
-                    artifact.LockOwner = user;
-                    artifact.Status.IsLocked = true;
-                }
-
-                Assert.That(expectedLockResults.Contains(lockResultInfo.Result),
-                    "We expected the lock Result to be one of: [{0}], but it was: {1}!",
-                    string.Join(", ", expectedLockResults), lockResultInfo.Result);
-            }
+            return PublishArtifacts(Address, user, artifactsToPublish, expectedStatusCodes);
         }
 
         /// <summary>
         /// Publish a list of artifacts on Blueprint server.  This is only used in Storyteller.
+        /// NOTE: The internal IsSaved and IsPublished flags are NOT updated by this function.
         /// (Runs: 'POST /svc/shared/artifacts/publish')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>

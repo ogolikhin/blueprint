@@ -13,13 +13,14 @@ import {INavigationService} from "../../../commonModule/navigation/navigation.se
 import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {LoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
-import {SessionSvc, ISession} from "../../../shell/login/session.svc";
+import {ISession} from "../../../shell/login/session.svc";
 import {AuthSvcMock, ModalServiceMock} from "../../../shell/login/mocks.spec";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {IMessageService} from "../messages/message.svc";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
+import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 
 describe("Page Toolbar:", () => {
     let _$q: ng.IQService;
@@ -70,7 +71,7 @@ describe("Page Toolbar:", () => {
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("auth", AuthSvcMock);
         $provide.service("$uibModal", ModalServiceMock);
-        $provide.service("session", SessionSvc);
+        $provide.service("session", SessionSvcMock);
         $provide.service("artifactService", ArtifactServiceMock);
         $provide.service("jobsService", JobsServiceMock);
         $provide.service("createArtifactService", CreateArtifactService);

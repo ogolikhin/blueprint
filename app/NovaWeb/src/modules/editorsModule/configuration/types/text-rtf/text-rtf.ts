@@ -1,6 +1,7 @@
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
+import {IFormlyScope} from "../../formly-config";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
@@ -22,9 +23,9 @@ export class BPFieldTextRTF implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTF";
     public template: string = require("./text-rtf.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
+    public link: ng.IDirectiveLinkFn = function ($scope: IFormlyScope) {
         $scope.$applyAsync(() => {
-            $scope["fc"].$setTouched();
+            $scope.fc.$setTouched();
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFController;
@@ -56,7 +57,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
 
     constructor(protected $q: ng.IQService,
                 private $log: ng.ILogService,
-                $scope: AngularFormly.ITemplateScope,
+                $scope: IFormlyScope,
                 protected $window: ng.IWindowService,
                 private $filter: ng.IFilterService,
                 navigationService: INavigationService,
@@ -216,6 +217,7 @@ export class BpFieldTextRTFController extends BPFieldBaseRTFController {
                                                 height: dimensions.height
                                             });
                                             editor.insertContent(`<span>${imageContent}</span>`);
+                                            this.addEmbeddedImageToList(uploadedImageUrl);
                                         });
                                 });
                             });

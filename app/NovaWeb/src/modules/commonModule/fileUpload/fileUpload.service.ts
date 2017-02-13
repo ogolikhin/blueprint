@@ -96,7 +96,8 @@ export class FileUploadService implements IFileUploadService {
                 } else {
                     const error = {
                         statusCode: errResult.status,
-                        message: errResult.data ? errResult.data.message : ""
+                        message: errResult.data ? errResult.data.message : "",
+                        errorCode: errResult.data.errorCode
                     };
                     return this.$q.reject(error);
                 }

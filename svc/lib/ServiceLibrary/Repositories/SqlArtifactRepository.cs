@@ -187,9 +187,6 @@ namespace ServiceLibrary.Repositories
                 LockedByUser = v.LockedByUserId.HasValue ? new UserGroup { Id = v.LockedByUserId } : null,
                 LockedDateTime = v.LockedByUserTime
             })
-            //NOTE:: Temporary filter Review and BaseLines out from the list
-            // See US#809: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=809
-            .Where(a => a.PredefinedType != ItemTypePredefined.BaselineFolder)
             .OrderBy(a => {
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)

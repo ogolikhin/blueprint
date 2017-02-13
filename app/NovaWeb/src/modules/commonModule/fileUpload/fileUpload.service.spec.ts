@@ -99,7 +99,7 @@ describe("File Upload", () => {
                 // Arrange
                 const file = {name: "empty.png"};
                 const status = HttpStatusCode.ServerError;
-                const data = {message: "Internal Server Error"};
+                const data = {message: "Internal Server Error", errorCode: 131};
                 $httpBackend.when("POST", "/svc/bpartifactstore/images/").respond(status, data);
 
                 // Act
@@ -110,7 +110,7 @@ describe("File Upload", () => {
 
                 // Assert
                 expect(result).toBeUndefined();
-                expect(error).toEqual({statusCode: status, message: data.message});
+                expect(error).toEqual({statusCode: status, message: data.message, errorCode: 131});
                 $httpBackend.verifyNoOutstandingExpectation();
                 $httpBackend.verifyNoOutstandingRequest();
             }));

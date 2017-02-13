@@ -20,8 +20,8 @@ namespace Model.Impl
             "[InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp]," +
             "[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]";
 
+        protected UserDataModel UserData { get; set; }
         protected bool IsDeletedFromDatabase { get; set; }
-        private List<IGroup> _GroupMembership = new List<IGroup>();
 
         #region Properties
 
@@ -30,20 +30,10 @@ namespace Model.Impl
         // All User table fields are as follows:
         // [AllowFallback],[CurrentVersion],[Department],[DisplayName],[Email],[Enabled],[EndTimestamp],[EULAccepted],[ExpirePassword],[FirstName],[Guest],[Image_ImageId],[InstanceAdminRoleId],
         // [InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp],[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]
-        public string Department { get; set; }
-        public string Email { get; set; }
-        public bool Enabled { get; set; }
-        public string FirstName { get; set; }
-        public List<IGroup> GroupMembership { get { return _GroupMembership; } }
-        public InstanceAdminRole? InstanceAdminRole { get; set; }
-        public string LastName { get; set; }
         public LicenseType License { get; set; }
-        public string Password { get; set; }
         public IEnumerable<byte> Picture { get; set; }
         public virtual UserSource Source { get { return UserSource.Unknown; } }
-        public string Title { get; set; }
         public IBlueprintToken Token { get; set; } = new BlueprintToken();
-        public string Username { get; set; }
 
         // These are fields not included by IUser:
         public bool? AllowFallback { get; set; }
@@ -51,7 +41,6 @@ namespace Model.Impl
         public string EncryptedPassword { get; set; }
         public DateTime? EndTimestamp { get; set; }
         public bool EULAccepted { get; set; }
-        public bool? ExpirePassword { get; set; }
         public bool Guest { get; set; }
         public int InvalidLogonAttemptsNumber { get; set; }
         public DateTime? LastInvalidLogonTimeStamp { get; set; }
@@ -63,8 +52,71 @@ namespace Model.Impl
 
         #region Serialized JSON Properties
 
-        public string DisplayName { get; set; }
-        public int Id { get; set; }
+        public int Id
+        {
+            get { return UserData.Id; }
+            set { UserData.Id = value; }
+        }
+        public string Username
+        {
+            get { return UserData.Username; }
+            set { UserData.Username = value; }
+        }
+        public string DisplayName
+        {
+            get { return UserData.DisplayName; }
+            set { UserData.DisplayName = value; }
+        }
+        public string FirstName
+        {
+            get { return UserData.FirstName; }
+            set { UserData.FirstName = value; }
+        }
+        public string LastName
+        {
+            get { return UserData.LastName; }
+            set { UserData.LastName = value; }
+        }
+        public string Email
+        {
+            get { return UserData.Email; }
+            set { UserData.Email = value; }
+        }
+        public string Title
+        {
+            get { return UserData.Title; }
+            set { UserData.Title = value; }
+        }
+        public string Department
+        {
+            get { return UserData.Department; }
+            set { UserData.Department = value; }
+        }
+        public string Password
+        {
+            get { return UserData.Password; }
+            set { UserData.Password = value; }
+        }
+        public List<IGroup> GroupMembership
+        {
+            get { return UserData.GroupMembership; }
+            set { UserData.GroupMembership = value; }
+        }
+        public InstanceAdminRole? InstanceAdminRole
+        {
+            get { return UserData.InstanceAdminRole; }
+            set { UserData.InstanceAdminRole = value; }
+        }
+        public bool? ExpirePassword
+        {
+            get { return UserData.ExpirePassword; }
+            set { UserData.ExpirePassword = value; }
+        }
+        public bool Enabled
+        {
+            get { return UserData.Enabled; }
+            set { UserData.Enabled = value; }
+        }
 
         #endregion Serialized JSON Properties
 
@@ -76,13 +128,19 @@ namespace Model.Impl
         protected User()
         {
             // Intentionally left blank.
+            UserData = new UserDataModel();
+        }
+
+        protected User(UserDataModel userData)
+        {
+            UserData = userData;
         }
 
         /// <summary>
         /// Copy constructor.  Creates a deep copy of the specified user.
         /// </summary>
         /// <param name="user">The user to copy.</param>
-        protected User(IUser user)
+        protected User(IUser user) : this()
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -164,6 +222,16 @@ namespace Model.Impl
             query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}", imageId, userId);
             rowsAffected = ExecuteUpdateBinarySqlQuery(query);
             Assert.IsTrue(rowsAffected == 1, "Updated more than one row in Users table!");
+        }
+
+        public void ChangeLastPasswordChangeTimestamp(DateTime dateTime)
+        {
+            string updatedDateString = dateTime.ToStringInvariant("yyyy-MM-dd HH:mm:ss");
+
+            string query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET LastPasswordChangeTimestamp = '{0}' WHERE UserId = {1}",
+                updatedDateString, Id);
+            int rowsAffected = ExecuteUpdateBinarySqlQuery(query);
+            Assert.IsTrue(rowsAffected == 1, "Update more than one row in Users table!");
         }
 
         /// <summary>

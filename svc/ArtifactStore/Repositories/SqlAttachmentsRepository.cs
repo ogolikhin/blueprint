@@ -91,7 +91,9 @@ namespace ArtifactStore.Repositories
             var documentReferenceArtifactInfoDictionary = documentReferenceArtifactInfos.ToDictionary(a => a.ArtifactId);
 
             var distinctUsers = attachments.Select(a => a.UserId).Union(referencedArtifacts.Select(b=>b.UserId)).Distinct().ToList();
-            var userInfoDictionary = (await UserRepository.GetUserInfos(distinctUsers)).ToDictionary(a => a.UserId);            
+            var userInfoDictionary = (await UserRepository.GetUserInfos(distinctUsers)).ToDictionary(a => a.UserId);
+
+            var referenceArtifactsToBeRemoved = new List<DocumentReference>();     
 
             foreach (var attachment in attachments)
             {
@@ -107,14 +109,24 @@ namespace ArtifactStore.Repositories
                 userInfoDictionary.TryGetValue(referencedArtifact.UserId, out userInfo);
                 LinkedArtifactInfo linkedArtifactInfo;
                 documentReferenceArtifactInfoDictionary.TryGetValue(referencedArtifact.ArtifactId, out linkedArtifactInfo);
-                referencedArtifact.UserName = userInfo.DisplayName;
-                referencedArtifact.ArtifactName = linkedArtifactInfo.ArtifactName;
-                referencedArtifact.ItemTypePrefix = linkedArtifactInfo.ItemTypePrefix;
-                if (referencedArtifact.ReferencedDate != null)
+                if(linkedArtifactInfo != null)
                 {
-                    referencedArtifact.ReferencedDate = DateTime.SpecifyKind(referencedArtifact.ReferencedDate.Value, DateTimeKind.Utc);
+                    referencedArtifact.UserName = userInfo.DisplayName;
+                    referencedArtifact.ArtifactName = linkedArtifactInfo.ArtifactName;
+                    referencedArtifact.ItemTypePrefix = linkedArtifactInfo.ItemTypePrefix;
+                    if (referencedArtifact.ReferencedDate != null)
+                    {
+                        referencedArtifact.ReferencedDate = DateTime.SpecifyKind(referencedArtifact.ReferencedDate.Value, DateTimeKind.Utc);
+                    }
+                }
+                else
+                {
+                    // if the linked artifactInfo is not available, do not return this artifact references
+                    referenceArtifactsToBeRemoved.Add(referencedArtifact);
                 }
             }
+
+            referencedArtifacts = referencedArtifacts.Except(referenceArtifactsToBeRemoved).ToList();
 
             var result = new FilesInfo(attachments, referencedArtifacts)
             {

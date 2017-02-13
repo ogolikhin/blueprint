@@ -1,4 +1,4 @@
-import {IWindowManager, IMainWindow, ResizeCause} from "./window-manager";
+import {IWindowManager, IMainWindow, ResizeCause, SidebarToggled} from "./window-manager";
 
 export class MainWindowMock implements IMainWindow {
     public width: number;
@@ -9,6 +9,7 @@ export class MainWindowMock implements IMainWindow {
     public isLeftSidebarExpanded: boolean;
     public isRightSidebarOpen: boolean;
     public causeOfChange: ResizeCause;
+    public sidebarToggled: SidebarToggled;
 }
 
 export class WindowManagerMock implements IWindowManager {

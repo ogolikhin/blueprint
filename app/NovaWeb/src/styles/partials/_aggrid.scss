@@ -285,6 +285,22 @@ $aggrid-text-indent: 6px;
         content: $icon-folder;
     }
 
+    .ag-cell.is-baselines-and-reviews .ag-group-value .ag-group-value-wrapper i::before {
+        content: $icon-baseline;
+    }
+
+    .ag-cell.is-artifact-baseline .ag-group-value .ag-group-value-wrapper i::before {
+        content: $icon-baseline;
+    }
+
+    .ag-cell.is-artifact-review-package .ag-group-value .ag-group-value-wrapper i::before {
+        content: $icon-review;
+    }
+
+    .ag-cell.is-baseline-folder .ag-group-value .ag-group-value-wrapper i::before {
+        content: $icon-folder;
+    }
+
     .ag-cell.is-domain-diagram .ag-group-value .ag-group-value-wrapper i::before {
         content: $icon-domain-diagram;
     }

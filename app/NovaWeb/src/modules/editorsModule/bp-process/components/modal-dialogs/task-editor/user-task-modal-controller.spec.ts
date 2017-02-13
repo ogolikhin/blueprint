@@ -15,7 +15,7 @@ import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/arti
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {UserTask} from "../../diagram/presentation/graph/shapes/user-task";
-import {ModalServiceInstanceMock, SessionSvcMock} from "../../../../../shell/login/mocks.spec";
+import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {IArtifactReference, NodeType} from "../../diagram/presentation/graph/models";
 import {UserTaskDialogModel} from "./userTaskDialogModel";
@@ -24,6 +24,7 @@ import {UserTaskModalController} from "./user-task-modal-controller";
 import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {Models} from "../../../../../main/models/";
+import {SessionSvcMock} from "../../../../../shell/login/session.svc.mock";
 
 describe("UserTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;

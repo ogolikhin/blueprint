@@ -691,7 +691,7 @@ namespace ArtifactStoreTests
             var compareOptions = new Attachments.CompareOptions
             {
                 CompareAttachmentIds = false,
-                CompareUploadedDates = false,
+                CompareUploadedDates = false
             };
 
             AssertCopiedSubArtifactsAreEqualToOriginal(_user, sourceArtifactDetails, copyResult.Artifact,

@@ -1,6 +1,5 @@
 import "angular-mocks";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
@@ -14,6 +13,7 @@ import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
 import {ValidationService} from "../validation/validation.svc";
 import * as angular from "angular";
+import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 
 describe("Project", () => {
     let project: IStatefulArtifact;
@@ -34,6 +34,7 @@ describe("Project", () => {
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationService);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
+        $provide.service("session", SessionSvcMock);
     }));
 
     beforeEach(inject((statefulArtifactFactory: IStatefulArtifactFactory) => {

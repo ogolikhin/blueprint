@@ -104,31 +104,41 @@ export class CreateNewArtifactController extends BaseDialogController {
     };
 
     public filterItemTypePredefinedByParent = (): ItemTypePredefined[] => {
-        const allowedItemType: ItemTypePredefined[] = [
+        const allowedProjectItemType: ItemTypePredefined[] = [
             ItemTypePredefined.TextualRequirement,
-            ItemTypePredefined.Process,
+            ItemTypePredefined.PrimitiveFolder,
             ItemTypePredefined.Actor,
             ItemTypePredefined.Document,
-            ItemTypePredefined.PrimitiveFolder,
-            ItemTypePredefined.ArtifactCollection,
-            ItemTypePredefined.CollectionFolder
+            ItemTypePredefined.Process
+        ];
+        const allowedBaselinesAndReviewsItemType: ItemTypePredefined[] = [
+            ItemTypePredefined.BaselineFolder,
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.ArtifactReviewPackage
+        ];
+        const allowedCollectionsItemType: ItemTypePredefined[] = [
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
         ];
 
-        return allowedItemType.filter((itemType: ItemTypePredefined) => {
-            if (this._parentType === ItemTypePredefined.CollectionFolder) {
-                return itemType === ItemTypePredefined.ArtifactCollection ||
-                    itemType === ItemTypePredefined.CollectionFolder;
-            } else if (this._parentType === ItemTypePredefined.ArtifactCollection) {
-                return itemType === ItemTypePredefined.ArtifactCollection;
-            } else if (this._parentType === ItemTypePredefined.Project || this._parentType === ItemTypePredefined.PrimitiveFolder) {
-                return itemType !== ItemTypePredefined.ArtifactCollection &&
-                    itemType !== ItemTypePredefined.CollectionFolder;
-            } else {
-                return itemType !== ItemTypePredefined.PrimitiveFolder &&
-                    itemType !== ItemTypePredefined.ArtifactCollection &&
-                    itemType !== ItemTypePredefined.CollectionFolder;
-            }
-        });
+        switch (this._parentType) {
+            case ItemTypePredefined.Project:
+            case ItemTypePredefined.PrimitiveFolder:
+                return allowedProjectItemType;
+            case ItemTypePredefined.BaselinesAndReviews:
+            case ItemTypePredefined.BaselineFolder:
+                return allowedBaselinesAndReviewsItemType;
+            case ItemTypePredefined.Collections:
+            case ItemTypePredefined.CollectionFolder:
+                return allowedCollectionsItemType;
+            case ItemTypePredefined.ArtifactBaseline:
+            case ItemTypePredefined.ArtifactReviewPackage:
+                return allowedBaselinesAndReviewsItemType.filter((itemType: ItemTypePredefined) => itemType !== ItemTypePredefined.BaselineFolder);
+            case ItemTypePredefined.ArtifactCollection:
+                return allowedCollectionsItemType.filter((itemType: ItemTypePredefined) => itemType !== ItemTypePredefined.CollectionFolder);
+            default:
+                return allowedProjectItemType.filter((itemType: ItemTypePredefined) => itemType !== ItemTypePredefined.PrimitiveFolder);
+        }
     };
 
     public availableItemTypes = (): IItemType[] => {

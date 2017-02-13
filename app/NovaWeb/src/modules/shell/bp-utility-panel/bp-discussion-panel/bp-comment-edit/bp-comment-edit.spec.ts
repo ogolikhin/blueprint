@@ -8,6 +8,7 @@ import {LocalizationServiceMock} from "../../../../commonModule/localization/loc
 import "angular-ui-tinymce";
 import "tinymce";
 import {UsersAndGroupsService} from "../../../../commonModule/services/usersAndGroups.service";
+import {LicenseServiceMock} from "../../../license/license.svc.mock";
 
 describe("Component BPCommentEdit", () => {
 
@@ -18,6 +19,7 @@ describe("Component BPCommentEdit", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("usersAndGroupsService", UsersAndGroupsService);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("licenseService", LicenseServiceMock);
     }));
 
     let directiveTest: ComponentTest<BPCommentEditController>;

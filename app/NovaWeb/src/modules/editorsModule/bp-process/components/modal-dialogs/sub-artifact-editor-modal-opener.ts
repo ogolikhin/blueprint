@@ -4,7 +4,7 @@ import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communica
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
-import {DecisionEditorModel} from "./decision-editor/decision-editor-model";
+import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
 import {
     IProcessGraph,
     IDiagramNode,
@@ -247,8 +247,7 @@ export class SubArtifactEditorModalOpener {
 
             // We do not display change merge node option for first branch
             if (index !== 0) {
-                const mergeNodeId: string = decision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
-                mergePoint = graph.getNodeById(mergeNodeId);
+                mergePoint = graph.getMergeNode(decision.model.id, outgoingLink.orderindex);
             }
 
             const validMergeNodes: IDiagramNode[] = graph.getValidMergeNodes(outgoingLink);

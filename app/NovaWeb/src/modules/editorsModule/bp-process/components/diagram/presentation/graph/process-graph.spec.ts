@@ -1661,7 +1661,7 @@ describe("ProcessGraph", () => {
             let condition = Condition.create(ud_ut3_link, null, null);
 
             // Act
-            let isUpdated = graph.updateMergeNode(decisionId, condition);
+            let isUpdated = graph.updateMergeNode(decisionId, condition, null);
 
             // Assert
             expect(isUpdated).toBeFalsy();
@@ -1688,7 +1688,7 @@ describe("ProcessGraph", () => {
             let condition = Condition.create(ud_ut3_link, mergeNode, null);
 
             // Act
-            let isUpdated = graph.updateMergeNode(decisionId, condition);
+            let isUpdated = graph.updateMergeNode(decisionId, condition, endId);
 
             // Assert
             let decisionScopesToEnd = processModel.decisionBranchDestinationLinks.filter(a => a.sourceId === decisionId && a.destinationId === endId);

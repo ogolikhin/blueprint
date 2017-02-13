@@ -49,6 +49,7 @@ describe("DecisionEditorController", () => {
         $uibModalInstance = _$uibModalInstance_;
 
         model = new DecisionEditorModel();
+        model.graph = createMockGraph();
         $scope = <IModalScope>$rootScope.$new();
         controller = new DecisionEditorController(
             $rootScope, $scope, $timeout, $anchorScroll,
@@ -260,6 +261,7 @@ describe("DecisionEditorController", () => {
         it("is false for all conditions if minimum conditions reached", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             const isDeleteConditionVisible = _.some(
@@ -275,6 +277,7 @@ describe("DecisionEditorController", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             const primaryCondition = model.conditions[0];
+            spyOn(model.graph, "isFirstFlow").and.returnValue(true);
 
             // act
             const isDeleteConditionVisible = controller.isDeleteConditionVisible(primaryCondition);
@@ -286,6 +289,7 @@ describe("DecisionEditorController", () => {
         it("is true for all conditions but primary if minimum conditions not reached", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             const isDeleteConditionVisible = _.every(
@@ -317,6 +321,7 @@ describe("DecisionEditorController", () => {
         it("is false for all conditions if minimum conditions reached", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             const canDeleteCondition = _.some(
@@ -331,6 +336,7 @@ describe("DecisionEditorController", () => {
         it("is true for all conditions but primary if minimum conditions not reached", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             const canDeleteCondition = _.every(
@@ -361,6 +367,7 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             spyOn(controller, "refreshView").and.callFake(noop);
             const condition = createConditions(1)[0];
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             controller.deleteCondition(condition);
@@ -373,6 +380,7 @@ describe("DecisionEditorController", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             const refreshSpy = spyOn(controller, "refreshView").and.callFake(noop);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             controller.deleteCondition(model.conditions[model.conditions.length - 1]);
@@ -380,33 +388,6 @@ describe("DecisionEditorController", () => {
             // assert
             expect(model.conditions.length).toBe(ProcessGraph.MinConditions);
             expect(refreshSpy).toHaveBeenCalled();
-        });
-    });
-
-    describe("isFirstBranch", () => {
-        it("is true for primary condition", () => {
-            // arrange
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            const primaryCondition = model.conditions[0];
-
-            // act
-            const isFirstCondition = controller.isFirstBranch(primaryCondition);
-
-            // assert
-            expect(isFirstCondition).toBe(true);
-        });
-
-        it("is false for subsequent conditions", () => {
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-
-            // act
-            const isFirstCondition = _.some(
-                model.conditions.slice(1),
-                condition => controller.isFirstBranch(condition)
-            );
-
-            // assert
-            expect(isFirstCondition).toBe(false);
         });
     });
 
@@ -717,6 +698,7 @@ describe("DecisionEditorController", () => {
         it("is false if is at least one condition doesn't have merge node specified", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             model.label = "UD1";
@@ -780,7 +762,10 @@ describe("DecisionEditorController", () => {
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-            spyOn(controller, "updateExistingEdge").and.returnValue(true);
+            spyOn(model.graph, "updateMergeNode").and.returnValue(true);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
+            spyOn(model.graph, "getBranchStartingLink").and.returnValue({});
+            spyOn(controller, "updateConditionLabels").and.returnValue(false);
 
             const modelUpdateSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
             const actionSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "action");
@@ -812,6 +797,8 @@ describe("DecisionEditorController", () => {
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
             spyOn(controller, "refreshView").and.callFake(noop);
             const deleteSpy = spyOn(ProcessDeleteHelper, "deleteDecisionBranches").and.callFake(noop);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
+            spyOn(model.graph, "getBranchStartingLink").and.returnValue(null);
 
             // act
             controller.deleteCondition(model.conditions[model.conditions.length - 1]);
@@ -842,6 +829,8 @@ describe("DecisionEditorController", () => {
             spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
             spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
             const addSpy = spyOn(model.graph, "addDecisionBranches").and.callFake(noop);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
+            spyOn(model.graph, "getBranchStartingLink").and.returnValue(null);
 
             // act
             controller.addCondition();
@@ -885,7 +874,10 @@ function createMockGraph(): IProcessGraph {
             }
         },
         getValidMergeNodes: null,
-        getMxGraphModel: null
+        getMxGraphModel: null,
+        isFirstFlow: null,
+        updateMergeNode: null,
+        getBranchStartingLink: null
     };
 }
 

@@ -27,7 +27,8 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         private dialogService: IDialogService,
         private loadingOverlayService: ILoadingOverlayService,
         private processDiagramManager: IProcessDiagramCommunication,
-        private projectManager: IProjectManager
+        private projectManager: IProjectManager,
+        private analytics: ng.google.analytics.AnalyticsService
     ) {
         super();
 
@@ -213,10 +214,23 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
     }
 
+    private trackSearchEvent(startTime: number, userTaskId?: number) {
+        const endTime = new Date().getTime();
+        const timeSpentInMsec = endTime - startTime;
+        const category = "User Story";
+        let action = "Generate All";
+        if (userTaskId && userTaskId > 0) {
+            action = "Generate Selected";
+        }
+        const seconds = timeSpentInMsec / 1000;
+        this.analytics.trackEvent(category, action, undefined, seconds, false);
+    }
+
     private generateUserStories(process: StatefulProcessArtifact, userTaskId?: number): ng.IPromise<any> {
         const projectId = process.projectId;
         const processId = process.id;
 
+        const startTime = new Date().getTime();
         return this.userStoryService.generateUserStories(process.projectId, process.id, userTaskId)
             .then((userStories: IUserStory[]) => {
                 this.processDiagramManager.action(ProcessEvents.UserStoriesGenerated, userStories);
@@ -225,8 +239,8 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                     userTaskId ?
                         this.localization.get("ST_US_Generate_From_UserTask_Success_Message") :
                         this.localization.get("ST_US_Generate_All_Success_Message");
-                this.messageService.addInfo(userStoriesGeneratedMessage);
-
+                this.messageService.addInfo(userStoriesGeneratedMessage);                
+                this.trackSearchEvent(startTime, userTaskId);
                 return process.refresh();
             })
             .then(() => {

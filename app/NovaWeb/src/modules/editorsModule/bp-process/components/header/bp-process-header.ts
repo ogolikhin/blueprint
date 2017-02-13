@@ -46,28 +46,30 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "breadcrumbService",
         "userStoryService",
         "collectionService",
-        "itemInfoService"
+        "itemInfoService",
+        "Analytics"
     ];
 
     constructor($q: ng.IQService,
-                $scope: ng.IScope,
-                $element: ng.IAugmentedJQuery,
-                $timeout: ng.ITimeoutService,
-                selectionManager: ISelectionManager,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                dialogService: IDialogService,
-                windowManager: IWindowManager,
-                loadingOverlayService: ILoadingOverlayService,
-                navigationService: INavigationService,
-                projectManager: IProjectManager,
-                metadataService: IMetaDataService,
-                mainBreadcrumbService: IMainBreadcrumbService,
-                private communicationManager: ICommunicationManager,
-                private breadcrumbService: IBreadcrumbService,
-                private userStoryService: IUserStoryService,
-                collectionService: ICollectionService,
-                public itemInfoService: IItemInfoService) {
+        $scope: ng.IScope,
+        $element: ng.IAugmentedJQuery,
+        $timeout: ng.ITimeoutService,
+        selectionManager: ISelectionManager,
+        localization: ILocalizationService,
+        messageService: IMessageService,
+        dialogService: IDialogService,
+        windowManager: IWindowManager,
+        loadingOverlayService: ILoadingOverlayService,
+        navigationService: INavigationService,
+        projectManager: IProjectManager,
+        metadataService: IMetaDataService,
+        mainBreadcrumbService: IMainBreadcrumbService,
+        private communicationManager: ICommunicationManager,
+        private breadcrumbService: IBreadcrumbService,
+        private userStoryService: IUserStoryService,
+        collectionService: ICollectionService,
+        public itemInfoService: IItemInfoService,
+        private Analytics: ng.google.analytics.AnalyticsService) {
         super(
             $q,
             $scope,
@@ -164,7 +166,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.dialogService,
             this.loadingOverlayService,
             this.communicationManager.processDiagramCommunication,
-            this.projectManager);
+            this.projectManager,
+            this.Analytics);
         const copyAction = new CopyAction(
             processArtifact,
             this.communicationManager,

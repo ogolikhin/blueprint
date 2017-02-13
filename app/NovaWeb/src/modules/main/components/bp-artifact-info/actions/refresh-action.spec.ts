@@ -223,6 +223,27 @@ describe("RefreshAction", () => {
             expect(refreshAction.disabled).toBe(true);
         }));
 
+    it("is disabled when artifact is Baselines and Reviews",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                projectManager: IProjectManager,
+                loadingOverlayService: ILoadingOverlayService,
+                metaDataService: IMetaDataService,
+                mainBreadcrumbService: IMainBreadcrumbService) => {
+            // arrange
+            artifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.BaselinesAndReviews
+                });
+
+            // act
+            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbService);
+
+            // assert
+            expect(refreshAction.disabled).toBe(true);
+        }));
+
     it("is enabled when artifact is valid",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,

@@ -30,8 +30,6 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         return "fonticon fonticon-error";
     }
 
-    public isReadonly: boolean = false;
-
     public static $inject = [
         "$rootScope",
         "$scope",
@@ -42,18 +40,18 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         "localization"
     ];
 
-    constructor($rootScope: ng.IRootScopeService,
-                $scope: IModalScope,
-                private $timeout: ng.ITimeoutService,
-                private $anchorScroll: ng.IAnchorScrollService,
-                private $location: ng.ILocationService,
-                private $q: ng.IQService,
-                private localization: ILocalizationService,
-                $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
-                dialogModel?: DecisionEditorModel) {
+    constructor(
+        $rootScope: ng.IRootScopeService,
+        $scope: IModalScope,
+        private $timeout: ng.ITimeoutService,
+        private $anchorScroll: ng.IAnchorScrollService,
+        private $location: ng.ILocationService,
+        private $q: ng.IQService,
+        private localization: ILocalizationService,
+        $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
+        dialogModel?: DecisionEditorModel
+    ) {
         super($rootScope, $scope, $uibModalInstance, dialogModel);
-
-        this.isReadonly = this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
     }
 
     public get defaultMergeNodeLabel(): string {
@@ -66,6 +64,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     public get hasMinConditions(): boolean {
         return this.dialogModel.conditions.length <= ProcessGraph.MinConditions;
+    }
+
+    public get isReadonly(): boolean {
+        return !this.dialogModel || this.dialogModel.isReadonly || this.dialogModel.isHistoricalVersion;
     }
 
     public get canApplyChanges(): boolean {
@@ -208,6 +210,50 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         }
     }
 
+    public canReorder(condition: ICondition): boolean {
+        return this.canMoveUp(condition) || this.canMoveDown(condition);
+    }
+
+    public canMoveUp(condition: ICondition): boolean {
+        return !this.isReadonly
+            && this.dialogModel.conditions
+            && this.dialogModel.conditions.indexOf(condition) > 1;
+    }
+
+    public moveUp(condition: ICondition): void {
+        if (!this.canMoveUp(condition)) {
+            return;
+        }
+
+        const index = this.dialogModel.conditions.indexOf(condition);
+        const previousCondition = this.dialogModel.conditions[index - 1];
+        this.dialogModel.conditions.splice(index - 1, 2, condition, previousCondition);
+    }
+
+    public canMoveDown(condition: ICondition): boolean {
+        if (this.isReadonly) {
+            return false;
+        }
+
+        if (!this.dialogModel.conditions || this.dialogModel.conditions.length === 0) {
+            return false;
+        }
+
+        const index = this.dialogModel.conditions.indexOf(condition);
+
+        return index > 0 && index < this.dialogModel.conditions.length - 1;
+    }
+
+    public moveDown(condition: ICondition): void {
+        if (!this.canMoveDown(condition)) {
+            return;
+        }
+
+        const index = this.dialogModel.conditions.indexOf(condition);
+        const nextCondition = this.dialogModel.conditions[index + 1];
+        this.dialogModel.conditions.splice(index, 2, nextCondition, condition);
+    }
+
     public isLabelAvailable(): boolean {
         return this.dialogModel.label != null && this.dialogModel.label !== "";
     }
@@ -255,7 +301,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     // This is a workaround to force re-rendering of the dialog
     public refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+        const element: HTMLElement = document.getElementsByClassName("modal-dialog").item(0).parentElement;
 
         if (!element) {
             return;

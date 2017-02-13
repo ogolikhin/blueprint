@@ -181,7 +181,7 @@ export class BpAccordionCtrl implements IBpAccordionController {
         // set height of content of components
         this.panels.map((p: IBpAccordionPanelController) => {
             const panelEl: any = p.getElement();
-            const panelContentEl = panelEl.querySelector(".bp-accordion-panel-content");
+            const panelContentEl = panelEl.getElementsByClassName("bp-accordion-panel-content").item(0);
 
             if (p.isOpen && p.isVisible) {
                 panelContentEl.style.height = "calc(100% - " + p.accordionPanelHeadingHeight + "px)";

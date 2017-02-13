@@ -70,6 +70,22 @@ describe("Component BPUtilityPanel", () => {
             expect(vm.itemDisplayName).toBe("My22: Artifact");
         }));
 
+    it("should hide all tabs for baselines and reviews folder",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: ISelectionManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+            //Arrange
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22,
+                predefinedType: ItemTypePredefined.BaselineFolder
+            });
+
+            //Act
+            selectionManager.setArtifact(artifact);
+            $rootScope.$digest();
+
+            // Assert
+            expect(vm.isAnyPanelVisible).toBe(false);
+        }));
+
     it("should hide all tabs for collections folder",
         inject(($rootScope: ng.IRootScopeService, selectionManager: ISelectionManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
             //Arrange

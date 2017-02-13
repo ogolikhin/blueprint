@@ -48,14 +48,14 @@ export class MessageController implements IMessageController {
     }
 
     public onMouseOut() {
-        const container = document.querySelector(".messages__container") as HTMLElement;
+        const container = document.getElementsByClassName("messages__container").item(0) as HTMLElement;
         if (container) {
             container.className = "messages__container";
         }
     }
 
     public onMouseOver(messageType: string) {
-        const container = document.querySelector(".messages__container") as HTMLElement;
+        const container = document.getElementsByClassName("messages__container").item(0) as HTMLElement;
         if (container) {
             container.classList.add("messages__container--over-" + messageType);
         }

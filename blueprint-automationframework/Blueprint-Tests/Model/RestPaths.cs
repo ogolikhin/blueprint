@@ -51,6 +51,11 @@ namespace Model
                 }
             }
 
+            public static class Users
+            {
+                public const string CREATE                          = "api/v1/users/create";
+            }
+
             public static class VersionControl
             {
                 public const string PUBLISH                         = "api/v1/vc/publish";

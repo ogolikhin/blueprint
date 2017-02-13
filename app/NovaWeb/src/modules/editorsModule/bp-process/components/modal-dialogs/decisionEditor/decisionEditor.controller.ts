@@ -119,7 +119,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     }
 
     public isDeleteConditionVisible(condition: ICondition): boolean {
-        return !this.hasMinConditions && !this.dialogModel.graph.viewModel.isFirstFlow(condition.sourceId, condition.destinationId);
+        return !this.hasMinConditions && !this.dialogModel.graph.isFirstFlow(condition.sourceId, condition.destinationId);
     }
 
     public canDeleteCondition(condition: ICondition): boolean {

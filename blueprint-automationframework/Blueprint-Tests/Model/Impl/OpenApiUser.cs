@@ -8,10 +8,6 @@ namespace Model.Impl
     {
         protected UserDataModel UserData { get; set; }
 
-        #region Properties
-
-        #endregion Properties
-
         public UserSource Source { get; }
 
         #region Serialized JSON Properties

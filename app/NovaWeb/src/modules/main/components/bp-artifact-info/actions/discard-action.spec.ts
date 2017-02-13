@@ -64,7 +64,7 @@ xdescribe("DiscardAction", () => {
 
         // act
         try {
-            new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
+            new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
         } catch (exception) {
             error = exception;
         }
@@ -79,7 +79,7 @@ xdescribe("DiscardAction", () => {
         const artifact: IStatefulArtifact = null;
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -91,7 +91,7 @@ xdescribe("DiscardAction", () => {
         artifact.artifactState.readonly = true;
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -106,7 +106,7 @@ xdescribe("DiscardAction", () => {
         });
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -121,7 +121,7 @@ xdescribe("DiscardAction", () => {
         });
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -140,7 +140,7 @@ xdescribe("DiscardAction", () => {
             });
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(false);
@@ -161,7 +161,7 @@ xdescribe("DiscardAction", () => {
                 deferred.reject(null);
                 return deferred.promise;
             });
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
 
         // act
         discardAction.execute();

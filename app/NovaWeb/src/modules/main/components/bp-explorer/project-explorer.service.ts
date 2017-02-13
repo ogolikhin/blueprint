@@ -77,13 +77,11 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 private projectService: IProjectService,
                 private metadataService: IMetaDataService) {
 
+        this.projects = [];
         this.factory = new TreeNodeVMFactory(projectService);
         this.projectsChangeSubject = new Rx.Subject<IChangeSet>();
         this.projectsChangeObservable = this.projectsChangeSubject.asObservable();
 
-        this.projects = [];
-
-        // FIXME: save the disposable?
         this.selectionManager.currentlySelectedArtifactObservable
             .subscribeOnNext(this.onChangeInCurrentlySelectedArtifact, this);
     }

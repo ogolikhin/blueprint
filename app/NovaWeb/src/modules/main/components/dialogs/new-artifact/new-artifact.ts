@@ -184,8 +184,8 @@ export class CreateNewArtifactController extends BaseDialogController {
     // TODO: remove after modals are refactored as this is a workaround to force re-rendering of the dialog in IE11
     public refreshView() {
         if (this.isIE11) {
-            const modal = document.querySelector(".new-artifact") as HTMLElement;
-            const labels = document.querySelectorAll(".new-artifact__label");
+            const modal = document.getElementsByClassName("new-artifact").item(0) as HTMLElement;
+            const labels = document.getElementsByClassName("new-artifact__label");
 
             if (!modal || !labels || !labels.length) {
                 return;

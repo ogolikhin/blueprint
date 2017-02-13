@@ -104,7 +104,7 @@ export class Helper {
         }
 
         let element = node as HTMLElement;
-        let tds = element.querySelectorAll("td");
+        let tds = element.getElementsByTagName("td");
         [].forEach.call(tds, function (td) {
             if (td.style.borderStyle === "" || td.style.borderStyle.indexOf("none") !== -1) {
                 td.style.borderStyle = "solid";

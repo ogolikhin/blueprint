@@ -390,7 +390,7 @@ export class BpArtifactInfoController {
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
-            const pageHeading = document.querySelector(".page-heading") as HTMLElement;
+            const pageHeading = document.getElementsByClassName("page-heading").item(0) as HTMLElement;
             const pageToolbar = document.querySelector(".page-heading .toolbar__container") as HTMLElement;
 
             // THIS WILL BE USED TO TOGGLE BETWEEN THE EXPANDED AND COLLAPSED TOOLBAR

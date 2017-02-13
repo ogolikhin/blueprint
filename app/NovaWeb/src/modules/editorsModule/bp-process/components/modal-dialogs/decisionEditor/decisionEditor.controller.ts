@@ -301,7 +301,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     // This is a workaround to force re-rendering of the dialog
     public refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+        const element: HTMLElement = document.getElementsByClassName("modal-dialog").item(0).parentElement;
 
         if (!element) {
             return;

@@ -1,7 +1,6 @@
 import {BPDropdownAction, BPDropdownItemAction} from "../../../../../shared/widgets/bp-toolbar/actions";
 import {IDialogService, IDialogSettings} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {IUserStoryService} from "../../../services/user-story.svc";
-import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {IUserStory} from "../../../models/process-models";
 import {ReuseSettings} from "../../../../../main/models/enums";
@@ -14,6 +13,7 @@ import {ILocalizationService} from "../../../../../commonModule/localization/loc
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {IProjectExplorerService} from "../../../../../main/components/bp-explorer/project-explorer.service";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private selectionChangedHandle: string;
@@ -27,38 +27,9 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         private dialogService: IDialogService,
         private loadingOverlayService: ILoadingOverlayService,
         private processDiagramManager: IProcessDiagramCommunication,
-        private projectManager: IProjectManager
+        private projectExplorerService: IProjectExplorerService
     ) {
         super();
-
-        if (!userStoryService) {
-            throw new Error("User story service is not provided or is null");
-        }
-
-        if (!messageService) {
-            throw new Error("Message service is not provided or is null");
-        }
-
-        if (!localization) {
-            throw new Error("Localization service is not provided or is null");
-        }
-
-        if (!dialogService) {
-            throw new Error("Dialog service is not provided or is null");
-        }
-
-        if (!loadingOverlayService) {
-            throw new Error("Loading overlay service is not provided or is null");
-        }
-
-        if (!processDiagramManager) {
-            throw new Error("Process diagram manager is not provided or is null");
-        }
-
-        if (!projectManager) {
-            throw new Error("Project manager is not provided or is null");
-        }
-
         this.actions.push(
             new BPDropdownItemAction(
                 this.localization.get("ST_US_Generate_From_UserTask_Label"),
@@ -230,10 +201,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                 return process.refresh();
             })
             .then(() => {
-                //refresh project
-                this.projectManager.refresh(process.projectId).then(() => {
-                    this.projectManager.triggerProjectCollectionRefresh();
-                });
+                this.projectExplorerService.refresh(process.projectId);
             })
             .catch((reason: IApplicationError) => {
                 let message: string = this.localization.get("ST_US_Generate_Generic_Failure_Message");

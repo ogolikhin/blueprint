@@ -25,27 +25,27 @@ export interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
 }
 
 export interface IProjectManager extends IDispose {
-    projectCollection: Rx.BehaviorSubject<Models.IViewModel<Models.IArtifact>[]>;
+    // projectCollection: Rx.BehaviorSubject<Models.IViewModel<Models.IArtifact>[]>;
 
-    add(projectId: number): ng.IPromise<void>;
-    remove(projectId: number): void;
-    removeAll(): void;
-    triggerProjectCollectionRefresh(): void;
-    openProject(project: AdminStoreModels.IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
-    openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
-    openProjectWithDialog(): void;
-    getProject(id: number): Models.IViewModel<Models.IArtifact>;
+    // add(projectId: number): ng.IPromise<void>;
+    // remove(projectId: number): void;
+    // removeAll(): void;
+    // triggerProjectCollectionRefresh(): void;
+    // openProject(project: AdminStoreModels.IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
+    // openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
+    // openProjectWithDialog(): void;
+    // getProject(id: number): Models.IViewModel<Models.IArtifact>;
 
     // eventManager
-    initialize(): void;
+    // initialize(): void;
 
 
-    refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
-    refreshCurrent(): ng.IPromise<void>;
-    refreshAll(): ng.IPromise<void>;
-    getSelectedProjectId(): number;
-    getDescendantsToBeDeleted(artifact: Models.IArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
-    calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
+    // refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
+    // refreshCurrent(): ng.IPromise<void>;
+    // refreshAll(): ng.IPromise<void>;
+    // getSelectedProjectId(): number;
+    // getDescendantsToBeDeleted(artifact: Models.IArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
+    // calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
 }
 
 export class ProjectManager implements IProjectManager {

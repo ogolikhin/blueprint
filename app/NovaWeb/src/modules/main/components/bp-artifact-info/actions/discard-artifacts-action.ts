@@ -6,6 +6,7 @@ import {IArtifact, IPublishResultSet} from "../../../models/models";
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {IUnpublishedArtifactsService} from "../../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../messages/message.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class DiscardArtifactsAction extends BPButtonAction {
     private artifactList: IArtifact[];
@@ -15,30 +16,10 @@ export class DiscardArtifactsAction extends BPButtonAction {
         private localization: ILocalizationService,
         private messageService: IMessageService,
         private loadingOverlayService: ILoadingOverlayService,
-        private projectManager: IProjectManager,
+        private projectExplorerService: IProjectExplorerService,
         private dialogService: IDialogService
     ) {
         super();
-
-        if (!this.publishService) {
-            throw new Error("Publish service not provided or is null");
-        }
-
-        if (!this.localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!this.messageService) {
-            throw new Error("Message service not provided or is null");
-        }
-
-        if (!this.loadingOverlayService) {
-            throw new Error("Loading overlay service not provided or is null");
-        }
-
-        if (!this.projectManager) {
-            throw new Error("Project manager not provided or is null");
-        }
     }
 
     public get icon(): string {
@@ -66,8 +47,8 @@ export class DiscardArtifactsAction extends BPButtonAction {
             .then((result: IPublishResultSet) => {
                 this.messageService.addInfo("Discard_All_Success_Message", result.artifacts.length);
 
-                if (this.projectManager.projectCollection.getValue().length > 0) {
-                    this.projectManager.refreshAll();
+                if (this.projectExplorerService.projects.length > 0) {
+                    this.projectExplorerService.refreshAll();
                 }
             })
             .catch((error) => {

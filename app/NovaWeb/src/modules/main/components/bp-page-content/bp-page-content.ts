@@ -7,6 +7,7 @@ import {ItemTypePredefined} from "../../models/enums";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 export class PageContent implements ng.IComponentOptions {
     public template: string = require("./bp-page-content.html");
@@ -22,7 +23,7 @@ export class PageContentCtrl {
         "selectionManager",
         "mainbreadcrumbService",
         "$state",
-        "projectManager",
+        "projectExplorerService",
         "localization"
     ];
 
@@ -30,7 +31,7 @@ export class PageContentCtrl {
                 private selectionManager: ISelectionManager,
                 private mainBreadcrumbService: IMainBreadcrumbService,
                 private $state: ng.ui.IStateService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private localization: ILocalizationService) {
     }
 
@@ -59,7 +60,7 @@ export class PageContentCtrl {
     }
 
     public openProject(): void {
-        this.projectManager.openProjectWithDialog();
+        this.projectExplorerService.openProjectWithDialog();
     }
 
     private onSelectionChanged = (selection: ISelection) => {

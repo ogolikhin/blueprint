@@ -1,7 +1,7 @@
-import {IProjectManager} from "../../../managers/project-manager/project-manager";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
 import {IItemType} from "../../models/models";
 import {Models} from "../../models";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 export interface ISearchMetadata {
     totalCount: number;
@@ -53,7 +53,7 @@ export class QuickSearchService implements IQuickSearchService {
         "$http",
         "$timeout",
         "$log",
-        "projectManager",
+        "projectExplorerService",
         "metadataService"
     ];
 
@@ -61,14 +61,14 @@ export class QuickSearchService implements IQuickSearchService {
                 private $http: ng.IHttpService,
                 private $timeout: ng.ITimeoutService,
                 private $log: ng.ILogService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private metadataService: IMetaDataService) {
     }
 
     searchTerm: string;
 
     canSearch(): boolean {
-        return !(this.projectManager.projectCollection.getValue().length > 0);
+        return !(this.projectExplorerService.projects.length > 0);
     }
 
     private appendParameters(url: string, page: number, pageSize: number): string {
@@ -94,7 +94,7 @@ export class QuickSearchService implements IQuickSearchService {
     }
 
     private projectIds() {
-        return _.map(this.projectManager.projectCollection.getValue(), "model.id");
+        return _.map(this.projectExplorerService.projects, "model.id");
     }
 
     metadata(term: string, page: number = null, pageSize: number = null): ng.IPromise<ISearchMetadata> {

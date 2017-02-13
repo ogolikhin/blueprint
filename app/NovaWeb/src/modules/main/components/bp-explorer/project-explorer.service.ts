@@ -10,7 +10,7 @@ import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadi
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
 import {OpenProjectController} from "../dialogs/open-project/open-project";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
-import {IArtifact} from "../../models/models";
+import {IArtifact, IArtifactWithProject} from "../../models/models";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
@@ -38,6 +38,7 @@ export interface IProjectExplorerService {
     getProject(id: number): ExplorerNodeVM;
 
     // misc
+    getDescendantsToBeDeleted(artifact: IArtifact): ng.IPromise<IArtifactWithProject[]>;
     calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: IArtifact): ng.IPromise<number>;
 }
 
@@ -362,6 +363,16 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 }
             }
             return orderIndex;
+        });
+    }
+
+    public getDescendantsToBeDeleted(artifact: IArtifact): ng.IPromise<IArtifactWithProject[]> {
+        let projectName: string;
+        return this.projectService.getProject(artifact.projectId).then((project: IInstanceItem) => {
+            projectName = project.name;
+            return this.projectService.getArtifacts(project.id, artifact.id);
+        }).then((data: IArtifact[]) => {
+            return data.map(a => _.assign({projectName: projectName}, a) as IArtifactWithProject);
         });
     }
 }

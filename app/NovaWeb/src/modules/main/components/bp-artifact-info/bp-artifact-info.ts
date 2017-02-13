@@ -7,7 +7,6 @@ import {
     IMetaDataService,
     IItemChangeSet
 } from "../../../managers/artifact-manager";
-import {IProjectManager} from "../../../managers/project-manager";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {
     IDialogService,
@@ -65,7 +64,6 @@ export class BpArtifactInfoController {
         "windowManager",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
         "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
@@ -112,7 +110,6 @@ export class BpArtifactInfoController {
                 protected windowManager: IWindowManager,
                 protected loadingOverlayService: ILoadingOverlayService,
                 protected navigationService: INavigationService,
-                protected projectManager: IProjectManager,
                 protected projectExplorerService: IProjectExplorerService,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
@@ -324,10 +321,9 @@ export class BpArtifactInfoController {
 
         const projectId = this.artifact.projectId;
         const artifactId = this.artifact.id;
-
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+        const openProjects = _.map(this.projectExplorerService.projects, "model.id");
 
-        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
         this.projectExplorerService.openProjectAndExpandToNode(projectId, artifactId)
             .finally(() => {
                 //(eventCollection, action, label?, value?, custom?, jQEvent?
@@ -368,8 +364,8 @@ export class BpArtifactInfoController {
 
     protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
-            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService,
+            this.projectExplorerService, this.loadingOverlayService, this.dialogService, this.navigationService);
 
         if (buttonGroup) {
             buttonGroup.actions.push(deleteAction);

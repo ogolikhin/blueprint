@@ -5,53 +5,23 @@ import {INavigationService} from "../../../../commonModule/navigation/navigation
 import {ConfirmDeleteController} from "../../dialogs/bp-confirm-delete/bp-confirm-delete";
 import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager} from "../../../../managers/project-manager";
 import {BPButtonAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {IArtifact, IArtifactWithProject} from "../../../models/models";
 import {IMessageService} from "../../messages/message.svc";
-import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {Message, MessageType} from "../../messages/message";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class DeleteAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         protected localization: ILocalizationService,
         private messageService: IMessageService,
-        private selectionManager: ISelectionManager,
-        private projectManager: IProjectManager,
+        private projectExplorerService: IProjectExplorerService,
         private loadingOverlayService: ILoadingOverlayService,
         private dialogService: IDialogService,
         private navigationService: INavigationService
     ) {
         super();
-
-        if (!this.localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!this.messageService) {
-            throw new Error("Message service not provided or is null");
-        }
-
-        if (!this.selectionManager) {
-            throw new Error("Selection manager not provided or is null");
-        }
-
-        if (!this.projectManager) {
-            throw new Error("Project manager not provided or is null");
-        }
-
-        if (!this.loadingOverlayService) {
-            throw new Error("Loading overlay service not provided or is null");
-        }
-
-        if (!this.dialogService) {
-            throw new Error("Dialog service not provided or is null");
-        }
-
-        if (!this.navigationService) {
-            throw new Error("Navigation service not provided or is null");
-        }
     }
 
     public get icon(): string {
@@ -98,7 +68,7 @@ export class DeleteAction extends BPButtonAction {
     protected delete(): void {
         const overlayId: number = this.loadingOverlayService.beginLoading();
 
-        this.projectManager.getDescendantsToBeDeleted(this.artifact)
+        this.projectExplorerService.getDescendantsToBeDeleted(this.artifact)
             .then((descendants: IArtifactWithProject[]) => {
                 this.loadingOverlayService.endLoading(overlayId);
 
@@ -147,9 +117,15 @@ export class DeleteAction extends BPButtonAction {
 
     private complete(deletedArtifacts: IArtifact[]) {
         if (this.artifact.parentId) {
-            this.navigationService.navigateTo({id: this.artifact.parentId})
-                .then(() => this.projectManager.refresh(this.artifact.projectId, this.artifact.parentId, true))
-                .then(() => this.projectManager.triggerProjectCollectionRefresh());
+            const parentArtifact = {
+                id: this.artifact.parentId,
+                projectId: this.artifact.projectId
+            } as IArtifact;
+
+            this.projectExplorerService.setSelectionId(parentArtifact.id);
+            this.projectExplorerService.refresh(parentArtifact.projectId, parentArtifact);
+            this.navigationService.navigateTo({id: parentArtifact.id});
+
         } else {
             this.artifact.refresh();
         }

@@ -73,7 +73,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             windowManager,
             loadingOverlayService,
             navigationService,
-            projectManager,
             projectExplorerService,
             metadataService,
             mainBreadcrumbService,
@@ -89,8 +88,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
-            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService,
+            this.projectExplorerService, this.loadingOverlayService, this.dialogService, this.navigationService);
         const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 

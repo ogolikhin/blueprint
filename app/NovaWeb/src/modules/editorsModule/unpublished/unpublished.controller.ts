@@ -4,13 +4,13 @@ import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-bu
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
 import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
-import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IUnpublishedArtifactsService} from "./unpublished.service";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {IDialogService} from "../../shared/";
 import {IMessageService} from "../../main/components/messages/message.svc";
+import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
 
 interface IArtifactWithProject extends IArtifact {
     projectName: string;
@@ -24,7 +24,7 @@ export class UnpublishedController {
         "publishService",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
+        "projectExplorerService",
         "dialogService"
     ];
 
@@ -44,7 +44,7 @@ export class UnpublishedController {
                 private publishService: IUnpublishedArtifactsService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private navigationService: INavigationService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private dialogService: IDialogService) {
         this.toolbarActions = [];
         this.selectedArtifacts = [];
@@ -75,7 +75,7 @@ export class UnpublishedController {
             this.localization,
             this.messageService,
             this.loadingOverlayService,
-            this.projectManager,
+            this.projectExplorerService,
             this.dialogService);
 
         this.toolbarActions.push(

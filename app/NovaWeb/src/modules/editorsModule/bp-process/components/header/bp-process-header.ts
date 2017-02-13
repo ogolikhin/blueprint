@@ -5,7 +5,6 @@ import {INavigationService} from "../../../../commonModule/navigation/navigation
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IWindowManager} from "../../../../main/services";
-import {IProjectManager} from "../../../../managers";
 import {IMetaDataService} from "../../../../managers/artifact-manager";
 import {BPButtonOrDropdownSeparator, IDialogService} from "../../../../shared";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
@@ -40,7 +39,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "windowManager",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
         "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
@@ -62,7 +60,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
                 windowManager: IWindowManager,
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
-                projectManager: IProjectManager,
                 projectExplorerService: IProjectExplorerService,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
@@ -83,7 +80,6 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             windowManager,
             loadingOverlayService,
             navigationService,
-            projectManager,
             projectExplorerService,
             metadataService,
             mainBreadcrumbService,
@@ -154,7 +150,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
 
         const processDeleteAction = new ProcessDeleteAction(
-            processArtifact, this.localization, this.messageService, this.selectionManager, this.projectManager,
+            processArtifact, this.localization, this.messageService, this.selectionManager, this.projectExplorerService,
             this.loadingOverlayService, this.dialogService, this.navigationService, this.communicationManager.processDiagramCommunication);
         const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
             processArtifact,
@@ -168,7 +164,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.dialogService,
             this.loadingOverlayService,
             this.communicationManager.processDiagramCommunication,
-            this.projectManager);
+            this.projectExplorerService);
         const copyAction = new CopyAction(
             processArtifact,
             this.communicationManager,

@@ -5,6 +5,7 @@ import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "../editorsModule/bp-process/services/clipboard.svc";
 import {IMessageService} from "../main/components/messages/message.svc";
 import {MessageType} from "../main/components/messages/message";
+import {IProjectExplorerService} from "../main/components/bp-explorer/project-explorer.service";
 
 export class AppRoutes {
 
@@ -133,20 +134,20 @@ export class LogoutStateController {
     public static $inject = [
         "$log",
         "session",
-        "projectManager",
+        "projectExplorerService",
         "navigationService",
         "clipboardService"
     ];
 
     constructor(private $log: ng.ILogService,
                 private session: ISession,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private navigation: INavigationService,
                 private clipboardService: IClipboardService) {
 
         this.session.logout().then(() => {
             this.navigation.navigateToMain(true).finally(() => {
-                this.projectManager.removeAll();
+                this.projectExplorerService.removeAll();
                 this.clipboardService.clearData();
             });
         });

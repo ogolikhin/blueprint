@@ -4,7 +4,6 @@ import {NodeType} from "../../diagram/presentation/graph/models/process-graph-co
 import {INavigationService} from "../../../../../commonModule/navigation/navigation.service";
 import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {IStatefulProcessArtifact} from "../../../process-artifact";
 import {DeleteAction} from "../../../../../main/components/bp-artifact-info/actions/delete-action";
@@ -12,6 +11,7 @@ import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {RolePermissions, ReuseSettings} from "../../../../../main/models/enums";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../../../../../main/components/bp-explorer/project-explorer.service";
 
 export class ProcessDeleteAction extends DeleteAction {
     private selectionChangedHandle: string;
@@ -23,13 +23,13 @@ export class ProcessDeleteAction extends DeleteAction {
         localization: ILocalizationService,
         messageService: IMessageService,
         selectionManager: ISelectionManager,
-        projectManager: IProjectManager,
+        projectExplorerService: IProjectExplorerService,
         loadingOverlayService: ILoadingOverlayService,
         dialogService: IDialogService,
         navigationService: INavigationService,
         private communication: IProcessDiagramCommunication
     ) {
-        super(process, localization, messageService, selectionManager, projectManager, loadingOverlayService, dialogService, navigationService);
+        super(process, localization, messageService, projectExplorerService, loadingOverlayService, dialogService, navigationService);
 
         if (!this.communication) {
             throw new Error("Process diagram communication is not provided or is null");

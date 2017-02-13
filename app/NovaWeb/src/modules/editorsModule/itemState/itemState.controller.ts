@@ -20,7 +20,6 @@ export class ItemStateController {
     public static $inject = [
         "$stateParams",
         "selectionManager",
-        "projectManager",
         "projectExplorerService",
         "messageService",
         "localization",
@@ -33,7 +32,6 @@ export class ItemStateController {
 
     constructor(private $stateParams: ng.ui.IStateParamsService,
                 private selectionManager: ISelectionManager,
-                private projectManager: IProjectManager,
                 private projectExplorerService: IProjectExplorerService,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
@@ -59,7 +57,7 @@ export class ItemStateController {
             itemInfo.predefinedType = ItemTypePredefined.Project;
 
             this.projectExplorerService.openProject(itemInfo).then(() => {
-                const projectNode = this.projectManager.getProject(itemInfo.id);
+                const projectNode = this.projectExplorerService.getProject(itemInfo.id);
                 const project = this.createArtifact(itemInfo);
                 project.itemTypeId = ItemTypePredefined.Project;
                 project.itemTypeName = "Project";

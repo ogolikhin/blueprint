@@ -1,3 +1,4 @@
+import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {
     INotifyModelChanged, ProcessShapeType,
     NodeChange, IScopeContext,
@@ -8,8 +9,39 @@ import {ProcessGraph} from "./process-graph";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {ProcessModels} from "../../../../";
+
+class ProcessLight {
+    constructor(public shapes: ProcessModels.IProcessShape[],
+                     public links: ProcessModels.IProcessLinkModel[],
+                     public decisionBranchDestinationLinks: ProcessModels.IProcessLink[]) {
+                    }
+}
 
 export class ProcessDeleteHelper {
+
+    public static deleteUserTasks(userTaskIds: number[], processGraph: IProcessGraph): void {
+        const clonedProcessLight = ProcessDeleteHelper.cloneProcessLight(processGraph.viewModel);
+
+        for (let userTaskId of userTaskIds) {
+            processGraph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(userTaskId);
+            if (!ProcessDeleteHelper.deleteUserTask(userTaskId, null, processGraph)) {
+                this.undoDelete(processGraph, clonedProcessLight);
+                return;
+            }
+        }
+
+        processGraph.notifyUpdateInModel(NodeChange.Remove, null);
+    }
+
+    private static undoDelete(processGraph: IProcessGraph, clonedProcessLight: ProcessLight) {
+        processGraph.viewModel.shapes = clonedProcessLight.shapes;
+        processGraph.viewModel.links = clonedProcessLight.links;
+        processGraph.viewModel.decisionBranchDestinationLinks = clonedProcessLight.decisionBranchDestinationLinks;
+
+        // initialize tree and flow
+        processGraph.viewModel.updateTreeAndFlows();
+    }
 
     public static deleteUserTask(userTaskId: number, postDeleteFunction: INotifyModelChanged = null,
                                  processGraph: IProcessGraph): boolean {
@@ -340,5 +372,11 @@ export class ProcessDeleteHelper {
                 }
             }
         }
+    }
+
+    private static cloneProcessLight(viewModel: IProcessViewModel): ProcessLight {
+        return new ProcessLight( _.cloneDeep(viewModel.shapes),
+                                             _.cloneDeep(viewModel.links),
+                                             _.cloneDeep(viewModel.decisionBranchDestinationLinks));
     }
 }

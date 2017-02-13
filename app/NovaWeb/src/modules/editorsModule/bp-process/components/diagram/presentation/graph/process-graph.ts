@@ -590,20 +590,31 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
+    // deleteShape sould not have parameters it will get
+    // nodes for the deletion from this.getSelectedNodes() method
     private deleteShape = (clickedNode: IDiagramNode) => {
+        // this will be updated:
         const dialogParameters = clickedNode.getDeleteDialogParameters();
 
+        const selectedNodes = this.getSelectedNodes();
+
+        // this should be replaced with the new deletion confirmation modal
         this.dialogService.alert(
             dialogParameters.message,
             this.localization.get("App_DialogTitle_Alert"),
             this.localization.get("App_Button_Delete"),
             this.localization.get("App_Button_Cancel"))
             .then(() => {
-                if (clickedNode.getNodeType() === NodeType.UserTask) {
-                    ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-                } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
-                    ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
-                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                if (selectedNodes.length > 1) {
+                    const nodeIds = selectedNodes.map(node => node.model.id);
+                    ProcessDeleteHelper.deleteUserTasks(nodeIds, this);
+                } else {
+                    if (selectedNodes[0].getNodeType() === NodeType.UserTask) {
+                        ProcessDeleteHelper.deleteUserTask(selectedNodes[0].model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                    } else if (selectedNodes[0].getNodeType() === NodeType.UserDecision || selectedNodes[0].getNodeType() === NodeType.SystemDecision) {
+                        ProcessDeleteHelper.deleteDecision(selectedNodes[0].model.id,
+                            (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                    }
                 }
             });
     };

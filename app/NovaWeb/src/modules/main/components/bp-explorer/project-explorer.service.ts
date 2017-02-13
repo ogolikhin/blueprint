@@ -15,6 +15,7 @@ import {ISelectionManager} from "../../../managers/selection-manager/selection-m
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
 import {MoveCopyArtifactInsertMethod} from "../dialogs/move-copy-artifact/move-copy-artifact";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 
 export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];
@@ -81,6 +82,16 @@ export class ProjectExplorerService implements IProjectExplorerService {
         this.projectsChangeObservable = this.projectsChangeSubject.asObservable();
 
         this.projects = [];
+
+        // FIXME: save the disposable?
+        this.selectionManager.currentlySelectedArtifactObservable
+            .subscribeOnNext(this.onChangeInCurrentlySelectedArtifact, this);
+    }
+
+    private onChangeInCurrentlySelectedArtifact(artifact: IStatefulArtifact) {
+        if (artifact.artifactState.misplaced) {
+            this.refresh(artifact.projectId, artifact);
+        }
     }
 
     public setSelectionId(id: number) {

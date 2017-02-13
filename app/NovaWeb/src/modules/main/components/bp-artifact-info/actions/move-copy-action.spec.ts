@@ -176,7 +176,7 @@ xdescribe("MoveCopyAction", () => {
     it("is disabled when artifact is Baselines and Reviews",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -186,7 +186,7 @@ xdescribe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectExplorerService,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -274,7 +274,7 @@ xdescribe("MoveCopyAction", () => {
     it("only 'move' is enabled when artifact is a baseline folder",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -288,7 +288,7 @@ xdescribe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectExplorerService,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -300,7 +300,7 @@ xdescribe("MoveCopyAction", () => {
     it("only 'move' is enabled when artifact is a baseline artifact",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -314,7 +314,7 @@ xdescribe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectExplorerService,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert
@@ -326,7 +326,7 @@ xdescribe("MoveCopyAction", () => {
     it("only 'move' is enabled when artifact is a review artifact",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
             navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
             const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
@@ -340,7 +340,7 @@ xdescribe("MoveCopyAction", () => {
                 });
 
             // act
-            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectExplorerService,
                 dialogService, navigationService, loadingOverlayService);
 
             // assert

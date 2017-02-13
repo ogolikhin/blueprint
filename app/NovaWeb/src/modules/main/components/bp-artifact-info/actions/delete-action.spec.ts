@@ -188,7 +188,7 @@ xdescribe("DeleteAction", () => {
     it("is disabled when artifact is Baselines and Reviews", inject((statefulArtifactFactory: IStatefulArtifactFactory,
         localization: ILocalizationService,
         selectionManager: ISelectionManager,
-        projectManager: IProjectManager,
+        projectExplorerService: IProjectExplorerService,
         messageService: IMessageService,
         loadingOverlayService: ILoadingOverlayService,
         dialogService: IDialogService,
@@ -204,7 +204,7 @@ xdescribe("DeleteAction", () => {
 
         // act
         const deleteAction = new DeleteAction(artifact, localization,
-            messageService, selectionManager, projectManager, loadingOverlayService, dialogService, navigationService);
+            messageService, projectExplorerService, loadingOverlayService, dialogService, navigationService);
 
         // assert
         expect(deleteAction.disabled).toBe(true);

@@ -230,7 +230,7 @@ xdescribe("RefreshAction", () => {
     it("is disabled when artifact is Baselines and Reviews",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-                projectManager: IProjectManager,
+                projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
@@ -242,7 +242,8 @@ xdescribe("RefreshAction", () => {
                 });
 
             // act
-            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbService);
+            const refreshAction = new RefreshAction(artifact, localization, projectExplorerService,
+                loadingOverlayService, metaDataService, mainBreadcrumbService);
 
             // assert
             expect(refreshAction.disabled).toBe(true);

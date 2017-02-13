@@ -378,7 +378,7 @@ namespace ArtifactStoreTests
 
             var expirationTime = Helper.FileStore.GetSQLExpiredTime(imageFile.Guid);
             Assert.IsNotNull(expirationTime, "After saving ExpiredTime for file should be current time.");
-            Assert.IsTrue(expirationTime.Value.CompareTimePlusOrMinusMilliseconds(actorDetails.LastSavedOn.Value, 1000),
+            Assert.IsTrue(expirationTime.Value.CompareTimePlusOrMinusMilliseconds(actorDetails.LastSavedOn.Value, 2000),
                 "ExpirationTime should have expected value.  ExpiredTime in DB is: {0}, but LastSavedOn is: {1}",
                 expirationTime.Value, actorDetails.LastSavedOn.Value);
             return actorDetails;

@@ -210,6 +210,10 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         }
     }
 
+    public canReorder(condition: ICondition): boolean {
+        return this.canMoveUp(condition) || this.canMoveDown(condition);
+    }
+
     public canMoveUp(condition: ICondition): boolean {
         return !this.isReadonly
             && this.dialogModel.conditions

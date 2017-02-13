@@ -573,8 +573,8 @@ namespace Model.Impl
         #endregion Trace methods
 
         #region User methods
-/*
-        public static IUser CreateUser(string address, IUser instanceAdminUuser, User userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
+
+        public static OpenApiUser CreateUser(string address, IUser instanceAdminUuser, OpenApiUser userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
@@ -583,13 +583,13 @@ namespace Model.Impl
             var restApi = new RestApiFacade(address, instanceAdminUuser.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.CREATE_USER;
 
-            return restApi.SendRequestAndDeserializeObject<User, User>(
+            return restApi.SendRequestAndDeserializeObject<OpenApiUser, OpenApiUser>(
                 path,
                 RestRequestMethod.POST,
                 userToCreate,
                 expectedStatusCodes: expectedStatusCodes);
         }
-*/
+
         #endregion User methods
 
         #region Version Control methods

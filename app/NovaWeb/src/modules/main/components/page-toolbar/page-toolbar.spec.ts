@@ -21,7 +21,7 @@ import {IMessageService} from "../messages/message.svc";
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
-describe("Page Toolbar:", () => {
+xdescribe("Page Toolbar:", () => {
     let _$q: ng.IQService;
     let _$state: ng.ui.IStateService;
     let $scope: ng.IScope;

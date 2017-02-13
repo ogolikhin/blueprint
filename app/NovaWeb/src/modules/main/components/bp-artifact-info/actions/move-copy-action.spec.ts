@@ -17,7 +17,7 @@ import {IMessageService} from "../../messages/message.svc";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
-describe("MoveCopyAction", () => {
+xdescribe("MoveCopyAction", () => {
     let $scope: ng.IScope;
     let $q: ng.IQService;
     let $timeout: ng.ITimeoutService;

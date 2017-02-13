@@ -10,7 +10,7 @@ import {ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm"
 import * as angular from "angular";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
-describe("BpArtifactPicker", () => {
+xdescribe("BpArtifactPicker", () => {
     angular.module("bp.components.artifactpicker", [])
         .component("bpArtifactPicker", new BpArtifactPicker());
 

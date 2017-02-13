@@ -16,7 +16,7 @@ import {MessageServiceMock} from "../../../../../main/components/messages/messag
 import {ProjectExplorerServiceMock} from "../../../../../main/components/bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../../../../main/components/bp-explorer/project-explorer.service";
 
-describe("GenerateUserStoriesAction", () => {
+xdescribe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
     let $q: ng.IQService;
     let userStoryService: UserStoryServiceMock;

@@ -21,7 +21,7 @@ import {IMessageService} from "../../messages/message.svc";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
-describe("DeleteAction", () => {
+xdescribe("DeleteAction", () => {
     let $q_: ng.IQService;
     let $scope: ng.IScope;
 

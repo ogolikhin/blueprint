@@ -27,7 +27,7 @@ import {CollectionServiceMock} from "../../../collection/collection.service.mock
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 import {SessionSvcMock} from "../../../../shell/login/session.svc.mock";
 
-describe("BpProcessHeader", () => {
+xdescribe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
     let $q: ng.IQService;
     let $compile: ng.ICompileService;

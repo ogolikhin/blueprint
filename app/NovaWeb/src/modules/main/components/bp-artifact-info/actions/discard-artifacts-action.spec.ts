@@ -18,7 +18,7 @@ import {MessageServiceMock} from "../../messages/message.mock";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
-describe("DiscardArtifactsAction", () => {
+xdescribe("DiscardArtifactsAction", () => {
     let $q: ng.IQService;
     let $timeout: ng.ITimeoutService;
     let localization: ILocalizationService;

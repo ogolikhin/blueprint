@@ -15,7 +15,7 @@ import {MessageServiceMock} from "../../messages/message.mock";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
-describe("DiscardAction", () => {
+xdescribe("DiscardAction", () => {
     let $scope: ng.IScope;
     let $q: ng.IQService;
     let statefulArtifactFactory: IStatefulArtifactFactory;

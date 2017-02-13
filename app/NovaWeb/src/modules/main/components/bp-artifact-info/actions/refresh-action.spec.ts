@@ -19,7 +19,7 @@ import {MainBreadcrumbService, IMainBreadcrumbService} from "../../bp-page-conte
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
-describe("RefreshAction", () => {
+xdescribe("RefreshAction", () => {
     let $scope: ng.IScope;
     let $q: ng.IQService;
     let artifact: IStatefulArtifact;

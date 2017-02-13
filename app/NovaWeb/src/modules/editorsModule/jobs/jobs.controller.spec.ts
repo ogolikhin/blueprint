@@ -13,7 +13,7 @@ import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {DownloadServiceMock} from "../../commonModule/download/download.service.mock";
 import {ProjectExplorerServiceMock} from "../../main/components/bp-explorer/project-explorer.service.mock";
 
-describe("Controller: Jobs", () => {
+xdescribe("Controller: Jobs", () => {
     let controller: JobsController;
     let $q: ng.IQService;
     let $rootScope: ng.IRootScopeService;

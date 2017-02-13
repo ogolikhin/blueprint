@@ -22,7 +22,7 @@ import {MessageServiceMock} from "../messages/message.mock";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {ProjectExplorerServiceMock} from "../bp-explorer/project-explorer.service.mock";
 
-describe("BpArtifactInfo", () => {
+xdescribe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
     let $q: ng.IQService;
     let $rootScope: ng.IRootScopeService;

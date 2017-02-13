@@ -488,6 +488,33 @@ describe("DecisionEditorController", () => {
         });
     });
 
+    describe("canReorder", () => {
+        it("returns false for primary branch", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+
+            // act
+            const canReorder = controller.canReorder(model.conditions[0]);
+
+            // assert
+            expect(canReorder).toBe(false);
+        });
+
+        it("returns true for secondary branches", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+
+            // act
+            const canReorder = _.every(
+                model.conditions.slice(1),
+                condition => controller.canReorder(condition)
+            );
+
+            // assert
+            expect(canReorder).toBe(true);
+        });
+    });
+
     describe("canMoveUp", () => {
         beforeEach(() => {
             model.conditions = createConditions(ProcessGraph.MaxConditions - 1);

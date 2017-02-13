@@ -25,8 +25,8 @@ export interface IProjectExplorerService {
 
     add(projectId: number): ng.IPromise<void>;
 
-    remove(projectId: number): void;
-    removeAll(): void;
+    remove(projectId: number);
+    removeAll();
 
     openProject(project: IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
     openProjectWithDialog(): void;

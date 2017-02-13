@@ -7,8 +7,6 @@ import {LocalizationServiceMock} from "../../commonModule/localization/localizat
 import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
 import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
 import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
-import {IProjectManager} from "../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ItemStateController} from "./itemState.controller";
@@ -20,6 +18,8 @@ import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
+import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
+import {ProjectExplorerServiceMock} from "../../main/components/bp-explorer/project-explorer.service.mock";
 
 describe("Item State Controller tests", () => {
     let $stateParams: ng.ui.IStateParamsService,
@@ -27,7 +27,7 @@ describe("Item State Controller tests", () => {
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         selectionManager: ISelectionManager,
-        projectManager: IProjectManager,
+        projectExplorerService: IProjectExplorerService,
         localization: ILocalizationService,
         messageService: IMessageService,
         navigationService: INavigationService,
@@ -43,7 +43,7 @@ describe("Item State Controller tests", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
@@ -54,7 +54,7 @@ describe("Item State Controller tests", () => {
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _selectionManager_: ISelectionManager,
-        _projectManager_: IProjectManager,
+        _projectExplorerService_: IProjectExplorerService,
         _localization_: ILocalizationService,
         _messageService_: IMessageService,
         _navigationService_: INavigationService,
@@ -66,7 +66,7 @@ describe("Item State Controller tests", () => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         selectionManager = _selectionManager_;
-        projectManager = _projectManager_;
+        projectExplorerService = _projectExplorerService_;
         localization = _localization_;
         messageService = _messageService_;
         navigationService = _navigationService_;
@@ -87,7 +87,7 @@ describe("Item State Controller tests", () => {
         return new ItemStateController(
             $stateParams,
             selectionManager,
-            projectManager,
+            projectExplorerService,
             messageService,
             localization,
             navigationService,
@@ -271,7 +271,7 @@ describe("Item State Controller tests", () => {
                     projectId: artifactId
                 } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => $q.resolve());
+                const projectManagerSpy = spyOn(projectExplorerService, "openProject").and.callFake(() => $q.resolve());
                 const reloadNavigationSpy = spyOn(navigationService, "reloadCurrentState");
 
                 // act

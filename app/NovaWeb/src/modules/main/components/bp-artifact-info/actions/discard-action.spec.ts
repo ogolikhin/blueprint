@@ -1,11 +1,8 @@
-import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
-import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
-import {IProjectService} from "../../../../managers/project-manager/project-service";
-import {IProjectManager} from "../../../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import * as angular from "angular";
 import "angular-mocks";
 import "../../../";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {DiscardAction} from "./discard-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -15,6 +12,8 @@ import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonM
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../messages/message.svc";
 import {MessageServiceMock} from "../../messages/message.mock";
+import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 describe("DiscardAction", () => {
     let $scope: ng.IScope;
@@ -22,7 +21,7 @@ describe("DiscardAction", () => {
     let statefulArtifactFactory: IStatefulArtifactFactory;
     let localization: ILocalizationService;
     let messageService: IMessageService;
-    let projectManager: IProjectManager;
+    let projectExplorerService: IProjectExplorerService;
     let loadingOverlayService: ILoadingOverlayService;
     let navigationService: INavigationService;
 
@@ -32,7 +31,7 @@ describe("DiscardAction", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("navigationService", NavigationServiceMock);
     }));
@@ -43,7 +42,7 @@ describe("DiscardAction", () => {
         _statefulArtifactFactory_: IStatefulArtifactFactory,
         _localization_: ILocalizationService,
         _messageService_: IMessageService,
-        _projectManager_: IProjectManager,
+        _projectExplorerService_: IProjectExplorerService,
         _loadingOverlayService_: ILoadingOverlayService,
         _navigationService_: INavigationService
     ) => {
@@ -52,7 +51,7 @@ describe("DiscardAction", () => {
         statefulArtifactFactory = _statefulArtifactFactory_;
         localization = _localization_;
         messageService = _messageService_;
-        projectManager = _projectManager_;
+        projectExplorerService = _projectExplorerService_;
         loadingOverlayService = _loadingOverlayService_;
         navigationService = _navigationService_;
     }));
@@ -65,7 +64,7 @@ describe("DiscardAction", () => {
 
         // act
         try {
-            new DiscardAction(artifact, localization, messageService, projectManager, loadingOverlayService, navigationService);
+            new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
         } catch (exception) {
             error = exception;
         }
@@ -80,7 +79,7 @@ describe("DiscardAction", () => {
         const artifact: IStatefulArtifact = null;
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectManager, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -92,7 +91,7 @@ describe("DiscardAction", () => {
         artifact.artifactState.readonly = true;
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectManager, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -107,7 +106,7 @@ describe("DiscardAction", () => {
         });
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectManager, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -122,7 +121,7 @@ describe("DiscardAction", () => {
         });
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectManager, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(true);
@@ -141,7 +140,7 @@ describe("DiscardAction", () => {
             });
 
         // act
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectManager, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
 
         // assert
         expect(discardAction.disabled).toBe(false);
@@ -162,7 +161,7 @@ describe("DiscardAction", () => {
                 deferred.reject(null);
                 return deferred.promise;
             });
-        const discardAction = new DiscardAction(artifact, localization, messageService, projectManager, loadingOverlayService, navigationService);
+        const discardAction = new DiscardAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, navigationService);
 
         // act
         discardAction.execute();

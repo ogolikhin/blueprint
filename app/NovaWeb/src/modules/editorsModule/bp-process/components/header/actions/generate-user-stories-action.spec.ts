@@ -11,9 +11,9 @@ import {RolePermissions} from "../../../../../main/models/enums";
 import {ProcessEvents, IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
 import * as TestShapes from "../../../models/test-shape-factory";
 import {LoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {ProjectExplorerServiceMock} from "../../../../../main/components/bp-explorer/project-explorer.service.mock";
+import {IProjectExplorerService} from "../../../../../main/components/bp-explorer/project-explorer.service";
 
 describe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
@@ -24,7 +24,7 @@ describe("GenerateUserStoriesAction", () => {
     let dialogService: DialogServiceMock;
     let loadingOverlayService: LoadingOverlayService;
     let processDiagramCommunication: IProcessDiagramCommunication;
-    let projectManager: IProjectManager;
+    let projectExplorerService: IProjectExplorerService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("userStoryService", UserStoryServiceMock);
@@ -33,7 +33,7 @@ describe("GenerateUserStoriesAction", () => {
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("communicationManager", CommunicationManager);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
     }));
 
     beforeEach(
@@ -46,7 +46,7 @@ describe("GenerateUserStoriesAction", () => {
             _dialogService_: DialogServiceMock,
             _loadingOverlayService_: LoadingOverlayService,
             _communicationManager_: CommunicationManager,
-            _projectManager_: IProjectManager
+            _projectExplorerService_: IProjectExplorerService
         ) => {
             $rootScope = _$rootScope_;
             $rootScope["config"] = {labels: []};
@@ -57,7 +57,7 @@ describe("GenerateUserStoriesAction", () => {
             dialogService = _dialogService_;
             loadingOverlayService = _loadingOverlayService_;
             processDiagramCommunication = _communicationManager_.processDiagramCommunication;
-            projectManager = _projectManager_;
+            projectExplorerService = _projectExplorerService_;
         }));
 
     describe("constructor", () => {
@@ -69,7 +69,7 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(process, null, messageService, localization,
-                    dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                    dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             } catch (exception) {
                 error = exception;
             }
@@ -87,7 +87,7 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(process, userStoryService, null, localization,
-                    dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                    dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             } catch (exception) {
                 error = exception;
             }
@@ -105,7 +105,7 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(process, userStoryService, messageService, null,
-                    dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                    dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             } catch (exception) {
                 error = exception;
             }
@@ -123,7 +123,7 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(process, userStoryService, messageService, localization,
-                    null, loadingOverlayService, processDiagramCommunication, projectManager);
+                    null, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             } catch (exception) {
                 error = exception;
             }
@@ -141,7 +141,7 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(process, userStoryService, messageService, localization,
-                    dialogService, null, processDiagramCommunication, projectManager);
+                    dialogService, null, processDiagramCommunication, projectExplorerService);
             } catch (exception) {
                 error = exception;
             }
@@ -159,7 +159,7 @@ describe("GenerateUserStoriesAction", () => {
             // act
             try {
                 new GenerateUserStoriesAction(process, userStoryService, messageService, localization,
-                    dialogService, loadingOverlayService, null, projectManager);
+                    dialogService, loadingOverlayService, null, projectExplorerService);
             } catch (exception) {
                 error = exception;
             }
@@ -174,7 +174,7 @@ describe("GenerateUserStoriesAction", () => {
         // arrange
         const process = createStatefulProcessArtifact();
         const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-            localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+            localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
         const expectedIcon = "fonticon fonticon2-news";
 
         // act
@@ -188,7 +188,7 @@ describe("GenerateUserStoriesAction", () => {
         // arrange
         const process = createStatefulProcessArtifact();
         const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-            localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+            localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
         const expectedTooltip = localization.get("ST_US_Generate_Dropdown_Tooltip");
 
         // act
@@ -205,7 +205,7 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
 
             // assert
             expect(action.disabled).toBe(true);
@@ -215,7 +215,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
 
             // act
             process["state"] = null;
@@ -228,7 +228,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
 
             // act
             process.artifactState.setState({readonly: true}, false);
@@ -241,7 +241,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const userTask1 = TestShapes.createUserTask(2, $rootScope);
             const userTask2 = TestShapes.createUserTask(3, $rootScope);
 

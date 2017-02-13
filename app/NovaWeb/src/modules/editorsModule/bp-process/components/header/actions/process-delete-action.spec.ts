@@ -2,7 +2,6 @@ import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
 import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
 import {ProcessDeleteAction} from "./process-delete-action";
 import {NavigationServiceMock} from "../../../../../commonModule/navigation/navigation.service.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
@@ -17,6 +16,7 @@ import * as TestShapes from "../../../models/test-shape-factory";
 import * as TestModels from "../../../models/test-model-factory";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
+import {ProjectExplorerServiceMock} from "../../../../../main/components/bp-explorer/project-explorer.service.mock";
 
 describe("ProcessDeleteAction", () => {
     let $rootScope: ng.IRootScopeService;
@@ -25,7 +25,7 @@ describe("ProcessDeleteAction", () => {
     let messageService: MessageServiceMock;
     let dialogService: DialogServiceMock;
     let selectionManager: SelectionManagerMock;
-    let projectManager: ProjectManagerMock;
+    let projectExplorerService: ProjectExplorerServiceMock;
     let loadingOverlayService: LoadingOverlayServiceMock;
     let navigationService: NavigationServiceMock;
     let toolbarCommunication: IToolbarCommunication;
@@ -36,7 +36,7 @@ describe("ProcessDeleteAction", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("communicationManager", CommunicationManager);
@@ -48,7 +48,7 @@ describe("ProcessDeleteAction", () => {
         _messageService_: MessageServiceMock,
         _dialogService_: DialogServiceMock,
         _selectionManager_: SelectionManagerMock,
-        _projectManager_: ProjectManagerMock,
+        _projectExplorerService_: ProjectExplorerServiceMock,
         _loadingOverlayService_: LoadingOverlayServiceMock,
         _navigationService_: NavigationServiceMock,
         _communicationManager_: CommunicationManager
@@ -65,7 +65,7 @@ describe("ProcessDeleteAction", () => {
         messageService = _messageService_;
         dialogService = _dialogService_;
         selectionManager = _selectionManager_;
-        projectManager = _projectManager_;
+        projectExplorerService = _projectExplorerService_;
         loadingOverlayService = _loadingOverlayService_;
         navigationService = _navigationService_;
         toolbarCommunication = _communicationManager_.toolbarCommunicationManager;
@@ -80,7 +80,7 @@ describe("ProcessDeleteAction", () => {
             // act
             try {
                 const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, null);
             } catch (ex) {
                 error = ex;
@@ -97,7 +97,7 @@ describe("ProcessDeleteAction", () => {
 
             // act
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
 
             // assert
@@ -110,7 +110,7 @@ describe("ProcessDeleteAction", () => {
 
             // act
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
 
             // assert
@@ -122,7 +122,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to false when no shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
 
             // act
@@ -135,7 +135,7 @@ describe("ProcessDeleteAction", () => {
         it("sets tooltip to artifact tooltip when no shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
 
             // act
@@ -148,7 +148,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to false when a single shapes is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
 
@@ -162,7 +162,7 @@ describe("ProcessDeleteAction", () => {
         it("sets tooltip to shape tooltip when a single shapes is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
 
@@ -176,7 +176,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to true when multiple shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
             const userTask2 = TestShapes.createUserTask(15, $rootScope);
@@ -191,7 +191,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to false when User Task is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
 
@@ -205,7 +205,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to true when System Task is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const systemTask = TestShapes.createSystemTask(14, $rootScope);
 
@@ -219,7 +219,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to false when System Decision is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const systemDecision = TestShapes.createSystemDecision(14, $rootScope);
 
@@ -233,7 +233,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to false when User Decision is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userDecision = TestShapes.createUserDecision(14, $rootScope);
 
@@ -247,7 +247,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to true when Start is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const start = TestShapes.createStart(14);
 
@@ -261,7 +261,7 @@ describe("ProcessDeleteAction", () => {
         it("sets disabled to true when End is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const end = TestShapes.createEnd(14);
 
@@ -276,7 +276,7 @@ describe("ProcessDeleteAction", () => {
             // arrange
             statefulProcess.artifactState.readonly = true;
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const systemDecision = TestShapes.createSystemDecision(14, $rootScope);
 
@@ -292,7 +292,7 @@ describe("ProcessDeleteAction", () => {
         it("deletes process if no shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, []);
             const spy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
@@ -307,7 +307,7 @@ describe("ProcessDeleteAction", () => {
         it("deletes User Task if User Task is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
@@ -328,7 +328,7 @@ describe("ProcessDeleteAction", () => {
             const testStatefulProcess = new StatefulProcessArtifact(testModel, null);
 
             const action = new ProcessDeleteAction(
-                    testStatefulProcess, localization, messageService, selectionManager, projectManager,
+                    testStatefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
@@ -344,7 +344,7 @@ describe("ProcessDeleteAction", () => {
         it("deletes User Decision if User Decision is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userDecision = TestShapes.createUserDecision(14, $rootScope);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userDecision]);
@@ -360,7 +360,7 @@ describe("ProcessDeleteAction", () => {
         it("deletes User Decision if User Decision is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const systemDecision = TestShapes.createSystemDecision(14, $rootScope);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [systemDecision]);
@@ -376,7 +376,7 @@ describe("ProcessDeleteAction", () => {
         it("doesn't delete System Task if System Task is selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const systemTask = TestShapes.createSystemTask(14, $rootScope);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [systemTask]);
@@ -392,7 +392,7 @@ describe("ProcessDeleteAction", () => {
         it("doesn't delete when multiple shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
             const userTask1 = TestShapes.createUserTask(15, $rootScope);
@@ -410,7 +410,7 @@ describe("ProcessDeleteAction", () => {
             // arrange
             statefulProcess.artifactState.readonly = true;
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
             const userTask = TestShapes.createUserTask(14, $rootScope);
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask]);
@@ -429,7 +429,7 @@ describe("ProcessDeleteAction", () => {
             // arrange
             const spy = spyOn(processDiagramCommunication, "unregister").and.callThrough();
             const action = new ProcessDeleteAction(
-                    statefulProcess, localization, messageService, selectionManager, projectManager,
+                    statefulProcess, localization, messageService, selectionManager, projectExplorerService,
                     loadingOverlayService, dialogService, navigationService, processDiagramCommunication);
 
             // act

@@ -10,7 +10,7 @@ import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
 import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";
 import {SelectionManagerMock} from "../selection-manager/selection-manager.mock";
-import {IArtifactNode, IProjectManager, ProjectManager} from "./project-manager";
+import {IArtifactNode, ProjectManager} from "./project-manager";
 import {ProjectServiceStatusCode} from "./project-service";
 import {ProjectServiceMock} from "./project-service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
@@ -62,7 +62,7 @@ describe("Project Manager Test", () => {
     }));
 
     describe("add project", () => {
-        it("single project success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("single project success", (inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
             //Act
@@ -77,7 +77,7 @@ describe("Project Manager Test", () => {
             expect(projectManager.projectCollection.getValue()[1].model.id).toEqual(10);
         })));
 
-        it("single project metadata service error failure", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("single project metadata service error failure", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                                                      metadataService: MetaDataServiceMock, messageService: MessageServiceMock) => {
             // Arrange
             spyOn(metadataService, "get").and.callFake(() => {
@@ -98,7 +98,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("dispose", () => {
-        it("success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("success", (inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
             //Act
@@ -111,7 +111,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("get selected project id", () => {
-        it("success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("success", (inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
             //Act
@@ -123,7 +123,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("open project and expand to node", () => {
-        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectService: ProjectServiceMock) => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager, projectService: ProjectServiceMock) => {
             // Arrange
             spyOn(projectService, "getProjectTree").and.callFake(() => {
                 return $q.resolve([<Models.IArtifact>{
@@ -165,7 +165,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("get descendants to be deleted", () => {
-        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, projectService: ProjectServiceMock) => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager, projectService: ProjectServiceMock) => {
             // Arrange
             spyOn(projectService, "getProject").and.callFake(() => {
                 return $q.resolve(<AdminStoreModels.IInstanceItem>{
@@ -202,7 +202,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("remove project", () => {
-        it("single success", (inject(($rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("single success", (inject(($rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Arrange
 
             //Act
@@ -245,7 +245,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("open project with dialog", () => {
-        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager, dialogService: DialogServiceMock) => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager, dialogService: DialogServiceMock) => {
             // Arrange
             const project = {
                 id: 11,
@@ -277,7 +277,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("open project", () => {
-        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager) => {
+        it("success", (inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager) => {
             // Act
             projectManager.openProject(starterProject);
             $rootScope.$digest();
@@ -289,7 +289,7 @@ describe("Project Manager Test", () => {
     });
 
     describe("refresh project", () => {
-        it("all projects success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("all projects success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                            projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             spyOn(projectService, "getProjectTree").and.callFake(() => {
@@ -330,7 +330,7 @@ describe("Project Manager Test", () => {
             expect((<IArtifactNode>project).children[0].children[0].model.name).toEqual("new artifact");
         }));
 
-        it("single project success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("single project success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                              projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             spyOn(projectService, "getProjectTree").and.callFake(() => {
@@ -371,7 +371,7 @@ describe("Project Manager Test", () => {
             expect((<IArtifactNode>project).children[0].children[0].model.name).toEqual("new artifact");
         }));
 
-        it("single project failure", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("single project failure", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                              projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             spyOn(projectService, "getProjectTree").and.callFake(() => {
@@ -405,7 +405,7 @@ describe("Project Manager Test", () => {
         }));
 
         it("single project selected artifact not found artifact deleted success",
-            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                     projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, selectionManager: SelectionManagerMock,
                     messageService: MessageServiceMock) => {
                 // Arrange
@@ -453,7 +453,7 @@ describe("Project Manager Test", () => {
             }));
 
         it("single project selected artifact not found artifact deleted failure",
-            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                     projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, selectionManager: SelectionManagerMock,
                     messageService: MessageServiceMock, metadataService: MetaDataServiceMock, dialogService: DialogServiceMock) => {
                 // Arrange
@@ -502,7 +502,7 @@ describe("Project Manager Test", () => {
 
         it("single project no selection success", inject(($q: ng.IQService,
                                                           $rootScope: ng.IRootScopeService,
-                                                          projectManager: IProjectManager,
+                                                          projectManager: ProjectManager,
                                                           projectService: ProjectServiceMock,
                                                           itemInfoService: ItemInfoServiceMock,
                                                           selectionManager: SelectionManagerMock) => {
@@ -540,7 +540,7 @@ describe("Project Manager Test", () => {
         }));
 
         it("single project selected artifact not found load parent success",
-            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                     projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
                 // Arrange
                 spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
@@ -580,7 +580,7 @@ describe("Project Manager Test", () => {
             }));
 
         it("single project selected artifact not found load parent failure",
-            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                     projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, metadataService: MessageServiceMock) => {
                 // Arrange
                 spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
@@ -616,7 +616,7 @@ describe("Project Manager Test", () => {
         it("single project selected artifact not found project not found failure",
             inject(($q: ng.IQService,
                     $rootScope: ng.IRootScopeService,
-                    projectManager: IProjectManager,
+                    projectManager: ProjectManager,
                     projectService: ProjectServiceMock,
                     itemInfoService: ItemInfoServiceMock,
                     selectionManager: SelectionManagerMock,
@@ -647,7 +647,7 @@ describe("Project Manager Test", () => {
             }));
 
         it("single project selected artifact other error failure",
-            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                     projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, messageService: MessageServiceMock) => {
                 // Arrange
                 spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
@@ -669,7 +669,7 @@ describe("Project Manager Test", () => {
             }));
 
         it("single project selected artifact not found load parent other error failure",
-            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                     projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock, messageService: MessageServiceMock) => {
                 // Arrange
                 spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
@@ -700,7 +700,7 @@ describe("Project Manager Test", () => {
             }));
 
         it("single project selected artifact not found load project success",
-            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+            inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                     projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
                 // Arrange
                 spyOn(projectService, "getProjectTree").and.callFake((projectId, expandToArtifactId) => {
@@ -755,7 +755,7 @@ describe("Project Manager Test", () => {
             });
         }));
 
-        it("inside method success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("inside method success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                             projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             const artifact = <Models.IArtifact>{
@@ -778,7 +778,7 @@ describe("Project Manager Test", () => {
             expect(result).toBeUndefined();
         }));
 
-        it("below method between success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("below method between success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                                    projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             const artifact = <Models.IArtifact>{
@@ -801,7 +801,7 @@ describe("Project Manager Test", () => {
             expect(result).toEqual(12.5);
         }));
 
-        it("above method top success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("above method top success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                                projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             const artifact = <Models.IArtifact>{
@@ -824,7 +824,7 @@ describe("Project Manager Test", () => {
             expect(result).toEqual(5);
         }));
 
-        it("below method bottom success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("below method bottom success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                                   projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             const artifact = <Models.IArtifact>{
@@ -847,7 +847,7 @@ describe("Project Manager Test", () => {
             expect(result).toEqual(25);
         }));
 
-        it("above method between success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: IProjectManager,
+        it("above method between success", inject(($q: ng.IQService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
                                                    projectService: ProjectServiceMock, itemInfoService: ItemInfoServiceMock) => {
             // Arrange
             const artifact = <Models.IArtifact>{

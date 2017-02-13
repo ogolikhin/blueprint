@@ -12,9 +12,9 @@ import {ProcessEvents, IProcessDiagramCommunication} from "../../diagram/process
 import * as TestShapes from "../../../models/test-shape-factory";
 import {ErrorCode} from "../../../../../shell/error/error-code";
 import {LoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IProjectManager} from "../../../../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {ProjectExplorerServiceMock} from "../../../../../main/components/bp-explorer/project-explorer.service.mock";
+import {IProjectExplorerService} from "../../../../../main/components/bp-explorer/project-explorer.service";
 
 describe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
@@ -25,7 +25,7 @@ describe("GenerateUserStoriesAction", () => {
     let dialogService: DialogServiceMock;
     let loadingOverlayService: LoadingOverlayService;
     let processDiagramCommunication: IProcessDiagramCommunication;
-    let projectManager: IProjectManager;
+    let projectExplorerService: IProjectExplorerService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("userStoryService", UserStoryServiceMock);
@@ -34,7 +34,7 @@ describe("GenerateUserStoriesAction", () => {
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("communicationManager", CommunicationManager);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
     }));
 
     beforeEach(
@@ -47,7 +47,7 @@ describe("GenerateUserStoriesAction", () => {
             _dialogService_: DialogServiceMock,
             _loadingOverlayService_: LoadingOverlayService,
             _communicationManager_: CommunicationManager,
-            _projectManager_: IProjectManager
+            _projectExplorerService_: IProjectExplorerService
         ) => {
             $rootScope = _$rootScope_;
             $rootScope["config"] = {labels: []};
@@ -58,7 +58,7 @@ describe("GenerateUserStoriesAction", () => {
             dialogService = _dialogService_;
             loadingOverlayService = _loadingOverlayService_;
             processDiagramCommunication = _communicationManager_.processDiagramCommunication;
-            projectManager = _projectManager_;
+            projectExplorerService = _projectExplorerService_;
         }));
 
     describe("generate all", () => {
@@ -68,7 +68,7 @@ describe("GenerateUserStoriesAction", () => {
 
             // act
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
 
             // assert
@@ -79,7 +79,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
 
             // act
@@ -93,7 +93,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
 
             // act
@@ -107,7 +107,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
 
             // act
@@ -121,7 +121,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
             const userTask1 = TestShapes.createUserTask(2, $rootScope);
             const userTask2 = TestShapes.createUserTask(3, $rootScope);
@@ -137,7 +137,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(false);
             const executeSpy = spyOn(action, "execute").and.callFake(() => {/* no op */});
@@ -153,7 +153,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const executeSpy = spyOn(action, "execute").and.callFake(() => {/* no op */});
@@ -169,7 +169,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
@@ -193,7 +193,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
@@ -217,7 +217,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const userStories = [ {}, {}, {} ];
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
@@ -247,7 +247,7 @@ describe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectManager);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService);
             const userStories = [ {}, {}, {} ];
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
@@ -261,8 +261,8 @@ describe("GenerateUserStoriesAction", () => {
             const successSpy = spyOn(messageService, "addInfo");
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
-            const projectManagerRefreshSpy = spyOn(projectManager, "refresh").and.callThrough();
-            const projectManagertriggerProjectCollectionRefreshSpy = spyOn(projectManager, "triggerProjectCollectionRefresh");
+            const projectManagerRefreshSpy = spyOn(projectExplorerService, "refresh").and.callThrough();
+            const projectManagertriggerProjectCollectionRefreshSpy = spyOn(projectExplorerService, "triggerProjectCollectionRefresh");
 
             // act
             generateAll.execute();

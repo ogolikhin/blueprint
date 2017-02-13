@@ -6,7 +6,6 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {ItemTypePredefined} from "../../../models/enums";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
-import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
@@ -16,7 +15,7 @@ import {CollectionServiceMock} from "../../../../editorsModule/collection/collec
 import {ItemInfoServiceMock} from "../../../../commonModule/itemInfo/itemInfo.service.mock";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
-
+import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 
 describe("AddToCollectionAction", () => {
     let $scope: ng.IScope;
@@ -28,7 +27,7 @@ describe("AddToCollectionAction", () => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
@@ -44,7 +43,7 @@ describe("AddToCollectionAction", () => {
     it("is disabled when artifact is Collection Folder",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                messageService: IMessageService, projectExplorerService: ProjectExplorerServiceMock, dialogService: DialogServiceMock,
                 navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
                 collectionService: CollectionServiceMock,
                 itemInfoServiceMock: ItemInfoServiceMock) => {
@@ -56,7 +55,7 @@ describe("AddToCollectionAction", () => {
                 });
 
             // act
-            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectExplorerService,
                 dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
 
             const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
@@ -68,7 +67,7 @@ describe("AddToCollectionAction", () => {
     it("is disabled when artifact is Collection Artifact",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                messageService: IMessageService, projectExplorerService: ProjectExplorerServiceMock, dialogService: DialogServiceMock,
                 navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
                 collectionService: CollectionServiceMock,
                 itemInfoServiceMock: ItemInfoServiceMock) => {
@@ -80,7 +79,7 @@ describe("AddToCollectionAction", () => {
                 });
 
             // act
-            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectExplorerService,
                 dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
 
             const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
@@ -92,7 +91,7 @@ describe("AddToCollectionAction", () => {
     it("is enabled when artifact is Actor",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
-                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                messageService: IMessageService, projectExplorerService: ProjectExplorerServiceMock, dialogService: DialogServiceMock,
                 navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
                 collectionService: CollectionServiceMock,
                 itemInfoServiceMock: ItemInfoServiceMock) => {
@@ -104,7 +103,7 @@ describe("AddToCollectionAction", () => {
                 });
 
             // act
-            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectExplorerService,
                 dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
 
             const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);

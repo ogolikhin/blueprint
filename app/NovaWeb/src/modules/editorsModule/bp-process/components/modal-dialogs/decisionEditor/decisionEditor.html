@@ -22,7 +22,7 @@
                     </div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="nova-form-group nova-floating-label" ng-if="!$ctrl.isFirstBranch(condition)">
+                    <div class="nova-form-group nova-floating-label" ng-if="!$ctrl.isFirstConditionOnMainFlow(condition)">
                         <div class="btn-group btn-block" uib-dropdown on-toggle="$ctrl.refreshView()">
                             <button uib-dropdown-toggle type="button" class="btn btn-primary btn-small dropdown-toggle" data-toggle="dropdown" ng-disabled="$ctrl.isReadonly">
                                 <div class="dropdown-toggle-label">{{$ctrl.getMergeNodeLabel(condition)}} </div>
@@ -58,4 +58,4 @@
 <div class="modal-footer storyteller-modal-footer">
     <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{::$root.config.labels['App_Button_Cancel']}}</button>
     <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.canApplyChanges">{{::$root.config.labels['App_Button_Ok']}}</button>
-</div> 
+</div>

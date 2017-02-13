@@ -37,6 +37,8 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     isShapeJustCreated(id: number): boolean;
     addShape(processShape: ProcessModels.IProcessShape);
     removeShape(shapeId: number);
+    isFirstFlow(decisionId: number, nextShapeId: number): boolean;
+    getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[];
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -169,7 +171,7 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get itemTypeId () {
-        return this.process.itemTypeId;  
+        return this.process.itemTypeId;
     }
 
     public get processType(): ProcessEnums.ProcessType {
@@ -525,5 +527,14 @@ export class ProcessViewModel implements IProcessViewModel {
     private getStatefulArtifact(): IStatefulProcessArtifact {
         let statefulArtifact: IStatefulProcessArtifact = this.process;
         return statefulArtifact;
+    }
+
+    public isFirstFlow(decisionId: number, nextShapeId: number) {
+        const orderedNextLinks = this.getSortedNextLinks(decisionId);
+        return orderedNextLinks.length > 0 && orderedNextLinks[0].destinationId === nextShapeId;
+    }
+
+    public getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[] {
+        return _.sortBy(this.links.filter((link) => link.sourceId === sourceId), (link) => link.orderindex);
     }
 }

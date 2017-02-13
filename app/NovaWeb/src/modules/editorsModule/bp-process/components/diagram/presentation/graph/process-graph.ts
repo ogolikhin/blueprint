@@ -28,6 +28,7 @@ import {IClipboardService} from "../../../../services/clipboard.svc";
 import {IFileUploadService} from "../../../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 import {SystemTask} from "./shapes/system-task";
+import {IScopeHelper, ScopeHelper} from "./scopeHelper";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -51,6 +52,7 @@ export class ProcessGraph implements IProcessGraph {
     private minNoOfShapesAddedPerSystemDecision: number = 1;
     private minNoOfShapesAddedPerUserDecision: number = 2;
     private invalidShapes: number[] = [];
+    private scopeHelper: IScopeHelper;
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
         return this.viewModel.communicationManager.processDiagramCommunication;
@@ -823,6 +825,7 @@ export class ProcessGraph implements IProcessGraph {
             };
             this.getScopeInternal(context, this.defaultStopCondition, this.defaultNextIdsProvider);
             this.globalScope = context;
+            this.scopeHelper = new ScopeHelper(this.globalScope);
         }
     }
 
@@ -943,7 +946,7 @@ export class ProcessGraph implements IProcessGraph {
 
     // returns a list of links in sorted order index.
     public getNextLinks(sourceId: number): IProcessLink[] {
-        return this.viewModel.links.filter(a => a.sourceId === sourceId).sort((a, b) => a.orderindex - b.orderindex);
+        return this.viewModel.getSortedNextLinks(sourceId);
     }
 
     private getDecisionBranchDestinationLinks(decisionId: number): IProcessLink[] {
@@ -1019,12 +1022,13 @@ export class ProcessGraph implements IProcessGraph {
         return validShapeIds;
     }
 
-    public updateMergeNode(decisionId: number, condition: ICondition): boolean {
+    public updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean {
+
         let originalEndNode: IProcessLink = this.getDecisionBranchDestLinkForIndex(decisionId, condition.orderindex);
 
-        if (condition.mergeNode &&
+        if (!!mergeNodeId &&
             originalEndNode &&
-            originalEndNode.destinationId !== condition.mergeNode.model.id) {
+            originalEndNode.destinationId !== mergeNodeId) {
             let mainBranchOnly: INextIdsProvider = (context) => {
                 let ids = this.viewModel.getNextShapeIds(context.id);
                 return [Number(ids[0])];
@@ -1035,11 +1039,11 @@ export class ProcessGraph implements IProcessGraph {
 
             // Updates end branch link to point to new destination id
             if (origLastLinkInCondition) {
-                origLastLinkInCondition.destinationId = condition.mergeNode.model.id;
+                origLastLinkInCondition.destinationId = mergeNodeId;
             }
 
             // Updates merge point for specific branch to be new destination id
-            originalEndNode.destinationId = condition.mergeNode.model.id;
+            originalEndNode.destinationId = mergeNodeId;
 
             return true;
         }
@@ -1191,6 +1195,18 @@ export class ProcessGraph implements IProcessGraph {
         if (this.$log) {
             this.$log.info(arg);
         }
+    }
+
+    public isFirstFlow(decisionId: number, nextShapeId: number): boolean {
+        return this.viewModel.isFirstFlow(decisionId, nextShapeId);
+    }
+
+    public isInNestedFlow(id: number): boolean {
+        return this.scopeHelper.isInNestedFlow(id);
+    }
+
+    public isInMainFlow(id: number): boolean {
+        return this.scopeHelper.isInMainFlow(id);
     }
 
     public destroy(): void {

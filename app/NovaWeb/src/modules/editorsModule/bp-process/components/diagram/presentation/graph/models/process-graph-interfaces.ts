@@ -107,7 +107,7 @@ export interface IProcessGraph {
     getHtmlElement(): HTMLElement;
     getDefaultParent(): MxCell;
     render(useAutolayout: boolean, selectedNodeId: number): void;
-    updateMergeNode(decisionId: number, condition: ICondition): boolean;
+    updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
     getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;
@@ -136,6 +136,9 @@ export interface IProcessGraph {
     highlightCopyGroups(nodes: IDiagramNode[]): void;
     clearHighlightEdges(): void;
     highlightBridges(): void;
+    isFirstFlow(decisionId: number, nextShapeId: number): boolean;
+    isInNestedFlow(id: number): boolean;
+    isInMainFlow(id: number): boolean;
     destroy(): void;
 }
 

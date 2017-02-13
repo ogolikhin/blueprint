@@ -1,6 +1,4 @@
-﻿
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Utilities;
 
 namespace Model.Impl
@@ -8,9 +6,6 @@ namespace Model.Impl
     public class OpenApiUser
     {
         protected UserDataModel UserData { get; set; }
-
-        [JsonIgnore]
-        public UserSource Source { get { return UserSource.Database; } }
 
         #region Serialized JSON Properties
 
@@ -88,8 +83,7 @@ namespace Model.Impl
         /// Default constructor.
         /// </summary>
         public OpenApiUser()
-        {
-            Source = UserSource.Database;
+        { 
         }
 
         /// <summary>
@@ -107,7 +101,6 @@ namespace Model.Impl
             LastName = lastname;
             Password = password;
             DisplayName = displayname;
-            Source = UserSource.Database;
         }
 
         /// <summary>
@@ -119,7 +112,6 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(userData, nameof(userData));
 
             UserData = userData;
-            Source = UserSource.Database;
         }
 
         #endregion Constructors

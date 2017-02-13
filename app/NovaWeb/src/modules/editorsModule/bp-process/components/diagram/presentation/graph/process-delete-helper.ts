@@ -30,7 +30,6 @@ export class ProcessDeleteHelper {
                 return;
             }
         }
-
         processGraph.notifyUpdateInModel(NodeChange.Remove, null);
     }
 

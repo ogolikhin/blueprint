@@ -195,6 +195,11 @@ namespace AdminStore.Repositories
                 throw new BadRequestException("Password reset failed, new password cannot be equal to login name", ErrorCodes.PasswordSameAsLogin);
             }
 
+            if (newPassword == user.DisplayName)
+            {
+                throw new BadRequestException("Password reset failed, new password cannot be equal to display name", ErrorCodes.PasswordSameAsDisplayName);
+            }
+
             string errorMsg;
             if (!PasswordValidationHelper.ValidatePassword(newPassword, true, out errorMsg))
             {

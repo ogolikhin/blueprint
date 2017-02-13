@@ -9,6 +9,7 @@ import {ILocalizationService} from "../../commonModule/localization/localization
 import {ILocalStorageService} from "../../commonModule/localStorage/localStorage.service";
 import {IProjectExplorerService} from "../components/bp-explorer/project-explorer.service";
 import {ExplorerNodeVM} from "../models/tree-node-vm-factory";
+import {IChangeSet, ChangeTypeEnum} from "../../managers/artifact-manager/changeset/changeset";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -48,7 +49,9 @@ export class MainViewController {
 
     public $onInit() {
         this._subscribers = [
-            this.projectExplorerService.projectsObservable.subscribeOnNext(this.onProjectCollectionChanged, this),
+            this.projectExplorerService.projectsChangeObservable
+                .filter(change => change.type === ChangeTypeEnum.Update)
+                .subscribeOnNext(this.onProjectCollectionChanged, this),
             this.windowVisibility.visibilityObservable.distinctUntilChanged().subscribeOnNext(this.onVisibilityChanged, this)
         ];
 
@@ -85,7 +88,8 @@ export class MainViewController {
         this.$document[0].body.classList.add(status === VisibilityStatus.Visible ? "is-visible" : "is-hidden");
     };
 
-    private onProjectCollectionChanged(projects: ExplorerNodeVM[]) {
+    private onProjectCollectionChanged(projectsUpdate: IChangeSet) {
+        const projects = projectsUpdate.value as ExplorerNodeVM[];
         if (projects.length === 0) {
             //Close the panel if no projects are open.
             this.toggleLeft(false);

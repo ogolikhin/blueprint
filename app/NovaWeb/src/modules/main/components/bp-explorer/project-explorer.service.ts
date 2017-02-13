@@ -19,7 +19,6 @@ import {MoveCopyArtifactInsertMethod} from "../dialogs/move-copy-artifact/move-c
 export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];
     projectsChangeObservable: Rx.Observable<IChangeSet>;
-    projectsObservable: Rx.Observable<ExplorerNodeVM[]>;
 
     setSelectionId(id: number);
     getSelectionId(): number;
@@ -44,11 +43,10 @@ export interface IProjectExplorerService {
 
 export class ProjectExplorerService implements IProjectExplorerService {
     private factory: TreeNodeVMFactory;
-    private _projects: ExplorerNodeVM[];
     private projectsChangeSubject: Rx.Subject<IChangeSet>;
-    private projectsSubject: Rx.Subject<ExplorerNodeVM[]>;
     private _selectedId: number;
 
+    public projects: ExplorerNodeVM[];
     public projectsChangeObservable: Rx.Observable<IChangeSet>;
 
     static $inject = [
@@ -78,24 +76,10 @@ export class ProjectExplorerService implements IProjectExplorerService {
                 private metadataService: IMetaDataService) {
 
         this.factory = new TreeNodeVMFactory(projectService);
-        this.projectsSubject = new Rx.Subject<ExplorerNodeVM[]>();
         this.projectsChangeSubject = new Rx.Subject<IChangeSet>();
         this.projectsChangeObservable = this.projectsChangeSubject.asObservable();
 
         this.projects = [];
-    }
-
-    public get projects(): ExplorerNodeVM[] {
-        return this._projects;
-    }
-
-    public set projects(val: ExplorerNodeVM[]) {
-        this._projects = val;
-        this.projectsSubject.onNext(val);
-    }
-
-    public get projectsObservable(): Rx.Observable<ExplorerNodeVM[]> {
-        return this.projectsSubject.asObservable();
     }
 
     public setSelectionId(id: number) {
@@ -138,11 +122,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
                         // FIXME: maybe return a promise here
                         projectNode.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
                             projectNode.children = children;
-
-                            const change = {
-                                type: ChangeTypeEnum.Update
-                            } as IChangeSet;
-                            this.projectsChangeSubject.onNext(change);
+                            this.notifyProjectsUpdate();
                             this.navigationService.navigateTo({id: projectId});
                         });
 
@@ -159,6 +139,14 @@ export class ProjectExplorerService implements IProjectExplorerService {
         return this.$q.resolve();
     }
 
+    private notifyProjectsUpdate() {
+        const change = {
+            type: ChangeTypeEnum.Update,
+            value: this.projects
+        } as IChangeSet;
+        this.projectsChangeSubject.onNext(change);
+    }
+
     public remove(projectId: number) {
         this.metadataService.remove(projectId);
         const removedProjects = _.remove(this.projects, project => project.model.projectId === projectId);
@@ -168,10 +156,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
             }
 
             removedProjects[0].unloadChildren();
-            const change = {
-                type: ChangeTypeEnum.Update
-            } as IChangeSet;
-            this.projectsChangeSubject.onNext(change);
+            this.notifyProjectsUpdate();
         }
     }
 
@@ -235,10 +220,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
                     this.projects.splice(openProjectIndex, 1, project);
                 }
 
-                const change = {
-                    type: ChangeTypeEnum.Update
-                } as IChangeSet;
-                this.projectsChangeSubject.onNext(change);
+                this.notifyProjectsUpdate();
             });
     }
 
@@ -293,27 +275,23 @@ export class ProjectExplorerService implements IProjectExplorerService {
             return;
         }
 
-        const change = {} as IChangeSet;
         this.selectionManager.autosave().then(() => {
             if (expandToArtifact && expandToArtifact.projectId === projectId) {
                 this.getProjectExpandedToNode(projectId, expandToArtifact.id)
                     .then(project => {
-                        change.value = project;
-                            const index = _.findIndex(this.projects, p => p.model.id === p.model.id);
-                            this.projects[index].unloadChildren();
-                            this.projects.splice(index, 1, project);
+                        const index = _.findIndex(this.projects, p => p.model.id === p.model.id);
+                        this.projects[index].unloadChildren();
+                        this.projects.splice(index, 1, project);
 
-                            project.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
-                                change.type = ChangeTypeEnum.Update;
-                                this.projectsChangeSubject.onNext(change);
-                            });
+                        project.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
+                            this.notifyProjectsUpdate();
                         });
+                    });
             } else {
                 projectNode.unloadChildren();
                 projectNode.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
                     projectNode.children = children;
-                    change.type = ChangeTypeEnum.Update;
-                    this.projectsChangeSubject.onNext(change);
+                    this.notifyProjectsUpdate();
                 });
             }
         });

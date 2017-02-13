@@ -578,24 +578,23 @@ namespace Model.Impl
         /// This is to create user with different properties in open API
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="instanceAdminUser">Instance administrator</param>
-        /// <param name="userToCreate">User that instance admin wants to create</param>
-        /// <param name="expectedStatusCodes"></param>
-        /// <returns>(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <param name="userWhoCreatesAnotherUser">A user that has permission to create users.</param>
+        /// <param name="userToCreate">User to create</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected</param>
         /// <returns>User, which was created.</returns>
-        public static OpenApiUser CreateUser(string address, IUser instanceAdminUser, IOpenApiUser userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
+        public static OpenApiUser CreateUser(string address, IUser userWhoCreatesAnotherUser, OpenApiUser userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
-            ThrowIf.ArgumentNull(instanceAdminUser, nameof(instanceAdminUser));
+            ThrowIf.ArgumentNull(userWhoCreatesAnotherUser, nameof(userWhoCreatesAnotherUser));
 
-            var restApi = new RestApiFacade(address, instanceAdminUser.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(address, userWhoCreatesAnotherUser.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.USERS_CREATE;
 
             return restApi.SendRequestAndDeserializeObject<OpenApiUser, OpenApiUser>(
                 path,
                 RestRequestMethod.POST,
-                userToCreate as OpenApiUser,
+                userToCreate,
                 expectedStatusCodes: expectedStatusCodes);
         }
 

@@ -4,9 +4,13 @@ using Utilities;
 
 namespace Model.Impl
 {
-    public class OpenApiUser : IOpenApiUser
+    public class OpenApiUser
     {
         protected UserDataModel UserData { get; set; }
+
+        #region Properties
+
+        #endregion Properties
 
         public UserSource Source { get; }
 
@@ -15,7 +19,6 @@ namespace Model.Impl
         public int Id
         {
             get { return UserData.Id; }
-            set { UserData.Id = value; }
         }
         public string Username
         {
@@ -116,11 +119,7 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(userData, nameof(userData));
 
-            Username = userData.Username;
-            FirstName = userData.FirstName;
-            LastName = userData.LastName;
-            Password = userData.Password;
-            DisplayName = userData.DisplayName;
+            UserData = userData;
             Source = UserSource.Database;
         }
 

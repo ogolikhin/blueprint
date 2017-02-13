@@ -24,8 +24,8 @@ export class ProcessDeleteHelper {
         const clonedProcessLight = ProcessDeleteHelper.cloneProcessLight(processGraph.viewModel);
 
         for (let userTaskId of userTaskIds) {
-            processGraph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(userTaskId);
-            if (!ProcessDeleteHelper.deleteUserTask(userTaskId, null, processGraph)) {
+            processGraph.viewModel.updateTreeAndFlows();
+            if (!!processGraph.viewModel.getShapeById(userTaskId) && !ProcessDeleteHelper.deleteUserTask(userTaskId, null, processGraph)) {
                 this.undoDelete(processGraph, clonedProcessLight);
                 return;
             }

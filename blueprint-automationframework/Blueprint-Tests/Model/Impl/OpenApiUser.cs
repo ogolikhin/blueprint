@@ -1,6 +1,6 @@
-﻿using Common;
+﻿
 using System.Collections.Generic;
-using Utilities.Factories;
+using Utilities;
 
 namespace Model.Impl
 {
@@ -8,7 +8,7 @@ namespace Model.Impl
     {
         protected UserDataModel UserData { get; set; }
 
-        public UserSource Source { get { return UserSource.Unknown; } }
+        public UserSource Source { get; }
 
         #region Serialized JSON Properties
 
@@ -83,52 +83,47 @@ namespace Model.Impl
         #region Constructors
 
         /// <summary>
-        /// Constructor with minimal amount of values to create user
+        /// Default constructor.
         /// </summary>
-        /// <param name="username">Username</param>
-        /// <param name="firstName">User first name</param>
-        /// <param name="lastName">User last name</param>
-        /// <param name="password">Password</param>
-        /// <param name="displayName">User display name</param>
-        /// <param name="source">(optional) By default it is database user</param>
-        public OpenApiUser(string userName, string firstName, string lastName, string password, string displayName, UserSource source = UserSource.Database)
+        public OpenApiUser()
         {
-            Username = userName;
-            FirstName = firstName;
-            LastName = lastName;
-            Password = password;
-            DisplayName = displayName;
+            Source = UserSource.Database;
         }
 
         /// <summary>
-        /// Constructor with minimal amount of values to create user
+        /// Creates user with specified mandatory properties
         /// </summary>
         /// <param name="username">Username</param>
-        /// <param name="firstName">User first name</param>
-        /// <param name="lastName">User last name</param>
-        /// <param name="password">Password</param>
-        /// <param name="displayName">User display name</param>
-        public OpenApiUser()
+        /// <param name="firstname">User first name</param>
+        /// <param name="lastname">User last name</param>
+        /// <param name="password">User password</param>
+        /// <param name="displayname">User display name</param>
+        public OpenApiUser(string username, string firstname, string lastname, string password, string displayname)
         {
+            Username = username;
+            FirstName = firstname;
+            LastName = lastname;
+            Password = password;
+            DisplayName = displayname;
+            Source = UserSource.Database;
+        }
 
+        /// <summary>
+        /// Creates OpenApiUser object with user data model
+        /// </summary>
+        /// <param name="userData">User data model</param>
+        public OpenApiUser(UserDataModel userData)
+        {
+            ThrowIf.ArgumentNull(userData, nameof(userData));
+
+            Username = userData.Username;
+            FirstName = userData.FirstName;
+            LastName = userData.LastName;
+            Password = userData.Password;
+            DisplayName = userData.DisplayName;
+            Source = UserSource.Database;
         }
 
         #endregion Constructors
-
-        #region Methods
-
-        /// <summary>
-        /// Default constructor. Generates database user with all necessary values.
-        /// </summary>
-        public void GenerateOpenApiUser(UserSource source = UserSource.Database)
-        {
-            Username = RandomGenerator.RandomAlphaNumeric(10);
-            FirstName = RandomGenerator.RandomAlphaNumeric(10);
-            LastName = RandomGenerator.RandomAlphaNumeric(10);
-            Password = RandomGenerator.RandomAlphaNumeric(10);
-            DisplayName = I18NHelper.FormatInvariant("{0} {1}", FirstName, LastName);
-        }
-
-        #endregion Methods
     }
 }

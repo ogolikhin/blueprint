@@ -2,23 +2,23 @@
 
 namespace Model
 {
-    interface IOpenApiUser
+    public interface IOpenApiUser
     {
         #region Properties
 
         int Id { get; set; }
-        string Username { get; set; }
-        string DisplayName { get; set; }
-        string FirstName { get; set; }
-        string LastName { get; set; }
-        string Email { get; set; }
-        string Title { get; set; }
-        string Department { get; set; }
-        string Password { get; set; }
-        List<IGroup> GroupMembership { get; set; }
-        InstanceAdminRole? InstanceAdminRole { get; set; }
-        bool? ExpirePassword { get; set; }
-        bool Enabled { get; set; }
+        string Username { get; }
+        string DisplayName { get; }
+        string FirstName { get; }
+        string LastName { get; }
+        string Email { get; }
+        string Title { get; }
+        string Department { get; }
+        string Password { get; }
+        List<IGroup> GroupMembership { get; }
+        InstanceAdminRole? InstanceAdminRole { get; }
+        bool? ExpirePassword { get; }
+        bool Enabled { get; }
 
         #endregion Properties
     }

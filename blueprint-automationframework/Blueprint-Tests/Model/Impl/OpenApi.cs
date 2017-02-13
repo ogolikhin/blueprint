@@ -583,7 +583,7 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes"></param>
         /// <returns>(optional) A list of expected status codes. If null, only '201' is expected.</param>
         /// <returns>User, which was created.</returns>
-        public static OpenApiUser CreateUser(string address, IUser instanceAdminUser, OpenApiUser userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
+        public static OpenApiUser CreateUser(string address, IUser instanceAdminUser, IOpenApiUser userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
@@ -595,7 +595,7 @@ namespace Model.Impl
             return restApi.SendRequestAndDeserializeObject<OpenApiUser, OpenApiUser>(
                 path,
                 RestRequestMethod.POST,
-                userToCreate,
+                userToCreate as OpenApiUser,
                 expectedStatusCodes: expectedStatusCodes);
         }
 

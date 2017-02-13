@@ -37,7 +37,7 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     isShapeJustCreated(id: number): boolean;
     addShape(processShape: ProcessModels.IProcessShape);
     removeShape(shapeId: number);
-    isFirstFlow(decisionId: number, nextShapeId: number): boolean;
+    isFirstFlow(link: ProcessModels.IProcessLink): boolean;
     isInNestedFlow(id: number): boolean;
     isInMainFlow(id: number): boolean;
     getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[];
@@ -531,9 +531,9 @@ export class ProcessViewModel implements IProcessViewModel {
         return statefulArtifact;
     }
 
-    public isFirstFlow(decisionId: number, nextShapeId: number) {
-        const orderedNextLinks = this.getSortedNextLinks(decisionId);
-        return orderedNextLinks.length > 0 && orderedNextLinks[0].destinationId === nextShapeId;
+    public isFirstFlow(link: ProcessModels.IProcessLink) {
+        const orderedNextLinks = this.getSortedNextLinks(link.sourceId);
+        return orderedNextLinks.length > 0 && orderedNextLinks[0].destinationId === link.destinationId;
     }
 
     public getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[] {

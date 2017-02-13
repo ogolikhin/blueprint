@@ -1194,8 +1194,8 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    public isFirstFlow(decisionId: number, nextShapeId: number): boolean {
-        return this.viewModel.isFirstFlow(decisionId, nextShapeId);
+    public isFirstFlow(link: IProcessLink): boolean {
+        return this.viewModel.isFirstFlow(link);
     }
 
     public isInNestedFlow(id: number): boolean {
@@ -1206,16 +1206,16 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isInMainFlow(id);
     }
 
-    public getBranchStartingLink(decisionId: number, nextShapeId: number): IProcessLink {
+    public getBranchStartingLink(link: IProcessLink): IProcessLink {
 
-        if (this.viewModel.isFirstFlow(decisionId, nextShapeId) && !this.viewModel.isInMainFlow(decisionId)) {
-            const shapeContext = this.globalScope.visitedIds[decisionId];
+        if (this.viewModel.isFirstFlow(link) && !this.viewModel.isInMainFlow(link.sourceId)) {
+            const shapeContext = this.globalScope.visitedIds[link.sourceId];
             const last = _.last(shapeContext.parentConditions);
             return this.getNextLinks(last.decisionId).filter(a => a.orderindex === last.orderindex)[0];
 
         }
 
-        return this.getLink(decisionId, nextShapeId);
+        return this.getLink(link.sourceId, link.destinationId);
     }
 
     public destroy(): void {

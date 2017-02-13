@@ -119,7 +119,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     }
 
     public isDeleteConditionVisible(condition: ICondition): boolean {
-        return !this.hasMinConditions && !this.dialogModel.graph.isFirstFlow(condition.sourceId, condition.destinationId);
+        return !this.hasMinConditions && !this.dialogModel.graph.isFirstFlow(condition);
     }
 
     public canDeleteCondition(condition: ICondition): boolean {
@@ -184,7 +184,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             if (!condition.mergeNode) {
                 return;
             }
-            let link: IProcessLink = this.dialogModel.graph.getBranchStartingLink(condition.sourceId, condition.destinationId);
+            let link: IProcessLink = this.dialogModel.graph.getBranchStartingLink(condition);
 
             if (link) {
                 const didUpdateEdge = this.dialogModel.graph.updateMergeNode(link.sourceId, link, condition.mergeNode.model.id);
@@ -281,7 +281,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     }
 
     public isFirstConditionOnMainFlow(condition: ICondition): boolean {
-        return  this.dialogModel.graph.isFirstFlow(condition.sourceId, condition.destinationId)
+        return  this.dialogModel.graph.isFirstFlow(condition)
                 &&  this.dialogModel.graph.isInMainFlow(condition.sourceId);
     }
 

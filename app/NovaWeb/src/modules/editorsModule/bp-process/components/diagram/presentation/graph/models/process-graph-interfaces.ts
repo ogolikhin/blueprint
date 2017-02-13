@@ -107,6 +107,7 @@ export interface IProcessGraph {
     getHtmlElement(): HTMLElement;
     getDefaultParent(): MxCell;
     render(useAutolayout: boolean, selectedNodeId: number): void;
+    // Updates merge node of decision branch.
     updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
@@ -136,10 +137,14 @@ export interface IProcessGraph {
     highlightCopyGroups(nodes: IDiagramNode[]): void;
     clearHighlightEdges(): void;
     highlightBridges(): void;
-    isFirstFlow(decisionId: number, nextShapeId: number): boolean;
+    // Determines if the condition is the first condition of the decision.
+    isFirstFlow(link: IProcessLink): boolean;
+    // Determines if shape belongs to any conditions.
     isInNestedFlow(id: number): boolean;
+    // Determines if shape belongs on the main process flow.
     isInMainFlow(id: number): boolean;
-    getBranchStartingLink(decisionId: number, nextShapeId: number);
+    // Finds the correct starting link of branch given any decision id and its next shape's id.
+    getBranchStartingLink(condition: IProcessLink): IProcessLink;
     destroy(): void;
 }
 

@@ -1,4 +1,8 @@
-﻿/* tslint:disable max-file-line-count */
+﻿import {ItemTypePredefined} from "../../../../../../main/models/enums";
+import {IArtifact} from "../../../../../../main/models/models";
+import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
+import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";
+/* tslint:disable max-file-line-count */
 import {ILoadingOverlayService} from "../../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
@@ -598,12 +602,23 @@ export class ProcessGraph implements IProcessGraph {
 
         const selectedNodes = this.getSelectedNodes();
 
+        const artifactList = this.createArtifactFromDiagramNodes(selectedNodes);
+
         // this should be replaced with the new deletion confirmation modal
-        this.dialogService.alert(
-            dialogParameters.message,
-            this.localization.get("App_DialogTitle_Alert"),
-            this.localization.get("App_Button_Delete"),
-            this.localization.get("App_Button_Cancel"))
+        this.dialogService.open(<IDialogSettings>{
+                okButton: this.localization.get("App_Button_Ok"),
+                cancelButton: this.localization.get("App_Button_Cancel"),
+                message: this.localization.get("ST_Bulk_Delete_Confirmation"),
+                template: require("../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+                controller: ConfirmPublishController,
+                css: "modal-alert nova-publish",
+                header: this.localization.get("App_DialogTitle_Alert")
+            },
+            <IConfirmPublishDialogData>{
+                artifactList: artifactList,
+                projectList: null,
+                selectedProject: null
+            })
             .then(() => {
                 if (selectedNodes.length > 1) {
                     const nodeIds = selectedNodes.map(node => node.model.id);
@@ -618,6 +633,24 @@ export class ProcessGraph implements IProcessGraph {
                 }
             });
     };
+
+    private createArtifactFromDiagramNodes(nodeList: IDiagramNode[]): IArtifact[] {
+        const artifactList: IArtifact[] = [];
+
+        nodeList.forEach((node: IDiagramNode) => {
+            const artifact = {
+                id: Number(node.getId()),
+                name: node.label,
+                predefinedType: ItemTypePredefined.Process,
+                itemTypeId: ItemTypePredefined.Process,
+                projectId: null,
+                prefix: "PRO"
+            } as IArtifact;
+            artifactList.push(artifact);
+        });
+
+        return artifactList;
+    }
 
     private hasMaxConditions(decisionId: number): boolean {
         return this.viewModel.getNextShapeIds(decisionId).length >= ProcessGraph.MaxConditions;
@@ -973,6 +1006,12 @@ export class ProcessGraph implements IProcessGraph {
 
     public getShapeById(id: number): IProcessShape {
         return this.viewModel.getShapeById(id);
+    }
+
+    public getMergeNode(decisionId: number, orderIndex: number): IDiagramNode {
+        const branchLink = this.getDecisionBranchDestLinkForIndex(decisionId, orderIndex);
+        const destinationId = branchLink.destinationId;
+        return this.getNodeById(destinationId.toString());
     }
 
     public getValidMergeNodes(condition: IProcessLink): IDiagramNode[] {

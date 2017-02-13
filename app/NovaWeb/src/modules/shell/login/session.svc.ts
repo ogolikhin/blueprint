@@ -29,13 +29,14 @@ export interface ISession {
 
 export class SessionSvc implements ISession {
 
-    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService"];
+    static $inject: [string] = ["$q", "auth", "$uibModal", "localization", "dialogService", "Analytics"];
 
     constructor(private $q: ng.IQService,
                 private auth: IAuth,
                 private $uibModal: ng.ui.bootstrap.IModalService,
                 private localization: ILocalizationService,
-                private dialogService: IDialogService) {
+                private dialogService: IDialogService,
+                private analytics: ng.google.analytics.AnalyticsService) {
     }
 
     private _currentUser: IUser;
@@ -49,17 +50,22 @@ export class SessionSvc implements ISession {
         return this._currentUser;
     }
 
+    public set currentUser(user: IUser) {
+        this._currentUser = user;
+        this.setUserForAnalytics();
+    }
+
     public forceUsername(): string {
-        if (this._currentUser) {
-            return this._currentUser.login;
+        if (this.currentUser) {
+            return this.currentUser.login;
         } else {
             return undefined;
         }
     }
 
     public forceDisplayname(): string {
-        if (this._currentUser) {
-            return this._currentUser.displayName;
+        if (this.currentUser) {
+            return this.currentUser.displayName;
         } else {
             return undefined;
         }
@@ -71,11 +77,11 @@ export class SessionSvc implements ISession {
 
     public logout(): ng.IPromise<any> {
         const defer = this.$q.defer();
-        this.auth.logout(this._currentUser, false).then(() => defer.resolve());
-        if (this._currentUser) {
+        this.auth.logout(this.currentUser, false).then(() => defer.resolve());
+        if (this.currentUser) {
             this._prevLogin = "";
         }
-        this._currentUser = null;
+        this.currentUser = null;
 
         return defer.promise;
     }
@@ -85,7 +91,7 @@ export class SessionSvc implements ISession {
 
         this.auth.login(username, password, overrideSession).then(
             (user) => {
-                this._currentUser = user;
+                this.currentUser = user;
                 defer.resolve();
             },
             (error) => {
@@ -99,7 +105,7 @@ export class SessionSvc implements ISession {
 
         this.auth.loginWithSaml(overrideSession, this._prevLogin).then(
             (user) => {
-                this._currentUser = user;
+                this.currentUser = user;
                 defer.resolve();
 
             },
@@ -126,7 +132,7 @@ export class SessionSvc implements ISession {
     }
 
     public ensureAuthenticated(): ng.IPromise<any> {
-        if (this._currentUser) {
+        if (this.currentUser) {
             return this.$q.resolve();
         } else if (this._loginDialogPromise) {
             return this._loginDialogPromise;
@@ -136,8 +142,8 @@ export class SessionSvc implements ISession {
         this._isForceSameUsername = false;
         if (SessionTokenHelper.hasSessionToken()) {
             return this.auth.getCurrentUser()
-            .then(user => this._currentUser = user)
-            .catch(() => this.showLogin());
+                .then(user => this.currentUser = user)
+                .catch(() => this.showLogin());
         } else {
             return this.showLogin();
         }
@@ -159,7 +165,7 @@ export class SessionSvc implements ISession {
                     this._isExpired = false;
                     this._loginDialogPromise = null;
                     return this.$q.resolve();
-                } 
+                }
 
                 if (result.samlLogin) {
                     this._loginDialogPromise = this.dialogService
@@ -170,7 +176,7 @@ export class SessionSvc implements ISession {
                         .finally(() => confirmationDialog = null);
                     return this._loginDialogPromise;
                 }
-                
+
                 if (result.userName && result.password) {
                     this._loginDialogPromise = this.dialogService
                         .confirm(this.localization.get("Login_Session_DuplicateSession_Verbose"), null, "nova-messaging nova-login-confirm")
@@ -179,9 +185,9 @@ export class SessionSvc implements ISession {
                         .catch(() => this.showLogin())
                         .finally(() => confirmationDialog = null);
                     return this._loginDialogPromise;
-                } 
+                }
                 return this.showLogin();
-                
+
             } else {
                 return this.showLogin();
             }
@@ -190,6 +196,12 @@ export class SessionSvc implements ISession {
         });
         return this._loginDialogPromise;
     };
+
+    private setUserForAnalytics() {
+        if (this.currentUser && this.currentUser.id) {
+            this.analytics.set("&uid", this.currentUser.id);
+        }
+    }
 
     public resetPassword(login: string, oldPassword: string, newPassword: string): ng.IPromise<any> {
         const defer = this.$q.defer();

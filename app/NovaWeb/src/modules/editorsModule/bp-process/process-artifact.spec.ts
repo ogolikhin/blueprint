@@ -12,7 +12,6 @@ import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {PropertyDescriptorBuilderMock} from "../services";
 import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.service.mock";
 import {IProcess} from "./models/process-models";
-import {SessionSvc} from "../../shell/login/session.svc";
 import {AuthSvc} from "../../shell/login/auth.svc";
 import {SettingsMock} from "../../shell/login/mocks.spec";
 import {ItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
@@ -22,6 +21,7 @@ import * as angular from "angular";
 import {LoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {SessionSvcMock} from "../../shell/login/session.svc.mock";
 
 describe("StatefulProcessArtifact", () => {
 
@@ -50,7 +50,7 @@ describe("StatefulProcessArtifact", () => {
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("validationService", ValidationServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
-        $provide.service("session", SessionSvc);
+        $provide.service("session", SessionSvcMock);
         $provide.service("auth", AuthSvc);
         $provide.service("settings", SettingsMock);
 

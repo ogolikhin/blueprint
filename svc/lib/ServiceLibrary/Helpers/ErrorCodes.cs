@@ -22,6 +22,7 @@
         public const int TooSimplePassword = 4002;
         public const int ChangePasswordCooldownInEffect = 4003;
         public const int IncorrectSearchCriteria = 4004;
+        public const int PasswordSameAsLogin = 4005;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;

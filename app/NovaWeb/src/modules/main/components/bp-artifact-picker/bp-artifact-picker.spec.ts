@@ -45,6 +45,8 @@ xdescribe("BpArtifactPicker", () => {
                                              selection-mode="'multiple'"
                                              show-projects="false"
                                              show-artifacts="false"
+                                             show-baselines-and-reviews="true"
+                                             show-collections="true"
                                              show-sub-artifacts="true"
                                              on-selection-changed="$ctrl.onSelectionChanged(selectedItems)"
                                              on-double-click="$ctrl.onDoubleClick(vm)">`;
@@ -58,6 +60,8 @@ xdescribe("BpArtifactPicker", () => {
         expect(controller.selectionMode).toEqual("multiple");
         expect(controller.showProjects).toEqual(false);
         expect(controller.showArtifacts).toEqual(false);
+        expect(controller.showBaselinesAndReviews).toEqual(true);
+        expect(controller.showCollections).toEqual(true);
         expect(controller.showSubArtifacts).toEqual(true);
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
         expect(angular.isFunction(controller.onDoubleClick)).toEqual(true);
@@ -84,6 +88,8 @@ xdescribe("BpArtifactPicker", () => {
         expect(controller.selectionMode).toEqual("single");
         expect(controller.showProjects).toEqual(true);
         expect(controller.showArtifacts).toEqual(true);
+        expect(controller.showBaselinesAndReviews).toEqual(false);
+        expect(controller.showCollections).toEqual(false);
         expect(controller.showSubArtifacts).toEqual(false);
         expect(controller.onSelectionChanged).toBeUndefined();
         expect(controller.onDoubleClick).toBeUndefined();

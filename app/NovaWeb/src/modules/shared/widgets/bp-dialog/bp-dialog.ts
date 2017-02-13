@@ -75,7 +75,7 @@ export class DialogService implements IDialogService {
         const instance = this.$uibModal.open(options);
         instance.opened.then(() => {
             this.$timeout(() => {
-                const modal = this.$document[0].querySelector(".modal") as HTMLElement;
+                const modal = this.$document[0].getElementsByClassName("modal").item(0) as HTMLElement;
                 modal.focus();
             });
         });

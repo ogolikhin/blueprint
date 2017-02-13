@@ -76,6 +76,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
         return this;
     }
 
+    public setEditMode(): void {
+        throw new Error("setEditMode metod not implemented!");
+    }
+
     public getId(): string {
         return this.id;
     }

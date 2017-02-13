@@ -39,6 +39,23 @@ describe("TreeNodeVMFactory", () => {
             expect(vm.children).toBeUndefined();
         });
 
+        it("getCellClass, when a baseline folder, returns correct result", () => {
+            // Arrange
+            const model = {
+                id: 456,
+                predefinedType: Models.ItemTypePredefined.BaselinesAndReviews,
+                itemTypeId: Models.ItemTypePredefined.BaselineFolder,
+                hasChildren: true
+            } as Models.IArtifact;
+            const vm = factory.createExplorerNodeVM(model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["has-children", "is-baselines-and-reviews"]);
+        });
+
         it("getCellClass, when a collection folder, returns correct result", () => {
             // Arrange
             const model = {
@@ -375,6 +392,38 @@ describe("TreeNodeVMFactory", () => {
                 }
             ));
 
+        it("loadChildrenAsync, when a project and showing baselines and reviews, loads baselines and reviews", (done: DoneFn) =>
+            inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
+                    // Arrange
+                    factory.showArtifacts = false;
+                    factory.showBaselinesAndReviews = true;
+                    const children = [{id: 1234}, {
+                        id: 5678,
+                        predefinedType: Models.ItemTypePredefined.BaselineFolder
+                    }] as Models.IArtifact[];
+                    (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
+                    const model = {
+                        id: 7,
+                        name: "project",
+                        type: AdminStoreModels.InstanceItemType.Project
+                    } as AdminStoreModels.IInstanceItem;
+                    const vm = factory.createInstanceItemNodeVM(model);
+
+                    // Act
+                    vm.loadChildrenAsync().then(result => {
+
+                        // Assert
+                        expect(result).toEqual([factory.createArtifactNodeVM(model, children[1], true)]);
+                        expect(result.every(child => child instanceof ArtifactNodeVM &&
+                        _.isEqual(child.model.artifactPath, ["project"]) &&
+                        _.isEqual(child.model.idPath, [7]) &&
+                        _.isEqual(child.expanded, true))).toEqual(true);
+                        done();
+                    }).catch(done.fail);
+                    $rootScope.$digest(); // Resolves promises
+                }
+            ));
+
         it("loadChildrenAsync, when a project and showing collections, loads collections", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                     // Arrange
@@ -407,14 +456,18 @@ describe("TreeNodeVMFactory", () => {
                 }
             ));
 
-        it("loadChildrenAsync, when a project and showing artifacts and collections, loads both", (done: DoneFn) =>
+        it("loadChildrenAsync, when a project and showing artifacts, baselines and reviews, and collections, loads all", (done: DoneFn) =>
             inject(($rootScope: ng.IRootScopeService, $q: ng.IQService) => {
                     // Arrange
                     factory.showArtifacts = true;
+                    factory.showBaselinesAndReviews = true;
                     factory.showCollections = true;
                     const children = [{id: 1234}, {
                         id: 5678,
                         predefinedType: Models.ItemTypePredefined.CollectionFolder
+                    }, {
+                        id: 9012,
+                        predefinedType: Models.ItemTypePredefined.BaselineFolder
                     }] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
@@ -428,7 +481,11 @@ describe("TreeNodeVMFactory", () => {
                     vm.loadChildrenAsync().then(result => {
 
                         // Assert
-                        expect(result).toEqual([factory.createArtifactNodeVM(model, children[0]), factory.createArtifactNodeVM(model, children[1])]);
+                        expect(result).toEqual([
+                            factory.createArtifactNodeVM(model, children[0]),
+                            factory.createArtifactNodeVM(model, children[1]),
+                            factory.createArtifactNodeVM(model, children[2])
+                        ]);
                         expect(result.every(child => child instanceof ArtifactNodeVM &&
                         _.isEqual(child.model.artifactPath, ["project"]) &&
                         _.isEqual(child.model.idPath, [7]) &&
@@ -482,11 +539,12 @@ describe("TreeNodeVMFactory", () => {
             expect(vm.children).toBeUndefined();
         });
 
-        it("getCellClass, when a folder, returns correct result", () => {
+        it("getCellClass, when a baseline folder, returns correct result", () => {
             // Arrange
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.PrimitiveFolder,
+                predefinedType: Models.ItemTypePredefined.BaselinesAndReviews,
+                itemTypeId: Models.ItemTypePredefined.BaselineFolder,
                 hasChildren: true
             } as Models.IArtifact;
             const vm = factory.createArtifactNodeVM(project, model);
@@ -495,39 +553,7 @@ describe("TreeNodeVMFactory", () => {
             const result = vm.getCellClass();
 
             // Assert
-            expect(result).toEqual(["has-children", "is-primitive-folder"]);
-        });
-
-        it("getCellClass, when a project, returns correct result", () => {
-            // Arrange
-            const model = {
-                id: 456,
-                predefinedType: Models.ItemTypePredefined.Project,
-                hasChildren: true
-            } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(project, model);
-
-            // Act
-            const result = vm.getCellClass();
-
-            // Assert
-            expect(result).toEqual(["has-children", "is-project"]);
-        });
-
-        it("getCellClass, when a use case, returns correct result", () => {
-            // Arrange
-            const model = {
-                id: 456,
-                predefinedType: Models.ItemTypePredefined.UseCase,
-                hasChildren: true
-            } as Models.IArtifact;
-            const vm = factory.createArtifactNodeVM(project, model);
-
-            // Act
-            const result = vm.getCellClass();
-
-            // Assert
-            expect(result).toEqual(["has-children", "is-use-case"]);
+            expect(result).toEqual(["has-children", "is-baselines-and-reviews"]);
         });
 
         it("getCellClass, when a collection folder, returns correct result", () => {
@@ -545,6 +571,22 @@ describe("TreeNodeVMFactory", () => {
 
             // Assert
             expect(result).toEqual(["has-children", "is-collections"]);
+        });
+
+        it("getCellClass, when a folder, returns correct result", () => {
+            // Arrange
+            const model = {
+                id: 456,
+                predefinedType: Models.ItemTypePredefined.PrimitiveFolder,
+                hasChildren: true
+            } as Models.IArtifact;
+            const vm = factory.createArtifactNodeVM(project, model);
+
+            // Act
+            const result = vm.getCellClass();
+
+            // Assert
+            expect(result).toEqual(["has-children", "is-primitive-folder"]);
         });
 
         it("getCellClass, when invalid, returns correct result", () => {

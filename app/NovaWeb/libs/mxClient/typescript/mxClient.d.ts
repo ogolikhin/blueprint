@@ -11,22 +11,22 @@ declare var mxClient: MxClient;
 interface MxUtils {
     /**
      * Class: mxUtils
-     * 
+     *
      * A singleton class that provides cross-browser helper methods.
      * This is a global functionality. To access the functions in this
      * class, use the global classname appended by the functionname.
      * You may have to load chrome://global/content/contentAreaUtils.js
      * to disable certain security restrictions in Mozilla for the <open>,
      * <save>, <saveAs> and <copy> function.
-     * 
+     *
      * For example, the following code displays an error message:
-     * 
+     *
      * (code)
      * mxUtils.error('Browser is not supported!', 200, false);
      * (end)
-     * 
+     *
      * Variable: errorResource
-     * 
+     *
      * Specifies the resource key for the title of the error window. If the
      * resource for this key does not exist then the value is used as
      * the title. Default is 'error'.
@@ -35,7 +35,7 @@ interface MxUtils {
 
     /**
      * Variable: closeResource
-     * 
+     *
      * Specifies the resource key for the label of the close button. If the
      * resource for this key does not exist then the value is used as
      * the label. Default is 'close'.
@@ -44,40 +44,40 @@ interface MxUtils {
 
     /**
      * Variable: errorImage
-     * 
+     *
      * Defines the image used for error dialogs.
      */
     errorImage: any;
 
     /**
      * Function: removeCursors
-     * 
+     *
      * Removes the cursors from the style of the given DOM node and its
      * descendants.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * element - DOM node to remove the cursor style from.
      */
     removeCursors(element: HTMLElement): void;
 
     /**
      * Function: getCurrentStyle
-     * 
+     *
      * Returns the current style of the specified element.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * element - DOM node whose current style should be returned.
      */
     getCurrentStyle(element: HTMLElement): string;
 
     /**
      * Function: setPrefixedStyle
-     * 
+     *
      * Adds the given style with the standard name and an optional vendor prefix for the current
      * browser.
-     * 
+     *
      * (code)
      * mxUtils.setPrefixedStyle(node.style, 'transformOrigin', '0% 0%');
      * (end)
@@ -86,19 +86,19 @@ interface MxUtils {
 
     /**
      * Function: hasScrollbars
-     * 
+     *
      * Returns true if the overflow CSS property of the given node is either
      * scroll or auto.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node whose style should be checked for scrollbars.
      */
     hasScrollbars(node: HTMLElement): boolean;
 
     /**
      * Function: bind
-     * 
+     *
      * Returns a wrapper function that locks the execution scope of the given
      * function to the specified scope. Inside funct, the "this" keyword
      * becomes a reference to that scope.
@@ -107,21 +107,21 @@ interface MxUtils {
 
     /**
      * Function: eval
-     * 
+     *
      * Evaluates the given expression using eval and returns the JavaScript
      * object that represents the expression result. Supports evaluation of
      * expressions that define functions and returns the function object for
      * these expressions.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * expr - A string that represents a JavaScript expression.
      */
     eval(expr);
 
     /**
      * Function: findNode
-     * 
+     *
      * Returns the first node where attr equals value.
      * This implementation does not use XPath.
      */
@@ -129,11 +129,11 @@ interface MxUtils {
 
     /**
      * Function: findNodeByAttribute
-     * 
+     *
      * Returns the first node where the given attribute matches the given value.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - Root node where the search should start.
      * attr - Name of the attribute to be checked.
      * value - Value of the attribute to match.
@@ -142,23 +142,23 @@ interface MxUtils {
 
     /**
      * Function: getFunctionName
-     * 
+     *
      * Returns the name for the given function.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * f - JavaScript object that represents a function.
      */
     getFunctionName(f);
 
     /**
      * Function: indexOf
-     * 
+     *
      * Returns the index of obj in array or -1 if the array does not contain
      * the given object.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * array - Array to check for the given obj.
      * obj - Object to find in the given array.
      */
@@ -166,18 +166,18 @@ interface MxUtils {
 
     /**
      * Function: remove
-     * 
+     *
      * Removes all occurrences of the given object in the given array or
      * object. If there are multiple occurrences of the object, be they
      * associative or as an array entry, all occurrences are removed from
      * the array or deleted from the object. By removing the object from
      * the array, all elements following the removed element are shifted
      * by one step towards the beginning of the array.
-     * 
+     *
      * The length of arrays is not modified inside this function.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * obj - Object to find in the given array.
      * array - Array to check for the given obj.
      */
@@ -185,16 +185,16 @@ interface MxUtils {
 
     /**
      * Function: isNode
-     * 
+     *
      * Returns true if the given value is an XML node with the node name
      * and if the optional attribute has the specified value.
-     * 
+     *
      * This implementation assumes that the given value is a DOM node if the
      * nodeType property is numeric, that is, if isNaN returns false for
      * value.nodeType.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * value - Object that should be examined as a node.
      * nodeName - String that specifies the node name.
      * attributeName - Optional attribute name to check.
@@ -204,13 +204,13 @@ interface MxUtils {
 
     /**
      * Function: isAncestorNode
-     * 
+     *
      * Returns true if the given ancestor is an ancestor of the
      * given DOM node in the DOM. This also returns true if the
      * child is the ancestor.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * ancestor - DOM node that represents the ancestor.
      * child - DOM node that represents the child.
      */
@@ -218,11 +218,11 @@ interface MxUtils {
 
     /**
      * Function: getChildNodes
-     * 
+     *
      * Returns an array of child nodes that are of the given node type.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - Parent DOM node to return the children from.
      * nodeType - Optional node type to return. Default is
      * <mxConstants.NODETYPE_ELEMENT>.
@@ -231,13 +231,13 @@ interface MxUtils {
 
     /**
      * Function: importNode
-     * 
+     *
      * Cross browser implementation for document.importNode. Uses document.importNode
      * in all browsers but IE, where the node is cloned by creating a new node and
      * copying all attributes and children into it using importNode, recursively.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * doc - Document to import the node into.
      * node - Node to be imported.
      * allChildren - If all children should be imported.
@@ -246,19 +246,19 @@ interface MxUtils {
 
     /**
      * Function: createXmlDocument
-     * 
+     *
      * Returns a new, empty XML document.
      */
     createXmlDocument();
 
     /**
      * Function: parseXml
-     * 
+     *
      * Parses the specified XML string into a new XML document and returns the
      * new document.
-     * 
+     *
      * Example:
-     * 
+     *
      * (code)
      * var doc = mxUtils.parseXml(
      *   '<mxGraphModel><root><MyDiagram id="0"><mxCell/></MyDiagram>'+
@@ -267,29 +267,29 @@ interface MxUtils {
      *   '<mxGeometry x="10" y="10" width="80" height="30" as="geometry"/>'+
      *   '</mxCell></MyObject></root></mxGraphModel>');
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * xml - String that contains the XML data.
      */
     parseXml(xmlString: string): any;
 
     /**
      * Function: clearSelection
-     * 
+     *
      * Clears the current selection in the page.
      */
     clearSelection();
 
     /**
      * Function: getPrettyXML
-     * 
+     *
      * Returns a pretty printed string that represents the XML tree for the
      * given node. This method should only be used to print XML for reading,
      * use <getXml> instead to obtain a string for processing.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node to return the XML for.
      * tab - Optional string that specifies the indentation for one level.
      * Default is two spaces.
@@ -300,12 +300,12 @@ interface MxUtils {
 
     /**
      * Function: removeWhitespace
-     * 
+     *
      * Removes the sibling text nodes for the given node that only consists
      * of tabs, newlines and spaces.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node whose siblings should be removed.
      * before - Optional boolean that specifies the direction of the traversal.
      */
@@ -313,12 +313,12 @@ interface MxUtils {
 
     /**
      * Function: htmlEntities
-     * 
+     *
      * Replaces characters (less than, greater than, newlines and quotes) with
      * their HTML entities in the given string and returns the result.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * s - String that contains the characters to be converted.
      * newline - If newlines should be replaced. Default is true.
      */
@@ -326,25 +326,25 @@ interface MxUtils {
 
     /**
      * Function: isVml
-     * 
+     *
      * Returns true if the given node is in the VML namespace.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node whose tag urn should be checked.
      */
     isVml(node);
 
     /**
      * Function: getXml
-     * 
+     *
      * Returns the XML content of the specified node. For Internet Explorer,
      * all \r\n\t[\t]* are removed from the XML string and the remaining \r\n
      * are replaced by \n. All \n are then replaced with linefeed, or &#xa; if
      * no linefeed is defined.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node to return the XML for.
      * linefeed - Optional string that linefeeds are converted into. Default is
      * &#xa;
@@ -353,22 +353,22 @@ interface MxUtils {
 
     /**
      * Function: getTextContent
-     * 
+     *
      * Returns the text content of the specified node.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node to return the text content for.
      */
     getTextContent(node);
 
     /**
      * Function: setTextContent
-     * 
+     *
      * Sets the text content of the specified node.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node to set the text content for.
      * text - String that represents the text content.
      */
@@ -376,38 +376,38 @@ interface MxUtils {
 
     /**
      * Function: getInnerHtml
-     * 
+     *
      * Returns the inner HTML for the given node as a string or an empty string
      * if no node was specified. The inner HTML is the text representing all
      * children of the node, but not the node itself.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node to return the inner HTML for.
      */
     getInnerHtml(node);
 
     /**
      * Function: getOuterHtml
-     * 
+     *
      * Returns the outer HTML for the given node as a string or an empty
      * string if no node was specified. The outer HTML is the text representing
      * all children of the node including the node itself.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node to return the outer HTML for.
      */
     getOuterHtml(node);
 
     /**
      * Function: write
-     * 
+     *
      * Creates a text node for the given string and appends it to the given
      * parent. Returns the text node.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - DOM node to append the text node to.
      * text - String representing the text to be added.
      */
@@ -415,12 +415,12 @@ interface MxUtils {
 
     /**
      * Function: writeln
-     * 
+     *
      * Creates a text node for the given string and appends it to the given
      * parent with an additional linefeed. Returns the text node.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - DOM node to append the text node to.
      * text - String representing the text to be added.
      */
@@ -428,30 +428,30 @@ interface MxUtils {
 
     /**
      * Function: br
-     * 
+     *
      * Appends a linebreak to the given parent and returns the linebreak.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - DOM node to append the linebreak to.
      */
     br(parent, count);
 
     /**
      * Function: button
-     * 
+     *
      * Returns a new button with the given level and function as an onclick
      * event handler.
-     * 
+     *
      * (code)
      * document.body.appendChild(mxUtils.button('Test', function(evt)
      * {
      *   alert('Hello, World!');
      * }));
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * label - String that represents the label of the button.
      * funct - Function to be called if the button is pressed.
      * doc - Optional document to be used for creating the button. Default is the
@@ -461,12 +461,12 @@ interface MxUtils {
 
     /**
      * Function: para
-     * 
+     *
      * Appends a new paragraph with the given text to the specified parent and
      * returns the paragraph.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - DOM node to append the text node to.
      * text - String representing the text for the new paragraph.
      */
@@ -474,7 +474,7 @@ interface MxUtils {
 
     /**
      * Function: addTransparentBackgroundFilter
-     * 
+     *
      * Adds a transparent background to the filter of the given node. This
      * background can be used in IE8 standards mode (native IE8 only) to pass
      * events through the node.
@@ -483,12 +483,12 @@ interface MxUtils {
 
     /**
      * Function: linkAction
-     * 
+     *
      * Adds a hyperlink to the specified parent that invokes action on the
      * specified editor.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - DOM node to contain the new link.
      * text - String that is used as the link label.
      * editor - <mxEditor> that will execute the action.
@@ -499,14 +499,14 @@ interface MxUtils {
 
     /**
      * Function: linkInvoke
-     * 
+     *
      * Adds a hyperlink to the specified parent that invokes the specified
      * function on the editor passing along the specified argument. The
      * function name is the name of a function of the editor instance,
      * not an action name.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - DOM node to contain the new link.
      * text - String that is used as the link label.
      * editor - <mxEditor> instance to execute the function on.
@@ -518,12 +518,12 @@ interface MxUtils {
 
     /**
      * Function: link
-     * 
+     *
      * Adds a hyperlink to the specified parent and invokes the given function
      * when the link is clicked.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - DOM node to contain the new link.
      * text - String that is used as the link label.
      * funct - Function to execute when the link is clicked.
@@ -533,21 +533,21 @@ interface MxUtils {
 
     /**
      * Function: fit
-     * 
+     *
      * Makes sure the given node is inside the visible area of the window. This
-     * is done by setting the left and top in the style. 
+     * is done by setting the left and top in the style.
      */
     fit(node);
 
     /**
      * Function: load
-     * 
+     *
      * Loads the specified URL *synchronously* and returns the <mxXmlRequest>.
      * Throws an exception if the file cannot be loaded. See <mxUtils.get> for
      * an asynchronous implementation.
      *
      * Example:
-     * 
+     *
      * (code)
      * try
      * {
@@ -560,23 +560,23 @@ interface MxUtils {
      *   mxUtils.alert('Cannot load '+filename+': '+ex);
      * }
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * url - URL to get the data from.
      */
     load(url);
 
     /**
      * Function: get
-     * 
+     *
      * Loads the specified URL *asynchronously* and invokes the given functions
      * depending on the request status. Returns the <mxXmlRequest> in use. Both
      * functions take the <mxXmlRequest> as the only parameter. See
      * <mxUtils.load> for a synchronous implementation.
      *
      * Example:
-     * 
+     *
      * (code)
      * mxUtils.get(url, function(req)
      * {
@@ -584,10 +584,10 @@ interface MxUtils {
      *    // Process XML DOM...
      * });
      * (end)
-     * 
+     *
      * So for example, to load a diagram into an existing graph model, the
      * following code is used.
-     * 
+     *
      * (code)
      * mxUtils.get(url, function(req)
      * {
@@ -596,9 +596,9 @@ interface MxUtils {
      *   dec.decode(node, graph.getModel());
      * });
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * url - URL to get the data from.
      * onload - Optional function to execute for a successful response.
      * onerror - Optional function to execute on error.
@@ -607,7 +607,7 @@ interface MxUtils {
 
     /**
      * Function: post
-     * 
+     *
      * Posts the specified params to the given URL *asynchronously* and invokes
      * the given functions depending on the request status. Returns the
      * <mxXmlRequest> in use. Both functions take the <mxXmlRequest> as the
@@ -615,7 +615,7 @@ interface MxUtils {
      * values.
      *
      * Example:
-     * 
+     *
      * (code)
      * mxUtils.post(url, 'key=value', function(req)
      * {
@@ -623,9 +623,9 @@ interface MxUtils {
      *  // Process req.getDocumentElement() using DOM API if OK...
      * });
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * url - URL to get the data from.
      * params - Parameters for the post request.
      * onload - Optional function to execute for a successful response.
@@ -635,14 +635,14 @@ interface MxUtils {
 
     /**
      * Function: submit
-     * 
+     *
      * Submits the given parameters to the specified URL using
      * <mxXmlRequest.simulate> and returns the <mxXmlRequest>.
      * Make sure to use encodeURIComponent for the parameter
      * values.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * url - URL to get the data from.
      * params - Parameters for the form.
      * doc - Document to create the form in.
@@ -652,13 +652,13 @@ interface MxUtils {
 
     /**
      * Function: loadInto
-     * 
+     *
      * Loads the specified URL *asynchronously* into the specified document,
      * invoking onload after the document has been loaded. This implementation
      * does not use <mxXmlRequest>, but the document.load method.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * url - URL to get the data from.
      * doc - The document to load the URL into.
      * onload - Function to execute when the URL has been loaded.
@@ -667,12 +667,12 @@ interface MxUtils {
 
     /**
      * Function: getValue
-     * 
+     *
      * Returns the value for the given key in the given associative array or
      * the given default value if the value is null.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * array - Associative array that contains the value for the key.
      * key - Key whose value should be returned.
      * defaultValue - Value to be returned if the value for the given
@@ -682,13 +682,13 @@ interface MxUtils {
 
     /**
      * Function: getNumber
-     * 
+     *
      * Returns the numeric value for the given key in the given associative
      * array or the given default value (or 0) if the value is null. The value
      * is converted to a numeric value using the Number function.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * array - Associative array that contains the value for the key.
      * key - Key whose value should be returned.
      * defaultValue - Value to be returned if the value for the given
@@ -698,13 +698,13 @@ interface MxUtils {
 
     /**
      * Function: getColor
-     * 
+     *
      * Returns the color value for the given key in the given associative
      * array or the given default value if the value is null. If the value
      * is <mxConstants.NONE> then null is returned.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * array - Associative array that contains the value for the key.
      * key - Key whose value should be returned.
      * defaultValue - Value to be returned if the value for the given
@@ -714,13 +714,13 @@ interface MxUtils {
 
     /**
      * Function: clone
-     * 
+     *
      * Recursively clones the specified object ignoring all fieldnames in the
      * given array of transient fields. <mxObjectIdentity.FIELD_NAME> is always
      * ignored by this function.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * obj - Object to be cloned.
      * transients - Optional array of strings representing the fieldname to be
      * ignored.
@@ -733,11 +733,11 @@ interface MxUtils {
 
     /**
      * Function: equalPoints
-     * 
+     *
      * Compares all mxPoints in the given lists.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * a - Array of <mxPoints> to be compared.
      * b - Array of <mxPoints> to be compared.
      */
@@ -745,12 +745,12 @@ interface MxUtils {
 
     /**
      * Function: equalEntries
-     * 
+     *
      * Returns true if all entries of the given objects are equal. Values with
      * with Number.NaN are equal to Number.NaN and unequal to any other value.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * a - <mxRectangle> to be compared.
      * b - <mxRectangle> to be compared.
      */
@@ -770,18 +770,18 @@ interface MxUtils {
      * Note that this does not call the constructor of the superclass at this
      * point, the superclass constructor should be called explicitely in the
      * subclass constructor. Below is an example.
-     * 
+     *
      * (code)
      * MyGraph = function(container, model, renderHint, stylesheet)
      * {
      *   mxGraph.call(this, container, model, renderHint, stylesheet);
      * }
-     * 
+     *
      * mxUtils.extend(MyGraph, mxGraph);
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * ctor - Constructor of the subclass.
      * superCtor - Constructor of the superclass.
      */
@@ -789,36 +789,36 @@ interface MxUtils {
 
     /**
      * Function: toString
-     * 
+     *
      * Returns a textual representation of the specified object.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * obj - Object to return the string representation for.
      */
     toString(obj);
 
     /**
      * Function: toRadians
-     * 
+     *
      * Converts the given degree to radians.
      */
     toRadians(deg);
 
     /**
      * Function: arcToCurves
-     * 
+     *
      * Converts the given arc to a series of curves.
      */
     arcToCurves(x0, y0, r1, r2, angle, largeArcFlag, sweepFlag, x, y);
 
     /**
      * Function: getBoundingBox
-     * 
+     *
      * Returns the bounding box for the rotated rectangle.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * rect - <mxRectangle> to be rotated.
      * angle - Number that represents the angle (in degrees).
      * cx - Optional <mxPoint> that represents the rotation center. If no
@@ -828,7 +828,7 @@ interface MxUtils {
 
     /**
      * Function: getRotatedPoint
-     * 
+     *
      * Rotates the given point by the given cos and sin.
      */
     getRotatedPoint(pt, cos, sin, c);
@@ -838,9 +838,9 @@ interface MxUtils {
      * @param dict the style map to determine the port constraints for
      * @param defaultValue Default value to return if the key is undefined.
      * @return the mask of port constraint directions
-     * 
+     *
      * Parameters:
-     * 
+     *
      * terminal - <mxCelState> that represents the terminal.
      * edge - <mxCellState> that represents the edge.
      * source - Boolean that specifies if the terminal is the source terminal.
@@ -850,7 +850,7 @@ interface MxUtils {
 
     /**
      * Function: reversePortConstraints
-     * 
+     *
      * Reverse the port constraint bitmask. For example, north | east
      * becomes south | west
      */
@@ -858,7 +858,7 @@ interface MxUtils {
 
     /**
      * Function: findNearestSegment
-     * 
+     *
      * Finds the index of the nearest segment on the given cell state for
      * the specified coordinate pair.
      */
@@ -866,11 +866,11 @@ interface MxUtils {
 
     /**
      * Function: rectangleIntersectsSegment
-     * 
+     *
      * Returns true if the given rectangle intersects the given segment.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * bounds - <mxRectangle> that represents the rectangle.
      * p1 - <mxPoint> that represents the first point of the segment.
      * p2 - <mxPoint> that represents the second point of the segment.
@@ -879,11 +879,11 @@ interface MxUtils {
 
     /**
      * Function: contains
-     * 
+     *
      * Returns true if the specified point (x, y) is contained in the given rectangle.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * bounds - <mxRectangle> that represents the area.
      * x - X-coordinate of the point.
      * y - Y-coordinate of the point.
@@ -892,11 +892,11 @@ interface MxUtils {
 
     /**
      * Function: intersects
-     * 
+     *
      * Returns true if the two rectangles intersect.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * a - <mxRectangle> to be checked for intersection.
      * b - <mxRectangle> to be checked for intersection.
      */
@@ -904,11 +904,11 @@ interface MxUtils {
 
     /**
      * Function: intersects
-     * 
+     *
      * Returns true if the two rectangles intersect.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * a - <mxRectangle> to be checked for intersection.
      * b - <mxRectangle> to be checked for intersection.
      */
@@ -916,13 +916,13 @@ interface MxUtils {
 
     /**
      * Function: getOffset
-     * 
+     *
      * Returns the offset for the specified container as an <mxPoint>. The
      * offset is the distance from the top left corner of the container to the
      * top left corner of the document.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * container - DOM node to return the offset for.
      * scollOffset - Optional boolean to add the scroll offset of the document.
      * Default is false.
@@ -931,7 +931,7 @@ interface MxUtils {
 
     /**
      * Function: getDocumentScrollOrigin
-     * 
+     *
      * Returns the scroll origin of the given document or the current document
      * if no document is given.
      */
@@ -939,24 +939,24 @@ interface MxUtils {
 
     /**
      * Function: getScrollOrigin
-     * 
+     *
      * Returns the top, left corner of the viewrect as an <mxPoint>.
      */
     getScrollOrigin(node);
 
     /**
      * Function: convertPoint
-     * 
+     *
      * Converts the specified point (x, y) using the offset of the specified
      * container and returns a new <mxPoint> with the result.
-     * 
+     *
      * (code)
      * var pt = mxUtils.convertPoint(graph.container,
      *   mxEvent.getClientX(evt), mxEvent.getClientY(evt));
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * container - DOM node to use for the offset.
      * x - X-coordinate of the point to be converted.
      * y - Y-coordinate of the point to be converted.
@@ -965,11 +965,11 @@ interface MxUtils {
 
     /**
      * Function: ltrim
-     * 
+     *
      * Strips all whitespaces from the beginning of the string.
      * Without the second parameter, Javascript function will trim these
      * characters:
-     * 
+     *
      * - " " (ASCII 32 (0x20)), an ordinary space
      * - "\t" (ASCII 9 (0x09)), a tab
      * - "\n" (ASCII 10 (0x0A)), a new line (line feed)
@@ -981,11 +981,11 @@ interface MxUtils {
 
     /**
      * Function: rtrim
-     * 
+     *
      * Strips all whitespaces from the end of the string.
      * Without the second parameter, Javascript function will trim these
      * characters:
-     * 
+     *
      * - " " (ASCII 32 (0x20)), an ordinary space
      * - "\t" (ASCII 9 (0x09)), a tab
      * - "\n" (ASCII 10 (0x0A)), a new line (line feed)
@@ -997,11 +997,11 @@ interface MxUtils {
 
     /**
      * Function: trim
-     * 
+     *
      * Strips all whitespaces from both end of the string.
      * Without the second parameter, Javascript function will trim these
      * characters:
-     * 
+     *
      * - " " (ASCII 32 (0x20)), an ordinary space
      * - "\t" (ASCII 9 (0x09)), a tab
      * - "\n" (ASCII 10 (0x0A)), a new line (line feed)
@@ -1013,19 +1013,19 @@ interface MxUtils {
 
     /**
      * Function: isNumeric
-     * 
+     *
      * Returns true if the specified value is numeric, that is, if it is not
      * null, not an empty string, not a HEX number and isNaN returns false.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * n - String representing the possibly numeric value.
      */
     isNumeric(n);
 
     /**
      * Function: mod
-     * 
+     *
      * Returns the remainder of division of n by m. You should use this instead
      * of the built-in operation as the built-in operation does not properly
      * handle negative numbers.
@@ -1034,11 +1034,11 @@ interface MxUtils {
 
     /**
      * Function: intersection
-     * 
+     *
      * Returns the intersection of two lines as an <mxPoint>.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * x0 - X-coordinate of the first line's startpoint.
      * y0 - X-coordinate of the first line's startpoint.
      * x1 - X-coordinate of the first line's endpoint.
@@ -1052,11 +1052,11 @@ interface MxUtils {
 
     /**
      * Function: ptSeqDistSq
-     * 
+     *
      * Returns the square distance between a segment and a point.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * x1 - X-coordinate of the startpoint of the segment.
      * y1 - Y-coordinate of the startpoint of the segment.
      * x2 - X-coordinate of the endpoint of the segment.
@@ -1068,12 +1068,12 @@ interface MxUtils {
 
     /**
      * Function: relativeCcw
-     * 
+     *
      * Returns 1 if the given point on the right side of the segment, 0 if its
      * on the segment, and -1 if the point is on the left side of the segment.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * x1 - X-coordinate of the startpoint of the segment.
      * y1 - Y-coordinate of the startpoint of the segment.
      * x2 - X-coordinate of the endpoint of the segment.
@@ -1085,7 +1085,7 @@ interface MxUtils {
 
     /**
      * Function: animateChanges
-     * 
+     *
      * See <mxEffects.animateChanges>. This is for backwards compatibility and
      * will be removed later.
      */
@@ -1093,7 +1093,7 @@ interface MxUtils {
 
     /**
      * Function: cascadeOpacity
-     * 
+     *
      * See <mxEffects.cascadeOpacity>. This is for backwards compatibility and
      * will be removed later.
      */
@@ -1101,7 +1101,7 @@ interface MxUtils {
 
     /**
      * Function: fadeOut
-     * 
+     *
      * See <mxEffects.fadeOut>. This is for backwards compatibility and
      * will be removed later.
      */
@@ -1109,11 +1109,11 @@ interface MxUtils {
 
     /**
      * Function: setOpacity
-     * 
+     *
      * Sets the opacity of the specified DOM node to the given value in %.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * node - DOM node to set the opacity for.
      * value - Opacity in %. Possible values are between 0 and 100.
      */
@@ -1121,19 +1121,19 @@ interface MxUtils {
 
     /**
      * Function: createImage
-     * 
+     *
      * Creates and returns an image (IMG node) or VML image (v:image) in IE6 in
      * quirks mode.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * src - URL that points to the image to be displayed.
      */
     createImage(src);
 
     /**
      * Function: sortCells
-     * 
+     *
      * Sorts the given cells according to the order in the cell hierarchy.
      * Ascending is optional and defaults to true.
      */
@@ -1141,31 +1141,31 @@ interface MxUtils {
 
     /**
      * Function: getStylename
-     * 
+     *
      * Returns the stylename in a style of the form [(stylename|key=value);] or
      * an empty string if the given style does not contain a stylename.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * style - String of the form [(stylename|key=value);].
      */
     getStylename(style);
 
     /**
      * Function: getStylenames
-     * 
+     *
      * Returns the stylenames in a style of the form [(stylename|key=value);]
      * or an empty array if the given style does not contain any stylenames.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * style - String of the form [(stylename|key=value);].
      */
     getStylenames(style);
 
     /**
      * Function: indexOfStylename
-     * 
+     *
      * Returns the index of the given stylename in the given style. This
      * returns -1 if the given stylename does not occur (as a stylename) in the
      * given style, otherwise it returns the index of the first character.
@@ -1174,7 +1174,7 @@ interface MxUtils {
 
     /**
      * Function: addStylename
-     * 
+     *
      * Adds the specified stylename to the given style if it does not already
      * contain the stylename.
      */
@@ -1182,7 +1182,7 @@ interface MxUtils {
 
     /**
      * Function: removeStylename
-     * 
+     *
      * Removes all occurrences of the specified stylename in the given style
      * and returns the updated style. Trailing semicolons are not preserved.
      */
@@ -1190,7 +1190,7 @@ interface MxUtils {
 
     /**
      * Function: removeAllStylenames
-     * 
+     *
      * Removes all stylenames from the given style and returns the updated
      * style.
      */
@@ -1198,12 +1198,12 @@ interface MxUtils {
 
     /**
      * Function: setCellStyles
-     * 
+     *
      * Assigns the value for the given key in the styles of the given cells, or
      * removes the key from the styles if the value is null.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * model - <mxGraphModel> to execute the transaction in.
      * cells - Array of <mxCells> to be updated.
      * key - Key of the style to be changed.
@@ -1213,13 +1213,13 @@ interface MxUtils {
 
     /**
      * Function: setStyle
-     * 
+     *
      * Adds or removes the given key, value pair to the style and returns the
      * new style. If value is null or zero length then the key is removed from
      * the style. This is for cell styles, not for CSS styles.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * style - String of the form [(stylename|key=value);].
      * key - Key of the style to be changed.
      * value - New value for the given key.
@@ -1228,12 +1228,12 @@ interface MxUtils {
 
     /**
      * Function: setCellStyleFlags
-     * 
+     *
      * Sets or toggles the flag bit for the given key in the cell's styles.
      * If value is null then the flag is toggled.
-     * 
+     *
      * Example:
-     * 
+     *
      * (code)
      * var cells = graph.getSelectionCells();
      * mxUtils.setCellStyleFlags(graph.model,
@@ -1241,11 +1241,11 @@ interface MxUtils {
      * 			mxConstants.STYLE_FONTSTYLE,
      * 			mxConstants.FONT_BOLD);
      * (end)
-     * 
+     *
      * Toggles the bold font style.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * model - <mxGraphModel> that contains the cells.
      * cells - Array of <mxCells> to change the style for.
      * key - Key of the style to be changed.
@@ -1256,12 +1256,12 @@ interface MxUtils {
 
     /**
      * Function: setStyleFlag
-     * 
+     *
      * Sets or removes the given key from the specified style and returns the
      * new style. If value is null then the flag is toggled.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * style - String of the form [(stylename|key=value);].
      * key - Key of the style to be changed.
      * flag - Integer for the bit to be changed.
@@ -1271,7 +1271,7 @@ interface MxUtils {
 
     /**
      * Function: getAlignmentAsPoint
-     * 
+     *
      * Returns an <mxPoint> that represents the horizontal and vertical alignment
      * for numeric computations. X is -0.5 for center, -1 for right and 0 for
      * left alignment. Y is -0.5 for middle, -1 for bottom and 0 for top
@@ -1281,21 +1281,21 @@ interface MxUtils {
 
     /**
      * Function: getSizeForString
-     * 
+     *
      * Returns an <mxRectangle> with the size (width and height in pixels) of
      * the given string. The string may contain HTML markup. Newlines should be
      * converted to <br> before calling this method. The caller is responsible
      * for sanitizing the HTML markup.
-     * 
+     *
      * Example:
-     * 
+     *
      * (code)
      * var label = graph.getLabel(cell).replace(/\n/g, "<br>");
      * var size = graph.getSizeForString(label);
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * text - String whose size should be returned.
      * fontSize - Integer that specifies the font size in pixels. Default is
      * <mxConstants.DEFAULT_FONTSIZE>.
@@ -1312,14 +1312,14 @@ interface MxUtils {
 
     /**
      * Function: getScaleForPageCount
-     * 
+     *
      * Returns the scale to be used for printing the graph with the given
      * bounds across the specifies number of pages with the given format. The
      * scale is always computed such that it given the given amount or fewer
      * pages in the print output. See <mxPrintPreview> for an example.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * pageCount - Specifies the number of pages in the print output.
      * graph - <mxGraph> that should be printed.
      * pageFormat - Optional <mxRectangle> that specifies the page format.
@@ -1330,16 +1330,16 @@ interface MxUtils {
 
     /**
      * Function: show
-     * 
+     *
      * Copies the styles and the markup from the graph's container into the
      * given document and removes all cursor styles. The document is returned.
-     * 
+     *
      * This function should be called from within the document with the graph.
      * If you experience problems with missing stylesheets in IE then try adding
      * the domain to the trusted sites.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * graph - <mxGraph> to be copied.
      * doc - Document where the new graph is created.
      * x0 - X-coordinate of the graph view origin. Default is 0.
@@ -1351,26 +1351,26 @@ interface MxUtils {
 
     /**
      * Function: printScreen
-     * 
+     *
      * Prints the specified graph using a new window and the built-in print
      * dialog.
-     * 
+     *
      * This function should be called from within the document with the graph.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * graph - <mxGraph> to be printed.
      */
     printScreen(graph);
 
     /**
      * Function: popup
-     * 
+     *
      * Shows the specified text content in a new <mxWindow> or a new browser
      * window if isInternalWindow is false.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * content - String that specifies the text to be displayed.
      * isInternalWindow - Optional boolean indicating if an mxWindow should be
      * used instead of a new browser window. Default is false.
@@ -1379,25 +1379,25 @@ interface MxUtils {
 
     /**
      * Function: alert
-     * 
+     *
      * Displayss the given alert in a new dialog. This implementation uses the
      * built-in alert function. This is used to display validation errors when
      * connections cannot be changed or created.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * message - String specifying the message to be displayed.
      */
     alert(message);
 
     /**
      * Function: prompt
-     * 
+     *
      * Displays the given message in a prompt dialog. This implementation uses
      * the built-in prompt function.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * message - String specifying the message to be displayed.
      * defaultValue - Optional string specifying the default value.
      */
@@ -1405,10 +1405,10 @@ interface MxUtils {
 
     /**
      * Function: confirm
-     * 
+     *
      * Displays the given message in a confirm dialog. This implementation uses
      * the built-in confirm function.
-     * 
+     *
      * Parameters:
      *
      * message - String specifying the message to be displayed.
@@ -1417,12 +1417,12 @@ interface MxUtils {
 
     /**
      * Function: error
-     * 
+     *
      * Displays the given error message in a new <mxWindow> of the given width.
      * If close is true then an additional close button is added to the window.
      * The optional icon specifies the icon to be used for the window. Default
      * is <mxUtils.errorImage>.
-     * 
+     *
      * Parameters:
      *
      * message - String specifying the message to be displayed.
@@ -1434,14 +1434,14 @@ interface MxUtils {
 
     /**
      * Function: makeDraggable
-     * 
+     *
      * Configures the given DOM element to act as a drag source for the
      * specified graph. Returns a a new <mxDragSource>. If
      * <mxDragSource.guideEnabled> is enabled then the x and y arguments must
      * be used in funct to match the preview location.
-     * 
+     *
      * Example:
-     * 
+     *
      * (code)
      * var funct = function(graph, evt, cell, x, y)
      * {
@@ -1449,7 +1449,7 @@ interface MxUtils {
      *   {
      *     var parent = graph.getDefaultParent();
      *     var vertex = null;
-     *     
+     *
      *     graph.getModel().beginUpdate();
      *     try
      *     {
@@ -1463,7 +1463,7 @@ interface MxUtils {
      *     graph.setSelectionCell(vertex);
      *   }
      * }
-     * 
+     *
      * var img = document.createElement('img');
      * img.setAttribute('src', 'editors/images/rectangle.gif');
      * img.style.position = 'absolute';
@@ -1471,16 +1471,16 @@ interface MxUtils {
      * img.style.top = '0px';
      * img.style.width = '16px';
      * img.style.height = '16px';
-     * 
+     *
      * var dragImage = img.cloneNode(true);
      * dragImage.style.width = '32px';
      * dragImage.style.height = '32px';
      * mxUtils.makeDraggable(img, graph, funct, dragImage);
      * document.body.appendChild(img);
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * element - DOM element to make draggable.
      * graphF - <mxGraph> that acts as the drop target or a function that takes a
      * mouse event and returns the current <mxGraph>.
@@ -1511,348 +1511,348 @@ declare var mxUtils: MxUtils;
  *
  * Base class for all canvases. A description of the public API is available in <mxXmlCanvas2D>.
  * All color values of <mxConstants.NONE> will be converted to null in the state.
- * 
+ *
  */
 interface MxAbstractCanvas2D {
     /**
      * Variable: state
-     * 
+     *
      * Holds the current state.
      */
     state: MxAbstractCanvas2DState;
 
     /**
      * Variable: states
-     * 
+     *
      * Stack of states.
      */
     states;
 
     /**
      * Variable: path
-     * 
+     *
      * Holds the current path as an array.
      */
     path;
 
     /**
      * Variable: rotateHtml
-     * 
+     *
      * Switch for rotation of HTML. Default is false.
      */
     rotateHtml;
 
     /**
      * Variable: lastX
-     * 
+     *
      * Holds the last x coordinate.
      */
     lastX;
 
     /**
      * Variable: lastY
-     * 
+     *
      * Holds the last y coordinate.
      */
     lastY;
 
     /**
      * Variable: moveOp
-     * 
+     *
      * Contains the string used for moving in paths. Default is 'M'.
      */
     moveOp;
 
     /**
      * Variable: lineOp
-     * 
+     *
      * Contains the string used for moving in paths. Default is 'L'.
      */
     lineOp;
 
     /**
      * Variable: quadOp
-     * 
+     *
      * Contains the string used for quadratic paths. Default is 'Q'.
      */
     quadOp;
 
     /**
      * Variable: curveOp
-     * 
+     *
      * Contains the string used for bezier curves. Default is 'C'.
      */
     curveOp;
 
     /**
      * Variable: closeOp
-     * 
+     *
      * Holds the operator for closing curves. Default is 'Z'.
      */
     closeOp;
 
     /**
      * Variable: pointerEvents
-     * 
+     *
      * Boolean value that specifies if events should be handled. Default is false.
      */
     pointerEvents;
 
     /**
      * Function: createUrlConverter
-     * 
+     *
      * Create a new <mxUrlConverter> and returns it.
      */
     createUrlConverter();
 
     /**
      * Function: reset
-     * 
+     *
      * Resets the state of this canvas.
      */
     reset();
 
     /**
      * Function: createState
-     * 
+     *
      * Creates the state of the this canvas.
      */
     createState();
 
     /**
      * Function: format
-     * 
+     *
      * Rounds all numbers to integers.
      */
     format(value);
 
     /**
      * Function: addOp
-     * 
+     *
      * Adds the given operation to the path.
      */
     addOp();
 
     /**
      * Function: rotatePoint
-     * 
+     *
      * Rotates the given point and returns the result as an <mxPoint>.
      */
     rotatePoint(x, y, theta, cx, cy);
 
     /**
      * Function: save
-     * 
+     *
      * Saves the current state.
      */
     save();
 
     /**
      * Function: restore
-     * 
+     *
      * Restores the current state.
      */
     restore();
 
     /**
      * Function: setLink
-     * 
+     *
      * Sets the current link. Hook for subclassers.
      */
     setLink(link);
 
     /**
      * Function: scale
-     * 
+     *
      * Scales the current state.
      */
     scale(value: number);
 
     /**
      * Function: translate
-     * 
+     *
      * Translates the current state.
      */
     translate(dx, dy);
 
     /**
      * Function: setAlpha
-     * 
+     *
      * Sets the current alpha.
      */
     setAlpha(value);
 
     /**
      * Function: setFillColor
-     * 
+     *
      * Sets the current fill color.
      */
     setFillColor(value);
 
     /**
      * Function: setGradient
-     * 
+     *
      * Sets the current gradient.
      */
     setGradient(color1, color2, x, y, w, h, direction, alpha1, alpha2);
 
     /**
      * Function: setStrokeColor
-     * 
+     *
      * Sets the current stroke color.
      */
     setStrokeColor(value);
 
     /**
      * Function: setStrokeWidth
-     * 
+     *
      * Sets the current stroke width.
      */
     setStrokeWidth(value);
 
     /**
      * Function: setDashed
-     * 
+     *
      * Enables or disables dashed lines.
      */
     setDashed(value);
 
     /**
      * Function: setDashPattern
-     * 
+     *
      * Sets the current dash pattern.
      */
     setDashPattern(value);
 
     /**
      * Function: setLineCap
-     * 
+     *
      * Sets the current line cap.
      */
     setLineCap(value);
 
     /**
      * Function: setLineJoin
-     * 
+     *
      * Sets the current line join.
      */
     setLineJoin(value);
 
     /**
      * Function: setMiterLimit
-     * 
+     *
      * Sets the current miter limit.
      */
     setMiterLimit(value);
 
     /**
      * Function: setFontColor
-     * 
+     *
      * Sets the current font color.
      */
     setFontColor(value);
 
     /**
      * Function: setFontColor
-     * 
+     *
      * Sets the current font color.
      */
     setFontBackgroundColor(value);
 
     /**
      * Function: setFontColor
-     * 
+     *
      * Sets the current font color.
      */
     setFontBorderColor(value);
 
     /**
      * Function: setFontSize
-     * 
+     *
      * Sets the current font size.
      */
     setFontSize(value);
 
     /**
      * Function: setFontFamily
-     * 
+     *
      * Sets the current font family.
      */
     setFontFamily(value);
 
     /**
      * Function: setFontStyle
-     * 
+     *
      * Sets the current font style.
      */
     setFontStyle(value);
 
     /**
      * Function: setShadow
-     * 
+     *
      * Enables or disables and configures the current shadow.
      */
     setShadow(enabled);
 
     /**
      * Function: setShadowColor
-     * 
+     *
      * Enables or disables and configures the current shadow.
      */
     setShadowColor(value);
 
     /**
      * Function: setShadowAlpha
-     * 
+     *
      * Enables or disables and configures the current shadow.
      */
     setShadowAlpha(value);
 
     /**
      * Function: setShadowOffset
-     * 
+     *
      * Enables or disables and configures the current shadow.
      */
     setShadowOffset(dx, dy);
 
     /**
      * Function: begin
-     * 
+     *
      * Starts a new path.
      */
     begin();
 
     /**
      * Function: moveTo
-     * 
+     *
      *  Moves the current path the given coordinates.
      */
     moveTo(x, y);
 
     /**
      * Function: lineTo
-     * 
+     *
      * Draws a line to the given coordinates. Uses moveTo with the op argument.
      */
     lineTo(x, y);
 
     /**
      * Function: quadTo
-     * 
+     *
      * Adds a quadratic curve to the current path.
      */
     quadTo(x1, y1, x2, y2);
 
     /**
      * Function: curveTo
-     * 
+     *
      * Adds a bezier curve to the current path.
      */
     curveTo(x1, y1, x2, y2, x3, y3);
 
     /**
      * Function: arcTo
-     * 
+     *
      * Adds the given arc to the current path. This is a synthetic operation that
      * is broken down into curves.
      */
@@ -1860,14 +1860,14 @@ interface MxAbstractCanvas2D {
 
     /**
      * Function: close
-     * 
+     *
      * Closes the current path.
      */
     close(x1, y1, x2, y2, x3, y3);
 
     /**
      * Function: end
-     * 
+     *
      * Empty implementation for backwards compatibility. This will be removed.
      */
     end();
@@ -1920,14 +1920,14 @@ interface MxPopupMenu {
     setEnabled(enabled: boolean);
     useLeftButtonForPopup: boolean;
     popup(x, y, cell, evt);
-    addItem(title, image, funct, parent, iconCls, enabled, active); 
+    addItem(title, image, funct, parent, iconCls, enabled, active);
 }
 
 interface MxCellEditor {
     /**
     * in-place editor for the specified graph.
     */
-    mxCellEditor(graph: MxGraph); 
+    mxCellEditor(graph: MxGraph);
     graph: MxGraph;
     textarea: any;
     editingCell: MxCell;
@@ -1961,7 +1961,7 @@ interface MxGraph {
 
     cellEditor: MxCellEditor;
 
-    popupMenuHandler: MxPopupMenuHandler; 
+    popupMenuHandler: MxPopupMenuHandler;
 
     graphHandler: MxGraphHandler;
 
@@ -1969,7 +1969,7 @@ interface MxGraph {
     * Specifies the return value for edges in <isLabelMovable>. Default is true.
     */
     edgeLabelsMovable;
-	
+
     /**
      * Specifies the return value for vertices in <isLabelMovable>. Default is false.
      */
@@ -2025,25 +2025,25 @@ interface MxGraph {
     isCellDeletable(cell: MxCell);
     /**
      * Function: isCellLocked
-     * 
+     *
      * Returns true if the given cell may not be moved, sized, bended,
      * disconnected, edited or selected. This implementation returns true for
      * all vertices with a relative geometry if <locked> is false.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose locked state should be returned.
      */
     isCellLocked(cell: MxCell);
     /**
      * Function: isCellsLocked
-     * 
+     *
      * Returns true if the given cell may not be moved, sized, bended,
      * disconnected, edited or selected. This implementation returns true for
      * all vertices with a relative geometry if <locked> is false.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose locked state should be returned.
      */
     isCellsLocked();
@@ -2168,20 +2168,20 @@ interface MxGraph {
 
     /**
      * Function: selectCellForEvent
-     * 
+     *
      * Selects the given cell by either adding it to the selection or
      * replacing the selection depending on whether the given mouse event is a
      * toggle event.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> to be selected.
      * evt - Optional mouseevent that triggered the selection.
      */
     selectCellForEvent(cell: MxCell, evt: any);
 
     /**
-     * Scales the graph such that the complete diagram fits into <container> and returns the current scale in the view. 
+     * Scales the graph such that the complete diagram fits into <container> and returns the current scale in the view.
      * To fit an initial graph prior to rendering, set mxGraphView.rendering to false prior to changing the model and execute the following after changing the model.
      *
      * @param border Optional number that specifies the border. Default is 0.
@@ -2191,14 +2191,14 @@ interface MxGraph {
 
     /**
      * Function: zoomToRect
-     * 
-     * Zooms the graph to the specified rectangle. 
+     *
+     * Zooms the graph to the specified rectangle.
      */
     zoomToRect(rect);
     zoomToRectAndGetScale(rect): number;
 
     /**
-     * Adds the cells into the given group. The change is carried out using cellsAdded, cellsMoved and cellsResized. 
+     * Adds the cells into the given group. The change is carried out using cellsAdded, cellsMoved and cellsResized.
      * This method fires mxEvent.GROUP_CELLS while the transaction is in progress.
      * Returns the new group. A group is only created if there is at least one entry in the given array of cells.
      *
@@ -2210,12 +2210,12 @@ interface MxGraph {
 
     /**
     * Function: setConnectable
-    * 
+    *
     * Specifies if the graph should allow new connections. This implementation
     * updates <mxConnectionHandler.enabled> in <connectionHandler>.
-    * 
+    *
     * Parameters:
-    * 
+    *
     * connectable - Boolean indicating if new connections should be allowed.
     */
     setConnectable(connectable: boolean);
@@ -2266,13 +2266,13 @@ interface MxGraph {
 
     /**
      * Function: addCell
-     * 
+     *
      * Adds the cell to the parent and connects it to the given source and
      * target terminals. This is a shortcut method. Returns the cell that was
      * added.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> to be inserted into the given parent.
      * parent - <mxCell> that represents the new parent. If no parent is given then the default parent is used.
      * index - Optional index to insert the cells at. Default is to append.
@@ -2283,14 +2283,14 @@ interface MxGraph {
 
     /**
      * Function: addCells
-     * 
+     *
      * Adds the cells to the parent at the given index, connecting each cell to
      * the optional source and target terminal. The change is carried out using
      * <cellsAdded>. This method fires <mxEvent.ADD_CELLS> while the
      * transaction is in progress. Returns the cells that were added.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cells - Array of <mxCells> to be inserted.
      * parent - <mxCell> that represents the new parent. If no parent is
      * given then the default parent is used.
@@ -2305,27 +2305,27 @@ interface MxGraph {
      *
      * Returns true if the given cell is selectable. This implementation
      * returns <cellsSelectable>.
-     * 
+     *
      * To add a new style for making cells (un)selectable, use the following code.
-     * 
+     *
      * (code)
      * mxGraph.prototype.isCellSelectable = function(cell)
      * {
      *   var state = this.view.getState(cell);
      *   var style = (state != null) ? state.style : this.getCellStyle(cell);
-     *   
+     *
      *   return this.isCellsSelectable() && !this.isCellLocked(cell) && style['selectable'] != 0;
      * };
      * (end)
-     * 
+     *
      * You can then use the new style as shown in this example.
-     * 
+     *
      * (code)
      * graph.insertVertex(parent, null, 'Hello,', 20, 20, 80, 30, 'selectable=0');
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose selectable state should be returned.
      */
     isCellSelectable(cell: MxCell): boolean;
@@ -2335,9 +2335,9 @@ interface MxGraph {
      * returns true then vertex labels will be clipped to the size of the vertices.
      * This implementation returns true if <mxConstants.STYLE_OVERFLOW> in the
      * style of the given cell is 'hidden'.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * state - <mxCell> whose label should be clipped.
      */
     isLabelClipped(cell: MxCell): boolean;
@@ -2347,51 +2347,51 @@ interface MxGraph {
      * change. This implementation sets <autoSizeCells> to the given parameter.
      * To update the size of cells when the cells are added, set
      * <autoSizeCellsOnAdd> to true.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * value - Boolean indicating if cells should be resized automatically.
      */
     setAutoSizeCells(value: boolean);
 
     /**
      * Function: getPreferredSizeForCell
-     * 
+     *
      * Returns the preferred width and height of the given <mxCell> as an
      * <mxRectangle>. To implement a minimum width, add a new style eg.
      * minWidth in the vertex and override this method as follows.
-     * 
+     *
      * (code)
      * var graphGetPreferredSizeForCell = graph.getPreferredSizeForCell;
      * graph.getPreferredSizeForCell = function(cell)
      * {
      *   var result = graphGetPreferredSizeForCell.apply(this, arguments);
      *   var style = this.getCellStyle(cell);
-     *   
+     *
      *   if (style['minWidth'] > 0)
      *   {
      *     result.width = Math.max(style['minWidth'], result.width);
      *   }
-     * 
+     *
      *   return result;
      * };
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> for which the preferred size should be returned.
      */
     getPreferredSizeForCell(cell: MxCell): MxRectangle;
 
     /**
      * Function: getAllConnectionConstraints
-     * 
+     *
      * Returns an array of all <mxConnectionConstraints> for the given terminal. If
      * the shape of the given terminal is a <mxStencilShape> then the constraints
      * of the corresponding <mxStencil> are returned.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * terminal - <mxCellState> that represents the terminal.
      * source - Boolean that specifies if the terminal is the source or target.
      */
@@ -2399,51 +2399,51 @@ interface MxGraph {
 
     /**
      * Function: getTooltipForCell
-     * 
+     *
      * Returns the string or DOM node to be used as the tooltip for the given
      * cell. This implementation uses the cells getTooltip function if it
      * exists, or else it returns <convertValueToString> for the cell.
      *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose tooltip should be returned.
      */
     getTooltipForCell(cell: MxCell)
 
     /**
      * Function: setTooltips
-     * 
+     *
      * Specifies if tooltips should be enabled. This implementation updates
      * <mxTooltipHandler.enabled> in <tooltipHandler>.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * enabled - Boolean indicating if tooltips should be enabled.
      */
     setTooltips(enabled: boolean);
 
     /**
      * Function: setEnabled
-     * 
+     *
      * Specifies if the graph should allow any interactions. This
      * implementation updates <enabled>.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * value - Boolean indicating if the graph should be enabled.
      */
     setEnabled(value: boolean);
 
     /**
      * Function: isEventIgnored
-     * 
+     *
      * Returns true if the event should be ignored in <fireMouseEvent>.
      */
     isEventIgnored(evtName, me, sender);
 
     /**
      * Function: createCellRenderer
-     * 
+     *
      * Creates a new <mxCellRenderer> to be used in this graph.
      */
     createCellRenderer(): MxCellRender;
@@ -2457,12 +2457,12 @@ interface MxGraph {
 
     /**
      * Function: setCellsMovable
-     * 
+     *
      * Specifies if the graph should allow moving of cells. This implementation
      * updates <cellsMsovable>.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * value - Boolean indicating if the graph should allow moving of cells.
      */
     setCellsMovable(value: boolean)
@@ -2471,42 +2471,42 @@ interface MxGraph {
 
     /**
      * Function: getCellOverlays
-     * 
+     *
      * Returns the array of <mxCellOverlays> for the given cell or null, if
      * no overlays are defined.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose overlays should be returned.
      */
     getCellOverlays(cell: MxCell);
 
     /**
      * Function: removeCellOverlays
-     * 
+     *
      * Removes all <mxCellOverlays> from the given cell. This method
      * fires a <removeoverlay> event for each <mxCellOverlay> and returns
      * the array of <mxCellOverlays> that was removed from the cell.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose overlays should be removed
      */
     removeCellOverlays(cell: MxCell);
 
-    
+
     /**
     * Function: labelChanged
-    * 
-    * sets the label of the specified cell to the given value 
-    * using cellLabelChanged and fires mxEvent.LABEL_CHANGED while the 
+    *
+    * sets the label of the specified cell to the given value
+    * using cellLabelChanged and fires mxEvent.LABEL_CHANGED while the
     * transaction is in progress.Returns the cell whose label was changed.
     *
     * Parameters
     *
     * cell mxCell whose label should be changed.
     * newValue New label to be assigned.
-    * trigger Optional event that triggered the change. 
+    * trigger Optional event that triggered the change.
     */
 
     labelChanged(cell, newValue, trigger);
@@ -2518,36 +2518,36 @@ interface MxGraph {
 
     /**
      * Function: getChildVertices
-     * 
+     *
      * Returns the visible child vertices of the given parent.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - <mxCell> whose children should be returned.
      */
     getChildVertices(parent);
-	
+
     /**
      * Function: getChildEdges
-     * 
+     *
      * Returns the visible child edges of the given parent.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - <mxCell> whose child vertices should be returned.
      */
     getChildEdges(parent);
 
     /**
      * Function: removeCells
-     * 
+     *
      * Removes the given cells from the graph including all connected edges if
      * includeEdges is true. The change is carried out using <cellsRemoved>.
      * This method fires <mxEvent.REMOVE_CELLS> while the transaction is in
      * progress. The removed cells are returned as an array.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cells - Array of <mxCells> to remove. If null is specified then the
      * selection cells which are deletable are used.
      * includeEdges - Optional boolean which specifies if all connected edges
@@ -2557,21 +2557,21 @@ interface MxGraph {
 
     /**
      * Function: moveCells
-     * 
+     *
      * Moves or clones the specified cells and moves the cells or clones by the
      * given amount, adding them to the optional target cell. The evt is the
      * mouse event as the mouse was released. The change is carried out using
      * <cellsMoved>. This method fires <mxEvent.MOVE_CELLS> while the
      * transaction is in progress. Returns the cells that were moved.
-     * 
+     *
      * Use the following code to move all cells in the graph.
-     * 
+     *
      * (code)
      * graph.moveCells(graph.getChildCells(null, true, true), 10, 10);
      * (end)
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cells - Array of <mxCells> to be moved, cloned or added to the target.
      * dx - Integer that specifies the x-coordinate of the vector. Default is 0.
      * dy - Integer that specifies the y-coordinate of the vector. Default is 0.
@@ -2583,29 +2583,37 @@ interface MxGraph {
 
     /**
      * Function: cellsMoved
-        * 
+        *
      * Moves the specified cells by the given vector, disconnecting the cells
         * using disconnectGraph is disconnect is true.This method fires
             * <mxEvent.CELLS_MOVED> while the transaction is in progress.
      */
-    cellsMoved(cells, dx, dy, disconnect?, constrain?, extend?) 
+    cellsMoved(cells, dx, dy, disconnect?, constrain?, extend?)
 
     /**
      * Function: refresh
-     * 
+     *
      * Clears all cell states or the states for the hierarchy starting at the
      * given cell and validates the graph. This fires a refresh event as the
      * last step.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - Optional <mxCell> for which the cell states should be cleared.
      */
     refresh(cell);
 
     /**
+     * Variable: foldingEnabled
+     *
+     * Specifies if folding (collapse and expand via an image icon in the graph
+     * should be enabled). Default is true.
+     */
+    foldingEnabled: boolean;
+
+    /**
      * Variable: minimumGraphSize
-     * 
+     *
      * <mxRectangle> that specifies the minimum size of the graph. This is ignored
      * if the graph container has no scrollbars. Default is null.
      */
@@ -2613,7 +2621,7 @@ interface MxGraph {
 
     /**
      * Function: translateCell
-     * 
+     *
      * Translates the geometry of the given cell and stores the new,
      * translated geometry in the model as an atomic change.
      */
@@ -2621,14 +2629,14 @@ interface MxGraph {
 
     /**
      * Function: getSelectionCell
-     * 
+     *
      * Returns the first cell from the array of selected <mxCells>.
      */
     getSelectionCell();
 
     /**
     * Function: setDropEnabled
-    * 
+    *
     * Specifies if the graph should allow dropping of cells onto or into other
     * cells.
     */
@@ -2637,7 +2645,7 @@ interface MxGraph {
 
     /**
      * Function: setSplitEnabled
-     * 
+     *
      * Specifies if the graph should allow dropping of cells onto or into other
      * cells.
      */
@@ -2655,13 +2663,13 @@ interface MxGraph {
     dblClick(evt: MouseEvent, cell: MxCell);
     /**
      * Function: orderCells
-     * 
+     *
      * Moves the given cells to the front or back. The change is carried out
      * using <cellsOrdered>. This method fires <mxEvent.ORDER_CELLS> while the
      * transaction is in progress.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * back - Boolean that specifies if the cells should be moved to back.
      * cells - Array of <mxCells> to move to the background. If null is
      * specified then the selection cells are used.
@@ -2670,7 +2678,7 @@ interface MxGraph {
 
     /**
      * Sets the key to value in the styles of the given cells.  This will modify the existing cell styles in-place and override any existing assignment for the given key.  If no cells are specified, then the selection cells are changed.  If no value is specified, then the respective key is removed * from the styles.
-     * 
+     *
      * Parameters:
      * key - String representing the key to be assigned.
      * value - String representing the new value for the key.
@@ -2680,7 +2688,7 @@ interface MxGraph {
 
      /**
      * Function: destroy
-     * 
+     *
      * Destroys the graph and all its resources.
      */
     destroy();
@@ -3008,9 +3016,9 @@ interface MxCell {
      * Function: setParent
      *
      * Sets the parent cell.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - <mxCell> that represents the new parent.
      */
     setParent(parent: MxCell);
@@ -3021,9 +3029,9 @@ interface MxCell {
      * Function: getIndex
      *
      * Returns the index of the specified child in the child array.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * child - Child whose index should be returned.
      */
     getIndex(child: MxCell);
@@ -3047,12 +3055,12 @@ interface MxCell {
     isEdge(): boolean;
     /**
      * Function: setEdge
-     * 
+     *
      * Specifies if the cell is an edge. This should only be assigned at
      * construction of the cell and not be changed during its lifecycle.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * edge - Boolean that specifies if the cell is an edge.
      */
     setEdge(edge);
@@ -3185,7 +3193,7 @@ interface MxGraphModel extends mxEventSource{
      * Returns the <mxGeometry> of the given <mxCell>.
      *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose geometry should be returned.
      */
     getGeometry(cell: MxCell): MxGeometry;
@@ -3196,7 +3204,7 @@ interface MxGraphModel extends mxEventSource{
      * Returns the number of children in the given cell.
      *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose number of children should be returned.
      */
     getChildCount(cell);
@@ -3212,24 +3220,24 @@ interface MxGraphModel extends mxEventSource{
 
     /**
      * Function: getConnections
-     * 
+     *
      * Returns all edges of the given cell without loops.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose edges should be returned.
-     * 
+     *
      */
     getConnections(cell): any[];
 
     /**
      * Function: setVisible
-     * 
+     *
      * Sets the visible state of the given <mxCell> using <mxVisibleChange> and
      * adds the change to the current transaction.
      *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose visible state should be changed.
      * visible - Boolean that specifies the new visible state.
      */
@@ -3237,7 +3245,7 @@ interface MxGraphModel extends mxEventSource{
 
     /**
      * Function: createUndoableEdit
-     * 
+     *
      * Creates a new <mxUndoableEdit> that implements the
      * notify function to fire a <change> and <notify> event
      * through the <mxUndoableEdit>'s source.
@@ -3246,38 +3254,38 @@ interface MxGraphModel extends mxEventSource{
 
     /**
      * Function: getParent
-     * 
+     *
      * Returns the parent of the given cell.
      *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> whose parent should be returned.
      */
     getParent(cell);
 
     /**
      * Function: remove
-     * 
+     *
      * Removes the specified cell from the model using <mxChildChange> and adds
      * the change to the current transaction. This operation will remove the
      * cell and all of its children from the model. Returns the removed cell.
      *
      * Parameters:
-     * 
+     *
      * cell - <mxCell> that should be removed.
      */
     remove(cell);
 
     /**
      * Function: add
-     * 
+     *
      * Adds the specified child to the parent at the given index using
      * <mxChildChange> and adds the change to the current transaction. If no
      * index is specified then the child is appended to the parent's array of
      * children. Returns the inserted child.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * parent - <mxCell> that specifies the parent to contain the child.
      * child - <mxCell> that specifies the child to be inserted.
      * index - Optional integer that specifies the index of the child.
@@ -3328,7 +3336,7 @@ interface MxGraphView {
     getOverlayPane(): HTMLElement;
     /**
      * Function: getScale
-     * 
+     *
      * Returns the <scale>.
      */
     getScale(): number;
@@ -3422,11 +3430,11 @@ interface MxGeometry extends MxRectangle {
      * the edge label relative to the edge as rendered on the display. For
      * vertices, this specifies the relative location inside the bounds of the
      * parent cell.
-     * 
+     *
      * If this is false, then the coordinates are relative to the origin of the
      * parent cell or, for edges, the edge label position is relative to the
      * center of the edge as rendered on screen.
-     * 
+     *
      * Default is false.
      */
     relative: boolean;
@@ -3445,9 +3453,9 @@ interface MxGeometry extends MxRectangle {
     /**
      * Returns the <mxPoint> representing the source or target point of this
      * edge. This is only used if the edge has no source or target vertex.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * isSource - Boolean that specifies if the source or target point
      * should be returned.
      */
@@ -3455,12 +3463,12 @@ interface MxGeometry extends MxRectangle {
 
     /**
      * Function: setTerminalPoint
-     * 
+     *
      * Sets the <sourcePoint> or <targetPoint> to the given <mxPoint> and
      * returns the new point.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * point - Point to be used as the new source or target point.
      * isSource - Boolean that specifies if the source or target point
      * should be set.
@@ -3469,14 +3477,14 @@ interface MxGeometry extends MxRectangle {
 
     /**
      * Function: rotate
-     * 
+     *
      * Rotates the geometry by the given angle around the given center. That is,
      * <x> and <y> of the geometry, the <sourcePoint>, <targetPoint> and all
      * <points> are translated by the given amount. <x> and <y> are only
      * translated if <relative> is false.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * angle - Number that specifies the rotation angle in degrees.
      * cx - <mxPoint> that specifies the center of the rotation.
      */
@@ -3484,15 +3492,15 @@ interface MxGeometry extends MxRectangle {
 
     /**
      * Function: translate
-     * 
+     *
      * Translates the geometry by the specified amount. That is, <x> and <y> of the
      * geometry, the <sourcePoint>, <targetPoint> and all <points> are translated
      * by the given amount. <x> and <y> are only translated if <relative> is false.
      * If <TRANSLATE_CONTROL_POINTS> is false, then <points> are not modified by
      * this function.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * dx - Number that specifies the x-coordinate of the translation.
      * dy - Number that specifies the y-coordinate of the translation.
      */
@@ -3504,9 +3512,9 @@ interface MxGeometry extends MxRectangle {
      * by the given amount. <x>, <y>, <width> and <height> are only scaled if
      * <relative> is false. If <fixedAspect> is true, then the smaller value
      * is used to scale the width and the height.
-     * 
+     *
      * Parameters:
-     * 
+     *
      * sx - Number that specifies the horizontal scale factor.
      * sy - Number that specifies the vertical scale factor.
      * fixedAspect - Optional boolean to keep the aspect ratio fixed.
@@ -3537,21 +3545,21 @@ interface MxRectangle extends MxPoint {
 
     /**
      * Function: setRect
-     * 
+     *
      * Sets this rectangle to the specified values
      */
     setRect(x: number, y: number, w: number, h: number);
 
     /**
      * Function: getCenterX
-     * 
+     *
      * Returns the x-coordinate of the center point.
      */
     getCenterX();
 
     /**
      * Function: getCenterY
-     * 
+     *
      * Returns the y-coordinate of the center point.
      */
     getCenterY();
@@ -3574,28 +3582,28 @@ interface MxRectangle extends MxPoint {
 
     /**
      * Function: getPoint
-     * 
+     *
      * Returns the top, left corner as a new <mxPoint>.
      */
     getPoint();
 
     /**
      * Function: rotate90
-     * 
+     *
      * Rotates this rectangle by 90 degree around its center point.
      */
     rotate90();
 
     /**
      * Function: equals
-     * 
+     *
      * Returns true if the given object equals this rectangle.
      */
     equals(obj: any);
 
     /**
      * Function: fromRectangle
-     * 
+     *
      * Returns a new <mxRectangle> which is a copy of the given rectangle.
      */
     fromRectangle(rect: MxRectangle);
@@ -3906,30 +3914,30 @@ interface MxConstants {
 
 /**
  * Class: mxMarker
- * 
+ *
  * A static class that implements all markers for VML and SVG using a
  * registry. NOTE: The signatures in this class will change.
- * 
+ *
  */
 declare class mxMarker {
     /**
 	 * Variable: markers
-	 * 
+	 *
 	 * Maps from markers names to functions to paint the markers.
 	 */
     markers: Array<any>;
-	
+
 	/**
 	 * Function: addMarker
-	 * 
+	 *
 	 * Adds a factory method that updates a given endpoint and returns a
 	 * function to paint the marker onto the given canvas.
 	 */
     static addMarker(markerType: string, funct): any;
-	
+
 	/**
 	 * Function: createMarker
-	 * 
+	 *
 	 * Returns a function to paint the given marker.
 	 */
     createMarker(canvas, shape, type, pe, unitX, unitY, size, source, sw, filled): any;
@@ -4008,7 +4016,7 @@ declare class mxSwimlane extends mxShape {
 }
 
 declare class mxActor extends mxShape {
-    
+
 }
 
 declare class mxRectangleShape extends mxShape {
@@ -4032,7 +4040,7 @@ declare class mxImageShape extends mxShape {
     preserveImageAspect: boolean;
     /**
      * Function: paintVertexShape
-     * 
+     *
      * Generic background painting implementation.
      */
     paintVertexShape(c: any, x: number, y: number, w: number, h: number);
@@ -4104,7 +4112,7 @@ declare class mxEventSource {
      *
      * Binds the specified function to the given event name. If no event name
      * is given, then the listener is registered for all events.
-     * 
+     *
      * The parameters of the listener are the sender and an <mxEventObject>.
      */
     addListener(name: string, funct)
@@ -4121,7 +4129,7 @@ declare class mxEventSource {
      * (code)
      * fireEvent(new mxEventObject("eventName", key1, val1, .., keyN, valN))
      * (end)
-     * 
+     *
      * Parameters:
      *
      * evt - <mxEventObject> that represents the event.
@@ -4207,24 +4215,24 @@ declare class mxCell implements MxCell {
 
     cloneValue();
 }
- 
+
 /**
  * Class: mxEventObject
- * 
+ *
  * The mxEventObject is a wrapper for all properties of a single event.
  * Additionally, it also offers functions to consume the event and check if it
  * was consumed as follows:
- * 
+ *
  * (code)
  * evt.consume();
  * INV: evt.isConsumed() == true
  * (end)
- * 
+ *
  * Constructor: mxEventObject
  *
  * Constructs a new event object with the specified name. An optional
  * sequence of key, value pairs can be appended to define properties.
- * 
+ *
  * Example:
  *
  * (code)
@@ -4240,7 +4248,7 @@ declare class mxPopupMenu implements MxPopupMenu {
     setEnabled(enabled: boolean);
     useLeftButtonForPopup: boolean;
     popup(x, y, cell, evt);
-    addItem (title, image, funct, parent, iconCls, enabled, active); 
+    addItem (title, image, funct, parent, iconCls, enabled, active);
 
 }
 

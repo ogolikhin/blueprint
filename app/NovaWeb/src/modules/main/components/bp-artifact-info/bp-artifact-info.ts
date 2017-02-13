@@ -245,7 +245,9 @@ export class BpArtifactInfoController {
             artifact.predefinedType === ItemTypePredefined.DomainDiagram ||
             artifact.predefinedType === ItemTypePredefined.Glossary;
 
-        if (artifact.itemTypeId === ItemTypePredefined.Collections && artifact.predefinedType === ItemTypePredefined.CollectionFolder) {
+        if (artifact.itemTypeId === ItemTypePredefined.BaselinesAndReviews && artifact.predefinedType === ItemTypePredefined.BaselineFolder) {
+            this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[ItemTypePredefined.BaselinesAndReviews]);
+        } else if (artifact.itemTypeId === ItemTypePredefined.Collections && artifact.predefinedType === ItemTypePredefined.CollectionFolder) {
             this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections]);
         } else {
             this.artifactClass = "icon-" + _.kebabCase(ItemTypePredefined[artifact.predefinedType]);
@@ -387,7 +389,7 @@ export class BpArtifactInfoController {
 
     private onWidthResized(mainWindow: IMainWindow) {
         if (mainWindow.causeOfChange === ResizeCause.browserResize || mainWindow.causeOfChange === ResizeCause.sidebarToggle) {
-            const pageHeading = document.querySelector(".page-heading") as HTMLElement;
+            const pageHeading = document.getElementsByClassName("page-heading").item(0) as HTMLElement;
             const pageToolbar = document.querySelector(".page-heading .toolbar__container") as HTMLElement;
 
             // THIS WILL BE USED TO TOGGLE BETWEEN THE EXPANDED AND COLLAPSED TOOLBAR

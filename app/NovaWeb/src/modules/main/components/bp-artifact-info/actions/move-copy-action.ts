@@ -61,6 +61,9 @@ export class MoveCopyAction extends BPDropdownAction {
 
     private canExecuteCopy(): boolean {
         const invalidTypes = [
+            ItemTypePredefined.BaselineFolder,
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.ArtifactReviewPackage,
             ItemTypePredefined.CollectionFolder,
             ItemTypePredefined.ArtifactCollection
         ];
@@ -75,7 +78,8 @@ export class MoveCopyAction extends BPDropdownAction {
 
         const invalidTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.Collections
+            ItemTypePredefined.Collections,
+            ItemTypePredefined.BaselinesAndReviews
         ];
 
         return !this.artifact.artifactState.historical && (invalidTypes.indexOf(this.artifact.itemTypeId) === -1);
@@ -127,6 +131,12 @@ export class MoveCopyAction extends BPDropdownAction {
             header: this.localization.get(headerLabel)
         };
 
+        const baselineAndReviewTypes = [
+            ItemTypePredefined.BaselineFolder,
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.ArtifactReviewPackage
+        ];
+
         const collectionTypes = [
             ItemTypePredefined.CollectionFolder,
             ItemTypePredefined.ArtifactCollection
@@ -134,13 +144,15 @@ export class MoveCopyAction extends BPDropdownAction {
 
         const dialogData: IMoveCopyArtifactPickerOptions = {
             showProjects: false,
-            showArtifacts: collectionTypes.indexOf(this.artifact.predefinedType) === -1,
-            showSubArtifacts: false,
+            showArtifacts: baselineAndReviewTypes.indexOf(this.artifact.predefinedType) === -1 &&
+                collectionTypes.indexOf(this.artifact.predefinedType) === -1,
+            showBaselinesAndReviews: baselineAndReviewTypes.indexOf(this.artifact.predefinedType) !== -1,
             showCollections: collectionTypes.indexOf(this.artifact.predefinedType) !== -1,
             selectionMode: "single",
             currentArtifact: this.artifact,
             actionType: this.actionType,
-            selectableItemTypes: collectionTypes.indexOf(this.artifact.predefinedType) !== -1 ? collectionTypes : undefined
+            selectableItemTypes: baselineAndReviewTypes.indexOf(this.artifact.predefinedType) !== -1 ? baselineAndReviewTypes :
+                collectionTypes.indexOf(this.artifact.predefinedType) !== -1 ? collectionTypes : undefined
         };
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {

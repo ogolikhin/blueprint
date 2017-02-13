@@ -126,7 +126,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
 
     // This is a workaround to force re-rendering of the dialog
     public refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+        const element: HTMLElement = document.getElementsByClassName("modal-dialog").item(0).parentElement;
 
         if (!element) {
             return;
@@ -182,7 +182,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             return this.$q.resolve();
         }
 
-        if (associatedArtifact.id < 0) {      
+        if (associatedArtifact.id < 0) {
             let newStatefulArtifact: IStatefulArtifact;
             let isLockedByOtheruser = false;
 
@@ -190,8 +190,8 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
             .then((artifact: IArtifact) => {
                 if (artifact.lockedByUser &&
                     artifact.lockedByUser.id !== this.session.currentUser.id) {
-                    this.selectionManager.getArtifact().refresh();      
-                    isLockedByOtheruser = true;                  
+                    this.selectionManager.getArtifact().refresh();
+                    isLockedByOtheruser = true;
                     return this.$q.reject(new ApplicationError(this.localization.get("Artifact_Lock_AlreadyLocked")));
                 }
 
@@ -213,7 +213,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
                     this.setAssociatedArtifact(null);
                 }
                 this.$q.reject(error);
-            });      
+            });
         }
 
         return this.$q.resolve();

@@ -185,6 +185,31 @@ xdescribe("DeleteAction", () => {
         expect(deleteAction.disabled).toBe(true);
     }));
 
+    it("is disabled when artifact is Baselines and Reviews", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService,
+        selectionManager: ISelectionManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
+
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.BaselinesAndReviews
+            });
+
+        // act
+        const deleteAction = new DeleteAction(artifact, localization,
+            messageService, selectionManager, projectManager, loadingOverlayService, dialogService, navigationService);
+
+        // assert
+        expect(deleteAction.disabled).toBe(true);
+    }));
+
     it("is disabled when artifact has no delete permissions", inject((statefulArtifactFactory: IStatefulArtifactFactory,
         localization: ILocalizationService,
         selectionManager: ISelectionManager,

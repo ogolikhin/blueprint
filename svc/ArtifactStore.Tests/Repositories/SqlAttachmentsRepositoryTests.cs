@@ -69,5 +69,29 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(result.DocumentReferences.Count, 1);
         }
 
+        [TestMethod]
+        public async Task GetAttachmentsAndDocumentReferences_InvalidDocumentReference_NoLinkedArtifactInfo_ResultsReturned()
+        {
+            // Arrange
+            int artifactId = 1;
+            int userId = 1;
+            int? subArtifactId = null;
+            bool addDrafts = true;
+
+            cxn.SetupQueryAsync("GetItemAttachments", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<Attachment> { new Attachment { FileName = "Test File Name", FileGuid = new System.Guid() } });
+            cxn.SetupQueryAsync("GetDocumentReferenceArtifacts", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts } }, new List<DocumentReference> { new DocumentReference { UserId = userId, ArtifactId = artifactId } });
+            cxn.SetupQueryAsync("GetDocumentArtifactInfos", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(new List<int> { artifactId }, "Int32Collection", "Int32Value") }, { "addDrafts", addDrafts } }, new List<LinkedArtifactInfo>());
+            var repository = new SqlAttachmentsRepository(cxn.Object, mockUserRepository);
+            // Act
+            var result = await repository.GetAttachmentsAndDocumentReferences(artifactId, userId, null, subArtifactId, addDrafts);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(result.ArtifactId, 1);
+            Assert.AreEqual(result.SubartifactId, subArtifactId);
+            Assert.AreEqual(result.Attachments.Count, 1);
+            Assert.AreEqual(result.DocumentReferences.Count, 0);
+        }
+
     }
 }

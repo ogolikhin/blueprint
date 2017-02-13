@@ -16,6 +16,7 @@ import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
  *                     selection-mode="$ctrl.selectionMode"                         (default: "single")
  *                     show-projects="$ctrl.showProjects"                           (default: true)
  *                     show-artifacts="$ctrl.showArtifacts"                         (default: true)
+ *                     show-baselines-and-reviews="$ctrl.showBaselinesAndReviews"   (default: false)
  *                     show-collections="$ctrl.showCollections"                     (default: false)
  *                     show-sub-artifacts="$ctrl.showSubArtifacts"                  (default: false)
  *                     is-item-selectable="$ctrl.isItemSelectable(item)"
@@ -36,6 +37,7 @@ export class BpArtifactPicker implements ng.IComponentOptions {
         selectionMode: "<",
         showProjects: "<",
         showArtifacts: "<",
+        showBaselinesAndReviews: "<",
         showCollections: "<",
         showSubArtifacts: "<",
         // Output
@@ -59,6 +61,7 @@ export interface IArtifactPickerController {
     selectionMode?: "single" | "multiple" | "checkbox";
     showProjects?: boolean;
     showArtifacts?: boolean;
+    showBaselinesAndReviews?: boolean;
     showCollections?: boolean;
     showSubArtifacts?: boolean;
     isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
@@ -114,6 +117,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
     public selectionMode: "single" | "multiple" | "checkbox";
     public showProjects: boolean;
     public showArtifacts: boolean;
+    public showBaselinesAndReviews: boolean;
     public showCollections: boolean;
     public showSubArtifacts: boolean;
     public isItemSelectable: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean;
@@ -178,6 +182,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
         this.selectionMode = _.isString(this.selectionMode) ? this.selectionMode : "single";
         this.showProjects = _.isBoolean(this.showProjects) ? this.showProjects : true;
         this.showArtifacts = _.isBoolean(this.showArtifacts) ? this.showArtifacts : true;
+        this.showBaselinesAndReviews = _.isBoolean(this.showBaselinesAndReviews) ? this.showBaselinesAndReviews : false;
         this.showCollections = _.isBoolean(this.showCollections) ? this.showCollections : false;
         this.showSubArtifacts = _.isBoolean(this.showSubArtifacts) ? this.showSubArtifacts : false;
         this.isItemSelectable = _.isFunction(this.isItemSelectable) ? this.isItemSelectable : undefined;
@@ -202,14 +207,14 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
         this.canceller = this.$q.defer<any>();
         this.factory = new TreeModels.TreeNodeVMFactory(this.projectService, this.canceller.promise, this.isItemSelectable,
-            this.selectableItemTypes, this.showArtifacts, this.showCollections, this.showSubArtifacts);
+            this.selectableItemTypes, this.showArtifacts, this.showBaselinesAndReviews, this.showCollections, this.showSubArtifacts);
         this._selectedVMs = [];
         this._previousSelectedVMs = [];
     };
 
     public $onInit(): void {
         let project: AdminStoreModels.IInstanceItem | ng.IPromise<AdminStoreModels.IInstanceItem>;
-        if (this.showArtifacts || this.showCollections) {
+        if (this.showArtifacts || this.showBaselinesAndReviews || this.showCollections) {
             const selectedArtifact = this.selectionManager.getArtifact();
             const projectId = selectedArtifact ? selectedArtifact.projectId : undefined;
             if (projectId) {
@@ -271,7 +276,8 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
             const artifactTypes = metaData.data.artifactTypes.filter(a => {
                 if ((a.predefinedType & Models.ItemTypePredefined.BaselineArtifactGroup) !== 0) {
-                    return false; // Baselines and Reviews are not currently supported
+                    return this.showBaselinesAndReviews &&
+                        a.id !== Models.ItemTypePredefined.BaselinesAndReviews; // Exclude main Baselines and Reviews folder
                 }
                 if ((a.predefinedType & Models.ItemTypePredefined.CollectionArtifactGroup) !== 0) {
                     return this.showCollections &&
@@ -315,11 +321,11 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     public onSelect = (vm: Models.IViewModel<any>, isSelected: boolean = undefined): boolean => {
         if (_.isBoolean(isSelected)) {
-            if ((this.showArtifacts || this.showCollections) && vm instanceof TreeModels.InstanceItemNodeVM &&
+            if ((this.showArtifacts || this.showBaselinesAndReviews || this.showCollections) && vm instanceof TreeModels.InstanceItemNodeVM &&
                 vm.model.type === AdminStoreModels.InstanceItemType.Project) {
                 // Selecting a project from the instance tree
                 this.project = vm.model;
-            } else if ((this.showArtifacts || this.showCollections) && vm instanceof ProjectSearchResultVM) {
+            } else if ((this.showArtifacts || this.showBaselinesAndReviews || this.showCollections) && vm instanceof ProjectSearchResultVM) {
                 // Selecting a project from the project search results
                 this.clearSearch();
                 this.project = {

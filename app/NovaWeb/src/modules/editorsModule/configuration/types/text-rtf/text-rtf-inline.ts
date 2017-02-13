@@ -1,6 +1,7 @@
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
+import {IFormlyScope} from "../../formly-config";
 import {BPFieldBaseRTFController} from "./base-rtf-controller";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
@@ -15,9 +16,9 @@ export class BPFieldTextRTFInline implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldTextRTFInline";
     public template: string = require("./text-rtf-inline.html");
     public wrapper: string[] = ["bpFieldLabel", "bootstrapHasError"];
-    public link: ng.IDirectiveLinkFn = function ($scope, $element, $attrs) {
+    public link: ng.IDirectiveLinkFn = function ($scope: IFormlyScope) {
         $scope.$applyAsync(() => {
-            $scope["fc"].$setTouched();
+            $scope.fc.$setTouched();
         });
     };
     public controller: ng.Injectable<ng.IControllerConstructor> = BpFieldTextRTFInlineController;
@@ -39,7 +40,7 @@ export class BpFieldTextRTFInlineController extends BPFieldBaseRTFController {
     ];
 
     constructor($q: ng.IQService,
-                $scope: AngularFormly.ITemplateScope,
+                $scope: IFormlyScope,
                 $window: ng.IWindowService,
                 navigationService: INavigationService,
                 validationService: IValidationService,

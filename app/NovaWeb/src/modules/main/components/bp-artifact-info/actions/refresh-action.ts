@@ -51,7 +51,10 @@ export class RefreshAction extends BPButtonAction {
     }
 
     public get disabled(): boolean {
-        const invalidTypes = [ItemTypePredefined.Collections];
+        const invalidTypes = [
+            ItemTypePredefined.Collections,
+            ItemTypePredefined.BaselinesAndReviews
+        ];
 
         if (invalidTypes.indexOf(this.artifact.predefinedType) >= 0) {
             return true;

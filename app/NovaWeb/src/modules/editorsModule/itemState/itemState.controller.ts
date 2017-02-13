@@ -70,7 +70,7 @@ export class ItemStateController {
                     this.setActiveEditor(statefulArtifact);
                 });
             });
-        } else if (this.itemInfoService.isArtifact(itemInfo) && !this.isBaselineOrReview(itemInfo.predefinedType)) {
+        } else if (this.itemInfoService.isArtifact(itemInfo)) {
             const artifact = this.createArtifact(itemInfo);
             const statefulArtifact = this.statefulArtifactFactory.createStatefulArtifact(artifact);
 
@@ -115,21 +115,6 @@ export class ItemStateController {
         } as Models.IArtifact;
     }
 
-    private isCollection(itemType: Models.ItemTypePredefined): boolean {
-        return itemType === ItemTypePredefined.CollectionFolder || itemType === ItemTypePredefined.ArtifactCollection;
-    }
-
-    private isBaselineOrReview(itemType: Models.ItemTypePredefined) {
-        const invalidTypes = [
-            Models.ItemTypePredefined.ArtifactBaseline,
-            Models.ItemTypePredefined.BaselineFolder,
-            Models.ItemTypePredefined.Baseline,
-            Models.ItemTypePredefined.ArtifactReviewPackage
-        ];
-
-        return invalidTypes.indexOf(itemType) >= 0;
-    }
-
     private clearStickyMessages() {
         this.messageService.messages.forEach(message => {
             if (!message.canBeClosedManually && message.messageType !== MessageType.Info
@@ -167,12 +152,11 @@ export class ItemStateController {
             case Models.ItemTypePredefined.Project:
                 this.activeEditor = "general";
                 break;
+            case Models.ItemTypePredefined.BaselineFolder:
+                this.activeEditor = artifact.itemTypeId === Models.ItemTypePredefined.BaselinesAndReviews ? "general" : "details";
+                break;
             case Models.ItemTypePredefined.CollectionFolder:
-                if (artifact.parentId === artifact.projectId) {
-                    this.activeEditor = "general";
-                } else {
-                    this.activeEditor = "details";
-                }
+                this.activeEditor = artifact.itemTypeId === Models.ItemTypePredefined.Collections ? "general" : "details";
                 break;
             case Models.ItemTypePredefined.ArtifactCollection:
                 this.activeEditor = "collection";

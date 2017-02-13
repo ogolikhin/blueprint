@@ -1,6 +1,7 @@
 import "angular-formly";
 import "angular-ui-tinymce";
 import "tinymce";
+import {IFormlyScope} from "../../formly-config";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IValidationService} from "../../../../managers/artifact-manager/validation/validation.svc";
@@ -26,12 +27,6 @@ export interface IBPFieldBaseRTFController {
     handleClick(event: Event): void;
     handleLinks(nodeList: Node[] | NodeList, remove: boolean): void;
     handleMutation(mutation: MutationRecord): void;
-}
-
-interface ITinyMceMenu {
-    icon?: string;
-    text: string;
-    onclick: Function;
 }
 
 export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
@@ -78,9 +73,10 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         "mceLink"
     ];
     protected fontSizes: string[] = ["8", "9", "10", "11", "12", "14", "16", "18", "20"];
+    protected embeddedImagesUrls: {[key: string]: boolean};
 
     constructor(protected $q: ng.IQService,
-                protected $scope: AngularFormly.ITemplateScope,
+                protected $scope: IFormlyScope,
                 protected $window: ng.IWindowService,
                 public navigationService: INavigationService,
                 protected validationService: IValidationService,
@@ -113,10 +109,11 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         //we override the default onChange as we need to deal with changes differently when using tinymce
         $scope.to.onChange = undefined;
 
-        $scope["$on"]("$destroy", () => {
+        $scope.$on("$destroy", () => {
             $scope.to.onChange = this.onChange;
 
             this.removeObserver();
+            this.removeDragAndDropListeners();
             if (this.editorBody) {
                 this.handleLinks(this.editorBody.querySelectorAll("a"), true);
             }
@@ -167,12 +164,41 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             origin = location.protocol + "//" + location.hostname + (location.port ? ":" + location.port : "");
         }
 
-        return origin + "/";
+        return origin;
+    };
+
+    private initEmbeddedImagesList = (content?: string) => {
+        this.embeddedImagesUrls = {};
+
+        const baseUrl = this.getAppBaseUrl();
+        const node = document.createElement("div");
+        node.innerHTML = content || this.contentBuffer;
+        const images = node.getElementsByTagName("img");
+        _.forEach(images, (image: HTMLImageElement) => {
+            this.embeddedImagesUrls[image.src.replace(baseUrl, "")] = true;
+        });
+    };
+
+    private stripNonEmbeddedImages = (node: HTMLElement) => {
+        const baseUrl = this.getAppBaseUrl();
+        const images = node.getElementsByTagName("img");
+        _.forEachRight(images, (image: HTMLImageElement | any) => {
+            let imgSrc = image.src || image.dataset.tempSrc as string;
+            imgSrc = imgSrc.replace(baseUrl, "");
+            if (!this.embeddedImagesUrls[imgSrc]) {
+                image.parentNode.removeChild(image);
+            }
+        });
+    };
+
+    protected addEmbeddedImageToList = (url: string) => {
+        const imageUrl = url.replace(this.getAppBaseUrl(), "");
+        this.embeddedImagesUrls[imageUrl] = true;
     };
 
     protected handleValidation = (content: string) => {
         const $scope = this.$scope;
-        $scope["$applyAsync"](() => {
+        $scope.$applyAsync(() => {
             const isValid = this.validationService.textRtfValidation.hasValueIfRequired($scope.to.required, content);
             const formControl = $scope.fc as ng.IFormController;
             if (formControl) {
@@ -224,6 +250,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.normalizeHtml(this.editorBody, hasTables);
         this.handleLinks(this.editorBody.querySelectorAll("a"));
         this.contentBuffer = this.mceEditor.getContent();
+        this.initEmbeddedImagesList();
 
         this.handleValidation(this.contentBuffer);
         $scope.options["data"].isFresh = false;
@@ -239,7 +266,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         }
     };
 
-    protected fontSizeMenu = (editor): ITinyMceMenu[] => {
+    protected fontSizeMenu = (editor): TinyMceMenu[] => {
         return this.fontSizes.map((size) => {
             return {
                 text: size,
@@ -247,11 +274,11 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     editor.formatter.apply(`font${size}`);
                     this.triggerChange();
                 }
-            } as ITinyMceMenu;
+            } as TinyMceMenu;
         });
     };
 
-    protected linksMenu = (editor): ITinyMceMenu[] => {
+    protected linksMenu = (editor): TinyMceMenu[] => {
         return [{
             icon: "link",
             text: " Links",
@@ -268,7 +295,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     this.messageService.addError("Property_RTF_InlineTrace_Error_Permissions");
                 }
             }
-        }] as ITinyMceMenu[];
+        }] as TinyMceMenu[];
     };
 
     protected initInstanceCallback = (editor) => {
@@ -320,9 +347,11 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             this.editorContainer = editor.editorContainer;
         }
 
+        this.addDragAndDropListeners();
+
         // MutationObserver
-        const mutationObserver = window["MutationObserver"] || window["WebKitMutationObserver"] || window["MozMutationObserver"];
-        if (!_.isUndefined(mutationObserver)) {
+        const mutationObserver = this.$window["MutationObserver"];
+        if (this.editorBody && !_.isUndefined(mutationObserver)) {
             // create an observer instance
             this.observer = new MutationObserver((mutations) => {
                 mutations.forEach(this.handleMutation);
@@ -342,7 +371,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             const KEY_Z = 90;
 
             if (e && [KEY_X, KEY_Z].indexOf(e.keyCode) !== -1 && (e.ctrlKey || e.metaKey)) {
-                this.$scope["$applyAsync"](() => {
+                this.$scope.$applyAsync(() => {
                     editor.save();
                     this.triggerChange(editor.getContent());
                 });
@@ -396,19 +425,19 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         Helper.removeAttributeFromNode(args.node, "id");
     };
 
-    protected pastePreProcess(plugin, args) { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
-        // remove generic font family
-        let content = args.content;
-        content = content.replace(/, ?sans-serif([;'"])/gi, "$1");
-        content = content.replace(/, ?serif([;'"])/gi, "$1");
-        content = content.replace(/, ?monospace([;'"])/gi, "$1");
+    protected pastePreProcess = (plugin, args) => { // https://www.tinymce.com/docs/plugins/paste/#paste_preprocess
+        let pasteContent = args.content as string;
 
-        const filteredContent = Helper.stripExternalImages(content);
-        if (Helper.hasNonTextTags(filteredContent) || Helper.tagsContainText(filteredContent)) {
-            content = filteredContent;
-        }
-        args.content = content;
-    }
+        const node = document.createElement("div");
+        node.innerHTML = Helper.replaceImgSrc(pasteContent, true);
+        this.stripNonEmbeddedImages(node);
+        pasteContent = Helper.replaceImgSrc(node.innerHTML, false);
+
+        // remove generic font family
+        args.content = pasteContent.replace(/, ?sans-serif([;'"])/gi, "$1")
+            .replace(/, ?serif([;'"])/gi, "$1")
+            .replace(/, ?monospace([;'"])/gi, "$1");
+    };
 
     protected hasChangedFormat(): boolean {
         const colorRegEx = /(#[a-f0-9]{6})/gi;
@@ -421,7 +450,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         const bufferColors = (this.contentBuffer || "").match(colorRegEx);
 
         return !_.isEqual(currentColors, bufferColors);
-    };
+    }
 
     private canManageTraces(): boolean {
         // If artifact is locked by other user we still can add/manage traces as long as canEdit=true
@@ -530,7 +559,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     public insertInlineTrace = (id: number, name: string, prefix: string) => {
         /* tslint:disable:max-line-length */
         // when run locally, the inline trace may not be saved, as the site runs on port 8000, while services are on port 9801
-        const linkUrl: string = this.getAppBaseUrl() + "?ArtifactId=" + id.toString();
+        const linkUrl: string = this.getAppBaseUrl() + "/?ArtifactId=" + id.toString();
         const linkText: string = prefix + id.toString() + ": " + name;
         const escapedLinkText: string = _.escape(linkText);
         const spacer: string = "<span>&nbsp;</span>";
@@ -542,7 +571,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             `<span style="text-decoration:underline; color:#0000FF;">${escapedLinkText}</span>` +
             `</a></span>&#65279;`;
         /* tslint:enable:max-line-length */
-        this.mceEditor["insertContent"](inlineTrace + spacer);
+        this.mceEditor.insertContent(inlineTrace + spacer);
     };
 
     public handleClick = (event: Event) => {
@@ -618,6 +647,35 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 }
             }
         }
+    };
+
+    // The DragEvent sequence is comprised of events being fired between the element being dragged and the drop target.
+    // The order is:
+    // elem.dragstart
+    // target.dragenter
+    // elem.drag/target.dragover (each every few hundreds milliseconds)
+    // target.drop or target.dragleave (depending if the element has been dropped on the target or dragged outside)
+    // elem.dragend
+    // see http://www.developerfusion.com/article/144828/the-html5-drag-and-drop-api/
+    protected addDragAndDropListeners = () => {
+        if (this.editorBody) {
+            this.editorBody.addEventListener("dragend", this.onDragEnd);
+            this.editorBody.addEventListener("drop", this.onDragEnd);
+        }
+    };
+    protected removeDragAndDropListeners = () => {
+        if (this.editorBody) {
+            this.editorBody.removeEventListener("dragend", this.onDragEnd);
+            this.editorBody.removeEventListener("drop", this.onDragEnd);
+        }
+    };
+
+    protected onDragEnd = (e: DragEvent) => {
+        this.$scope.$applyAsync(() => {
+            this.mceEditor.save();
+            this.stripNonEmbeddedImages(this.mceEditor.getBody() as HTMLElement);
+            this.triggerChange(this.mceEditor.getContent());
+        });
     };
 
     public disableEditability = (e) => {

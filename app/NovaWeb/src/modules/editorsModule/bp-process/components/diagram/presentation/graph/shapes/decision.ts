@@ -34,9 +34,11 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         return "#FBF8E7";
     }
 
-    constructor(model: IProcessShape,
-                rootScope: ng.IRootScopeService,
-                private nodeFactorySettings: NodeFactorySettings = null) {
+    constructor(
+        model: IProcessShape,
+        rootScope: ng.IRootScopeService,
+        private nodeFactorySettings: NodeFactorySettings = null
+    ) {
         super(model);
 
         this.rootScope = rootScope;
@@ -64,7 +66,6 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             "shape=rhombus;strokeColor=" + this.DEFAULT_BORDER_COLOR + ";fillColor=" + fillColor +
             ";fontColor=#4C4C4C;fontFamily=Open Sans, sans-serif;fontStyle=1;fontSize=12;foldable=0;dashed=0"
         );
-
 
         const textLabelStyle: LabelStyle = new LabelStyle(
             "Open Sans",
@@ -115,7 +116,6 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             this.DECISION_HEIGHT - this.BUTTON_SIZE - 10,
             "shape=ellipse;strokeColor=none;fillColor=none;selectable=0"
         );
-
 
         // DO NOT DELETE!!! this is needed for the labels functionality
         this.addOverlay(
@@ -189,11 +189,6 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
         this.textLabel.text = value;
     }
 
-    public getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape {
-        const id = graph.getDecisionBranchDestLinkForIndex(this.model.id, orderIndex).destinationId;
-        return graph.getShapeById(id);
-    }
-
     private initButtons(nodeId: string, nodeFactorySettings: NodeFactorySettings = null) {
         //Details button
         this.detailsButton = new Button(`DB${nodeId}`, this.BUTTON_SIZE, this.BUTTON_SIZE, this.getImageSource("adddetails-neutral.svg"));
@@ -215,9 +210,7 @@ export abstract class Decision extends DiagramNode<IProcessShape> implements IDe
             this.rootScope["config"].labels["ST_Shapes_Delete_Tooltip"], nodeFactorySettings, deleteClickAction);
     }
 
-
     private openDialog(dialogType: ModalDialogType) {
         this.dialogManager.openDialog(this.model.id, dialogType);
     }
-
 }

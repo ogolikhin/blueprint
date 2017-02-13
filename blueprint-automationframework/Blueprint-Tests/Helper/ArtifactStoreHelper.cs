@@ -31,6 +31,11 @@ namespace Helper
         private const int DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID = -2;
         private const string DEFAULT_COLLECTIONS_ROOT_PREFIX = "_CFL";
 
+        private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME = "Baselines and Reviews";
+        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX = -1;
+        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID = -3;
+        private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX = "_BFL";
+
         #region Custom Asserts
 
         /// <summary>
@@ -906,31 +911,43 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrEmpty(artifact.Name), "name should not be empty but it's {0}", artifact.Name);
 
-            if (artifact.ItemTypeId.Equals(DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID))
+            switch (artifact.ItemTypeId)
             {
-                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
+                case DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID:
+                    Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
                     DEFAULT_COLLECTIONS_ROOT_NAME);
 
-                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Collections default folder.",
-                    DEFAULT_COLLECTIONS_ROOT_ORDERINDEX);
+                    Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Collections default folder.",
+                        DEFAULT_COLLECTIONS_ROOT_ORDERINDEX);
 
-                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Collections default folder.",
-                    DEFAULT_COLLECTIONS_ROOT_PREFIX);
-            }
-            else
-            {
-                Assert.AreEqual(novaArtifactTypeForArtifact.Id, artifact.ItemTypeId,
+                    Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Collections default folder.",
+                        DEFAULT_COLLECTIONS_ROOT_PREFIX);
+                    break;
+
+                case DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID:
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Baselinens default folder.",
+                    DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME);
+
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Baselinens default folder.",
+                        DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX);
+
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Baselinens default folder.",
+                        DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX);
+                    break;
+
+                default:
+                    Assert.AreEqual(novaArtifactTypeForArtifact.Id, artifact.ItemTypeId,
                     "itemTypeId {0} for the artifact {1} doesn't exist on the project {2}",
                     artifact.ItemTypeId, artifact.Name, project.Name);
 
-                Assert.GreaterOrEqual(artifact.OrderIndex, 0,
-                    "orderIndex for the artifact {0} should be greater than or equal to zero but returned {1}.",
-                    artifact.Name, artifact.OrderIndex);
+                    Assert.GreaterOrEqual(artifact.OrderIndex, 0,
+                        "orderIndex for the artifact {0} should be greater than or equal to zero but returned {1}.",
+                        artifact.Name, artifact.OrderIndex);
 
-                Assert.AreEqual(novaArtifactTypeForArtifact.Prefix, artifact.Prefix,
-                    "prefix {0} for the artifact {1} doesn't exist on the project {2}",
-                    artifact.Prefix, artifact.Name, project.Name);
-
+                    Assert.AreEqual(novaArtifactTypeForArtifact.Prefix, artifact.Prefix,
+                        "prefix {0} for the artifact {1} doesn't exist on the project {2}",
+                        artifact.Prefix, artifact.Name, project.Name);
+                    break;
             }
 
             Assert.AreEqual(parentArtifactId, artifact.ParentId, "parentId for the artifact {0} should be {1} but {2} is returned.",

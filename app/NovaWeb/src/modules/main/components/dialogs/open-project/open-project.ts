@@ -102,7 +102,9 @@ export class OpenProjectController extends BaseDialogController {
     public onDoubleClick(vm: OpenProjectVM): void {
         this.$scope.$applyAsync(() => {
             this.setSelectedItem(vm);
-            this.ok();
+            if (this.returnValue) {
+                this.ok();
+            }
         });
     }
 }

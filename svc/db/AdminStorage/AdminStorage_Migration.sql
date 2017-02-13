@@ -1308,6 +1308,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditOn',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Description', 'en-US', N'Description')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Project', 'en-US', N'Project')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Collections', 'en-US', N'Collections')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_BaselinesAndReviews', 'en-US', N'Baselines and Reviews')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInheritFrom', 'en-US', N'Inherits from')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Group_Identifier', 'en-US', N'(g)')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Projects', 'en-US', N'Search for projects')

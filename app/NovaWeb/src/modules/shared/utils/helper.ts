@@ -207,9 +207,13 @@ export class Helper {
     public static canUtilityPanelUseSelectedArtifact(artifact: Models.IArtifact): boolean {
         const nonStandardTypes = [
             ItemTypePredefined.Project,
-            ItemTypePredefined.ArtifactCollection,
             ItemTypePredefined.Collections,
-            ItemTypePredefined.CollectionFolder
+            ItemTypePredefined.BaselinesAndReviews,
+            ItemTypePredefined.BaselineFolder,
+            ItemTypePredefined.ArtifactBaseline,
+            ItemTypePredefined.ArtifactReviewPackage,
+            ItemTypePredefined.CollectionFolder,
+            ItemTypePredefined.ArtifactCollection
         ];
 
         return artifact && artifact.predefinedType != null && nonStandardTypes.indexOf(artifact.predefinedType) === -1;
@@ -249,22 +253,6 @@ export class Helper {
         div.appendChild(ngContent[0]);
 
         return div.innerHTML;
-    }
-
-    public static stripExternalImages(content: string): string {
-        const node = document.createElement("div");
-        node.innerHTML = Helper.replaceImgSrc(content, true);
-
-        const externalUrl = new RegExp("^(?:[a-z]+:)?\/\/", "i");
-        const images = node.getElementsByTagName("img");
-        _.forEachRight(images, (image: HTMLImageElement | any) => {
-            const url = image.dataset.tempSrc;
-            if (externalUrl.test(url)) {
-                image.parentNode.removeChild(image);
-            }
-        });
-
-        return Helper.replaceImgSrc(node.innerHTML, false);
     }
 
     public static hasDesiredPermissions(artifact: IStatefulArtifact, permissions: Enums.RolePermissions): boolean {

@@ -27,7 +27,7 @@ export interface IStatefulArtifact extends IStatefulItem, IDispose {
     discardArtifact(): ng.IPromise<void>;
     refresh(): ng.IPromise<IStatefulArtifact>;
     getObservable(): Rx.Observable<IStatefulArtifact>;
-    move(newParentId: number, orderIndex?: number): ng.IPromise<void>;
+    move(newParentId: number, orderIndex?: number): ng.IPromise<Models.IArtifact>;
     copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet>;
     canBeSaved(): boolean;
     canBePublished(): boolean;
@@ -685,7 +685,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
 
     }
 
-    public move(newParentId: number, orderIndex?: number): ng.IPromise<void> {
+    public move(newParentId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
         let moveOverlayId = this.services.loadingOverlayService.beginLoading();
 
         return this.services.artifactService.moveArtifact(this.id, newParentId, orderIndex)

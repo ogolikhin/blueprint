@@ -29,18 +29,6 @@ export class MoveCopyAction extends BPDropdownAction {
                 private loadingOverlayService: ILoadingOverlayService) {
         super();
 
-        if (!localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!projectExplorerService) {
-            throw new Error("Project explorer service not provided or is null");
-        }
-
-        if (!dialogService) {
-            throw new Error("Dialog service not provided or is null");
-        }
-
         this.actions.push(
             new BPDropdownItemAction(
                 this.localization.get("App_Toolbar_Move"),
@@ -157,8 +145,7 @@ export class MoveCopyAction extends BPDropdownAction {
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {
             if (result && result.length === 1) {
-                return this.computeNewOrderIndex(result[0])
-                .then((orderIndex: number) => {
+                return this.computeNewOrderIndex(result[0]).then((orderIndex: number) => {
                     if (this.actionType === MoveCopyActionType.Move) {
                         return this.prepareArtifactForMove(result[0].artifacts[0]).then(() => {
                             return this.moveArtifact(result[0].insertMethod, result[0].artifacts[0], orderIndex);
@@ -199,10 +186,11 @@ export class MoveCopyAction extends BPDropdownAction {
         return this.$q.resolve(null);
     }
 
-    private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void> {
+    private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<Models.IArtifact> {
         return this.artifact.move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
-            .then(() => {
-                this.projectExplorerService.refresh(this.artifact.projectId);
+            .then((artifact: Models.IArtifact) => {
+                this.projectExplorerService.refresh(artifact.projectId, artifact);
+                return artifact;
             });
     }
 

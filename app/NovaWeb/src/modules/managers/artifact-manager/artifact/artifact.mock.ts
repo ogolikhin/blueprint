@@ -67,8 +67,8 @@ export class StatefulArtifactMock implements IStatefulArtifact, IIStatefulArtifa
     getValidationObservable(): Rx.Observable<number[]> {
         return new Rx.Subject<number[]>().asObservable();
     }
-    move(newParentId: number, orderIndex?: number): ng.IPromise<void> {
-        return this.$q.resolve();
+    move(newParentId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
+        return this.$q.resolve({});
     }
     copy(newParentId: number, orderIndex?: number): ng.IPromise<Models.ICopyResultSet> {
         return this.$q.resolve({} as Models.ICopyResultSet);

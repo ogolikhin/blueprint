@@ -9,10 +9,8 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.moc
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
-import {ProjectManagerMock} from "../../../managers/project-manager/project-manager.mock";
 import {MetaDataServiceMock} from "../../../managers/artifact-manager/metadata/metadata.svc.mock";
 import {MainBreadcrumbServiceMock} from "../bp-page-content/mainbreadcrumb.svc.mock";
-import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
@@ -22,6 +20,7 @@ import {CollectionServiceMock} from "../../../editorsModule/collection/collectio
 import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
 import {MessageServiceMock} from "../messages/message.mock";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {ProjectExplorerServiceMock} from "../bp-explorer/project-explorer.service.mock";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
@@ -88,7 +87,7 @@ describe("BpArtifactInfo", () => {
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("metadataService", MetaDataServiceMock);
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
         $provide.service("collectionService", CollectionServiceMock);

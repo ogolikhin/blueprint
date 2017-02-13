@@ -6,13 +6,13 @@ import {LocalizationServiceMock} from "../../commonModule/localization/localizat
 import {UnpublishedArtifactsServiceMock} from "./unpublished.service.mock";
 import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
-import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {IUnpublishedArtifactsService} from "./unpublished.service";
 import createSpy = jasmine.createSpy;
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
 import {ItemTypePredefined} from "../../main/models/enums";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {ProjectExplorerServiceMock} from "../../main/components/bp-explorer/project-explorer.service.mock";
 
 
 describe("Controller: Unpublished", () => {
@@ -28,7 +28,7 @@ describe("Controller: Unpublished", () => {
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("dialogService", DialogServiceMock);
     }));
 

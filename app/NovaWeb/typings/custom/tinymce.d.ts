@@ -12,11 +12,13 @@ interface TinyMceEditor extends TinyMceObservable {
     hide: () => void;
     show: () => void;
     getContent: (args?: Object) => string;
+    insertContent: (content: string) => void;
     setContent: (content: string, args?: Object) => string;
     focus: (skip_focus?: boolean) => void;
     undoManager: TinyMceUndoManager;
     settings: Object;
     getBody: () => Element;
+    save: () => void;
 }
 
 interface TinyMceUndoManager {
@@ -29,6 +31,12 @@ interface TinyMceEditorManager {
     execCommand: (command: string, ui: boolean, id: string) => Object;
     get: (id: string) => TinyMceEditor;
 
+}
+
+interface TinyMceMenu {
+    icon?: string;
+    text: string;
+    onclick: () => void;
 }
 
 interface TinyMceEvent {

@@ -184,17 +184,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             if (!condition.mergeNode) {
                 return;
             }
-            let link: IProcessLink;
-
-            if (index === 0 && !this.dialogModel.graph.isInMainFlow(condition.sourceId)) {
-                const shapeContext = this.dialogModel.graph.globalScope.visitedIds[this.dialogModel.originalDecision.model.id];
-                const last = _.last(shapeContext.parentConditions);
-
-                link = this.dialogModel.graph.getNextLinks(last.decisionId).filter(a => a.orderindex === last.orderindex)[0];
-
-            } else {
-                link = this.dialogModel.graph.getLink(condition.sourceId, condition.destinationId);
-            }
+            let link: IProcessLink = this.dialogModel.graph.getBranchStartingLink(condition.sourceId, condition.destinationId);
 
             if (link) {
                 const didUpdateEdge = this.dialogModel.graph.updateMergeNode(link.sourceId, link, condition.mergeNode.model.id);

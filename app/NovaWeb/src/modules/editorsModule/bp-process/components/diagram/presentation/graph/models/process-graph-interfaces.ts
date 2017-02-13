@@ -139,6 +139,7 @@ export interface IProcessGraph {
     isFirstFlow(decisionId: number, nextShapeId: number): boolean;
     isInNestedFlow(id: number): boolean;
     isInMainFlow(id: number): boolean;
+    getBranchStartingLink(decisionId: number, nextShapeId: number);
     destroy(): void;
 }
 

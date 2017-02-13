@@ -38,6 +38,8 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     addShape(processShape: ProcessModels.IProcessShape);
     removeShape(shapeId: number);
     isFirstFlow(decisionId: number, nextShapeId: number): boolean;
+    isInNestedFlow(id: number): boolean;
+    isInMainFlow(id: number): boolean;
     getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[];
 }
 
@@ -536,5 +538,14 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[] {
         return _.sortBy(this.links.filter((link) => link.sourceId === sourceId), (link) => link.orderindex);
+    }
+
+    public isInNestedFlow(id: number): boolean {
+        return _.toNumber(this.getShapeById(id).propertyValues["y"].value) > 0;
+    }
+
+    public isInMainFlow(id: number): boolean {
+        return _.toNumber(this.getShapeById(id).propertyValues["y"].value) === 0;
+
     }
 }

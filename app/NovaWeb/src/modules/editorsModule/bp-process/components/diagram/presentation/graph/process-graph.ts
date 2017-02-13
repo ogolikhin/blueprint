@@ -28,7 +28,6 @@ import {IClipboardService} from "../../../../services/clipboard.svc";
 import {IFileUploadService} from "../../../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 import {SystemTask} from "./shapes/system-task";
-import {IScopeHelper, ScopeHelper} from "./scopeHelper";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -52,7 +51,6 @@ export class ProcessGraph implements IProcessGraph {
     private minNoOfShapesAddedPerSystemDecision: number = 1;
     private minNoOfShapesAddedPerUserDecision: number = 2;
     private invalidShapes: number[] = [];
-    private scopeHelper: IScopeHelper;
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
         return this.viewModel.communicationManager.processDiagramCommunication;
@@ -825,7 +823,6 @@ export class ProcessGraph implements IProcessGraph {
             };
             this.getScopeInternal(context, this.defaultStopCondition, this.defaultNextIdsProvider);
             this.globalScope = context;
-            this.scopeHelper = new ScopeHelper(this.globalScope);
         }
     }
 
@@ -1202,11 +1199,23 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public isInNestedFlow(id: number): boolean {
-        return this.scopeHelper.isInNestedFlow(id);
+        return this.viewModel.isInNestedFlow(id);
     }
 
     public isInMainFlow(id: number): boolean {
-        return this.scopeHelper.isInMainFlow(id);
+        return this.viewModel.isInMainFlow(id);
+    }
+
+    public getBranchStartingLink(decisionId: number, nextShapeId: number): IProcessLink {
+
+        if (this.viewModel.isFirstFlow(decisionId, nextShapeId) && !this.viewModel.isInMainFlow(decisionId)) {
+            const shapeContext = this.globalScope.visitedIds[decisionId];
+            const last = _.last(shapeContext.parentConditions);
+            return this.getNextLinks(last.decisionId).filter(a => a.orderindex === last.orderindex)[0];
+
+        }
+
+        return this.getLink(decisionId, nextShapeId);
     }
 
     public destroy(): void {

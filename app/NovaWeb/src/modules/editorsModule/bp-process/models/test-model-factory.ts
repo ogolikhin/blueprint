@@ -1,5 +1,5 @@
 ﻿/* tslint:disable max-file-line-count */
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ShapesFactory} from "../components/diagram/presentation/graph/shapes/shapes-factory";
 import {ProcessShapeType, ProcessType} from "./enums";

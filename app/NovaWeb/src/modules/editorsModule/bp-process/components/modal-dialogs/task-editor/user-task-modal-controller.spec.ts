@@ -7,7 +7,7 @@ import {LocalizationServiceMock} from "../../../../../commonModule/localization/
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
-import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";

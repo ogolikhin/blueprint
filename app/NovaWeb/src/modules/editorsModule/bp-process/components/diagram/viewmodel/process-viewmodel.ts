@@ -3,7 +3,7 @@ import {ICommunicationManager} from "../../../";
 import {Message, MessageType} from "../../../../../main/components/messages/message";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import * as Enums from "../../../../../main/models/enums";
-import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import * as Models from "../../../../../main/models/models";
 import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
 import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";

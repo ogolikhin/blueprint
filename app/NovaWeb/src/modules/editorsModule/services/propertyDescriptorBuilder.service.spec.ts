@@ -3,7 +3,7 @@ import "angular-sanitize";
 import "lodash";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {PrimitiveType, PropertyLookupEnum, PropertyTypePredefined} from "../../main/models/enums";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IPropertyValue} from "../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
 import {IPropertyDescriptor, IPropertyDescriptorBuilder, PropertyDescriptor} from "./propertyDescriptorBuilder.service";

@@ -6,7 +6,7 @@ import {ISelectionManager} from "../../../managers/selection-manager/selection-m
 import {Helper} from "../../../shared/";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {ArtifactSearchResultVM, ProjectSearchResultVM, SearchResultVM} from "./search-result-vm";
 
 /**

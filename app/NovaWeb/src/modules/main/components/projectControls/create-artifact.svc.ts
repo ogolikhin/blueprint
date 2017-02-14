@@ -2,7 +2,7 @@ import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadi
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../managers/artifact-manager/artifact";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IArtifact} from "../../models/models";
 import {CreateNewArtifactController, ICreateNewArtifactDialogData, ICreateNewArtifactReturn} from "../dialogs/new-artifact";
 import {IMessageService} from "../messages/message.svc";

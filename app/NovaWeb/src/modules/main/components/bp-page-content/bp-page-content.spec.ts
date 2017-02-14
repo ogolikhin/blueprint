@@ -6,7 +6,7 @@ import {Models} from "../../../main";
 import {IStatefulArtifactFactory, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {ISelectionManager, SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {ComponentTest} from "../../../util/component.test";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {PageContentCtrl} from "./bp-page-content";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "./mainbreadcrumb.svc.mock";

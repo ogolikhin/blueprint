@@ -2,7 +2,7 @@ import {ILocalizationService} from "../../../../commonModule/localization/locali
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {Models} from "../../../../main/models";
-import {ItemTypePredefined} from "../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../main/models/itemTypePredefined.enum";
 import {ISelectionManager} from "../../../../managers";
 import {IDialogService, IDialogSettings} from "../../../../shared";
 import {BPFieldBaseController} from "../base-controller";

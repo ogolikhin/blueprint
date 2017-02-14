@@ -1,7 +1,7 @@
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {Enums, Models} from "../../../../main/models";
 import {IDialogSettings} from "../../../../shared/";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMoveCopyArtifactPickerOptions, MoveCopyActionType, MoveCopyArtifactInsertMethod, MoveCopyArtifactPickerDialogController} from "./move-copy-artifact";
 
 describe("MoveArtifactPickerDialogController", () => {

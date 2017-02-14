@@ -4,7 +4,7 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/art
 import {IArtifactState} from "../../../managers/artifact-manager/state/state";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 
 export interface IMainBreadcrumbService {
     breadcrumbLinks: IBreadcrumbLink[];

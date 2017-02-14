@@ -1,6 +1,6 @@
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Models} from "../../../main";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 
 export class PropertyEditorFilters {
 

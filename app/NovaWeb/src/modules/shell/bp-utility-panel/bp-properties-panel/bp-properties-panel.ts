@@ -3,7 +3,7 @@ import {PropertyEditor} from "../../../editorsModule/configuration/classes/bp-pr
 import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../../../editorsModule/services";
 import {Models} from "../../../main";
 import {PropertyLookupEnum} from "../../../main/models/enums";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 import {Helper} from "../../../shared/utils/helper";

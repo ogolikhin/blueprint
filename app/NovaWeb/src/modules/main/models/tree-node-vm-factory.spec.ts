@@ -6,7 +6,7 @@ import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manag
 import {ChangeTypeEnum, IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {AdminStoreModels, Models} from "../models";
-import {ItemTypePredefined} from "./item-type-predefined";
+import {ItemTypePredefined} from "./itemTypePredefined.enum";
 import {ArtifactNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
 
 describe("TreeNodeVMFactory", () => {

@@ -1,6 +1,6 @@
 import {IPropertyDescriptor} from "../../../editorsModule/services";
 import {Enums, Models, Relationships} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IRelationship} from "../../../main/models/relationshipModels";
 import {IArtifactAttachment, IArtifactDocRef} from "../../../managers/artifact-manager";
 import {IApplicationError} from "../../../shell/error/applicationError";

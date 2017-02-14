@@ -1,6 +1,6 @@
 import {Models} from "../../../main/models";
 import {PropertyTypePredefined} from "../../../main/models/enums";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IArtifact} from "../../../main/models/models";
 import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 

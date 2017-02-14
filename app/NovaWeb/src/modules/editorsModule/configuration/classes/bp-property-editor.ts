@@ -1,6 +1,6 @@
 import {BPLocale, ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Enums, Models} from "../../../main";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulItem, StatefulSubArtifact} from "../../../managers/artifact-manager";
 import {Helper} from "../../../shared/utils/helper";
 import {IUserGroup} from "../../configuration/types/user-picker/user-picker";

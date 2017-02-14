@@ -10,7 +10,7 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {RolePermissions} from "../../../models/enums";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
 import {DiscardAction} from "./discard-action";

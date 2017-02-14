@@ -1,7 +1,7 @@
 ﻿import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Enums, Models} from "../../../main";
 import {IMessageService} from "../../../main/components/messages/message.svc";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IWindowManager} from "../../../main/services/window-manager";
 import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";

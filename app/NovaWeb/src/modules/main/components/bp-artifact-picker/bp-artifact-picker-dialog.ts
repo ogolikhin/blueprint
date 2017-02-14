@@ -2,7 +2,7 @@ import {ILocalizationService} from "../../../commonModule/localization/localizat
 import {BaseDialogController, IDialogSettings} from "../../../shared/";
 import {Models} from "../../models";
 import {InstanceItemType} from "../../models/admin-store-models";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {InstanceItemNodeVM} from "../../models/tree-node-vm-factory";
 
 export interface IArtifactPickerDialogController {

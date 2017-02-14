@@ -1,7 +1,7 @@
 import "angular-mocks";
 import "rx/dist/rx.lite";
 import {LockedByEnum, LockResultEnum, RolePermissions} from "../../../main/models/enums";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IArtifact} from "../../../main/models/models";
 import {ISession} from "../../../shell/login/session.svc";
 import {SessionSvcMock} from "../../../shell/login/session.svc.mock";

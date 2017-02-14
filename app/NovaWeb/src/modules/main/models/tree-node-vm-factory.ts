@@ -2,7 +2,7 @@ import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {ITreeNode} from "../../shared/widgets/bp-tree-view";
 import {AdminStoreModels, Models} from "./";
-import {ItemTypePredefined} from "./item-type-predefined";
+import {ItemTypePredefined} from "./itemTypePredefined.enum";
 
 export interface ITreeNodeVM<T> extends Models.IViewModel<T>, ITreeNode {
     getCellClass(): string[];

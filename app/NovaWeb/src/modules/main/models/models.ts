@@ -1,6 +1,6 @@
 ﻿import {IArtifactAttachment, IArtifactDocRef} from "../../managers/artifact-manager";
 import {LockResultEnum, PrimitiveType, PropertyTypePredefined, ReuseSettings, RolePermissions, TraceDirection, TraceType} from "./enums";
-import {ItemTypePredefined} from "./item-type-predefined";
+import {ItemTypePredefined} from "./itemTypePredefined.enum";
 import {IRelationship} from "./relationshipModels";
 import * as angular from "angular";
 

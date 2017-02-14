@@ -3,7 +3,7 @@ import {MessageServiceMock} from "../../../../../../../main/components/messages/
 import {IMessageService} from "../../../../../../../main/components/messages/message.svc";
 import {Models} from "../../../../../../../main/models/";
 import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
-import {ItemTypePredefined} from "../../../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactoryMock, StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";

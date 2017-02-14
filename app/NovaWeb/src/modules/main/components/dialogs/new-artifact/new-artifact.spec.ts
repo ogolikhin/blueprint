@@ -3,7 +3,7 @@ import "angular-mocks";
 import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {MetaDataServiceMock} from "../../../../managers/artifact-manager/metadata/metadata.svc.mock";
 import {ModalServiceInstanceMock} from "../../../../shell/login/mocks.spec";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IItemType} from "../../../models/models";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {CreateNewArtifactController} from "./new-artifact";

@@ -1,6 +1,6 @@
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IItemChangeSet, ISelection, IStatefulItem, StatefulArtifact} from "../../managers/artifact-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IUtilityPanelContext, IUtilityPanelController, PanelType, UtilityPanelService} from "./utility-panel.svc";

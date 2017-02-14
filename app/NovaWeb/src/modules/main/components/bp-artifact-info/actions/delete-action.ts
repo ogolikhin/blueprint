@@ -7,7 +7,7 @@ import {ISelectionManager} from "../../../../managers/selection-manager/selectio
 import {BPButtonAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {IApplicationError} from "../../../../shell/error/applicationError";
 import {RolePermissions} from "../../../models/enums";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IArtifact, IArtifactWithProject} from "../../../models/models";
 import {ConfirmDeleteController} from "../../dialogs/bp-confirm-delete/bp-confirm-delete";
 import {Message, MessageType} from "../../messages/message";

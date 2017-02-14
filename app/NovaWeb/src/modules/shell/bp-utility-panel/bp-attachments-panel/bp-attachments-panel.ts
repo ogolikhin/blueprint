@@ -4,7 +4,7 @@ import {ILocalizationService} from "../../../commonModule/localization/localizat
 import {Enums, Models} from "../../../main";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {IMessageService} from "../../../main/components/messages/message.svc";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IArtifactAttachment, IArtifactDocRef, IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IDialogService, IDialogSettings} from "../../../shared";
 import {Helper} from "../../../shared/utils/helper";

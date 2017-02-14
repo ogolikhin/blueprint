@@ -5,7 +5,7 @@ import {LocalizationServiceMock} from "../../../../../commonModule/localization/
 import {NavigationServiceMock} from "../../../../../commonModule/navigation/navigation.service.mock";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {RolePermissions} from "../../../../../main/models/enums";
-import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
 import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";

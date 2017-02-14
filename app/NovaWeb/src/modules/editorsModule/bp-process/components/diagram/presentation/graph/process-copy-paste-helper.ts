@@ -5,7 +5,7 @@ import {ILocalizationService} from "../../../../../../commonModule/localization/
 import {IHttpError} from "../../../../../../commonModule/services/usersAndGroups.service";
 import {Models} from "../../../../../../main";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
-import {ItemTypePredefined} from "../../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../../main/models/itemTypePredefined.enum";
 import {IProcess, ProcessModel} from "../../../../models/process-models";
 import {ISystemTaskShape, IUserTaskShape, ProcessLinkModel} from "../../../../models/process-models";
 import {ClipboardDataType, IClipboardService} from "../../../../services/clipboard.svc";

@@ -1,7 +1,7 @@
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMetaDataService} from "../../../../managers/artifact-manager/metadata/metadata.svc";
 import {BaseDialogController, IDialogSettings} from "../../../../shared";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IItemType, IProjectMeta} from "../../../models/models";
 import {IMessageService} from "../../messages/message.svc";
 

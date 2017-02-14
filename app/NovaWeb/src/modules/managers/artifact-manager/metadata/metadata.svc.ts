@@ -1,6 +1,6 @@
 import {BPLocale, ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {PrimitiveType, PropertyTypePredefined} from "../../../main/models/enums";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IItemType, IOption, IProjectMeta, IPropertyType} from "../../../main/models/models";
 
 export interface IMetaDataService {

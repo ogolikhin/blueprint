@@ -12,7 +12,7 @@ import {ISelectionManager, SelectionManager} from "../../../../managers/selectio
 import {IDialogService} from "../../../../shared";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {RolePermissions} from "../../../models/enums";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
 import {DeleteAction} from "./delete-action";

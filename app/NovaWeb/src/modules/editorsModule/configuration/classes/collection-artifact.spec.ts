@@ -2,7 +2,7 @@ import "angular-mocks";
 import "rx/dist/rx.lite";
 import {ILoadingOverlayService, LoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {Models} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IArtifactService} from "../../../managers/artifact-manager/";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";

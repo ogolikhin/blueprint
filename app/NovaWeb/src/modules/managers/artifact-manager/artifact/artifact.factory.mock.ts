@@ -1,7 +1,7 @@
 import {IProcess, IProcessShape} from "../../../editorsModule/bp-process/models/process-models";
 import {StatefulProcessArtifact} from "../../../editorsModule/bp-process/process-artifact";
 import {Models} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifact, StatefulArtifact, StatefulProcessSubArtifact} from "../artifact";
 import {IStatefulSubArtifact, StatefulSubArtifact} from "../sub-artifact";
 import {IStatefulArtifactFactory} from "./";

@@ -4,7 +4,7 @@ import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../.
 import {Message, MessageType} from "../../../../../main/components/messages/message";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
-import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import {IArtifact, IItem} from "../../../../../main/models/models";
 import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";

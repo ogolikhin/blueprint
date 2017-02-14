@@ -2,7 +2,7 @@ import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/lo
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {BPButtonAction} from "../../../../shared";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMessageService} from "../../messages/message.svc";
 
 export class SaveAction extends BPButtonAction {

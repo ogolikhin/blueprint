@@ -1,4 +1,4 @@
-import {ItemTypePredefined} from "./item-type-predefined";
+import {ItemTypePredefined} from "./itemTypePredefined.enum";
 import {IArtifact} from "./models";
 
 export interface ISearchCriteria {

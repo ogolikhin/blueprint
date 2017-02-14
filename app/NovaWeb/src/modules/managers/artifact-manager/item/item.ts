@@ -1,7 +1,7 @@
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {IPropertyDescriptor} from "../../../editorsModule/services";
 import {Enums, Models, Relationships} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IApplicationError} from "../../../shell/error/applicationError";
 import {ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
 import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet, IItemChangeSet} from "../changeset";

@@ -5,7 +5,7 @@ import {Enums, Models} from "../../../../main/models";
 import {IProjectManager} from "../../../../managers";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../shared";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {
     IMoveCopyArtifactPickerOptions,
     MoveCopyActionType,

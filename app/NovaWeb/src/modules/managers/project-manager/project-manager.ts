@@ -8,7 +8,7 @@ import {OpenProjectController} from "../../main/components/dialogs/open-project/
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {AdminStoreModels, Models, TreeModels} from "../../main/models";
 import {IInstanceItem} from "../../main/models/admin-store-models";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IProjectSearchResult} from "../../main/models/search-service-models";
 import {IDialogService, IDialogSettings} from "../../shared";
 import {IApplicationError} from "../../shell/error/applicationError";

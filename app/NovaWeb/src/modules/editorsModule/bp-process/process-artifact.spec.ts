@@ -4,7 +4,7 @@ import {LoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOv
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {Models} from "../../main/models";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../managers/artifact-manager";
 import {IArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";

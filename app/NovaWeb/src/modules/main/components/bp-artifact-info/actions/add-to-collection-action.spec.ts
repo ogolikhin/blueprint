@@ -11,7 +11,7 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {BPDropdownItemAction} from "../../../../shared/widgets/bp-toolbar/actions/bp-dropdown-action";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
 import {AddToCollectionAction} from "./add-to-collection-action";

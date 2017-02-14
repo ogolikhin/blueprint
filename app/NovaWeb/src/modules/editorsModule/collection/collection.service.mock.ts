@@ -1,4 +1,4 @@
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {ICollection, ICollectionArtifact} from "../configuration/classes/collection-artifact";
 import {ICollectionService} from "./collection.service";
 

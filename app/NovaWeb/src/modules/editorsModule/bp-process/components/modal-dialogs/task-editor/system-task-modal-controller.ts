@@ -3,7 +3,7 @@ import {ILocalizationService} from "../../../../../commonModule/localization/loc
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
 import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {Models} from "../../../../../main/models";
-import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
 import {IDialogService} from "../../../../../shared";

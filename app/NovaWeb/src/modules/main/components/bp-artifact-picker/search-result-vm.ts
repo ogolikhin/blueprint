@@ -1,5 +1,5 @@
 import {AdminStoreModels, Models, SearchServiceModels} from "../../models";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 
 export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult> implements Models.IViewModel<T> {
     public abstract readonly id: string;

@@ -10,7 +10,7 @@ import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-c
 import {MessageType} from "../../main/components/messages/message";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {AdminStoreModels, Models, TreeModels} from "../../main/models";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
 import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";

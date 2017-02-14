@@ -10,7 +10,7 @@ import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../edit
 import {IPropertyDescriptorBuilder} from "../../../editorsModule/services";
 import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IArtifact, ISubArtifact} from "../../../main/models/models";
 import {IDialogService} from "../../../shared/";
 import {ISession} from "../../../shell/login/session.svc";

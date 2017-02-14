@@ -4,7 +4,7 @@ import {ArtifactService} from "../../../managers/artifact-manager";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ProjectService} from "../../../managers/project-manager/project-service";
 import {ProjectServiceMock} from "../../../managers/project-manager/project-service.mock";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IMainBreadcrumbService, MainBreadcrumbService} from "./mainbreadcrumb.svc";
 import * as angular from "angular";
 

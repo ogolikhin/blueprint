@@ -7,7 +7,7 @@ import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {DialogService, IDialogService} from "../../../../shared/widgets/bp-dialog";
 import {RolePermissions} from "../../../models/enums";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
 import {SaveAction} from "./save-action";

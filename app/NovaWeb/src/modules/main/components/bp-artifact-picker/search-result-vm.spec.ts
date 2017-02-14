@@ -3,7 +3,7 @@ import "angular-mocks";
 import "lodash";
 import {IProjectService} from "../../../managers/project-manager/";
 import {SearchServiceModels} from "../../models";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {ArtifactSearchResultVM, ProjectSearchResultVM, SearchResultVM} from "./search-result-vm";
 
 describe("SearchResultVMFactory", () => {

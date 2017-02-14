@@ -19,7 +19,7 @@ import {
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {Enums} from "../../models";
 import {LockedByEnum} from "../../models/enums";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IMainWindow, IWindowManager, ResizeCause} from "../../services";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {IMessageService} from "../messages/message.svc";

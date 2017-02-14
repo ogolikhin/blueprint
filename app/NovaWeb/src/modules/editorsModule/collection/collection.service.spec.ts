@@ -2,7 +2,7 @@ import "angular-mocks";
 import "rx/dist/rx.lite";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {ICollection} from "../configuration/classes/collection-artifact";
 import {CollectionService, ICollectionService} from "./collection.service";
 import * as angular from "angular";

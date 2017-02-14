@@ -4,7 +4,7 @@ import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadi
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";

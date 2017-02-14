@@ -3,7 +3,7 @@ import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker
 import {IArtifactRelationships, IStatefulItem} from "../../../../managers/artifact-manager";
 import {BaseDialogController, IDialogService, IDialogSettings} from "../../../../shared";
 import {AdminStoreModels, Models, Relationships, TreeModels} from "../../../models";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IDialogRelationshipItem} from "../../../models/relationshipModels";
 import * as _ from "lodash";
 

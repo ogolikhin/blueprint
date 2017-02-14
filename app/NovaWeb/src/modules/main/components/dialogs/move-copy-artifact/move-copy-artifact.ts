@@ -1,7 +1,7 @@
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {Models} from "../../../../main/models";
 import {IDialogSettings} from "../../../../shared/";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IArtifactPickerAPI} from "../../bp-artifact-picker/bp-artifact-picker";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../bp-artifact-picker/bp-artifact-picker-dialog";
 

@@ -10,7 +10,7 @@ import {ISelectionManager} from "../../../managers/selection-manager/selection-m
 import {IDialogService, IDialogSettings} from "../../../shared";
 import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
 import {Enums, Models} from "../../models";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IArtifact} from "../../models/models";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";

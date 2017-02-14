@@ -1,7 +1,7 @@
 import "angular-mocks";
 import "script!mxClient";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import * as TestModels from "../../../models/test-model-factory";
 import * as TestShapes from "../../../models/test-shape-factory";
 import {IStatefulProcessArtifact, StatefulProcessArtifact} from "./../../../process-artifact";

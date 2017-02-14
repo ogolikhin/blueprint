@@ -11,7 +11,7 @@ import {Message, MessageType} from "../../main/components/messages/message";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {Models} from "../../main/models";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";

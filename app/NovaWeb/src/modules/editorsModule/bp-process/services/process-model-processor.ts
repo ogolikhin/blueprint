@@ -1,4 +1,4 @@
-﻿import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+﻿import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IDiagramNode} from "../components/diagram/presentation/graph/models/process-graph-interfaces";
 import * as ProcessModels from "../models/process-models";
 

@@ -4,7 +4,7 @@ import "angular-sanitize";
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";

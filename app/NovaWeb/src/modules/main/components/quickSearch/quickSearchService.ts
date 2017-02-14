@@ -1,6 +1,6 @@
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
 import {IProjectManager} from "../../../managers/project-manager/project-manager";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IItemType} from "../../models/models";
 
 export interface ISearchMetadata {

@@ -1,7 +1,7 @@
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
 import {Models} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {BPButtonAction} from "../../../shared";
 import {IDialogService, IDialogSettings} from "../../../shared";
 import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";

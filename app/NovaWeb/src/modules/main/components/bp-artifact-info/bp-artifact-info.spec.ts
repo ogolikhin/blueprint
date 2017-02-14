@@ -15,7 +15,7 @@ import {ProjectManagerMock} from "../../../managers/project-manager/project-mana
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {LockedByEnum} from "../../models/enums";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IMainWindow, IWindowManager} from "../../services/window-manager";
 import {MainBreadcrumbServiceMock} from "../bp-page-content/mainbreadcrumb.svc.mock";
 import {MessageServiceMock} from "../messages/message.mock";

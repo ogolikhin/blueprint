@@ -8,7 +8,7 @@ import {IMetaDataService, IStatefulArtifact, IStatefulArtifactFactory, MetaDataS
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "../../bp-page-content/mainbreadcrumb.svc.mock";
 import {RefreshAction} from "./refresh-action";

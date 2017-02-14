@@ -11,7 +11,7 @@ import {MessageType} from "../../../main/components/messages/message";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {Enums, Models} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ApplicationError} from "../../../shell/error/applicationError";

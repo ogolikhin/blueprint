@@ -1,7 +1,7 @@
 import "./";
 import "angular-mocks";
 import "lodash";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {BPItemTypeIconController, IBPItemTypeIconController} from "./bp-item-icon";
 
 describe("BPArtifactListComponent", () => {

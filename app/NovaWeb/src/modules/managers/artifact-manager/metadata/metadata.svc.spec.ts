@@ -3,7 +3,7 @@ import "angular-mocks";
 import "lodash";
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IMetaDataService, MetaDataService, ProjectMetaData} from "./metadata.svc";
 
 

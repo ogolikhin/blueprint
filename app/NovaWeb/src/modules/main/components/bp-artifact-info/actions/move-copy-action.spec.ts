@@ -10,7 +10,7 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {RolePermissions} from "../../../models/enums";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MoveCopyArtifactInsertMethod, MoveCopyArtifactResult} from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";

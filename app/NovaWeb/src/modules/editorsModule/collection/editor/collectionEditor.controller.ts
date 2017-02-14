@@ -2,7 +2,7 @@ import {ILocalizationService} from "../../../commonModule/localization/localizat
 import {Models} from "../../../main";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {Enums} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IWindowManager} from "../../../main/services/window-manager";
 import {IMetaDataService} from "../../../managers/artifact-manager";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset";

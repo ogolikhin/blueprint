@@ -4,7 +4,7 @@ import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {Enums, Models} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {SessionSvcMock} from "../../../shell/login/session.svc.mock";

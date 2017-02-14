@@ -4,7 +4,7 @@ import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/art
 import {IProjectManager} from "../../../managers/project-manager";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 

@@ -1,5 +1,5 @@
 ﻿import {Enums, Models} from "../../main";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
 
 export class Helper {

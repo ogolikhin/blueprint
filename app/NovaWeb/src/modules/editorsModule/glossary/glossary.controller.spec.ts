@@ -3,7 +3,7 @@ import "angular-mocks";
 import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";

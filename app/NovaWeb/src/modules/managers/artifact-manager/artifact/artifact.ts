@@ -1,7 +1,7 @@
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
 import {Enums, Models} from "../../../main/models";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IDialogSettings} from "../../../shared";
 import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
 import {ErrorCode} from "../../../shell/error/error-code";

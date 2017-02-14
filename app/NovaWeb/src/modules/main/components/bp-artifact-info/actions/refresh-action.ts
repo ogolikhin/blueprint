@@ -3,7 +3,7 @@ import {ILocalizationService} from "../../../../commonModule/localization/locali
 import {IMetaDataService, IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {IProjectManager} from "../../../../managers/project-manager";
 import {BPButtonAction} from "../../../../shared";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 
 export class RefreshAction extends BPButtonAction {

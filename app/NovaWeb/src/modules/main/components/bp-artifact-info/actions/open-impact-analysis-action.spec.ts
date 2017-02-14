@@ -5,7 +5,7 @@ import {LocalizationServiceMock} from "../../../../commonModule/localization/loc
 import {RolePermissions} from "../../../../main/models/enums";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {OpenImpactAnalysisAction} from "./open-impact-analysis-action";
 import * as angular from "angular";
 

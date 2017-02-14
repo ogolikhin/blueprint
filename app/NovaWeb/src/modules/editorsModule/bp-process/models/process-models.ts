@@ -1,5 +1,5 @@
 import {PropertyTypePredefined} from "../../../main/models/enums";
-import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IHashMap} from "../../../main/models/models";
 import {ClipboardDataType, IClipboardData} from "../services/clipboard.svc";
 import {PropertyType, PropertyValueFormat} from "./enums";

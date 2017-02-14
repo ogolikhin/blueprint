@@ -4,7 +4,7 @@ import {INavigationService} from "../../commonModule/navigation/navigation.servi
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {IMessageService} from "../../main/components/messages/message.svc";
-import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {IDialogService} from "../../shared/";

@@ -6,7 +6,7 @@ import {IProjectService} from "../../../managers/project-manager/project-service
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
-import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
 import * as angular from "angular";

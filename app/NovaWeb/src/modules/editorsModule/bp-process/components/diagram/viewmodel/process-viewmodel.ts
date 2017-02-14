@@ -38,6 +38,8 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     isShapeJustCreated(id: number): boolean;
     addShape(processShape: ProcessModels.IProcessShape);
     removeShape(shapeId: number);
+    updateProcessModel(process: ProcessModels.IProcess): void;
+    getClonedProcessModel(): ProcessModels.IProcess;
     isFirstFlow(link: ProcessModels.IProcessLink): boolean;
     isInNestedFlow(id: number): boolean;
     isInMainFlow(id: number): boolean;
@@ -511,6 +513,19 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public get isRootScopeConfigValid(): boolean {
         return this._rootScope && this._rootScope.config;
+    }
+
+    public updateProcessModel(process: ProcessModels.IProcess): void {
+        this.process.shapes = process.shapes;
+        this.process.links = process.links;
+        this.process.decisionBranchDestinationLinks = process.decisionBranchDestinationLinks;
+
+        // initialize tree and flow
+        this.updateTreeAndFlows();
+    }
+
+    public getClonedProcessModel(): ProcessModels.IProcess {
+        return _.cloneDeep(this.process);
     }
 
     public destroy() {

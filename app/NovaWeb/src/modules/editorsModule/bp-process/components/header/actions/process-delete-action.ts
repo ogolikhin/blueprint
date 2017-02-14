@@ -57,10 +57,6 @@ export class ProcessDeleteAction extends DeleteAction {
             return this.hasDesiredPermissions(RolePermissions.Delete);
         }
 
-        if (this.selectedNodes.length > 1) {
-            return false;
-        }
-
         const selectedNode: IDiagramNode = this.selectedNodes[0];
 
         //Subartifact is selected and selective readonly is set

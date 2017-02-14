@@ -1,22 +1,23 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
 import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
-import {ProcessDeleteAction} from "./process-delete-action";
-import {NavigationServiceMock} from "../../../../../commonModule/navigation/navigation.service.mock";
-import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
-import {CommunicationManager} from "../../../services/communication-manager";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
-import {StatefulProcessArtifact, IStatefulProcessArtifact} from "../../../process-artifact";
-import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ItemTypePredefined, RolePermissions} from "../../../../../main/models/enums";
-import {IToolbarCommunication} from "../toolbar-communication";
-import * as TestShapes from "../../../models/test-shape-factory";
-import * as TestModels from "../../../models/test-model-factory";
+import {NavigationServiceMock} from "../../../../../commonModule/navigation/navigation.service.mock";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {RolePermissions} from "../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
+import {ProjectManagerMock} from "../../../../../managers/project-manager/project-manager.mock";
 import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
+import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import * as TestModels from "../../../models/test-model-factory";
+import * as TestShapes from "../../../models/test-shape-factory";
+import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
+import {CommunicationManager} from "../../../services/communication-manager";
+import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
+import {ProcessEvents} from "../../diagram/process-diagram-communication";
+import {IToolbarCommunication} from "../toolbar-communication";
+import {ProcessDeleteAction} from "./process-delete-action";
+import * as angular from "angular";
 
 describe("ProcessDeleteAction", () => {
     let $rootScope: ng.IRootScopeService;

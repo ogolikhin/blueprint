@@ -1,9 +1,9 @@
-import {IArtifactReference, IHashMapOfPropertyValues, IProcessShape, ITaskFlags, ItemTypePredefined} from "./models/process-models";
-import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulArtifactServices} from "../../managers/artifact-manager/services";
+import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
 import {Helper} from "../../shared/utils/helper";
-
+import {IArtifactReference, IHashMapOfPropertyValues, IProcessShape, ITaskFlags} from "./models/process-models";
 
 export interface IStatefulProcessSubArtifact extends IStatefulSubArtifact {
     loadProperties(): ng.IPromise<IStatefulSubArtifact>;

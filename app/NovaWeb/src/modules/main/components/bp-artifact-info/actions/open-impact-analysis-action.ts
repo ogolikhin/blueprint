@@ -1,9 +1,8 @@
-import {BPButtonAction} from "../../../../shared";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
-import {AnalyticsCategories, AnalyticsActions} from "../../../../main/components/analytics";
-import {IAnalyticsService} from "../../analytics/analyticsService";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {BPButtonAction} from "../../../../shared";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {AnalyticsCategories, AnalyticsActions, IAnalyticsService} from "../../../../main/components/analytics";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
     constructor(

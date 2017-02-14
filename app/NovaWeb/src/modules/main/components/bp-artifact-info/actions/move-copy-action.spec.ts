@@ -1,20 +1,21 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
-import {MoveCopyAction} from "./move-copy-action";
+import "angular-mocks";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {Enums, Models} from "../../../../main/models";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {MoveCopyArtifactResult, MoveCopyArtifactInsertMethod} from "../../dialogs/move-copy-artifact/move-copy-artifact";
-import {Enums, Models} from "../../../../main/models";
-import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
-import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {RolePermissions} from "../../../models/enums";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {MoveCopyArtifactInsertMethod, MoveCopyArtifactResult} from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
+import {MoveCopyAction} from "./move-copy-action";
+import * as angular from "angular";
 
 
 describe("MoveCopyAction", () => {

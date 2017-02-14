@@ -1,4 +1,4 @@
-﻿import {Models} from "../../../main/models";
+﻿import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 
 export class BPItemTypeIconComponent implements ng.IComponentOptions {
     public template: string = require("./bp-item-icon.html");
@@ -34,7 +34,7 @@ export class BPItemTypeIconController implements IBPItemTypeIconController {
 
     public $onChanges = () => {
         this.showBasicIcon = _.isFinite(this.predefinedType) && !_.isFinite(this.itemTypeIconId);
-        this.artifactTypeDescription = Models.ItemTypePredefined[this.predefinedType] || "Document";
+        this.artifactTypeDescription = ItemTypePredefined[this.predefinedType] || "Document";
         this.iconClass = "icon-" + (_.kebabCase(this.artifactTypeDescription));
         this.altText = _.startCase(this.artifactTypeDescription);
         this.imageSource = this.getImageSource();

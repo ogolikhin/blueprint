@@ -1,20 +1,20 @@
+import "../../../";
+import "angular-mocks";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
-import {IProjectService} from "../../../../managers/project-manager/project-service";
-import {IProjectManager} from "../../../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
-import * as angular from "angular";
-import "angular-mocks";
-import "../../../";
-import {DiscardAction} from "./discard-action";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
-import {IMessageService} from "../../messages/message.svc";
+import {IProjectManager} from "../../../../managers/project-manager/project-manager";
+import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
+import {RolePermissions} from "../../../models/enums";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
+import {IMessageService} from "../../messages/message.svc";
+import {DiscardAction} from "./discard-action";
+import * as angular from "angular";
 
 describe("DiscardAction", () => {
     let $scope: ng.IScope;

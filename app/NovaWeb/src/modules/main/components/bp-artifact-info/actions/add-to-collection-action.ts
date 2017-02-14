@@ -1,19 +1,16 @@
-import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager} from "../../../../managers";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
-import {
-    AddArtifactToCollectionDialogController,
-    IAddArtifactToCollectionResult
-} from "../../../../main/components/dialogs/add-artifact-to-collection";
-
-import {ItemTypePredefined} from "../../../models/enums";
+import {IItemInfoResult, IItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {ICollectionService} from "../../../../editorsModule/collection/collection.service";
+import {AddArtifactToCollectionDialogController, IAddArtifactToCollectionResult} from "../../../../main/components/dialogs/add-artifact-to-collection";
+import {IProjectManager} from "../../../../managers";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {ErrorCode} from "../../../../shell/error/error-code";
-import {IItemInfoService, IItemInfoResult} from "../../../../commonModule/itemInfo/itemInfo.service";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMessageService} from "../../messages/message.svc";
+
 
 export class AddToCollectionAction extends BPDropdownAction {
 

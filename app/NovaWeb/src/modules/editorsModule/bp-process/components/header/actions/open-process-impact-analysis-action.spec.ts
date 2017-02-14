@@ -1,15 +1,15 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "script!mxClient";
-import {ProcessEvents} from "./../../diagram/process-diagram-communication";
-import {OpenProcessImpactAnalysisAction} from "./open-process-impact-analysis-action";
-import {StatefulProcessArtifact, IStatefulProcessArtifact} from "./../../../process-artifact";
-import {IProcessDiagramCommunication} from "./../../diagram/process-diagram-communication";
-import {CommunicationManager} from "./../../../services/communication-manager";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../../../../main/models/enums";
-import * as TestShapes from "../../../models/test-shape-factory";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import * as TestModels from "../../../models/test-model-factory";
+import * as TestShapes from "../../../models/test-shape-factory";
+import {IStatefulProcessArtifact, StatefulProcessArtifact} from "./../../../process-artifact";
+import {CommunicationManager} from "./../../../services/communication-manager";
+import {ProcessEvents} from "./../../diagram/process-diagram-communication";
+import {IProcessDiagramCommunication} from "./../../diagram/process-diagram-communication";
+import {OpenProcessImpactAnalysisAction} from "./open-process-impact-analysis-action";
+import * as angular from "angular";
 
 describe("OpenProcessImpactAnalysisAction", () => {
     let $rootScope: ng.IRootScopeService;

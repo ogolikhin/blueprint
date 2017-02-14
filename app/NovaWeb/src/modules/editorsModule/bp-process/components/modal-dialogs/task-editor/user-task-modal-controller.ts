@@ -1,17 +1,18 @@
-import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
-import {ISession} from "../../../../../shell/login/session.svc";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay";
-import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
-import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
-import {IDialogService} from "../../../../../shared";
-import {IModalScope} from "../base-modal-dialog-controller";
-import {UserTaskDialogModel} from "./userTaskDialogModel";
-import {IArtifactReference} from "../../../models/process-models";
-import {TaskModalController} from "./task-modal-controller";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
 import {Models} from "../../../../../main/models";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {IDialogService} from "../../../../../shared";
+import {ISession} from "../../../../../shell/login/session.svc";
+import {IArtifactReference} from "../../../models/process-models";
 import {IdGenerator} from "../../diagram/presentation/graph/shapes/id-generator";
+import {IModalScope} from "../base-modal-dialog-controller";
+import {TaskModalController} from "./task-modal-controller";
+import {UserTaskDialogModel} from "./userTaskDialogModel";
 
 export class UserTaskModalController extends TaskModalController<UserTaskDialogModel> {
     public actionPlaceHolderText: string;
@@ -122,7 +123,7 @@ export class UserTaskModalController extends TaskModalController<UserTaskDialogM
             projectId: null,
             name: this.localization.get("ST_New_User_Task_Persona"),
             typePrefix: null,
-            baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+            baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: null,
             link: null,
             version: null

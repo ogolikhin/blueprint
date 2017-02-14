@@ -1,12 +1,13 @@
-﻿import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
+﻿import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {Helper} from "../../../shared/";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
 import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {ArtifactSearchResultVM, ProjectSearchResultVM, SearchResultVM} from "./search-result-vm";
-import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 /**
  * Usage:
@@ -57,7 +58,7 @@ export interface IArtifactPickerController {
 
     // BpArtifactPicker bindings
     api: IArtifactPickerAPI;
-    selectableItemTypes?: Models.ItemTypePredefined[];
+    selectableItemTypes?: ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showProjects?: boolean;
     showArtifacts?: boolean;
@@ -113,7 +114,7 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
 
     // BpArtifactPicker bindings
     public api: IArtifactPickerAPI;
-    public selectableItemTypes: Models.ItemTypePredefined[];
+    public selectableItemTypes: ItemTypePredefined[];
     public selectionMode: "single" | "multiple" | "checkbox";
     public showProjects: boolean;
     public showArtifacts: boolean;
@@ -275,17 +276,17 @@ export class BpArtifactPickerController implements ng.IComponentController, IArt
             let itemTypes = [];
 
             const artifactTypes = metaData.data.artifactTypes.filter(a => {
-                if ((a.predefinedType & Models.ItemTypePredefined.BaselineArtifactGroup) !== 0) {
+                if ((a.predefinedType & ItemTypePredefined.BaselineArtifactGroup) !== 0) {
                     return this.showBaselinesAndReviews &&
-                        a.id !== Models.ItemTypePredefined.BaselinesAndReviews; // Exclude main Baselines and Reviews folder
+                        a.id !== ItemTypePredefined.BaselinesAndReviews; // Exclude main Baselines and Reviews folder
                 }
-                if ((a.predefinedType & Models.ItemTypePredefined.CollectionArtifactGroup) !== 0) {
+                if ((a.predefinedType & ItemTypePredefined.CollectionArtifactGroup) !== 0) {
                     return this.showCollections &&
-                        a.id !== Models.ItemTypePredefined.Collections; // Exclude main Collection folder
+                        a.id !== ItemTypePredefined.Collections; // Exclude main Collection folder
                 }
                 return this.showArtifacts &&
-                    a.predefinedType !== Models.ItemTypePredefined.Project &&
-                    a.predefinedType !== Models.ItemTypePredefined.Baseline;
+                    a.predefinedType !== ItemTypePredefined.Project &&
+                    a.predefinedType !== ItemTypePredefined.Baseline;
             });
             if (artifactTypes.length) {
                 itemTypes = artifactTypes;

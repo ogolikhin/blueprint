@@ -1,7 +1,6 @@
-import {ICollectionService} from "./collection.service";
-import {IArtifact} from "../../main/models/models";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {ICollection, ICollectionArtifact} from "../configuration/classes/collection-artifact";
-import {Models} from "../../main";
+import {ICollectionService} from "./collection.service";
 
 export class CollectionServiceMock implements ICollectionService {
     public static $inject = ["$q"];
@@ -49,7 +48,7 @@ export class CollectionServiceMock implements ICollectionService {
                     description: "<html><head></head><body style=\"padding: 1px 0px 0px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">on point</p></div></body></html>",
                     prefix: "TR",
                     itemTypeId: 5,
-                    itemTypePredefined: Models.ItemTypePredefined.Actor,
+                    itemTypePredefined: ItemTypePredefined.Actor,
                     artifactPath: ["Path1"]
                 },
                 <ICollectionArtifact>{
@@ -58,7 +57,7 @@ export class CollectionServiceMock implements ICollectionService {
                     description: "<html><head></head><body style=\"padding: 1px 0px 0px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a href=\"http://www.google.com/\" style=\"color: Blue; text-decoration: underline\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px\">google.com</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
                     prefix: "TR",
                     itemTypeId: 5,
-                    itemTypePredefined: Models.ItemTypePredefined.Actor,
+                    itemTypePredefined: ItemTypePredefined.Actor,
                     artifactPath: ["Path1"]
                 },
                 <ICollectionArtifact>{
@@ -67,7 +66,7 @@ export class CollectionServiceMock implements ICollectionService {
                     description: "<html><head></head><body style=\"padding: 1px 0px 0px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">cat thing</p></div></body></html>",
                     prefix: "TR",
                     itemTypeId: 5,
-                    itemTypePredefined: Models.ItemTypePredefined.Actor,
+                    itemTypePredefined: ItemTypePredefined.Actor,
                     artifactPath: ["Path1"]
                 },
                 <ICollectionArtifact>{
@@ -76,7 +75,7 @@ export class CollectionServiceMock implements ICollectionService {
                     description: "<html><head></head><body style=\"padding: 1px 0px 0px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">a kind of&nbsp;<span style=\"font-weight: bold\">pokemon</span></p></div></body></html>",
                     prefix: "TR",
                     itemTypeId: 5,
-                    itemTypePredefined: Models.ItemTypePredefined.Actor,
+                    itemTypePredefined: ItemTypePredefined.Actor,
                     artifactPath: ["Path1"]
                 }
             ]

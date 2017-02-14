@@ -1,9 +1,10 @@
-import {IStatefulArtifactFactory} from "./";
-import {IStatefulArtifact, StatefulArtifact, StatefulProcessSubArtifact} from "../artifact";
-import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
-import {Models} from "../../../main/models";
-import {IProcessShape, IProcess} from "../../../editorsModule/bp-process/models/process-models";
+import {IProcess, IProcessShape} from "../../../editorsModule/bp-process/models/process-models";
 import {StatefulProcessArtifact} from "../../../editorsModule/bp-process/process-artifact";
+import {Models} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
+import {IStatefulArtifact, StatefulArtifact, StatefulProcessSubArtifact} from "../artifact";
+import {IStatefulSubArtifact, StatefulSubArtifact} from "../sub-artifact";
+import {IStatefulArtifactFactory} from "./";
 
 export interface IStatefulArtifactFactoryMock extends IStatefulArtifactFactory {
     populateStatefulProcessWithProcessModel(statefulArtifact: StatefulProcessArtifact, process: IProcess);
@@ -11,7 +12,7 @@ export interface IStatefulArtifactFactoryMock extends IStatefulArtifactFactory {
 
 export class StatefulArtifactFactoryMock implements IStatefulArtifactFactoryMock {
     public createStatefulArtifact(artifact: Models.IArtifact): IStatefulArtifact {
-        if (artifact.predefinedType === Models.ItemTypePredefined.Process) {
+        if (artifact.predefinedType === ItemTypePredefined.Process) {
             return new StatefulProcessArtifact(artifact, null);
         }
         return new StatefulArtifact(artifact, null);

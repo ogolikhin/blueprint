@@ -1,14 +1,15 @@
-﻿import {ISystemTaskShape, PropertyTypePredefined, IArtifactReference} from "../../../../../models/process-models";
-import {ItemIndicatorFlags, ProcessShapeType} from "../../../../../models/enums";
+﻿import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ProcessShapeType} from "../../../../../models/enums";
+import {IArtifactReference, ISystemTaskShape} from "../../../../../models/process-models";
 import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {IProcessGraph, IDiagramNode, IDiagramNodeElement, ISystemTask, NodeType, ElementType} from "../models/";
-import {ShapesFactory} from "./shapes-factory";
+import {ProcessEvents} from "../../../process-diagram-communication";
+import {Button} from "../buttons/button";
+import {ILabel, Label, LabelStyle, LabelType} from "../labels/label";
+import {ElementType, IDiagramNode, IDiagramNodeElement, IProcessGraph, ISystemTask, NodeType} from "../models/";
 import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
-import {Button} from "../buttons/button";
-import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
-import {ProcessEvents} from "../../../process-diagram-communication";
+import {ShapesFactory} from "./shapes-factory";
 
 export class SystemTask extends DiagramNode<ISystemTaskShape> implements ISystemTask {
 

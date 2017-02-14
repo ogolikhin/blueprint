@@ -1,5 +1,6 @@
-﻿import * as ProcessModels from "../models/process-models";
+﻿import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IDiagramNode} from "../components/diagram/presentation/graph/models/process-graph-interfaces";
+import * as ProcessModels from "../models/process-models";
 
 export interface IProcessModelProcessor {
     processModelBeforeSave(model: ProcessModels.IProcess): ProcessModels.IProcess;
@@ -54,10 +55,10 @@ export class ProcessModelProcessor implements IProcessModelProcessor {
                 let sourceNode = <IDiagramNode>value.sourceNode;
                 let destinationNode = <IDiagramNode>value.destinationNode;
 
-                if (sourceNode != null && sourceNode.model.baseItemTypePredefined === ProcessModels.ItemTypePredefined.None) {
+                if (sourceNode != null && sourceNode.model.baseItemTypePredefined === ItemTypePredefined.None) {
                     continue;
                 }
-                else if (destinationNode != null && destinationNode.model.baseItemTypePredefined === ProcessModels.ItemTypePredefined.None) {
+                else if (destinationNode != null && destinationNode.model.baseItemTypePredefined === ItemTypePredefined.None) {
                     let nextNodes = destinationNode.getNextNodes();
                     if (nextNodes) {
                         value.destinationId = destinationNode.getNextNodes()[0].model.id;
@@ -92,7 +93,7 @@ export class ProcessModelProcessor implements IProcessModelProcessor {
             for (let shapeCounter = 0; shapeCounter < model.shapes.length; shapeCounter++) {
 
                 let value: ProcessModels.IProcessShape = model.shapes[shapeCounter];
-                if (value.baseItemTypePredefined === ProcessModels.ItemTypePredefined.None) {
+                if (value.baseItemTypePredefined === ItemTypePredefined.None) {
                     continue;
                 }
 

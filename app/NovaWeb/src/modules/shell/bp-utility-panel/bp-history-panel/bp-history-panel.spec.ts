@@ -3,7 +3,7 @@ import "angular-sanitize";
 import "angular-ui-router";
 import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../../main/models/enums";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {ArtifactStateEnum} from "../../../main/models/models";
 import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";

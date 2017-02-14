@@ -1,10 +1,11 @@
-import {IDialogSettings, IDialogService} from "../../../../shared";
-import {BPFieldBaseController} from "../base-controller";
-import {Models} from "../../../../main/models";
-import {ISelectionManager} from "../../../../managers";
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../main/components/bp-artifact-picker";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
+import {Models} from "../../../../main/models";
+import {ItemTypePredefined} from "../../../../main/models/itemTypePredefined.enum";
+import {ISelectionManager} from "../../../../managers";
+import {IDialogService, IDialogSettings} from "../../../../shared";
+import {BPFieldBaseController} from "../base-controller";
 
 export class BPFieldInheritFrom implements AngularFormly.ITypeOptions {
     public name: string = "bpFieldInheritFrom";
@@ -74,7 +75,7 @@ export class BPFieldInheritFromController extends BPFieldBaseController {
             };
 
             const dialogData: IArtifactPickerOptions = {
-                selectableItemTypes: [Models.ItemTypePredefined.Actor],
+                selectableItemTypes: [ItemTypePredefined.Actor],
                 showSubArtifacts: false
             };
 

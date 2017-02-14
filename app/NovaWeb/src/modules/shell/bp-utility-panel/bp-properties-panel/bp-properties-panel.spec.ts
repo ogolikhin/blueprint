@@ -1,4 +1,3 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
 import "rx/dist/rx.lite";
@@ -8,19 +7,21 @@ import {INovaProcess} from "../../../editorsModule/bp-process/process-artifact";
 import {IPropertyDescriptor, PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {Enums, Models} from "../../../main";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {ArtifactAttachmentsMock} from "../../../managers/artifact-manager/attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../../../managers/artifact-manager/relationships/relationships.svc.mock";
 import {ValidationServiceMock} from "../../../managers/artifact-manager/validation/validation.mock";
 import {ISelectionManager, SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {ComponentTest} from "../../../util/component.test";
-import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
-import {BPPropertiesController} from "./bp-properties-panel";
 import {LicenseServiceMock} from "../../license/license.svc.mock";
 import {SessionSvcMock} from "../../login/session.svc.mock";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
+import {BPPropertiesController} from "./bp-properties-panel";
+import * as angular from "angular";
 
 describe("Component BPPropertiesPanel", () => {
 
@@ -96,7 +97,7 @@ describe("Component BPPropertiesPanel", () => {
                 id: 22,
                 name: "Artifact",
                 prefix: "My",
-                predefinedType: Models.ItemTypePredefined.Actor
+                predefinedType: ItemTypePredefined.Actor
             } as Models.IArtifact;
             const observerSpy1 = spyOn(artifactService, "getArtifact").and.callThrough();
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
@@ -118,13 +119,13 @@ describe("Component BPPropertiesPanel", () => {
                 id: 22,
                 name: "Artifact",
                 prefix: "My",
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
             const subArtifactModel = {
                 id: 32,
                 name: "SubArtifact",
                 prefix: "SA",
-                predefinedType: Models.ItemTypePredefined.PROShape
+                predefinedType: ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
 
             const observerSpy1 = spyOn(artifactService, "getSubArtifact").and.callThrough();
@@ -152,14 +153,14 @@ describe("Component BPPropertiesPanel", () => {
                 id: 22,
                 name: "Artifact",
                 prefix: "My",
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
             const artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
             const subArtifact: Models.ISubArtifact = <any>{
                 id: 32,
                 name: "SubArtifact",
                 prefix: "SA",
-                predefinedType: Models.ItemTypePredefined.PROShape
+                predefinedType: ItemTypePredefined.PROShape
             };
             const statefulSubArtifact = statefulArtifactFactory.createStatefulSubArtifact(artifact, subArtifact);
             const observerSpy1 = spyOn(metadataService, "getArtifactPropertyTypes").and.callThrough();
@@ -183,7 +184,7 @@ describe("Component BPPropertiesPanel", () => {
                 id: 22,
                 name: "Artifact",
                 prefix: "My",
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
             ctrl.customFields = [];
             expect(ctrl.editor.propertyContexts).toBeFalsy();
@@ -297,13 +298,13 @@ describe("Component BPPropertiesPanel", () => {
                 id: 22,
                 name: "Business Process",
                 prefix: "My",
-                predefinedType: Models.ItemTypePredefined.BusinessProcess
+                predefinedType: ItemTypePredefined.BusinessProcess
             } as Models.IArtifact;
             const subArtifactModel = {
                 id: 32,
                 name: "Business Process Shape",
                 prefix: "SA",
-                predefinedType: Models.ItemTypePredefined.BPShape
+                predefinedType: ItemTypePredefined.BPShape
             } as Models.ISubArtifact;
 
             const deferred = $q.defer<any>();
@@ -312,7 +313,7 @@ describe("Component BPPropertiesPanel", () => {
                     artifactTypes: [],
                     propertyTypes: [],
                     subArtifactTypes: [{
-                            predefinedType: Models.ItemTypePredefined.BPShape,
+                            predefinedType: ItemTypePredefined.BPShape,
                             customProperties: []
                         }
                     ]
@@ -350,13 +351,13 @@ describe("Component BPPropertiesPanel", () => {
                 id: 22,
                 name: "Artifact",
                 prefix: "My",
-                predefinedType: Models.ItemTypePredefined.BusinessProcess
+                predefinedType: ItemTypePredefined.BusinessProcess
             } as Models.IArtifact;
             const subArtifactModel = {
                 id: 32,
                 name: "SubArtifact",
                 prefix: "SA",
-                predefinedType: Models.ItemTypePredefined.BPShape
+                predefinedType: ItemTypePredefined.BPShape
             } as Models.ISubArtifact;
 
             const x = 1;
@@ -374,7 +375,7 @@ describe("Component BPPropertiesPanel", () => {
                     artifactTypes: [],
                     propertyTypes: [],
                     subArtifactTypes: [{
-                            predefinedType: Models.ItemTypePredefined.BPShape,
+                            predefinedType: ItemTypePredefined.BPShape,
                             customProperties: []
                         }
                     ]
@@ -385,7 +386,7 @@ describe("Component BPPropertiesPanel", () => {
 
             spyOn(artifactService, "getSubArtifact").and.callFake((artifactId: number, subArtifactId: number) => {
                     const model = {
-                        predefinedType: Models.ItemTypePredefined.BPShape,
+                        predefinedType: ItemTypePredefined.BPShape,
                         specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]
                     };
                     const deferred = $q.defer<any>();
@@ -428,13 +429,13 @@ describe("Component BPPropertiesPanel", () => {
                 id: 22,
                 name: "Artifact",
                 prefix: "My",
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
             const subArtifactModel = {
                 id: 32,
                 name: "SubArtifact",
                 prefix: "SA",
-                predefinedType: Models.ItemTypePredefined.PROShape
+                predefinedType: ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
 
             const x = 1;
@@ -452,7 +453,7 @@ describe("Component BPPropertiesPanel", () => {
                     artifactTypes: [],
                     propertyTypes: [],
                     subArtifactTypes: [{
-                            predefinedType: Models.ItemTypePredefined.PROShape,
+                            predefinedType: ItemTypePredefined.PROShape,
                             customProperties: []
                         }
                     ]
@@ -463,7 +464,7 @@ describe("Component BPPropertiesPanel", () => {
 
             spyOn(artifactService, "getSubArtifact").and.callFake((artifactId: number, subArtifactId: number) => {
                     const model = {
-                        predefinedType: Models.ItemTypePredefined.PROShape,
+                        predefinedType: ItemTypePredefined.PROShape,
                         specificPropertyValues: [xPropertyValue, yPropertyValue, widthPropertyValue, heightPropertyValue]
                     };
                     const deferred = $q.defer<any>();

@@ -1,14 +1,15 @@
-import * as Models from "../../../../../main/models/models";
-import * as Enums from "../../../../../main/models/enums";
-import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
-import {ProcessModels, ProcessEnums} from "../../../";
+import {ProcessEnums, ProcessModels} from "../../../";
 import {ICommunicationManager} from "../../../";
-import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
-import {IStatefulProcessSubArtifact, StatefulProcessSubArtifact} from "../../../process-subartifact";
-import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
-import {ProcessEvents} from "../process-diagram-communication";
-import {MessageType, Message} from "../../../../../main/components/messages/message";
+import {Message, MessageType} from "../../../../../main/components/messages/message";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import * as Enums from "../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
+import * as Models from "../../../../../main/models/models";
+import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
+import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
+import {IStatefulProcessSubArtifact, StatefulProcessSubArtifact} from "../../../process-subartifact";
+import {ProcessEvents} from "../process-diagram-communication";
+import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 
 export interface IPersonaReferenceContainer {
     userTaskPersonaReferenceList: ProcessModels.IArtifactReference[];
@@ -274,7 +275,7 @@ export class ProcessViewModel implements IProcessViewModel {
         return this.processGraphModel.projectId;
     }
 
-    public get baseItemTypePredefined(): Enums.ItemTypePredefined {
+    public get baseItemTypePredefined(): ItemTypePredefined {
         return this.processGraphModel.baseItemTypePredefined;
     }
 

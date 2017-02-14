@@ -1,16 +1,17 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
-import {PublishAction} from "./publish-action";
+import "angular-mocks";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {DialogService} from "../../../../shared/widgets/bp-dialog";
+import {RolePermissions} from "../../../models/enums";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
-import {DialogService, IDialogService} from "../../../../shared/widgets/bp-dialog";
+import {PublishAction} from "./publish-action";
+import * as angular from "angular";
 
 describe("PublishAction", () => {
     let $q: ng.IQService;

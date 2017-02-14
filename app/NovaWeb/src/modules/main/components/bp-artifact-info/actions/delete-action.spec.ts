@@ -1,24 +1,22 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
-import {DeleteAction} from "./delete-action";
-import {
-    IStatefulArtifact,
-    IStatefulArtifactFactory
-} from "../../../../managers/artifact-manager";
-import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import "angular-mocks";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
+import {ISelectionManager, SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IDialogService} from "../../../../shared";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
-import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
-import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {RolePermissions} from "../../../models/enums";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
-import {SelectionManager, ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {IMessageService} from "../../messages/message.svc";
+import {DeleteAction} from "./delete-action";
+import * as angular from "angular";
 
 describe("DeleteAction", () => {
     let $q_: ng.IQService;
@@ -174,6 +172,31 @@ describe("DeleteAction", () => {
             {
                 id: 1,
                 predefinedType: ItemTypePredefined.Collections
+            });
+
+        // act
+        const deleteAction = new DeleteAction(artifact, localization,
+            messageService, selectionManager, projectManager, loadingOverlayService, dialogService, navigationService);
+
+        // assert
+        expect(deleteAction.disabled).toBe(true);
+    }));
+
+    it("is disabled when artifact is Baselines and Reviews", inject((statefulArtifactFactory: IStatefulArtifactFactory,
+        localization: ILocalizationService,
+        selectionManager: ISelectionManager,
+        projectManager: IProjectManager,
+        messageService: IMessageService,
+        loadingOverlayService: ILoadingOverlayService,
+        dialogService: IDialogService,
+        navigationService: INavigationService
+
+    ) => {
+        // arrange
+        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+            {
+                id: 1,
+                predefinedType: ItemTypePredefined.BaselinesAndReviews
             });
 
         // act

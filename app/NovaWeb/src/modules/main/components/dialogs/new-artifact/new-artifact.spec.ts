@@ -1,14 +1,14 @@
 import "../../../";
-import * as angular from "angular";
 import "angular-mocks";
-import {CreateNewArtifactController} from "./new-artifact";
-import {ModalServiceInstanceMock} from "../../../../shell/login/mocks.spec";
-import {DialogSettingsMock, DataMock} from "./new-artifact.mock";
-import {ItemTypePredefined} from "../../../models/enums";
-import {IItemType} from "../../../models/models";
 import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {MetaDataServiceMock} from "../../../../managers/artifact-manager/metadata/metadata.svc.mock";
+import {ModalServiceInstanceMock} from "../../../../shell/login/mocks.spec";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {IItemType} from "../../../models/models";
 import {MessageServiceMock} from "../../messages/message.mock";
+import {CreateNewArtifactController} from "./new-artifact";
+import {DataMock, DialogSettingsMock} from "./new-artifact.mock";
+import * as angular from "angular";
 
 describe("CreateNewArtifactController", () => {
 
@@ -34,12 +34,15 @@ describe("CreateNewArtifactController", () => {
             //Assert
             expect(types.length).not.toBe(0);
             expect(types.indexOf(ItemTypePredefined.TextualRequirement)).not.toBe(-1);
-            expect(types.indexOf(ItemTypePredefined.Process)).not.toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.PrimitiveFolder)).not.toBe(-1);
             expect(types.indexOf(ItemTypePredefined.Actor)).not.toBe(-1);
             expect(types.indexOf(ItemTypePredefined.Document)).not.toBe(-1);
-            expect(types.indexOf(ItemTypePredefined.PrimitiveFolder)).not.toBe(-1);
-            expect(types.indexOf(ItemTypePredefined.ArtifactCollection)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.Process)).not.toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.BaselineFolder)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.ArtifactBaseline)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.ArtifactReviewPackage)).toBe(-1);
             expect(types.indexOf(ItemTypePredefined.CollectionFolder)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.ArtifactCollection)).toBe(-1);
         }));
 
     it("list available types",

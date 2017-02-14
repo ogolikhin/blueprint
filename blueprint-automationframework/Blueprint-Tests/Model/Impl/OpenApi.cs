@@ -572,6 +572,35 @@ namespace Model.Impl
 
         #endregion Trace methods
 
+        #region User methods
+
+        /// <summary>
+        /// Create a user with specified user properties in open API
+        /// (Runs:  'POST /api/v1/users/create')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="userWhoCreatesAnotherUser">A user that has permission to create users.</param>
+        /// <param name="userToCreate">User to create</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected</param>
+        /// <returns>User that was created.</returns>
+        public static UserDataModel CreateUser(string address, IUser userWhoCreatesAnotherUser, UserDataModel userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
+            ThrowIf.ArgumentNull(userWhoCreatesAnotherUser, nameof(userWhoCreatesAnotherUser));
+
+            var restApi = new RestApiFacade(address, userWhoCreatesAnotherUser.Token?.OpenApiToken);
+            string path = RestPaths.OpenApi.Users.CREATE;
+
+            return restApi.SendRequestAndDeserializeObject<UserDataModel, UserDataModel>(
+                path,
+                RestRequestMethod.POST,
+                userToCreate,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
+        #endregion User methods
+
         #region Version Control methods
 
         /// <summary>

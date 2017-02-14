@@ -1,11 +1,12 @@
 ﻿import "angular-mocks";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
-import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
 import * as angular from "angular";
@@ -45,6 +46,8 @@ describe("BpArtifactPicker", () => {
                                              selection-mode="'multiple'"
                                              show-projects="false"
                                              show-artifacts="false"
+                                             show-baselines-and-reviews="true"
+                                             show-collections="true"
                                              show-sub-artifacts="true"
                                              on-selection-changed="$ctrl.onSelectionChanged(selectedItems)"
                                              on-double-click="$ctrl.onDoubleClick(vm)">`;
@@ -58,6 +61,8 @@ describe("BpArtifactPicker", () => {
         expect(controller.selectionMode).toEqual("multiple");
         expect(controller.showProjects).toEqual(false);
         expect(controller.showArtifacts).toEqual(false);
+        expect(controller.showBaselinesAndReviews).toEqual(true);
+        expect(controller.showCollections).toEqual(true);
         expect(controller.showSubArtifacts).toEqual(true);
         expect(angular.isFunction(controller.onSelectionChanged)).toEqual(true);
         expect(angular.isFunction(controller.onDoubleClick)).toEqual(true);
@@ -84,6 +89,8 @@ describe("BpArtifactPicker", () => {
         expect(controller.selectionMode).toEqual("single");
         expect(controller.showProjects).toEqual(true);
         expect(controller.showArtifacts).toEqual(true);
+        expect(controller.showBaselinesAndReviews).toEqual(false);
+        expect(controller.showCollections).toEqual(false);
         expect(controller.showSubArtifacts).toEqual(false);
         expect(controller.onSelectionChanged).toBeUndefined();
         expect(controller.onDoubleClick).toBeUndefined();
@@ -211,7 +218,7 @@ describe("BpArtifactPickerController", () => {
 
     it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
         // Arrange
-        const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+        const model = {id: 13, itemId: 13, predefinedType: ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
         const vm = new ArtifactSearchResultVM(model, undefined);
         controller.selectionMode = "single";
         controller.onDoubleClick = jasmine.createSpy("onDoubleClick");

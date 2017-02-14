@@ -1,22 +1,18 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
-import {RefreshAction} from "./refresh-action";
-import {
-    IStatefulArtifact,
-    IStatefulArtifactFactory,
-    IMetaDataService,
-    MetaDataService
-} from "../../../../managers/artifact-manager";
-import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import "angular-mocks";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {RolePermissions} from "../../../../main/models/enums";
+import {IMetaDataService, IStatefulArtifact, IStatefulArtifactFactory, MetaDataService} from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {IProjectManager, ProjectManager} from "../../../../managers/project-manager/project-manager";
+import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "../../bp-page-content/mainbreadcrumb.svc.mock";
-import {MainBreadcrumbService, IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
+import {RefreshAction} from "./refresh-action";
+import * as angular from "angular";
 
 describe("RefreshAction", () => {
     let $scope: ng.IScope;
@@ -214,6 +210,27 @@ describe("RefreshAction", () => {
                 {
                     id: 1,
                     predefinedType: ItemTypePredefined.Collections
+                });
+
+            // act
+            const refreshAction = new RefreshAction(artifact, localization, projectManager, loadingOverlayService, metaDataService, mainBreadcrumbService);
+
+            // assert
+            expect(refreshAction.disabled).toBe(true);
+        }));
+
+    it("is disabled when artifact is Baselines and Reviews",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                projectManager: IProjectManager,
+                loadingOverlayService: ILoadingOverlayService,
+                metaDataService: IMetaDataService,
+                mainBreadcrumbService: IMainBreadcrumbService) => {
+            // arrange
+            artifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.BaselinesAndReviews
                 });
 
             // act

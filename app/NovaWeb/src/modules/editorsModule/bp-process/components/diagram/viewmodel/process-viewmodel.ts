@@ -1,14 +1,15 @@
-import * as Models from "../../../../../main/models/models";
-import * as Enums from "../../../../../main/models/enums";
-import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
-import {ProcessModels, ProcessEnums} from "../../../";
+import {ProcessEnums, ProcessModels} from "../../../";
 import {ICommunicationManager} from "../../../";
-import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
-import {IStatefulProcessSubArtifact, StatefulProcessSubArtifact} from "../../../process-subartifact";
-import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
-import {ProcessEvents} from "../process-diagram-communication";
-import {MessageType, Message} from "../../../../../main/components/messages/message";
+import {Message, MessageType} from "../../../../../main/components/messages/message";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import * as Enums from "../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
+import * as Models from "../../../../../main/models/models";
+import {IStatefulArtifact} from "../../../../../managers/artifact-manager/";
+import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
+import {IStatefulProcessSubArtifact, StatefulProcessSubArtifact} from "../../../process-subartifact";
+import {ProcessEvents} from "../process-diagram-communication";
+import {IProcessGraphModel, ProcessGraphModel} from "./process-graph-model";
 
 export interface IPersonaReferenceContainer {
     userTaskPersonaReferenceList: ProcessModels.IArtifactReference[];
@@ -39,6 +40,10 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     removeShape(shapeId: number);
     updateProcessModel(process: ProcessModels.IProcess): void;
     getClonedProcessModel(): ProcessModels.IProcess;
+    isFirstFlow(link: ProcessModels.IProcessLink): boolean;
+    isInNestedFlow(id: number): boolean;
+    isInMainFlow(id: number): boolean;
+    getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[];
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -272,7 +277,7 @@ export class ProcessViewModel implements IProcessViewModel {
         return this.processGraphModel.projectId;
     }
 
-    public get baseItemTypePredefined(): Enums.ItemTypePredefined {
+    public get baseItemTypePredefined(): ItemTypePredefined {
         return this.processGraphModel.baseItemTypePredefined;
     }
 
@@ -540,5 +545,23 @@ export class ProcessViewModel implements IProcessViewModel {
     private getStatefulArtifact(): IStatefulProcessArtifact {
         let statefulArtifact: IStatefulProcessArtifact = this.process;
         return statefulArtifact;
+    }
+
+    public isFirstFlow(link: ProcessModels.IProcessLink) {
+        const orderedNextLinks = this.getSortedNextLinks(link.sourceId);
+        return orderedNextLinks.length > 0 && orderedNextLinks[0].destinationId === link.destinationId;
+    }
+
+    public getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[] {
+        return _.sortBy(this.links.filter((link) => link.sourceId === sourceId), (link) => link.orderindex);
+    }
+
+    public isInNestedFlow(id: number): boolean {
+        return _.toNumber(this.getShapeById(id).propertyValues["y"].value) > 0;
+    }
+
+    public isInMainFlow(id: number): boolean {
+        return _.toNumber(this.getShapeById(id).propertyValues["y"].value) === 0;
+
     }
 }

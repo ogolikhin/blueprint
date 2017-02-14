@@ -1,24 +1,24 @@
-import * as angular from "angular";
-import {ShapesFactory} from "./shapes-factory";
-import {ProcessGraph} from "../process-graph";
-import {ArtifactReferenceLinkMock, ShapeModelMock} from "./shape-model.mock";
-import {ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference} from "../../../../../models/process-models";
-import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
-import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {SystemTask, DiagramNodeElement} from "./";
-import {NodeChange, NodeType, ElementType} from "../models/";
-import {ISystemTask, ISystemTaskShape} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../commonModule/localization/localization.service.mock";
+import {Models} from "../../../../../../../main/models/";
+import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../../../main/models/itemTypePredefined.enum";
+import {IStatefulArtifactFactoryMock, StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
-import {IStatefulArtifact} from "../../../../../../../managers/artifact-manager/";
-import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {CommunicationManager, ICommunicationManager} from "../../../../../../bp-process";
+import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
+import {ArtifactReference, ProcessLinkModel, ProcessModel, ProcessShapeModel} from "../../../../../models/process-models";
 import {StatefulProcessArtifact} from "../../../../../process-artifact";
-import {Models} from "../../../../../../../main/models/";
-import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {ItemTypePredefined} from "../../../../../../../main/models/enums";
+import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {NodeType} from "../models/";
+import {ISystemTask, ISystemTaskShape} from "../models/";
+import {ProcessGraph} from "../process-graph";
+import {SystemTask} from "./";
+import {ShapeModelMock} from "./shape-model.mock";
+import {ShapesFactory} from "./shapes-factory";
+import * as angular from "angular";
 
 describe("SystemTask", () => {
     let statefulArtifactFactory: IStatefulArtifactFactoryMock;
@@ -179,7 +179,7 @@ describe("SystemTask", () => {
             node: ISystemTask,
             graph: ProcessGraph,
             statefulSubArtifact: StatefulProcessSubArtifact;
-        
+
         const newPersonaReference = {
             id: 2,
             projectId: 1,
@@ -195,7 +195,7 @@ describe("SystemTask", () => {
             const processModel = new ProcessModel();
             const mock = ShapeModelMock.instance().SystemTaskMock();
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
-            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            artifact.predefinedType = ItemTypePredefined.Process;
             processModel.shapes.push(mock);
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);

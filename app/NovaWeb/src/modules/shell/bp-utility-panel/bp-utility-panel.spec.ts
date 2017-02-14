@@ -2,7 +2,7 @@
 import "angular-mocks";
 import "angular-sanitize";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, StatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {ArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactAttachmentsService} from "../../managers/artifact-manager/attachments/attachments.svc";
@@ -68,6 +68,22 @@ describe("Component BPUtilityPanel", () => {
             expect(selectedArtifact).toBeDefined();
             expect(selectedArtifact.id).toBe(22);
             expect(vm.itemDisplayName).toBe("My22: Artifact");
+        }));
+
+    it("should hide all tabs for baselines and reviews folder",
+        inject(($rootScope: ng.IRootScopeService, selectionManager: ISelectionManager, statefulArtifactFactory: IStatefulArtifactFactory) => {
+            //Arrange
+            const artifact = statefulArtifactFactory.createStatefulArtifact({
+                id: 22,
+                predefinedType: ItemTypePredefined.BaselineFolder
+            });
+
+            //Act
+            selectionManager.setArtifact(artifact);
+            $rootScope.$digest();
+
+            // Assert
+            expect(vm.isAnyPanelVisible).toBe(false);
         }));
 
     it("should hide all tabs for collections folder",

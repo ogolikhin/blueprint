@@ -15,14 +15,14 @@
         <div class="condition-list">
             <div class="row" ng-repeat="condition in dialogModel.conditions">
                 <!-- branch group -->
-                <div class="col-sm-7" style="display: inline-block">
+                <div class="col-sm-6" style="display: inline-block">
                     <div class="nova-form-group nova-floating-label">
                         <input type="text" ng-class="condition.label ? 'nova-form-control input-is-dirty' : 'nova-form-control'" id="storyteller-new-condition-edge-{{$index}}" ng-model="condition.label" maxlength="{{::$ctrl.CONDITION_MAX_LENGTH }}" ng-disabled="$ctrl.isReadonly">
                         <label for="storyteller-new-condition-edge-{{$index}}" class="nova-label"><i class="fonticon-decision-diamond"></i>{{dialogModel.conditionLabel}}:</label>
                     </div>
                 </div>
                 <div class="col-sm-4">
-                    <div class="nova-form-group nova-floating-label" ng-if="!$ctrl.isFirstBranch(condition)">
+                    <div class="nova-form-group nova-floating-label" ng-if="!$ctrl.isFirstConditionOnMainFlow(condition)">
                         <div class="btn-group btn-block" uib-dropdown on-toggle="$ctrl.refreshView()">
                             <button uib-dropdown-toggle type="button" class="btn btn-primary btn-small dropdown-toggle" data-toggle="dropdown" ng-disabled="$ctrl.isReadonly">
                                 <div class="dropdown-toggle-label">{{$ctrl.getMergeNodeLabel(condition)}} </div>
@@ -47,6 +47,14 @@
                         <span class="fonticon2-delete" ng-class="{'fonticon2__action--disabled':isReadonly}"></span>
                     </span>
                 </div>
+                <div class="col-sm-1" ng-if="$ctrl.canReorder(condition)">
+                    <button type="button" class="btn btn-secondary btn-icon" ng-disabled="!$ctrl.canMoveUp(condition)" ng-click="$ctrl.moveUp(condition)">
+                        <span class="fonticon2-arrow-up"></span>
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-icon" ng-disabled="!$ctrl.canMoveDown(condition)" ng-click="$ctrl.moveDown(condition)">
+                        <span class="fonticon2-arrow-down"></span>
+                    </button>
+                </div>
             </div>
             <div id="decision-modal-list-bottom"></div>
         </div>
@@ -58,4 +66,4 @@
 <div class="modal-footer storyteller-modal-footer">
     <button class="btn btn-default" type="button" ng-click="$ctrl.cancel()">{{::$root.config.labels['App_Button_Cancel']}}</button>
     <button class="btn btn-promoted-action" type="button" ng-click="$ctrl.ok()" ng-disabled="!$ctrl.canApplyChanges">{{::$root.config.labels['App_Button_Ok']}}</button>
-</div> 
+</div>

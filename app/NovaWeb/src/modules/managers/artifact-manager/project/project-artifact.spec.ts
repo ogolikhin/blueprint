@@ -4,8 +4,10 @@ import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {Enums, Models} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 import {SelectionManager} from "../../selection-manager/selection-manager";
 import {IStatefulArtifact} from "../artifact";
 import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
@@ -13,7 +15,6 @@ import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
 import {ValidationService} from "../validation/validation.svc";
 import * as angular from "angular";
-import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 
 describe("Project", () => {
     let project: IStatefulArtifact;
@@ -43,7 +44,7 @@ describe("Project", () => {
             name: "Artifact",
             prefix: "My",
             lockedByUser: Enums.LockedByEnum.None,
-            predefinedType: Models.ItemTypePredefined.Project,
+            predefinedType: ItemTypePredefined.Project,
             version: 0
         } as Models.IArtifact;
         project = statefulArtifactFactory.createStatefulArtifact(projectModel);

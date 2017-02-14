@@ -1,5 +1,10 @@
 import "angular-mocks";
+import {ItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
+import {LoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {Models} from "../../main/models";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../managers/artifact-manager";
 import {IArtifactService} from "../../managers/artifact-manager/artifact/artifact.svc";
 import {ArtifactServiceMock} from "../../managers/artifact-manager/artifact/artifact.svc.mock";
@@ -9,19 +14,15 @@ import {IStatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact
 import {ValidationServiceMock} from "../../managers/artifact-manager/validation/validation.mock";
 import {SelectionManager} from "../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {AuthSvc} from "../../shell/login/auth.svc";
+import {SettingsMock} from "../../shell/login/mocks.spec";
+import {SessionSvcMock} from "../../shell/login/session.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../services";
 import {UnpublishedArtifactsServiceMock} from "../unpublished/unpublished.service.mock";
 import {IProcess} from "./models/process-models";
-import {AuthSvc} from "../../shell/login/auth.svc";
-import {SettingsMock} from "../../shell/login/mocks.spec";
-import {ItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
 import * as TestModels from "./models/test-model-factory";
 import {INovaProcess, StatefulProcessArtifact} from "./process-artifact";
 import * as angular from "angular";
-import {LoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
-import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {MessageServiceMock} from "../../main/components/messages/message.mock";
-import {SessionSvcMock} from "../../shell/login/session.svc.mock";
 
 describe("StatefulProcessArtifact", () => {
 
@@ -85,7 +86,7 @@ describe("StatefulProcessArtifact", () => {
                 id: 1,
                 name: "",
                 projectId: 1,
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
 
 
@@ -105,7 +106,7 @@ describe("StatefulProcessArtifact", () => {
                 id: 1,
                 name: "",
                 projectId: 1,
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
 
 
@@ -125,7 +126,7 @@ describe("StatefulProcessArtifact", () => {
                 id: 1,
                 name: "",
                 projectId: 1,
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
 
 
@@ -144,7 +145,7 @@ describe("StatefulProcessArtifact", () => {
                 id: 1,
                 name: "",
                 projectId: 1,
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
 
 
@@ -173,7 +174,7 @@ describe("StatefulProcessArtifact", () => {
                     id: 1,
                     name: "",
                     projectId: 1,
-                    predefinedType: Models.ItemTypePredefined.Process
+                    predefinedType: ItemTypePredefined.Process
                 } as Models.IArtifact;
 
 
@@ -223,7 +224,7 @@ describe("StatefulProcessArtifact", () => {
                 id: 1,
                 name: "",
                 projectId: 1,
-                predefinedType: Models.ItemTypePredefined.Process
+                predefinedType: ItemTypePredefined.Process
             } as Models.IArtifact;
 
 

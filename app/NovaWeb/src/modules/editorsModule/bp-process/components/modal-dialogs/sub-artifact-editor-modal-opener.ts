@@ -244,14 +244,29 @@ export class SubArtifactEditorModalOpener {
         for (let index = 0; index < outgoingLinks.length; index++) {
             const outgoingLink: IProcessLink = outgoingLinks[index];
             let mergePoint: IDiagramNode = null;
+            let condition: ICondition;
+            let mergeNodes: IDiagramNode[];
+            // First flow of nested decision.
+            if (this.graph.isInNestedFlow(decision.model.id) && index === 0) {
+                // Find parent decision and creates merge nodes based off of parent's condition
+                const shapeContext = graph.globalScope.visitedIds[decision.model.id];
+                const parentCondition = _.last(shapeContext.parentConditions);
+                mergePoint = graph.getMergeNode(parentCondition.decisionId, parentCondition.orderindex);
 
-            // We do not display change merge node option for first branch
-            if (index !== 0) {
-                mergePoint = graph.getMergeNode(decision.model.id, outgoingLink.orderindex);
+                const parentDecisionOutgoingLink = graph.getNextLinks(parentCondition.decisionId).filter(a => a.orderindex === parentCondition.orderindex)[0];
+                mergeNodes = graph.getValidMergeNodes(parentDecisionOutgoingLink);
+
+            } else {
+
+                // Flows of nested decision, or any non-main flows to find merge points. Ignores main flow.
+                if (this.graph.isInNestedFlow(decision.model.id) || index !== 0) {
+                    mergePoint = graph.getMergeNode(decision.model.id, outgoingLink.orderindex);
+                }
+
+                mergeNodes = graph.getValidMergeNodes(outgoingLink);
             }
 
-            const validMergeNodes: IDiagramNode[] = graph.getValidMergeNodes(outgoingLink);
-            const condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
+            condition = Condition.create(outgoingLink, mergePoint, mergeNodes);
             conditions.push(condition);
         }
 

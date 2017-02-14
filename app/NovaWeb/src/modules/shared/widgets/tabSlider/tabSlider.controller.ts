@@ -205,7 +205,7 @@ export class TabSliderController {
         this.$scope.$applyAsync(() => {
             const template = this.$templateCache.get("tabSliderWrapper.html") as string;
             const wrapper = this.$compile(template)(this.$scope)[0] as HTMLElement;
-            const container = wrapper.querySelector(".tab-slider__container") as HTMLElement;
+            const container = wrapper.getElementsByClassName("tab-slider__container").item(0) as HTMLElement;
 
             this.slides = this.getSlides();
             this.slidesContainer = this.slides[0].parentElement;

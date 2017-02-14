@@ -1,20 +1,21 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
-import {MoveCopyAction} from "./move-copy-action";
+import "angular-mocks";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {Enums, Models} from "../../../../main/models";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {MoveCopyArtifactResult, MoveCopyArtifactInsertMethod} from "../../dialogs/move-copy-artifact/move-copy-artifact";
-import {Enums, Models} from "../../../../main/models";
-import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
-import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {RolePermissions} from "../../../models/enums";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {MoveCopyArtifactInsertMethod, MoveCopyArtifactResult} from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
+import {MoveCopyAction} from "./move-copy-action";
+import * as angular from "angular";
 
 
 describe("MoveCopyAction", () => {
@@ -172,6 +173,26 @@ describe("MoveCopyAction", () => {
             expect(moveAction.disabled).toBe(true);
         }));
 
+    it("is disabled when artifact is Baselines and Reviews",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    itemTypeId: ItemTypePredefined.BaselinesAndReviews
+                });
+
+            // act
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            // assert
+            expect(moveAction.disabled).toBe(true);
+        }));
+
     it("is enabled when artifact is valid",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
@@ -198,7 +219,7 @@ describe("MoveCopyAction", () => {
             expect(moveAction.actions[1].disabled).toBe(false);
         }));
 
-    it("only 'move' is enabled when artifact is a collection artifact",
+    it("only 'move' is enabled when artifact is a collection folder",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
             messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
@@ -224,7 +245,7 @@ describe("MoveCopyAction", () => {
             expect(moveAction.actions[1].disabled).toBe(true);
         }));
 
-    it("only 'move' is enabled when artifact is a collection folder",
+    it("only 'move' is enabled when artifact is a collection artifact",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
             messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
@@ -234,6 +255,84 @@ describe("MoveCopyAction", () => {
                 {
                     id: 1,
                     predefinedType: ItemTypePredefined.ArtifactCollection,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit,
+                    version: -1
+                });
+
+            // act
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            // assert
+            expect(moveAction.disabled).toBe(false);
+            expect(moveAction.actions[0].disabled).toBe(false);
+            expect(moveAction.actions[1].disabled).toBe(true);
+        }));
+
+    it("only 'move' is enabled when artifact is a baseline folder",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.BaselineFolder,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit,
+                    version: -1
+                });
+
+            // act
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            // assert
+            expect(moveAction.disabled).toBe(false);
+            expect(moveAction.actions[0].disabled).toBe(false);
+            expect(moveAction.actions[1].disabled).toBe(true);
+        }));
+
+    it("only 'move' is enabled when artifact is a baseline artifact",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.ArtifactBaseline,
+                    lockedByUser: null,
+                    lockedDateTime: null,
+                    permissions: RolePermissions.Edit,
+                    version: -1
+                });
+
+            // act
+            const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService);
+
+            // assert
+            expect(moveAction.disabled).toBe(false);
+            expect(moveAction.actions[0].disabled).toBe(false);
+            expect(moveAction.actions[1].disabled).toBe(true);
+        }));
+
+    it("only 'move' is enabled when artifact is a review artifact",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+            messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.ArtifactReviewPackage,
                     lockedByUser: null,
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit,

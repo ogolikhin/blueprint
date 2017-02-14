@@ -1,4 +1,5 @@
-import {Models, SearchServiceModels, AdminStoreModels} from "../../models";
+import {AdminStoreModels, Models, SearchServiceModels} from "../../models";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 
 export abstract class SearchResultVM<T extends SearchServiceModels.ISearchResult> implements Models.IViewModel<T> {
     public abstract readonly id: string;
@@ -35,11 +36,11 @@ export class ArtifactSearchResultVM extends SearchResultVM<SearchServiceModels.I
         model: SearchServiceModels.IItemNameSearchResult,
         onSelect: (vm: SearchResultVM<any>, value?: boolean) => boolean,
         isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,
-        selectableItemTypes?: Models.ItemTypePredefined[],
+        selectableItemTypes?: ItemTypePredefined[],
         project?: AdminStoreModels.IInstanceItem) {
         super(model, onSelect, (!isItemSelectable || isItemSelectable({item: model})) &&
             (!selectableItemTypes || selectableItemTypes.indexOf(model.predefinedType) !== -1), project);
         this.id = `${this.model.prefix}${this.model.id}`;
-        this.iconClass = `icon-${_.kebabCase(Models.ItemTypePredefined[this.model.predefinedType])}`;
+        this.iconClass = `icon-${_.kebabCase(ItemTypePredefined[this.model.predefinedType])}`;
     }
 }

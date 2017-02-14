@@ -1,14 +1,15 @@
 import "angular-mocks";
 import "angular-sanitize";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {Models} from "../../../main";
 import {IStatefulArtifactFactory, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {ISelectionManager, SelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {ComponentTest} from "../../../util/component.test";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {PageContentCtrl} from "./bp-page-content";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "./mainbreadcrumb.svc.mock";
-import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 
 describe("Component BPPageContent", () => {
 
@@ -93,7 +94,7 @@ describe("Component BPPageContent", () => {
                 id: 32,
                 name: "SubArtifact",
                 prefix: "SA",
-                predefinedType: Models.ItemTypePredefined.PROShape
+                predefinedType: ItemTypePredefined.PROShape
             } as Models.ISubArtifact;
             mainbreadcrumbService.breadcrumbLinks = [];
             const artifact = statefulArtifactFactory.createStatefulArtifact({id: 22, name: "Artifact", prefix: "My"});

@@ -1,16 +1,17 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
-import {SaveAction} from "./save-action";
+import "angular-mocks";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {DialogService, IDialogService} from "../../../../shared/widgets/bp-dialog";
+import {RolePermissions} from "../../../models/enums";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
-import {DialogService, IDialogService} from "../../../../shared/widgets/bp-dialog";
+import {SaveAction} from "./save-action";
+import * as angular from "angular";
 
 describe("SaveAction", () => {
     let $scope: ng.IScope;
@@ -175,6 +176,25 @@ describe("SaveAction", () => {
                 {
                     id: 1,
                     predefinedType: ItemTypePredefined.Collections
+                });
+
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+
+            // assert
+            expect(saveAction.disabled).toBe(true);
+        }));
+
+    it("is disabled when artifact is Baselines and Reviews",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.BaselinesAndReviews
                 });
 
             // act

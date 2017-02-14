@@ -385,58 +385,22 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.
+        /// Search artifact by a substring in its name on Blueprint server.  Among published artifacts only.
+        /// (Runs:  'GET svc/shared/artifacts/search')
         /// </summary>
-        /// <param name="address">The base url of the Open API</param>
+        /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="searchSubstring">The substring(case insensitive) to search.</param>
+        /// <param name="searchSubstring">The substring (case insensitive) to search.</param>
         /// <param name="project">The project to search, if project is null search within all available projects.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>List of first 10 artifacts with name containing searchSubstring</returns>
+        /// <returns>List of first 10 artifacts with name containing searchSubstring.</returns>
         public static IList<IArtifactBase> SearchArtifactsByName(string address,
             IUser user,
             string searchSubstring,
             IProject project = null,
-            bool sendAuthorizationAsCookie = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var queryParameters = new Dictionary<string, string> {
-                { "name", searchSubstring }
-            };
-
-            if (project != null)
-            {
-                queryParameters.Add("projectId", I18NHelper.ToStringInvariant(project.Id));
-            }
-
-            //showBusyIndicator doesn't affect server side, it is added to make call similar to call from HTML
-            queryParameters.Add("showBusyIndicator", "false");
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactBase>>(
-                RestPaths.Svc.Shared.Artifacts.SEARCH,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies,
-                shouldControlJsonChanges: false);
-
-            Logger.WriteDebug("Response for search artifact by name: {0}", response);
-
-            return response.ConvertAll(o => (IArtifactBase)o);
+            return SvcShared.SearchArtifactsByName(address, user, searchSubstring, project, expectedStatusCodes);
         }
 
         /// <summary>

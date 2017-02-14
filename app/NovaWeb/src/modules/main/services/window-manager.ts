@@ -54,7 +54,7 @@ export class WindowManager implements IWindowManager {
         this._causeOfChange = ResizeCause.unknown;
         this._sidebarToggled = SidebarToggled.none;
 
-        const sidebarWrapper = this.$window.document.querySelector(".bp-sidebar-wrapper") as HTMLElement;
+        const sidebarWrapper = this.$window.document.getElementsByClassName("bp-sidebar-wrapper").item(0) as HTMLElement;
         if (sidebarWrapper) {
             this._isLeftSidebarOpen = sidebarWrapper.classList.contains("left-panel-visible");
             this._isLeftSidebarExpanded = sidebarWrapper.classList.contains("left-panel-expanded");
@@ -132,7 +132,7 @@ export class WindowManager implements IWindowManager {
     private getTransitionDuration(): number {
         let transitionDuration: number;
 
-        const sidebar = this.$window.document.querySelector(".sidebar") as HTMLElement;
+        const sidebar = this.$window.document.getElementsByClassName("sidebar").item(0) as HTMLElement;
         if (sidebar) {
             const computedTransitionDuration = this.$window.getComputedStyle(sidebar).getPropertyValue("transition-duration");
             transitionDuration = parseFloat(computedTransitionDuration);
@@ -163,8 +163,8 @@ export class WindowManager implements IWindowManager {
 
     private getContentHeight(): number {
         let height: number = this._height;
-        const pageContent = this.$window.document.querySelector(".page-content") as HTMLElement;
-        const pageHeading = this.$window.document.querySelector(".page-heading") as HTMLElement;
+        const pageContent = this.$window.document.getElementsByClassName("page-content").item(0) as HTMLElement;
+        const pageHeading = this.$window.document.getElementsByClassName("page-heading").item(0) as HTMLElement;
         if (pageContent && pageHeading) {
             height = (pageContent.offsetHeight || 0) - (pageHeading.offsetHeight || 0);
         }

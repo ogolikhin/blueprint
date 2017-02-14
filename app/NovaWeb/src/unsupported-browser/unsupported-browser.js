@@ -135,7 +135,7 @@ var executionEnvironmentDetector = (function () {
         var
             rule = "@font-face { font-family: 'font'; src: 'font.ttf'; }",
             styleSheet,
-            head = document.head || document.getElementsByTagName("head")[0] || document.documentElement,
+            head = document.head || document.getElementsByTagName("head").item(0) || document.documentElement,
             styleTag = document.createElement("style"),
             implementation = document.implementation || {
                     hasFeature: function () {
@@ -183,7 +183,7 @@ var executionEnvironmentDetector = (function () {
         // We test using 72px font size (but we may use any size) to amplify differences in fonts.
         var testFontSize = 72;
 
-        var body = document.body || document.getElementsByTagName("body")[0];
+        var body = document.body || document.getElementsByTagName("body").item(0);
 
         // We create a DIV in the document to get the width of the text we use to test
         // and we position it off-screen

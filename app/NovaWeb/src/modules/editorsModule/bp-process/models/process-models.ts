@@ -1,12 +1,8 @@
-import {ItemTypePredefined, PropertyTypePredefined} from "../../../main/models/enums";
+import {PropertyTypePredefined} from "../../../main/models/enums";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IHashMap} from "../../../main/models/models";
-import {PropertyType, PropertyValueFormat, ArtifactUpdateType} from "./enums";
-import {IClipboardData, ClipboardDataType} from "../services/clipboard.svc";
-
-export {
-    ItemTypePredefined, 
-    PropertyTypePredefined
-};
+import {ClipboardDataType, IClipboardData} from "../services/clipboard.svc";
+import {PropertyType, PropertyValueFormat} from "./enums";
 
 export interface IArtifactInfo {
     id: number;
@@ -77,7 +73,7 @@ export interface IProcessShape {
     propertyValues: IHashMapOfPropertyValues;
     associatedArtifact: IArtifactReference;
     flags: ITaskFlags;
-    personaReference: IArtifactReference;    
+    personaReference: IArtifactReference;
 }
 
 export interface IPropertyValueInformation {
@@ -291,12 +287,12 @@ export class EdgeGeo {
     state: MxCellState;
 }
 
-export class ProcessClipboardData implements IClipboardData { 
-    
+export class ProcessClipboardData implements IClipboardData {
+
     public isPastableAfterUserDecision: boolean;
 
     public getType(): ClipboardDataType {
-         return ClipboardDataType.Process; 
+         return ClipboardDataType.Process;
     }
 
     constructor(private processData: IProcess) {

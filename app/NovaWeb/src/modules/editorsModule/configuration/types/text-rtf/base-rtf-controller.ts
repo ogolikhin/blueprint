@@ -115,7 +115,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             this.removeObserver();
             this.removeDragAndDropListeners();
             if (this.editorBody) {
-                this.handleLinks(this.editorBody.querySelectorAll("a"), true);
+                this.handleLinks(this.editorBody.getElementsByTagName("a"), true);
             }
 
             // the following is to avoid TFS BUG 4330
@@ -171,7 +171,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.embeddedImagesUrls = {};
 
         const baseUrl = this.getAppBaseUrl();
-        const node = document.createElement("div");
+        const node = this.$window.document.createElement("div");
         node.innerHTML = content || this.contentBuffer;
         const images = node.getElementsByTagName("img");
         _.forEach(images, (image: HTMLImageElement) => {
@@ -179,16 +179,75 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         });
     };
 
-    private stripNonEmbeddedImages = (node: HTMLElement) => {
+    /*
+     Strips all images not already in the RT editor on drag&drop and copy/paste.
+
+     We cannot allow to paste images in the RT editor, as the back-end assumes the images are coming from the
+     Insert Image menu command and not from other sources.
+
+     Moreover, we cannot even allow to copy and paste and already embedded image from a RT editor into the same
+     RT editor as the back-end responds with a "An item with the same key has already been added." error if the
+     user tries to copy an artifact with a duplicated embedded image).
+
+     While performing a drag&drop of text+images inside an RT editor doesn't cause any issue (as the dragged image
+     just changes position), we need to deal with the following scenario:
+     - the user has an RT editor with text and images
+     - he selects one or more images
+     - he cuts the selection (e.g. Control+X)
+     - he pastes the selection (e.g. Control+V). This action SHOULD be allowed
+     - he pastes again. This action should NOT be allowed
+     */
+    private stripNonEmbeddedAndDuplicatedImages = (node: HTMLElement, isDragAndDrop?: boolean) => {
         const baseUrl = this.getAppBaseUrl();
+        const embeddedImagesUrls = this.embeddedImagesUrls;
+
+        if (this.mceEditor && !isDragAndDrop) {
+            /*
+             If it's not caused by drag&drop:
+             - make a copy of the embedded images URLs list (which is populated on RT editor init, and any time
+               a new image is added via the Insert Image menu command)
+             - get the fresh content of the RT editor
+             - remove, from the copied list, all the images currently present in the content (thus leaving the
+               images that have been cut).
+             */
+            const container = this.$window.document.createElement("div");
+            container.innerHTML = this.mceEditor.getContent();
+            const embeddedImages = container.getElementsByTagName("img");
+            _.forEach(embeddedImages, (image: HTMLImageElement) => {
+                /*
+                 If it's not caused by drag&drop, embeddedImagesUrls contains only the embedded images that are NOT
+                 currently present in the content (e.g. the use has cut them), and therefore it will allow pasting
+                 only those images.
+
+                 Otherwise (drag&drop), embeddedImagesUrls contains ALL the embedded images, and therefore will allow
+                 only dragged embedded images to stay (thus removing any image embedded in content dragged from other
+                 external sources).
+                 */
+                let imgSrc = image.src as string;
+                imgSrc = imgSrc.replace(baseUrl, "");
+                embeddedImagesUrls[imgSrc] = false;
+            });
+        }
+
         const images = node.getElementsByTagName("img");
         _.forEachRight(images, (image: HTMLImageElement | any) => {
             let imgSrc = image.src || image.dataset.tempSrc as string;
             imgSrc = imgSrc.replace(baseUrl, "");
-            if (!this.embeddedImagesUrls[imgSrc]) {
+            if (!embeddedImagesUrls[imgSrc]) {
                 image.parentNode.removeChild(image);
             }
         });
+
+        if (isDragAndDrop) {
+            // very expensive, as it will cycle through all the drag&dropped elements
+            const nodesWithBackground = _.filter(node.querySelectorAll("*"), (child: HTMLElement) => {
+                const backgroundImage = this.$window.getComputedStyle(child).getPropertyValue("background-image");
+                return backgroundImage !== "none" && backgroundImage !== "";
+            });
+            _.forEach(nodesWithBackground, (node: HTMLElement) => {
+                node.style.backgroundImage = "";
+            });
+        }
     };
 
     protected addEmbeddedImageToList = (url: string) => {
@@ -248,7 +307,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.isLinkPopupOpen = false;
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
         this.normalizeHtml(this.editorBody, hasTables);
-        this.handleLinks(this.editorBody.querySelectorAll("a"));
+        this.handleLinks(this.editorBody.getElementsByTagName("a"));
         this.contentBuffer = this.mceEditor.getContent();
         this.initEmbeddedImagesList();
 
@@ -430,7 +489,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
         const node = document.createElement("div");
         node.innerHTML = Helper.replaceImgSrc(pasteContent, true);
-        this.stripNonEmbeddedImages(node);
+        this.stripNonEmbeddedAndDuplicatedImages(node);
         pasteContent = Helper.replaceImgSrc(node.innerHTML, false);
 
         // remove generic font family
@@ -629,7 +688,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                         this.handleLinks([node]);
                     } else {
                         let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"));
+                        this.handleLinks(element.getElementsByTagName("a"));
                     }
                 }
             }
@@ -642,7 +701,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                         this.handleLinks([node], true);
                     } else {
                         let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"), true);
+                        this.handleLinks(element.getElementsByTagName("a"), true);
                     }
                 }
             }
@@ -673,7 +732,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected onDragEnd = (e: DragEvent) => {
         this.$scope.$applyAsync(() => {
             this.mceEditor.save();
-            this.stripNonEmbeddedImages(this.mceEditor.getBody() as HTMLElement);
+            this.stripNonEmbeddedAndDuplicatedImages(this.mceEditor.getBody() as HTMLElement, true);
             this.triggerChange(this.mceEditor.getContent());
         });
     };

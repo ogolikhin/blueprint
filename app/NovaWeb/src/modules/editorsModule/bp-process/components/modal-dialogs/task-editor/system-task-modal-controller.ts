@@ -1,17 +1,18 @@
-import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
-import {ISession} from "../../../../../shell/login/session.svc";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
+import {Models} from "../../../../../main/models";
+import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
 import {IDialogService} from "../../../../../shared";
+import {ISession} from "../../../../../shell/login/session.svc";
+import {IArtifactReference} from "../../../models/process-models";
+import {IdGenerator} from "../../diagram/presentation/graph/shapes/id-generator";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {SystemTaskDialogModel} from "./systemTaskDialogModel";
-import {IArtifactReference} from "../../../models/process-models";
 import {TaskModalController} from "./task-modal-controller";
-import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
-import {Models} from "../../../../../main/models";
-import {IdGenerator} from "../../diagram/presentation/graph/shapes/id-generator";
 
 export class SystemTaskModalController extends TaskModalController<SystemTaskDialogModel> {
     private systemNamePlaceHolderText: string;
@@ -124,7 +125,7 @@ export class SystemTaskModalController extends TaskModalController<SystemTaskDia
             projectId: null,
             name: this.localization.get("ST_New_System_Task_Persona"),
             typePrefix: null,
-            baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+            baseItemTypePredefined: ItemTypePredefined.Actor,
             projectName: null,
             link: null,
             version: null

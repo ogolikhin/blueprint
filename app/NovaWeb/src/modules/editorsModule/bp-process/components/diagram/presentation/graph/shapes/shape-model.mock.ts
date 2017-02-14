@@ -1,15 +1,10 @@
-﻿import * as angular from "angular";
-import {ShapesFactory} from "./shapes-factory";
-import {
-    IUserTaskShape,
-    IProcessShape,
-    ISystemTaskShape,
-    IArtifactReferenceLink,
-    ITaskFlags
-} from "../../../../../models/process-models";
-import {ProcessShapeType} from "../../../../../models/enums";
-import {ItemTypePredefined} from "../../../../../../../main/models/enums";
+﻿import {ItemTypePredefined} from "../../../../../../../main/models/item-type-predefined";
 import {StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ProcessShapeType} from "../../../../../models/enums";
+import {IArtifactReferenceLink, IProcessShape, ISystemTaskShape, ITaskFlags, IUserTaskShape} from "../../../../../models/process-models";
+import {ShapesFactory} from "./shapes-factory";
+import * as angular from "angular";
+
 export class ArtifactReferenceLinkMock implements IArtifactReferenceLink {
     public sourceId: number;
     public destinationId: number;

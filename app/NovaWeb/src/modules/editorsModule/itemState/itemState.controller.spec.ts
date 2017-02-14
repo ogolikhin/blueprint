@@ -1,25 +1,26 @@
-import * as angular from "angular";
+import "../../main";
 import "angular-mocks";
 import "angular-sanitize";
-import "../../main";
-import {Models} from "../../main/models";
-import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
-import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
+import {IItemInfoResult, IItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
 import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
-import {IProjectManager} from "../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
+import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
+import {Message, MessageType} from "../../main/components/messages/message";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {IMessageService} from "../../main/components/messages/message.svc";
+import {Models} from "../../main/models";
+import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ItemStateController} from "./itemState.controller";
-import {ILocalizationService} from "../../commonModule/localization/localization.service";
-import {INavigationService} from "../../commonModule/navigation/navigation.service";
-import {Message, MessageType} from "../../main/components/messages/message";
-import {IMessageService} from "../../main/components/messages/message.svc";
-import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {IProjectManager} from "../../managers/project-manager/project-manager";
+import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
-import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
+import {ItemStateController} from "./itemState.controller";
+import * as angular from "angular";
 
 describe("Item State Controller tests", () => {
     let $stateParams: ng.ui.IStateParamsService,
@@ -144,7 +145,7 @@ describe("Item State Controller tests", () => {
                 const itemInfo = {
                     id: artifactId,
                     projectId: 11,
-                    predefinedType: Models.ItemTypePredefined.GenericDiagram
+                    predefinedType: ItemTypePredefined.GenericDiagram
                 } as IItemInfoResult;
 
                 // act
@@ -161,7 +162,7 @@ describe("Item State Controller tests", () => {
                 const itemInfo = {
                     id: artifactId,
                     projectId: 11,
-                    predefinedType: Models.ItemTypePredefined.Glossary
+                    predefinedType: ItemTypePredefined.Glossary
                 } as IItemInfoResult;
 
                 // act
@@ -178,7 +179,7 @@ describe("Item State Controller tests", () => {
                 const itemInfo = {
                     id: artifactId,
                     projectId: 11,
-                    predefinedType: Models.ItemTypePredefined.Project
+                    predefinedType: ItemTypePredefined.Project
                 } as IItemInfoResult;
 
                 // act
@@ -195,7 +196,7 @@ describe("Item State Controller tests", () => {
                 const itemInfo = {
                     id: artifactId,
                     projectId: 11,
-                    predefinedType: Models.ItemTypePredefined.ArtifactCollection
+                    predefinedType: ItemTypePredefined.ArtifactCollection
                 } as IItemInfoResult;
 
                 // act
@@ -212,7 +213,7 @@ describe("Item State Controller tests", () => {
                 const itemInfo = {
                     id: artifactId,
                     projectId: 11,
-                    predefinedType: Models.ItemTypePredefined.Process
+                    predefinedType: ItemTypePredefined.Process
                 } as IItemInfoResult;
 
                 // act
@@ -229,7 +230,7 @@ describe("Item State Controller tests", () => {
                 const itemInfo = {
                     id: artifactId,
                     projectId: 11,
-                    predefinedType: Models.ItemTypePredefined.Actor
+                    predefinedType: ItemTypePredefined.Actor
                 } as IItemInfoResult;
 
                 // act
@@ -297,7 +298,7 @@ describe("Item State Controller tests", () => {
                 const artifactId = 10;
                 const itemInfo = {
                     id: artifactId,
-                    predefinedType: Models.ItemTypePredefined.Actor,
+                    predefinedType: ItemTypePredefined.Actor,
                     isDeleted: true,
                     deletedByUser: {}
                 } as any as IItemInfoResult;
@@ -324,7 +325,7 @@ describe("Item State Controller tests", () => {
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
                 const itemInfo = {
                     id: artifactId,
-                    predefinedType: Models.ItemTypePredefined.ArtifactCollection,
+                    predefinedType: ItemTypePredefined.ArtifactCollection,
                     isDeleted: true,
                     deletedByUser: {}
                 } as any as IItemInfoResult;
@@ -352,7 +353,7 @@ describe("Item State Controller tests", () => {
                     id: artifactId,
                     projectId: 1,
                     parentId: 3,
-                    predefinedType: Models.ItemTypePredefined.CollectionFolder,
+                    predefinedType: ItemTypePredefined.CollectionFolder,
                     isDeleted: true,
                     deletedByUser: {}
                 } as any as IItemInfoResult;
@@ -381,7 +382,7 @@ describe("Item State Controller tests", () => {
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
                 const itemInfo = {
                     id: artifactId,
-                    predefinedType: Models.ItemTypePredefined.Actor,
+                    predefinedType: ItemTypePredefined.Actor,
                     versionCount: 20
                 } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
@@ -406,7 +407,7 @@ describe("Item State Controller tests", () => {
                 const isArtifactSpy = spyOn(itemInfoService, "isArtifact").and.callFake(() => true);
                 const itemInfo = {
                     id: artifactId,
-                    predefinedType: Models.ItemTypePredefined.Actor,
+                    predefinedType: ItemTypePredefined.Actor,
                     versionCount: 20
                 } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");

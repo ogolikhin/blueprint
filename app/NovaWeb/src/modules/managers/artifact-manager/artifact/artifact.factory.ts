@@ -1,35 +1,28 @@
-import {IItemInfoService, IItemInfoResult} from "../../../commonModule/itemInfo/itemInfo.service";
-import {IDialogService} from "../../../shared/";
-import {ISession} from "../../../shell/login/session.svc";
-import {IProcessService} from "../../../editorsModule/bp-process/services/process.svc";
+import {IItemInfoResult, IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
+import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IProcessShape} from "../../../editorsModule/bp-process/models/process-models";
-import {ItemTypePredefined} from "../../../main/models/enums";
-import {IArtifact, ISubArtifact} from "../../../main/models/models";
-import {IArtifactAttachmentsService} from "../attachments";
-import {IMetaDataService} from "../metadata";
-import {StatefulSubArtifact, IStatefulSubArtifact} from "../sub-artifact";
-import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
-import {IArtifactRelationshipsService} from "../relationships";
-import {
-    IStatefulCollectionArtifact,
-    StatefulCollectionArtifact
-} from "../../../editorsModule/configuration/classes/collection-artifact";
-import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editorsModule/glossary/glossary-artifact";
+import {IStatefulCollectionArtifact, StatefulCollectionArtifact} from "../../../editorsModule/configuration/classes/collection-artifact";
 import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editorsModule/diagram/diagram-artifact";
 import {StatefulUseCaseArtifact} from "../../../editorsModule/diagram/usecase-artifact";
 import {StatefulUseCaseDiagramArtifact} from "../../../editorsModule/diagram/usecase-diagram-artifact";
-import {
-    StatefulArtifactServices,
-    IStatefulArtifactServices
-} from "../services";
-import {IArtifactService} from "./artifact.svc";
-import {IValidationService} from "../validation/validation.svc";
-import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../commonModule/localization/localization.service";
-import {StatefulProjectArtifact} from "../project/project-artifact";
+import {IStatefulGlossaryArtifact, StatefulGlossaryArtifact} from "../../../editorsModule/glossary/glossary-artifact";
 import {IPropertyDescriptorBuilder} from "../../../editorsModule/services";
 import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {IArtifact, ISubArtifact} from "../../../main/models/models";
+import {IDialogService} from "../../../shared/";
+import {ISession} from "../../../shell/login/session.svc";
+import {IStatefulArtifact, StatefulArtifact, StatefulProcessArtifact, StatefulProcessSubArtifact} from "../artifact";
+import {IArtifactAttachmentsService} from "../attachments";
+import {IMetaDataService} from "../metadata";
+import {StatefulProjectArtifact} from "../project/project-artifact";
+import {IArtifactRelationshipsService} from "../relationships";
+import {IStatefulArtifactServices, StatefulArtifactServices} from "../services";
+import {IStatefulSubArtifact, StatefulSubArtifact} from "../sub-artifact";
+import {IValidationService} from "../validation/validation.svc";
+import {IArtifactService} from "./artifact.svc";
 
 export interface IStatefulArtifactFactory {
     createStatefulArtifact(artifact: IArtifact): IStatefulArtifact;

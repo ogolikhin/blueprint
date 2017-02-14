@@ -5,7 +5,7 @@ import {INavigationService} from "../../commonModule/navigation/navigation.servi
 import {MessageType} from "../../main/components/messages/message";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {Models} from "../../main/models";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined} from "../../main/models/item-type-predefined";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
@@ -135,33 +135,33 @@ export class ItemStateController {
 
     private setActiveEditor(artifact: IStatefulArtifact) {
         switch (artifact.predefinedType) {
-            case Models.ItemTypePredefined.GenericDiagram:
-            case Models.ItemTypePredefined.BusinessProcess:
-            case Models.ItemTypePredefined.DomainDiagram:
-            case Models.ItemTypePredefined.Storyboard:
-            case Models.ItemTypePredefined.UseCaseDiagram:
-            case Models.ItemTypePredefined.UseCase:
-            case Models.ItemTypePredefined.UIMockup:
+            case ItemTypePredefined.GenericDiagram:
+            case ItemTypePredefined.BusinessProcess:
+            case ItemTypePredefined.DomainDiagram:
+            case ItemTypePredefined.Storyboard:
+            case ItemTypePredefined.UseCaseDiagram:
+            case ItemTypePredefined.UseCase:
+            case ItemTypePredefined.UIMockup:
                 this.activeEditor = "diagram";
                 break;
-            case Models.ItemTypePredefined.Glossary:
+            case ItemTypePredefined.Glossary:
                 this.activeEditor = "glossary";
                 break;
-            case Models.ItemTypePredefined.Project:
+            case ItemTypePredefined.Project:
                 this.activeEditor = "general";
                 break;
-            case Models.ItemTypePredefined.BaselineFolder:
+            case ItemTypePredefined.BaselineFolder:
                 // Cannot use artifact.itemTypeId === ItemTypePredefined.BaselinesAndReviews here
                 this.activeEditor = artifact.parentId === artifact.projectId ? "general" : "details";
                 break;
-            case Models.ItemTypePredefined.CollectionFolder:
+            case ItemTypePredefined.CollectionFolder:
                 // Cannot use artifact.itemTypeId === ItemTypePredefined.Collections here
                 this.activeEditor = artifact.parentId === artifact.projectId ? "general" : "details";
                 break;
-            case Models.ItemTypePredefined.ArtifactCollection:
+            case ItemTypePredefined.ArtifactCollection:
                 this.activeEditor = "collection";
                 break;
-            case Models.ItemTypePredefined.Process:
+            case ItemTypePredefined.Process:
                 this.activeEditor = "process";
                 break;
             default:

@@ -1,30 +1,30 @@
+import "../../..";
+import "angular-mocks";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
+import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
-import {ISession} from "../../../../../shell/login/session.svc";
-require("script!mxClient");
-import * as angular from "angular";
-import "angular-mocks";
-import "../../..";
-import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
-import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
-import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
-import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
 import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {UserTask} from "../../diagram/presentation/graph/shapes/user-task";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
-import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
+import {ISession} from "../../../../../shell/login/session.svc";
+import {SessionSvcMock} from "../../../../../shell/login/session.svc.mock";
 import {IArtifactReference, NodeType} from "../../diagram/presentation/graph/models";
-import {UserTaskDialogModel} from "./userTaskDialogModel";
+import {UserTask} from "../../diagram/presentation/graph/shapes/user-task";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {UserTaskModalController} from "./user-task-modal-controller";
-import {IDialogService} from "../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
-import {Models} from "../../../../../main/models/";
-import {SessionSvcMock} from "../../../../../shell/login/session.svc.mock";
+import {UserTaskDialogModel} from "./userTaskDialogModel";
+import * as angular from "angular";
+require("script!mxClient");
 
 describe("UserTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -100,7 +100,7 @@ describe("UserTaskModalController", () => {
                 projectId: null,
                 name: "User",
                 typePrefix: null,
-                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                baseItemTypePredefined: ItemTypePredefined.Actor,
                 projectName: null,
                 link: null,
                 version: null
@@ -209,7 +209,7 @@ describe("UserTaskModalController", () => {
                 projectId: 1,
                 name: "Custom Actor",
                 typePrefix: "AC",
-                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                baseItemTypePredefined: ItemTypePredefined.Actor,
                 projectName: "Test Project",
                 link: null,
                 version: 26

@@ -1,10 +1,10 @@
+import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {ISubArtifact} from "../../main/models/models";
 import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
-import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
-import {IArtifact, ISubArtifact} from "../../main/models/models";
-import {IDiagram, IDiagramElement} from "./impl/models";
-import {ItemTypePredefined} from "./../../main/models/enums";
+import {StatefulSubArtifact} from "../../managers/artifact-manager/sub-artifact";
 import {IItem} from "./../../main/models/models";
-import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
+import {IDiagram, IDiagramElement} from "./impl/models";
+import {Diagrams} from "./impl/utils/constants";
 
 export interface IStatefulDiagramArtifact extends IStatefulArtifact {
     getDiagramModel(): IDiagram;

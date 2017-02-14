@@ -1,17 +1,17 @@
-import * as angular from "angular";
-import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
-import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
-import {ITaskFlags} from "../../models/process-models";
-import {ItemTypePredefined} from "../../../../main/models/enums";
-import {ISystemTaskShape} from "../../models/process-models";
-import {UploadImageDirective} from "./upload-image";
-import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
-import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {IFileUploadService, FileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
-import {IMessageService} from "../../../../main/components/messages/message.svc";
-import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 import {IDownloadService} from "../../../../commonModule/download/download.service";
 import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
+import {FileUploadService, IFileUploadService} from "../../../../commonModule/fileUpload/fileUpload.service";
+import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {IMessageService} from "../../../../main/components/messages/message.svc";
+import {ItemTypePredefined} from "../../../../main/models/item-type-predefined";
+import {IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ISystemTaskShape} from "../../models/process-models";
+import {ITaskFlags} from "../../models/process-models";
+import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
+import {SystemTask} from "../diagram/presentation/graph/shapes/system-task";
+import {UploadImageDirective} from "./upload-image";
+import * as angular from "angular";
 
 describe("UploadImage Directive", () => {
     let element: ng.IAugmentedJQuery;

@@ -1,10 +1,9 @@
-import {Models} from "../../main";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IBpAccordionController} from "../../main/components/bp-accordion/bp-accordion";
-import {ItemTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined} from "../../main/models/item-type-predefined";
 import {IItemChangeSet, ISelection, IStatefulItem, StatefulArtifact} from "../../managers/artifact-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IUtilityPanelContext, IUtilityPanelController, PanelType, UtilityPanelService} from "./utility-panel.svc";
-import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
 export class BPUtilityPanel implements ng.IComponentOptions {
     public template: string = require("./bp-utility-panel.html");
@@ -113,11 +112,11 @@ export class BPUtilityPanelController implements IUtilityPanelController {
             this.itemDisplayName = `${(item.prefix || "")}${item.id}: ${item.name || ""}`;
             this.itemTypeId = item.itemTypeId;
             if (item.itemTypeId === ItemTypePredefined.Collections && item.predefinedType === ItemTypePredefined.CollectionFolder) {
-                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.Collections] || "");
+                this.itemClass = "icon-" + _.kebabCase(ItemTypePredefined[ItemTypePredefined.Collections] || "");
             } else if (item.itemTypeId === ItemTypePredefined.BaselinesAndReviews && item.predefinedType === ItemTypePredefined.BaselineFolder) {
-                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[ItemTypePredefined.BaselinesAndReviews] || "");
+                this.itemClass = "icon-" + _.kebabCase(ItemTypePredefined[ItemTypePredefined.BaselinesAndReviews] || "");
             } else {
-                this.itemClass = "icon-" + _.kebabCase(Models.ItemTypePredefined[item.predefinedType] || "");
+                this.itemClass = "icon-" + _.kebabCase(ItemTypePredefined[item.predefinedType] || "");
             }
             if (item.predefinedType !== ItemTypePredefined.Project && item instanceof StatefulArtifact) {
                 this.hasCustomIcon = _.isFinite(item.itemTypeIconId);

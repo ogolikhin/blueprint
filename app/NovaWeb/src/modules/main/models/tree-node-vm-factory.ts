@@ -2,6 +2,7 @@ import {IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {ITreeNode} from "../../shared/widgets/bp-tree-view";
 import {AdminStoreModels, Models} from "./";
+import {ItemTypePredefined} from "./item-type-predefined";
 
 export interface ITreeNodeVM<T> extends Models.IViewModel<T>, ITreeNode {
     getCellClass(): string[];
@@ -41,7 +42,7 @@ export class TreeNodeVMFactory {
     constructor(public projectService: IProjectService,
                 public timeout?: ng.IPromise<void>,
                 public isItemSelectable?: (params: {item: Models.IArtifact | Models.ISubArtifactNode}) => boolean,
-                public selectableItemTypes?: Models.ItemTypePredefined[],
+                public selectableItemTypes?: ItemTypePredefined[],
                 public showArtifacts: boolean = true,
                 public showBaselinesAndReviews: boolean = false,
                 public showCollections: boolean = false,
@@ -70,7 +71,7 @@ export class TreeNodeVMFactory {
     }
 
     public static processChildArtifacts(children: Models.IArtifact[], artifactPath: string[],
-                                        idPath: number[], parentPredefinedType: Models.ItemTypePredefined): Models.IArtifact[] {
+                                        idPath: number[], parentPredefinedType: ItemTypePredefined): Models.IArtifact[] {
         children.forEach((value: Models.IArtifact) => {
             value.artifactPath = artifactPath;
             value.idPath = idPath;
@@ -136,14 +137,14 @@ export class ExplorerNodeVM extends HomogeneousTreeNodeVM<Models.IArtifact> {
     public getCellClass(): string[] {
         const result = super.getCellClass();
         let typeName: string;
-        if (this.model.predefinedType === Models.ItemTypePredefined.BaselineFolder &&
-            this.model.itemTypeId === Models.ItemTypePredefined.BaselinesAndReviews) {
-            typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.BaselinesAndReviews];
-        } else if (this.model.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
-            this.model.itemTypeId === Models.ItemTypePredefined.Collections) {
-            typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
+        if (this.model.predefinedType === ItemTypePredefined.BaselineFolder &&
+            this.model.itemTypeId === ItemTypePredefined.BaselinesAndReviews) {
+            typeName = ItemTypePredefined[ItemTypePredefined.BaselinesAndReviews];
+        } else if (this.model.predefinedType === ItemTypePredefined.CollectionFolder &&
+            this.model.itemTypeId === ItemTypePredefined.Collections) {
+            typeName = ItemTypePredefined[ItemTypePredefined.Collections];
         } else {
-            typeName = Models.ItemTypePredefined[this.model.predefinedType];
+            typeName = ItemTypePredefined[this.model.predefinedType];
         }
         if (typeName) {
             result.push("is-" + _.kebabCase(typeName));
@@ -235,14 +236,14 @@ export class InstanceItemNodeVM extends TreeNodeVM<AdminStoreModels.IInstanceIte
             case AdminStoreModels.InstanceItemType.Project:
                 return this.factory.projectService.getArtifacts(this.model.id, undefined, this.factory.timeout).then((children: Models.IArtifact[]) => {
                     if (!this.factory.showArtifacts) {
-                        children = children.filter(child => child.predefinedType === Models.ItemTypePredefined.CollectionFolder ||
-                            child.predefinedType === Models.ItemTypePredefined.BaselineFolder);
+                        children = children.filter(child => child.predefinedType === ItemTypePredefined.CollectionFolder ||
+                            child.predefinedType === ItemTypePredefined.BaselineFolder);
                     }
                     if (!this.factory.showBaselinesAndReviews) {
-                        children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.BaselineFolder);
+                        children = children.filter(child => child.predefinedType !== ItemTypePredefined.BaselineFolder);
                     }
                     if (!this.factory.showCollections) {
-                        children = children.filter(child => child.predefinedType !== Models.ItemTypePredefined.CollectionFolder);
+                        children = children.filter(child => child.predefinedType !== ItemTypePredefined.CollectionFolder);
                     }
                     return TreeNodeVMFactory.processChildArtifacts(children, [this.model.name], [this.model.id], null)
                         .map(child => this.factory.createArtifactNodeVM(this.model, child, !this.factory.showArtifacts));
@@ -260,20 +261,20 @@ export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
                 isSelectable: boolean,
                 expanded: boolean = false) {
         super(model, String(model.id), model.hasChildren ||
-            (factory.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(model.predefinedType)), expanded, isSelectable);
+            (factory.showSubArtifacts && ItemTypePredefined.canContainSubartifacts(model.predefinedType)), expanded, isSelectable);
     }
 
     public getCellClass(): string[] {
         const result = super.getCellClass();
         let typeName: string;
-        if (this.model.predefinedType === Models.ItemTypePredefined.BaselineFolder &&
-            this.model.itemTypeId === Models.ItemTypePredefined.BaselinesAndReviews) {
-            typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.BaselinesAndReviews];
-        } else if (this.model.predefinedType === Models.ItemTypePredefined.CollectionFolder &&
-            this.model.itemTypeId === Models.ItemTypePredefined.Collections) {
-            typeName = Models.ItemTypePredefined[Models.ItemTypePredefined.Collections];
+        if (this.model.predefinedType === ItemTypePredefined.BaselineFolder &&
+            this.model.itemTypeId === ItemTypePredefined.BaselinesAndReviews) {
+            typeName = ItemTypePredefined[ItemTypePredefined.BaselinesAndReviews];
+        } else if (this.model.predefinedType === ItemTypePredefined.CollectionFolder &&
+            this.model.itemTypeId === ItemTypePredefined.Collections) {
+            typeName = ItemTypePredefined[ItemTypePredefined.Collections];
         } else {
-            typeName = Models.ItemTypePredefined[this.model.predefinedType];
+            typeName = ItemTypePredefined[this.model.predefinedType];
         }
         if (typeName) {
             result.push("is-" + _.kebabCase(typeName));
@@ -298,8 +299,8 @@ export class ArtifactNodeVM extends TreeNodeVM<Models.IArtifact> {
             const result: ITreeNode[] = TreeNodeVMFactory.processChildArtifacts(children, _.concat(this.model.artifactPath, this.model.name),
                 _.concat(this.model.idPath, this.model.id), this.model.predefinedType)
                 .map(child => this.factory.createArtifactNodeVM(this.project, child));
-            if (this.factory.showSubArtifacts && Models.ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
-                const name = Models.ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
+            if (this.factory.showSubArtifacts && ItemTypePredefined.canContainSubartifacts(this.model.predefinedType)) {
+                const name = ItemTypePredefined.getSubArtifactsContainerNodeTitle(this.model.predefinedType);
                 result.unshift(this.factory.createSubArtifactContainerNodeVM(this.project, this.model, name)); //TODO localize
             }
             return result;

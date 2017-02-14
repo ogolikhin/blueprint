@@ -1,21 +1,21 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
+import "angular-mocks";
+import {ItemInfoServiceMock} from "../../../../commonModule/itemInfo/itemInfo.service.mock";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {CollectionServiceMock} from "../../../../editorsModule/collection/collection.service.mock";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../../models/enums";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {ProjectManagerMock} from "../../../../managers/project-manager/project-manager.mock";
 import {DialogServiceMock} from "../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
-import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {AddToCollectionAction} from "./add-to-collection-action";
 import {BPDropdownItemAction} from "../../../../shared/widgets/bp-toolbar/actions/bp-dropdown-action";
-import {CollectionServiceMock} from "../../../../editorsModule/collection/collection.service.mock";
-import {ItemInfoServiceMock} from "../../../../commonModule/itemInfo/itemInfo.service.mock";
+import {ItemTypePredefined} from "../../../models/item-type-predefined";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {IMessageService} from "../../messages/message.svc";
+import {AddToCollectionAction} from "./add-to-collection-action";
+import * as angular from "angular";
 
 
 describe("AddToCollectionAction", () => {

@@ -1,21 +1,21 @@
-import * as angular from "angular";
-import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ProcessGraph} from "../process-graph";
-import {DiagramLink} from "./";
-import {IDiagramNode} from "../models/";
-import {Connector} from "./connector";
-import {Label} from "../labels/label";
-import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../commonModule/localization/localization.service.mock";
+import {Models} from "../../../../../../../main/models/";
+import {ItemTypePredefined} from "../../../../../../../main/models/item-type-predefined";
+import {IStatefulArtifactFactoryMock, StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
-import {IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
-import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {CommunicationManager, ICommunicationManager} from "../../../../../../bp-process";
+import {createUserDecisionWithoutUserTaskInFirstConditionModel} from "../../../../../models/test-model-factory";
 import {StatefulProcessArtifact} from "../../../../../process-artifact";
-import {Models} from "../../../../../../../main/models/";
+import {ProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {Label} from "../labels/label";
+import {IDiagramNode} from "../models/";
+import {ProcessGraph} from "../process-graph";
+import {DiagramLink} from "./";
+import {Connector} from "./connector";
 import {ShapesFactory} from "./shapes-factory";
+import * as angular from "angular";
 
 describe("DiagramLink unit tests", () => {
     let rootScope;
@@ -134,7 +134,7 @@ describe("DiagramLink unit tests", () => {
             const ud = 40;
             const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
-            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            artifact.predefinedType = ItemTypePredefined.Process;
             const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
             statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);
@@ -158,7 +158,7 @@ describe("DiagramLink unit tests", () => {
             const ud = 40;
             const testModel = createUserDecisionWithoutUserTaskInFirstConditionModel("Condition1", "Condition2");
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
-            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            artifact.predefinedType = ItemTypePredefined.Process;
             const statefulArtifact = statefulArtifactFactory.createStatefulArtifact(artifact);
             statefulArtifactFactory.populateStatefulProcessWithProcessModel(<StatefulProcessArtifact>statefulArtifact, testModel);
             const processModel = new ProcessViewModel(statefulArtifact, communicationManager);

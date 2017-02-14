@@ -1,9 +1,10 @@
+import {BPLocale, ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Enums, Models} from "../../../main";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
 import {IStatefulItem, StatefulSubArtifact} from "../../../managers/artifact-manager";
 import {Helper} from "../../../shared/utils/helper";
-import {BPLocale, ILocalizationService} from "../../../commonModule/localization/localization.service";
-import {IPropertyDescriptor} from "../../services";
 import {IUserGroup} from "../../configuration/types/user-picker/user-picker";
+import {IPropertyDescriptor} from "../../services";
 
 export class PropertyEditor {
 
@@ -187,7 +188,7 @@ export class PropertyEditor {
                     let specificPropertyValue = statefulItem.specialProperties.get(propertyContext.modelPropertyName as number);
                     isModelSet = true;
                     if (specificPropertyValue) {
-                        if (statefulItem.predefinedType === Enums.ItemTypePredefined.Step &&
+                        if (statefulItem.predefinedType === ItemTypePredefined.Step &&
                             specificPropertyValue.propertyTypePredefined === Enums.PropertyTypePredefined.StepOf) {
                             modelValue = this.getActorStepOfValue(specificPropertyValue.value);
                         } else {

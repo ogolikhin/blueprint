@@ -1,15 +1,12 @@
-import * as angular from "angular";
 import "angular-mocks";
-import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ProjectServiceMock} from "../../../managers/project-manager/project-service.mock";
-import {ProjectService} from "../../../managers/project-manager/project-service";
-import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {IArtifactService, ArtifactService} from "../../../managers/artifact-manager";
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
-import {ApplicationError} from "../../../shell/error/applicationError";
-import {Models} from "../../../main/models";
-import {MainBreadcrumbService, IMainBreadcrumbService} from "./mainbreadcrumb.svc";
-import {ItemTypePredefined} from "../../../main/models/enums";
+import {ArtifactService} from "../../../managers/artifact-manager";
+import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ProjectService} from "../../../managers/project-manager/project-service";
+import {ProjectServiceMock} from "../../../managers/project-manager/project-service.mock";
+import {ItemTypePredefined} from "../../models/item-type-predefined";
+import {IMainBreadcrumbService, MainBreadcrumbService} from "./mainbreadcrumb.svc";
+import * as angular from "angular";
 
 describe("Breadcrumb service successful", () => {
 

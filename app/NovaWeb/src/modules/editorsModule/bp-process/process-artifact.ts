@@ -1,11 +1,12 @@
 import {Models} from "../../main/models";
+import {ItemTypePredefined} from "../../main/models/item-type-predefined";
+import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
+import {IStatefulArtifactServices} from "../../managers/artifact-manager/services";
 import {ProcessType} from "./models/enums";
-import {IProcess, IProcessShape, IProcessLink} from "./models/process-models";
-import {IHashMapOfPropertyValues, ItemTypePredefined} from "./models/process-models";
-import {StatefulArtifact, IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
-import {StatefulArtifactServices, IStatefulArtifactServices} from "../../managers/artifact-manager/services";
-import {StatefulProcessSubArtifact} from "./process-subartifact";
+import {IProcess, IProcessLink, IProcessShape} from "./models/process-models";
+import {IHashMapOfPropertyValues} from "./models/process-models";
 import {IArtifactReference} from "./models/process-models";
+import {StatefulProcessSubArtifact} from "./process-subartifact";
 import {ProcessModelProcessor} from "./services/process-model-processor";
 
 export interface INovaProcess extends Models.IArtifact {
@@ -70,7 +71,7 @@ export class StatefulProcessArtifact extends StatefulArtifact implements IStatef
     protected updateArtifact(changes: Models.IArtifact, autoSave: boolean): ng.IPromise<Models.IArtifact> {
         const url = `/svc/bpartifactstore/processupdate/${changes.id}`;
         const processor = new ProcessModelProcessor();
-        (<INovaProcess>changes).process = processor.processModelBeforeSave(this);        
+        (<INovaProcess>changes).process = processor.processModelBeforeSave(this);
         return this.services.artifactService.updateArtifact(url, changes);
     }
 

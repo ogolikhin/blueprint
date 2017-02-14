@@ -1,9 +1,9 @@
-import {BPButtonAction} from "../../../../shared";
-import {IProjectManager} from "../../../../managers/project-manager";
-import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../../../main/models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IMetaDataService, IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {IProjectManager} from "../../../../managers/project-manager";
+import {BPButtonAction} from "../../../../shared";
+import {ItemTypePredefined} from "../../../models/item-type-predefined";
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 
 export class RefreshAction extends BPButtonAction {

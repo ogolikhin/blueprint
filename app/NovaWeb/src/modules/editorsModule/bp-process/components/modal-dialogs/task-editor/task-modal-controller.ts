@@ -1,21 +1,20 @@
-import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
-import {ISession} from "../../../../../shell/login/session.svc";
-import {ErrorCode} from "../../../../../shell/error/error-code";
-import {Message, MessageType} from "../../../../../main/components/messages/message";
-import {ItemTypePredefined} from "../../../../../main/models/enums";
-import {ApplicationError, IApplicationError} from "../../../../../shell/error/applicationError";
 import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {Artifact, IArtifact, IItem} from "../../../../../main/models/models";
-import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
-import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
-import {IDialogSettings, IDialogService} from "../../../../../shared";
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
-import {Models, Enums} from "../../../../../main/models";
-import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
-import {IArtifactReference, ArtifactReference} from "../../../models/process-models";
-import {IModalDialogModel} from "../models/modal-dialog-model-interface";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../../../main/components/bp-artifact-picker";
+import {Message, MessageType} from "../../../../../main/components/messages/message";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
+import {ItemTypePredefined} from "../../../../../main/models/item-type-predefined";
+import {IArtifact, IItem} from "../../../../../main/models/models";
+import {IArtifactService, IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {IDialogService, IDialogSettings} from "../../../../../shared";
+import {ApplicationError, IApplicationError} from "../../../../../shell/error/applicationError";
+import {ErrorCode} from "../../../../../shell/error/error-code";
+import {ISession} from "../../../../../shell/login/session.svc";
+import {ArtifactReference, IArtifactReference} from "../../../models/process-models";
+import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
+import {IModalDialogModel} from "../models/modal-dialog-model-interface";
 
 export abstract class TaskModalController<T extends IModalDialogModel> extends BaseModalDialogController<T> {
     public includeArtifactName: string;

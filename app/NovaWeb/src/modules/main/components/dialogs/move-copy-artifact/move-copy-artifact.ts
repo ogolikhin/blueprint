@@ -1,9 +1,9 @@
-import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../bp-artifact-picker/bp-artifact-picker-dialog";
-import {IArtifactPickerAPI} from "../../bp-artifact-picker/bp-artifact-picker";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {Models} from "../../../../main/models";
 import {IDialogSettings} from "../../../../shared/";
-import {Enums} from "../../../../main/models";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {IArtifactPickerAPI} from "../../bp-artifact-picker/bp-artifact-picker";
+import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../bp-artifact-picker/bp-artifact-picker-dialog";
 
 export enum MoveCopyArtifactInsertMethod {
     Inside,
@@ -48,40 +48,40 @@ export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialo
         }
 
         //if we're moving a folder
-        if (this._currentArtifact.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder) {
+        if (this._currentArtifact.predefinedType === ItemTypePredefined.PrimitiveFolder) {
             //can only insert into folders
             if (this.insertMethod === this.InsertMethodSelection) {
-                return item.predefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
+                return item.predefinedType === ItemTypePredefined.PrimitiveFolder;
             } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
                 //or move as a sibling to something with a folder as parent (or no parent(i.e. project))
-                return !item.parentPredefinedType || item.parentPredefinedType === Enums.ItemTypePredefined.PrimitiveFolder;
+                return !item.parentPredefinedType || item.parentPredefinedType === ItemTypePredefined.PrimitiveFolder;
             }
         }
 
         //if we're moving a baseline or review artifact/folder
-        if (this._currentArtifact.predefinedType === Enums.ItemTypePredefined.BaselineFolder ||
-            this._currentArtifact.predefinedType === Enums.ItemTypePredefined.ArtifactBaseline ||
-            this._currentArtifact.predefinedType === Enums.ItemTypePredefined.ArtifactReviewPackage) {
+        if (this._currentArtifact.predefinedType === ItemTypePredefined.BaselineFolder ||
+            this._currentArtifact.predefinedType === ItemTypePredefined.ArtifactBaseline ||
+            this._currentArtifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage) {
             //can only insert into baseline folders
             if (this.insertMethod === this.InsertMethodSelection) {
-                return item.predefinedType === Enums.ItemTypePredefined.BaselineFolder;
+                return item.predefinedType === ItemTypePredefined.BaselineFolder;
             } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
                 //or move as a sibling to anything but the main Baselines and Reviews folder
-                return !(item.predefinedType === Enums.ItemTypePredefined.BaselineFolder
-                && item.itemTypeId === Enums.ItemTypePredefined.BaselinesAndReviews);
+                return !(item.predefinedType === ItemTypePredefined.BaselineFolder
+                && item.itemTypeId === ItemTypePredefined.BaselinesAndReviews);
             }
         }
 
         //if we're moving a collection artifact/folder
-        if (this._currentArtifact.predefinedType === Enums.ItemTypePredefined.CollectionFolder ||
-            this._currentArtifact.predefinedType === Enums.ItemTypePredefined.ArtifactCollection) {
+        if (this._currentArtifact.predefinedType === ItemTypePredefined.CollectionFolder ||
+            this._currentArtifact.predefinedType === ItemTypePredefined.ArtifactCollection) {
             //can only insert into collection folders
             if (this.insertMethod === this.InsertMethodSelection) {
-                return item.predefinedType === Enums.ItemTypePredefined.CollectionFolder;
+                return item.predefinedType === ItemTypePredefined.CollectionFolder;
             } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
                 //or move as a sibling to anything but the main Collections folder
-                return !(item.predefinedType === Enums.ItemTypePredefined.CollectionFolder
-                && item.itemTypeId === Enums.ItemTypePredefined.Collections);
+                return !(item.predefinedType === ItemTypePredefined.CollectionFolder
+                && item.itemTypeId === ItemTypePredefined.Collections);
             }
         }
 

@@ -1,10 +1,11 @@
-import * as _ from "lodash";
-import {BaseDialogController, IDialogSettings, IDialogService} from "../../../../shared";
-import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
-import {Relationships, Models, AdminStoreModels, TreeModels} from "../../../models";
-import {IDialogRelationshipItem} from "../../../models/relationshipModels";
-import {IStatefulItem, IArtifactRelationships} from "../../../../managers/artifact-manager";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IArtifactPickerAPI} from "../../../../main/components/bp-artifact-picker/bp-artifact-picker";
+import {IArtifactRelationships, IStatefulItem} from "../../../../managers/artifact-manager";
+import {BaseDialogController, IDialogService, IDialogSettings} from "../../../../shared";
+import {AdminStoreModels, Models, Relationships, TreeModels} from "../../../models";
+import {ItemTypePredefined} from "../../../models/item-type-predefined";
+import {IDialogRelationshipItem} from "../../../models/relationshipModels";
+import * as _ from "lodash";
 
 export interface IArtifactSelectedArtifactMap {
     [artifactId: number]: Relationships.IRelationshipView[];
@@ -70,7 +71,7 @@ export class ManageTracesDialogController extends BaseDialogController {
     public getManualTraces() {
         if (this.data.manualTraces) {
             this.data.manualTraces = (this.data.manualTraces.map((item: Relationships.IRelationshipView) => {
-                let typeName = Models.ItemTypePredefined[item.primitiveItemTypePredefined];
+                let typeName = ItemTypePredefined[item.primitiveItemTypePredefined];
 
                 if (typeName) {
                     item.cssClass = "icon-" + _.kebabCase(typeName);
@@ -113,7 +114,7 @@ export class ManageTracesDialogController extends BaseDialogController {
 
             let res = _.find(this.data.manualTraces, {itemId: currentItemModel.itemId});
 
-            let typeName = Models.ItemTypePredefined[currentItemModel.predefinedType];
+            let typeName = ItemTypePredefined[currentItemModel.predefinedType];
 
             let cssClass;
 

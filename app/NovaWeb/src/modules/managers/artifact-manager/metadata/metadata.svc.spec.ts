@@ -1,11 +1,10 @@
 import "angular";
 import "angular-mocks";
 import "lodash";
-import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {IProjectMeta} from "./../../../main/models/models";
-import {MetaDataService, IMetaDataService, ProjectMetaData} from "./metadata.svc";
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
-import {Enums} from "../../../main/models";
+import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {IMetaDataService, MetaDataService, ProjectMetaData} from "./metadata.svc";
 
 
 describe("Metadata Service -> ", () => {
@@ -109,15 +108,15 @@ describe("Metadata Service -> ", () => {
             expect(error).toBeUndefined();
             expect(meta).toBeDefined();
             expect(meta.data.artifactTypes).toEqual(jasmine.any(Array), "incorrect type of artifactTypes");
-            expect(meta.data.artifactTypes[0].id).toEqual(Enums.ItemTypePredefined.Project);
+            expect(meta.data.artifactTypes[0].id).toEqual(ItemTypePredefined.Project);
             expect(meta.data.artifactTypes[0].name).toEqual("Label_Project");
-            expect(meta.data.artifactTypes[0].predefinedType).toEqual(Enums.ItemTypePredefined.Project);
-            expect(meta.data.artifactTypes[1].id).toEqual(Enums.ItemTypePredefined.Collections);
+            expect(meta.data.artifactTypes[0].predefinedType).toEqual(ItemTypePredefined.Project);
+            expect(meta.data.artifactTypes[1].id).toEqual(ItemTypePredefined.Collections);
             expect(meta.data.artifactTypes[1].name).toEqual("Label_Collections");
-            expect(meta.data.artifactTypes[1].predefinedType).toEqual(Enums.ItemTypePredefined.CollectionFolder);
-            expect(meta.data.artifactTypes[2].id).toEqual(Enums.ItemTypePredefined.BaselinesAndReviews);
+            expect(meta.data.artifactTypes[1].predefinedType).toEqual(ItemTypePredefined.CollectionFolder);
+            expect(meta.data.artifactTypes[2].id).toEqual(ItemTypePredefined.BaselinesAndReviews);
             expect(meta.data.artifactTypes[2].name).toEqual("Label_BaselinesAndReviews");
-            expect(meta.data.artifactTypes[2].predefinedType).toEqual(Enums.ItemTypePredefined.BaselineFolder);
+            expect(meta.data.artifactTypes[2].predefinedType).toEqual(ItemTypePredefined.BaselineFolder);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));

@@ -1,15 +1,16 @@
-import {IArtifactState} from "../state";
-import {Models, Enums, Relationships} from "../../../main/models";
-import {ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
-import {ArtifactProperties, SpecialProperties, IArtifactProperties} from "../properties";
-import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet, IItemChangeSet} from "../changeset";
-import {IMetaData} from "../metadata";
-import {IDocumentRefs, DocumentRefs} from "../docrefs";
-import {IStatefulArtifactServices} from "../services";
-import {IArtifactRelationships, ArtifactRelationships} from "../relationships";
-import {IApplicationError} from "../../../shell/error/applicationError";
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {IPropertyDescriptor} from "../../../editorsModule/services";
+import {Enums, Models, Relationships} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {IApplicationError} from "../../../shell/error/applicationError";
+import {ArtifactAttachments, IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
+import {ChangeSetCollector, ChangeTypeEnum, IChangeCollector, IChangeSet, IItemChangeSet} from "../changeset";
+import {DocumentRefs, IDocumentRefs} from "../docrefs";
+import {IMetaData} from "../metadata";
+import {ArtifactProperties, IArtifactProperties, SpecialProperties} from "../properties";
+import {ArtifactRelationships, IArtifactRelationships} from "../relationships";
+import {IStatefulArtifactServices} from "../services";
+import {IArtifactState} from "../state";
 
 export interface IStatefulItem extends Models.IArtifact {
     artifactState: IArtifactState;
@@ -146,7 +147,7 @@ export abstract class StatefulItem implements IIStatefulItem {
         return this.artifact.itemTypeName;
     }
 
-    public get predefinedType(): Models.ItemTypePredefined {
+    public get predefinedType(): ItemTypePredefined {
         return this.artifact.predefinedType;
     }
 

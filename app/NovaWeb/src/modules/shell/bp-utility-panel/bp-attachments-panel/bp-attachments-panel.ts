@@ -1,5 +1,10 @@
+import {ISettingsService} from "../../../commonModule/configuration/settings.service";
+import {IFileResult, IFileUploadService} from "../../../commonModule/fileUpload/fileUpload.service";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Enums, Models} from "../../../main";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../../../main/components/bp-artifact-picker";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
 import {IArtifactAttachment, IArtifactDocRef, IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IDialogService, IDialogSettings} from "../../../shared";
 import {Helper} from "../../../shared/utils/helper";
@@ -7,10 +12,6 @@ import {IUploadStatusDialogData} from "../../../shared/widgets";
 import {BpFileUploadStatusController} from "../../../shared/widgets/bp-file-upload-status/bp-file-upload-status";
 import {ISession} from "../../../shell";
 import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {ILocalizationService} from "../../../commonModule/localization/localization.service";
-import {ISettingsService} from "../../../commonModule/configuration/settings.service";
-import {IMessageService} from "../../../main/components/messages/message.svc";
-import {IFileUploadService, IFileResult} from "../../../commonModule/fileUpload/fileUpload.service";
 
 export class BPAttachmentsPanel implements ng.IComponentOptions {
     public template: string = require("./bp-attachments-panel.html");
@@ -62,7 +63,7 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
         };
 
         const dialogData: IArtifactPickerOptions = {
-            selectableItemTypes: [Models.ItemTypePredefined.Document],
+            selectableItemTypes: [ItemTypePredefined.Document],
             isItemSelectable: (item: Models.IArtifact) => {
                 // only select document reference that has been published at least once
                 return item.version > 0;

@@ -1,14 +1,13 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {Models} from "../../../main/models";
-import {StatefulCollectionArtifact, ICollection} from "./collection-artifact";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
 import {IArtifactService} from "../../../managers/artifact-manager/";
 import {ArtifactServiceMock} from "../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {
-    StatefulArtifactServices
-} from "../../../managers/artifact-manager/services";
+import {StatefulArtifactServices} from "../../../managers/artifact-manager/services";
+import {ICollection, StatefulCollectionArtifact} from "./collection-artifact";
+import * as angular from "angular";
 
 describe("StatefulCollectionArtifact", () => {
 
@@ -54,7 +53,7 @@ describe("StatefulCollectionArtifact", () => {
             id: 1,
             name: "1",
             projectId: 1,
-            predefinedType: Models.ItemTypePredefined.Actor
+            predefinedType: ItemTypePredefined.Actor
         } as Models.IArtifact;
 
         let collectionArtifact = new StatefulCollectionArtifact(collection, artifactServices);
@@ -74,7 +73,7 @@ describe("StatefulCollectionArtifact", () => {
             id: 1,
             name: "1",
             projectId: 1,
-            predefinedType: Models.ItemTypePredefined.Actor
+            predefinedType: ItemTypePredefined.Actor
         } as Models.IArtifact;
 
         const collection = <ICollection> {

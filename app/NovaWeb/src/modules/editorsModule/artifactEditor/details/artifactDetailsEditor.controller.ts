@@ -1,11 +1,12 @@
 ﻿import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Enums, Models} from "../../../main";
+import {IMessageService} from "../../../main/components/messages/message.svc";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
 import {IWindowManager} from "../../../main/services/window-manager";
 import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../../services";
 import {BpArtifactEditor} from "../artifactEditor.controller";
-import {IMessageService} from "../../../main/components/messages/message.svc";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../services";
 
 export class BpArtifactDetailsEditorController extends BpArtifactEditor {
     public static $inject: [string] = [
@@ -69,11 +70,11 @@ export class BpArtifactDetailsEditorController extends BpArtifactEditor {
             this.isSystemPropertyAvailable = this.systemFields && this.systemFields.length > 0;
             this.isCustomPropertyAvailable = this.customFields && this.customFields.length > 0;
             this.isRichTextPropertyAvailable = this.richTextFields && this.richTextFields.length > 0;
-            this.isSpecificPropertyAvailable = this.artifact.predefinedType === Models.ItemTypePredefined.Document ||
-                this.artifact.predefinedType === Models.ItemTypePredefined.Actor;
-            if (this.artifact.predefinedType === Models.ItemTypePredefined.Document) {
+            this.isSpecificPropertyAvailable = this.artifact.predefinedType === ItemTypePredefined.Document ||
+                this.artifact.predefinedType === ItemTypePredefined.Actor;
+            if (this.artifact.predefinedType === ItemTypePredefined.Document) {
                 this.specificPropertiesHeading = this.localization.get("Nova_Document_File", "File");
-            } else if (this.artifact.predefinedType === Models.ItemTypePredefined.Actor) {
+            } else if (this.artifact.predefinedType === ItemTypePredefined.Actor) {
                 this.specificPropertiesHeading = this.localization.get("Property_Actor_Section_Name", "Actor Properties");
             } else {
                 this.specificPropertiesHeading = this.artifact.name + this.localization.get("Nova_Properties", " Properties");

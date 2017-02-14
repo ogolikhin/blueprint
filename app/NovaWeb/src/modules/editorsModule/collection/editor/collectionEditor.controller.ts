@@ -1,18 +1,19 @@
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {Models} from "../../../main";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 import {Enums} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
 import {IWindowManager} from "../../../main/services/window-manager";
 import {IMetaDataService} from "../../../managers/artifact-manager";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset";
 import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {Helper, IDialogService} from "../../../shared";
-import {IMessageService} from "../../../main/components/messages/message.svc";
 import {IBPTreeViewControllerApi, IColumn, IColumnRendererParams, IHeaderCellRendererParams, ITreeNode} from "../../../shared/widgets/bp-tree-view/";
 import {BpArtifactDetailsEditorController} from "../../artifactEditor/details/artifactDetailsEditor.controller";
-import {IPropertyDescriptorBuilder} from "../../services";
 import {ICollectionArtifact, IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
+import {IPropertyDescriptorBuilder} from "../../services";
 import {ICollectionService} from "../collection.service";
-import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 
 export class BpArtifactCollectionEditorController extends BpArtifactDetailsEditorController {
     public static $inject: [string] = [
@@ -353,7 +354,7 @@ class CollectionNodeVM implements ITreeNode {
 
     public getCellClass(): string[] {
         const result = [] as string[];
-        const typeName = Models.ItemTypePredefined[this.model.itemTypePredefined];
+        const typeName = ItemTypePredefined[this.model.itemTypePredefined];
         if (typeName) {
             result.push("is-" + _.kebabCase(typeName));
         }

@@ -1,16 +1,8 @@
-﻿import * as angular from "angular";
-import {
-    ItemTypePredefined,
-    PropertyTypePredefined,
-    PrimitiveType,
-    RolePermissions,
-    ReuseSettings,
-    TraceType,
-    TraceDirection,
-    LockResultEnum
-} from "./enums";
-import {IArtifactAttachment, IArtifactDocRef} from "../../managers/artifact-manager";
+﻿import {IArtifactAttachment, IArtifactDocRef} from "../../managers/artifact-manager";
+import {LockResultEnum, PrimitiveType, PropertyTypePredefined, ReuseSettings, RolePermissions, TraceDirection, TraceType} from "./enums";
+import {ItemTypePredefined} from "./item-type-predefined";
 import {IRelationship} from "./relationshipModels";
+import * as angular from "angular";
 
 export enum ArtifactStateEnum {
     Published = 0,
@@ -267,4 +259,4 @@ export interface IVersionInfo {
 }
 
 
-export {ItemTypePredefined, PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection};
+export {PropertyTypePredefined, PrimitiveType, TraceType, TraceDirection};

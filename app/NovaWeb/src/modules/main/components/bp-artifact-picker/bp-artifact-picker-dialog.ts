@@ -2,6 +2,7 @@ import {ILocalizationService} from "../../../commonModule/localization/localizat
 import {BaseDialogController, IDialogSettings} from "../../../shared/";
 import {Models} from "../../models";
 import {InstanceItemType} from "../../models/admin-store-models";
+import {ItemTypePredefined} from "../../models/item-type-predefined";
 import {InstanceItemNodeVM} from "../../models/tree-node-vm-factory";
 
 export interface IArtifactPickerDialogController {
@@ -13,7 +14,7 @@ export interface IArtifactPickerDialogController {
 
 export interface IArtifactPickerOptions {
     isItemSelectable?: (item: Models.IArtifact | Models.ISubArtifactNode) => boolean;
-    selectableItemTypes?: Models.ItemTypePredefined[];
+    selectableItemTypes?: ItemTypePredefined[];
     selectionMode?: "single" | "multiple" | "checkbox";
     showProjects?: boolean;
     showArtifacts?: boolean;

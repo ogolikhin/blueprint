@@ -1,18 +1,19 @@
-import {IStatefulArtifact, IIStatefulArtifact} from "./artifact";
-import {IArtifactState, ArtifactState} from "../state";
+import {IPropertyDescriptor} from "../../../editorsModule/services";
+import {Enums, Models, Relationships} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/item-type-predefined";
+import {IRelationship} from "../../../main/models/relationshipModels";
+import {IArtifactAttachment, IArtifactDocRef} from "../../../managers/artifact-manager";
+import {IApplicationError} from "../../../shell/error/applicationError";
+import {IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
+import {IItemChangeSet} from "../changeset";
+import {IDocumentRefs} from "../docrefs";
 import {IMetaData} from "../metadata";
 import {IArtifactProperties} from "../properties";
-import {IItemChangeSet} from "../changeset";
-import {IArtifactAttachments, IArtifactAttachmentsResultSet} from "../attachments";
 import {IArtifactRelationships} from "../relationships";
-import {Models, Enums, Relationships} from "../../../main/models";
-import {IDocumentRefs} from "../docrefs";
-import {IApplicationError} from "../../../shell/error/applicationError";
-import {IPropertyDescriptor} from "../../../editorsModule/services";
 import {IStatefulArtifactServices} from "../services";
+import {ArtifactState, IArtifactState} from "../state";
 import {ISubArtifactCollection} from "../sub-artifact";
-import {IArtifactAttachment, IArtifactDocRef} from "../../../managers/artifact-manager";
-import {IRelationship} from "../../../main/models/relationshipModels";
+import {IIStatefulArtifact, IStatefulArtifact} from "./artifact";
 
 export class StatefulArtifactMock implements IStatefulArtifact, IIStatefulArtifact {
     static $inject: string[] = [
@@ -150,7 +151,7 @@ export class StatefulArtifactMock implements IStatefulArtifact, IIStatefulArtifa
     // for artifact picker use
     artifactPath?: string[];
     idPath?: number[];
-    parentPredefinedType?: Models.ItemTypePredefined;
+    parentPredefinedType?: ItemTypePredefined;
 
     //-------------------IItem-------------------
     id: number;
@@ -166,7 +167,7 @@ export class StatefulArtifactMock implements IStatefulArtifact, IIStatefulArtifa
     systemPropertyValues?: Models.IPropertyValue[];
     traces?: IRelationship[];
 
-    predefinedType?: Models.ItemTypePredefined;
+    predefinedType?: ItemTypePredefined;
 
     attachmentValues?: IArtifactAttachment[];
     docRefValues?: IArtifactDocRef[];

@@ -1,26 +1,27 @@
-import * as angular from "angular";
-import {UserTask, SystemTask, SystemDecision} from "./";
-import {ShapesFactory, ShapesFactoryMock} from "./shapes-factory";
-import {ProcessGraph} from "../process-graph";
-import {ProcessModel, ProcessShapeModel, ProcessLinkModel, PropertyTypePredefined, ArtifactReference} from "../../../../../models/process-models";
-import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
-import {createSystemDecisionForAddBranchTestModel} from "../../../../../models/test-model-factory";
-import {ProcessViewModel, IProcessViewModel} from "../../../viewmodel/process-viewmodel";
-import {ShapeModelMock, ArtifactReferenceLinkMock} from "./shape-model.mock";
-import {NodeType, IUserTaskShape} from "../models/";
-import {ISystemTask, IUserTask, IDiagramNode} from "../models/";
-import {ICommunicationManager, CommunicationManager} from "../../../../../../bp-process";
 import {LocalizationServiceMock} from "../../../../../../../commonModule/localization/localization.service.mock";
+import {MessageServiceMock} from "../../../../../../../main/components/messages/message.mock";
+import {IMessageService} from "../../../../../../../main/components/messages/message.svc";
+import {Models} from "../../../../../../../main/models/";
+import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../../../main/models/item-type-predefined";
+import {IStatefulArtifactFactoryMock, StatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
 import {DialogService} from "../../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../../shell/login/mocks.spec";
-import {StatefulArtifactFactoryMock, IStatefulArtifactFactoryMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {CommunicationManager, ICommunicationManager} from "../../../../../../bp-process";
+import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
+import {ArtifactReference, ProcessLinkModel, ProcessModel, ProcessShapeModel} from "../../../../../models/process-models";
+import {createSystemDecisionForAddBranchTestModel} from "../../../../../models/test-model-factory";
 import {StatefulProcessArtifact} from "../../../../../process-artifact";
-import {Models} from "../../../../../../../main/models/";
-import {ArtifactServiceMock} from "../../../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {ItemTypePredefined} from "../../../../../../../main/models/enums";
-import {IMessageService} from "../../../../../../../main/components/messages/message.svc";
-import {MessageServiceMock} from "../../../../../../../main/components/messages/message.mock";
+import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {IProcessViewModel, ProcessViewModel} from "../../../viewmodel/process-viewmodel";
+import {IUserTaskShape, NodeType} from "../models/";
+import {IDiagramNode, ISystemTask, IUserTask} from "../models/";
+import {ProcessGraph} from "../process-graph";
+import {SystemDecision, SystemTask, UserTask} from "./";
+import {ArtifactReferenceLinkMock, ShapeModelMock} from "./shape-model.mock";
+import {ShapesFactory} from "./shapes-factory";
+import * as angular from "angular";
 
 describe("UserTask test", () => {
     const LABEL_EDIT_MAXLENGTH = 40;
@@ -415,7 +416,7 @@ describe("UserTask test", () => {
             const processModel = new ProcessModel();
             const mock = ShapeModelMock.instance().SystemTaskMock();
             const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
-            artifact.predefinedType = Models.ItemTypePredefined.Process;
+            artifact.predefinedType = ItemTypePredefined.Process;
             processModel.shapes.push(mock);
 
             statefulArtifact = <StatefulProcessArtifact>statefulArtifactFactory.createStatefulArtifact(artifact);

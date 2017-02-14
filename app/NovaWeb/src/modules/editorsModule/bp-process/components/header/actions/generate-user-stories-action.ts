@@ -14,6 +14,7 @@ import {ILocalizationService} from "../../../../../commonModule/localization/loc
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {AnalyticsCategories, IAnalyticsService, AnalyticsActions} from "../../../../../main/components/analytics";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private selectionChangedHandle: string;
@@ -28,7 +29,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         private loadingOverlayService: ILoadingOverlayService,
         private processDiagramManager: IProcessDiagramCommunication,
         private projectManager: IProjectManager,
-        private analytics: ng.google.analytics.AnalyticsService
+        private analyticsService: IAnalyticsService
     ) {
         super();
 
@@ -214,16 +215,13 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
     }
 
-    private trackSearchEvent(startTime: number, userTaskId?: number) {
-        const endTime = new Date().getTime();
-        const timeSpentInMsec = endTime - startTime;
-        const category = "User Story";
-        let action = "Generate All";
+    private trackGenerateUserStoriesEvent(startTime: number, userTaskId?: number) {        
+        const category = AnalyticsCategories.USER_STORY;
+        let action = AnalyticsActions.GENERATE_ALL;
         if (userTaskId && userTaskId > 0) {
-            action = "Generate Selected";
+            action = AnalyticsActions.GENERATE_SELECTED;
         }
-        const seconds = timeSpentInMsec / 1000;
-        this.analytics.trackEvent(category, action, undefined, seconds, false);
+        this.analyticsService.trackAnalyticsTemporalEvent(startTime, category, action, undefined);
     }
 
     private generateUserStories(process: StatefulProcessArtifact, userTaskId?: number): ng.IPromise<any> {
@@ -240,7 +238,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                         this.localization.get("ST_US_Generate_From_UserTask_Success_Message") :
                         this.localization.get("ST_US_Generate_All_Success_Message");
                 this.messageService.addInfo(userStoriesGeneratedMessage);                
-                this.trackSearchEvent(startTime, userTaskId);
+                this.trackGenerateUserStoriesEvent(startTime, userTaskId);
                 return process.refresh();
             })
             .then(() => {

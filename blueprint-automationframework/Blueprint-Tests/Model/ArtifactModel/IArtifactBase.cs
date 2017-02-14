@@ -100,14 +100,25 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Get ArtifactReference list which is used to represent breadcrumb navigation.
-        /// (Runs:  svc/shared/navigation/{id1}/{id2}...)
+        /// (Runs:  'GET /svc/shared/navigation/{id1}/{id2}...')
         /// </summary>
-        /// <param name="user">The user credentials for breadcrumb navigation</param>
-        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <returns>The List of ArtifactReferences after the get navigation call</returns>
+        /// <param name="user">The user credentials for breadcrumb navigation.</param>
+        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation.</param>
+        /// <param name="versionId">(optional) The Version ID??</param>
+        /// <param name="revisionId">(optional) The Revision ID??</param>
+        /// <param name="baselineId">(optional) The Baseline ID??</param>
+        /// <param name="readOnly">(optional) Indicator which determines if returning artifact references are readOnly or not.
+        ///     By default, readOnly is set to false.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <returns>The List of ArtifactReferences after the get navigation call.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        List<ArtifactReference> GetNavigation(IUser user, List<IArtifact> artifacts,
+        List<ArtifactReference> GetNavigation(
+            IUser user,
+            List<IArtifact> artifacts,
+            int? versionId = null,
+            int? revisionId = null,
+            int? baselineId = null,
+            bool? readOnly = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

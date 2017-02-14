@@ -146,7 +146,149 @@ namespace Model.Impl
             return publishResults;
         }
 
+        /// <seealso cref="ISvcShared.SearchArtifactsByName(IUser, string, IProject, List{HttpStatusCode})"/>
+        public IList<IArtifactBase> SearchArtifactsByName(IUser user,
+            string searchSubstring,
+            IProject project = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return SearchArtifactsByName(Address, user, searchSubstring, project, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Search artifact by a substring in its name on Blueprint server.  Among published artifacts only.
+        /// (Runs:  'GET svc/shared/artifacts/search')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="searchSubstring">The substring (case insensitive) to search.</param>
+        /// <param name="project">The project to search, if project is null search within all available projects.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>List of first 10 artifacts with name containing searchSubstring.</returns>
+        public static IList<IArtifactBase> SearchArtifactsByName(string address,
+            IUser user,
+            string searchSubstring,
+            IProject project = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var queryParameters = new Dictionary<string, string>
+            {
+                { "name", searchSubstring }
+            };
+
+            if (project != null)
+            {
+                queryParameters.Add("projectId", project.Id.ToStringInvariant());
+            }
+
+            //showBusyIndicator doesn't affect server side, it is added to make call similar to call from HTML
+            queryParameters.Add("showBusyIndicator", "false");
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactBase>>(
+                RestPaths.Svc.Shared.Artifacts.SEARCH,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            Logger.WriteDebug("Response for search artifact by name: {0}", response);
+
+            return response.ConvertAll(o => (IArtifactBase)o);
+        }
+
         #endregion Artifacts methods
+
+        #region Navigation methods
+
+        /// <seealso cref="ISvcShared.GetNavigation(IUser, List{IArtifact}, int?, int?, int?, bool?, List{HttpStatusCode})"/>
+        public List<ArtifactReference> GetNavigation(
+            IUser user,
+            List<IArtifact> artifacts,
+            int? versionId = null,
+            int? revisionId = null,
+            int? baselineId = null,
+            bool? readOnly = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetNavigation(Address, user, artifacts,
+                versionId: versionId,
+                revisionId: revisionId,
+                baselineId: baselineId,
+                readOnly: readOnly,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Get ArtifactReference list which is used to represent breadcrumb navigation.
+        /// (Runs:  'GET /svc/shared/navigation/{id1}/{id2}...')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user credentials for breadcrumb navigation.</param>
+        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation.</param>
+        /// <param name="versionId">(optional) The Version ID??</param>
+        /// <param name="revisionId">(optional) The Revision ID??</param>
+        /// <param name="baselineId">(optional) The Baseline ID??</param>
+        /// <param name="readOnly">(optional) Indicator which determines if returning artifact references are readOnly or not.
+        ///     By default, readOnly is set to false.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <returns>The List of ArtifactReferences after the get navigation call.</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
+        public static List<ArtifactReference> GetNavigation(string address,
+            IUser user,
+            List<IArtifact> artifacts,
+            int? versionId = null,
+            int? revisionId = null,
+            int? baselineId = null,
+            bool? readOnly = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            //Get list of artifacts which were created.
+            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactIds));
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.Value.ToStringInvariant());
+            }
+
+            if (revisionId != null)
+            {
+                queryParameters.Add("revisionId", revisionId.Value.ToStringInvariant());
+            }
+
+            if (baselineId != null)
+            {
+                queryParameters.Add("baselineId", baselineId.Value.ToStringInvariant());
+            }
+
+            if (readOnly != null)
+            {
+                queryParameters.Add("readOnly", readOnly.Value.ToString().ToLowerInvariant());
+            }
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactReference>>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response;
+        }
+
+        #endregion Navigation methods
 
         #region User and Group methods
 

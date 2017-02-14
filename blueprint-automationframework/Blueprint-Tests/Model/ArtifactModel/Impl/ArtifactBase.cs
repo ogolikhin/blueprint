@@ -221,71 +221,60 @@ namespace Model.ArtifactModel.Impl
 
         #endregion Delete methods
 
-        #region GetNavigation methods
+        #region Navigation methods
 
+        /// <seealso cref="IArtifactBase.GetNavigation(IUser, List{IArtifact}, int?, int?, int?, bool?, List{HttpStatusCode})"/>
         public List<ArtifactReference> GetNavigation(
             IUser user,
             List<IArtifact> artifacts,
-            List<HttpStatusCode> expectedStatusCodes = null
-            )
+            int? versionId = null,
+            int? revisionId = null,
+            int? baselineId = null,
+            bool? readOnly = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetNavigation(Address, user, artifacts, expectedStatusCodes);
+            return GetNavigation(Address, user, artifacts,
+                versionId: versionId,
+                revisionId: revisionId,
+                baselineId: baselineId,
+                readOnly: readOnly,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>
         /// Get ArtifactReference list which is used to represent breadcrumb navigation.
-        /// (Runs:  svc/shared/navigation/{id1}/{id2}...)
+        /// (Runs:  'GET /svc/shared/navigation/{id1}/{id2}...')
         /// </summary>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="user">The user credentials for breadcrumb navigation</param>
-        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user credentials for breadcrumb navigation.</param>
+        /// <param name="artifacts">The list of artifacts used for breadcrumb navigation.</param>
+        /// <param name="versionId">(optional) The Version ID??</param>
+        /// <param name="revisionId">(optional) The Revision ID??</param>
+        /// <param name="baselineId">(optional) The Baseline ID??</param>
         /// <param name="readOnly">(optional) Indicator which determines if returning artifact references are readOnly or not.
-        /// By default, readOnly is set to false</param>
-        /// <returns>The List of ArtifactReferences after the get navigation call</returns>
+        ///     By default, readOnly is set to false.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
+        /// <returns>The List of ArtifactReferences after the get navigation call.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         public static List<ArtifactReference> GetNavigation(
             string address,
             IUser user,
             List<IArtifact> artifacts,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool readOnly = false
-            )
+            int? versionId = null,
+            int? revisionId = null,
+            int? baselineId = null,
+            bool? readOnly = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
-
-            string tokenValue = user.Token?.AccessControlToken;
-
-            //Get list of artifacts which were created.
-            List<int> artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Shared.NAVIGATION_ids_, string.Join("/", artifactIds));
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (readOnly)
-            {
-                queryParameters.Add("readOnly", "true");
-            }
-            else
-            {
-                queryParameters.Add("readOnly", "false");
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactReference>>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return response;
+            return SvcShared.GetNavigation(address, user, artifacts,
+                versionId: versionId,
+                revisionId: revisionId,
+                baselineId: baselineId,
+                readOnly: readOnly,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
-        #endregion GetNavigation methods
+        #endregion Navigation methods
 
         #region Publish methods
 

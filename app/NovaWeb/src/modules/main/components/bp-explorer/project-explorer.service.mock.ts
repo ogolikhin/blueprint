@@ -47,12 +47,12 @@ export class ProjectExplorerServiceMock implements IProjectExplorerService {
         return;
     }
 
-    public refresh(projectId: number, expandToArtifact?: IArtifact) {
-        return;
+    public refresh(projectId: number, expandToArtifact?: IArtifact): ng.IPromise<ExplorerNodeVM> {
+        return this.$q.resolve({} as ExplorerNodeVM);
     }
 
-    public refreshAll() {
-        return;
+    public refreshAll(): ng.IPromise<any> {
+        return this.$q.resolve();
     }
 
     public getProject(id: number): ExplorerNodeVM {

@@ -33,8 +33,8 @@ export interface IProjectExplorerService {
     openProjectWithDialog(): void;
     openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
 
-    refresh(projectId: number, expandToArtifact?: IArtifact);
-    refreshAll();
+    refresh(projectId: number, expandToArtifact?: IArtifact): ng.IPromise<ExplorerNodeVM>;
+    refreshAll(): ng.IPromise<any>;
 
     getProject(id: number): ExplorerNodeVM;
 
@@ -277,7 +277,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
         return _.find(this.projects, project => project.model.id === id);
     }
 
-    public refresh(projectId: number, expandToArtifact?: IArtifact) {
+    public refresh(projectId: number, expandToArtifact?: IArtifact): ng.IPromise<ExplorerNodeVM> {
         this.$log.debug("refreshing project: " + projectId);
 
         const projectNode = this.getProject(projectId);
@@ -285,34 +285,47 @@ export class ProjectExplorerService implements IProjectExplorerService {
             return;
         }
 
-        this.selectionManager.autosave().then(() => {
-            if (expandToArtifact && expandToArtifact.projectId === projectId) {
-                this.getProjectExpandedToNode(projectId, expandToArtifact.id)
-                    .then(project => {
-                        const index = _.findIndex(this.projects, p => p.model.id === p.model.id);
-                        this.projects[index].unloadChildren();
-                        this.projects.splice(index, 1, project);
+        return this.selectionManager.autosave()
+            .then(() => this.metadataService.refresh(projectId))
+            .then(() => {
+                if (expandToArtifact && expandToArtifact.projectId === projectId) {
+                    return this.getProjectExpandedToNode(projectId, expandToArtifact.id);
+                } else {
+                    return this.createProjectNode(projectId);
+                }
+            })
+            .then((project: ExplorerNodeVM) => {
+                const index = _.findIndex(this.projects, p => p.model.id === project.model.id);
+                this.projects[index].unloadChildren();
+                this.projects.splice(index, 1, project);
 
-                        project.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
-                            this.notifyProjectsUpdate();
-                        });
-                    });
-            } else {
-                projectNode.unloadChildren();
-                projectNode.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
-                    projectNode.children = children;
+                return project.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
+                    if (!project.children) {
+                        project.children = children;
+                    }
                     this.notifyProjectsUpdate();
+
+                    return project;
                 });
-            }
-        });
+            });
     }
 
-    public refreshAll() {
+    public refreshAll(): ng.IPromise<any> {
         return this.selectionManager.autosave().then(() => {
-           this.refreshCurrentArtifact();
+            const refreshQueue = [];
+
+            // FIXME: move this to page-toolbar
+            this.refreshCurrentArtifact();
+            const currentArtifact = this.getArtifactNode(this.getSelectionId());
             _.forEach(this.projects, project => {
-                this.refresh(project.model.id);
+                if (currentArtifact.model.projectId === project.model.id) {
+                    refreshQueue.push(this.refresh(project.model.id, currentArtifact.model));
+                } else {
+                    refreshQueue.push(this.refresh(project.model.id));
+                }
             });
+
+            return this.$q.all(refreshQueue);
         });
     }
 

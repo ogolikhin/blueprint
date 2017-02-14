@@ -18,6 +18,8 @@ import {MainBreadcrumbServiceMock} from "../../bp-page-content/mainbreadcrumb.sv
 import {MainBreadcrumbService, IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
+import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 
 xdescribe("RefreshAction", () => {
     let $scope: ng.IScope;
@@ -31,6 +33,7 @@ xdescribe("RefreshAction", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("navigationService", NavigationServiceMock);
         $provide.service("metaDataService", MetaDataService);
         $provide.service("$log", LogMock);
         $provide.service("mainBreadcrumbService", MainBreadcrumbServiceMock);
@@ -54,6 +57,7 @@ xdescribe("RefreshAction", () => {
                 statefulArtifactFactory: IStatefulArtifactFactory,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             const localization: ILocalizationService = null;
@@ -61,7 +65,8 @@ xdescribe("RefreshAction", () => {
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService, metaDataService, mainBreadcrumbService);
+                new RefreshAction(artifact, localization, projectExplorerService,
+                    loadingOverlayService, metaDataService, navigationService, mainBreadcrumbService);
             } catch (exception) {
                 error = exception;
             }
@@ -76,6 +81,7 @@ xdescribe("RefreshAction", () => {
                 statefulArtifactFactory: IStatefulArtifactFactory,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             const projectExplorerService: IProjectExplorerService = null;
@@ -83,7 +89,8 @@ xdescribe("RefreshAction", () => {
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService, metaDataService, mainBreadcrumbService);
+                new RefreshAction(artifact, localization, projectExplorerService,
+                    loadingOverlayService, metaDataService, navigationService, mainBreadcrumbService);
             } catch (exception) {
                 error = exception;
             }
@@ -98,6 +105,7 @@ xdescribe("RefreshAction", () => {
                 projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = null;
@@ -105,7 +113,8 @@ xdescribe("RefreshAction", () => {
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService, metaDataService, mainBreadcrumbService);
+                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService,
+                    metaDataService, navigationService, mainBreadcrumbService);
             } catch (exception) {
                 error = exception;
             }
@@ -119,6 +128,7 @@ xdescribe("RefreshAction", () => {
         inject((localization: ILocalizationService,
                 projectExplorerService: IProjectExplorerService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             const loadingOverlayService: ILoadingOverlayService = null;
@@ -126,7 +136,8 @@ xdescribe("RefreshAction", () => {
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService, metaDataService, mainBreadcrumbService);
+                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService,
+                    metaDataService, navigationService, mainBreadcrumbService);
             } catch (exception) {
                 error = exception;
             }
@@ -140,6 +151,7 @@ xdescribe("RefreshAction", () => {
         inject((localization: ILocalizationService,
                 projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             const metaDataService: IMetaDataService = null;
@@ -147,7 +159,8 @@ xdescribe("RefreshAction", () => {
 
             // act
             try {
-                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService, metaDataService, mainBreadcrumbService);
+                new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService,
+                    metaDataService, navigationService, mainBreadcrumbService);
             } catch (exception) {
                 error = exception;
             }
@@ -163,6 +176,7 @@ xdescribe("RefreshAction", () => {
                 projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -177,7 +191,7 @@ xdescribe("RefreshAction", () => {
 
             // act
             const refreshAction = new RefreshAction(artifact, localization, projectExplorerService,
-                loadingOverlayService, metaDataService, mainBreadcrumbService);
+                loadingOverlayService, metaDataService, navigationService, mainBreadcrumbService);
 
             // assert
             expect(refreshAction.disabled).toBe(true);
@@ -189,6 +203,7 @@ xdescribe("RefreshAction", () => {
                 projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -199,7 +214,7 @@ xdescribe("RefreshAction", () => {
 
             // act
             const refreshAction = new RefreshAction(artifact, localization, projectExplorerService,
-                loadingOverlayService, metaDataService, mainBreadcrumbService);
+                loadingOverlayService, metaDataService, navigationService, mainBreadcrumbService);
 
             // assert
             expect(refreshAction.disabled).toBe(false);
@@ -211,6 +226,7 @@ xdescribe("RefreshAction", () => {
                 projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -221,7 +237,7 @@ xdescribe("RefreshAction", () => {
 
             // act
             const refreshAction = new RefreshAction(artifact, localization, projectExplorerService,
-                loadingOverlayService, metaDataService, mainBreadcrumbService);
+                loadingOverlayService, metaDataService, navigationService, mainBreadcrumbService);
 
             // assert
             expect(refreshAction.disabled).toBe(true);
@@ -233,6 +249,7 @@ xdescribe("RefreshAction", () => {
                 projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -243,7 +260,7 @@ xdescribe("RefreshAction", () => {
 
             // act
             const refreshAction = new RefreshAction(artifact, localization, projectExplorerService,
-                loadingOverlayService, metaDataService, mainBreadcrumbService);
+                loadingOverlayService, metaDataService, navigationService, mainBreadcrumbService);
 
             // assert
             expect(refreshAction.disabled).toBe(true);
@@ -255,6 +272,7 @@ xdescribe("RefreshAction", () => {
                 projectExplorerService: IProjectExplorerService,
                 loadingOverlayService: ILoadingOverlayService,
                 metaDataService: IMetaDataService,
+                navigationService: INavigationService,
                 mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -268,7 +286,7 @@ xdescribe("RefreshAction", () => {
 
             // act
             const refreshAction = new RefreshAction(artifact, localization, projectExplorerService,
-                loadingOverlayService, metaDataService, mainBreadcrumbService);
+                loadingOverlayService, metaDataService, navigationService, mainBreadcrumbService);
 
             // assert
             expect(refreshAction.disabled).toBe(false);
@@ -287,6 +305,7 @@ xdescribe("RefreshAction", () => {
                            projectExplorerService: IProjectExplorerService,
                            loadingOverlayService: ILoadingOverlayService,
                            metaDataService: IMetaDataService,
+                           navigationService: INavigationService,
                            mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -297,7 +316,8 @@ xdescribe("RefreshAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-            refreshAction = new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService, metaDataService, mainBreadcrumbService);
+            refreshAction = new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService,
+                metaDataService, navigationService, mainBreadcrumbService);
             beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
             refreshSpy = spyOn(artifact, "refresh");
             projectRefreshSpy = spyOn(projectExplorerService, "refresh").and.callThrough();
@@ -388,6 +408,7 @@ xdescribe("RefreshAction", () => {
                            projectExplorerService: IProjectExplorerService,
                            loadingOverlayService: ILoadingOverlayService,
                            metaDataService: IMetaDataService,
+                           navigationService: INavigationService,
                            mainBreadcrumbService: IMainBreadcrumbService) => {
             // arrange
             artifact = statefulArtifactFactory.createStatefulArtifact(
@@ -398,7 +419,9 @@ xdescribe("RefreshAction", () => {
                     lockedDateTime: null,
                     permissions: RolePermissions.Edit
                 });
-            refreshAction = new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService, metaDataService, mainBreadcrumbService);
+            refreshAction = new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService,
+                metaDataService, navigationService, mainBreadcrumbService);
+            
             beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
             projectRefreshSpy = spyOn(projectExplorerService, "refreshCurrent").and.callThrough();
             endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();

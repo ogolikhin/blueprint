@@ -1,10 +1,11 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 
 export class RefreshAction extends BPButtonAction {
     constructor(
@@ -13,33 +14,10 @@ export class RefreshAction extends BPButtonAction {
         private projectExplorerService: IProjectExplorerService,
         private loadingOverlayService: ILoadingOverlayService,
         private metaDataService: IMetaDataService,
+        private navigationService: INavigationService,
         private mainBreadcrumbService: IMainBreadcrumbService
     ) {
         super();
-
-        if (!this.artifact) {
-            throw new Error("Artifact not provided or is null");
-        }
-
-        if (!this.localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!this.projectExplorerService) {
-            throw new Error("Project explorer service not provided or is null");
-        }
-
-        if (!this.loadingOverlayService) {
-            throw new Error("Loading overlay service not provided or is null");
-        }
-
-        if (!this.metaDataService) {
-            throw new Error("MetaData service not provided or is null");
-        }
-
-        if (!this.mainBreadcrumbService) {
-            throw new Error("Main breadcrumb service not provided or is null");
-        }
     }
 
     public get icon(): string {
@@ -69,7 +47,9 @@ export class RefreshAction extends BPButtonAction {
 
     public execute(): void {
         if (this.artifact.predefinedType === ItemTypePredefined.Project) {
-            this.projectExplorerService.refresh(this.artifact.id);
+            this.projectExplorerService.refresh(this.artifact.id).then(() => {
+                this.navigationService.reloadCurrentState();
+            });
 
         } else {
             //project is getting refreshed by listening to selection in bp-page-content

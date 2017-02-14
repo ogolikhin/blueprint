@@ -4,6 +4,7 @@ import {ILocalizationService} from "../../../../commonModule/localization/locali
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {IMessageService} from "../../messages/message.svc";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
+import {IArtifact} from "../../../models/models";
 
 export class DiscardAction extends BPButtonAction {
     constructor(
@@ -32,15 +33,24 @@ export class DiscardAction extends BPButtonAction {
     public execute(): void {
         this.artifact.discardArtifact()
             .then(() => {
+                const hasEverBeenPublished = this.artifact.version !== -1;
                 if (this.projectExplorerService.projects.length) {
-                    this.projectExplorerService.refresh(this.artifact.projectId, this.artifact);
-                } else {
-                    // If artifact has never been published, navigate back to the main page;
-                    // otherwise, refresh the artifact
-                    if (this.artifact.version === -1) {
-                        this.navigationService.navigateToMain(true);
+                    if (hasEverBeenPublished) {
+                        this.projectExplorerService.refresh(this.artifact.projectId, this.artifact);
                     } else {
+                        const parentArtifact: IArtifact = {
+                            id: this.artifact.parentId,
+                            projectId: this.artifact.projectId
+                        };
+                        this.navigationService.navigateTo({id: parentArtifact.id}).then(() => {
+                            this.projectExplorerService.refresh(this.artifact.projectId, parentArtifact);
+                        });
+                    }
+                } else {
+                    if (hasEverBeenPublished) {
                         this.artifact.refresh();
+                    } else {
+                        this.navigationService.navigateToMain(true);
                     }
                 }
             })

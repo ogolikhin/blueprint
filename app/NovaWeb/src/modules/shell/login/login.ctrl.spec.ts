@@ -708,6 +708,60 @@ describe("LoginCtrl", () => {
                 expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCriteria");
             }));
 
+        it("responds with new password cannot equal login name",
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+                // Arrange
+                loginCtrl.novaUserName = "admin";
+                loginCtrl.novaCurrentPassword = "changeme";
+                loginCtrl.novaNewPassword = "123EWQ!@#";
+                loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
+                spyOn(session, "resetPassword").and.callFake(function () {
+                    const deferred = $q.defer();
+                    const error = {
+                        statusCode: 400,
+                        errorCode: 4005
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
+
+                // Act
+                loginCtrl.changePassword();
+                $rootScope.$digest();
+
+                // Assert
+                expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeUsername");
+            }));
+
+        it("responds with new password cannot equal display name (serverside fallback)",
+            //Note: We test this above for the client-side, but client-side data may be out of date, so it's possible to get this from the server.
+
+            inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
+                // Arrange
+                loginCtrl.novaUserName = "admin";
+                loginCtrl.novaCurrentPassword = "changeme";
+                loginCtrl.novaNewPassword = "123EWQ!@#";
+                loginCtrl.novaConfirmNewPassword = "123EWQ!@#";
+                spyOn(session, "resetPassword").and.callFake(function () {
+                    const deferred = $q.defer();
+                    const error = {
+                        statusCode: 400,
+                        errorCode: 4006
+                    };
+                    deferred.reject(error);
+                    return deferred.promise;
+                });
+
+                // Act
+                loginCtrl.changePassword();
+                $rootScope.$digest();
+
+                // Assert
+                expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
+                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeDisplayname");
+            }));
+
         it("respond with password cooldown in effect",
             inject(($rootScope: ng.IRootScopeService, loginCtrl: LoginCtrl, session: SessionSvc, $q: ng.IQService) => {
                 // Arrange

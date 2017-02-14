@@ -28,7 +28,7 @@ import {IClipboardService} from "../../../../services/clipboard.svc";
 import {IFileUploadService} from "../../../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 import {SystemTask} from "./shapes/system-task";
-import {ItemTypePredefined} from "../../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../../main/models/itemTypePredefined.enum";
 import {IArtifact} from "../../../../../../main/models/models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
 import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";

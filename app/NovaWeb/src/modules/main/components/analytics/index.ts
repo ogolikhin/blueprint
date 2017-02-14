@@ -11,3 +11,4 @@ angular.module("bp.components.analytics", ["angular-google-analytics"])
 export {AnalyticsCategories} from "./analyticsCategories";
 export {AnalyticsActions} from "./analyticsActions";
 export {IAnalyticsService} from "./analyticsService";
+export {AnalyticsServiceMock} from "./analyticsService.mock";

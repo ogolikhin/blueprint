@@ -511,7 +511,9 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public updateProcessModel(process: ProcessModels.IProcess): void {
-        this.process = process.shapes;
+        this.process.shapes = process.shapes;
+        this.process.links = process.links;
+        this.process.decisionBranchDestinationLinks = process.decisionBranchDestinationLinks;
 
         // initialize tree and flow
         this.updateTreeAndFlows();

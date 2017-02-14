@@ -16,6 +16,8 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public editor: PropertyEditor;
     public activeTab: number;
 
+    private fieldObserver: MutationObserver;
+
     constructor(protected $window: ng.IWindowService,
                 public messageService: IMessageService,
                 public selectionManager: ISelectionManager,
@@ -117,7 +119,32 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         }
         this.model = this.editor.getModel();
 
-        this.setArtifactEditorLabelsWidth();
+        const pageBodyWrapper = this.$window.document.getElementsByClassName("page-body-wrapper").item(0) as HTMLElement;
+        const mutationObserver = window["MutationObserver"];
+        if (pageBodyWrapper && !_.isUndefined(mutationObserver)) {
+            this.fieldObserver = new MutationObserver(mutations => {
+                for (let m in mutations) {
+                    let mutation = mutations[m];
+                    if (mutation.target.nodeType === 1 && mutation.addedNodes.length) {
+                        const element = mutation.target as HTMLElement;
+                        if (element.classList.contains("formly-field")) {
+                            this.setArtifactEditorLabelsWidth();
+                            this.fieldObserver.disconnect();
+                            return;
+                        }
+                    }
+                }
+            });
+            this.fieldObserver.observe(pageBodyWrapper, {
+                attributes: false,
+                childList: true,
+                characterData: false,
+                subtree: true
+            });
+        } else {
+            this.setArtifactEditorLabelsWidth();
+        }
+
         super.onArtifactReady();
         this.onFieldUpdateFinished();
     }
@@ -129,7 +156,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         let computedMinWidth: number;
 
-        const pageBodyWrapper = this.$window.document.querySelector(".page-body-wrapper") as HTMLElement;
+        const pageBodyWrapper = this.$window.document.getElementsByClassName("page-body-wrapper").item(0) as HTMLElement;
         if (pageBodyWrapper) {
             computedMinWidth = _.parseInt(this.$window.getComputedStyle(pageBodyWrapper).getPropertyValue("min-width"), 10);
         }

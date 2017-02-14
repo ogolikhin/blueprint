@@ -62,7 +62,7 @@ export class OpenProjectController extends BaseDialogController {
             this._returnValue = undefined;
         }
 
-        const descriptionElement = doc.querySelector(".open-project__description");
+        const descriptionElement = doc.getElementsByClassName("open-project__description").item(0);
         if (descriptionElement) {
             const clampClasses = ["line-clamp", "line-clamp-3", "line-clamp--gray-lightest"];
             clampClasses.forEach((clampClass) => {
@@ -102,7 +102,9 @@ export class OpenProjectController extends BaseDialogController {
     public onDoubleClick(vm: OpenProjectVM): void {
         this.$scope.$applyAsync(() => {
             this.setSelectedItem(vm);
-            this.ok();
+            if (this.returnValue) {
+                this.ok();
+            }
         });
     }
 }

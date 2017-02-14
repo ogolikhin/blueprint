@@ -42,7 +42,7 @@ pagecontent, bp-properties-panel {
             }
         }
 
-        &.collapsed {
+        &.is-collapsed {
             > .heading::before {
                 border-bottom: 5px solid transparent;
                 border-left: 5px dashed;
@@ -56,16 +56,14 @@ pagecontent, bp-properties-panel {
             .content {
                 display: none;
             }
+        }
+    }
 
-            .content.system-properties {
-                display: block;
-                height: #{$property-min-height + 12px};
-                overflow: hidden;
+    .system-properties__container.is-collapsed .content.system-properties {
+        display: block;
 
-                &.collapse:not(.in) .formly .formly-field:first-child {
-                    width: 100%;
-                }
-            }
+        .formly .formly-field:not(:first-child) {
+            display: none;
         }
     }
 
@@ -1169,18 +1167,6 @@ pagecontent, bp-properties-panel {
     }
 }
 
-.single-column-property {
-    .properties.collapsed .content.system-properties {
-        height: #{$property-min-height + 23px + 12px}; // + label's height + margin-bottom
-    }
-
-    .formly .formly-label {
-        margin-right: 0;
-        padding: 0;
-        width: $property-input-width;
-    }
-}
-
 .tab-pane {
     border: solid 1px $gray-lighter;
     border-radius: $border-radius-amount;
@@ -1222,7 +1208,7 @@ pagecontent, bp-properties-panel {
 }
 
 bp-properties-panel {
-    .properties.collapsed {
+    .properties.is-collapsed {
         margin-bottom: 0;
     }
 
@@ -1263,5 +1249,11 @@ pagecontent {
         padding: 8px 25px;
         font-size: $font-size-normal;
         color: $gray-light;
+    }
+
+    .single-column-property .formly .formly-label {
+        margin-right: 0;
+        padding: 0;
+        width: $property-input-width;
     }
 }

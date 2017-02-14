@@ -416,13 +416,14 @@ describe("Layout test", () => {
         expect(firstSystemToUserTaskGap).toEqual(otherSystemToUserTaskGap);
     });
 
-    xit("Inserted user task is selected", () => {
+    it("Inserted user task is selected", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
         let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+        graph.layout.setTempShapeId(0);
 
-        const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
+        let modelUpdateHandler = graph.viewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver((selectedNodeId: number) => {
             graph.destroy();
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
             graph.render(true, selectedNodeId);
@@ -435,19 +436,26 @@ describe("Layout test", () => {
         graph.render(true, null);
         ProcessAddHelper.insertTaskWithUpdate(graph.getNodeById("25").getConnectableElement().edges[1],
             graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+        graph.viewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(modelUpdateHandler);
+
+        // get focused element
+        let curElement = document.activeElement;
+        // get selected element
+        let newNode = graph.getNodeById("-2");
 
         //Assert
         expect(graph.getMxGraph().getSelectionCell().getId()).toEqual("-2");
+        expect(newNode.label).toEqual(curElement.innerHTML);
     });
 
-    xit("Inserted decision point is selected", () => {
+    it("Inserted decision point is selected", () => {
         // Arrange
         const testModel = TestModels.createLargeTestModel();
         const processModel = setProcessViewModel(testModel);
         let graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+        graph.layout.setTempShapeId(0);
 
-        const unregProcesssModelUpdate = rootScope.$on("processModelUpdate", (event: any, selectedNodeId: number) => {
+        let modelUpdateHandler = graph.viewModel.communicationManager.processDiagramCommunication.registerModelUpdateObserver((selectedNodeId: number) => {
             graph.destroy();
             graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
             graph.render(true, selectedNodeId);
@@ -459,7 +467,7 @@ describe("Layout test", () => {
         // Act
         graph.render(true, null);
         ProcessAddHelper.insertUserDecision(graph.getNodeById("30").getConnectableElement().edges[0], graph.layout, shapesFactoryService);
-        unregProcesssModelUpdate();
+        graph.viewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(modelUpdateHandler);
 
         //Assert
         expect(graph.getMxGraph().getSelectionCell().getId()).toEqual("-2");
@@ -1006,7 +1014,7 @@ describe("Layout test", () => {
                     rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
-                processGraph.render(true, false);
+                processGraph.render(true, null);
 
                 const ud: IDecision = processGraph.getMxGraphModel().getCell(udId.toString());
 
@@ -1017,6 +1025,46 @@ describe("Layout test", () => {
                 expect(conditionDestinations.length).toBe(2);
                 expect(conditionDestinations[0]).toBe(endId);
                 expect(conditionDestinations[1]).toBe(ut4Id);
+            });
+
+            it("new user decision shape is selected and in the edit mode", () => {
+                const testModel = TestModels.createUserDecisionForAddBranchTestModel();
+                const processModel = setProcessViewModel(testModel);
+                const udId = 25;
+
+                //bypass testing adding stateful shapes logic here,cannot extract this spyOn logic out since
+                //test models used in each test are different and only generated in each test
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
+
+                let graph = new ProcessGraph(
+                    rootScope, localScope, container, processModel, dialogService,
+                    localization, shapesFactory, null, null, null
+                );
+                graph.layout.setTempShapeId(0);
+
+                let modelUpdateHandler = graph.viewModel.communicationManager.processDiagramCommunication
+                    .registerModelUpdateObserver((selectedNodeId: number) => {
+                    graph.destroy();
+                    graph = new ProcessGraph(
+                    rootScope, localScope, container, processModel, dialogService,
+                    localization, shapesFactory, null, null, null);
+                    graph.render(true, selectedNodeId);
+                });
+
+                // Act
+                graph.render(true, null);
+                const ud: IDecision = graph.getMxGraphModel().getCell(udId.toString());
+                ProcessAddHelper.insertUserDecisionConditionWithUpdate(ud.model.id, graph.layout, shapesFactoryService);
+                graph.viewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(modelUpdateHandler);
+
+                // get focused element
+                let curElement = document.activeElement;
+                // get selected element
+                let newNode = graph.getNodeById("-2");
+
+                //Assert
+                expect(graph.getMxGraph().getSelectionCell().getId()).toEqual("-2");
+                expect(newNode.label).toEqual(curElement.innerHTML);
             });
 
             it("succeeds if no user task exist in first condition", () => {
@@ -1053,7 +1101,7 @@ describe("Layout test", () => {
                     rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
-                processGraph.render(true, false);
+                processGraph.render(true, null);
 
                 ProcessAddHelper.insertSystemDecisionCondition(sdId, processGraph.layout, shapesFactoryService);
 
@@ -1062,6 +1110,45 @@ describe("Layout test", () => {
                 expect(conditionDestinations.length).toBe(2);
                 expect(conditionDestinations[0]).toBe(endId);
                 expect(conditionDestinations[1]).toBe(ut4Id);
+            });
+
+            it("new system decision shape is selected and in the edit mode", () => {
+                // Arrange
+                const testModel = TestModels.createSystemDecisionForAddBranchTestModel();
+                const processModel = setProcessViewModel(testModel);
+                const sdId = 25;
+
+                //bypass testing adding stateful shapes logic here
+                spyOn(processModel, "addToSubArtifactCollection").and.returnValue(null);
+
+                let graph = new ProcessGraph(
+                    rootScope, localScope, container, processModel, dialogService,
+                    localization, shapesFactory, null, null, null
+                );
+                graph.layout.setTempShapeId(0);
+
+                let modelUpdateHandler = graph.viewModel.communicationManager.processDiagramCommunication
+                    .registerModelUpdateObserver((selectedNodeId: number) => {
+                    graph.destroy();
+                    graph = new ProcessGraph(
+                    rootScope, localScope, container, processModel, dialogService,
+                    localization, shapesFactory, null, null, null);
+                    graph.render(true, selectedNodeId);
+                });
+
+                // Act
+                graph.render(true, null);
+                ProcessAddHelper.insertSystemDecisionConditionWithUpdate(sdId, graph.layout, shapesFactoryService);
+                graph.viewModel.communicationManager.processDiagramCommunication.removeModelUpdateObserver(modelUpdateHandler);
+
+                // get focused element
+                let curElement = document.activeElement;
+                // get selected element
+                let newNode = graph.getNodeById("-2");
+
+                //Assert
+                expect(graph.getMxGraph().getSelectionCell().getId()).toEqual("-2");
+                expect(newNode.label).toEqual(curElement.innerHTML);
             });
 
             it("back to back system decisions different end points, first system decision destination is correct", () => {
@@ -1078,7 +1165,7 @@ describe("Layout test", () => {
                     rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
-                processGraph.render(true, false);
+                processGraph.render(true, null);
 
                 ProcessAddHelper.insertSystemDecisionCondition(sd1Id, processGraph.layout, shapesFactoryService);
 
@@ -1103,7 +1190,7 @@ describe("Layout test", () => {
                     rootScope, localScope, container, processModel, dialogService,
                     localization, shapesFactory, null, null, null
                 );
-                processGraph.render(true, false);
+                processGraph.render(true, null);
 
                 ProcessAddHelper.insertSystemDecisionCondition(sd2Id, processGraph.layout, shapesFactoryService);
 

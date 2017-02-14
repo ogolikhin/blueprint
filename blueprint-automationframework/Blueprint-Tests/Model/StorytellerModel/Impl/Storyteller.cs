@@ -437,37 +437,20 @@ namespace Model.StorytellerModel.Impl
             return SvcComponents.UploadFile(Address, user, file, expireDate, expectedStatusCodes);
         }
 
-        /// <seealso cref="IStoryteller.PublishProcess(IUser, IProcess, List{HttpStatusCode}, bool)"/>
-        public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IStoryteller.PublishProcess(IUser, IProcess, List{HttpStatusCode})"/>
+        public NovaPublishArtifactResult PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcess));
 
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
-            var restApi = new RestApiFacade(Address, tokenValue);
-
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
-            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(
-                path, 
-                RestRequestMethod.POST, 
+
+            var publishResults = SvcShared.PublishArtifacts(Address,
+                user,
                 new List<int> { process.Id },
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes);
 
             if (publishResults?[0].StatusCode == NovaPublishArtifactResult.Result.Success)
             {
@@ -475,7 +458,7 @@ namespace Model.StorytellerModel.Impl
                 MarkArtifactAsPublished(process.Id);
             }
 
-            return restApi.Content;
+            return publishResults[0];
         }
 
         /// <seealso cref="IStoryteller.DiscardProcessArtifact(IArtifact, List{HttpStatusCode})"/>

@@ -107,13 +107,15 @@ export interface IProcessGraph {
     getHtmlElement(): HTMLElement;
     getDefaultParent(): MxCell;
     render(useAutolayout: boolean, selectedNodeId: number): void;
-    updateMergeNode(decisionId: number, condition: ICondition): boolean;
+    // Updates merge node of decision branch.
+    updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
     getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;
     getLink(sourceId: number, destinationId: number): IProcessLink;
     getScope(id: number): IScopeContext;
     getShapeById(id: number): IProcessShape;
+    getMergeNode(decisionId: number, orderIndex: number): IDiagramNode;
     getValidMergeNodes(condition: IProcessLink): IDiagramNode[];
     getNodeById(id: string): IDiagramNode;
     getNextLinks(id: number): IProcessLink[];
@@ -135,6 +137,14 @@ export interface IProcessGraph {
     highlightCopyGroups(nodes: IDiagramNode[]): void;
     clearHighlightEdges(): void;
     highlightBridges(): void;
+    // Determines if the condition is the first condition of the decision.
+    isFirstFlow(link: IProcessLink): boolean;
+    // Determines if shape belongs to any conditions.
+    isInNestedFlow(id: number): boolean;
+    // Determines if shape belongs on the main process flow.
+    isInMainFlow(id: number): boolean;
+    // Finds the correct starting link of branch given any decision id and its next shape's id.
+    getBranchStartingLink(condition: IProcessLink): IProcessLink;
     destroy(): void;
 }
 
@@ -215,6 +225,7 @@ export interface IDiagramNode extends IDiagramNodeElement, MxCell, IDeletable, I
     getLabelCell(): MxCell;
     highlight(mxGraph: MxGraph, color?: string): void;
     clearHighlight(mxGraph: MxGraph): void;
+    setEditMode(): void;
 }
 
 export interface IDiagramElement extends MxCell {
@@ -254,8 +265,6 @@ export interface IUserTask extends ITask {
 }
 
 export interface IDecision extends IDiagramNode, IMenuContainer {
-    getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
     setLabelWithRedrawUi(value: string);
-    getMergeNode(graph: IProcessGraph, orderIndex: number): IProcessShape;
 }
 

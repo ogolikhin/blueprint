@@ -26,7 +26,7 @@ export class MessageContainerController implements IMessageContainerController {
     }
 
     public onMouseOut() {
-        const container = document.querySelector(".messages__container") as HTMLElement;
+        const container = document.getElementsByClassName("messages__container").item(0) as HTMLElement;
         if (container) {
             container.className = "messages__container";
         }

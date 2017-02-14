@@ -11,6 +11,7 @@ import {IMessageService} from "../../../../main/components/messages/message.svc"
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 import {IDownloadService} from "../../../../commonModule/download/download.service";
 import {DownloadServiceMock} from "../../../../commonModule/download/download.service.mock";
+import {LicenseServiceMock} from "../../../license/license.svc.mock";
 
 describe("Component BP Artifact Document Item", () => {
     const template = `<bp-document-item doc-ref-info="document" delete-item="delete()"></bp-document-item>`;
@@ -24,6 +25,7 @@ describe("Component BP Artifact Document Item", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("artifactAttachments", ArtifactAttachmentsMock);
         $provide.service("downloadService", DownloadServiceMock);
+        $provide.service("licenseService", LicenseServiceMock);
     }));
 
     beforeEach(inject(($window: ng.IWindowService) => {

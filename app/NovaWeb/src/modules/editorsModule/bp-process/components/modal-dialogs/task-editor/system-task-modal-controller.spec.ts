@@ -6,7 +6,7 @@ import * as angular from "angular";
 import "angular-mocks";
 import "rx";
 import "../../..";
-import {ModalServiceInstanceMock, SessionSvcMock} from "../../../../../shell/login/mocks.spec";
+import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {NodeType} from "../../diagram/presentation/graph/models";
@@ -34,6 +34,7 @@ import {CommunicationManager, ICommunicationManager} from "../../../services/com
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
 import {ExecutionEnvironmentDetectorMock} from "../../../../../commonModule/services/executionEnvironmentDetector.mock";
+import {SessionSvcMock} from "../../../../../shell/login/session.svc.mock";
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -49,8 +50,8 @@ describe("SystemTaskModalController", () => {
 
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let dialogService: IDialogService;
-    let communicationManager: ICommunicationManager; 
-    
+    let communicationManager: ICommunicationManager;
+
     let session: ISession;
     let selectionManager: ISelectionManager;
 

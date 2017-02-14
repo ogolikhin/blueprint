@@ -31,6 +31,11 @@ namespace Helper
         private const int DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID = -2;
         private const string DEFAULT_COLLECTIONS_ROOT_PREFIX = "_CFL";
 
+        private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME = "Baselines and Reviews";
+        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX = -1;
+        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID = -3;
+        private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX = "_BFL";
+
         #region Custom Asserts
 
         /// <summary>
@@ -411,22 +416,20 @@ namespace Helper
         /// <param name="user">User to authenticate with.</param>
         /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
         ///     should have the same ParentId.</param>
-        /// <param name="skipId">(optional) Pass true to skip comparison of the Id properties.</param>
-        /// <param name="skipOrderIndex">(optional) Pass true to skip comparison of the OrderIndex properties.</param>
-        /// <param name="skipTraces">(optional) Pass true to skip comparison of the trace Relationships.</param>
-        /// <param name="compareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
+        /// <param name="propertyCompareOptions">(optional) Specifies which properties to compare.  By default, all properties are compared.</param>
+        /// <param name="attachmentCompareOptions">(optional) Specifies which Attachments properties to compare.  By default, all properties are compared.</param>
         /// <exception cref="AssertionException">If any of the properties are different.</exception>
         public static void AssertSubArtifactsAreEqual(NovaSubArtifact expectedSubArtifact, NovaSubArtifact actualSubArtifact, IArtifactStore artifactStore, IUser user,
-            int? expectedParentId = null, bool skipId = false, bool skipOrderIndex = false, bool skipTraces = false,
-            Attachments.CompareOptions compareOptions = null)
+            int? expectedParentId = null, NovaItem.PropertyCompareOptions propertyCompareOptions = null, Attachments.CompareOptions attachmentCompareOptions = null)
         {
             ThrowIf.ArgumentNull(expectedSubArtifact, nameof(expectedSubArtifact));
             ThrowIf.ArgumentNull(actualSubArtifact, nameof(actualSubArtifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
+            ThrowIf.ArgumentNull(propertyCompareOptions, nameof(propertyCompareOptions));
 
             Assert.AreEqual(expectedSubArtifact.IsDeleted, actualSubArtifact.IsDeleted, "The IsDeleted parameters don't match!");
 
-            if (!skipId)
+            if (propertyCompareOptions.CompareArtifactIds)
             {
                 Assert.AreEqual(expectedSubArtifact.Id, actualSubArtifact.Id, "The Id parameters don't match!");
             }
@@ -434,47 +437,61 @@ namespace Helper
             expectedParentId = expectedParentId ?? expectedSubArtifact.ParentId;
             Assert.AreEqual(expectedParentId, actualSubArtifact.ParentId, "The ParentId parameters don't match!");
 
-            if (!skipOrderIndex)
+            if (propertyCompareOptions.CompareOrderIndeces)
             {
                 Assert.AreEqual(expectedSubArtifact.OrderIndex, actualSubArtifact.OrderIndex, "The OrderIndex parameters don't match!");
             }
 
             Assert.AreEqual(expectedSubArtifact.Name, actualSubArtifact.Name, "The Name parameters don't match!");
-            Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
+
+            if (propertyCompareOptions.CompareDescriptions)
+            {
+                Assert.AreEqual(expectedSubArtifact.Description, actualSubArtifact.Description, "The Description parameters don't match!");
+            }
             Assert.AreEqual(expectedSubArtifact.ItemTypeId, actualSubArtifact.ItemTypeId, "The ItemTypeId parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.ItemTypeName, actualSubArtifact.ItemTypeName, "The ItemTypeName parameters don't match!");
+
             Assert.AreEqual(expectedSubArtifact.ItemTypeVersionId, actualSubArtifact.ItemTypeVersionId, "The ItemTypeVersionId parameters don't match!");
+
             Assert.AreEqual(expectedSubArtifact.ItemTypeIconId, actualSubArtifact.ItemTypeIconId, "The ItemTypeIconId parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.Prefix, actualSubArtifact.Prefix, "The Prefix parameters don't match!");
             Assert.AreEqual(expectedSubArtifact.PredefinedType, actualSubArtifact.PredefinedType, "The PredefinedType parameters don't match!");
 
-            Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, "The number of Custom Properties is different!");
-            
-            // Compare each property in CustomPropertiess.
-            foreach (var expectedProperty in expectedSubArtifact.CustomPropertyValues)
+            if (propertyCompareOptions.CompareCustomProperties)
             {
-                Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
-                "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
+                Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, 
+                    "The number of Custom Properties is different!");
 
-                var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
-
-                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
-            }
-
-            Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count, actualSubArtifact.SpecificPropertyValues.Count, "The number of Specific Property Values is different!");
-            
-            // Compare each property in SpecificPropertyValues.
-            foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
-            {
-                Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
-                "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
-
-                // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
-                if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                // Compare each property in CustomProperties.
+                foreach (var expectedProperty in expectedSubArtifact.CustomPropertyValues)
                 {
-                    var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+                    Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                    "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
+
+                    var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
 
                     AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                }
+            }
+
+            if (propertyCompareOptions.CompareSpecificPropertyValues)
+            {
+                Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count,actualSubArtifact.SpecificPropertyValues.Count, 
+                    "The number of Specific Property Values is different!");
+
+                // Compare each property in SpecificPropertyValues.
+                foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
+                {
+                    Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                    "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
+
+                    // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
+                    if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                    {
+                        var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+
+                        AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                    }
                 }
             }
 
@@ -490,10 +507,10 @@ namespace Helper
             var expectedAttachments = ArtifactStore.GetAttachments(artifactStore.Address, expectedSubArtifact.ParentId.Value, user, subArtifactId: expectedSubArtifact.Id);
             var actualAttachments = ArtifactStore.GetAttachments(artifactStore.Address, actualSubArtifact.ParentId.Value, user, subArtifactId: actualSubArtifact.Id);
 
-            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, compareOptions);
+            Attachments.AssertAreEqual(expectedAttachments, actualAttachments, attachmentCompareOptions);
 
             // Get and compare sub-artifact Traces.
-            if (!skipTraces)
+            if (propertyCompareOptions.CompareTraces)
             {
                 var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
                     expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
@@ -879,7 +896,7 @@ namespace Helper
         /// Validate nova artifact contents
         /// </summary>
         /// <param name="project">The project where artifact resides.</param>
-        /// <param name="novaArtifact">The nova artifact returned from get project/artifact childen.</param>
+        /// <param name="artifact">The nova artifact returned from get project/artifact childen.</param>
         /// <param name="parentArtifactId">parent artifact Id for get project/artifact children.</param>
         public static void ValidateNovaArtifact(IProject project, NovaArtifact artifact, int parentArtifactId)
         {
@@ -894,31 +911,43 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrEmpty(artifact.Name), "name should not be empty but it's {0}", artifact.Name);
 
-            if (artifact.ItemTypeId.Equals(DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID))
+            switch (artifact.ItemTypeId)
             {
-                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
+                case DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID:
+                    Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
                     DEFAULT_COLLECTIONS_ROOT_NAME);
 
-                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Collections default folder.",
-                    DEFAULT_COLLECTIONS_ROOT_ORDERINDEX);
+                    Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Collections default folder.",
+                        DEFAULT_COLLECTIONS_ROOT_ORDERINDEX);
 
-                Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Collections default folder.",
-                    DEFAULT_COLLECTIONS_ROOT_PREFIX);
-            }
-            else
-            {
-                Assert.AreEqual(novaArtifactTypeForArtifact.Id, artifact.ItemTypeId,
+                    Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Collections default folder.",
+                        DEFAULT_COLLECTIONS_ROOT_PREFIX);
+                    break;
+
+                case DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID:
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Baselinens default folder.",
+                    DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME);
+
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Baselinens default folder.",
+                        DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX);
+
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Baselinens default folder.",
+                        DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX);
+                    break;
+
+                default:
+                    Assert.AreEqual(novaArtifactTypeForArtifact.Id, artifact.ItemTypeId,
                     "itemTypeId {0} for the artifact {1} doesn't exist on the project {2}",
                     artifact.ItemTypeId, artifact.Name, project.Name);
 
-                Assert.GreaterOrEqual(artifact.OrderIndex, 0,
-                    "orderIndex for the artifact {0} should be greater than or equal to zero but returned {1}.",
-                    artifact.Name, artifact.OrderIndex);
+                    Assert.GreaterOrEqual(artifact.OrderIndex, 0,
+                        "orderIndex for the artifact {0} should be greater than or equal to zero but returned {1}.",
+                        artifact.Name, artifact.OrderIndex);
 
-                Assert.AreEqual(novaArtifactTypeForArtifact.Prefix, artifact.Prefix,
-                    "prefix {0} for the artifact {1} doesn't exist on the project {2}",
-                    artifact.Prefix, artifact.Name, project.Name);
-
+                    Assert.AreEqual(novaArtifactTypeForArtifact.Prefix, artifact.Prefix,
+                        "prefix {0} for the artifact {1} doesn't exist on the project {2}",
+                        artifact.Prefix, artifact.Name, project.Name);
+                    break;
             }
 
             Assert.AreEqual(parentArtifactId, artifact.ParentId, "parentId for the artifact {0} should be {1} but {2} is returned.",
@@ -1007,8 +1036,7 @@ namespace Helper
         /// <returns>The custom data project.</returns>
         public static IProject GetCustomDataProject(IUser user)
         {
-            List<IProject> allProjects = null;
-            allProjects = ProjectFactory.GetAllProjects(user);
+            var allProjects = ProjectFactory.GetAllProjects(user);
 
             const string customDataProjectName = TestHelper.GoldenDataProject.CustomData;
 
@@ -1446,7 +1474,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// deletes file from the artifact (Save changes).
+        /// Deletes file from the artifact (Save changes).
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
         /// <param name="artifact">Artifact.</param>
@@ -1458,11 +1486,12 @@ namespace Helper
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            var attachment = artifactStore.GetAttachments(artifact, user);
-            Assert.IsNotNull(attachment, "Getattachments shouldn't return null.");
-            Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
+            var attachments = artifactStore.GetAttachments(artifact, user);
+            Assert.IsNotNull(attachments, "Getattachments shouldn't return null.");
+            Assert.IsTrue(attachments.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
 
-            var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            var fileToDelete = attachments.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
@@ -1495,6 +1524,7 @@ namespace Helper
             Assert.IsTrue(attachment.AttachedFiles.Count > 0, "Artifact should have at least one attachment.");
 
             var fileToDelete = attachment.AttachedFiles.FirstOrDefault(f => f.AttachmentId == fileId);
+            Assert.NotNull(fileToDelete, "Couldn't find an Attachment with ID: '{0}'.", fileId);
             Assert.AreEqual(fileId, fileToDelete.AttachmentId, "Attachments must contain file with fileId.");
 
             artifact.Lock(user);
@@ -1542,9 +1572,8 @@ namespace Helper
             ThrowIf.ArgumentNull(inlineTraceArtifact, nameof(inlineTraceArtifact));
             ThrowIf.ArgumentNull(inlineTraceArtifactDetails, nameof(inlineTraceArtifactDetails));
 
-            string inlineTraceText = null;
-
-            inlineTraceText = I18NHelper.FormatInvariant("<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\">" +
+            string inlineTraceText = I18NHelper.FormatInvariant(
+                "<html><head></head><body style=\"padding: 1px 0px 0px; font-family: 'Portable User Interface'; font-size: 10.67px\">" +
                 "<div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, " +
                 "BluePrintSys.RC.Client.SL.RichText, Version=7.4.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" href=\"{0}?ArtifactId={1}\" " +
                 "target=\"_blank\" artifactid=\"{1}\" style=\"font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; " +
@@ -1746,7 +1775,7 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");
 
-            return I18NHelper.FormatInvariant("<p>{0}</p>", text);
+            return I18NHelper.FormatInvariant(StringUtilities.WrapInHTML("<p>" + text + "</p>"));
         }
 
         /// <summary>

@@ -103,6 +103,8 @@
     <Compile Include="Impl\OpenApi.cs" />
     <Compile Include="Impl\SvcComponents.cs" />
     <Compile Include="ISvcComponents.cs" />
+    <Compile Include="Impl\OpenApiUser.cs" />
+    <Compile Include="Impl\UserDataModel.cs" />
     <Compile Include="JobModel\Enums\JobType.cs" />
     <Compile Include="JobModel\IJob.cs" />
     <Compile Include="JobModel\Impl\Job.cs" />

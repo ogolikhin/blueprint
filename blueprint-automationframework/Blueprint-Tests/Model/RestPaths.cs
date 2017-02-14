@@ -13,6 +13,7 @@ namespace Model
         [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
         public static class OpenApi
         {
+            public const string LOGIN                               = "authentication/v1/login";
             public const string PROJECTS_id_                        = "api/v1/projects/{0}";
             public const string PROJECTS                            = "api/v1/projects";
 
@@ -21,7 +22,6 @@ namespace Model
             {
                 public const string ARTIFACTS_id_                   = "api/v1/projects/{0}/artifacts/{1}";
                 public const string ARTIFACTS                       = "api/v1/projects/{0}/artifacts";
-                public const string ALMTARGETS                      = "api/v1/projects/{0}/alm/targets";
 
                 public static class Artifacts_id_
                 {
@@ -36,6 +36,8 @@ namespace Model
 
                 public static class ALM
                 {
+                    public const string TARGETS                     = "api/v1/projects/{0}/alm/targets";
+
                     public static class Targets_id_
                     {
                         public const string JOBS                    = "api/v1/projects/{0}/alm/targets/{1}/jobs";
@@ -47,6 +49,11 @@ namespace Model
                 {
                     public const string ARTIFACT_TYPES              = "api/v1/projects/{0}/metadata/artifactTypes";
                 }
+            }
+
+            public static class Users
+            {
+                public const string CREATE                          = "api/v1/users/create";
             }
 
             public static class VersionControl
@@ -377,10 +384,10 @@ namespace Model
             {
                 public static class Artifacts
                 {
-                    public const string LOCK                    = "svc/shared/artifacts/lock";
-                    public const string SEARCH                  = "svc/shared/artifacts/search";
                     public const string DISCARD                 = "svc/shared/artifacts/discard";
+                    public const string LOCK                    = "svc/shared/artifacts/lock";
                     public const string PUBLISH                 = "svc/shared/artifacts/publish";
+                    public const string SEARCH                  = "svc/shared/artifacts/search";
                 }
 
                 /// <summary>

@@ -50,7 +50,7 @@ export class PreviewCenterController {
         const tabSetHeight = isTabSetVisible ? 201 : 25;
         const compensationValue = 500;
         const acceptanceCriteriaMaxHeight = availHeight - compensationValue - tabSetHeight;
-        const acceptanceCriteria = <any>document.body.querySelector(".modal-content-autoscroll");
+        const acceptanceCriteria = <any>document.body.getElementsByClassName("modal-content-autoscroll").item(0);
         if (acceptanceCriteria) {
             acceptanceCriteria.setAttribute("style", "max-height:" + acceptanceCriteriaMaxHeight + "px");
         }
@@ -75,7 +75,7 @@ export class PreviewCenterController {
     }
 
     private refreshView() {
-        let element: HTMLElement = document.getElementsByClassName("modal-dialog")[0].parentElement;
+        let element: HTMLElement = document.getElementsByClassName("modal-dialog").item(0).parentElement;
 
         // temporary solution from: http://stackoverflow.com/questions/8840580/force-dom-redraw-refresh-on-chrome-mac
         if (!element) {

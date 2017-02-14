@@ -184,8 +184,4 @@ bp-properties-panel {
             min-width: 100%;
         }
     }
-
-    .properties.collapsed .content.system-properties {
-        height: #{$property-min-height * 2};
-    }
 }

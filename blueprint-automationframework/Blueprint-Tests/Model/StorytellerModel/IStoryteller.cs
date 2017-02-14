@@ -208,7 +208,10 @@ namespace Model.StorytellerModel
         /// <param name="lockArtifactBeforeUpdate">(optional) Flag indicating whether or not the process artifact should be locked before update (Default: true)</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The REST response content of the update process request</returns>
-        string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null);
+        string UpdateProcessReturnResponseOnly(IUser user,
+            IProcess process,
+            bool lockArtifactBeforeUpdate = true,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Publish a Process Artifact (Used when publishing a single process artifact)
@@ -216,10 +219,9 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to publish a process</param>
         /// <param name="process">The process to publish</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The REST response content of the publish process request</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        NovaPublishArtifactResult PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Discard changes to a process artifact

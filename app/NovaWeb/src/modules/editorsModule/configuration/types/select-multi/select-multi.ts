@@ -13,11 +13,11 @@ export class BPFieldSelectMulti implements AngularFormly.ITypeOptions {
         $scope.$applyAsync(() => {
             $scope["fc"].$setTouched();
 
-            const uiSelectContainer = $element[0].querySelector(".ui-select-container");
+            const uiSelectContainer = $element[0].getElementsByClassName("ui-select-container").item(0);
             if (uiSelectContainer) {
                 $scope["uiSelectContainer"] = uiSelectContainer;
 
-                const uiSelectInput = uiSelectContainer.querySelector("div") as HTMLElement;
+                const uiSelectInput = uiSelectContainer.getElementsByTagName("div").item(0) as HTMLElement;
                 if (uiSelectInput) {
                     uiSelectInput.classList.add("ui-select-input");
                     uiSelectInput.addEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
@@ -69,7 +69,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
         $scope["$on"]("$destroy", function () {
             if ($scope["uiSelectContainer"]) {
                 if ($scope["uiSelectContainer"]) {
-                    const uiSelectInput = $scope["uiSelectContainer"].querySelector(".ui-select-input") as HTMLElement;
+                    const uiSelectInput = $scope["uiSelectContainer"].getElementsByClassName("ui-select-input").item(0) as HTMLElement;
                     if (uiSelectInput) {
                         uiSelectInput.removeEventListener("keydown", $scope["bpFieldSelectMulti"].closeDropdownOnTab, true);
                         uiSelectInput.removeEventListener("click", $scope["bpFieldSelectMulti"].scrollIntoView, true);
@@ -121,7 +121,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             toggleScrollbar: function (removeScrollbar?: boolean) {
                 if (!removeScrollbar) {
                     if ($scope["uiSelectContainer"]) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        let elem = $scope["uiSelectContainer"].getElementsByTagName("div").item(0) as HTMLElement;
                         if (elem && elem.scrollHeight > elem.clientHeight) {
                             $scope["uiSelectContainer"].classList.add("has-scrollbar");
                         } else {
@@ -131,7 +131,7 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 }
                 if (removeScrollbar) {
                     if ($scope["uiSelectContainer"] && $scope["uiSelectContainer"].classList.contains("has-scrollbar")) {
-                        let elem = $scope["uiSelectContainer"].querySelector("div") as HTMLElement;
+                        let elem = $scope["uiSelectContainer"].getElementsByTagName("div").item(0) as HTMLElement;
                         if (elem && elem.scrollHeight <= elem.clientHeight) {
                             $scope["uiSelectContainer"].classList.remove("has-scrollbar");
                         }
@@ -143,8 +143,8 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
             scrollIntoView: this.scrollIntoView,
             setFocus: function () {
                 if ($scope["uiSelectContainer"]) {
-                    $scope["uiSelectContainer"].querySelector(".ui-select-choices").classList.remove("disable-highlight");
-                    $scope["uiSelectContainer"].querySelector("input").focus();
+                    $scope["uiSelectContainer"].getElementsByClassName("ui-select-choices").item(0).classList.remove("disable-highlight");
+                    $scope["uiSelectContainer"].getElementsByTagName("input").item(0).focus();
                 }
             },
             findDropdown: ($select): HTMLElement => {
@@ -313,10 +313,10 @@ export class BpFieldSelectMultiController extends BPFieldBaseController {
                 // On ENTER the ui-select reset the activeIndex to the first item of the list.
                 // We need to hide the highlight until we select the proper entry
                 if ($scope["uiSelectContainer"]) {
-                    const choicesContainer: HTMLElement = $scope["uiSelectContainer"].querySelector(".ui-select-choices");
+                    const choicesContainer: HTMLElement = $scope["uiSelectContainer"].getElementsByClassName("ui-select-choices").item(0);
                     if (choicesContainer) {
                         choicesContainer.classList.add("disable-highlight");
-                        const choices: NodeList = choicesContainer.querySelectorAll(".ui-select-choices-row");
+                        const choices: NodeList = choicesContainer.getElementsByClassName("ui-select-choices-row");
                         for (let i = 0; i < choices.length; i++) {
                             let item = choices[i] as HTMLElement;
                             item.classList.remove("active");

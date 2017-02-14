@@ -503,6 +503,7 @@ export class Layout implements ILayout {
         }
 
         this.selectNode(nodeToSelect);
+        nodeToSelect.setEditMode();
     }
 
     private addConnector(graphModel, link: IProcessLinkModel, sourceId: number = link.sourceId, destinationId: number = link.destinationId) {

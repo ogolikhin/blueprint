@@ -58,6 +58,20 @@ export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialo
             }
         }
 
+        //if we're moving a baseline or review artifact/folder
+        if (this._currentArtifact.predefinedType === Enums.ItemTypePredefined.BaselineFolder ||
+            this._currentArtifact.predefinedType === Enums.ItemTypePredefined.ArtifactBaseline ||
+            this._currentArtifact.predefinedType === Enums.ItemTypePredefined.ArtifactReviewPackage) {
+            //can only insert into baseline folders
+            if (this.insertMethod === this.InsertMethodSelection) {
+                return item.predefinedType === Enums.ItemTypePredefined.BaselineFolder;
+            } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
+                //or move as a sibling to anything but the main Baselines and Reviews folder
+                return !(item.predefinedType === Enums.ItemTypePredefined.BaselineFolder
+                && item.itemTypeId === Enums.ItemTypePredefined.BaselinesAndReviews);
+            }
+        }
+
         //if we're moving a collection artifact/folder
         if (this._currentArtifact.predefinedType === Enums.ItemTypePredefined.CollectionFolder ||
             this._currentArtifact.predefinedType === Enums.ItemTypePredefined.ArtifactCollection) {
@@ -65,11 +79,11 @@ export class MoveCopyArtifactPickerDialogController extends  ArtifactPickerDialo
             if (this.insertMethod === this.InsertMethodSelection) {
                 return item.predefinedType === Enums.ItemTypePredefined.CollectionFolder;
             } else if (this.insertMethod === this.InsertMethodAbove || this.insertMethod === this.InsertMethodBelow) {
-                //or move as a sibling to something with a collection folder as parent (or the main Collections folder)
-                return item.parentPredefinedType === Enums.ItemTypePredefined.CollectionFolder;
+                //or move as a sibling to anything but the main Collections folder
+                return !(item.predefinedType === Enums.ItemTypePredefined.CollectionFolder
+                && item.itemTypeId === Enums.ItemTypePredefined.Collections);
             }
         }
-
 
         return true;
     }

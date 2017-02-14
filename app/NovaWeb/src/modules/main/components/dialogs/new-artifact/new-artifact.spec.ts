@@ -34,12 +34,15 @@ describe("CreateNewArtifactController", () => {
             //Assert
             expect(types.length).not.toBe(0);
             expect(types.indexOf(ItemTypePredefined.TextualRequirement)).not.toBe(-1);
-            expect(types.indexOf(ItemTypePredefined.Process)).not.toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.PrimitiveFolder)).not.toBe(-1);
             expect(types.indexOf(ItemTypePredefined.Actor)).not.toBe(-1);
             expect(types.indexOf(ItemTypePredefined.Document)).not.toBe(-1);
-            expect(types.indexOf(ItemTypePredefined.PrimitiveFolder)).not.toBe(-1);
-            expect(types.indexOf(ItemTypePredefined.ArtifactCollection)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.Process)).not.toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.BaselineFolder)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.ArtifactBaseline)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.ArtifactReviewPackage)).toBe(-1);
             expect(types.indexOf(ItemTypePredefined.CollectionFolder)).toBe(-1);
+            expect(types.indexOf(ItemTypePredefined.ArtifactCollection)).toBe(-1);
         }));
 
     it("list available types",

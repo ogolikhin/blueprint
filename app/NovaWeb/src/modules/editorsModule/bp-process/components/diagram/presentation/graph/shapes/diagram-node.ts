@@ -27,7 +27,7 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
     }
 
     protected addAlertIcon(mxGraph: MxGraph, x: number = -10, y: number = -12) {
-        const image = this.getImageSource("/alert.svg");
+        const image = this.getImageSource("alert.svg");
         const width = 16;
         const height = 16;
         const tooltip = "Validation error found!";
@@ -74,6 +74,10 @@ export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement imp
 
     public getNode(): IDiagramNode {
         return this;
+    }
+
+    public setEditMode(): void {
+        throw new Error("setEditMode metod not implemented!");
     }
 
     public getId(): string {

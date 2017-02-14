@@ -89,6 +89,78 @@ describe("AddToCollectionAction", () => {
             expect(menuAction.disabled).toBe(true);
         }));
 
+    it("is disabled when artifact is Baseline Folder",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
+                collectionService: CollectionServiceMock,
+                itemInfoServiceMock: ItemInfoServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.BaselineFolder
+                });
+
+            // act
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
+
+            const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
+
+            // assert
+            expect(menuAction.disabled).toBe(true);
+        }));
+
+    it("is disabled when artifact is Baseline Artifact",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
+                collectionService: CollectionServiceMock,
+                itemInfoServiceMock: ItemInfoServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.ArtifactBaseline
+                });
+
+            // act
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
+
+            const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
+
+            // assert
+            expect(menuAction.disabled).toBe(true);
+        }));
+
+    it("is disabled when artifact is Review Artifact",
+        inject((statefulArtifactFactory: IStatefulArtifactFactory,
+                localization: ILocalizationService,
+                messageService: IMessageService, projectManager: ProjectManagerMock, dialogService: DialogServiceMock,
+                navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock,
+                collectionService: CollectionServiceMock,
+                itemInfoServiceMock: ItemInfoServiceMock) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.ArtifactReviewPackage
+                });
+
+            // act
+            const addToCollectionAction = new AddToCollectionAction($q, artifact, localization, messageService, projectManager,
+                dialogService, navigationService, loadingOverlayService, collectionService, itemInfoServiceMock);
+
+            const menuAction = _.find(addToCollectionAction.actions, o => o instanceof BPDropdownItemAction);
+
+            // assert
+            expect(menuAction.disabled).toBe(true);
+        }));
+
     it("is enabled when artifact is Actor",
         inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,

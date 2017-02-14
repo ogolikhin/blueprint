@@ -9,6 +9,25 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON properties
 
+        /// <summary>
+        /// This class describes which properties should be compared in the item.
+        /// </summary>
+        public class PropertyCompareOptions
+        {
+            /// <summary>Should the Id properties be compared?</summary>
+            public bool CompareArtifactIds { get; set; } = true;
+            /// <summary>Should the OrderIndex properties be compared?</summary>
+            public bool CompareOrderIndeces { get; set; } = true;
+            /// <summary>Should the Description properties be compared?</summary>
+            public bool CompareDescriptions { get; set; } = true;
+            /// <summary>Should the Traces properties be compared?</summary>
+            public bool CompareTraces { get; set; } = true;
+            /// <summary>Should the SpecificPropertyValues properties be compared?</summary>
+            public bool CompareSpecificPropertyValues { get; set; } = true;
+            /// <summary>Should the CustomProperties properties be compared?</summary>
+            public bool CompareCustomProperties { get; set; } = true;
+        }
+
         public int? Id { get; set; }
 
         //-----System Properties-----

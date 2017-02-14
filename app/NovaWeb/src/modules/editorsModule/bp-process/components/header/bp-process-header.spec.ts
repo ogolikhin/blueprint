@@ -17,7 +17,6 @@ import {
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
-import {SessionSvcMock} from "../../../../shell/login/mocks.spec";
 import {WindowResize} from "../../../../commonModule/services/windowResize";
 import {ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectService} from "../../../../managers/project-manager/project-service";
@@ -26,6 +25,7 @@ import {ItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.servic
 import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {CollectionServiceMock} from "../../../collection/collection.service.mock";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
+import {SessionSvcMock} from "../../../../shell/login/session.svc.mock";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;

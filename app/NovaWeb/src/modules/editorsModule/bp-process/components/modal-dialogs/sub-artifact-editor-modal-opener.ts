@@ -4,7 +4,7 @@ import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communica
 import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
-import {DecisionEditorModel} from "./decision-editor/decision-editor-model";
+import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
 import {
     IProcessGraph,
     IDiagramNode,
@@ -244,15 +244,29 @@ export class SubArtifactEditorModalOpener {
         for (let index = 0; index < outgoingLinks.length; index++) {
             const outgoingLink: IProcessLink = outgoingLinks[index];
             let mergePoint: IDiagramNode = null;
+            let condition: ICondition;
+            let mergeNodes: IDiagramNode[];
+            // First flow of nested decision.
+            if (this.graph.isInNestedFlow(decision.model.id) && index === 0) {
+                // Find parent decision and creates merge nodes based off of parent's condition
+                const shapeContext = graph.globalScope.visitedIds[decision.model.id];
+                const parentCondition = _.last(shapeContext.parentConditions);
+                mergePoint = graph.getMergeNode(parentCondition.decisionId, parentCondition.orderindex);
 
-            // We do not display change merge node option for first branch
-            if (index !== 0) {
-                const mergeNodeId: string = decision.getMergeNode(graph, outgoingLink.orderindex).id.toString();
-                mergePoint = graph.getNodeById(mergeNodeId);
+                const parentDecisionOutgoingLink = graph.getNextLinks(parentCondition.decisionId).filter(a => a.orderindex === parentCondition.orderindex)[0];
+                mergeNodes = graph.getValidMergeNodes(parentDecisionOutgoingLink);
+
+            } else {
+
+                // Flows of nested decision, or any non-main flows to find merge points. Ignores main flow.
+                if (this.graph.isInNestedFlow(decision.model.id) || index !== 0) {
+                    mergePoint = graph.getMergeNode(decision.model.id, outgoingLink.orderindex);
+                }
+
+                mergeNodes = graph.getValidMergeNodes(outgoingLink);
             }
 
-            const validMergeNodes: IDiagramNode[] = graph.getValidMergeNodes(outgoingLink);
-            const condition: ICondition = Condition.create(outgoingLink, mergePoint, validMergeNodes);
+            condition = Condition.create(outgoingLink, mergePoint, mergeNodes);
             conditions.push(condition);
         }
 

@@ -1,9 +1,9 @@
+require("script!mxClient");
 import * as angular from "angular";
 import "angular-mocks";
-require("script!mxClient");
-import "../../..";
-import {DecisionEditorModel} from "./decision-editor-model";
-import {DecisionEditorController} from "./decision-editor-controller";
+import "./";
+import {DecisionEditorModel} from "./decisionEditor.model";
+import {DecisionEditorController} from "./decisionEditor.controller";
 import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
@@ -15,15 +15,18 @@ import {ILocalizationService} from "../../../../../commonModule/localization/loc
 
 describe("DecisionEditorController", () => {
     let $rootScope: ng.IRootScopeService;
+    let $scope: IModalScope;
     let $timeout: ng.ITimeoutService;
     let $anchorScroll: ng.IAnchorScrollService;
     let $location: ng.ILocationService;
     let $q: ng.IQService;
     let localization: ILocalizationService;
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
+    let model: DecisionEditorModel;
+    let controller: DecisionEditorController;
     let noop = () => {/*noop*/};
 
-    beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
+    beforeEach(angular.mock.module("decisionEditor", ($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("localization", LocalizationServiceMock);
     }));
@@ -44,67 +47,22 @@ describe("DecisionEditorController", () => {
         $q = _$q_;
         localization = _localization_;
         $uibModalInstance = _$uibModalInstance_;
+
+        model = new DecisionEditorModel();
+        model.graph = createMockGraph();
+        $scope = <IModalScope>$rootScope.$new();
+        controller = new DecisionEditorController(
+            $rootScope, $scope, $timeout, $anchorScroll,
+            $location, $q, localization, $uibModalInstance, model
+        );
     }));
-
-    function createConditions(howMany: number): ICondition[] {
-        const conditions: ICondition[] = [];
-
-        for (let i: number = 0; i < howMany; i++) {
-            const condition = <ICondition>{
-                sourceId: 0,
-                destinationId: i,
-                orderindex: i,
-                label: `Condition ${i + 1}`,
-                mergeNode: null,
-                validMergeNodes: []
-            };
-            conditions.push(condition);
-        }
-
-        return conditions;
-    }
-
-    function createMockGraph(): IProcessGraph {
-        return <IProcessGraph>{
-            viewModel: {
-                communicationManager: {
-                    processDiagramCommunication: {
-                        modelUpdate: null,
-                        action: null
-                    }
-                }
-            },
-            getValidMergeNodes: null,
-            getMxGraphModel: null
-        };
-    }
-
-    function createDiagramNode(nodeType: NodeType): IDiagramNode {
-        return <IDiagramNode>{
-            model: {id: 1},
-            direction: null,
-            action: null,
-            label: null,
-            row: null,
-            column: null,
-            newShapeColor: null,
-            getNodeType: () => nodeType
-        };
-    }
 
     describe("defaultMergeNodeLabel", () => {
         it("calls localization service with correct string", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.isReadonly = true;
             model.isHistoricalVersion = false;
-
-            const $scope = <IModalScope>$rootScope.$new();
             const localizationSpy = spyOn(localization, "get");
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             // act
             const label = controller.defaultMergeNodeLabel;
@@ -117,11 +75,8 @@ describe("DecisionEditorController", () => {
     describe("isReadonly", () => {
         it("is true if dialog model is read-only", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.isReadonly = true;
             model.isHistoricalVersion = false;
-
-            const $scope = <IModalScope>$rootScope.$new();
 
             // act
             const controller = new DecisionEditorController(
@@ -135,11 +90,8 @@ describe("DecisionEditorController", () => {
 
         it("is true if dialog model is historical", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.isReadonly = false;
             model.isHistoricalVersion = true;
-
-            const $scope = <IModalScope>$rootScope.$new();
 
             // act
             const controller = new DecisionEditorController(
@@ -153,11 +105,8 @@ describe("DecisionEditorController", () => {
 
         it("is false if dialog model is neither historical nor read-only", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.isReadonly = false;
             model.isHistoricalVersion = false;
-
-            const $scope = <IModalScope>$rootScope.$new();
 
             // act
             const controller = new DecisionEditorController(
@@ -173,13 +122,6 @@ describe("DecisionEditorController", () => {
     describe("hasMaxConditions", () => {
         it("is true when reached maximum conditions", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             // act
             model.conditions = createConditions(ProcessGraph.MaxConditions);
 
@@ -189,13 +131,6 @@ describe("DecisionEditorController", () => {
 
         it("is false when not reached maximum conditions", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             // act
             model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
 
@@ -207,13 +142,6 @@ describe("DecisionEditorController", () => {
     describe("hasMinConditions", () => {
         it("is true when reached minimum conditions", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             // act
             model.conditions = createConditions(ProcessGraph.MinConditions);
 
@@ -223,13 +151,6 @@ describe("DecisionEditorController", () => {
 
         it("is false when not reached minimum conditions", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             // act
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
 
@@ -241,16 +162,10 @@ describe("DecisionEditorController", () => {
     describe("canAddCondition", () => {
         it("is false when dialog is read-only", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             // act
-            controller.isReadonly = true;
+            model.isReadonly = true;
 
             // assert
             expect(controller.canAddCondition).toBe(false);
@@ -258,13 +173,6 @@ describe("DecisionEditorController", () => {
 
         it("is false when reached maximum conditions", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             // act
             model.conditions = createConditions(ProcessGraph.MaxConditions);
 
@@ -274,13 +182,6 @@ describe("DecisionEditorController", () => {
 
         it("is true when not reached maximum conditions", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             // act
             model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
 
@@ -291,8 +192,9 @@ describe("DecisionEditorController", () => {
 
     describe("addCondition", () => {
         let decision: IDecision, model: DecisionEditorModel, $scope: IModalScope, controller: DecisionEditorController;
+
         beforeEach(() => {
-             // arrange
+            // arrange
             decision = <IDecision>{
                 model: {id: 1}
             };
@@ -307,10 +209,11 @@ describe("DecisionEditorController", () => {
                 $location, $q, localization, $uibModalInstance, model
             );
         });
+
         it("doesn't update conditions if read-only", () => {
             // arrange
+            model.isReadonly = true;
             spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
-            controller.isReadonly = true;
 
             // act
             controller.addCondition();
@@ -332,7 +235,6 @@ describe("DecisionEditorController", () => {
             expect(model.conditions.length).toBe(ProcessGraph.MinConditions + 1);
             expect(refreshSpy).toHaveBeenCalled();
             expect(scrollSpy).toHaveBeenCalled();
-
         });
 
         it("defaults the merge node to be the one passed in the dialogModel", () => {
@@ -358,120 +260,100 @@ describe("DecisionEditorController", () => {
     describe("isDeleteConditionVisible", () => {
         it("is false for all conditions if minimum conditions reached", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
-            model.conditions = createConditions(ProcessGraph.MinConditions);
+            const isDeleteConditionVisible = _.some(
+                model.conditions,
+                condition => controller.isDeleteConditionVisible(condition)
+            );
 
             // assert
-            for (const condition of model.conditions) {
-                expect(controller.isDeleteConditionVisible(condition)).toBe(false);
-            }
+            expect(isDeleteConditionVisible).toBe(false);
         });
 
-        it("is true for all conditions but first if minimum conditions not reached", () => {
+        it("is false for the primary condition if minimum conditions not reached", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
+            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            const primaryCondition = model.conditions[0];
+            spyOn(model.graph, "isFirstFlow").and.returnValue(true);
 
             // act
-            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            const isDeleteConditionVisible = controller.isDeleteConditionVisible(primaryCondition);
 
             // assert
-            for (const condition of model.conditions) {
-                if (condition.orderindex === 0) {
-                    expect(controller.isDeleteConditionVisible(condition)).toBe(false);
-                    continue;
-                }
+            expect(isDeleteConditionVisible).toBe(false);
+        });
 
-                expect(controller.isDeleteConditionVisible(condition)).toBe(true);
-            }
+        it("is true for all conditions but primary if minimum conditions not reached", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
+
+            // act
+            const isDeleteConditionVisible = _.every(
+                model.conditions.slice(1),
+                condition => controller.isDeleteConditionVisible(condition)
+            );
+
+            // assert
+            expect(isDeleteConditionVisible).toBe(true);
         });
     });
 
     describe("canDeleteCondition", () => {
         it("is false when read-only", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-            controller.isReadonly = true;
+            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            model.isReadonly = true;
 
             // act
-            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            const canDeleteCondition = _.some(
+                model.conditions,
+                condition => controller.canDeleteCondition(condition)
+            );
 
             // assert
-            for (const condition of model.conditions) {
-                expect(controller.canDeleteCondition(condition)).toBe(false);
-            }
+            expect(canDeleteCondition).toBe(false);
         });
 
         it("is false for all conditions if minimum conditions reached", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
-            model.conditions = createConditions(ProcessGraph.MinConditions);
+            const canDeleteCondition = _.some(
+                model.conditions,
+                condition => controller.canDeleteCondition(condition)
+            );
 
             // assert
-            for (const condition of model.conditions) {
-                expect(controller.canDeleteCondition(condition)).toBe(false);
-            }
+            expect(canDeleteCondition).toBe(false);
         });
 
-        it("is true for all conditions but first if not read-only and minimum conditions not reached", () => {
+        it("is true for all conditions but primary if minimum conditions not reached", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
+            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
-            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            const canDeleteCondition = _.every(
+                model.conditions.slice(1),
+                condition => controller.canDeleteCondition(condition)
+            );
 
             // assert
-            for (const condition of model.conditions) {
-                if (condition.orderindex === 0) {
-                    expect(controller.canDeleteCondition(condition)).toBe(false);
-                    continue;
-                }
-
-                expect(controller.canDeleteCondition(condition)).toBe(true);
-            }
+            expect(canDeleteCondition).toBe(true);
         });
     });
 
     describe("deleteCondition", () => {
         it("doesn't update conditions if read-only", () => {
             // arrange
-            const model = new DecisionEditorModel();
+            model.isReadonly = true;
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-            controller.isReadonly = true;
 
             // act
             controller.deleteCondition(model.conditions[model.conditions.length - 1]);
@@ -482,18 +364,10 @@ describe("DecisionEditorController", () => {
 
         it("doesn't update conditions if deleted condition is not part of the collection", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             spyOn(controller, "refreshView").and.callFake(noop);
-
             const condition = createConditions(1)[0];
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             controller.deleteCondition(condition);
@@ -504,16 +378,9 @@ describe("DecisionEditorController", () => {
 
         it("correctly updates conditions", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             const refreshSpy = spyOn(controller, "refreshView").and.callFake(noop);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             controller.deleteCondition(model.conditions[model.conditions.length - 1]);
@@ -524,53 +391,10 @@ describe("DecisionEditorController", () => {
         });
     });
 
-    describe("isFirstBranch", () => {
-        it("is true for first condition", () => {
-            // arrange
-            const model = new DecisionEditorModel();
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
-            // act
-            const isFirstCondition = controller.isFirstBranch(model.conditions[0]);
-
-            // assert
-            expect(isFirstCondition).toBe(true);
-        });
-
-        it("is false for subsequent conditions", () => {
-            const model = new DecisionEditorModel();
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
-            // act
-            const isFirstCondition = controller.isFirstBranch(model.conditions[0]);
-
-            // assert
-            for (let i: number = 1; i < model.conditions.length; i++) {
-                expect(controller.isFirstBranch(model.conditions[i])).toBe(false);
-            }
-        });
-    });
-
     describe("getNodeIcon", () => {
         it("return user task icon for user task", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
             const node = createDiagramNode(NodeType.UserTask);
 
             // act
@@ -582,13 +406,7 @@ describe("DecisionEditorController", () => {
 
         it("returns decision icon for user decision", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
             const node = createDiagramNode(NodeType.UserDecision);
 
             // act
@@ -600,13 +418,7 @@ describe("DecisionEditorController", () => {
 
         it("return end icon for end", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
             const node = createDiagramNode(NodeType.ProcessEnd);
 
             // act
@@ -618,13 +430,7 @@ describe("DecisionEditorController", () => {
 
         it("returns error icon for system task", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
             const node = createDiagramNode(NodeType.SystemTask);
 
             // act
@@ -638,14 +444,7 @@ describe("DecisionEditorController", () => {
     describe("getMergeNodeLabel", () => {
         it("returns default condition label if condition doesn't have merge node defined", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions);
-            const userTaskNode = createDiagramNode(NodeType.UserTask);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             // act
             const label = controller.getMergeNodeLabel(model.conditions[0]);
@@ -656,17 +455,11 @@ describe("DecisionEditorController", () => {
 
         it("returns condition merge node label if condition merge node exists", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const userTaskNode = createDiagramNode(NodeType.UserTask);
             userTaskNode.label = "Test";
             model.conditions[0].mergeNode = userTaskNode;
             model.conditions[1].mergeNode = createDiagramNode(NodeType.ProcessEnd);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             // act
             const label = controller.getMergeNodeLabel(model.conditions[0]);
@@ -676,19 +469,243 @@ describe("DecisionEditorController", () => {
         });
     });
 
+    describe("canReorder", () => {
+        it("returns false for primary branch", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+
+            // act
+            const canReorder = controller.canReorder(model.conditions[0]);
+
+            // assert
+            expect(canReorder).toBe(false);
+        });
+
+        it("returns true for secondary branches", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+
+            // act
+            const canReorder = _.every(
+                model.conditions.slice(1),
+                condition => controller.canReorder(condition)
+            );
+
+            // assert
+            expect(canReorder).toBe(true);
+        });
+    });
+
+    describe("canMoveUp", () => {
+        beforeEach(() => {
+            model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
+        });
+
+        it("is false when no conditions exist", () => {
+            // arrange
+            model.conditions = [];
+
+            // act
+            const canMoveUp = _.some(
+                model.conditions,
+                (condition) => controller.canMoveUp(condition)
+            );
+
+            // assert
+            expect(canMoveUp).toBe(false);
+        });
+
+        it("is false when read-only", () => {
+            // arrange
+            model.isReadonly = true;
+
+            // act
+            const canMoveUp = _.some(
+                model.conditions,
+                (condition) => controller.canMoveUp(condition)
+            );
+
+            // assert
+            expect(canMoveUp).toBe(false);
+        });
+
+        it("is false for the primary condition", () => {
+            // arrange
+            const primaryCondition = model.conditions[0];
+
+            // act
+            const canMoveUp = controller.canMoveUp(primaryCondition);
+
+            // assert
+            expect(canMoveUp).toBe(false);
+        });
+
+        it("is false for the first secondary condition", () => {
+            // arrange
+            const firstSecondaryCondition = model.conditions[1];
+
+            // act
+            const canMoveUp = controller.canMoveUp(firstSecondaryCondition);
+
+            // assert
+            expect(canMoveUp).toBe(false);
+        });
+
+        it("is true for remaining secondary conditions", () => {
+            // arrange
+            const remainingSecondaryConditions = model.conditions.slice(2);
+
+            // act
+            const canMoveUp = _.every(
+                remainingSecondaryConditions,
+                (condition) => controller.canMoveUp(condition)
+            );
+
+            // assert
+            expect(canMoveUp).toBe(true);
+        });
+    });
+
+    describe("moveUp", () => {
+        it("doesn't change conditions if it cannot move condition up", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
+            spyOn(controller, "canMoveUp").and.returnValue(false);
+            const index = ProcessGraph.MaxConditions - 1;
+            const condition = model.conditions[index];
+
+            // act
+            controller.moveUp(condition);
+
+            // assert
+            expect(model.conditions[index]).toBe(condition);
+        });
+
+        it("swaps with previous condition if it can move condition up", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const index = model.conditions.length - 1;
+            const prevIndex = index - 1;
+            const condition = model.conditions[index];
+            const prevCondition = model.conditions[prevIndex];
+
+            // act
+            controller.moveUp(condition);
+
+            // assert
+            expect(model.conditions[index]).toBe(prevCondition);
+            expect(model.conditions[prevIndex]).toBe(condition);
+        });
+    });
+
+    describe("canMoveDown", () => {
+        beforeEach(() => {
+            model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
+        });
+
+        it("is false when no conditions exist", () => {
+            // arrange
+            model.conditions = [];
+
+            // act
+            const canMoveUp = _.some(
+                model.conditions,
+                (condition) => controller.canMoveUp(condition)
+            );
+
+            // assert
+            expect(canMoveUp).toBe(false);
+        });
+
+        it("is false when read-only", () => {
+            // arrange
+            model.isReadonly = true;
+
+            // act
+            const canMoveDown = _.some(
+                model.conditions,
+                condition => controller.canMoveDown(condition)
+            );
+
+            // assert
+            expect(canMoveDown).toBe(false);
+        });
+
+        it("is false for primary condition", () => {
+            // arrange
+            const primaryCondition = model.conditions[0];
+
+            // act
+            const canMoveDown = controller.canMoveDown(primaryCondition);
+
+            // assert
+            expect(canMoveDown).toBe(false);
+        });
+
+        it("is false for last condition", () => {
+            // arrange
+            const lastCondition = model.conditions[model.conditions.length - 1];
+
+            // act
+            const canMoveDown = controller.canMoveDown(lastCondition);
+
+            // assert
+            expect(canMoveDown).toBe(false);
+        });
+
+        it("is true for remaining conditions", () => {
+            // arrange
+            const remainingConditions = model.conditions.slice(1, model.conditions.length - 1);
+
+            // act
+            const canMoveDown = _.every(
+                remainingConditions,
+                condition => controller.canMoveDown(condition)
+            );
+
+            // assert
+            expect(canMoveDown).toBe(true);
+        });
+    });
+
+    describe("moveDown", () => {
+        it("doesn't change conditions if it cannot move condition down", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions - 1);
+            spyOn(controller, "canMoveDown").and.returnValue(false);
+            const index = 1;
+            const condition = model.conditions[index];
+
+            // act
+            controller.moveDown(condition);
+
+            // assert
+            expect(model.conditions[index]).toBe(condition);
+        });
+
+        it("swaps with next condition if it can move condition down", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const index = 1;
+            const nextIndex = index + 1;
+            const condition = model.conditions[index];
+            const nextCondition = model.conditions[nextIndex];
+
+            // act
+            controller.moveDown(condition);
+
+            // assert
+            expect(model.conditions[index]).toBe(nextCondition);
+            expect(model.conditions[nextIndex]).toBe(condition);
+        });
+    });
+
     describe("canApplyChanges", () => {
         it("is false if is read-only", () => {
             // arrange
-            const model = new DecisionEditorModel();
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
-
             // act
-            controller.isReadonly = true;
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            model.isReadonly = true;
 
             // assert
             expect(controller.canApplyChanges).toBe(false);
@@ -696,13 +713,7 @@ describe("DecisionEditorController", () => {
 
         it("is false if is label is empty", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             // act
             model.label = null;
@@ -713,13 +724,8 @@ describe("DecisionEditorController", () => {
 
         it("is false if is at least one condition doesn't have merge node specified", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
 
             // act
             model.label = "UD1";
@@ -732,13 +738,7 @@ describe("DecisionEditorController", () => {
         it("is true if not read-only, has label, and all conditions have merge node specified", () => {
             // arrange
             const endNode = createDiagramNode(NodeType.ProcessEnd);
-            const model = new DecisionEditorModel();
             model.conditions = createConditions(ProcessGraph.MinConditions);
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             // act
             model.isReadonly = false;
@@ -755,7 +755,6 @@ describe("DecisionEditorController", () => {
     describe("saveData", () => {
         it("updates label", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.label = "UD1";
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const decision = <IDecision>createDiagramNode(NodeType.UserDecision);
@@ -763,11 +762,6 @@ describe("DecisionEditorController", () => {
             decision.getOutgoingLinks = () => [];
             model.originalDecision = decision;
             model.graph = createMockGraph();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
             const newValue = "Decision Label";
             const setLabelSpy = spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
@@ -783,7 +777,6 @@ describe("DecisionEditorController", () => {
 
         it("updates merge node", () => {
             // arrange
-            const model = new DecisionEditorModel();
             model.label = "UD1";
             model.conditions = createConditions(ProcessGraph.MinConditions);
             model.conditions[0].mergeNode = createDiagramNode(NodeType.ProcessEnd);
@@ -793,15 +786,13 @@ describe("DecisionEditorController", () => {
             decision.getOutgoingLinks = () => [<IDiagramLink>{}, <IDiagramLink>{}];
             model.originalDecision = decision;
             model.graph = createMockGraph();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-            spyOn(controller, "updateExistingEdge").and.returnValue(true);
+            spyOn(model.graph, "updateMergeNode").and.returnValue(true);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
+            spyOn(model.graph, "getBranchStartingLink").and.returnValue({});
+            spyOn(controller, "updateConditionLabels").and.returnValue(false);
 
             const modelUpdateSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
             const actionSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "action");
@@ -818,7 +809,6 @@ describe("DecisionEditorController", () => {
         it("updates deleted conditions", () => {
             // arrange
             const endNode = createDiagramNode(NodeType.ProcessEnd);
-            const model = new DecisionEditorModel();
             model.label = "UD1";
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             model.conditions[0].mergeNode = endNode;
@@ -829,16 +819,13 @@ describe("DecisionEditorController", () => {
             decision.getOutgoingLinks = () => [];
             model.originalDecision = decision;
             model.graph = createMockGraph();
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
             spyOn(controller, "refreshView").and.callFake(noop);
             const deleteSpy = spyOn(ProcessDeleteHelper, "deleteDecisionBranches").and.callFake(noop);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
+            spyOn(model.graph, "getBranchStartingLink").and.returnValue(null);
 
             // act
             controller.deleteCondition(model.conditions[model.conditions.length - 1]);
@@ -852,7 +839,6 @@ describe("DecisionEditorController", () => {
         it("updates added conditions", () => {
             // arrange
             const endNode = createDiagramNode(NodeType.ProcessEnd);
-            const model = new DecisionEditorModel();
             model.label = "UD1";
             model.conditions = createConditions(ProcessGraph.MinConditions);
             model.conditions[0].mergeNode = endNode;
@@ -863,11 +849,6 @@ describe("DecisionEditorController", () => {
             model.originalDecision = decision;
             model.graph = createMockGraph();
             model.graph["addDecisionBranches"] = noop;
-            const $scope = <IModalScope>$rootScope.$new();
-            const controller = new DecisionEditorController(
-                $rootScope, $scope, $timeout, $anchorScroll,
-                $location, $q, localization, $uibModalInstance, model
-            );
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
@@ -875,6 +856,8 @@ describe("DecisionEditorController", () => {
             spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
             spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
             const addSpy = spyOn(model.graph, "addDecisionBranches").and.callFake(noop);
+            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
+            spyOn(model.graph, "getBranchStartingLink").and.returnValue(null);
 
             // act
             controller.addCondition();
@@ -888,3 +871,52 @@ describe("DecisionEditorController", () => {
         });
     });
 });
+
+function createConditions(howMany: number): ICondition[] {
+    const conditions: ICondition[] = [];
+
+    for (let i: number = 0; i < howMany; i++) {
+        const condition = <ICondition>{
+            sourceId: 0,
+            destinationId: i,
+            orderindex: i,
+            label: `Condition ${i + 1}`,
+            mergeNode: null,
+            validMergeNodes: []
+        };
+        conditions.push(condition);
+    }
+
+    return conditions;
+}
+
+function createMockGraph(): IProcessGraph {
+    return <IProcessGraph>{
+        viewModel: {
+            communicationManager: {
+                processDiagramCommunication: {
+                    modelUpdate: null,
+                    action: null
+                }
+            }
+        },
+        getValidMergeNodes: null,
+        getMxGraphModel: null,
+        isFirstFlow: null,
+        updateMergeNode: null,
+        getBranchStartingLink: null
+    };
+}
+
+function createDiagramNode(nodeType: NodeType): IDiagramNode {
+    return <IDiagramNode>{
+        model: {id: 1},
+        direction: null,
+        action: null,
+        label: null,
+        row: null,
+        column: null,
+        newShapeColor: null,
+        getNodeType: () => nodeType
+    };
+}

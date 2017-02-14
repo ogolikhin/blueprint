@@ -5,7 +5,6 @@ import "rx/dist/rx.lite";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {createDefaultProcessModel} from "../../../editorsModule/bp-process/models/test-model-factory";
 import {INovaProcess} from "../../../editorsModule/bp-process/process-artifact";
-import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
 import {IPropertyDescriptor, PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
 import {Enums, Models} from "../../../main";
@@ -20,6 +19,8 @@ import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.moc
 import {ComponentTest} from "../../../util/component.test";
 import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {BPPropertiesController} from "./bp-properties-panel";
+import {LicenseServiceMock} from "../../license/license.svc.mock";
+import {SessionSvcMock} from "../../login/session.svc.mock";
 
 describe("Component BPPropertiesPanel", () => {
 
@@ -47,6 +48,8 @@ describe("Component BPPropertiesPanel", () => {
         $provide.service("publishService", UnpublishedArtifactsServiceMock);
         $provide.service("propertyDescriptorBuilder", PropertyDescriptorBuilderMock);
         $provide.service("validationService", ValidationServiceMock);
+        $provide.service("licenseService", LicenseServiceMock);
+        $provide.service("session", SessionSvcMock);
     }));
 
     beforeEach(inject(() => {

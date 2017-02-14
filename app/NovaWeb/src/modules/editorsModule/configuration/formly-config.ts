@@ -19,6 +19,14 @@ import {
 } from "./types";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 
+export interface IFormlyFormController extends ng.IFormController {
+    $setTouched(): void;
+}
+
+export interface IFormlyScope extends ng.IScope, AngularFormly.ITemplateScope {
+    fc: IFormlyFormController;
+}
+
 formlyConfig.$inject = ["formlyConfig", "formlyValidationMessages", "localization"];
 export function formlyConfig(formlyConfig: AngularFormly.IFormlyConfig,
                              formlyValidationMessages: AngularFormly.IValidationMessages,

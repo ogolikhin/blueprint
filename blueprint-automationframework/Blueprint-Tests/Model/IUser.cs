@@ -62,6 +62,12 @@ namespace Model
         void SetUserIcon(int userId, byte[] value);
 
         /// <summary>
+        /// Change LastPassswordChangeTimestamp.
+        /// </summary>
+        /// <param name="dateTime">dataTime representing new value for LastPassswordChangeTimestamp.</param>
+        void ChangeLastPasswordChangeTimestamp(DateTime dateTime);
+
+        /// <summary>
         /// Sets the token for this user.
         /// </summary>
         /// <param name="token">The token string.</param>

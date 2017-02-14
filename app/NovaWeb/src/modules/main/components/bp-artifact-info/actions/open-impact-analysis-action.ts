@@ -74,7 +74,7 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
 
     protected openImpactAnalysisInternal(id: number): void {
         if (this.analyticsService) {
-            this.analyticsService.trackEvent(AnalyticsCategories.IMPACT_ANALYSIS, AnalyticsActions.GENERATE,
+            this.analyticsService.trackEvent(AnalyticsCategories.ImpactAnalysis, AnalyticsActions.Generate,
                 `ImpactAnalysisId_${id}`);
         }
 

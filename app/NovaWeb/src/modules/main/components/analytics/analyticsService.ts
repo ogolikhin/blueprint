@@ -12,7 +12,7 @@ export class AnalyticsService implements IAnalyticsService {
     constructor(private analytics: ng.google.analytics.AnalyticsService) {
     }
 
-    public trackEvent(category, action, label, value, nonInteractionFlag, dimensions) {
+    public trackEvent(category: string, action: string, label: string, value?: any, nonInteractionFlag?: boolean, dimensions?: { [expr: string]: any }) {
         this.analytics.trackEvent(category, action, label, value, nonInteractionFlag, dimensions);
     }
 
@@ -20,6 +20,6 @@ export class AnalyticsService implements IAnalyticsService {
         const endTime = new Date().getTime();
         const timeSpentInMsec = endTime - startTime;
         const seconds = timeSpentInMsec / 1000;
-        this.analytics.trackEvent(category, action, label, seconds, false, dimensions);
+        this.trackEvent(category, action, label, seconds, false, dimensions);
     }
 }

@@ -200,7 +200,7 @@ export class SessionSvc implements ISession {
     private setUserForAnalytics() {
         if (this.currentUser && this.currentUser.id) {
             this.analytics.set("&uid", this.currentUser.id);
-            this.analytics.set("dimension2", this.currentUser.id);
+            this.analytics.set("dimension1", this.currentUser.id);
         }
     }
 

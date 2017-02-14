@@ -215,11 +215,11 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
     }
 
-    private trackGenerateUserStoriesEvent(startTime: number, userTaskId?: number) {        
-        const category = AnalyticsCategories.USER_STORY;
-        let action = AnalyticsActions.GENERATE_ALL;
+    private trackGenerateUserStoriesEvent(startTime: number, userTaskId?: number) {
+        const category = AnalyticsCategories.UserStory;
+        let action = AnalyticsActions.GenerateAll;
         if (userTaskId && userTaskId > 0) {
-            action = AnalyticsActions.GENERATE_SELECTED;
+            action = AnalyticsActions.GenerateSelected;
         }
         this.analyticsService.trackAnalyticsTemporalEvent(startTime, category, action, undefined);
     }
@@ -237,7 +237,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                     userTaskId ?
                         this.localization.get("ST_US_Generate_From_UserTask_Success_Message") :
                         this.localization.get("ST_US_Generate_All_Success_Message");
-                this.messageService.addInfo(userStoriesGeneratedMessage);                
+                this.messageService.addInfo(userStoriesGeneratedMessage);
                 this.trackGenerateUserStoriesEvent(startTime, userTaskId);
                 return process.refresh();
             })

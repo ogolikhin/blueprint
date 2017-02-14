@@ -856,7 +856,7 @@ describe("DecisionEditorController", () => {
             decision.getOutgoingLinks = () => [];
             model.originalDecision = decision;
             model.graph = createMockGraph();
-            model.graph["addDecisionBranches"] = noop;
+            model.graph["addDecisionBranch"] = noop;
 
             spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);

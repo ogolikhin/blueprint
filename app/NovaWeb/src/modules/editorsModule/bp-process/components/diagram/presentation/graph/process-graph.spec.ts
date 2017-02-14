@@ -1067,7 +1067,7 @@ describe("ProcessGraph", () => {
 
                 // Act
                 try {
-                    graph.addDecisionBranches(startId, [condition]);
+                    graph.addDecisionBranch(startId, [condition]);
                 } catch (exception) {
                     error = exception;
                 }
@@ -1085,7 +1085,7 @@ describe("ProcessGraph", () => {
                 let spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
 
                 // Act
-                graph.addDecisionBranches(decisionId, null);
+                graph.addDecisionBranch(decisionId, null);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1098,7 +1098,7 @@ describe("ProcessGraph", () => {
                 let spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
 
                 // Act
-                graph.addDecisionBranches(decisionId, []);
+                graph.addDecisionBranch(decisionId, []);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1121,7 +1121,7 @@ describe("ProcessGraph", () => {
 
                     // Act
                     try {
-                        graph.addDecisionBranches(decisionId, [condition]);
+                        graph.addDecisionBranch(decisionId, [condition]);
                     } catch (exception) {
                         error = exception;
                     }
@@ -1146,7 +1146,7 @@ describe("ProcessGraph", () => {
                     let spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
 
                     // Act
-                    graph.addDecisionBranches(decisionId, [condition]);
+                    graph.addDecisionBranch(decisionId, [condition]);
 
                     // Assert
                     expect(spy).toHaveBeenCalled();
@@ -1169,7 +1169,7 @@ describe("ProcessGraph", () => {
                     let addErrorSpy = spyOn(messageServiceMock, "addError").and.callThrough();
 
                     // Act
-                    graph.addDecisionBranches(decisionId, [condition]);
+                    graph.addDecisionBranch(decisionId, [condition]);
 
                     // Assert
                     expect(spy).not.toHaveBeenCalled();
@@ -1198,7 +1198,7 @@ describe("ProcessGraph", () => {
                     graph.viewModel.shapeLimit = 14;
 
                     // Act
-                    graph.addDecisionBranches(decisionId, [condition1, condition2]);
+                    graph.addDecisionBranch(decisionId, [condition1, condition2]);
                     graph.viewModel.shapeLimit = 100;
 
                     // Assert
@@ -1229,7 +1229,7 @@ describe("ProcessGraph", () => {
                     graph.viewModel.shapeLimit = 14;
 
                     // Act
-                    graph.addDecisionBranches(decisionId, [condition1, condition2, condition3]);
+                    graph.addDecisionBranch(decisionId, [condition1, condition2, condition3]);
                     graph.viewModel.shapeLimit = 100;
 
                     // Assert
@@ -1255,7 +1255,7 @@ describe("ProcessGraph", () => {
 
                     // Act
                     try {
-                        graph.addDecisionBranches(decisionId, [condition]);
+                        graph.addDecisionBranch(decisionId, [condition]);
                     } catch (exception) {
                         error = exception;
                     }
@@ -1281,7 +1281,7 @@ describe("ProcessGraph", () => {
                     let addErrorSpy = spyOn(messageServiceMock, "addError").and.callThrough();
 
                     // Act
-                    graph.addDecisionBranches(decisionId, [condition]);
+                    graph.addDecisionBranch(decisionId, [condition]);
 
                     // Assert
                     expect(spy).not.toHaveBeenCalled();
@@ -1302,7 +1302,7 @@ describe("ProcessGraph", () => {
                 let spy = spyOn(ProcessDeleteHelper, "deleteShapesAndLinksByIds");
 
                 // Act
-                ProcessDeleteHelper.deleteDecisionBranches(decisionId, [], graph);
+                ProcessDeleteHelper.deleteDecisionBranch(decisionId, [], graph);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1318,7 +1318,7 @@ describe("ProcessGraph", () => {
                 process.decisionBranchDestinationLinks = [];
 
                 // Act
-                ProcessDeleteHelper.deleteDecisionBranches(decisionId, [userDecisionId], graph);
+                ProcessDeleteHelper.deleteDecisionBranch(decisionId, [userDecisionId], graph);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1334,7 +1334,7 @@ describe("ProcessGraph", () => {
                 let addErrorSpy = spyOn(messageService, "addError");
 
                 // Act
-                ProcessDeleteHelper.deleteDecisionBranches(decisionId, [userTaskId], graph);
+                ProcessDeleteHelper.deleteDecisionBranch(decisionId, [userTaskId], graph);
 
                 // Assert
                 expect(spy).not.toHaveBeenCalled();
@@ -1362,7 +1362,7 @@ describe("ProcessGraph", () => {
                     let conditionDestinationCountBefore = processModel.decisionBranchDestinationLinks.length;
 
                     // Act
-                    let result = ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [branchUserTaskId], graph);
+                    let result = ProcessDeleteHelper.deleteDecisionBranch(userDecisionId, [branchUserTaskId], graph);
                     let conditionDestinationCountAfter = processModel.decisionBranchDestinationLinks.length;
 
                     // Assert
@@ -1376,7 +1376,7 @@ describe("ProcessGraph", () => {
                     let conditionDestinationCountBefore = processModel.decisionBranchDestinationLinks.length;
 
                     // Act
-                    let result = ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [7], graph);
+                    let result = ProcessDeleteHelper.deleteDecisionBranch(userDecisionId, [7], graph);
                     let conditionDestinationCountAfter = processModel.decisionBranchDestinationLinks.length;
 
                     // Assert
@@ -1417,7 +1417,7 @@ describe("ProcessGraph", () => {
                     let systemTaskId = 8;
 
                     // Act
-                    ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [userTaskId], graph);
+                    ProcessDeleteHelper.deleteDecisionBranch(userDecisionId, [userTaskId], graph);
 
                     // Assert
                     expect(processModel.shapes.length).toEqual(10);
@@ -1441,7 +1441,7 @@ describe("ProcessGraph", () => {
                     let conditionDestinationCountBefore = processModel.decisionBranchDestinationLinks.length;
 
                     // Act
-                    ProcessDeleteHelper.deleteDecisionBranches(userDecisionId, [userTask1Id, userTask2Id], graph);
+                    ProcessDeleteHelper.deleteDecisionBranch(userDecisionId, [userTask1Id, userTask2Id], graph);
                     let conditionDestinationCountAfter = processModel.decisionBranchDestinationLinks.length;
 
                     // Assert
@@ -1513,7 +1513,7 @@ describe("ProcessGraph", () => {
                     let userTaskId = 6;
 
                     // Act
-                    let result = ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [userTaskId], graph);
+                    let result = ProcessDeleteHelper.deleteDecisionBranch(systemDecisionId, [userTaskId], graph);
 
                     // Assert
                     expect(result).toEqual(false);
@@ -1525,7 +1525,7 @@ describe("ProcessGraph", () => {
                     let userTaskId = 7;
 
                     // Act
-                    let result = ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [userTaskId], graph);
+                    let result = ProcessDeleteHelper.deleteDecisionBranch(systemDecisionId, [userTaskId], graph);
 
                     // Assert
                     expect(result).toEqual(false);
@@ -1556,7 +1556,7 @@ describe("ProcessGraph", () => {
                     let systemTaskId = 7;
 
                     // Act
-                    ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [systemTaskId], graph);
+                    ProcessDeleteHelper.deleteDecisionBranch(systemDecisionId, [systemTaskId], graph);
 
                     // Assert
                     expect(processModel.shapes.length).toEqual(7);
@@ -1574,7 +1574,7 @@ describe("ProcessGraph", () => {
                     let systemTask2Id = 7;
 
                     // Act
-                    ProcessDeleteHelper.deleteDecisionBranches(systemDecisionId, [systemTask1Id, systemTask2Id], graph);
+                    ProcessDeleteHelper.deleteDecisionBranch(systemDecisionId, [systemTask1Id, systemTask2Id], graph);
 
                     // Assert
                     expect(processModel.shapes.length).toEqual(6);

@@ -127,44 +127,47 @@ export class ProcessDeleteHelper {
         return false;
     }
 
-    private static canDeleteDecisionConditions(decisionId: number, targetIds: number[],
-                                               processGraph: IProcessGraph): boolean {
+    public static canDeleteDecisionConditions(
+        decisionId: number,
+        targetIds: number[],
+        processGraph: IProcessGraph
+    ): boolean {
         let rootScope: any = processGraph.rootScope;
         let messageService: IMessageService = processGraph.messageService;
 
-        let canDelete: boolean = true;
-        let errorMessage: string;
-
         if (!targetIds || targetIds.length === 0) {
-            canDelete = false;
-        } else if (this.hasMinConditions(decisionId, processGraph)) {
-            errorMessage = rootScope.config.labels["ST_Delete_CannotDelete_UD_AtleastTwoConditions"];
-            canDelete = false;
-        } else {
-            for (let targetId of targetIds) {
-                if (!processGraph.viewModel.getBranchDestinationId(decisionId, targetId)) {
-                    canDelete = false;
-                }
+            return false;
+        }
+
+        if (this.hasMinConditions(decisionId, processGraph)) {
+            messageService.addError(rootScope.config.labels["ST_Delete_CannotDelete_UD_AtleastTwoConditions"]);
+            return false;
+        }
+
+        for (let targetId of targetIds) {
+            if (!processGraph.viewModel.getBranchDestinationId(decisionId, targetId)) {
+                return false;
             }
         }
 
-        if (!canDelete && errorMessage && messageService) {
-            messageService.addError(errorMessage);
-        }
-
-        return canDelete;
+        return true;
     }
 
     private static hasMinConditions(decisionId: number, processGraph: IProcessGraph): boolean {
         return processGraph.viewModel.getNextShapeIds(decisionId).length <= ProcessGraph.MinConditions;
     }
 
-    private static deleteUserTaskInternal(userTaskId: number, previousShapeIds: number[], newDestinationId: number,
-                                          processGraph: IProcessGraph): void {
+    private static deleteUserTaskInternal(
+        userTaskId: number,
+        previousShapeIds: number[],
+        newDestinationId: number,
+        processGraph: IProcessGraph
+    ): void {
 
         if (this.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
             let decisionId = this.getConnectedDecisionId(previousShapeIds, processGraph);
-            this.deleteDecisionBranches(decisionId, [userTaskId], processGraph);
+            let link = processGraph.getLink(decisionId, userTaskId);
+            this.deleteDecisionBranch(link, processGraph);
         } else {
             let scopeContext = processGraph.getScope(userTaskId);
             let shapesToBeDeletedIds: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
@@ -179,37 +182,29 @@ export class ProcessDeleteHelper {
         }
     }
 
-    public static deleteDecisionBranches(decisionId: number, targetIds: number[],
-                                         processGraph: IProcessGraph): boolean {
-
-        if (!this.canDeleteDecisionConditions(decisionId, targetIds, processGraph)) {
+    public static deleteDecisionBranch(
+        branchLinkToDelete: IProcessLink,
+        graph: IProcessGraph
+    ): boolean {
+        if (!this.canDeleteDecisionConditions(branchLinkToDelete.sourceId, [branchLinkToDelete.destinationId], graph)) {
             return false;
         }
 
-        for (let targetId of targetIds) {
-            // delete the link connecting decision to target
-            let decisionToShapeLinkIndex = processGraph.viewModel.getLinkIndex(decisionId, targetId);
-            let toBeRemovedLink = processGraph.viewModel.links[decisionToShapeLinkIndex];
+        const branchLinkToDeleteIndex = graph.viewModel.getLinkIndex(branchLinkToDelete.sourceId, branchLinkToDelete.destinationId);
 
-            let scopeContext = processGraph.getBranchScope(toBeRemovedLink, processGraph.defaultNextIdsProvider);
-            this.reconnectExternalLinksInScope(scopeContext, processGraph);
+        const scopeContext = graph.getBranchScope(branchLinkToDelete, graph.defaultNextIdsProvider);
+        this.reconnectExternalLinksInScope(scopeContext, graph);
 
-            let shapeIdsToDelete: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
+        const shapeIdsToDelete: number[] = Object.keys(scopeContext.visitedIds).map(a => _.toNumber(a));
 
-            let indexOfMapping: number;
-            for (indexOfMapping = 0; indexOfMapping < processGraph.viewModel.decisionBranchDestinationLinks.length; indexOfMapping++) {
-                let condition = processGraph.viewModel.decisionBranchDestinationLinks[indexOfMapping];
-                if (condition.sourceId === decisionId && condition.orderindex === toBeRemovedLink.orderindex) {
-                    break;
-                }
-            }
+        graph.viewModel.links.splice(branchLinkToDeleteIndex, 1);
+        _.remove(
+            graph.viewModel.decisionBranchDestinationLinks,
+            link => link.sourceId === branchLinkToDelete.sourceId && link.orderindex === branchLinkToDelete.orderindex
+        );
+        this.deleteShapesAndLinksByIds(shapeIdsToDelete, graph);
 
-            processGraph.viewModel.links.splice(decisionToShapeLinkIndex, 1);
-            processGraph.viewModel.decisionBranchDestinationLinks.splice(indexOfMapping, 1);
-            this.deleteShapesAndLinksByIds(shapeIdsToDelete, processGraph);
-        }
-
-        processGraph.notifyUpdateInModel(NodeChange.Remove, decisionId);
+        graph.notifyUpdateInModel(NodeChange.Remove, branchLinkToDelete.sourceId);
 
         return true;
     }

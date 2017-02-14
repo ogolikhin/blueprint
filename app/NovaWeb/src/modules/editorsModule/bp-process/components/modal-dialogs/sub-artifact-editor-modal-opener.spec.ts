@@ -332,7 +332,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                         originalDecision: decision,
                         isReadonly: false,
                         isHistoricalVersion: false,
-                        conditionLabel: "Choice",
+                        conditionHeader: "Choice",
                         defaultDestinationId: null
                     }
                 },

@@ -173,7 +173,7 @@ describe("ProcessDeleteAction", () => {
             expect(action.tooltip).toEqual(localization.get("ST_Shapes_Delete_Tooltip"));
         });
 
-        it("sets disabled to true when multiple shapes are selected", () => {
+        it("sets disabled to false when multiple shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
                     statefulProcess, localization, messageService, selectionManager, projectManager,
@@ -185,7 +185,7 @@ describe("ProcessDeleteAction", () => {
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask, userTask2]);
 
             // assert
-            expect(action.disabled).toEqual(true);
+            expect(action.disabled).toEqual(false);
         });
 
         it("sets disabled to false when User Task is selected", () => {
@@ -389,7 +389,7 @@ describe("ProcessDeleteAction", () => {
             expect(spy).not.toHaveBeenCalled();
         });
 
-        it("doesn't delete when multiple shapes are selected", () => {
+        it("delete when multiple shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
                     statefulProcess, localization, messageService, selectionManager, projectManager,
@@ -403,7 +403,7 @@ describe("ProcessDeleteAction", () => {
             action.execute();
 
             // assert
-            expect(spy).not.toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
         });
 
         it("doesn't delete when selection is valid for read-only process", () => {

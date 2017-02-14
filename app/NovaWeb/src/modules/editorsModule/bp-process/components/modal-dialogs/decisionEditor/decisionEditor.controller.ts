@@ -228,6 +228,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         const index = this.dialogModel.conditions.indexOf(condition);
         const previousCondition = this.dialogModel.conditions[index - 1];
         this.dialogModel.conditions.splice(index - 1, 2, condition, previousCondition);
+        this.swapConditions(previousCondition, condition);
     }
 
     public canMoveDown(condition: ICondition): boolean {
@@ -252,6 +253,13 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         const index = this.dialogModel.conditions.indexOf(condition);
         const nextCondition = this.dialogModel.conditions[index + 1];
         this.dialogModel.conditions.splice(index, 2, nextCondition, condition);
+        this.swapConditions(condition, nextCondition);
+    }
+
+    private swapConditions(condition1: ICondition, condition2: ICondition): void {
+        const orderindex = condition1.orderindex;
+        condition1.orderindex = condition2.orderindex;
+        condition2.orderindex = orderindex;
     }
 
     public isLabelAvailable(): boolean {

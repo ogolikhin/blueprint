@@ -604,16 +604,20 @@ describe("DecisionEditorController", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MaxConditions);
             const index = model.conditions.length - 1;
-            const prevIndex = index - 1;
             const condition = model.conditions[index];
+            const orderindex = condition.orderindex;
+            const prevIndex = index - 1;
             const prevCondition = model.conditions[prevIndex];
+            const prevOrderindex = prevCondition.orderindex;
 
             // act
             controller.moveUp(condition);
 
             // assert
             expect(model.conditions[index]).toBe(prevCondition);
+            expect(prevCondition.orderindex).toBe(orderindex);
             expect(model.conditions[prevIndex]).toBe(condition);
+            expect(condition.orderindex).toBe(prevOrderindex);
         });
     });
 
@@ -706,16 +710,20 @@ describe("DecisionEditorController", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MaxConditions);
             const index = 1;
-            const nextIndex = index + 1;
             const condition = model.conditions[index];
+            const orderindex = condition.orderindex;
+            const nextIndex = index + 1;
             const nextCondition = model.conditions[nextIndex];
+            const nextOrderindex = nextCondition.orderindex;
 
             // act
             controller.moveDown(condition);
 
             // assert
             expect(model.conditions[index]).toBe(nextCondition);
+            expect(nextCondition.orderindex).toBe(orderindex);
             expect(model.conditions[nextIndex]).toBe(condition);
+            expect(condition.orderindex).toBe(nextOrderindex);
         });
     });
 

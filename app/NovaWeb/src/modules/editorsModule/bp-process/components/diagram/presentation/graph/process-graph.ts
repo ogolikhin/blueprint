@@ -594,17 +594,10 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    // deleteShape sould not have parameters it will get
-    // nodes for the deletion from this.getSelectedNodes() method
-    private deleteShape = (clickedNode: IDiagramNode) => {
-        // this will be updated:
-        const dialogParameters = clickedNode.getDeleteDialogParameters();
-
+    private deleteShape = () => {
         const selectedNodes = this.getSelectedNodes();
-
         const artifactList = this.createArtifactFromDiagramNodes(selectedNodes);
 
-        // this should be replaced with the new deletion confirmation modal
         this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Ok"),
                 cancelButton: this.localization.get("App_Button_Cancel"),

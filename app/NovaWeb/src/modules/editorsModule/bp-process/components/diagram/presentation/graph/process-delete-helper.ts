@@ -195,7 +195,7 @@ export class ProcessDeleteHelper {
 
         if (this.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
             let decisionId = this.getConnectedDecisionId(previousShapeIds, processGraph);
-            this.deleteDecisionBranches(decisionId, [userTaskId], processGraph);
+            this.deleteDecisionBranches(decisionId, [userTaskId], processGraph, false);
         } else {
             let scopeContext = processGraph.getScope(userTaskId);
             let shapesToBeDeletedIds: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
@@ -211,7 +211,7 @@ export class ProcessDeleteHelper {
     }
 
     public static deleteDecisionBranches(decisionId: number, targetIds: number[],
-                                         processGraph: IProcessGraph): boolean {
+                                         processGraph: IProcessGraph, triggerModelUpdate: boolean = true): boolean {
 
         if (!this.canDeleteDecisionConditions(decisionId, targetIds, processGraph)) {
             return false;
@@ -240,7 +240,9 @@ export class ProcessDeleteHelper {
             this.deleteShapesAndLinksByIds(shapeIdsToDelete, processGraph);
         }
 
-        processGraph.notifyUpdateInModel(NodeChange.Remove, decisionId);
+        if (triggerModelUpdate) {
+            processGraph.notifyUpdateInModel(NodeChange.Remove, decisionId);
+        }
 
         return true;
     }

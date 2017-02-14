@@ -384,10 +384,10 @@ namespace Model
             {
                 public static class Artifacts
                 {
-                    public const string LOCK                    = "svc/shared/artifacts/lock";
-                    public const string SEARCH                  = "svc/shared/artifacts/search";
                     public const string DISCARD                 = "svc/shared/artifacts/discard";
+                    public const string LOCK                    = "svc/shared/artifacts/lock";
                     public const string PUBLISH                 = "svc/shared/artifacts/publish";
+                    public const string SEARCH                  = "svc/shared/artifacts/search";
                 }
 
                 /// <summary>

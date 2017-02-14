@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Common;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Utilities;
 using Utilities.Facades;
@@ -22,6 +24,131 @@ namespace Model.Impl
         }
 
         #region Members inherited from ISvcShared
+
+        #region Artifacts methods
+
+        /// <seealso cref="ISvcShared.DiscardArtifacts(IUser, List{IArtifactBase}, List{HttpStatusCode})"/>
+        public List<NovaDiscardArtifactResult> DiscardArtifacts(IUser user,
+            List<IArtifactBase> artifactsToDiscard,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return DiscardArtifacts(Address, user, artifactsToDiscard, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint.
+        /// NOTE: The internal status flags of the artifacts are NOT updated.
+        /// (Runs:  'POST /svc/shared/artifacts/discard')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        public static List<NovaDiscardArtifactResult> DiscardArtifacts(string address,
+            IUser user,
+            List<IArtifactBase> artifactsToDiscard,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
+
+            var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
+                RestPaths.Svc.Shared.Artifacts.DISCARD,
+                RestRequestMethod.POST,
+                artifactsIds,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return artifactResults.DiscardResults;
+        }
+
+        /// <seealso cref="ISvcShared.LockArtifacts(IUser, List{IArtifactBase}, List{HttpStatusCode})"/>
+        public List<LockResultInfo> LockArtifacts(IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return LockArtifacts(Address, user, artifactsToLock, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Lock Artifact(s).
+        /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactsToLock">The list of artifacts to lock.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        public static List<LockResultInfo> LockArtifacts(string address,
+            IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
+
+            var artifactIds = (
+                from IArtifactBase artifact in artifactsToLock
+                select artifact.Id).ToList();
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var lockResults = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
+                RestPaths.Svc.Shared.Artifacts.LOCK,
+                RestRequestMethod.POST,
+                jsonObject: artifactIds,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return lockResults;
+        }
+
+        /// <seealso cref="ISvcShared.PublishArtifacts(IUser, List{int}, List{HttpStatusCode})"/>
+        public List<NovaPublishArtifactResult> PublishArtifacts(IUser user,
+            List<int> artifactsToPublish,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return PublishArtifacts(Address, user, artifactsToPublish, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Publish a list of artifacts on Blueprint server.  This is only used in Storyteller.
+        /// NOTE: The internal IsSaved and IsPublished flags are NOT updated by this function.
+        /// (Runs: 'POST /svc/shared/artifacts/publish')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user saving the artifact.</param>
+        /// <param name="artifactsToPublish">The IDs of the artifacts to publish.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Results of Publish operation.</returns>
+        public static List<NovaPublishArtifactResult> PublishArtifacts(string address,
+            IUser user,
+            List<int> artifactsToPublish,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
+
+            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactsToPublish,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return publishResults;
+        }
+
+        #endregion Artifacts methods
+
+        #region User and Group methods
 
         /// <seealso cref="ISvcShared.FindUserOrGroup(IUser, string, bool?, int?, bool?, List{HttpStatusCode})"/>
         public List<UserOrGroupInfo> FindUserOrGroup(IUser user, 
@@ -64,6 +191,8 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
         }
+
+        #endregion User and Group methods
 
         #endregion Members inherited from ISvcShared
 

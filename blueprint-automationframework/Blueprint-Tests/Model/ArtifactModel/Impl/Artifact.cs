@@ -3,7 +3,6 @@ using Model.ArtifactModel.Adaptors;
 using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -99,9 +98,9 @@ namespace Model.ArtifactModel.Impl
             return discardArtifactResults;
         }
 
+        /// <seealso cref="IArtifact.NovaDiscard(IUser, List{HttpStatusCode})"/>
         public List<NovaDiscardArtifactResult> NovaDiscard(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -111,23 +110,10 @@ namespace Model.ArtifactModel.Impl
 
             var artifactsToDiscard = new List<IArtifactBase> { this };
 
-            var discardArtifactResults = NovaDiscardArtifacts(
-                artifactsToDiscard,
-                Address,
+            return NovaDiscardArtifacts(Address,
                 user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
-
-            foreach (var discardArtifactResult in discardArtifactResults)
-            {
-                if (discardArtifactResult.Result == NovaDiscardArtifactResult.ResultCode.Success)
-                {
-                    IsSaved = false;
-                    IsMarkedForDeletion = false;
-                }
-            }
-
-            return discardArtifactResults;
+                artifactsToDiscard,
+                expectedStatusCodes);
         }
 
         public int GetVersion(IUser user = null,
@@ -144,13 +130,12 @@ namespace Model.ArtifactModel.Impl
             return artifactVersion;
         }
 
-        /// <seealso cref="IArtifact.Lock(IUser, LockResult, List{HttpStatusCode}, bool)"/>
+        /// <seealso cref="IArtifact.Lock(IUser, LockResult, List{HttpStatusCode})"/>
         public LockResultInfo Lock(IUser user = null,
             LockResult expectedLockResult = LockResult.Success,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return Lock(this, Address, user, expectedLockResult, expectedStatusCodes, sendAuthorizationAsCookie);
+            return Lock(this, Address, user, expectedLockResult, expectedStatusCodes);
         }
 
         public ArtifactInfo GetArtifactInfo(IUser user = null,
@@ -340,11 +325,10 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactProperties[0];
         }
 
-        /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode}, bool)"/>
-        public NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode})"/>
+        public NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return StorytellerPublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes,
-                sendAuthorizationAsCookie: sendAuthorizationAsCookie);
+            return StorytellerPublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.PostRaptorDiscussion(string, IUser, List{HttpStatusCode})"/>
@@ -552,47 +536,40 @@ namespace Model.ArtifactModel.Impl
         /// Discard changes to artifact(s) on Blueprint server using NOVA endpoint (not OpenAPI).
         /// (Runs:  /svc/shared/artifacts/discard)
         /// </summary>
-        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
-        /// <param name="address">The base url of the API</param>
+        /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request</returns>
+        /// <param name="artifactsToDiscard">The artifact(s) having changes to be discarded.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The list of ArtifactResult objects created by the dicard artifacts request.</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        public static List<NovaDiscardArtifactResult> NovaDiscardArtifacts(List<IArtifactBase> artifactsToDiscard,
-            string address,
+        public static List<NovaDiscardArtifactResult> NovaDiscardArtifacts(string address,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<IArtifactBase> artifactsToDiscard,
+
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
+            var discardResults = SvcShared.DiscardArtifacts(address, user, artifactsToDiscard, expectedStatusCodes);
+
+            UpdateStatusOfArtifactsThatWereDiscarded(discardResults, artifactsToDiscard);
+
+            return discardResults;
+        }
+
+        /// <summary>
+        /// Updates the IsSaved and IsMarkedForDeletion flags to false for all artifacts that were successfully discarded.
+        /// </summary>
+        /// <param name="discardResults">The results returned from the Discard REST call.</param>
+        /// <param name="artifactsToDiscard">The list of artifacts that you attempted to discard.</param>
+        public static void UpdateStatusOfArtifactsThatWereDiscarded(List<NovaDiscardArtifactResult> discardResults, List<IArtifactBase> artifactsToDiscard)
+        {
             ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var artifactsIds = artifactsToDiscard.Select(artifact => artifact.Id).ToList();
-            var artifactResults = restApi.SendRequestAndDeserializeObject<NovaDiscardArtifactResults, List<int>>(
-                RestPaths.Svc.Shared.Artifacts.DISCARD,
-                RestRequestMethod.POST,
-                artifactsIds,
-                expectedStatusCodes: expectedStatusCodes);
-
-            var discardedResultList = artifactResults.DiscardResults;
+            ThrowIf.ArgumentNull(discardResults, nameof(discardResults));
 
             // When each artifact is successfully discarded, set IsSaved & IsMarkedForDeletion flags to false.
-            foreach (var discardedResult in discardedResultList)
+            foreach (var discardedResult in discardResults)
             {
-                var discardedArtifact = artifactsToDiscard.Find(a => a.Id.Equals(discardedResult.ArtifactId) &&
-                    discardedResult.Result == NovaDiscardArtifactResult.ResultCode.Success);
+                var discardedArtifact = artifactsToDiscard.Find(a => (a.Id == discardedResult.ArtifactId) &&
+                                                                     (discardedResult.Result == NovaDiscardArtifactResult.ResultCode.Success));
 
                 Logger.WriteDebug("Result Code for the Discarded Artifact {0}: {1}", discardedResult.ArtifactId, (int)discardedResult.Result);
 
@@ -603,11 +580,9 @@ namespace Model.ArtifactModel.Impl
                 }
             }
 
-            Assert.That(discardedResultList.Count.Equals(artifactsToDiscard.Count),
+            Assert.That(discardResults.Count.Equals(artifactsToDiscard.Count),
                 "The number of artifacts passed for Discard was {0} but the number of artifacts returned was {1}",
-                artifactsToDiscard.Count, discardedResultList.Count);
-
-            return discardedResultList;
+                artifactsToDiscard.Count, discardResults.Count);
         }
 
         /// <summary>
@@ -690,14 +665,12 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
         ///     If null, only Success is expected.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false).</param>
         /// <returns>The artifact lock result information</returns>
         public static LockResultInfo Lock(IArtifactBase artifact,
             string address,
             IUser user = null,
             LockResult expectedLockResult = LockResult.Success,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -712,10 +685,9 @@ namespace Model.ArtifactModel.Impl
                 address,
                 user,
                 new List<LockResult> { expectedLockResult },
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
+                expectedStatusCodes);
 
-            Assert.That(artifactLockResults.Count == 1, "Multiple lock artifact results were returned when 1 was expected.");
+            Assert.AreEqual(1, artifactLockResults.Count, "Multiple lock artifact results were returned when 1 was expected.");
 
             var artifactLockResult = artifactLockResults.First();
 
@@ -724,48 +696,43 @@ namespace Model.ArtifactModel.Impl
 
         /// <summary>
         /// Lock Artifact(s).
-        /// (Runs:  POST /svc/shared/artifacts/lock  with artifact IDs in the request body)
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
         /// </summary>
-        /// <param name="artifactsToLock">The list of artifacts to lock</param>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="user">The user locking the artifact</param>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactsToLock">The list of artifacts to lock.</param>
         /// <param name="expectedLockResults">(optional) A list of expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
         ///     If null, only Success is expected.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>List of LockResultInfo for the locked artifacts</returns>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
         public static List<LockResultInfo> LockArtifacts(List<IArtifactBase> artifactsToLock,
             string address,
             IUser user,
             List<LockResult> expectedLockResults = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
+            var lockResults = SvcShared.LockArtifacts(address, user, artifactsToLock, expectedStatusCodes);
+
+            UpdateStatusOfArtifactsThatWereLocked(lockResults, user, artifactsToLock, expectedLockResults);
+
+            return lockResults;
+        }
+
+        /// <summary>
+        /// Updates the IsLocked and LockOwner flags to false for all artifacts that were successfully locked.
+        /// </summary>
+        /// <param name="lockResults">The results returned from the Lock REST call.</param>
+        /// <param name="user">The user that performed the Lock operation.</param>
+        /// <param name="artifactsToLock">The list of artifacts that you attempted to lock.</param>
+        /// <param name="expectedLockResults">(optional) The expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
+        ///     If null, only Success is expected.</param>
+        public static void UpdateStatusOfArtifactsThatWereLocked(List<LockResultInfo> lockResults,
+            IUser user,
+            List<IArtifactBase> artifactsToLock,
+            List<LockResult> expectedLockResults = null)
+        {
             ThrowIf.ArgumentNull(artifactsToLock, nameof(artifactsToLock));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var artifactIds = (
-                from IArtifactBase artifact in artifactsToLock
-                select artifact.Id).ToList();
-
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(
-                RestPaths.Svc.Shared.Artifacts.LOCK,
-                RestRequestMethod.POST,
-                jsonObject: artifactIds,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies,
-                shouldControlJsonChanges: false);
+            ThrowIf.ArgumentNull(lockResults, nameof(lockResults));
 
             if (expectedLockResults == null)
             {
@@ -775,7 +742,7 @@ namespace Model.ArtifactModel.Impl
             // Update artifacts with lock info.
             foreach (var artifact in artifactsToLock)
             {
-                var lockResultInfo = response.Find(x => x.Info.ArtifactId == artifact.Id);
+                var lockResultInfo = lockResults.Find(x => x.Info.ArtifactId == artifact.Id);
 
                 Assert.NotNull(lockResultInfo, "No LockResultInfo was returned for artifact ID {0} after trying to lock it!", artifact.Id);
 
@@ -785,54 +752,38 @@ namespace Model.ArtifactModel.Impl
                     artifact.Status.IsLocked = true;
                 }
 
-                if (restApi.StatusCode == HttpStatusCode.OK)
-                {
-                    Assert.That(expectedLockResults.Contains(lockResultInfo.Result),
-                        "We expected the lock Result to be one of: [{0}], but it was: {1}!",
-                        string.Join(", ", expectedLockResults), lockResultInfo.Result);
-                }
+                Assert.That(expectedLockResults.Contains(lockResultInfo.Result),
+                    "We expected the lock Result to be one of: [{0}], but it was: {1}!",
+                    String.Join(", ", expectedLockResults), lockResultInfo.Result);
             }
-
-            return response;
         }
 
         /// <summary>
         /// Publish a single artifact on Blueprint server.  This is only used in Storyteller.
-        /// (Runs: /svc/shared/artifacts/publish)
+        /// (Runs: 'POST /svc/shared/artifacts/publish')
         /// </summary>
-        /// <param name="artifactToPublish">The artifact to publish</param>
-        /// <param name="user">The user saving the artifact</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Resut of Publish operation</returns>
+        /// <param name="artifactToPublish">The artifact to publish.</param>
+        /// <param name="user">The user saving the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Result of Publish operation.</returns>
         public static NovaPublishArtifactResult StorytellerPublishArtifact(IArtifactBase artifactToPublish,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactToPublish, nameof(artifactToPublish));
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
-            var restApi = new RestApiFacade(artifactToPublish.Address, tokenValue);
-
-            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(path, RestRequestMethod.POST,
+            
+            var publishResults = SvcShared.PublishArtifacts(artifactToPublish.Address,
+                user,
                 new List<int> { artifactToPublish.Id },
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes);
 
             if (publishResults[0].StatusCode == NovaPublishArtifactResult.Result.Success)
             {
                 artifactToPublish.IsPublished = true;
                 artifactToPublish.IsSaved = false;
             }
+
             return publishResults[0];
         }
 

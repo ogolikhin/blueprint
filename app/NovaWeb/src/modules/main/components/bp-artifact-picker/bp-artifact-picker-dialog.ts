@@ -1,7 +1,8 @@
-import {IDialogSettings, BaseDialogController} from "../../../shared/";
-import {Models, AdminStoreModels} from "../../models";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {BaseDialogController, IDialogSettings} from "../../../shared/";
+import {Models} from "../../models";
 import {InstanceItemType} from "../../models/admin-store-models";
+import {InstanceItemNodeVM} from "../../models/tree-node-vm-factory";
 
 export interface IArtifactPickerDialogController {
     // BpArtifactPicker bindings
@@ -48,16 +49,23 @@ export class ArtifactPickerDialogController extends BaseDialogController impleme
         return this.selectedVMs.map(vm => vm.model);
     };
 
-    public onSelectionChanged(selectedVMs: Models.IViewModel<any>[]): void {
+    private setSelectedVMs(selectedVMs: Models.IViewModel<any>[]) {
+        if (_.find(selectedVMs, vm => vm instanceof InstanceItemNodeVM && vm.model.type === InstanceItemType.Folder)) {
+            selectedVMs = [];
+        }
+
         this.selectedVMs = selectedVMs;
+        this.disableOkButton = this.selectedVMs && !this.selectedVMs.length;
+    }
 
-        const selectedVm = _.find(this.selectedVMs, vm => vm.model.type === AdminStoreModels.InstanceItemType.Folder);
-
-        this.disableOkButton = this.selectedVMs && !this.selectedVMs.length || !!selectedVm;
+    public onSelectionChanged(selectedVMs: Models.IViewModel<any>[]): void {
+        this.setSelectedVMs(selectedVMs);
     }
 
     public onDoubleClick(vm: Models.IViewModel<any>): void {
-        this.selectedVMs = [vm];
-        this.ok();
+        this.setSelectedVMs([vm]);
+        if (!this.disableOkButton) {
+            this.ok();
+        }
     }
 }

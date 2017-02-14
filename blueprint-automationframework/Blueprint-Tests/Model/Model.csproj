@@ -95,6 +95,7 @@
     <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />
+    <Compile Include="Factories\SvcComponentsFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
     <Compile Include="IAlmTarget.cs" />
     <Compile Include="Impl\AlmTarget.cs" />

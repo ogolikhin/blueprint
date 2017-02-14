@@ -70,7 +70,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         private userStoryService: IUserStoryService,
         collectionService: ICollectionService,
         public itemInfoService: IItemInfoService,
-        private analyticsService: IAnalyticsService) {
+        protected analyticsService: IAnalyticsService) {
         super(
             $q,
             $scope,
@@ -87,7 +87,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             metadataService,
             mainBreadcrumbService,
             collectionService,
-            itemInfoService
+            itemInfoService,
+            analyticsService
         );
     }
 
@@ -158,7 +159,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
             processArtifact,
             this.localization,
-            this.communicationManager.processDiagramCommunication);
+            this.communicationManager.processDiagramCommunication,
+            this.analyticsService);
         const generateUserStoriesAction = new GenerateUserStoriesAction(
             processArtifact,
             this.userStoryService,

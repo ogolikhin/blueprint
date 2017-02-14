@@ -294,7 +294,7 @@ export class LoginCtrl extends BaseDialogController {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordChangeCooldown");
                 this.isCurrentPasswordFieldErrorStyleShowing = true;
             } else if (error.errorCode === 4005) {
-                this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeLoginname");
+                this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeUsername");
                 this.isNewPasswordFieldErrorStyleShowing = true;
             } else if (error.errorCode === 4006) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeDisplayname");

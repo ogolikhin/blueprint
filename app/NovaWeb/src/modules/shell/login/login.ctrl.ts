@@ -279,6 +279,7 @@ export class LoginCtrl extends BaseDialogController {
             this.isCurrentPasswordFieldErrorStyleShowing = false;
             this.isNewPasswordFieldErrorStyleShowing = false;
             this.isConfirmPasswordFieldErrorStyleShowing = false;
+
             if (error.errorCode === 4000) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeEmpty");
                 this.isNewPasswordFieldErrorStyleShowing = true;
@@ -292,9 +293,16 @@ export class LoginCtrl extends BaseDialogController {
             } else if (error.errorCode === 4003) {
                 this.changePasswordScreenMessage = this.localization.get("Login_Session_PasswordChangeCooldown");
                 this.isCurrentPasswordFieldErrorStyleShowing = true;
+            } else if (error.errorCode === 4005) {
+                this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeLoginname");
+                this.isNewPasswordFieldErrorStyleShowing = true;
+            } else if (error.errorCode === 4006) {
+                this.changePasswordScreenMessage = this.localization.get("Login_Session_NewPasswordCannotBeDisplayname");
+                this.isNewPasswordFieldErrorStyleShowing = true;
             } else {
                 this.changePasswordScreenMessage = "bad request: " + error.message;
             }
+
         } else {
             this.changePasswordScreenMessage = error.message;
             this.isCurrentPasswordFieldErrorStyleShowing = false;

@@ -1,16 +1,16 @@
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {IItemInfoResult, IItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
+import {MessageType} from "../../main/components/messages/message";
+import {IMessageService} from "../../main/components/messages/message.svc";
 import {Models} from "../../main/models";
+import {ItemTypePredefined} from "../../main/models/enums";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
-import {IItemInfoService, IItemInfoResult} from "../../commonModule/itemInfo/itemInfo.service";
-import {IApplicationError} from "../../shell/error/applicationError";
-import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
-import {INavigationService} from "../../commonModule/navigation/navigation.service";
-import {ILocalizationService} from "../../commonModule/localization/localization.service";
-import {ItemTypePredefined} from "../../main/models/enums";
-import {IMessageService} from "../../main/components/messages/message.svc";
-import {MessageType} from "../../main/components/messages/message";
-import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IProjectManager} from "../../managers/project-manager/project-manager";
+import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
+import {IApplicationError} from "../../shell/error/applicationError";
 
 export class ItemStateController {
 
@@ -151,10 +151,12 @@ export class ItemStateController {
                 this.activeEditor = "general";
                 break;
             case Models.ItemTypePredefined.BaselineFolder:
-                this.activeEditor = artifact.itemTypeId === Models.ItemTypePredefined.BaselinesAndReviews ? "general" : "details";
+                // Cannot use artifact.itemTypeId === ItemTypePredefined.BaselinesAndReviews here
+                this.activeEditor = artifact.parentId === artifact.projectId ? "general" : "details";
                 break;
             case Models.ItemTypePredefined.CollectionFolder:
-                this.activeEditor = artifact.itemTypeId === Models.ItemTypePredefined.Collections ? "general" : "details";
+                // Cannot use artifact.itemTypeId === ItemTypePredefined.Collections here
+                this.activeEditor = artifact.parentId === artifact.projectId ? "general" : "details";
                 break;
             case Models.ItemTypePredefined.ArtifactCollection:
                 this.activeEditor = "collection";

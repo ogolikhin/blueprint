@@ -12,7 +12,7 @@ export class AnalyticsService implements IAnalyticsService {
     constructor(private analytics: ng.google.analytics.AnalyticsService) {
     }
 
-    public trackEvent(category: string, action: string, label: string, value?: any, nonInteractionFlag?: boolean, dimensions?: { [expr: string]: any }) {
+    public trackEvent(category, action, label, value, nonInteractionFlag, dimensions) {
         this.analytics.trackEvent(category, action, label, value, nonInteractionFlag, dimensions);
     }
 

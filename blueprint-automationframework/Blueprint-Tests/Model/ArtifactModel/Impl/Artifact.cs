@@ -630,20 +630,19 @@ namespace Model.ArtifactModel.Impl
         // TODO Move this to a common area, not in artifact/openapiartifact class
 
         /// <summary>
-        /// Search artifact by a substring in its name on Blueprint server. Among published artifacts only.
+        /// Search artifact by a substring in its name on Blueprint server.  Among published artifacts only.
+        /// (Runs:  'GET svc/shared/artifacts/search')
         /// </summary>
-        /// <param name="address">The base url of the API</param>
+        /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="searchSubstring">The substring(case insensitive) to search.</param>
+        /// <param name="searchSubstring">The substring (case insensitive) to search.</param>
         /// <param name="project">The project to search, if project is null search within all available projects.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Send session token as cookie instead of header</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>List of first 10 artifacts with name containing searchSubstring</returns>
+        /// <returns>List of first 10 artifacts with name containing searchSubstring.</returns>
         public static IList<IArtifactBase> SearchArtifactsByName(string address,
             IUser user,
             string searchSubstring,
             IProject project = null,
-            bool sendAuthorizationAsCookie = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return OpenApiArtifact.SearchArtifactsByName(
@@ -651,7 +650,6 @@ namespace Model.ArtifactModel.Impl
                 user,
                 searchSubstring,
                 project,
-                sendAuthorizationAsCookie,
                 expectedStatusCodes);
         }
 

@@ -146,6 +146,60 @@ namespace Model.Impl
             return publishResults;
         }
 
+        /// <seealso cref="ISvcShared.SearchArtifactsByName(IUser, string, IProject, List{HttpStatusCode})"/>
+        public IList<IArtifactBase> SearchArtifactsByName(IUser user,
+            string searchSubstring,
+            IProject project = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return SearchArtifactsByName(Address, user, searchSubstring, project, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Search artifact by a substring in its name on Blueprint server.  Among published artifacts only.
+        /// (Runs:  'GET svc/shared/artifacts/search')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="searchSubstring">The substring (case insensitive) to search.</param>
+        /// <param name="project">The project to search, if project is null search within all available projects.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <returns>List of first 10 artifacts with name containing searchSubstring.</returns>
+        public static IList<IArtifactBase> SearchArtifactsByName(string address,
+            IUser user,
+            string searchSubstring,
+            IProject project = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var queryParameters = new Dictionary<string, string>
+            {
+                { "name", searchSubstring }
+            };
+
+            if (project != null)
+            {
+                queryParameters.Add("projectId", project.Id.ToStringInvariant());
+            }
+
+            //showBusyIndicator doesn't affect server side, it is added to make call similar to call from HTML
+            queryParameters.Add("showBusyIndicator", "false");
+
+            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<ArtifactBase>>(
+                RestPaths.Svc.Shared.Artifacts.SEARCH,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            Logger.WriteDebug("Response for search artifact by name: {0}", response);
+
+            return response.ConvertAll(o => (IArtifactBase)o);
+        }
+
         #endregion Artifacts methods
 
         #region User and Group methods

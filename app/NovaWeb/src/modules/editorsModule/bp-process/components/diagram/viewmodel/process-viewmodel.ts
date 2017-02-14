@@ -37,6 +37,10 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     isShapeJustCreated(id: number): boolean;
     addShape(processShape: ProcessModels.IProcessShape);
     removeShape(shapeId: number);
+    isFirstFlow(link: ProcessModels.IProcessLink): boolean;
+    isInNestedFlow(id: number): boolean;
+    isInMainFlow(id: number): boolean;
+    getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[];
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -169,7 +173,7 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get itemTypeId () {
-        return this.process.itemTypeId;  
+        return this.process.itemTypeId;
     }
 
     public get processType(): ProcessEnums.ProcessType {
@@ -525,5 +529,23 @@ export class ProcessViewModel implements IProcessViewModel {
     private getStatefulArtifact(): IStatefulProcessArtifact {
         let statefulArtifact: IStatefulProcessArtifact = this.process;
         return statefulArtifact;
+    }
+
+    public isFirstFlow(link: ProcessModels.IProcessLink) {
+        const orderedNextLinks = this.getSortedNextLinks(link.sourceId);
+        return orderedNextLinks.length > 0 && orderedNextLinks[0].destinationId === link.destinationId;
+    }
+
+    public getSortedNextLinks(sourceId: number): ProcessModels.IProcessLink[] {
+        return _.sortBy(this.links.filter((link) => link.sourceId === sourceId), (link) => link.orderindex);
+    }
+
+    public isInNestedFlow(id: number): boolean {
+        return _.toNumber(this.getShapeById(id).propertyValues["y"].value) > 0;
+    }
+
+    public isInMainFlow(id: number): boolean {
+        return _.toNumber(this.getShapeById(id).propertyValues["y"].value) === 0;
+
     }
 }

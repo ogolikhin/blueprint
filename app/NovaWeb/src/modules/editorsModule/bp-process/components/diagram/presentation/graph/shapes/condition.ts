@@ -12,6 +12,7 @@ export class Condition implements ICondition {
     ) {
     }
 
+
     public static create(link: IProcessLink, mergeNode: IDiagramNode, validMergeNodes: IDiagramNode[]): ICondition {
         return new Condition(link.sourceId, link.destinationId, link.orderindex, link.label, mergeNode, validMergeNodes);
     }

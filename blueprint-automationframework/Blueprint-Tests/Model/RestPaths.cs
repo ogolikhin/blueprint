@@ -51,6 +51,11 @@ namespace Model
                 }
             }
 
+            public static class Users
+            {
+                public const string CREATE                          = "api/v1/users/create";
+            }
+
             public static class VersionControl
             {
                 public const string PUBLISH                         = "api/v1/vc/publish";
@@ -379,10 +384,10 @@ namespace Model
             {
                 public static class Artifacts
                 {
-                    public const string LOCK                    = "svc/shared/artifacts/lock";
-                    public const string SEARCH                  = "svc/shared/artifacts/search";
                     public const string DISCARD                 = "svc/shared/artifacts/discard";
+                    public const string LOCK                    = "svc/shared/artifacts/lock";
                     public const string PUBLISH                 = "svc/shared/artifacts/publish";
+                    public const string SEARCH                  = "svc/shared/artifacts/search";
                 }
 
                 /// <summary>

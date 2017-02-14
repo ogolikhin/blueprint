@@ -925,13 +925,13 @@ namespace Helper
                     break;
 
                 case DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID:
-                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Baselinens default folder.",
                     DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME);
 
-                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Collections default folder.",
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX, artifact.OrderIndex, "orderIndex should be {0} for the Baselinens default folder.",
                         DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX);
 
-                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Collections default folder.",
+                    Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX, artifact.Prefix, "prefix should be {0} for the Baselinens default folder.",
                         DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX);
                     break;
 

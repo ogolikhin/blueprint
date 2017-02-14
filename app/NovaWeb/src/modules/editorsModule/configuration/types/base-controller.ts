@@ -63,7 +63,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
             return;
         }
 
-        const iframes = this.$document[0].querySelectorAll("iframe");
+        const iframes = this.$document[0].getElementsByTagName("iframe");
         for (let i = 0; i < iframes.length; i++) {
             const iframedDocument = iframes[i].contentWindow.document;
             iframedDocument.removeEventListener("click", this.iframeClickListener);
@@ -78,7 +78,7 @@ export class BPFieldBaseController implements IBPFieldBaseController {
     };
 
     public scrollIntoView = (event): void => {
-        let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.querySelector("input") : event.target;
+        let target = event.target.tagName.toUpperCase() !== "INPUT" ? event.target.getElementsByTagName("input").item(0) : event.target;
 
         if (target) {
             target.parentElement.scrollTop = target.parentElement.clientHeight;

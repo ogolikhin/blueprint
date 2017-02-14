@@ -184,6 +184,25 @@ describe("SaveAction", () => {
             expect(saveAction.disabled).toBe(true);
         }));
 
+    it("is disabled when artifact is Baselines and Reviews",
+        inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
+                localization: ILocalizationService,
+                messageService: IMessageService,
+                loadingOverlayService: ILoadingOverlayService, dialogService: IDialogService) => {
+            // arrange
+            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
+                {
+                    id: 1,
+                    predefinedType: ItemTypePredefined.BaselinesAndReviews
+                });
+
+            // act
+            const saveAction = new SaveAction(artifact, localization, messageService, loadingOverlayService);
+
+            // assert
+            expect(saveAction.disabled).toBe(true);
+        }));
+
     it("is enabled when artifact is dirty",
         inject((statefulArtifactFactory: StatefulArtifactFactoryMock,
                 localization: ILocalizationService,

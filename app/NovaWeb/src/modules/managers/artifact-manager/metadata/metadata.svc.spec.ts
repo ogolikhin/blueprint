@@ -109,12 +109,15 @@ describe("Metadata Service -> ", () => {
             expect(error).toBeUndefined();
             expect(meta).toBeDefined();
             expect(meta.data.artifactTypes).toEqual(jasmine.any(Array), "incorrect type of artifactTypes");
-            expect(meta.data.artifactTypes[0].id).toEqual(-1);
+            expect(meta.data.artifactTypes[0].id).toEqual(Enums.ItemTypePredefined.Project);
             expect(meta.data.artifactTypes[0].name).toEqual("Label_Project");
             expect(meta.data.artifactTypes[0].predefinedType).toEqual(Enums.ItemTypePredefined.Project);
-            expect(meta.data.artifactTypes[1].id).toEqual(-2);
+            expect(meta.data.artifactTypes[1].id).toEqual(Enums.ItemTypePredefined.Collections);
             expect(meta.data.artifactTypes[1].name).toEqual("Label_Collections");
             expect(meta.data.artifactTypes[1].predefinedType).toEqual(Enums.ItemTypePredefined.CollectionFolder);
+            expect(meta.data.artifactTypes[2].id).toEqual(Enums.ItemTypePredefined.BaselinesAndReviews);
+            expect(meta.data.artifactTypes[2].name).toEqual("Label_BaselinesAndReviews");
+            expect(meta.data.artifactTypes[2].predefinedType).toEqual(Enums.ItemTypePredefined.BaselineFolder);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -272,7 +275,7 @@ describe("Metadata Service -> ", () => {
 
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1, (itemType) => { 
+            metadataService.getSubArtifactPropertyTypes(1, (itemType) => {
                 return itemType.id === 12268;
             }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
@@ -292,7 +295,7 @@ describe("Metadata Service -> ", () => {
 
             // Act
             let propertyTypes: any;
-            metadataService.getSubArtifactPropertyTypes(1,  (itemType) => { 
+            metadataService.getSubArtifactPropertyTypes(1,  (itemType) => {
                 return itemType.id === 444;
             }).then(it => {
                 propertyTypes = it;
@@ -308,7 +311,7 @@ describe("Metadata Service -> ", () => {
             const names = "Label_Name,Label_Description,Step Of";
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1, (itemType) => { 
+            metadataService.getSubArtifactPropertyTypes(1, (itemType) => {
                 return itemType.id === 12260;
             }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
@@ -327,7 +330,7 @@ describe("Metadata Service -> ", () => {
             const names = "Label_Name,Label_Description,Label_Label";
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1, (itemType) => { 
+            metadataService.getSubArtifactPropertyTypes(1, (itemType) => {
                 return itemType.id === 12272;
             }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);
@@ -346,7 +349,7 @@ describe("Metadata Service -> ", () => {
             const names = "Label_Name,Label_Description,Label_Label,Label_X,Label_Y,Label_Width,Label_Height";
             // Act
             let propertyTypeNames: string[] = [];
-            metadataService.getSubArtifactPropertyTypes(1,  (itemType) => { 
+            metadataService.getSubArtifactPropertyTypes(1,  (itemType) => {
                 return itemType.id === 12279;
             }).then(it => {
                 propertyTypeNames = _.map(it, i => i.name);

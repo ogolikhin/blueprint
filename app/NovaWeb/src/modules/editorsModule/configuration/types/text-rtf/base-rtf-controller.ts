@@ -115,7 +115,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             this.removeObserver();
             this.removeDragAndDropListeners();
             if (this.editorBody) {
-                this.handleLinks(this.editorBody.querySelectorAll("a"), true);
+                this.handleLinks(this.editorBody.getElementsByTagName("a"), true);
             }
 
             // the following is to avoid TFS BUG 4330
@@ -248,7 +248,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.isLinkPopupOpen = false;
         this.editorBody = this.mceEditor.getBody() as HTMLElement;
         this.normalizeHtml(this.editorBody, hasTables);
-        this.handleLinks(this.editorBody.querySelectorAll("a"));
+        this.handleLinks(this.editorBody.getElementsByTagName("a"));
         this.contentBuffer = this.mceEditor.getContent();
         this.initEmbeddedImagesList();
 
@@ -629,7 +629,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                         this.handleLinks([node]);
                     } else {
                         let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"));
+                        this.handleLinks(element.getElementsByTagName("a"));
                     }
                 }
             }
@@ -642,7 +642,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                         this.handleLinks([node], true);
                     } else {
                         let element = node as HTMLElement;
-                        this.handleLinks(element.querySelectorAll("a"), true);
+                        this.handleLinks(element.getElementsByTagName("a"), true);
                     }
                 }
             }

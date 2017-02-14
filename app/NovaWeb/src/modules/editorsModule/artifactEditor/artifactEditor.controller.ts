@@ -119,7 +119,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
         }
         this.model = this.editor.getModel();
 
-        const pageBodyWrapper = this.$window.document.querySelector(".page-body-wrapper") as HTMLElement;
+        const pageBodyWrapper = this.$window.document.getElementsByClassName("page-body-wrapper").item(0) as HTMLElement;
         const mutationObserver = window["MutationObserver"];
         if (pageBodyWrapper && !_.isUndefined(mutationObserver)) {
             this.fieldObserver = new MutationObserver(mutations => {
@@ -156,7 +156,7 @@ export abstract class BpArtifactEditor extends BpBaseEditor {
     public setArtifactEditorLabelsWidth(mainWindow?: IMainWindow) {
         let computedMinWidth: number;
 
-        const pageBodyWrapper = this.$window.document.querySelector(".page-body-wrapper") as HTMLElement;
+        const pageBodyWrapper = this.$window.document.getElementsByClassName("page-body-wrapper").item(0) as HTMLElement;
         if (pageBodyWrapper) {
             computedMinWidth = _.parseInt(this.$window.getComputedStyle(pageBodyWrapper).getPropertyValue("min-width"), 10);
         }

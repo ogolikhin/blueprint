@@ -340,6 +340,20 @@ describe("BpArtifactInfo", () => {
                 expect(controller.artifactClass).toEqual(expectedArtifactClass);
             });
 
+            it("updates artifact class of baselines and reviews folder", () => {
+                // arrange
+                const updatedArtifact = selectionManager.getArtifact();
+                updatedArtifact.itemTypeId = ItemTypePredefined.BaselinesAndReviews;
+                updatedArtifact.predefinedType = ItemTypePredefined.BaselineFolder;
+                const expectedArtifactClass = `icon-${_.kebabCase(ItemTypePredefined[ItemTypePredefined.BaselinesAndReviews])}`;
+
+                // act
+                artifactSubject.onNext(updatedArtifact);
+
+                // assert
+                expect(controller.artifactClass).toEqual(expectedArtifactClass);
+            });
+
             it("updates artifact class of general artifact", () => {
                 // arrange
                 const updatedArtifact = selectionManager.getArtifact();

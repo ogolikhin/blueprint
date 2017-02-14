@@ -731,7 +731,7 @@ describe("LoginCtrl", () => {
 
                 // Assert
                 expect(loginCtrl.hasChangePasswordScreenError).toBe(true);
-                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeLoginname");
+                expect(loginCtrl.changePasswordScreenMessage).toBe("Login_Session_NewPasswordCannotBeUsername");
             }));
 
         it("responds with new password cannot equal display name (serverside fallback)",

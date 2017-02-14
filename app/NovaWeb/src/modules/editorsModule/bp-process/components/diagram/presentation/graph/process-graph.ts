@@ -1,8 +1,4 @@
-﻿import {ItemTypePredefined} from "../../../../../../main/models/enums";
-import {IArtifact} from "../../../../../../main/models/models";
-import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
-import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";
-/* tslint:disable max-file-line-count */
+﻿/* tslint:disable max-file-line-count */
 import {ILoadingOverlayService} from "../../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
 import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
@@ -32,6 +28,10 @@ import {IClipboardService} from "../../../../services/clipboard.svc";
 import {IFileUploadService} from "../../../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 import {SystemTask} from "./shapes/system-task";
+import {ItemTypePredefined} from "../../../../../../main/models/enums";
+import {IArtifact} from "../../../../../../main/models/models";
+import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
+import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;

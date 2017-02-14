@@ -37,6 +37,8 @@ export interface IProcessViewModel extends IProcessGraphModel, IPersonaReference
     isShapeJustCreated(id: number): boolean;
     addShape(processShape: ProcessModels.IProcessShape);
     removeShape(shapeId: number);
+    updateProcessModel(process: ProcessModels.IProcess): void;
+    getClonedProcessModel(): ProcessModels.IProcess;
 }
 
 export class ProcessViewModel implements IProcessViewModel {
@@ -169,7 +171,7 @@ export class ProcessViewModel implements IProcessViewModel {
     }
 
     public get itemTypeId () {
-        return this.process.itemTypeId;  
+        return this.process.itemTypeId;
     }
 
     public get processType(): ProcessEnums.ProcessType {
@@ -506,6 +508,17 @@ export class ProcessViewModel implements IProcessViewModel {
 
     public get isRootScopeConfigValid(): boolean {
         return this._rootScope && this._rootScope.config;
+    }
+
+    public updateProcessModel(process: ProcessModels.IProcess): void {
+        this.process = process.shapes;
+
+        // initialize tree and flow
+        this.updateTreeAndFlows();
+    }
+
+    public getClonedProcessModel(): ProcessModels.IProcess {
+        return _.cloneDeep(this.process);
     }
 
     public destroy() {

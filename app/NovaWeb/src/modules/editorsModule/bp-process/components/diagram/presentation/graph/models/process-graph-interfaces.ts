@@ -103,8 +103,6 @@ export interface IProcessGraph {
     getDefaultParent(): MxCell;
     render(useAutolayout: boolean, selectedNodeId: number): void;
     addDecisionBranch(decisionId: number, label: string, mergeNodeId: number): boolean;
-    // Updates merge node of decision branch.
-    updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
     getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;

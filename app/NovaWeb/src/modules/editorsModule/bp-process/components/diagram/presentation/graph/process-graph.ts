@@ -1019,35 +1019,6 @@ export class ProcessGraph implements IProcessGraph {
         return validShapeIds;
     }
 
-    public updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean {
-
-        let originalEndNode: IProcessLink = this.getDecisionBranchDestLinkForIndex(decisionId, condition.orderindex);
-
-        if (!!mergeNodeId &&
-            originalEndNode &&
-            originalEndNode.destinationId !== mergeNodeId) {
-            let mainBranchOnly: INextIdsProvider = (context) => {
-                let ids = this.viewModel.getNextShapeIds(context.id);
-                return [Number(ids[0])];
-            };
-            const scope = this.getBranchScope(condition, mainBranchOnly);
-            let lastShapeId = scope.mappings[0].endId;
-            let origLastLinkInCondition = this.getLink(lastShapeId, originalEndNode.destinationId);
-
-            // Updates end branch link to point to new destination id
-            if (origLastLinkInCondition) {
-                origLastLinkInCondition.destinationId = mergeNodeId;
-            }
-
-            // Updates merge point for specific branch to be new destination id
-            originalEndNode.destinationId = mergeNodeId;
-
-            return true;
-        }
-
-        return false;
-    }
-
     public getHighlightedCopyNodes(): IDiagramNode[] {
         return this.highlightedCopyNodes;
     }

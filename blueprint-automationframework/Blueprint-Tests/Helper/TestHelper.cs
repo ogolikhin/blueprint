@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Model.ModelHelpers;
+using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -51,6 +52,7 @@ namespace Helper
         public IBlueprintServer BlueprintServer { get; } = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
         public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
         public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
+        public IOpenApi OpenApi { get; } = OpenApiFactory.GetOpenApiFromTestConfig();
         public ISearchService SearchService { get; } = SearchServiceFactory.GetSearchServiceFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
         public ISvcShared SvcShared { get; } = SvcSharedFactory.GetSvcSharedFromTestConfig();
@@ -1133,7 +1135,7 @@ namespace Helper
         /// <param name="numberOfJobsToBeCreated">The number of ALM Change Summary Jobs to be created.</param>
         /// <param name="project">The project where ALM targets reside.</param>
         /// <returns> List of ALM Summary Jobs created in decending order by jobId </returns>
-        public static List<IOpenAPIJob> CreateALMSummaryJobsSetup(string address, IUser user, int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
+        public List<IOpenAPIJob> CreateALMSummaryJobsSetup(string address, IUser user, int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -1144,7 +1146,7 @@ namespace Helper
 
             for (int i = 0; i < numberOfJobsToBeCreated; i++)
             {
-                var openAPIJob = OpenApi.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
+                var openAPIJob = OpenApi.AddAlmChangeSummaryJob(user, project, baselineOrReviewId, almTarget);
                 jobsToBeFound.Add(openAPIJob);
             }
 
@@ -1343,9 +1345,9 @@ namespace Helper
         /// <param name="expectedErrorMessage">The expected error message.</param>
         /// <param name="expectedInvalidShapeIds">The expected list of shape's ids.</param>
         public static void ValidateProcessValidationError(RestResponse restResponse, int expectedErrorCode,
-            string expectedErrorMessage, List<int> invalidShapeIds)
+            string expectedErrorMessage, List<int> expectedInvalidShapeIds)
         {
-            ThrowIf.ArgumentNull(invalidShapeIds, nameof(invalidShapeIds));
+            ThrowIf.ArgumentNull(expectedInvalidShapeIds, nameof(expectedInvalidShapeIds));
             ProcessValidationError processValidationError = null;
 
             Assert.DoesNotThrow(() =>
@@ -1362,9 +1364,9 @@ namespace Helper
                 processValidationError.Message);
             actualError.AssertEquals(expectedError);
 
-            Assert.AreEqual(invalidShapeIds.Count, processValidationError.ErrorContent.Count,
+            Assert.AreEqual(expectedInvalidShapeIds.Count, processValidationError.ErrorContent.Count,
                 "Number of invalid shapes should have expected value.");
-            foreach (int id in invalidShapeIds)
+            foreach (int id in expectedInvalidShapeIds)
             {
                 Assert.True(processValidationError.ErrorContent.Exists(shapeId => shapeId == id),
                     "List of invalid shapes id should contain expected values.");

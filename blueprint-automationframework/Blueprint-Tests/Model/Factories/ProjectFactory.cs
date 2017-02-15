@@ -49,7 +49,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var projects = OpenApi.GetProjects(Address, user);
+            var projects = Impl.OpenApi.GetProjects(Address, user);
 
             if (shouldRetrievePropertyTypes)
             {

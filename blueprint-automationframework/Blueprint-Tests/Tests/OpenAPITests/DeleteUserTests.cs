@@ -18,7 +18,6 @@ namespace OpenAPITests
     {
         private const string DELETE_PATH = RestPaths.OpenApi.Users.DELETE;
 
-//        private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
         private IUser _adminUser = null;
 
         [SetUp]
@@ -60,7 +59,7 @@ namespace OpenAPITests
             Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete), 
                 "'DELETE {0}' should return 200 OK when valid data is passed to it!", DELETE_PATH);
                 
-            // Execute:
+            // Verify:
             DeleteUserVerification(result, usersToDelete);
         }
 

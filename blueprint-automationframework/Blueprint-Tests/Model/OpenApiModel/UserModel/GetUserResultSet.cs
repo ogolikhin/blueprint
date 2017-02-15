@@ -9,6 +9,7 @@ namespace Model.OpenApiModel.UserModel
         public List<GetUserResult> Users { get; set; }
     }
 
+    // Dev code can be found in:  blueprint-current/Source/BluePrintSys.RC.Api.Business/Models/User.cs
     public class GetUserResult
     {
         #region Serialized properties

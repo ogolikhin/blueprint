@@ -8,6 +8,7 @@ namespace Model.OpenApiModel.UserModel
         public List<GetGroupResult> Groups { get; set; }
     }
 
+    // Dev code can be found in:  blueprint-current/Source/BluePrintSys.RC.Api.Business/Models/Group.cs
     public class GetGroupResult
     {
         #region Serialized properties

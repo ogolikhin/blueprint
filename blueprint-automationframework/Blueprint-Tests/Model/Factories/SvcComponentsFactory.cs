@@ -13,8 +13,8 @@ namespace Model.Factories
         /// <returns>An ISvcComponents object.</returns>
         public static ISvcComponents CreateSvcComponents(string address)
         {
-            var adminStore = new SvcComponents(address);
-            return adminStore;
+            var service = new SvcComponents(address);
+            return service;
         }
 
         /// <summary>

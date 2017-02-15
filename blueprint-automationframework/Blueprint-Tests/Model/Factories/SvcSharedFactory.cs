@@ -13,8 +13,8 @@ namespace Model.Factories
         /// <returns>An ISvcShared object.</returns>
         public static ISvcShared CreateSvcShared(string address)
         {
-            var adminStore = new SvcShared(address);
-            return adminStore;
+            var service = new SvcShared(address);
+            return service;
         }
 
         /// <summary>

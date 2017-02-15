@@ -276,7 +276,7 @@ export class ProcessDeleteHelper {
                         let newDestinationId = mapping.targetId;
 
                         if (ProcessDeleteHelper.isInfiniteLoop(mapping.targetId, mapping, processGraph)) {
-                            //if end shape's condition is coming back to ProcessDeleteHelper condition, then need to connect it back to the main flow.
+                            //if end shape's condition is coming back to this condition, then need to connect it back to the main flow.
                             newDestinationId = processGraph.layout.getConditionDestination(originalDecisionId).id;
                         } else {
                             newDestinationId = ProcessDeleteHelper.getNextAvailableDestinationId(

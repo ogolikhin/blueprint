@@ -103,7 +103,7 @@
     <Compile Include="Impl\DatabaseHelper.cs" />
     <Compile Include="Impl\DeleteResultSet.cs" />
     <Compile Include="Impl\LicenseUsage.cs" />
-    <Compile Include="Impl\OpenApi.cs" />
+    <Compile Include="OpenApiModel\Services\OpenApi.cs" />
     <Compile Include="Impl\SvcComponents.cs" />
     <Compile Include="ISvcComponents.cs" />
     <Compile Include="Impl\OpenApiUser.cs" />

@@ -169,29 +169,18 @@ namespace Model.ArtifactModel.Impl
             return returnedArtifactInfo;
         }
 
-        public RapidReviewDiagram GetDiagramContentForRapidReview(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IArtifact.GetRapidReviewDiagramContent(IUser, List{HttpStatusCode})"/>
+        public RapidReviewDiagram GetRapidReviewDiagramContent(
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            if (user == null)
-            {
-                Assert.NotNull(CreatedBy, "No user is available to perform GetDiagramContentForRapidReview.");
-                user = CreatedBy;
-            }
+            user = user ?? CreatedBy;
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
+            Assert.NotNull(user, "No user is available to perform GetDiagramContentForRapidReview.");
 
             var artifactInfo = GetArtifactInfo(user);
-            string path;
-            var restApi = new RestApiFacade(Address, tokenValue);
 
+            // Make sure we're calling this with a diagram artifact type.
             switch (artifactInfo.BaseTypePredefined)
             {
                 case ItemTypePredefined.BusinessProcess:
@@ -200,18 +189,14 @@ namespace Model.ArtifactModel.Impl
                 case ItemTypePredefined.Storyboard:
                 case ItemTypePredefined.UseCaseDiagram:
                 case ItemTypePredefined.UIMockup:
-                    path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.DIAGRAM_id_, Id);
                     break;
                 default:
                     throw new ArgumentException("Method works for graphical artifacts only.");
             }
 
-            var diagramContent = restApi.SendRequestAndDeserializeObject<RapidReviewDiagram>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes);
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            return diagramContent;
+            return service.GetRapidReviewDiagramContent(user, Id, expectedStatusCodes);
         }
 
         public RapidReviewUseCase GetUseCaseContentForRapidReview(IUser user = null,

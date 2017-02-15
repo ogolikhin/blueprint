@@ -2,13 +2,14 @@ import {ILocalizationService} from "../../../../commonModule/localization/locali
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {BPButtonAction} from "../../../../shared";
 import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
-import {AnalyticsCategories, AnalyticsActions, IAnalyticsService} from "../../../../main/components/analytics";
+import {AnalyticsCategories, AnalyticsActions} from "../../../../main/components/analytics";
+import {IExtendedAnalyticsService} from "../../analytics/analytics";
 
 export class OpenImpactAnalysisAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         protected localization: ILocalizationService,
-        protected analyticsService?: IAnalyticsService
+        protected analytics?: IExtendedAnalyticsService
     ) {
         super();
 
@@ -73,8 +74,8 @@ export class OpenImpactAnalysisAction extends BPButtonAction {
     }
 
     protected openImpactAnalysisInternal(id: number): void {
-        if (this.analyticsService) {
-            this.analyticsService.trackEvent(AnalyticsCategories.ImpactAnalysis, AnalyticsActions.Generate,
+        if (this.analytics) {
+            this.analytics.trackEvent(AnalyticsCategories.ImpactAnalysis, AnalyticsActions.Generate,
                 `ImpactAnalysisId_${id}`);
         }
 

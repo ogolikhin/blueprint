@@ -14,7 +14,8 @@ import {ILocalizationService} from "../../../../../commonModule/localization/loc
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {AnalyticsCategories, IAnalyticsService, AnalyticsActions} from "../../../../../main/components/analytics";
+import {AnalyticsCategories, AnalyticsActions} from "../../../../../main/components/analytics";
+import {IExtendedAnalyticsService} from "../../../../../main/components/analytics/analytics";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private selectionChangedHandle: string;
@@ -29,7 +30,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         private loadingOverlayService: ILoadingOverlayService,
         private processDiagramManager: IProcessDiagramCommunication,
         private projectManager: IProjectManager,
-        private analyticsService: IAnalyticsService
+        private analytics: IExtendedAnalyticsService
     ) {
         super();
 
@@ -221,7 +222,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         if (userTaskId && userTaskId > 0) {
             action = AnalyticsActions.GenerateSelected;
         }
-        this.analyticsService.trackAnalyticsTemporalEvent(startTime, category, action, undefined, {metric1: userStoriesCount});
+        this.analytics.trackAnalyticsTemporalEvent(startTime, category, action, undefined, {metric1: userStoriesCount});
     }
 
     private generateUserStories(process: StatefulProcessArtifact, userTaskId?: number): ng.IPromise<any> {

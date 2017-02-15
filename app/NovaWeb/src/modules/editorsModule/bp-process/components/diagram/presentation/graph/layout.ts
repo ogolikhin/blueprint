@@ -502,11 +502,14 @@ export class Layout implements ILayout {
             }
         }
 
-        // Select node and make it editable if it is not the End
-        if (nodeToSelect.model.id !== Number(this.viewModel.getEndShapeId())) {
-            this.selectNode(nodeToSelect);
-            nodeToSelect.setEditMode();
+        if (nodeToSelect.getNodeType() === NodeType.ProcessEnd ||
+            nodeToSelect.getNodeType() === NodeType.ProcessStart) {
+                return;
         }
+
+        // Select node and make it editable
+        this.selectNode(nodeToSelect);
+        nodeToSelect.setEditMode();
     }
 
     private addConnector(graphModel, link: IProcessLinkModel, sourceId: number = link.sourceId, destinationId: number = link.destinationId) {

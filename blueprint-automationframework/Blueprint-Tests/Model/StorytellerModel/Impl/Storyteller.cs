@@ -434,7 +434,8 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>
         public string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return SvcComponents.UploadFile(Address, user, file, expireDate, expectedStatusCodes);
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
+            return service.UploadFile(user, file, expireDate, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.PublishProcess(IUser, IProcess, List{HttpStatusCode})"/>

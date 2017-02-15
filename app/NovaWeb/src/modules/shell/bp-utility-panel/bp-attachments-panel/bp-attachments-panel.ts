@@ -228,4 +228,9 @@ export class BPAttachmentsPanelController extends BPBaseUtilityPanelController {
     public canUpdateDocRefs = (): boolean => {
         return !this.item.artifactState.readonly && !this.item.isReuseSettingSRO(Enums.ReuseSettings.DocumentReferences);
     }
+
+    public shouldHideDocRefs = (): boolean => {
+        return this.item.predefinedType === ItemTypePredefined.ArtifactBaseline;
+    }
+
 }

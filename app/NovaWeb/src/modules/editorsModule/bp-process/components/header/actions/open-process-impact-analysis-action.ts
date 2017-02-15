@@ -3,6 +3,7 @@ import {IStatefulProcessArtifact} from "../../../process-artifact";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {IProcessDiagramCommunication, ProcessEvents} from "../../diagram/process-diagram-communication";
 import {IDiagramNode} from "./../../diagram/presentation/graph/models/process-graph-interfaces";
+import {IExtendedAnalyticsService} from "../../../../../main/components/analytics/analytics";
 
 export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
     private selectionChangedHandle: string;
@@ -11,7 +12,8 @@ export class OpenProcessImpactAnalysisAction extends OpenImpactAnalysisAction {
     constructor(
         process: IStatefulProcessArtifact,
         localization: ILocalizationService,
-        private communication: IProcessDiagramCommunication
+        private communication: IProcessDiagramCommunication,
+        protected analytics?: IExtendedAnalyticsService
     ) {
         super(process, localization);
 

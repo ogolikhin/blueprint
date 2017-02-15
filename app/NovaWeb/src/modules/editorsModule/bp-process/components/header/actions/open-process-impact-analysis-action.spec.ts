@@ -10,6 +10,7 @@ import {ProcessEvents} from "./../../diagram/process-diagram-communication";
 import {IProcessDiagramCommunication} from "./../../diagram/process-diagram-communication";
 import {OpenProcessImpactAnalysisAction} from "./open-process-impact-analysis-action";
 import * as angular from "angular";
+import {AnalyticsServiceMock} from "../../../../../main/components/analytics/analytics.mock";
 
 describe("OpenProcessImpactAnalysisAction", () => {
     let $rootScope: ng.IRootScopeService;
@@ -20,12 +21,14 @@ describe("OpenProcessImpactAnalysisAction", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("communicationManager", CommunicationManager);
+        $provide.service("analytics", AnalyticsServiceMock);
     }));
 
     beforeEach(inject((
         _$rootScope_: ng.IRootScopeService,
         _localization_: LocalizationServiceMock,
-        _communicationManager_: CommunicationManager
+        _communicationManager_: CommunicationManager,
+        _analytics_: AnalyticsServiceMock
     ) => {
         $rootScope = _$rootScope_;
         $rootScope["config"] = {labels: []};

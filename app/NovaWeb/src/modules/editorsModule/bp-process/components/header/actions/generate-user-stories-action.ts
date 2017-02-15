@@ -14,7 +14,8 @@ import {ILocalizationService} from "../../../../../commonModule/localization/loc
 import {IDiagramNode} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {NodeType} from "../../diagram/presentation/graph/models/process-graph-constants";
 import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {AnalyticsCategories, IAnalyticsService, AnalyticsActions} from "../../../../../main/components/analytics";
+import {AnalyticsCategories, AnalyticsActions} from "../../../../../main/components/analytics";
+import {IExtendedAnalyticsService} from "../../../../../main/components/analytics/analytics";
 
 export class GenerateUserStoriesAction extends BPDropdownAction {
     private selectionChangedHandle: string;
@@ -29,7 +30,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         private loadingOverlayService: ILoadingOverlayService,
         private processDiagramManager: IProcessDiagramCommunication,
         private projectManager: IProjectManager,
-        private analyticsService: IAnalyticsService
+        private analytics: IExtendedAnalyticsService
     ) {
         super();
 
@@ -215,13 +216,13 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
     }
 
-    private trackGenerateUserStoriesEvent(startTime: number, userStoriesCount: number, userTaskId?: number) { 
-        const category = AnalyticsCategories.USER_STORY;
-        let action = AnalyticsActions.GENERATE_ALL;
+    private trackGenerateUserStoriesEvent(startTime: number, userStoriesCount: number, userTaskId?: number) {
+        const category = AnalyticsCategories.userStory;
+        let action = AnalyticsActions.generateAll;
         if (userTaskId && userTaskId > 0) {
-            action = AnalyticsActions.GENERATE_SELECTED;
+            action = AnalyticsActions.generateSelected;
         }
-        this.analyticsService.trackAnalyticsTemporalEvent(startTime, category, action, undefined, {metric1: userStoriesCount});
+        this.analytics.trackAnalyticsTemporalEvent(startTime, category, action, undefined, {metric1: userStoriesCount});
     }
 
     private generateUserStories(process: StatefulProcessArtifact, userTaskId?: number): ng.IPromise<any> {

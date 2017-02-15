@@ -215,13 +215,13 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
         }
     }
 
-    private trackGenerateUserStoriesEvent(startTime: number, userTaskId?: number) {
+    private trackGenerateUserStoriesEvent(startTime: number, userStoriesCount: number, userTaskId?: number) {
         const category = AnalyticsCategories.UserStory;
         let action = AnalyticsActions.GenerateAll;
         if (userTaskId && userTaskId > 0) {
             action = AnalyticsActions.GenerateSelected;
         }
-        this.analyticsService.trackAnalyticsTemporalEvent(startTime, category, action, undefined);
+        this.analyticsService.trackAnalyticsTemporalEvent(startTime, category, action, undefined, {metric1: userStoriesCount});
     }
 
     private generateUserStories(process: StatefulProcessArtifact, userTaskId?: number): ng.IPromise<any> {
@@ -238,7 +238,7 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
                         this.localization.get("ST_US_Generate_From_UserTask_Success_Message") :
                         this.localization.get("ST_US_Generate_All_Success_Message");
                 this.messageService.addInfo(userStoriesGeneratedMessage);
-                this.trackGenerateUserStoriesEvent(startTime, userTaskId);
+                this.trackGenerateUserStoriesEvent(startTime, userStories.length, userTaskId);
                 return process.refresh();
             })
             .then(() => {

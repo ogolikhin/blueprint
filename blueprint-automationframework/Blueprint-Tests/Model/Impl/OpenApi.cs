@@ -581,7 +581,7 @@ namespace Model.Impl
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="userWhoCreatesAnotherUser">A user that has permission to create users.</param>
         /// <param name="userToCreate">User to create</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201 Created' is expected</param>
         /// <returns>User that was created.</returns>
         public static UserDataModel CreateUser(string address, IUser userWhoCreatesAnotherUser, UserDataModel userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -598,6 +598,32 @@ namespace Model.Impl
                 userToCreate,
                 expectedStatusCodes: expectedStatusCodes);
         }
+
+        /// <summary>
+        /// Delete a user with specific username
+        /// (Runs:  'DELETE /api/v1/users/delete')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="userWhoDeleteAnotherUser">A user that has permission to delete users.</param>
+        /// <param name="usernamesToDelete">Usernames of users to remove</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
+        /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
+        public static DeleteResultSet DeleteUser(string address, IUser userWhoDeleteAnotherUser, List<string> usernamesToDelete, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
+            ThrowIf.ArgumentNull(userWhoDeleteAnotherUser, nameof(userWhoDeleteAnotherUser));
+
+            var restApi = new RestApiFacade(address, userWhoDeleteAnotherUser.Token?.OpenApiToken);
+            string path = RestPaths.OpenApi.Users.DELETE;
+
+            return restApi.SendRequestAndDeserializeObject<DeleteResultSet, List<string>>(
+                path,
+                RestRequestMethod.DELETE,
+                usernamesToDelete,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
 
         #endregion User methods
 

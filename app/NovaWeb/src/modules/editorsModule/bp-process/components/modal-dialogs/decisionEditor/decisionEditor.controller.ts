@@ -168,7 +168,11 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
         condition.isDeleted = true;
         this.deletedConditions.push(condition);
-        this.dialogModel.conditions.splice(this.dialogModel.conditions.indexOf(condition), 1);
+
+        const index = this.dialogModel.conditions.indexOf(condition);
+        if (index !== -1) {
+            this.dialogModel.conditions.splice(index, 1);
+        }
 
         this.refreshView();
     }

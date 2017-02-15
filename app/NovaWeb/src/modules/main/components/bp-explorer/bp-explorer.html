@@ -4,9 +4,7 @@
               row-data="$ctrl.projectExplorerService.projects"
               row-data-observable="$ctrl.projectExplorerService.projectsChangeObservable"
               columns="$ctrl.columns"
-              set-selection="$ctrl.setSelectedNode()"
-              on-select="$ctrl.onSelect(vm, isSelected)"
-              on-grid-reset="$ctrl.onGridReset(isExpanding)">
+              set-selection="$ctrl.setSelectedNode()">
 </bp-tree-view>
 <div ng-if="!$ctrl.isProjectTreeVisible()" class="explorer__empty-state">
     <p class="explorer__empty-state-text">{{::$ctrl.localization.get('App_Explorer_EmptyMessage')}}</p>

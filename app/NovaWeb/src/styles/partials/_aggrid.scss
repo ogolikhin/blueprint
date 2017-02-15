@@ -9,6 +9,7 @@ $aggrid-text-indent: 6px;
     font-weight: normal;
     color: inherit;
     outline: inherit;
+    padding-right: 5px;
 
     &:hover, &:focus {
         text-decoration: none;
@@ -67,7 +68,7 @@ $aggrid-text-indent: 6px;
                 border-color: transparent;
                 border-style: solid;
                 border-width: 1px 1px 1px 0;
-                padding-right: 5px;
+                //padding-right: 5px;
             }
 
             &.has-children {

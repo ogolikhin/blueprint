@@ -421,7 +421,7 @@ xdescribe("RefreshAction", () => {
                 });
             refreshAction = new RefreshAction(artifact, localization, projectExplorerService, loadingOverlayService,
                 metaDataService, navigationService, mainBreadcrumbService);
-            
+
             beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading").and.callThrough();
             projectRefreshSpy = spyOn(projectExplorerService, "refreshCurrent").and.callThrough();
             endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();

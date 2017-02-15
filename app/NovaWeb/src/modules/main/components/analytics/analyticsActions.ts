@@ -1,5 +1,5 @@
 export namespace AnalyticsActions {
-    export const GenerateAll: string = "Generate All";
-    export const GenerateSelected: string = "Generate Selected";
-    export const Generate: string = "Generate";
+    export const generateAll: string = "Generate All";
+    export const generateSelected: string = "Generate Selected";
+    export const generate: string = "Generate";
 }

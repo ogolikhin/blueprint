@@ -217,10 +217,10 @@ export class GenerateUserStoriesAction extends BPDropdownAction {
     }
 
     private trackGenerateUserStoriesEvent(startTime: number, userStoriesCount: number, userTaskId?: number) {
-        const category = AnalyticsCategories.UserStory;
-        let action = AnalyticsActions.GenerateAll;
+        const category = AnalyticsCategories.userStory;
+        let action = AnalyticsActions.generateAll;
         if (userTaskId && userTaskId > 0) {
-            action = AnalyticsActions.GenerateSelected;
+            action = AnalyticsActions.generateSelected;
         }
         this.analytics.trackAnalyticsTemporalEvent(startTime, category, action, undefined, {metric1: userStoriesCount});
     }

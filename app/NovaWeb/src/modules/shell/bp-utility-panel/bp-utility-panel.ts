@@ -201,7 +201,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
     private toggleDiscussionsPanel(selection: ISelection) {
         const artifact = selection.artifact;
         if (artifact && (artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
-            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.orderIndex < 0)
+            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.itemTypeId !== ItemTypePredefined.Baseline)
             || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
@@ -218,7 +218,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         if (subArtifact
             || (artifact &&
             (artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
-            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.orderIndex < 0)
+            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.itemTypeId !== ItemTypePredefined.Baseline)
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || artifact.predefinedType === ItemTypePredefined.Project))) {

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -583,7 +584,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            return Model.Impl.OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
+            return OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
         }
 
         /// <summary>

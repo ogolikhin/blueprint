@@ -4,16 +4,16 @@ using System.Net;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Enums;
 using Model.JobModel.Impl;
-using Model.OpenApiModel.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
-namespace Model.Impl
+namespace Model.OpenApiModel.Services
 {
     /// <summary>
     /// This class contains OpenAPI REST functions.

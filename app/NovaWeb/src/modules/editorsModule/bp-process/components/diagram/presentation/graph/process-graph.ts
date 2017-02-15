@@ -1,7 +1,7 @@
 ﻿/* tslint:disable max-file-line-count */
 import {ILoadingOverlayService} from "../../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {IProcessGraph, ILayout, INotifyModelChanged, IConditionContext} from "./models/";
-import {ICondition, IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
+import {IScopeContext, IStopTraversalCondition, IUserStory} from "./models/";
 import {IUserTask, INextIdsProvider, IOverlayHandler, IShapeInformation} from "./models/";
 import {IDiagramNode, IDiagramNodeElement, IProcessShape, IProcessLink} from "./models/";
 import {SourcesAndDestinations, ProcessShapeType, NodeType, NodeChange} from "./models/";
@@ -32,6 +32,7 @@ import {ItemTypePredefined} from "../../../../../../main/models/itemTypePredefin
 import {IArtifact} from "../../../../../../main/models/models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
 import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";
+import {ICondition} from "./shapes/condition";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -52,8 +53,6 @@ export class ProcessGraph implements IProcessGraph {
     private popupMenu: NodePopupMenu = null;
     private processCopyPasteHelper: ProcessCopyPasteHelper;
     private selectionChangedHandler: string = null;
-    private minNoOfShapesAddedPerSystemDecision: number = 1;
-    private minNoOfShapesAddedPerUserDecision: number = 2;
     private invalidShapes: number[] = [];
 
     public get processDiagramCommunication(): IProcessDiagramCommunication {
@@ -231,44 +230,15 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    private canAddDecisionConditions(decisionId: number, conditions: ICondition[]): boolean {
-        let canAdd: boolean = true;
-        let errorMessage: string;
-        let shapeType = this.viewModel.getShapeTypeById(decisionId);
-
-        if (!conditions || conditions.length <= 0) {
-            canAdd = false;
-        } else if (this.hasMaxConditions(decisionId)) {
-            canAdd = false;
-            errorMessage = this.rootScope.config.labels["ST_Add_CannotAdd_MaximumConditionsReached"];
-        } else if (shapeType === ProcessShapeType.SystemDecision &&
-            this.viewModel.isWithinShapeLimit(conditions.length * this.minNoOfShapesAddedPerSystemDecision) === false) {
-            canAdd = false;
-        } else if (shapeType === ProcessShapeType.UserDecision &&
-            this.viewModel.isWithinShapeLimit(conditions.length * this.minNoOfShapesAddedPerUserDecision) === false) {
-            canAdd = false;
+    public addDecisionBranch(decisionId: number, label: string, mergeNodeId: number): boolean {
+        if (!ProcessAddHelper.canAddDecisionConditions(decisionId, 1, this)) {
+            return false;
         }
 
-        if (!canAdd && errorMessage && this.messageService) {
-            this.messageService.addError(errorMessage);
-        }
+        const insertMethod = this.getDecisionConditionInsertMethod(decisionId);
+        insertMethod(decisionId, this.layout, this.shapesFactory, label, mergeNodeId);
 
-        return canAdd;
-    }
-
-    public addDecisionBranches(decisionId: number, newConditions: ICondition[]) {
-        if (!this.canAddDecisionConditions(decisionId, newConditions)) {
-            return;
-        }
-
-        let insertMethod = this.getDecisionConditionInsertMethod(decisionId);
-        let id: number;
-
-        for (let i: number = 0; i < newConditions.length; i++) {
-            id = insertMethod(decisionId, this.layout, this.shapesFactory, newConditions[i].label, newConditions[i].mergeNode.model.id);
-        }
-
-        this.notifyUpdateInModel(NodeChange.Update, id);
+        return true;
     }
 
     private buttonUpdated = (event) => {
@@ -644,11 +614,7 @@ export class ProcessGraph implements IProcessGraph {
 
         return artifactList;
     }
-
-    private hasMaxConditions(decisionId: number): boolean {
-        return this.viewModel.getNextShapeIds(decisionId).length >= ProcessGraph.MaxConditions;
-    }
-
+    
     public updateSourcesWithDestinations(shapeId: number, newDestinationId: number): SourcesAndDestinations {
         let sources = this.viewModel.getPrevShapeIds(shapeId);
 
@@ -1010,7 +976,6 @@ export class ProcessGraph implements IProcessGraph {
     public getValidMergeNodes(condition: IProcessLink): IDiagramNode[] {
         // find all nodes in current condition
         let scopeContext: IScopeContext = null;
-        let lastShapeInBranch: IProcessShape;
         let shapesInBranch: number[] = [];
 
         if (condition.destinationId !== null) {
@@ -1018,15 +983,12 @@ export class ProcessGraph implements IProcessGraph {
 
             if (originalMergeNode) {
                 scopeContext = this.getBranchScope(condition, this.defaultNextIdsProvider);
-                lastShapeInBranch = this.viewModel.getShapeById(scopeContext.mappings[0].endId);
                 shapesInBranch = Object.keys(scopeContext.visitedIds).map(a => Number(a));
             }
-        } else {
-            // for newly added conditions, the list of valid merge nodes should be after the decision point itself.
-            lastShapeInBranch = this.viewModel.getShapeById(condition.sourceId);
         }
 
         let firstTasks: number[] = [];
+
         this.viewModel.links.forEach((a: IProcessLink) => {
             if (a.sourceId === condition.sourceId) {
                 if (this.viewModel.getShapeTypeById(a.destinationId) === ProcessShapeType.UserTask) {
@@ -1034,6 +996,7 @@ export class ProcessGraph implements IProcessGraph {
                 }
             }
         });
+
         let invalidShapes = shapesInBranch.concat(firstTasks);
         let validShapeIds: IDiagramNode[] = [];
 
@@ -1054,35 +1017,6 @@ export class ProcessGraph implements IProcessGraph {
         }
 
         return validShapeIds;
-    }
-
-    public updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean {
-
-        let originalEndNode: IProcessLink = this.getDecisionBranchDestLinkForIndex(decisionId, condition.orderindex);
-
-        if (!!mergeNodeId &&
-            originalEndNode &&
-            originalEndNode.destinationId !== mergeNodeId) {
-            let mainBranchOnly: INextIdsProvider = (context) => {
-                let ids = this.viewModel.getNextShapeIds(context.id);
-                return [Number(ids[0])];
-            };
-            const scope = this.getBranchScope(condition, mainBranchOnly);
-            let lastShapeId = scope.mappings[0].endId;
-            let origLastLinkInCondition = this.getLink(lastShapeId, originalEndNode.destinationId);
-
-            // Updates end branch link to point to new destination id
-            if (origLastLinkInCondition) {
-                origLastLinkInCondition.destinationId = mergeNodeId;
-            }
-
-            // Updates merge point for specific branch to be new destination id
-            originalEndNode.destinationId = mergeNodeId;
-
-            return true;
-        }
-
-        return false;
     }
 
     public getHighlightedCopyNodes(): IDiagramNode[] {
@@ -1244,15 +1178,26 @@ export class ProcessGraph implements IProcessGraph {
     }
 
     public getBranchStartingLink(link: IProcessLink): IProcessLink {
-
         if (this.viewModel.isFirstFlow(link) && !this.viewModel.isInMainFlow(link.sourceId)) {
             const shapeContext = this.globalScope.visitedIds[link.sourceId];
             const last = _.last(shapeContext.parentConditions);
-            return this.getNextLinks(last.decisionId).filter(a => a.orderindex === last.orderindex)[0];
 
+            return this.getNextLinks(last.decisionId).filter(a => a.orderindex === last.orderindex)[0];
         }
 
         return this.getLink(link.sourceId, link.destinationId);
+    }
+
+    public getBranchEndingLink(link: IProcessLink): IProcessLink {
+        if (this.viewModel.isFirstFlow(link) && this.viewModel.isInMainFlow(link.sourceId)) {
+            return null;
+        }
+
+        const mainBranchOnly = context => [this.viewModel.getNextShapeIds(context.id)[0]];
+        const scope = this.getBranchScope(link, mainBranchOnly);
+        const lastShapeId = scope.mappings[0].endId;
+
+        return this.getNextLinks(lastShapeId)[0];
     }
 
     public destroy(): void {

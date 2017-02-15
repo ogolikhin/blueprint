@@ -15,14 +15,14 @@ namespace OpenAPITests
     [Category(Categories.OpenApi)]
     public class DeleteUserTests : TestBase
     {
-        private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-        private IUser _user = null;
+//        private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
+//        private IUser _user = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
+//            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
         }
 
         [TearDown]
@@ -34,7 +34,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(0)]
         [Description("Delete list of users and verify")]
-        public void CreateUser_VerifyUserCreated(List<string> usernamesToRemove)
+        public static void CreateUser_VerifyUserCreated(/*List<string> usernamesToRemove*/)
         {
             // Setup:
 

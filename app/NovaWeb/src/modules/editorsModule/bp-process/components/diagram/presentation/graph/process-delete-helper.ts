@@ -275,9 +275,12 @@ export class ProcessDeleteHelper {
                         let link = processGraph.getLink(prevShapeId, id);
                         let newDestinationId = mapping.targetId;
 
-                        if (this.isInfiniteLoop(mapping.targetId, mapping, processGraph)) {
+                        if (ProcessDeleteHelper.isInfiniteLoop(mapping.targetId, mapping, processGraph)) {
                             //if end shape's condition is coming back to this condition, then need to connect it back to the main flow.
                             newDestinationId = processGraph.layout.getConditionDestination(originalDecisionId).id;
+                        } else {
+                            newDestinationId = ProcessDeleteHelper.getNextAvailableDestinationId(
+                                                                    scopeContext, processGraph, newDestinationId, originalDecisionId);
                         }
 
                         link.destinationId = newDestinationId;
@@ -290,6 +293,20 @@ export class ProcessDeleteHelper {
                 }
             }
         }
+    }
+
+    private static getNextAvailableDestinationId(scopeContext: IScopeContext, processGraph: IProcessGraph, targetId: number, originalDecisionId: number) {
+        let newDestinationId = targetId;
+        while (scopeContext.visitedIds[newDestinationId]) {
+            newDestinationId = processGraph.viewModel.getNextShapeIds(newDestinationId)[0];
+            const innerParent = scopeContext.visitedIds[newDestinationId].innerParentCondition();
+            if (innerParent) {
+                  if (ProcessDeleteHelper.isInfiniteLoop(innerParent.targetId, innerParent, processGraph)) {
+                        newDestinationId = processGraph.layout.getConditionDestination(originalDecisionId).id;
+                  }
+            }
+        }
+        return newDestinationId;
     }
 
     private static getConditionFromIdInScope(id: number, scopeContext: IScopeContext): IConditionContext {

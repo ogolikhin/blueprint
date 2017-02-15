@@ -8,6 +8,7 @@ using Model.Factories;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.Impl;
+using Model.OpenApiModel.Services;
 using TestCommon;
 using Utilities;
 

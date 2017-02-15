@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -95,7 +96,7 @@ namespace Model.ArtifactModel.Impl
             bool? getContent = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return Model.Impl.OpenApi.GetArtifact(Address, project, Id, user,
+            return OpenApi.GetArtifact(Address, project, Id, user,
                 getAttachments: getAttachments,
                 getComments: getComments,
                 getContent: getContent,
@@ -115,7 +116,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            int artifactVersion = Model.Impl.OpenApi.GetArtifactVersion(Address, this, user, expectedStatusCodes);
+            int artifactVersion = OpenApi.GetArtifactVersion(Address, this, user, expectedStatusCodes);
 
             return artifactVersion;
         }
@@ -156,7 +157,7 @@ namespace Model.ArtifactModel.Impl
 
             if (restRequestMethod == RestRequestMethod.POST)
             {
-                var artifactResult = Model.Impl.OpenApi.CreateArtifact(artifactToSave, user, expectedStatusCodes);
+                var artifactResult = OpenApi.CreateArtifact(artifactToSave, user, expectedStatusCodes);
 
                 ReplacePropertiesWithPropertiesFromSourceArtifact(artifactResult.Artifact, artifactToSave);
 
@@ -249,7 +250,7 @@ namespace Model.ArtifactModel.Impl
 
             Assert.That(artifactToUpdate.Id != 0, "Artifact Id cannot be 0 to perform an update.");
 
-            var updateResultList = Model.Impl.OpenApi.UpdateArtifact(artifactToUpdate, user, propertiesToUpdate, expectedStatusCodes);
+            var updateResultList = OpenApi.UpdateArtifact(artifactToUpdate, user, propertiesToUpdate, expectedStatusCodes);
 
             Assert.IsNotEmpty(updateResultList, "No artifact results were returned");
             Assert.AreEqual(1, updateResultList.Count, "Only a single artifact was updated, but multiple artifact results were returned");
@@ -315,7 +316,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactsToDiscard, nameof(artifactsToDiscard));
 
-            var artifactResults = Model.Impl.OpenApi.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes);
+            var artifactResults = OpenApi.DiscardArtifacts(artifactsToDiscard, address, user, expectedStatusCodes);
 
             var discardedResultList = artifactResults.FindAll(result => result.ResultCode.Equals(HttpStatusCode.OK));
 
@@ -597,7 +598,7 @@ namespace Model.ArtifactModel.Impl
         public static OpenApiAttachment AddArtifactAttachment(string address,
             int projectId, int artifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return Model.Impl.OpenApi.AddArtifactAttachment(address, projectId, artifactId, file, user, expectedStatusCodes);
+            return OpenApi.AddArtifactAttachment(address, projectId, artifactId, file, user, expectedStatusCodes);
         }
 
         /// <summary>
@@ -614,7 +615,7 @@ namespace Model.ArtifactModel.Impl
         public static OpenApiAttachment AddSubArtifactAttachment(string address,
             int projectId, int artifactId, int subArtifactId, IFile file, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return Model.Impl.OpenApi.AddSubArtifactAttachment(address, projectId, artifactId, subArtifactId, file, user, expectedStatusCodes);
+            return OpenApi.AddSubArtifactAttachment(address, projectId, artifactId, subArtifactId, file, user, expectedStatusCodes);
         }
 
         /// <summary>
@@ -646,7 +647,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(sourceArtifact, nameof(sourceArtifact));
             ThrowIf.ArgumentNull(targetArtifact, nameof(targetArtifact));
 
-            var openApiTraces = Model.Impl.OpenApi.AddTrace(address, sourceArtifact, targetArtifact, traceDirection, user,
+            var openApiTraces = OpenApi.AddTrace(address, sourceArtifact, targetArtifact, traceDirection, user,
                 traceType: traceType,
                 isSuspect: isSuspect,
                 subArtifactId: subArtifactId,
@@ -693,7 +694,7 @@ namespace Model.ArtifactModel.Impl
             bool? reconcileWithTwoWay = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var openApiTraces = Model.Impl.OpenApi.DeleteTrace(address, sourceArtifact, targetArtifact, traceDirection, user, traceType,
+            var openApiTraces = OpenApi.DeleteTrace(address, sourceArtifact, targetArtifact, traceDirection, user, traceType,
                 isSuspect: isSuspect,
                 subArtifactId: subArtifactId,
                 reconcileWithTwoWay: reconcileWithTwoWay,

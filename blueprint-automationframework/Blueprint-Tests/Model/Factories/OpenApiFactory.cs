@@ -13,7 +13,7 @@ namespace Model.Factories
         /// <returns>An IOpenApi object.</returns>
         public static IOpenApi CreateOpenApi(string address)
         {
-            var adminStore = new Impl.OpenApi(address);
+            var adminStore = new OpenApi(address);
             return adminStore;
         }
 

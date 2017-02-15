@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.Impl;
+using Model.OpenApiModel.Services;
 using TestCommon;
 using Utilities;
 

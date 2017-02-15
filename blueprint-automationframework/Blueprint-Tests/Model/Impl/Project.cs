@@ -8,6 +8,7 @@ using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.OpenApiModel.Services;
 using NUnit.Framework;
 using Utilities;
 

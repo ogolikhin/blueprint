@@ -12,8 +12,7 @@ export class AnalyticsService implements IAnalyticsService {
 
     public trackAnalyticsTemporalEvent(startTime: number, category: string, action: string, label: string, dimensions?: { [expr: string]: any }) {
         const endTime = new Date().getTime();
-        const timeSpentInMsec = endTime - startTime;    
-        const seconds = timeSpentInMsec / 1000;
-        this.analytics.trackEvent(category, action, label, seconds, false, dimensions);
+        const timeSpentInMsec = endTime - startTime;  
+        this.analytics.trackEvent(category, action, label, timeSpentInMsec, false, dimensions);
     }
 }

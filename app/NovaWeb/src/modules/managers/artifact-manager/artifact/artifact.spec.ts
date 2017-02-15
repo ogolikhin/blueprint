@@ -1,15 +1,22 @@
 import "angular-mocks";
 import "rx/dist/rx.lite";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
+import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
+import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ProcessServiceMock} from "../../../editorsModule/bp-process/services/process.svc.mock";
 import {PropertyDescriptorBuilderMock} from "../../../editorsModule/services";
 import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
-import {IMessageService} from "../../../main/components/messages/message.svc";
-import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {UnpublishedArtifactsServiceMock} from "../../../editorsModule/unpublished/unpublished.service.mock";
+import {MessageType} from "../../../main/components/messages/message";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {IMessageService} from "../../../main/components/messages/message.svc";
 import {Enums, Models} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory, MetaDataService, StatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ApplicationError} from "../../../shell/error/applicationError";
+import {ErrorCode} from "../../../shell/error/error-code";
+import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 import {SelectionManager} from "../../selection-manager/selection-manager";
 import {ArtifactAttachmentsMock} from "../attachments/attachments.svc.mock";
 import {ArtifactRelationshipsMock} from "../relationships/relationships.svc.mock";
@@ -17,13 +24,6 @@ import {ValidationServiceMock} from "../validation/validation.mock";
 import {IStatefulArtifact} from "./artifact";
 import {ArtifactServiceMock} from "./artifact.svc.mock";
 import * as angular from "angular";
-import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
-import {ApplicationError} from "../../../shell/error/applicationError";
-import {MessageType} from "../../../main/components/messages/message";
-import {ErrorCode} from "../../../shell/error/error-code";
-import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
-import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
 
 describe("Artifact", () => {
     let artifact: IStatefulArtifact;
@@ -59,7 +59,7 @@ describe("Artifact", () => {
             name: "Artifact",
             prefix: "My",
             lockedByUser: Enums.LockedByEnum.None, //Enums.LockedByEnum.CurrentUser,
-            predefinedType: Models.ItemTypePredefined.Actor,
+            predefinedType: ItemTypePredefined.Actor,
             version: 0
         } as Models.IArtifact;
         artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
@@ -691,7 +691,7 @@ describe("Artifact", () => {
                 name: "Artifact",
                 prefix: "My",
                 lockedByUser: Enums.LockedByEnum.None, //Enums.LockedByEnum.CurrentUser,
-                predefinedType: Models.ItemTypePredefined.Actor,
+                predefinedType: ItemTypePredefined.Actor,
                 version: 1
             } as Models.IArtifact;
             artifact = statefulArtifactFactory.createStatefulArtifact(artifactModel);
@@ -714,7 +714,7 @@ describe("Artifact", () => {
                 name: "Artifact",
                 prefix: "My",
                 lockedByUser: Enums.LockedByEnum.None, //Enums.LockedByEnum.CurrentUser,
-                predefinedType: Models.ItemTypePredefined.Actor,
+                predefinedType: ItemTypePredefined.Actor,
                 version: 1
             } as Models.IArtifact;
 

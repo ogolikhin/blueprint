@@ -1371,6 +1371,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Add_CannotAdd_M
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Delete_CannotDelete_UD_AtleastTwoConditions', 'en-US', N'The task cannot be deleted. The preceding decision point would be left with one choice. Decision points require at least two choices.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Delete_CannotDelete_OnlyUserTask', 'en-US', N'The task cannot be deleted. A Process requires at least one task.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Delete_CannotDelete_UT_Between_Two_UD', 'en-US', N'The task cannot be deleted. Choices must begin with a task.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Bulk_Delete_Confirmation', 'en-US', N'Process Shapes selected: {0}<br/>The following shapes and their impacted shapes will be deleted. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Settings_Label', 'en-US', N'Settings')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Confirm_Delete_System_Decision', 'en-US', N'Please confirm the deletion of the selected decision point. All conditions will also be deleted except for the first one.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Confirm_Delete_User_Decision', 'en-US', N'Please confirm the deletion of the selected decision point. All choices will also be deleted except for the first one.')

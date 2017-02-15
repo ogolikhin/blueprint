@@ -1,16 +1,15 @@
-import * as angular from "angular";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {Models} from "../../../../../main/models";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import {IArtifactService} from "../../../../../managers/artifact-manager/";
 import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {StatefulArtifactServices} from "../../../../../managers/artifact-manager/services";
+import {ProcessShapeType} from "../../../models/enums";
+import * as TestModels from "../../../models/test-model-factory";
 import {StatefulProcessArtifact} from "../../../process-artifact";
 import {StatefulProcessSubArtifact} from "../../../process-subartifact";
-import {Models} from "../../../../../main/models";
 import {ProcessViewModel} from "./process-viewmodel";
-import * as TestModels from "../../../models/test-model-factory";
-import {
-    StatefulArtifactServices
-} from "../../../../../managers/artifact-manager/services";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {ProcessShapeType} from "../../../models/enums";
+import * as angular from "angular";
 
 describe("ProcessViewModel", () => {
     let services: StatefulArtifactServices;
@@ -44,7 +43,7 @@ describe("ProcessViewModel", () => {
             id: 1,
             name: "",
             projectId: 1,
-            predefinedType: Models.ItemTypePredefined.TextualRequirement
+            predefinedType: ItemTypePredefined.TextualRequirement
         } as Models.IArtifact;
 
         let processArtifact = new StatefulProcessArtifact(artifact, services);
@@ -69,7 +68,7 @@ describe("ProcessViewModel", () => {
             id: 1,
             name: "",
             projectId: 1,
-            predefinedType: Models.ItemTypePredefined.TextualRequirement
+            predefinedType: ItemTypePredefined.TextualRequirement
         } as Models.IArtifact;
 
         let shapeId = 20;

@@ -20,6 +20,7 @@ import {ICollectionService} from "../../../collection/collection.service";
 import {IItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IAnalyticsService} from "../../../../main/components/analytics";
 
 export class BpProcessHeader implements ng.IComponentOptions {
     public template: string = require("../../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -46,28 +47,30 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "breadcrumbService",
         "userStoryService",
         "collectionService",
-        "itemInfoService"
+        "itemInfoService",
+        "analyticsService"
     ];
 
     constructor($q: ng.IQService,
-                $scope: ng.IScope,
-                $element: ng.IAugmentedJQuery,
-                $timeout: ng.ITimeoutService,
-                selectionManager: ISelectionManager,
-                localization: ILocalizationService,
-                messageService: IMessageService,
-                dialogService: IDialogService,
-                windowManager: IWindowManager,
-                loadingOverlayService: ILoadingOverlayService,
-                navigationService: INavigationService,
-                projectManager: IProjectManager,
-                metadataService: IMetaDataService,
-                mainBreadcrumbService: IMainBreadcrumbService,
-                private communicationManager: ICommunicationManager,
-                private breadcrumbService: IBreadcrumbService,
-                private userStoryService: IUserStoryService,
-                collectionService: ICollectionService,
-                public itemInfoService: IItemInfoService) {
+        $scope: ng.IScope,
+        $element: ng.IAugmentedJQuery,
+        $timeout: ng.ITimeoutService,
+        selectionManager: ISelectionManager,
+        localization: ILocalizationService,
+        messageService: IMessageService,
+        dialogService: IDialogService,
+        windowManager: IWindowManager,
+        loadingOverlayService: ILoadingOverlayService,
+        navigationService: INavigationService,
+        projectManager: IProjectManager,
+        metadataService: IMetaDataService,
+        mainBreadcrumbService: IMainBreadcrumbService,
+        private communicationManager: ICommunicationManager,
+        private breadcrumbService: IBreadcrumbService,
+        private userStoryService: IUserStoryService,
+        collectionService: ICollectionService,
+        public itemInfoService: IItemInfoService,
+        private analyticsService: IAnalyticsService) {
         super(
             $q,
             $scope,
@@ -164,7 +167,8 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.dialogService,
             this.loadingOverlayService,
             this.communicationManager.processDiagramCommunication,
-            this.projectManager);
+            this.projectManager,
+            this.analyticsService);
         const copyAction = new CopyAction(
             processArtifact,
             this.communicationManager,

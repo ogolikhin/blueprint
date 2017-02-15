@@ -1,30 +1,17 @@
-﻿import {
-    IArtifactProperty,
-    IUserTaskShape,
-    PropertyTypePredefined,
-    IArtifactReference
-} from "../../../../../models/process-models";
-import {ItemIndicatorFlags} from "../../../../../models/enums";
-import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
-import {
-    ISystemTask,
-    IUserTask,
-    IUserStoryProperties,
-    IProcessGraph,
-    IDiagramNode,
-    NodeType,
-    ElementType
-} from "../models/";
+﻿import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {IArtifactProperty, IArtifactReference, IUserTaskShape} from "../../../../../models/process-models";
 import {IDialogParams} from "../../../../messages/message-dialog";
-import {ShapesFactory} from "./shapes-factory";
+import {ModalDialogType} from "../../../../modal-dialogs/modal-dialog-constants";
+import {ProcessEvents} from "../../../process-diagram-communication";
+import {Button} from "../buttons/button";
+import {DeleteShapeButton} from "../buttons/delete-shape-button";
+import {ILabel, Label, LabelStyle, LabelType} from "../labels/label";
+import {ElementType, IDiagramNode, IProcessGraph, ISystemTask, IUserStoryProperties, IUserTask, NodeType} from "../models/";
+import {SystemDecision} from "./";
 import {DiagramNodeElement} from "./diagram-element";
 import {DiagramNode} from "./diagram-node";
 import {NodeFactorySettings} from "./node-factory-settings";
-import {Button} from "../buttons/button";
-import {DeleteShapeButton} from "../buttons/delete-shape-button";
-import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
-import {SystemDecision} from "./";
-import {ProcessEvents} from "../../../process-diagram-communication";
+import {ShapesFactory} from "./shapes-factory";
 
 export class UserStoryProperties implements IUserStoryProperties {
     public nfr: IArtifactProperty;

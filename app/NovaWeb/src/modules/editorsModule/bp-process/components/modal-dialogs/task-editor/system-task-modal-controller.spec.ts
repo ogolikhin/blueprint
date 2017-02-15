@@ -1,40 +1,41 @@
-import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
-import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
-import {ISession} from "../../../../../shell/login/session.svc";
-require("script!mxClient");
-import * as angular from "angular";
+import "../../..";
 import "angular-mocks";
 import "rx";
-import "../../..";
-import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
+import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
-import {IModalScope} from "../base-modal-dialog-controller";
-import {NodeType} from "../../diagram/presentation/graph/models";
+import {ExecutionEnvironmentDetectorMock} from "../../../../../commonModule/services/executionEnvironmentDetector.mock";
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
+import {Models} from "../../../../../main/models/";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
+import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
+import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
+import {ISelectionManager} from "../../../../../managers/selection-manager/selection-manager";
+import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
 import {IDialogService} from "../../../../../shared";
-import {SystemTaskDialogModel} from "./systemTaskDialogModel";
-import {SystemTaskModalController} from "./system-task-modal-controller";
-import {IArtifactReference, ArtifactReference, ProcessModel, ISystemTaskShape} from "../../../models/process-models";
+import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
+import {ISession} from "../../../../../shell/login/session.svc";
+import {SessionSvcMock} from "../../../../../shell/login/session.svc.mock";
+import {ArtifactReference, IArtifactReference, ISystemTaskShape, ProcessModel} from "../../../models/process-models";
+import {StatefulProcessArtifact} from "../../../process-artifact";
+import {StatefulProcessSubArtifact} from "../../../process-subartifact";
+import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";
+import {NodeType} from "../../diagram/presentation/graph/models";
+import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {SystemTask} from "../../diagram/presentation/graph/shapes/";
 import {ShapeModelMock} from "../../diagram/presentation/graph/shapes/shape-model.mock";
 import {ShapesFactory} from "../../diagram/presentation/graph/shapes/shapes-factory";
-import {Models} from "../../../../../main/models/";
-import {StatefulArtifactFactoryMock} from "../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {ArtifactServiceMock} from "../../../../../managers/artifact-manager/artifact/artifact.svc.mock";
-import {StatefulProcessSubArtifact} from "../../../process-subartifact";
-import {StatefulProcessArtifact} from "../../../process-artifact";
-import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
-import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
-import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {ILoadingOverlayService} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../../../../../main/components/messages/message.svc";
-import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {CreateArtifactService, ICreateArtifactService} from "../../../../../main/components/projectControls/create-artifact.svc";
-import {ProcessViewModel, IProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
-import {CommunicationManager, ICommunicationManager} from "../../../services/communication-manager";
-import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
-import {IArtifactService, IStatefulArtifactFactory} from "../../../../../managers/artifact-manager/artifact";
-import {ExecutionEnvironmentDetectorMock} from "../../../../../commonModule/services/executionEnvironmentDetector.mock";
-import {SessionSvcMock} from "../../../../../shell/login/session.svc.mock";
+import {ProcessViewModel} from "../../diagram/viewmodel/process-viewmodel";
+import {IModalScope} from "../base-modal-dialog-controller";
+import {SystemTaskModalController} from "./system-task-modal-controller";
+import {SystemTaskDialogModel} from "./systemTaskDialogModel";
+import * as angular from "angular";
+require("script!mxClient");
 
 describe("SystemTaskModalController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -273,7 +274,7 @@ describe("SystemTaskModalController", () => {
                 projectId: 1,
                 name: "new persona",
                 typePrefix: "PRO",
-                baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                baseItemTypePredefined: ItemTypePredefined.Actor,
                 projectName: "test project",
                 link: null,
                 version: null
@@ -328,7 +329,7 @@ describe("SystemTaskModalController", () => {
             beforeEach(() => {
                 const factory = new StatefulArtifactFactoryMock();
                 const artifact: Models.IArtifact = ArtifactServiceMock.createArtifact(1);
-                artifact.predefinedType = Models.ItemTypePredefined.Process;
+                artifact.predefinedType = ItemTypePredefined.Process;
                 statefulArtifact = <StatefulProcessArtifact>factory.createStatefulArtifact(artifact);
 
                 const processModel = new ProcessModel();
@@ -370,7 +371,7 @@ describe("SystemTaskModalController", () => {
                     projectId: null,
                     name: "System",
                     typePrefix: null,
-                    baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: null,
                     link: null,
                     version: null
@@ -404,7 +405,7 @@ describe("SystemTaskModalController", () => {
                     projectId: 1,
                     name: "new persona",
                     typePrefix: "PRO",
-                    baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
                     projectName: "test project",
                     link: null,
                     version: null
@@ -448,7 +449,7 @@ describe("SystemTaskModalController", () => {
                 const lockSpy = spyOn(statefulArtifact, "lock");
 
                 const artifactReference: ArtifactReference = {
-                    baseItemTypePredefined: Models.ItemTypePredefined.Actor,
+                    baseItemTypePredefined: ItemTypePredefined.Actor,
                     id: 99,
                     name: "test actor",
                     projectId: 2,

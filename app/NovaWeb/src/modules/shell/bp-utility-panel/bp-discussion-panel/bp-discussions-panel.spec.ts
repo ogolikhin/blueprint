@@ -3,7 +3,8 @@ import "angular-mocks";
 import "angular-sanitize";
 import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined} from "../../../main/models/enums";
+import {MessageServiceMock} from "../../../main/components/messages/message.mock";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifactFactory} from "../../../managers/artifact-manager";
 import {IStatefulArtifact, StatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
@@ -13,14 +14,13 @@ import {StatefulSubArtifact} from "../../../managers/artifact-manager/sub-artifa
 import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
 import {Helper} from "../../../shared/utils/helper";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {MessageServiceMock} from "../../../main/components/messages/message.mock";
 import {ComponentTest} from "../../../util/component.test";
+import {LicenseServiceMock} from "../../license/license.svc.mock";
+import {SessionSvcMock} from "../../login/session.svc.mock";
+import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
 import {ArtifactDiscussionsMock} from "./artifact-discussions.mock";
 import {IDiscussion, IReply} from "./artifact-discussions.svc";
 import {BPDiscussionPanelController} from "./bp-discussions-panel";
-import {IOnPanelChangesObject, PanelType} from "../utility-panel.svc";
-import {LicenseServiceMock} from "../../license/license.svc.mock";
-import {SessionSvcMock} from "../../login/session.svc.mock";
 
 let setInitialArtifact = ($q: ng.IQService, artifactService: ArtifactServiceMock): IStatefulArtifact => {
     const services = new StatefulArtifactServices($q, null, null, null, null, null, artifactService, null, null, null, null, null, null, null);

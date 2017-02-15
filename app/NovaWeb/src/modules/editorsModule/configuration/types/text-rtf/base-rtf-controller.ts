@@ -21,6 +21,13 @@ import {IRelationship, LinkType, TraceDirection} from "../../../../main/models/r
 import {IPropertyDescriptor} from "../../../services";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 
+enum DragAndDropState {
+    None = 0,
+    Drag = 1,
+    Drop = 2,
+    DropExternal = 3
+}
+
 export interface IBPFieldBaseRTFController {
     editorBody: HTMLElement;
     observer: MutationObserver;
@@ -52,6 +59,8 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
 
     protected isDirty: boolean;
     protected isLinkPopupOpen: boolean;
+    protected isIE11: boolean;
+    protected dragAndDropState: DragAndDropState;
     protected hasReceivedFocus: boolean;
     protected contentBuffer: string;
     protected mceEditor: TinyMceEditor;
@@ -59,19 +68,19 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
     protected onChange: AngularFormly.IExpressionFunction;
     protected allowedFonts: string[];
     protected isSingleLine: boolean = false;
-    protected execCommandEvents: string[] = [
-        "mceInsertContent",
-        "mceToggleFormat",
-        "RemoveFormat",
-        "InsertUnorderedList",
-        "InsertOrderedList",
-        "Outdent",
-        "Indent",
-        "FontName"
-    ];
-    protected linkEvents: string[] = [
-        "mceLink"
-    ];
+    protected execCommandEvents: {[key: string]: boolean} = {
+        "mceInsertContent": true,
+        "mceToggleFormat": true,
+        "RemoveFormat": true,
+        "InsertUnorderedList": true,
+        "InsertOrderedList": true,
+        "Outdent": true,
+        "Indent": true,
+        "FontName": true
+    };
+    protected linkEvents: {[key: string]: boolean} = {
+        "mceLink": true
+    };
     protected fontSizes: string[] = ["8", "9", "10", "11", "12", "14", "16", "18", "20"];
     protected embeddedImagesUrls: {[key: string]: boolean};
 
@@ -102,7 +111,14 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         this.isDirty = false;
         this.isLinkPopupOpen = false;
         this.hasReceivedFocus = false;
+        this.dragAndDropState = DragAndDropState.None;
         this.contentBuffer = undefined;
+
+        this.isIE11 = false;
+        if (this.$window.navigator) {
+            const ua = this.$window.navigator.userAgent;
+            this.isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
+        }
 
         // the onChange event has to be called from the custom validator (!) as otherwise it will fire before the actual validation takes place
         this.onChange = ($scope.to.onChange as AngularFormly.IExpressionFunction); //notify change function. injected on field creation.
@@ -112,23 +128,14 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         $scope.$on("$destroy", () => {
             $scope.to.onChange = this.onChange;
 
-            this.removeObserver();
-            this.removeDragAndDropListeners();
-            if (this.editorBody) {
-                this.handleLinks(this.editorBody.querySelectorAll("a"), true);
-            }
+            this.destroy();
 
             // the following is to avoid TFS BUG 4330
             // The bug is caused by IE9-11 not being able to focus on other INPUT elements if the focus was
             // on a destroyed/removed from DOM element before. See also:
             // http://stackoverflow.com/questions/19581464
             // http://stackoverflow.com/questions/8978235
-            let isIE11 = false;
-            if (this.$window.navigator) {
-                const ua = this.$window.navigator.userAgent;
-                isIE11 = !!(ua.match(/Trident/) && ua.match(/rv[ :]11/)) && !ua.match(/edge/i);
-            }
-            if (isIE11 && !this.isSingleLine && this.hasReceivedFocus) {
+            if (this.isIE11 && !this.isSingleLine && this.hasReceivedFocus) {
                 const focusCatcher = this.$window.document.body.querySelector("input[type='text']") as HTMLElement;
                 if (focusCatcher) {
                     focusCatcher.focus();
@@ -147,11 +154,15 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         };
     }
 
-    private removeObserver = () => {
+    private destroy = () => {
         if (this.observer) {
             this.observer.disconnect();
         }
+        if (this.editorBody) {
+            this.handleLinks(this.editorBody.querySelectorAll("a"), true);
+        }
         if (this.mceEditor) {
+            // https://www.tinymce.com/docs/api/tinymce/tinymce.editor/#destroy
             this.mceEditor.destroy(false);
         }
     };
@@ -197,11 +208,22 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
      - he pastes the selection (e.g. Control+V). This action SHOULD be allowed
      - he pastes again. This action should NOT be allowed
      */
-    private stripNonEmbeddedAndDuplicatedImages = (node: HTMLElement, isDragAndDrop?: boolean) => {
-        const baseUrl = this.getAppBaseUrl();
-        const embeddedImagesUrls = this.embeddedImagesUrls;
+    private stripNonEmbeddedAndDuplicatedImages = (node: HTMLElement) => {
+        /*
+         We need to strip images only if:
+         - the user pastes something (DragAndDropState.None)
+         - the user drops something from an external source (DragAndDropState.DropExternal)
+        */
+        if (this.dragAndDropState !== DragAndDropState.None &&
+            this.dragAndDropState !== DragAndDropState.DropExternal) {
+            return;
+        }
 
-        if (this.mceEditor && !isDragAndDrop) {
+        const baseUrl = this.getAppBaseUrl();
+        const embeddedImagesUrls = _.clone(this.embeddedImagesUrls);
+
+        console.log(embeddedImagesUrls);
+        if (this.mceEditor && this.dragAndDropState === DragAndDropState.None) {
             /*
              If it's not caused by drag&drop:
              - make a copy of the embedded images URLs list (which is populated on RT editor init, and any time
@@ -228,6 +250,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 embeddedImagesUrls[imgSrc] = false;
             });
         }
+        console.log(embeddedImagesUrls);
 
         const images = node.getElementsByTagName("img");
         _.forEachRight(images, (image: HTMLImageElement | any) => {
@@ -238,9 +261,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             }
         });
 
-        if (isDragAndDrop) {
+        if (this.dragAndDropState === DragAndDropState.DropExternal) {
             // very expensive, as it will cycle through all the drag&dropped elements
-            const nodesWithBackground = _.filter(node.querySelectorAll("*"), (child: HTMLElement) => {
+            const nodesWithBackground = _.filter(node.getElementsByTagName("*"), (child: HTMLElement) => {
                 const backgroundImage = this.$window.getComputedStyle(child).getPropertyValue("background-image");
                 return backgroundImage !== "none" && backgroundImage !== "";
             });
@@ -406,8 +429,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             this.editorContainer = editor.editorContainer;
         }
 
-        this.addDragAndDropListeners();
-
         // MutationObserver
         const mutationObserver = this.$window["MutationObserver"];
         if (this.editorBody && !_.isUndefined(mutationObserver)) {
@@ -458,9 +479,9 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         });
 
         editor.on("ExecCommand", (e) => {
-            if (e && _.indexOf(this.execCommandEvents, e.command) !== -1) {
+            if (e && this.execCommandEvents[e.command]) {
                 this.triggerChange();
-            } else if (e && _.indexOf(this.linkEvents, e.command) !== -1) {
+            } else if (e && this.linkEvents[e.command]) {
                 this.isLinkPopupOpen = true;
             }
         });
@@ -476,6 +497,67 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             if (this.editorContainer && this.editorContainer.parentElement) {
                 this.editorContainer.parentElement.classList.add("tinymce-toolbar-hidden");
             }
+        });
+
+        /*
+         The DragEvent sequence is comprised of events being fired between the element being dragged and the drop target.
+
+         The general order is:
+         1. elem.dragstart
+         2. target.dragenter
+         3. elem.drag/target.dragover (each every few hundreds milliseconds)
+         4 .target.drop or target.dragleave (depending if the element has been dropped on the target or dragged outside)
+         5. elem.dragend
+
+         When dragging and dropping within the editor, the order is:
+         1. dragstart
+         2. drop
+         3. dragend (Firefox seems not to fire this one!)
+
+         When drag starts in the editor but ends outside, the order is:
+         1. dragstart
+         2. dragend
+
+         When drag starts outside the editor but ends inside, we just have a drop event
+
+         See http://www.developerfusion.com/article/144828/the-html5-drag-and-drop-api/
+        */
+        let contentBeforeDrag: string;
+
+        editor.on("dragstart", (e: DragEvent) => {
+            this.dragAndDropState = DragAndDropState.Drag;
+            if (this.isIE11) {
+                contentBeforeDrag = editor.getContent();
+            }
+        });
+
+        editor.on("dragend", (e: DragEvent) => {
+            if (this.dragAndDropState === DragAndDropState.Drag) {
+                // we are dragging outside of the editor
+                this.dragAndDropState = DragAndDropState.None;
+                if (this.isIE11) {
+                    this.$scope.$applyAsync(() => {
+                        editor.setContent(contentBeforeDrag);
+                    });
+                }
+            }
+        });
+
+        editor.on("drop", (e: DragEvent) => {
+            if (this.dragAndDropState === DragAndDropState.Drag) {
+                // we are dropping after drag started from within editor.
+                this.dragAndDropState = DragAndDropState.Drop;
+            } else {
+                // we are dropping after drag started from outside the editor
+                this.dragAndDropState = DragAndDropState.DropExternal;
+            }
+
+            this.$scope.$applyAsync(() => {
+                editor.save();
+                this.stripNonEmbeddedAndDuplicatedImages(editor.getBody() as HTMLElement);
+                this.triggerChange();
+                this.dragAndDropState = DragAndDropState.None;
+            });
         });
     };
 
@@ -706,35 +788,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 }
             }
         }
-    };
-
-    // The DragEvent sequence is comprised of events being fired between the element being dragged and the drop target.
-    // The order is:
-    // elem.dragstart
-    // target.dragenter
-    // elem.drag/target.dragover (each every few hundreds milliseconds)
-    // target.drop or target.dragleave (depending if the element has been dropped on the target or dragged outside)
-    // elem.dragend
-    // see http://www.developerfusion.com/article/144828/the-html5-drag-and-drop-api/
-    protected addDragAndDropListeners = () => {
-        if (this.editorBody) {
-            this.editorBody.addEventListener("dragend", this.onDragEnd);
-            this.editorBody.addEventListener("drop", this.onDragEnd);
-        }
-    };
-    protected removeDragAndDropListeners = () => {
-        if (this.editorBody) {
-            this.editorBody.removeEventListener("dragend", this.onDragEnd);
-            this.editorBody.removeEventListener("drop", this.onDragEnd);
-        }
-    };
-
-    protected onDragEnd = (e: DragEvent) => {
-        this.$scope.$applyAsync(() => {
-            this.mceEditor.save();
-            this.stripNonEmbeddedAndDuplicatedImages(this.mceEditor.getBody() as HTMLElement, true);
-            this.triggerChange(this.mceEditor.getContent());
-        });
     };
 
     public disableEditability = (e) => {

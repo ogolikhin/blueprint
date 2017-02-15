@@ -74,7 +74,7 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create ALM Change Summary jobs
-            var jobsToBeFound = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            var jobsToBeFound = Helper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
 
             // Execute: GetJobs with page and pageSize parameters
             JobResult jobResult = null;
@@ -142,7 +142,7 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create ALM Change Summary jobs
-            TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
+            Helper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, numberOfJobsToBeCreated, _projectCustomData);
 
             // Execute: GetJobs with JobType not which is not ALM Change Summary (DocGen)
             JobResult jobResult = null;
@@ -190,7 +190,7 @@ namespace AdminStoreTests
             )
         {
             // Setup: Create an ALM ChangeSummary job using the prepared ALM target
-            TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData);
+            Helper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData);
 
             // Create user with no permission on any project
             var userWithNoPermissionOnAnyProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _allProjects);
@@ -211,7 +211,7 @@ namespace AdminStoreTests
         public void GetJob_GetTheJobCreated_VerifyJobResult(int baselineOrReviewId)
         {
             // Setup: Create a ALM ChangeSummary job using the prepared ALM target
-            var createdJob = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData).First();
+            var createdJob = Helper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData).First();
 
             // Execute: Execute GetJob to retrieve the job using job ID and user
             IJobInfo returnedJobInfo = null;

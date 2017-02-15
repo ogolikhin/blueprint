@@ -171,7 +171,7 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            var deleteArtifactResults = OpenApi.DeleteArtifact(Address, this, user,
+            var deleteArtifactResults = Model.Impl.OpenApi.DeleteArtifact(Address, this, user,
                 deleteChildren: deleteChildren ?? ShouldDeleteChildren,
                 expectedStatusCodes: expectedStatusCodes);
 
@@ -313,7 +313,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(artifactsToPublish, nameof(artifactsToPublish));
 
-            var publishedResultList = OpenApi.PublishArtifacts(artifactsToPublish, address, user, shouldKeepLock, expectedStatusCodes);
+            var publishedResultList = Model.Impl.OpenApi.PublishArtifacts(artifactsToPublish, address, user, shouldKeepLock, expectedStatusCodes);
 
             var deletedArtifactsList = new List<IArtifactBase>();
 

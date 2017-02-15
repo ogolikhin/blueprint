@@ -7,6 +7,7 @@ using Model.ArtifactModel.Impl;
 using Model.JobModel;
 using Model.JobModel.Enums;
 using Model.JobModel.Impl;
+using Model.OpenApiModel.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -17,8 +18,28 @@ namespace Model.Impl
     /// <summary>
     /// This class contains OpenAPI REST functions.
     /// </summary>
-    public static class OpenApi
+    public class OpenApi : IOpenApi
     {
+        public OpenApi(string address)
+        {
+            Address = address;
+        }
+
+        #region Properties and member variables.
+
+        private string _address = null;
+
+        /// <summary>
+        /// Gets/sets the URL address of the server.  Note: any trailing '/' characters will be removed.
+        /// </summary>
+        public string Address
+        {
+            get { return _address; }
+            protected set { _address = value?.TrimEnd('/'); }
+        }
+
+        #endregion Properties and member variables.
+
         #region Project methods
 
         /// <sumary>
@@ -574,6 +595,15 @@ namespace Model.Impl
 
         #region User methods
 
+        /// <seealso cref="IOpenApi.CreateUser(IUser, UserDataModel, List{HttpStatusCode})"/>
+        public UserDataModel CreateUser(
+            IUser userToAuthenticate,
+            UserDataModel userToCreate,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return CreateUser(Address, userToAuthenticate, userToCreate, expectedStatusCodes);
+        }
+
         /// <summary>
         /// Create a user with specified user properties in open API
         /// (Runs:  'POST /api/v1/users/create')
@@ -581,9 +611,12 @@ namespace Model.Impl
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="userWhoCreatesAnotherUser">A user that has permission to create users.</param>
         /// <param name="userToCreate">User to create</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201 Created' is expected</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected</param>
         /// <returns>User that was created.</returns>
-        public static UserDataModel CreateUser(string address, IUser userWhoCreatesAnotherUser, UserDataModel userToCreate, List<HttpStatusCode> expectedStatusCodes = null)
+        public static UserDataModel CreateUser(string address,
+            IUser userWhoCreatesAnotherUser,
+            UserDataModel userToCreate,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
@@ -599,22 +632,34 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IOpenApi.DeleteUser(IUser, List{string}, List{HttpStatusCode})"/>
+        public DeleteResultSet DeleteUser(
+            IUser userToAuthenticate,
+            List<string> usernamesToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return DeleteUser(Address, userToAuthenticate, usernamesToDelete, expectedStatusCodes);
+        }
+
         /// <summary>
-        /// Delete a user with specific username
+        /// Delete a user with specific username.
         /// (Runs:  'DELETE /api/v1/users/delete')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="userWhoDeleteAnotherUser">A user that has permission to delete users.</param>
-        /// <param name="usernamesToDelete">Usernames of users to remove</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '200 OK' is expected.</param>
+        /// <param name="userToAuthenticate">A user that has permission to delete users.</param>
+        /// <param name="usernamesToDelete">Usernames of users to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
-        public static DeleteResultSet DeleteUser(string address, IUser userWhoDeleteAnotherUser, List<string> usernamesToDelete, List<HttpStatusCode> expectedStatusCodes = null)
+        public static DeleteResultSet DeleteUser(string address,
+            IUser userToAuthenticate,
+            List<string> usernamesToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
-            ThrowIf.ArgumentNull(userWhoDeleteAnotherUser, nameof(userWhoDeleteAnotherUser));
+            ThrowIf.ArgumentNull(userToAuthenticate, nameof(userToAuthenticate));
 
-            var restApi = new RestApiFacade(address, userWhoDeleteAnotherUser.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(address, userToAuthenticate.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.DELETE;
 
             return restApi.SendRequestAndDeserializeObject<DeleteResultSet, List<string>>(
@@ -707,17 +752,8 @@ namespace Model.Impl
 
         #region ALM Jobs methods
 
-        /// <summary>
-        /// Add ALM ChangeSummary Job using OpenAPI.
-        /// </summary>
-        /// <param name="address">The base URL of the API.</param>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="project">The project to have the ALM ChangeSummary job.</param>
-        /// <param name="baselineOrReviewId">The baseline or review artifact ID.</param>
-        /// <param name="almTarget">The ALM target.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <returns>OpenAPIJob that contains information for ALM ChangeSummary Job.</returns>
-        public static IOpenAPIJob AddAlmChangeSummaryJob(string address,
+        /// <seealso cref="IOpenApi.AddAlmChangeSummaryJob(IUser, IProject, int, IAlmTarget, List{HttpStatusCode})"/>
+        public IOpenAPIJob AddAlmChangeSummaryJob(
             IUser user,
             IProject project,
             int baselineOrReviewId,
@@ -731,7 +767,7 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Projects_id_.ALM.Targets_id_.JOBS, project.Id, almTarget.Id);
             var almJob = new AlmJob(AlmJobType.ChangeSummary, baselineOrReviewId);
 
-            var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.OpenApiToken);
             var returnedAlmChangeSummaryJob = restApi.SendRequestAndDeserializeObject<OpenAPIJob, AlmJob>(
                 path,
                 RestRequestMethod.POST,

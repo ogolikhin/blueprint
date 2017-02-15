@@ -598,7 +598,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            return OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
+            return Model.Impl.OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
         }
 
         /// <summary>

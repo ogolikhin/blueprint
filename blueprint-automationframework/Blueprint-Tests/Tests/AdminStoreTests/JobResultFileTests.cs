@@ -83,7 +83,7 @@ namespace AdminStoreTests
         public void GetJobResultFile_ExecuteWithNotCompletedJobId_400BadRequest(int baselineOrReviewId)
         {
             // Setup: Create a ALM ChangeSummary job using the prepared ALM target
-            var createdJob = TestHelper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData).First();
+            var createdJob = Helper.CreateALMSummaryJobsSetup(Helper.ArtifactStore.Address, _adminUser, baselineOrReviewId, 1, _projectCustomData).First();
 
             // Execute: Execute GetJobResultFile using the ALM ChangeSummary job Id which is not completed.
             var ex = Assert.Throws<Http400BadRequestException>(() => Helper.AdminStore.GetJobResultFile(_adminUser, createdJob.JobId),

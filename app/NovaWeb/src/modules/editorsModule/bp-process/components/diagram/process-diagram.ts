@@ -282,7 +282,13 @@ export class ProcessDiagram {
                 subArtifact.loadProperties()
                     .then((loadedSubArtifact: IStatefulSubArtifact) => {
                         this.setSubArtifactSelectionAsync(loadedSubArtifact);
-                    });
+                    },
+                    (err: any) => {
+                        if (err && err.statusCode === 404) {
+                            this.handleSubArtifactDeletedOrMoved(subArtifact, err);
+                        }
+                    }
+                );
             }
         } else if (elements.length > 1) {
             // multiple selection
@@ -330,6 +336,21 @@ export class ProcessDiagram {
         this.$log.error("Error: " + err.message);
     }
 
+    private handleSubArtifactDeletedOrMoved(subArtifact: IStatefulSubArtifact, err: any) {
+        // subArtifact has been deleted or is otherwise not found in the database
+        // clear the selection and  show message
+        this.$rootScope.$applyAsync(() => {
+            if (this.canChangeSelection()) {
+                // set isDeleted flag to true 
+                this.selectionManager.setSubArtifact(subArtifact, false, true);
+                this.messageService.addMessage(new Message(
+                    MessageType.Warning, this.localization.get("ST_SubArtifact_Has_Been_Deleted")
+                ));
+            }
+        });
+    }
+    
+   
     public resize = (width: number, height: number) => {
         if (!!this.graph) {
             this.graph.updateSizeChanges(width, height);

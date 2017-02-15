@@ -524,7 +524,7 @@ ST_Choice_Label, "Choice"
 ST_Decision_Modal_Next_Task_Label, "Next Task"
 ST_Cannot_Include_Parent_Process,"A task cannot include its parent Process"
 ST_Userstory_Has_Been_Deleted, "User story has been deleted or moved. To preview it, please generate it again."
-
+ST_SubArtifact_Has_Been_Deleted, "This shape has been deleted or moved. Please refresh your display."
 ST_Given_Label, "Given"
 ST_Then_Label, "Then"
 ST_When_Label, "When"

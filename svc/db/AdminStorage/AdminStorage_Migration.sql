@@ -1423,6 +1423,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Choice_Label', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Decision_Modal_Next_Task_Label', 'en-US', N'Next Task')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Cannot_Include_Parent_Process', 'en-US', N'A task cannot include its parent Process')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Userstory_Has_Been_Deleted', 'en-US', N'User story has been deleted or moved. To preview it, please generate it again.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_SubArtifact_Has_Been_Deleted', 'en-US', N'This shape has been deleted or moved. Please refresh your display.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Given_Label', 'en-US', N'Given')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_Then_Label', 'en-US', N'Then')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('ST_When_Label', 'en-US', N'When')

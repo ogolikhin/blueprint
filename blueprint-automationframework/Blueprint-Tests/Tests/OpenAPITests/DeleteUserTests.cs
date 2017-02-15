@@ -52,14 +52,14 @@ namespace OpenAPITests
             ThrowIf.ArgumentNull(usernamesToRemove, nameof(usernamesToRemove));
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
-            Assert.AreEqual(HttpStatusCode.Created, resultSet.ReturnCode, "It should be 201 Created when all users removed!");
+            Assert.AreEqual(HttpStatusCode.Created, resultSet.ReturnCode, "It should be 200 OK when all users removed!");
 
             foreach (var userToDelete in usernamesToRemove)
             {
                 var result = resultSet.Results.Find(a => a.Username == userToDelete);
 
                 Assert.AreEqual("User successfully deleted.", result.Message, "Message is incorrect!");
-                Assert.AreEqual(HttpStatusCode.Created, result.ReturnCode, "Return code should be 201 Created!");
+                Assert.AreEqual(HttpStatusCode.Created, result.ReturnCode, "Return code should be 200 OK!");
             }
         }
 

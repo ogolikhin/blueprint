@@ -600,18 +600,18 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Delete a user with specific useranme
+        /// Delete a user with specific username
         /// (Runs:  'POST /api/v1/users/delete')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="userWhoDeleteAnotherUser">A user that has permission to delete users.</param>
-        /// <param name="usernames">Usernames of users to remove</param>
+        /// <param name="usernamesToDelete">Usernames of users to remove</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
-        /// <returns>List of usernames with theirs error codes and messages that was created together with global HTTP code.</returns>
-        public static DeleteResultSet DeleteUser(string address, IUser userWhoDeleteAnotherUser, List<string> usernames, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
+        public static DeleteResultSet DeleteUser(string address, IUser userWhoDeleteAnotherUser, List<string> usernamesToDelete, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(usernames, nameof(usernames));
+            ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
             ThrowIf.ArgumentNull(userWhoDeleteAnotherUser, nameof(userWhoDeleteAnotherUser));
 
             var restApi = new RestApiFacade(address, userWhoDeleteAnotherUser.Token?.OpenApiToken);
@@ -619,8 +619,8 @@ namespace Model.Impl
 
             return restApi.SendRequestAndDeserializeObject<DeleteResultSet, List<string>>(
                 path,
-                RestRequestMethod.POST,
-                usernames,
+                RestRequestMethod.DELETE,
+                usernamesToDelete,
                 expectedStatusCodes: expectedStatusCodes);
         }
 

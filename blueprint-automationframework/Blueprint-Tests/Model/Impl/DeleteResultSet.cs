@@ -4,7 +4,7 @@ using System.Net;
 namespace Model.Impl
 {
     /// <summary>
-    /// Describes responce returned from DeleteUser call
+    /// Describes response returned from DeleteUser call
     /// </summary>
     public class DeleteResultSet
     {

@@ -1,11 +1,11 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
-import {ICollectionService, CollectionService} from "./collection.service";
-import {Models} from "../../main";
-import {ICollection} from "../configuration/classes/collection-artifact";
-import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
+import {ICollection} from "../configuration/classes/collection-artifact";
+import {CollectionService, ICollectionService} from "./collection.service";
+import * as angular from "angular";
 
 describe("Collection Service", () => {
 
@@ -29,7 +29,7 @@ describe("Collection Service", () => {
                             "description": "<html><head></head><body style=\"padding: 1px 0px 0px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">on point</p></div></body></html>",
                             "prefix": "TR",
                             "itemTypeId": 5,
-                            "itemTypePredefined": Models.ItemTypePredefined.Actor,
+                            "itemTypePredefined": ItemTypePredefined.Actor,
                             "artifactPath": "Path1"
                         },
                         {
@@ -38,7 +38,7 @@ describe("Collection Service", () => {
                             "description": "<html><head></head><body style=\"padding: 1px 0px 0px\"><div style=\"padding: 0px\"><p style=\"margin: 0px\">&#x200b;<a href=\"http://www.google.com/\" style=\"color: Blue; text-decoration: underline\"><span style=\"font-family: 'Portable User Interface'; font-size: 11px\">google.com</span></a><span style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 11px; font-style: normal; font-weight: normal; color: Black\">&#x200b;</span></p></div></body></html>",
                             "prefix": "TR",
                             "itemTypeId": 5,
-                            "itemTypePredefined": Models.ItemTypePredefined.Actor,
+                            "itemTypePredefined": ItemTypePredefined.Actor,
                             "artifactPath": "Path1"
                         }
                     ]

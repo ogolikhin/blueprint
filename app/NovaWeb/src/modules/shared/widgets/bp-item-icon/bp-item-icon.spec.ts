@@ -1,8 +1,8 @@
 import "./";
 import "angular-mocks";
 import "lodash";
-import {IBPItemTypeIconController, BPItemTypeIconController} from "./bp-item-icon";
-import {Models} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
+import {BPItemTypeIconController, IBPItemTypeIconController} from "./bp-item-icon";
 
 describe("BPArtifactListComponent", () => {
     let bindings: IBPItemTypeIconController;
@@ -19,7 +19,7 @@ describe("BPArtifactListComponent", () => {
         // Arrange
         const itemTypeId = 1;
         const itemTypeIconId = 2;
-        const predefinedType = Models.ItemTypePredefined.TextualRequirement;
+        const predefinedType = ItemTypePredefined.TextualRequirement;
         bindings = {
             itemTypeId: itemTypeId,
             itemTypeIconId: itemTypeIconId,
@@ -40,7 +40,7 @@ describe("BPArtifactListComponent", () => {
         // Arrange
         const itemTypeId = 1;
         const itemTypeIconId = null;
-        const predefinedType = Models.ItemTypePredefined.TextualRequirement;
+        const predefinedType = ItemTypePredefined.TextualRequirement;
         bindings = {
             itemTypeId: itemTypeId,
             itemTypeIconId: itemTypeIconId,
@@ -59,7 +59,7 @@ describe("BPArtifactListComponent", () => {
         // Arrange
         const itemTypeId = 1;
         const itemTypeIconId = 2;
-        const predefinedType = Models.ItemTypePredefined.TextualRequirement;
+        const predefinedType = ItemTypePredefined.TextualRequirement;
         bindings = {
             itemTypeId: itemTypeId,
             itemTypeIconId: itemTypeIconId,

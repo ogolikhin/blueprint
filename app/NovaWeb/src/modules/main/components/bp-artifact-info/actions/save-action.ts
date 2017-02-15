@@ -1,8 +1,8 @@
-import {BPButtonAction} from "../../../../shared";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ItemTypePredefined, PropertyTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {BPButtonAction} from "../../../../shared";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMessageService} from "../../messages/message.svc";
 
 export class SaveAction extends BPButtonAction {

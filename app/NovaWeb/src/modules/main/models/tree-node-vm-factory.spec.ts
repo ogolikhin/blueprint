@@ -6,7 +6,8 @@ import {IStatefulArtifact, StatefulArtifact} from "../../managers/artifact-manag
 import {ChangeTypeEnum, IItemChangeSet} from "../../managers/artifact-manager/changeset";
 import {IProjectService} from "../../managers/project-manager/project-service";
 import {AdminStoreModels, Models} from "../models";
-import {ArtifactNodeVM, ExplorerNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
+import {ItemTypePredefined} from "./itemTypePredefined.enum";
+import {ArtifactNodeVM, TreeNodeVMFactory} from "./tree-node-vm-factory";
 
 describe("TreeNodeVMFactory", () => {
     let projectService: IProjectService;
@@ -43,8 +44,8 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.BaselinesAndReviews,
-                itemTypeId: Models.ItemTypePredefined.BaselineFolder,
+                predefinedType: ItemTypePredefined.BaselinesAndReviews,
+                itemTypeId: ItemTypePredefined.BaselineFolder,
                 hasChildren: true
             } as Models.IArtifact;
             const vm = factory.createExplorerNodeVM(model);
@@ -60,8 +61,8 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.Collections,
-                itemTypeId: Models.ItemTypePredefined.CollectionFolder,
+                predefinedType: ItemTypePredefined.Collections,
+                itemTypeId: ItemTypePredefined.CollectionFolder,
                 hasChildren: true
             } as Models.IArtifact;
             const vm = factory.createExplorerNodeVM(model);
@@ -77,7 +78,7 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.UseCase,
+                predefinedType: ItemTypePredefined.UseCase,
                 hasChildren: true
             } as Models.IArtifact;
             const vm = factory.createExplorerNodeVM(model);
@@ -157,7 +158,7 @@ describe("TreeNodeVMFactory", () => {
                     const model = {
                         id: 123,
                         name: "parent",
-                        predefinedType: Models.ItemTypePredefined.GenericDiagram,
+                        predefinedType: ItemTypePredefined.GenericDiagram,
                         artifactPath: ["project"]
                     } as Models.IArtifact;
                     const vm = factory.createExplorerNodeVM(model);
@@ -367,7 +368,7 @@ describe("TreeNodeVMFactory", () => {
                     // Arrange
                     const children = [{id: 1234}, {
                         id: 5678,
-                        predefinedType: Models.ItemTypePredefined.CollectionFolder
+                        predefinedType: ItemTypePredefined.CollectionFolder
                     }] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
@@ -399,7 +400,7 @@ describe("TreeNodeVMFactory", () => {
                     factory.showBaselinesAndReviews = true;
                     const children = [{id: 1234}, {
                         id: 5678,
-                        predefinedType: Models.ItemTypePredefined.BaselineFolder
+                        predefinedType: ItemTypePredefined.BaselineFolder
                     }] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
@@ -431,7 +432,7 @@ describe("TreeNodeVMFactory", () => {
                     factory.showCollections = true;
                     const children = [{id: 1234}, {
                         id: 5678,
-                        predefinedType: Models.ItemTypePredefined.CollectionFolder
+                        predefinedType: ItemTypePredefined.CollectionFolder
                     }] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
@@ -464,10 +465,10 @@ describe("TreeNodeVMFactory", () => {
                     factory.showCollections = true;
                     const children = [{id: 1234}, {
                         id: 5678,
-                        predefinedType: Models.ItemTypePredefined.CollectionFolder
+                        predefinedType: ItemTypePredefined.CollectionFolder
                     }, {
                         id: 9012,
-                        predefinedType: Models.ItemTypePredefined.BaselineFolder
+                        predefinedType: ItemTypePredefined.BaselineFolder
                     }] as Models.IArtifact[];
                     (projectService.getArtifacts as jasmine.Spy).and.returnValue($q.resolve(children));
                     const model = {
@@ -502,7 +503,7 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             const model = {
                 id: 999,
-                predefinedType: Models.ItemTypePredefined.UseCaseDiagram,
+                predefinedType: ItemTypePredefined.UseCaseDiagram,
                 hasChildren: false
             } as Models.IArtifact;
 
@@ -523,7 +524,7 @@ describe("TreeNodeVMFactory", () => {
             factory.showSubArtifacts = true;
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.BusinessProcess,
+                predefinedType: ItemTypePredefined.BusinessProcess,
                 hasChildren: false
             } as Models.IArtifact;
 
@@ -543,8 +544,8 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.BaselinesAndReviews,
-                itemTypeId: Models.ItemTypePredefined.BaselineFolder,
+                predefinedType: ItemTypePredefined.BaselinesAndReviews,
+                itemTypeId: ItemTypePredefined.BaselineFolder,
                 hasChildren: true
             } as Models.IArtifact;
             const vm = factory.createArtifactNodeVM(project, model);
@@ -560,8 +561,8 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.Collections,
-                itemTypeId: Models.ItemTypePredefined.CollectionFolder,
+                predefinedType: ItemTypePredefined.Collections,
+                itemTypeId: ItemTypePredefined.CollectionFolder,
                 hasChildren: true
             } as Models.IArtifact;
             const vm = factory.createArtifactNodeVM(project, model);
@@ -577,7 +578,7 @@ describe("TreeNodeVMFactory", () => {
             // Arrange
             const model = {
                 id: 456,
-                predefinedType: Models.ItemTypePredefined.PrimitiveFolder,
+                predefinedType: ItemTypePredefined.PrimitiveFolder,
                 hasChildren: true
             } as Models.IArtifact;
             const vm = factory.createArtifactNodeVM(project, model);
@@ -606,10 +607,10 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when not selectable, returns correct result", () => {
             // Arrange
-            factory.selectableItemTypes = [Models.ItemTypePredefined.Actor, Models.ItemTypePredefined.Storyboard];
+            factory.selectableItemTypes = [ItemTypePredefined.Actor, ItemTypePredefined.Storyboard];
             const model = {
                 id: 100,
-                predefinedType: Models.ItemTypePredefined.DomainDiagram
+                predefinedType: ItemTypePredefined.DomainDiagram
             } as Models.ISubArtifactNode;
             const vm = factory.createArtifactNodeVM(project, model);
 
@@ -679,10 +680,10 @@ describe("TreeNodeVMFactory", () => {
 
         it("selectable, when selectableItemTypes contains item type, returns true", () => {
             // Arrange
-            factory.selectableItemTypes = [Models.ItemTypePredefined.Actor, Models.ItemTypePredefined.Storyboard];
+            factory.selectableItemTypes = [ItemTypePredefined.Actor, ItemTypePredefined.Storyboard];
             const model = {
                 id: 700,
-                predefinedType: Models.ItemTypePredefined.Storyboard
+                predefinedType: ItemTypePredefined.Storyboard
             } as Models.IArtifact;
             const vm = factory.createArtifactNodeVM(project, model);
 
@@ -695,10 +696,10 @@ describe("TreeNodeVMFactory", () => {
 
         it("selectable, when selectableItemTypes does not contain item type, returns false", () => {
             // Arrange
-            factory.selectableItemTypes = [Models.ItemTypePredefined.Actor, Models.ItemTypePredefined.Storyboard];
+            factory.selectableItemTypes = [ItemTypePredefined.Actor, ItemTypePredefined.Storyboard];
             const model = {
                 id: 700,
-                predefinedType: Models.ItemTypePredefined.Document
+                predefinedType: ItemTypePredefined.Document
             } as Models.IArtifact;
             const vm = factory.createArtifactNodeVM(project, model);
 
@@ -717,7 +718,7 @@ describe("TreeNodeVMFactory", () => {
                     const model = {
                         id: 123,
                         name: "parent",
-                        predefinedType: Models.ItemTypePredefined.GenericDiagram,
+                        predefinedType: ItemTypePredefined.GenericDiagram,
                         artifactPath: ["project"],
                         idPath: [7]
                     } as Models.IArtifact;
@@ -745,7 +746,7 @@ describe("TreeNodeVMFactory", () => {
                     factory.showSubArtifacts = true;
                     const model = {
                         id: 123,
-                        predefinedType: Models.ItemTypePredefined.BusinessProcess
+                        predefinedType: ItemTypePredefined.BusinessProcess
                     } as Models.IArtifact;
                     const vm = factory.createArtifactNodeVM(project, model);
 
@@ -881,10 +882,10 @@ describe("TreeNodeVMFactory", () => {
 
         it("getCellClass, when not selectable, returns correct result", () => {
             // Arrange
-            factory.selectableItemTypes = [Models.ItemTypePredefined.BPShape, Models.ItemTypePredefined.BPConnector];
+            factory.selectableItemTypes = [ItemTypePredefined.BPShape, ItemTypePredefined.BPConnector];
             const model = {
                 id: 100,
-                predefinedType: Models.ItemTypePredefined.GDShape
+                predefinedType: ItemTypePredefined.GDShape
             } as Models.ISubArtifactNode;
             const vm = factory.createSubArtifactNodeVM(project, model, null);
 
@@ -925,9 +926,9 @@ describe("TreeNodeVMFactory", () => {
 
         it("selectable, when selectableItemTypes contains item type, returns true", () => {
             // Arrange
-            factory.selectableItemTypes = [Models.ItemTypePredefined.BPShape, Models.ItemTypePredefined.BPConnector];
+            factory.selectableItemTypes = [ItemTypePredefined.BPShape, ItemTypePredefined.BPConnector];
             const model = {
-                predefinedType: Models.ItemTypePredefined.BPConnector
+                predefinedType: ItemTypePredefined.BPConnector
             } as Models.ISubArtifactNode;
             const vm = factory.createSubArtifactNodeVM(project, model, null);
 
@@ -940,9 +941,9 @@ describe("TreeNodeVMFactory", () => {
 
         it("selectable, when selectableItemTypes does not contain item type, returns false", () => {
             // Arrange
-            factory.selectableItemTypes = [Models.ItemTypePredefined.BPShape, Models.ItemTypePredefined.BPConnector];
+            factory.selectableItemTypes = [ItemTypePredefined.BPShape, ItemTypePredefined.BPConnector];
             const model = {
-                predefinedType: Models.ItemTypePredefined.GDShape
+                predefinedType: ItemTypePredefined.GDShape
             } as Models.ISubArtifactNode;
             const vm = factory.createSubArtifactNodeVM(project, model, null);
 

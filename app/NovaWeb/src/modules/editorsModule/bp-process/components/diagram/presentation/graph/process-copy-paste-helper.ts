@@ -1,22 +1,18 @@
+import {ICopyImageResult, IFileUploadService} from "../../../../../../commonModule/fileUpload";
+import {HttpStatusCode} from "../../../../../../commonModule/httpInterceptor/http-status-code";
+import {ILoadingOverlayService} from "../../../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../../../commonModule/localization/localization.service";
 import {IHttpError} from "../../../../../../commonModule/services/usersAndGroups.service";
-import {ILoadingOverlayService} from "../../../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {
-    IDiagramNode, IProcessShape,
-    ProcessShapeType, IProcessLink,
-    ILayout, ProcessClipboardData,
-    IProcessGraph, NodeType
-} from "./models/";
-import {ProcessLinkModel, IUserTaskShape, ISystemTaskShape} from "../../../../models/process-models";
-import {ShapesFactory} from "./shapes/shapes-factory";
-import {SystemTask, UserTask, UserDecision, SystemDecision} from "./shapes/";
-import {IClipboardService, ClipboardDataType} from "../../../../services/clipboard.svc";
-import {ProcessModel, IProcess, ItemTypePredefined} from "../../../../models/process-models";
 import {Models} from "../../../../../../main";
-import {IFileUploadService, ICopyImageResult} from "../../../../../../commonModule/fileUpload";
-import {HttpStatusCode} from "../../../../../../commonModule/httpInterceptor/http-status-code";
-import {IUserTask, IDecision} from "./models/process-graph-interfaces";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {ItemTypePredefined} from "../../../../../../main/models/itemTypePredefined.enum";
+import {IProcess, ProcessModel} from "../../../../models/process-models";
+import {ISystemTaskShape, IUserTaskShape, ProcessLinkModel} from "../../../../models/process-models";
+import {ClipboardDataType, IClipboardService} from "../../../../services/clipboard.svc";
+import {IDiagramNode, ILayout, IProcessGraph, IProcessLink, IProcessShape, NodeType, ProcessClipboardData, ProcessShapeType} from "./models/";
+import {IDecision, IUserTask} from "./models/process-graph-interfaces";
+import {SystemDecision, SystemTask, UserDecision, UserTask} from "./shapes/";
+import {ShapesFactory} from "./shapes/shapes-factory";
 
 enum PreprocessorNodeType {
     UserTask,

@@ -1,12 +1,8 @@
-import {IDialogSettings} from "../../../../shared/";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
-import {
-    MoveCopyArtifactPickerDialogController,
-    IMoveCopyArtifactPickerOptions,
-    MoveCopyArtifactInsertMethod,
-    MoveCopyActionType
-} from "./move-copy-artifact";
-import {Models, Enums} from "../../../../main/models";
+import {Enums, Models} from "../../../../main/models";
+import {IDialogSettings} from "../../../../shared/";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {IMoveCopyArtifactPickerOptions, MoveCopyActionType, MoveCopyArtifactInsertMethod, MoveCopyArtifactPickerDialogController} from "./move-copy-artifact";
 
 describe("MoveArtifactPickerDialogController", () => {
     let controller: MoveCopyArtifactPickerDialogController;
@@ -15,7 +11,7 @@ describe("MoveArtifactPickerDialogController", () => {
         const $instance = {} as ng.ui.bootstrap.IModalServiceInstance;
         const dialogSettings = {} as IDialogSettings;
         const dialogData = {
-            currentArtifact: <Models.IArtifact>{id: 1, name: "test", predefinedType: Enums.ItemTypePredefined.PrimitiveFolder},
+            currentArtifact: <Models.IArtifact>{id: 1, name: "test", predefinedType: ItemTypePredefined.PrimitiveFolder},
             actionType: MoveCopyActionType.Move
         } as IMoveCopyArtifactPickerOptions;
         const localization = {} as ILocalizationService;
@@ -46,7 +42,7 @@ describe("MoveArtifactPickerDialogController", () => {
 
     it("isItemSelectable folder inside", () => {
         // Arrange
-        const item = <Models.IArtifact>{id: 5, name: "test", predefinedType: Enums.ItemTypePredefined.PrimitiveFolder};
+        const item = <Models.IArtifact>{id: 5, name: "test", predefinedType: ItemTypePredefined.PrimitiveFolder};
         controller.insertMethod = MoveCopyArtifactInsertMethod.Inside;
 
         // Act

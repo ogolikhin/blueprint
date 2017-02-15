@@ -99,8 +99,11 @@
     <Compile Include="IAlmTarget.cs" />
     <Compile Include="Impl\AlmTarget.cs" />
     <Compile Include="Impl\DatabaseHelper.cs" />
+    <Compile Include="Impl\DeleteResultSet.cs" />
     <Compile Include="Impl\LicenseUsage.cs" />
     <Compile Include="Impl\OpenApi.cs" />
+    <Compile Include="Impl\SvcComponents.cs" />
+    <Compile Include="ISvcComponents.cs" />
     <Compile Include="Impl\OpenApiUser.cs" />
     <Compile Include="Impl\UserDataModel.cs" />
     <Compile Include="JobModel\Enums\JobType.cs" />

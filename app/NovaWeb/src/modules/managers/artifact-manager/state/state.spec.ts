@@ -1,15 +1,16 @@
-import * as angular from "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite";
 import {LockedByEnum, LockResultEnum, RolePermissions} from "../../../main/models/enums";
-import {IArtifact, ItemTypePredefined} from "../../../main/models/models";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
+import {IArtifact} from "../../../main/models/models";
 import {ISession} from "../../../shell/login/session.svc";
-import {StatefulArtifact, IStatefulArtifact, IIStatefulArtifact} from "../artifact/artifact";
+import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
+import {IStatefulArtifact, StatefulArtifact} from "../artifact/artifact";
 import {IArtifactService} from "../artifact/artifact.svc";
 import {ArtifactServiceMock} from "../artifact/artifact.svc.mock";
-import {StatefulArtifactServices, IStatefulArtifactServices} from "../services";
+import {IStatefulArtifactServices, StatefulArtifactServices} from "../services";
 import {IArtifactState} from "./state";
-import {SessionSvcMock} from "../../../shell/login/session.svc.mock";
+import * as angular from "angular";
 
 describe("ArtifactState", () => {
     let $q: ng.IQService;

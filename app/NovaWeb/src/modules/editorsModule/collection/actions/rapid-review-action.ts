@@ -1,10 +1,10 @@
-import {Helper} from "../../../shared/utils/helper";
-import {BPButtonAction} from "../../../shared";
-import {ItemTypePredefined} from "../../../main/models/enums";
-import {Enums} from "../../../main/models";
-import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {Enums} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
+import {BPButtonAction} from "../../../shared";
 import {IDialogService} from "../../../shared";
+import {Helper} from "../../../shared/utils/helper";
+import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 
 export class RapidReviewAction extends BPButtonAction {
     constructor(

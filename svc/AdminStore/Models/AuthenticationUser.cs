@@ -6,6 +6,7 @@ namespace AdminStore.Models
     {
         public int Id { get; set; }
         public string Login { get; set; }
+        public string DisplayName { get; set; }
         public string Password { get; set; }
         public bool IsEnabled { get; set; }
         public UserGroupSource Source { get; set; }

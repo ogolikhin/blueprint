@@ -1,17 +1,13 @@
-import * as angular from "angular";
-import "lodash";
 import "angular-mocks";
 import "angular-sanitize";
+import "lodash";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
-import {
-    IPropertyDescriptorBuilder,
-    PropertyDescriptorBuilder,
-    IPropertyDescriptor,
-    PropertyDescriptor
-} from "./propertyDescriptorBuilder.service";
-import {PropertyTypePredefined, PropertyLookupEnum, ItemTypePredefined, PrimitiveType} from "../../main/models/enums";
+import {PrimitiveType, PropertyLookupEnum, PropertyTypePredefined} from "../../main/models/enums";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IPropertyValue} from "../../main/models/models";
 import {IStatefulArtifact, IStatefulSubArtifact} from "../../managers/artifact-manager";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder, PropertyDescriptor} from "./propertyDescriptorBuilder.service";
+import * as angular from "angular";
 
 describe("property-descriptor-builder->", () => {
 

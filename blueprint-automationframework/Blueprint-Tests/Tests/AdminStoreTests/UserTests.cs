@@ -102,8 +102,7 @@ namespace AdminStoreTests
         #region 400 Bad Request Tests
 
         [TestCase(MinPasswordLength, 1)]
-        [TestCase(MaxPasswordLength, 19)] // TODO: any value more than 19 hours let the user change the password.
-        // TODO: we need to change the DateTime to UTC and retest this test
+        [TestCase(MaxPasswordLength, 23)]
         [TestRail(234569)]
         [Description("Try to reset the user's password which was changed within 24-hours password reset cooldown period." +
             "Verify that 400 BadRequest response and that the user still can login with its password.")]
@@ -115,7 +114,7 @@ namespace AdminStoreTests
             _adminUser.Password = changedPassword;
 
             // Execute: Attempt to change the password again after resetting the password.
-            DateTime alteredLastPasswordChangeTimestamp = DateTime.Now.AddHours(-hoursPassedAfterPasswordReset);
+            DateTime alteredLastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-hoursPassedAfterPasswordReset);
             _adminUser.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
 
             string newPassword = CreateValidPassword(length); 
@@ -216,8 +215,6 @@ namespace AdminStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
-        //TODO: enable and update this test once User Story 4560:[Security] Enforce server side password validation for Expired Password dialog is completed.
         [TestCase]
         [TestRail(234560)]
         [Description("Try to reset the user's password to a string value identical to the username of the user." +
@@ -233,12 +230,10 @@ namespace AdminStoreTests
             // Verify: Make sure the user can still login with their old password.
             VerifyLogin(Helper, _adminUser.Username, _adminUser.Password);
 
-            const string expectedExceptionMessage = "Password reset failed, new password is invalid";
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
+            const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to login name";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsLogin, expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
-        //TODO: enable and update this test once User Story 4560:[Security] Enforce server side password validation for Expired Password dialog is completed.
         [TestCase]
         [TestRail(234570)]
         [Description("Try to reset the user's password to a string value identical to the user's display name." +
@@ -254,8 +249,8 @@ namespace AdminStoreTests
             // Verify: Make sure the user can still login with their old password.
             VerifyLogin(Helper, _adminUser.Username, _adminUser.Password);
 
-            const string expectedExceptionMessage = "Password reset failed, new password is invalid";
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
+            const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to display name";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsDisplayName, expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request Tests

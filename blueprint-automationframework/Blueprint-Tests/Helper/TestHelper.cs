@@ -1345,9 +1345,9 @@ namespace Helper
         /// <param name="expectedErrorMessage">The expected error message.</param>
         /// <param name="expectedInvalidShapeIds">The expected list of shape's ids.</param>
         public static void ValidateProcessValidationError(RestResponse restResponse, int expectedErrorCode,
-            string expectedErrorMessage, List<int> invalidShapeIds)
+            string expectedErrorMessage, List<int> expectedInvalidShapeIds)
         {
-            ThrowIf.ArgumentNull(invalidShapeIds, nameof(invalidShapeIds));
+            ThrowIf.ArgumentNull(expectedInvalidShapeIds, nameof(expectedInvalidShapeIds));
             ProcessValidationError processValidationError = null;
 
             Assert.DoesNotThrow(() =>
@@ -1364,9 +1364,9 @@ namespace Helper
                 processValidationError.Message);
             actualError.AssertEquals(expectedError);
 
-            Assert.AreEqual(invalidShapeIds.Count, processValidationError.ErrorContent.Count,
+            Assert.AreEqual(expectedInvalidShapeIds.Count, processValidationError.ErrorContent.Count,
                 "Number of invalid shapes should have expected value.");
-            foreach (int id in invalidShapeIds)
+            foreach (int id in expectedInvalidShapeIds)
             {
                 Assert.True(processValidationError.ErrorContent.Exists(shapeId => shapeId == id),
                     "List of invalid shapes id should contain expected values.");

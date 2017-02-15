@@ -1,41 +1,37 @@
 import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
-import {ItemTypePredefined, LockedByEnum} from "../../models/enums";
+import {LockedByEnum} from "../../models/enums";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
-import {
-    IArtifactState,
-    IStatefulArtifact,
-    IMetaDataService,
-    IItemChangeSet
-} from "../../../managers/artifact-manager";
-import {INavigationService} from "../../../commonModule/navigation/navigation.service";
-import {
-    IDialogService,
-    IBPAction,
-    IBPDropdownAction,
-    IBPButtonOrDropdownAction,
-    BPButtonGroupAction,
-    BPMenuAction,
-    BPButtonOrDropdownAction,
-    BPButtonOrDropdownSeparator
-} from "../../../shared";
-import {
-    SaveAction,
-    PublishAction,
-    DiscardAction,
-    RefreshAction,
-    DeleteAction,
-    OpenImpactAnalysisAction,
-    MoveCopyAction,
-    AddToCollectionAction
-} from "./actions";
+import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
-import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {ICollectionService} from "../../../editorsModule/collection/collection.service";
-import {Enums} from "../../models";
-import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
-import {IMessageService} from "../messages/message.svc";
+import {IArtifactState, IItemChangeSet, IMetaDataService, IStatefulArtifact} from "../../../managers/artifact-manager";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {
+    BPButtonGroupAction,
+    BPButtonOrDropdownAction,
+    BPButtonOrDropdownSeparator,
+    BPMenuAction,
+    IBPAction,
+    IBPButtonOrDropdownAction,
+    IBPDropdownAction,
+    IDialogService
+} from "../../../shared";
+import {Enums} from "../../models";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
+import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
+import {IMessageService} from "../messages/message.svc";
+import {
+    AddToCollectionAction,
+    DeleteAction,
+    DiscardAction,
+    MoveCopyAction,
+    OpenImpactAnalysisAction,
+    PublishAction,
+    RefreshAction,
+    SaveAction
+} from "./actions";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 enum InfoBannerEnum {

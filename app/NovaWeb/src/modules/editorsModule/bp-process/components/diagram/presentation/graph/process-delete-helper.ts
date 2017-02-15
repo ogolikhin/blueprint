@@ -1,3 +1,4 @@
+import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {
     INotifyModelChanged, ProcessShapeType,
     NodeChange, IScopeContext,
@@ -8,19 +9,32 @@ import {ProcessGraph} from "./process-graph";
 import {ProcessAddHelper} from "./process-add-helper";
 import {ShapesFactory} from "./shapes/shapes-factory";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {ProcessModels} from "../../../../";
 
 export class ProcessDeleteHelper {
+
+    public static deleteUserTasks(userTaskIds: number[], processGraph: IProcessGraph): void {
+        const clonedProcess = processGraph.viewModel.getClonedProcessModel();
+        for (let userTaskId of userTaskIds) {
+            processGraph.viewModel.updateTreeAndFlows();
+            if (!!processGraph.viewModel.getShapeById(userTaskId) && !ProcessDeleteHelper.deleteUserTask(userTaskId, null, processGraph)) {
+                processGraph.viewModel.updateProcessModel(clonedProcess);
+                return;
+            }
+        }
+        processGraph.notifyUpdateInModel(NodeChange.Remove, null);
+    }
 
     public static deleteUserTask(userTaskId: number, postDeleteFunction: INotifyModelChanged = null,
                                  processGraph: IProcessGraph): boolean {
 
         let newDestinationId: number = processGraph.viewModel.getFirstNonSystemShapeId(userTaskId);
         let previousShapeIds: number[] = processGraph.viewModel.getPrevShapeIds(userTaskId);
-        if (!this.canDeleteUserTask(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
+        if (!ProcessDeleteHelper.canDeleteUserTask(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
             return false;
         }
 
-        this.deleteUserTaskInternal(userTaskId, previousShapeIds, newDestinationId, processGraph);
+        ProcessDeleteHelper.deleteUserTaskInternal(userTaskId, previousShapeIds, newDestinationId, processGraph);
 
         if (postDeleteFunction) {
             postDeleteFunction(NodeChange.Remove, userTaskId);
@@ -32,7 +46,7 @@ export class ProcessDeleteHelper {
     public static deleteDecision(decisionId: number, postDeleteFunction: INotifyModelChanged = null,
                                  processGraph: IProcessGraph, shapesFactoryService: ShapesFactory): boolean {
 
-        if (!this.canDeleteDecision(decisionId, processGraph)) {
+        if (!ProcessDeleteHelper.canDeleteDecision(decisionId, processGraph)) {
             return false;
         }
 
@@ -40,10 +54,10 @@ export class ProcessDeleteHelper {
         let shapesToDelete: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
         let firstOutgoingLink = processGraph.getNextLinks(decisionId).reduce((a, b) => a.orderindex < b.orderindex ? a : b);
 
-        this.reconnectExternalLinksInScope(scopeContext, processGraph);
+        ProcessDeleteHelper.reconnectExternalLinksInScope(scopeContext, processGraph);
         processGraph.updateSourcesWithDestinations(decisionId, firstOutgoingLink.destinationId);
-        this.deleteBranchDestinationId(decisionId, processGraph);
-        this.deleteShapesAndLinksByIds(shapesToDelete, processGraph);
+        ProcessDeleteHelper.deleteBranchDestinationId(decisionId, processGraph);
+        ProcessDeleteHelper.deleteShapesAndLinksByIds(shapesToDelete, processGraph);
 
         let selectedShapeId: number = firstOutgoingLink.destinationId;
 
@@ -73,16 +87,16 @@ export class ProcessDeleteHelper {
 
         if (!previousShapeIds || !newDestinationId) {
             canDelete = false;
-        } else if (this.isLastInProcess(previousShapeIds, newDestinationId, processGraph)) {
+        } else if (ProcessDeleteHelper.isLastInProcess(previousShapeIds, newDestinationId, processGraph)) {
             errorMessage = rootScope.config.labels["ST_Delete_CannotDelete_OnlyUserTask"];
             canDelete = false;
-        } else if (this.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
-            let decisionId = this.getConnectedDecisionId(previousShapeIds, processGraph);
+        } else if (ProcessDeleteHelper.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
+            let decisionId = ProcessDeleteHelper.getConnectedDecisionId(previousShapeIds, processGraph);
 
-            if (!this.canDeleteDecisionConditions(decisionId, [userTaskId], processGraph)) {
+            if (!ProcessDeleteHelper.canDeleteDecisionConditions(decisionId, [userTaskId], processGraph)) {
                 canDelete = false;
             }
-        } else if (this.isUserTaskBetweenTwoUserDecisions(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
+        } else if (ProcessDeleteHelper.isUserTaskBetweenTwoUserDecisions(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
             errorMessage = rootScope.config.labels["ST_Delete_CannotDelete_UT_Between_Two_UD"];
             canDelete = false;
         }
@@ -137,7 +151,7 @@ export class ProcessDeleteHelper {
 
         if (!targetIds || targetIds.length === 0) {
             canDelete = false;
-        } else if (this.hasMinConditions(decisionId, processGraph)) {
+        } else if (ProcessDeleteHelper.hasMinConditions(decisionId, processGraph)) {
             errorMessage = rootScope.config.labels["ST_Delete_CannotDelete_UD_AtleastTwoConditions"];
             canDelete = false;
         } else {
@@ -162,27 +176,32 @@ export class ProcessDeleteHelper {
     private static deleteUserTaskInternal(userTaskId: number, previousShapeIds: number[], newDestinationId: number,
                                           processGraph: IProcessGraph): void {
 
-        if (this.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
-            let decisionId = this.getConnectedDecisionId(previousShapeIds, processGraph);
-            this.deleteDecisionBranches(decisionId, [userTaskId], processGraph);
+        if (ProcessDeleteHelper.isLastUserTaskInCondition(userTaskId, previousShapeIds, newDestinationId, processGraph)) {
+            let decisionId = ProcessDeleteHelper.getConnectedDecisionId(previousShapeIds, processGraph);
+            ProcessDeleteHelper.deleteDecisionBranchesInternal(decisionId, [userTaskId], processGraph, false);
         } else {
             let scopeContext = processGraph.getScope(userTaskId);
             let shapesToBeDeletedIds: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
 
-            this.reconnectExternalLinksInScope(scopeContext, processGraph);
+            ProcessDeleteHelper.reconnectExternalLinksInScope(scopeContext, processGraph);
             processGraph.updateSourcesWithDestinations(userTaskId, newDestinationId);
-            this.deleteShapesAndLinksByIds(shapesToBeDeletedIds, processGraph);
+            ProcessDeleteHelper.deleteShapesAndLinksByIds(shapesToBeDeletedIds, processGraph);
 
             for (let mapping of scopeContext.mappings) {
-                this.deleteBranchDestinationId(mapping.decisionId, processGraph);
+                ProcessDeleteHelper.deleteBranchDestinationId(mapping.decisionId, processGraph);
             }
         }
     }
 
     public static deleteDecisionBranches(decisionId: number, targetIds: number[],
                                          processGraph: IProcessGraph): boolean {
+        return ProcessDeleteHelper.deleteDecisionBranchesInternal(decisionId, targetIds, processGraph, true);
+    }
 
-        if (!this.canDeleteDecisionConditions(decisionId, targetIds, processGraph)) {
+    private static deleteDecisionBranchesInternal(decisionId: number, targetIds: number[],
+                                         processGraph: IProcessGraph, triggerModelUpdate: boolean = true): boolean {
+
+        if (!ProcessDeleteHelper.canDeleteDecisionConditions(decisionId, targetIds, processGraph)) {
             return false;
         }
 
@@ -192,7 +211,7 @@ export class ProcessDeleteHelper {
             let toBeRemovedLink = processGraph.viewModel.links[decisionToShapeLinkIndex];
 
             let scopeContext = processGraph.getBranchScope(toBeRemovedLink, processGraph.defaultNextIdsProvider);
-            this.reconnectExternalLinksInScope(scopeContext, processGraph);
+            ProcessDeleteHelper.reconnectExternalLinksInScope(scopeContext, processGraph);
 
             let shapeIdsToDelete: number[] = Object.keys(scopeContext.visitedIds).map(a => Number(a));
 
@@ -206,10 +225,12 @@ export class ProcessDeleteHelper {
 
             processGraph.viewModel.links.splice(decisionToShapeLinkIndex, 1);
             processGraph.viewModel.decisionBranchDestinationLinks.splice(indexOfMapping, 1);
-            this.deleteShapesAndLinksByIds(shapeIdsToDelete, processGraph);
+            ProcessDeleteHelper.deleteShapesAndLinksByIds(shapeIdsToDelete, processGraph);
         }
 
-        processGraph.notifyUpdateInModel(NodeChange.Remove, decisionId);
+        if (triggerModelUpdate) {
+            processGraph.notifyUpdateInModel(NodeChange.Remove, decisionId);
+        }
 
         return true;
     }
@@ -227,7 +248,7 @@ export class ProcessDeleteHelper {
     }
 
     public static isUserTaskBetweenTwoUserDecisions(userTaskId: number, previousIds: number[], nextShapeId: number, processGraph: IProcessGraph): boolean {
-        let decisionId = this.getConnectedDecisionId(previousIds, processGraph);
+        let decisionId = ProcessDeleteHelper.getConnectedDecisionId(previousIds, processGraph);
 
         return decisionId &&
             processGraph.viewModel.getShapeTypeById(decisionId) === ProcessShapeType.UserDecision &&
@@ -235,7 +256,7 @@ export class ProcessDeleteHelper {
     }
 
     public static isLastUserTaskInCondition(userTaskId: number, previousShapeIds: number[], nextShapeId: number, processGraph: IProcessGraph): boolean {
-        let decisionId = this.getConnectedDecisionId(previousShapeIds, processGraph);
+        let decisionId = ProcessDeleteHelper.getConnectedDecisionId(previousShapeIds, processGraph);
         if (!decisionId) {
             return false;
         }
@@ -264,7 +285,7 @@ export class ProcessDeleteHelper {
                     continue;
                 }
 
-                let mapping: IConditionContext = this.getConditionFromIdInScope(id, scopeContext);
+                let mapping: IConditionContext = ProcessDeleteHelper.getConditionFromIdInScope(id, scopeContext);
                 if (!mapping) {
                     continue;
                 }
@@ -275,8 +296,8 @@ export class ProcessDeleteHelper {
                         let link = processGraph.getLink(prevShapeId, id);
                         let newDestinationId = mapping.targetId;
 
-                        if (this.isInfiniteLoop(mapping.targetId, mapping, processGraph)) {
-                            //if end shape's condition is coming back to this condition, then need to connect it back to the main flow.
+                        if (ProcessDeleteHelper.isInfiniteLoop(mapping.targetId, mapping, processGraph)) {
+                            //if end shape's condition is coming back to ProcessDeleteHelper condition, then need to connect it back to the main flow.
                             newDestinationId = processGraph.layout.getConditionDestination(originalDecisionId).id;
                         }
 

@@ -1,8 +1,8 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
-import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";

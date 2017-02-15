@@ -1,25 +1,21 @@
 import * as angular from "angular";
 import "angular-mocks";
 import "../../../";
-import {RefreshAction} from "./refresh-action";
-import {
-    IStatefulArtifact,
-    IStatefulArtifactFactory,
-    IMetaDataService,
-    MetaDataService
-} from "../../../../managers/artifact-manager";
-import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../models/enums";
-import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
-import {LoadingOverlayService, ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILoadingOverlayService, LoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {RolePermissions} from "../../../../main/models/enums";
+import {IMetaDataService, IStatefulArtifact, IStatefulArtifactFactory, MetaDataService} from "../../../../managers/artifact-manager";
+import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {LogMock} from "../../../../shell/log/server-logger.svc.mock";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "../../bp-page-content/mainbreadcrumb.svc.mock";
-import {MainBreadcrumbService, IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 import {NavigationServiceMock} from "../../../../commonModule/navigation/navigation.service.mock";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {RefreshAction} from "./refresh-action";
 
 xdescribe("RefreshAction", () => {
     let $scope: ng.IScope;

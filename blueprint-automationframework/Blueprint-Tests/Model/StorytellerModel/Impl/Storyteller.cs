@@ -307,35 +307,10 @@ namespace Model.StorytellerModel.Impl
             return response;
         }
 
+        /// <seealso cref="IStoryteller.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
         public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetNovaProcess));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESS_id_, artifactId);
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (versionIndex.HasValue)
-            {
-                queryParameters.Add("versionId", versionIndex.ToString());
-            }
-
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(Storyteller), artifactId);
-
-            var response = restApi.SendRequestAndDeserializeObject<NovaProcess>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return response;
+            return ArtifactStore.GetNovaProcess(Address, user, artifactId, versionIndex, expectedStatusCodes);
         }
 
         public IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -427,31 +402,14 @@ namespace Model.StorytellerModel.Impl
             return updatedProcess;
         }
 
+        /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateNovaProcess));
-
-            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESSUPDATE_id_, novaProcess.Id);
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
-
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, NovaProcess>(
-                path,
-                RestRequestMethod.PATCH,
-                novaProcess,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return restResponse;
+            return ArtifactStore.UpdateNovaProcess(Address, user, novaProcess, expectedStatusCodes);
         }
 
-        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IStoryteller.UpdateProcessReturnResponseOnly(IUser, IProcess, bool, List{HttpStatusCode})"/>
+        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcessReturnResponseOnly));
 
@@ -468,90 +426,31 @@ namespace Model.StorytellerModel.Impl
                 }
             }
 
-            var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
+            var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes);
 
             return restResponse.Content;
         }
 
-        public string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IStoryteller.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>
+        public string UploadFile(IUser user, IFile file, DateTime? expireDate = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UploadFile));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(file, nameof(file));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.Created };
-            }
-
-            var additionalHeaders = new Dictionary<string, string>();
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.FileStore.FILES_filename_, file.FileName);
-
-            if (expireDate != null)
-            {
-                DateTime time = (DateTime)expireDate;
-                path = I18NHelper.FormatInvariant("{0}/?expired={1}", path, time.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'", CultureInfo.InvariantCulture));
-            }
-
-            byte[] bytes = file.Content.ToArray();
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Uploading a file named: {1}, size: {2}", nameof(Storyteller), file.FileName, bytes.Length);
-
-            var artifactResult = restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.POST,
-                fileName: file.FileName,
-                fileContent: bytes,
-                contentType: "application/json;charset=utf8",
-                additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-
-            return artifactResult.Content;
+            return SvcComponents.UploadFile(Address, user, file, expireDate, expectedStatusCodes);
         }
 
-        /// <seealso cref="IStoryteller.PublishProcess(IUser, IProcess, List{HttpStatusCode}, bool)"/>
-        public string PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IStoryteller.PublishProcess(IUser, IProcess, List{HttpStatusCode})"/>
+        public NovaPublishArtifactResult PublishProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(PublishProcess));
 
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            const string path = RestPaths.Svc.Shared.Artifacts.PUBLISH;
-            var restApi = new RestApiFacade(Address, tokenValue);
-
             Logger.WriteInfo("{0} Publishing Process ID: {1}, name: {2}", nameof(Storyteller), process.Id, process.Name);
-            var publishResults = restApi.SendRequestAndDeserializeObject<List<NovaPublishArtifactResult>, List<int>>(
-                path, 
-                RestRequestMethod.POST, 
+
+            var publishResults = SvcShared.PublishArtifacts(Address,
+                user,
                 new List<int> { process.Id },
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes);
 
             if (publishResults?[0].StatusCode == NovaPublishArtifactResult.Result.Success)
             {
@@ -559,7 +458,7 @@ namespace Model.StorytellerModel.Impl
                 MarkArtifactAsPublished(process.Id);
             }
 
-            return restApi.Content;
+            return publishResults[0];
         }
 
         /// <seealso cref="IStoryteller.DiscardProcessArtifact(IArtifact, List{HttpStatusCode})"/>
@@ -593,30 +492,10 @@ namespace Model.StorytellerModel.Impl
             return deletedArtifacts;
         }
 
+        /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
         public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(DeleteNovaProcessArtifact));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
-
-            string tokenValue = user.Token?.AccessControlToken;
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
-
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(Storyteller), novaProcess.Id, novaProcess.Name);
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
-                path, 
-                RestRequestMethod.DELETE, 
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
+            return ArtifactStore.DeleteNovaProcessArtifact(Address, user, novaProcess, expectedStatusCodes);
         }
         
         public int GetStorytellerShapeLimitFromDb

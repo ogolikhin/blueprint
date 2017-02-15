@@ -1,9 +1,10 @@
 import "angular";
 import "angular-mocks";
 import "lodash";
-import {Models, SearchServiceModels} from "../../models";
-import {SearchResultVM, ProjectSearchResultVM, ArtifactSearchResultVM} from "./search-result-vm";
 import {IProjectService} from "../../../managers/project-manager/";
+import {SearchServiceModels} from "../../models";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
+import {ArtifactSearchResultVM, ProjectSearchResultVM, SearchResultVM} from "./search-result-vm";
 
 describe("SearchResultVMFactory", () => {
     let projectService: IProjectService;
@@ -56,7 +57,7 @@ describe("SearchResultVMFactory", () => {
     describe("ArtifactSearchResultVM", () => {
         it("select, when selectable, calls onSelect", () => {
             // Arrange
-            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
             const searchResultVM = new ArtifactSearchResultVM(model, onSelect, () => true);
             const value = true;
 
@@ -69,7 +70,7 @@ describe("SearchResultVMFactory", () => {
 
         it("select, when not selectable, does not call onSelect", () => {
             // Arrange
-            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
             const searchResultVM = new ArtifactSearchResultVM(model, onSelect, () => false);
             const value = true;
 
@@ -82,7 +83,7 @@ describe("SearchResultVMFactory", () => {
 
         it("id returns correct result", () => {
             // Arrange
-            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const model = {id: 123, itemId: 123, prefix: "AC", predefinedType: ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
             const searchResultVM = new ArtifactSearchResultVM(model, onSelect);
 
             // Act
@@ -94,7 +95,7 @@ describe("SearchResultVMFactory", () => {
 
         it("iconClass returns correct result", () => {
             // Arrange
-            const model = {id: 123, itemId: 123, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+            const model = {id: 123, itemId: 123, predefinedType: ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
             const searchResultVM = new ArtifactSearchResultVM(model, onSelect);
 
             // Act

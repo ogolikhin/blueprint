@@ -1,11 +1,12 @@
-import {IProcessShape, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
-import {IProcessGraph, IDiagramNode, IDiagramLink, IDiagramNodeElement} from "./../models/";
-import {DiagramNodeElement} from "./diagram-element";
-import {ElementType, Direction, NodeType} from "./../models/";
+import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {IProcessShape, IPropertyValueInformation} from "../../../../../models/process-models";
+import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 import {IDialogParams} from "../../../../messages/message-dialog";
 import {IModalDialogCommunication} from "../../../../modal-dialogs/modal-dialog-communication";
-import {IStatefulProcessSubArtifact} from "../../../../../process-subartifact";
 import {ProcessEvents} from "../../../process-diagram-communication";
+import {IDiagramLink, IDiagramNode, IDiagramNodeElement, IProcessGraph} from "./../models/";
+import {Direction, ElementType, NodeType} from "./../models/";
+import {DiagramNodeElement} from "./diagram-element";
 
 export class DiagramNode<T extends IProcessShape> extends DiagramNodeElement implements IDiagramNode {
     direction: Direction;

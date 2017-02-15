@@ -1,11 +1,16 @@
 ﻿import "angular";
 import "angular-mocks";
 import "rx/dist/rx.lite.js";
-import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
+import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
+import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {MainBreadcrumbServiceMock} from "../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {MoveCopyArtifactInsertMethod} from "../../main/components/dialogs/move-copy-artifact/move-copy-artifact";
-import {AdminStoreModels, Enums, Models, TreeModels} from "../../main/models";
+import {MessageType} from "../../main/components/messages/message";
+import {MessageServiceMock} from "../../main/components/messages/message.mock";
+import {AdminStoreModels, Models, TreeModels} from "../../main/models";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {DialogServiceMock} from "../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {StatefulArtifactMock} from "../artifact-manager/artifact/artifact.mock";
 import {MetaDataServiceMock} from "../artifact-manager/metadata/metadata.svc.mock";
@@ -13,10 +18,6 @@ import {SelectionManagerMock} from "../selection-manager/selection-manager.mock"
 import {IArtifactNode, ProjectManager} from "./project-manager";
 import {ProjectServiceStatusCode} from "./project-service";
 import {ProjectServiceMock} from "./project-service.mock";
-import {MessageServiceMock} from "../../main/components/messages/message.mock";
-import {MessageType} from "../../main/components/messages/message";
-import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
-import {HttpStatusCode} from "../../commonModule/httpInterceptor/http-status-code";
 
 describe("Project Manager Test", () => {
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
@@ -39,10 +40,10 @@ describe("Project Manager Test", () => {
         type: AdminStoreModels.InstanceItemType.Project,
         hasChildren: true,
         projectId: 10,
-        itemTypeId: Enums.ItemTypePredefined.Project,
+        itemTypeId: ItemTypePredefined.Project,
         prefix: "PR",
         itemTypeName: "Project",
-        predefinedType: Enums.ItemTypePredefined.Project
+        predefinedType: ItemTypePredefined.Project
     } as AdminStoreModels.IInstanceItem;
 
     beforeEach(inject(($q: ng.IQService, $compile: ng.ICompileService, $rootScope: ng.IRootScopeService, projectManager: ProjectManager,
@@ -226,10 +227,10 @@ describe("Project Manager Test", () => {
                 type: AdminStoreModels.InstanceItemType.Project,
                 hasChildren: true,
                 projectId: 12,
-                itemTypeId: Enums.ItemTypePredefined.Project,
+                itemTypeId: ItemTypePredefined.Project,
                 prefix: "PR",
                 itemTypeName: "Project",
-                predefinedType: Enums.ItemTypePredefined.Project
+                predefinedType: ItemTypePredefined.Project
             } as AdminStoreModels.IInstanceItem;
             let projectNode = factory.createExplorerNodeVM(project, true);
 
@@ -254,10 +255,10 @@ describe("Project Manager Test", () => {
                 type: AdminStoreModels.InstanceItemType.Project,
                 hasChildren: true,
                 projectId: 11,
-                itemTypeId: Enums.ItemTypePredefined.Project,
+                itemTypeId: ItemTypePredefined.Project,
                 prefix: "PR",
                 itemTypeName: "Project",
-                predefinedType: Enums.ItemTypePredefined.Project
+                predefinedType: ItemTypePredefined.Project
             } as AdminStoreModels.IInstanceItem;
             spyOn(dialogService, "open").and.callFake(() => {
                 return $q.resolve(

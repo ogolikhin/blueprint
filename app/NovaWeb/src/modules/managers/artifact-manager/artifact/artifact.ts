@@ -1,17 +1,18 @@
-import {ArtifactState, IArtifactState} from "../state";
-import {Models, Enums} from "../../../main/models";
-import {IStatefulArtifactServices} from "../services";
-import {StatefulItem, IStatefulItem, IIStatefulItem} from "../item";
+import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
+import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
+import {Enums, Models} from "../../../main/models";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
+import {IDialogSettings} from "../../../shared";
+import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
+import {ErrorCode} from "../../../shell/error/error-code";
+import {IDispose} from "../../models";
 import {IArtifactAttachmentsResultSet} from "../attachments";
 import {IChangeSet} from "../changeset";
-import {ISubArtifactCollection, StatefulSubArtifactCollection} from "../sub-artifact";
+import {IIStatefulItem, IStatefulItem, StatefulItem} from "../item";
 import {MetaData} from "../metadata";
-import {IDispose} from "../../models";
-import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../main/components/dialogs/bp-confirm-publish";
-import {IDialogSettings} from "../../../shared";
-import {IApplicationError, ApplicationError} from "../../../shell/error/applicationError";
-import {HttpStatusCode} from "../../../commonModule/httpInterceptor/http-status-code";
-import {ErrorCode} from "../../../shell/error/error-code";
+import {IStatefulArtifactServices} from "../services";
+import {ArtifactState, IArtifactState} from "../state";
+import {ISubArtifactCollection, StatefulSubArtifactCollection} from "../sub-artifact";
 
 export interface IStatefulArtifact extends IStatefulItem, IDispose {
     //extra properties
@@ -522,7 +523,7 @@ export class StatefulArtifact extends StatefulItem implements IStatefulArtifact,
     }
 
     public supportRelationships(): boolean {
-        if (this.predefinedType === Models.ItemTypePredefined.CollectionFolder) {
+        if (this.predefinedType === ItemTypePredefined.CollectionFolder) {
             return false;
         }
         return super.supportRelationships();

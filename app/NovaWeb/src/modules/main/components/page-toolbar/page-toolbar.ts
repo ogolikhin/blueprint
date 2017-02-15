@@ -1,21 +1,23 @@
-import {IArtifact} from "../../models/models";
-import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
-import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IMessageService} from "../messages/message.svc";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
-import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
+import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {IJobsService} from "../../../editorsModule/jobs/jobs.service";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
 import {IDialogSettings, IDialogService} from "../../../shared";
 import {Models, Enums} from "../../models";
+import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
-import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
 import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
+import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
+import {IArtifact} from "../../models/models";
+import {IMessageService} from "../messages/message.svc";
+import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
+
 
 export class PageToolbar implements ng.IComponentOptions {
     public template: string = require("./page-toolbar.html");
@@ -83,7 +85,6 @@ export class PageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        // this.projectManager.openProjectWithDialog();
         this.projectExplorerService.openProjectWithDialog();
     };
 
@@ -247,7 +248,7 @@ export class PageToolbarController {
         };
 
         const dialogOptions: IArtifactPickerOptions = {
-            selectableItemTypes: [Models.ItemTypePredefined.Process],
+            selectableItemTypes: [ItemTypePredefined.Process],
             isItemSelectable: (item: Models.IArtifact) => {
                         return item.id > 0 &&
                                 !item.lockedByUser;
@@ -442,7 +443,7 @@ export class PageToolbarController {
 
                 this.messageService.addInfo("Publish_All_Success_Message", data.artifacts.length);
 
-                if (_.find(data.artifacts, {predefinedType: Enums.ItemTypePredefined.Process})) {
+                if (_.find(data.artifacts, {predefinedType: ItemTypePredefined.Process})) {
                     this.messageService.addInfo("ST_ProcessType_RegenerateUSS_Message");
                  }
             })

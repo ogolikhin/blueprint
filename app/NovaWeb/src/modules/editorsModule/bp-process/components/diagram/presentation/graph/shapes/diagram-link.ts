@@ -1,13 +1,11 @@
-﻿import {IProcessGraph, IDiagramNode} from "../models/";
-import {IDiagramElement, IMenuContainer} from "../models/";
-import {IProcessLinkModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
-import {ArtifactUpdateType} from "../../../../../models/enums";
-import {NodeType, NodeChange, ElementType} from "../models/";
-import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
-import {DiagramElement} from "./diagram-element";
-import {Connector, ConnectorOverlay} from "./connector";
+﻿import {IProcessLinkModel} from "../../../../../models/process-models";
 import {ProcessEvents} from "../../../process-diagram-communication";
-
+import {Label, LabelStyle, LabelType} from "../labels/label";
+import {IDiagramNode, IProcessGraph} from "../models/";
+import {IDiagramElement, IMenuContainer} from "../models/";
+import {ElementType, NodeType} from "../models/";
+import {Connector, ConnectorOverlay} from "./connector";
+import {DiagramElement} from "./diagram-element";
 
 export interface IDiagramLink extends IDiagramElement, IMenuContainer {
     renderLabel();
@@ -59,7 +57,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                 "#999999"
             );
             this.textLabel = new Label(
-                LabelType.Text, 
+                LabelType.Text,
                 graph.getHtmlElement(),
                 this.model.sourceId + "-" + this.model.destinationId,
                 "Label-B" + this.model.sourceId + "-" + this.model.destinationId,
@@ -70,7 +68,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
                 graph.viewModel.isReadonly,
                 this.LABEL_TEXT_ALIGNMENT
             );
-            // handle label change event 
+            // handle label change event
             this.textLabel.onTextChange = (value: string) => {
                 this.label = value;
             };
@@ -115,7 +113,7 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
             this.processDiagramManager.action(ProcessEvents.ArtifactUpdate);
         }
     }
-    
+
     public get sourceNode(): IDiagramNode {
         if (this.source != null && this.source.getNode) {
             return this.source.getNode();
@@ -135,13 +133,13 @@ export class DiagramLink extends DiagramElement implements IDiagramLink {
     public showMenu(graph: MxGraph) {
         this.geometry.offset = new mxPoint(0, 30);
         const startNode = this.sourceNode;
-        if (startNode && 
-            (startNode.getNodeType() === NodeType.SystemDecision || 
+        if (startNode &&
+            (startNode.getNodeType() === NodeType.SystemDecision ||
             startNode.getNodeType() === NodeType.UserTask)) {
                 this.addSystemDecisionOverlay(graph);
         } else {
             this.addUserTaskAndDecisionOverlay(graph);
-        }               
+        }
     }
 
     private addSystemDecisionOverlay(graph: MxGraph): void {

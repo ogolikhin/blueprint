@@ -1,6 +1,6 @@
-import {ItemTypePredefined} from "../../../../../main/models/enums";
+import {ProcessEnums, ProcessModels} from "../../../";
 import {Models} from "../../../../../main";
-import {ProcessModels, ProcessEnums} from "../../../";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 
 export interface IProcessGraphModel {
 

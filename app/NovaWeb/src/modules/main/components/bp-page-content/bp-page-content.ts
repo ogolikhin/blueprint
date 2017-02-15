@@ -1,11 +1,11 @@
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {ISelection} from "../../../managers/artifact-manager";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IDialogService, IDialogSettings} from "../../../shared/widgets/bp-dialog/bp-dialog";
-import {ItemTypePredefined} from "../../models/enums";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
-import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 export class PageContent implements ng.IComponentOptions {

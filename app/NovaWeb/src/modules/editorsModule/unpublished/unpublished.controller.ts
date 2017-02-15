@@ -1,16 +1,16 @@
-import {ILocalizationService} from "../../commonModule/localization/localization.service";
-import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
-import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
-import {IArtifact, IPublishResultSet} from "../../main/models/models";
 import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../commonModule/localization/localization.service";
+import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
-import {INavigationService} from "../../commonModule/navigation/navigation.service";
-import {IUnpublishedArtifactsService} from "./unpublished.service";
-import {ItemTypePredefined} from "../../main/models/enums";
-import {IDialogService} from "../../shared/";
 import {IMessageService} from "../../main/components/messages/message.svc";
 import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
+import {IArtifact, IPublishResultSet} from "../../main/models/models";
+import {IDialogService} from "../../shared/";
+import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
+import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
+import {IUnpublishedArtifactsService} from "./unpublished.service";
 
 interface IArtifactWithProject extends IArtifact {
     projectName: string;

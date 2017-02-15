@@ -3,19 +3,20 @@ import "angular-mocks";
 import "script!mxClient";
 import {LoadingOverlayServiceMock} from "../../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {ProcessDeleteAction} from "./process-delete-action";
-import {NavigationServiceMock} from "../../../../../commonModule/navigation/navigation.service.mock";
-import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
-import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
-import {CommunicationManager} from "../../../services/communication-manager";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
-import {StatefulProcessArtifact, IStatefulProcessArtifact} from "../../../process-artifact";
-import {ProcessEvents} from "../../diagram/process-diagram-communication";
-import {ItemTypePredefined, RolePermissions} from "../../../../../main/models/enums";
-import {IToolbarCommunication} from "../toolbar-communication";
-import * as TestShapes from "../../../models/test-shape-factory";
-import * as TestModels from "../../../models/test-model-factory";
+import {NavigationServiceMock} from "../../../../../commonModule/navigation/navigation.service.mock";
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {RolePermissions} from "../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../main/models/itemTypePredefined.enum";
 import {SelectionManagerMock} from "../../../../../managers/selection-manager/selection-manager.mock";
+import {DialogServiceMock} from "../../../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import * as TestModels from "../../../models/test-model-factory";
+import * as TestShapes from "../../../models/test-shape-factory";
+import {IStatefulProcessArtifact, StatefulProcessArtifact} from "../../../process-artifact";
+import {CommunicationManager} from "../../../services/communication-manager";
+import {IProcessDiagramCommunication} from "../../diagram/process-diagram-communication";
+import {ProcessEvents} from "../../diagram/process-diagram-communication";
+import {IToolbarCommunication} from "../toolbar-communication";
 import {ProjectExplorerServiceMock} from "../../../../../main/components/bp-explorer/project-explorer.service.mock";
 
 describe("ProcessDeleteAction", () => {
@@ -173,7 +174,7 @@ describe("ProcessDeleteAction", () => {
             expect(action.tooltip).toEqual(localization.get("ST_Shapes_Delete_Tooltip"));
         });
 
-        it("sets disabled to true when multiple shapes are selected", () => {
+        it("sets disabled to false when multiple shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
                     statefulProcess, localization, messageService, selectionManager, projectExplorerService,
@@ -185,7 +186,7 @@ describe("ProcessDeleteAction", () => {
             processDiagramCommunication.action(ProcessEvents.SelectionChanged, [userTask, userTask2]);
 
             // assert
-            expect(action.disabled).toEqual(true);
+            expect(action.disabled).toEqual(false);
         });
 
         it("sets disabled to false when User Task is selected", () => {
@@ -389,7 +390,7 @@ describe("ProcessDeleteAction", () => {
             expect(spy).not.toHaveBeenCalled();
         });
 
-        it("doesn't delete when multiple shapes are selected", () => {
+        it("delete when multiple shapes are selected", () => {
             // arrange
             const action = new ProcessDeleteAction(
                     statefulProcess, localization, messageService, selectionManager, projectExplorerService,
@@ -403,7 +404,7 @@ describe("ProcessDeleteAction", () => {
             action.execute();
 
             // assert
-            expect(spy).not.toHaveBeenCalled();
+            expect(spy).toHaveBeenCalled();
         });
 
         it("doesn't delete when selection is valid for read-only process", () => {

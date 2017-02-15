@@ -1,10 +1,11 @@
 ﻿import "angular-mocks";
+import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
-import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../models";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
 import * as angular from "angular";
@@ -217,7 +218,7 @@ describe("BpArtifactPickerController", () => {
 
     it("onSearchResultDoubleClick, when single-selection mode, calls onDoubleClick", () => {
         // Arrange
-        const model = {id: 13, itemId: 13, predefinedType: Models.ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
+        const model = {id: 13, itemId: 13, predefinedType: ItemTypePredefined.Actor} as SearchServiceModels.IItemNameSearchResult;
         const vm = new ArtifactSearchResultVM(model, undefined);
         controller.selectionMode = "single";
         controller.onDoubleClick = jasmine.createSpy("onDoubleClick");

@@ -1,6 +1,6 @@
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IItemType} from "../../models/models";
-import {Models} from "../../models";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 export interface ISearchMetadata {
@@ -178,7 +178,7 @@ export class QuickSearchService implements IQuickSearchService {
         return _.extend(item, {
             iconImageId: itemType.iconImageId,
             predefinedType: itemType.predefinedType,
-            artifactClass: "icon-" + (_.kebabCase(Models.ItemTypePredefined[itemType.predefinedType] || "document"))
+            artifactClass: "icon-" + (_.kebabCase(ItemTypePredefined[itemType.predefinedType] || "document"))
         });
     }
 }

@@ -1,17 +1,17 @@
 import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
-import {
-    MoveCopyArtifactPickerDialogController,
-    MoveCopyArtifactResult,
-    MoveCopyArtifactInsertMethod,
-    IMoveCopyArtifactPickerOptions,
-    MoveCopyActionType
-} from "../../dialogs/move-copy-artifact/move-copy-artifact";
-import {Models, Enums} from "../../../../main/models";
-import {ItemTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
+import {Enums, Models} from "../../../../main/models";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {
+    IMoveCopyArtifactPickerOptions,
+    MoveCopyActionType,
+    MoveCopyArtifactInsertMethod,
+    MoveCopyArtifactPickerDialogController,
+    MoveCopyArtifactResult
+} from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {IMessageService} from "../../messages/message.svc";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 

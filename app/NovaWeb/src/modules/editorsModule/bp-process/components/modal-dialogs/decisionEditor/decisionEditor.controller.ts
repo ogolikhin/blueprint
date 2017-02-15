@@ -1,3 +1,4 @@
+import {IDecision} from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {BaseModalDialogController, IModalScope} from "../base-modal-dialog-controller";
 import {DecisionEditorModel} from "./decisionEditor.model";
 import {IProcessLink} from "../../../models/process-models";
@@ -118,7 +119,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     }
 
     public isDeleteConditionVisible(condition: ICondition): boolean {
-        return !this.hasMinConditions && !this.isFirstBranch(condition);
+        return !this.hasMinConditions && !this.dialogModel.graph.isFirstFlow(condition);
     }
 
     public canDeleteCondition(condition: ICondition): boolean {
@@ -143,51 +144,60 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         this.refreshView();
     }
 
-    private getFirstNonMergingPointShapeId(link: IDiagramLink) {
+    private getFirstNonMergingPointShapeId(link: IProcessLink) {
         let targetId: number;
-
-        if (link.targetNode.getNodeType() === NodeType.MergingPoint) {
-            const outgoingLinks = link.targetNode.getOutgoingLinks(this.dialogModel.graph.getMxGraphModel());
+        const linkDestinationNode = this.dialogModel.graph.getNodeById(link.destinationId.toString());
+        if (linkDestinationNode.getNodeType() === NodeType.MergingPoint) {
+            const outgoingLinks = linkDestinationNode.getOutgoingLinks(this.dialogModel.graph.getMxGraphModel());
             targetId = outgoingLinks[0].model.destinationId;
         } else {
-            targetId = link.targetNode.model.id;
+            targetId = linkDestinationNode.model.id;
         }
 
         return targetId;
     }
 
-    private updateExistingEdge(link: IDiagramLink) {
-        const targetId: number = this.getFirstNonMergingPointShapeId(link);
-        const conditionsToUpdate: ICondition[] = this.dialogModel.conditions.filter((condition: ICondition) => condition.destinationId === targetId);
+    private updateConditionLabels(condition: ICondition): boolean {
+        if (condition != null) {
+            let diagramLink: IDiagramLink;
 
-        if (conditionsToUpdate.length === 0) {
-            return false;
+            const decisionNode = this.dialogModel.graph.getNodeById(condition.sourceId.toString());
+            diagramLink = _.find(decisionNode.getOutgoingLinks(this.dialogModel.graph.getMxGraphModel()),
+                (link: IDiagramLink) => link.model.orderindex === condition.orderindex);
+
+            const result = !_.isEqual(diagramLink.label, condition.label);
+            if (result) {
+                diagramLink.label = condition.label;
+            }
+            return result;
         }
-
-        const conditionToUpdate: ICondition = conditionsToUpdate[0];
-        const isMergeNodeUpdate = this.dialogModel.graph.updateMergeNode(this.dialogModel.originalDecision.model.id, conditionToUpdate);
-
-        if (conditionToUpdate != null) {
-            link.label = conditionToUpdate.label;
-        }
-
-        return isMergeNodeUpdate;
+        return false;
     }
 
     private populateDecisionChanges() {
         this.dialogModel.originalDecision.setLabelWithRedrawUi(this.dialogModel.label);
 
-        let isMergeNodeUpdate: boolean = false;
+        let isModelUpdate: boolean = false;
         // update edges
-        const outgoingLinks: IDiagramLink[] = this.dialogModel.originalDecision.getOutgoingLinks(this.dialogModel.graph.getMxGraphModel());
-
-        for (let outgoingLink of outgoingLinks) {
-            if (this.updateExistingEdge(outgoingLink)) {
-                isMergeNodeUpdate = true;
+        const decisionsToUpdate: number[] = [];
+        _.each(this.dialogModel.conditions, (condition: ICondition, index: number) => {
+            if (!condition.mergeNode) {
+                return;
             }
-        }
+            let link: IProcessLink = this.dialogModel.graph.getBranchStartingLink(condition);
 
-        if (isMergeNodeUpdate) {
+            if (link) {
+                const didUpdateEdge = this.dialogModel.graph.updateMergeNode(link.sourceId, link, condition.mergeNode.model.id);
+                const didUpdateLabel = this.updateConditionLabels(condition);
+
+                if (!isModelUpdate) {
+                    isModelUpdate = didUpdateLabel || didUpdateEdge;
+                }
+            }
+        });
+
+        if (isModelUpdate) {
+            // Calls model update to redraw components of the decision to show changes.
             this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(this.dialogModel.originalDecision.model.id);
             this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
         }
@@ -266,7 +276,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         for (let i = 0; i < this.dialogModel.conditions.length; i++) {
             const condition = this.dialogModel.conditions[i];
 
-            if (!condition.mergeNode && !this.isFirstBranch(condition)) {
+            if (!condition.mergeNode && !this.isFirstConditionOnMainFlow(condition)) {
                 return true;
             }
         }
@@ -274,9 +284,9 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         return false;
     }
 
-    public isFirstBranch(condition: ICondition): boolean {
-        // Assumption: the conditions are always sorted by order index.
-        return this.dialogModel.conditions[0] === condition;
+    public isFirstConditionOnMainFlow(condition: ICondition): boolean {
+        return  this.dialogModel.graph.isFirstFlow(condition)
+                &&  this.dialogModel.graph.isInMainFlow(condition.sourceId);
     }
 
     public getNodeIcon(node: IDiagramNode): string {

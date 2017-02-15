@@ -28,6 +28,10 @@ import {IClipboardService} from "../../../../services/clipboard.svc";
 import {IFileUploadService} from "../../../../../../commonModule/fileUpload/fileUpload.service";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
 import {SystemTask} from "./shapes/system-task";
+import {ItemTypePredefined} from "../../../../../../main/models/itemTypePredefined.enum";
+import {IArtifact} from "../../../../../../main/models/models";
+import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
+import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -590,23 +594,56 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    private deleteShape = (clickedNode: IDiagramNode) => {
-        const dialogParameters = clickedNode.getDeleteDialogParameters();
+    private deleteShape = () => {
+        const selectedNodes = this.getSelectedNodes();
+        const artifactList = this.createArtifactFromDiagramNodes(selectedNodes);
 
-        this.dialogService.alert(
-            dialogParameters.message,
-            this.localization.get("App_DialogTitle_Alert"),
-            this.localization.get("App_Button_Delete"),
-            this.localization.get("App_Button_Cancel"))
+        this.dialogService.open(<IDialogSettings>{
+                okButton: this.localization.get("App_Button_Ok"),
+                cancelButton: this.localization.get("App_Button_Cancel"),
+                message: this.localization.get("ST_Bulk_Delete_Confirmation"),
+                template: require("../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish.html"),
+                controller: ConfirmPublishController,
+                css: "modal-alert nova-publish",
+                header: this.localization.get("App_DialogTitle_Alert")
+            },
+            <IConfirmPublishDialogData>{
+                artifactList: artifactList,
+                projectList: null,
+                selectedProject: null
+            })
             .then(() => {
-                if (clickedNode.getNodeType() === NodeType.UserTask) {
-                    ProcessDeleteHelper.deleteUserTask(clickedNode.model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
-                } else if (clickedNode.getNodeType() === NodeType.UserDecision || clickedNode.getNodeType() === NodeType.SystemDecision) {
-                    ProcessDeleteHelper.deleteDecision(clickedNode.model.id,
-                        (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                if (selectedNodes.length > 1) {
+                    const nodeIds = selectedNodes.map(node => node.model.id);
+                    ProcessDeleteHelper.deleteUserTasks(nodeIds, this);
+                } else {
+                    if (selectedNodes[0].getNodeType() === NodeType.UserTask) {
+                        ProcessDeleteHelper.deleteUserTask(selectedNodes[0].model.id, (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this);
+                    } else if (selectedNodes[0].getNodeType() === NodeType.UserDecision || selectedNodes[0].getNodeType() === NodeType.SystemDecision) {
+                        ProcessDeleteHelper.deleteDecision(selectedNodes[0].model.id,
+                            (nodeChange, id) => this.notifyUpdateInModel(nodeChange, id), this, this.shapesFactory);
+                    }
                 }
             });
     };
+
+    private createArtifactFromDiagramNodes(nodeList: IDiagramNode[]): IArtifact[] {
+        const artifactList: IArtifact[] = [];
+
+        nodeList.forEach((node: IDiagramNode) => {
+            const artifact = {
+                id: Number(node.getId()),
+                name: node.label,
+                predefinedType: ItemTypePredefined.Process,
+                itemTypeId: ItemTypePredefined.Process,
+                projectId: null,
+                prefix: "PRO"
+            } as IArtifact;
+            artifactList.push(artifact);
+        });
+
+        return artifactList;
+    }
 
     private hasMaxConditions(decisionId: number): boolean {
         return this.viewModel.getNextShapeIds(decisionId).length >= ProcessGraph.MaxConditions;
@@ -943,7 +980,7 @@ export class ProcessGraph implements IProcessGraph {
 
     // returns a list of links in sorted order index.
     public getNextLinks(sourceId: number): IProcessLink[] {
-        return this.viewModel.links.filter(a => a.sourceId === sourceId).sort((a, b) => a.orderindex - b.orderindex);
+        return this.viewModel.getSortedNextLinks(sourceId);
     }
 
     private getDecisionBranchDestinationLinks(decisionId: number): IProcessLink[] {
@@ -1019,12 +1056,13 @@ export class ProcessGraph implements IProcessGraph {
         return validShapeIds;
     }
 
-    public updateMergeNode(decisionId: number, condition: ICondition): boolean {
+    public updateMergeNode(decisionId: number, condition: IProcessLink, mergeNodeId: number): boolean {
+
         let originalEndNode: IProcessLink = this.getDecisionBranchDestLinkForIndex(decisionId, condition.orderindex);
 
-        if (condition.mergeNode &&
+        if (!!mergeNodeId &&
             originalEndNode &&
-            originalEndNode.destinationId !== condition.mergeNode.model.id) {
+            originalEndNode.destinationId !== mergeNodeId) {
             let mainBranchOnly: INextIdsProvider = (context) => {
                 let ids = this.viewModel.getNextShapeIds(context.id);
                 return [Number(ids[0])];
@@ -1035,11 +1073,11 @@ export class ProcessGraph implements IProcessGraph {
 
             // Updates end branch link to point to new destination id
             if (origLastLinkInCondition) {
-                origLastLinkInCondition.destinationId = condition.mergeNode.model.id;
+                origLastLinkInCondition.destinationId = mergeNodeId;
             }
 
             // Updates merge point for specific branch to be new destination id
-            originalEndNode.destinationId = condition.mergeNode.model.id;
+            originalEndNode.destinationId = mergeNodeId;
 
             return true;
         }
@@ -1191,6 +1229,30 @@ export class ProcessGraph implements IProcessGraph {
         if (this.$log) {
             this.$log.info(arg);
         }
+    }
+
+    public isFirstFlow(link: IProcessLink): boolean {
+        return this.viewModel.isFirstFlow(link);
+    }
+
+    public isInNestedFlow(id: number): boolean {
+        return this.viewModel.isInNestedFlow(id);
+    }
+
+    public isInMainFlow(id: number): boolean {
+        return this.viewModel.isInMainFlow(id);
+    }
+
+    public getBranchStartingLink(link: IProcessLink): IProcessLink {
+
+        if (this.viewModel.isFirstFlow(link) && !this.viewModel.isInMainFlow(link.sourceId)) {
+            const shapeContext = this.globalScope.visitedIds[link.sourceId];
+            const last = _.last(shapeContext.parentConditions);
+            return this.getNextLinks(last.decisionId).filter(a => a.orderindex === last.orderindex)[0];
+
+        }
+
+        return this.getLink(link.sourceId, link.destinationId);
     }
 
     public destroy(): void {

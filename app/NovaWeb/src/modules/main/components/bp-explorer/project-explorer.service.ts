@@ -2,7 +2,6 @@ import {ExplorerNodeVM, TreeNodeVMFactory} from "../../models/tree-node-vm-facto
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata/metadata.svc";
 import {IInstanceItem, InstanceItemType} from "../../models/admin-store-models";
 import {IProjectService} from "../../../managers/project-manager/project-service";
-import {ItemTypePredefined} from "../../models/enums";
 import {IMessageService} from "../messages/message.svc";
 import {IProjectSearchResult} from "../../models/search-service-models";
 import {IItemInfoResult} from "../../../commonModule/itemInfo/itemInfo.service";
@@ -16,6 +15,7 @@ import {INavigationService} from "../../../commonModule/navigation/navigation.se
 import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
 import {MoveCopyArtifactInsertMethod} from "../dialogs/move-copy-artifact/move-copy-artifact";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 
 export interface IProjectExplorerService {
     projects: ExplorerNodeVM[];

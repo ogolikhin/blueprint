@@ -1,8 +1,7 @@
-﻿import {linkSync} from "fs";
-/* tslint:disable max-file-line-count */
+﻿/* tslint:disable max-file-line-count */
+import "script!mxClient";
 import * as angular from "angular";
 import "angular-mocks";
-import "script!mxClient";
 import {ExecutionEnvironmentDetectorMock} from "../../../../../../commonModule/services/executionEnvironmentDetector.mock";
 import {ProcessGraph} from "./process-graph";
 import {ShapesFactory} from "./shapes/shapes-factory";
@@ -19,13 +18,14 @@ import {ICommunicationManager, CommunicationManager} from "../../../../../bp-pro
 import {LocalizationServiceMock} from "../../../../../../commonModule/localization/localization.service.mock";
 import {DialogService} from "../../../../../../shared/widgets/bp-dialog";
 import {ModalServiceMock} from "../../../../../../shell/login/mocks.spec";
-import * as TestModels from "../../../../models/test-model-factory";
 import {IStatefulArtifactFactory} from "../../../../../../managers/artifact-manager/";
 import {StatefulArtifactFactoryMock} from "../../../../../../managers/artifact-manager/artifact/artifact.factory.mock";
 import {FileUploadServiceMock} from "../../../../../../commonModule/fileUpload/fileUpload.service.mock";
 import {MessageServiceMock} from "../../../../../../main/components/messages/message.mock";
 import {Message, MessageType} from "../../../../../../main/components/messages/message";
 import {IMessageService} from "../../../../../../main/components/messages/message.svc";
+import {ProcessAddHelper} from "./process-add-helper";
+import * as TestModels from "../../../../models/test-model-factory";
 
 describe("ProcessGraph", () => {
     let shapesFactory: ShapesFactory;
@@ -1107,7 +1107,7 @@ describe("ProcessGraph", () => {
                     const decisionId = 4;
                     const endId = 9;
                     let error = null;
-                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const spy = spyOn(ProcessAddHelper, "insertUserDecisionCondition").and.callThrough();
 
                     // Act
                     try {
@@ -1127,7 +1127,7 @@ describe("ProcessGraph", () => {
                     const graph = createGraph(process);
                     const decisionId = 40;
                     const endId = 70;
-                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const spy = spyOn(ProcessAddHelper, "insertUserDecisionCondition").and.callThrough();
 
                     // Act
                     graph.addDecisionBranch(decisionId, "Condition 1", endId);
@@ -1142,7 +1142,7 @@ describe("ProcessGraph", () => {
                     const graph = createGraph(TestModels.createUserDecisionWithMaximumConditionsModel());
                     const decisionId = 40;
                     const endId = 250;
-                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const spy = spyOn(ProcessAddHelper, "insertUserDecisionCondition").and.callThrough();
                     const addErrorSpy = spyOn(messageService, "addError").and.callThrough();
 
                     // Act
@@ -1158,7 +1158,7 @@ describe("ProcessGraph", () => {
                     const graph = createGraph(TestModels.createUserDecisionWithFourShapesLessThanMaximumShapesModel());
                     const decisionId = 50;
                     const endId = 160;
-                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const spy = spyOn(ProcessAddHelper, "insertUserDecisionCondition").and.callThrough();
                     const messageText =
                         "The Process now has 14 of the maximum 14 shapes. Please consider refactoring it to move more detailed tasks to included Processes.";
                     const message = new Message(MessageType.Warning, messageText);
@@ -1181,17 +1181,18 @@ describe("ProcessGraph", () => {
                     const graph = createGraph(TestModels.createUserDecisionWithFourShapesLessThanMaximumShapesModel());
                     const decisionId = 50;
                     const endId = 160;
-                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
                     const messageText =
 "The shape cannot be added. The Process will exceed the maximum 14 shapes. Please refactor it and move more detailed tasks to included Processes.";
                     const message = new Message(MessageType.Error, messageText);
+                    graph.addDecisionBranch(decisionId, "Condition 1", endId);
+                    graph.addDecisionBranch(decisionId, "Condition 2", endId);
+                    const spy = spyOn(ProcessAddHelper, "insertUserDecisionCondition").and.callThrough();
+
                     const addMessageSpy = spyOn(messageService, "addMessage").and.callThrough();
 
                     graph.viewModel.shapeLimit = 14;
 
                     // Act
-                    graph.addDecisionBranch(decisionId, "Condition 1", endId);
-                    graph.addDecisionBranch(decisionId, "Condition 2", endId);
                     graph.addDecisionBranch(decisionId, "Condition 3", endId);
                     graph.viewModel.shapeLimit = 100;
 
@@ -1208,7 +1209,7 @@ describe("ProcessGraph", () => {
                     const decisionId = 5;
                     const endId = 8;
                     let error = null;
-                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const spy = spyOn(ProcessAddHelper, "insertSystemDecisionCondition").and.callThrough();
 
                     // Act
                     try {
@@ -1227,7 +1228,7 @@ describe("ProcessGraph", () => {
                     const graph = createGraph(TestModels.createSystemDecisionWithMaximumConditionsModel());
                     const decisionId = 50;
                     const endId = 160;
-                    const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
+                    const spy = spyOn(ProcessAddHelper, "insertSystemDecisionCondition").and.callThrough();
                     const addErrorSpy = spyOn(messageService, "addError").and.callThrough();
 
                     // Act
@@ -1370,7 +1371,7 @@ describe("ProcessGraph", () => {
                     const userDecisionId = 4;
                     const userTaskId = 7;
                     const systemTaskId = 8;
-                    const link = {sourceId: userDecisionId, destinationId: userTaskId, orderindex: 0, label: ""};
+                    const link = {sourceId: userDecisionId, destinationId: userTaskId, orderindex: 1, label: ""};
 
                     // Act
                     ProcessDeleteHelper.deleteDecisionBranch(link, graph);
@@ -1395,8 +1396,8 @@ describe("ProcessGraph", () => {
                     const userTask2Id = 7;
                     const systemTask2Id = 8;
                     const conditionDestinationCountBefore = processModel.decisionBranchDestinationLinks.length;
-                    const link1 = {sourceId: userDecisionId, destinationId: userTask1Id, orderindex: 0, label: ""};
-                    const link2 = {sourceId: userDecisionId, destinationId: userTask2Id, orderindex: 0, label: ""};
+                    const link1 = {sourceId: userDecisionId, destinationId: userTask1Id, orderindex: 2, label: ""};
+                    const link2 = {sourceId: userDecisionId, destinationId: userTask2Id, orderindex: 1, label: ""};
 
                     // Act
                     ProcessDeleteHelper.deleteDecisionBranch(link1, graph);
@@ -1456,7 +1457,8 @@ describe("ProcessGraph", () => {
                     testModel = TestModels.createSystemDecisionWithTwoBranchesModel();
                     processModel = new ProcessViewModel(testModel, communicationManager);
                     processModel.communicationManager = communicationManager;
-                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization, shapesFactory, null, null, null);
+                    graph = new ProcessGraph(rootScope, localScope, container, processModel, dialogService, localization,
+                        shapesFactory, messageService, null, null);
                     graph.render(true, null);
                 });
 
@@ -1515,7 +1517,7 @@ describe("ProcessGraph", () => {
                     // Arrange
                     const systemDecisionId = 5;
                     const systemTaskId = 7;
-                    const link = {sourceId: systemDecisionId, destinationId: systemTaskId, orderindex: 0, label: ""};
+                    const link = {sourceId: systemDecisionId, destinationId: systemTaskId, orderindex: 1, label: ""};
 
                     // Act
                     ProcessDeleteHelper.deleteDecisionBranch(link, graph);
@@ -1534,8 +1536,8 @@ describe("ProcessGraph", () => {
                     const systemDecisionId = 5;
                     const systemTask1Id = 8;
                     const systemTask2Id = 7;
-                    const link1 = {sourceId: systemDecisionId, destinationId: systemTask1Id, orderindex: 0, label: ""};
-                    const link2 = {sourceId: systemDecisionId, destinationId: systemTask2Id, orderindex: 0, label: ""};
+                    const link1 = {sourceId: systemDecisionId, destinationId: systemTask1Id, orderindex: 2, label: ""};
+                    const link2 = {sourceId: systemDecisionId, destinationId: systemTask2Id, orderindex: 1, label: ""};
 
                     // Act
                     ProcessDeleteHelper.deleteDecisionBranch(link1, graph);

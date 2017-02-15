@@ -255,7 +255,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         const artifact = selection.artifact;
 
         if (artifact && (artifact.predefinedType === ItemTypePredefined.Document
-            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.orderIndex < 0)
+            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.itemTypeId !== ItemTypePredefined.Baseline)
             || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection

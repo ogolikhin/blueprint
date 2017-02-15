@@ -601,7 +601,7 @@ namespace Model.Impl
 
         /// <summary>
         /// Delete a user with specific username
-        /// (Runs:  'POST /api/v1/users/delete')
+        /// (Runs:  'DELETE /api/v1/users/delete')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="userWhoDeleteAnotherUser">A user that has permission to delete users.</param>

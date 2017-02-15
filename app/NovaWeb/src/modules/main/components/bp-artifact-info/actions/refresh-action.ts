@@ -46,16 +46,21 @@ export class RefreshAction extends BPButtonAction {
     }
 
     public execute(): void {
+        const overlayId = this.loadingOverlayService.beginLoading();
+
         if (this.artifact.predefinedType === ItemTypePredefined.Project) {
-            this.projectExplorerService.refresh(this.artifact.id).then(() => {
-                this.navigationService.reloadCurrentState();
-            });
+            this.projectExplorerService.refresh(this.artifact.id)
+                .then(() => {
+                    this.navigationService.reloadCurrentState();
+                })
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(overlayId);
+                });
 
         } else {
             //project is getting refreshed by listening to selection in bp-page-content
             this.mainBreadcrumbService.reloadBreadcrumbs(this.artifact);
 
-            const overlayId = this.loadingOverlayService.beginLoading();
             this.artifact.refresh()
                 .finally(() => this.loadingOverlayService.endLoading(overlayId));
         }

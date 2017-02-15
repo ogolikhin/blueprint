@@ -214,7 +214,6 @@ export class ProjectExplorerService implements IProjectExplorerService {
         });
     }
 
-    // FIXME: add project error checking
     public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {
         const openProjectIndex = _.findIndex(this.projects, project => project.model.id === projectId);
 

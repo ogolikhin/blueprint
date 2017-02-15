@@ -3,7 +3,7 @@ namespace Helper
 {
     // This is the global error code being used for Blueprint/Services project, (interval API services)
     // This code will be updated based on the change from Bluerprint project 
-    // Location of the source code: lib/ServiceLibraryHelpers/ErrorCodes.cs
+    // Location of the source code: blueprint/svc/lib/ServiceLibrary/Helpers/ErrorCodes.cs
     public static class ErrorCodes
     {
         //Configuration errors
@@ -26,6 +26,8 @@ namespace Helper
         public const int TooSimplePassword = 4002;
         public const int ChangePasswordCooldownInEffect = 4003;
         public const int IncorrectSearchCriteria = 4004;
+        public const int PasswordSameAsLogin = 4005;
+        public const int PasswordSameAsDisplayName = 4006;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;
@@ -46,6 +48,7 @@ namespace Helper
         public const int QueueJobProcessesInvalid = 8004;
         public const int QueueJobProjectIdInvalid = 8005;
         public const int QueueJobProjectNameEmpty = 8006;
+        public const int QueueJobEmptyRequest = 8007;
     }
 
     // This is the global error code being used for Blueprint-current/NoSilverlight project

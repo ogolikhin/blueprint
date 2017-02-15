@@ -13,7 +13,7 @@
                         {{::$ctrl.localization.get('App_UP_Attachments_Attachment') }}
                     </label>
                 </li>
-                <li ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canUpdateDocRefs()}">
+                <li ng-if="!$ctrl.shouldHideDocRefs()" ng-click="$ctrl.addDocRef()" ng-class="{disabled: !$ctrl.canUpdateDocRefs()}">
                     <a href>{{::$ctrl.localization.get('App_UP_Attachments_Ref_Doc') }}</a>
                 </li>
             </ul>
@@ -21,9 +21,9 @@
     </div>
 
     <uib-tabset active="$ctrl.categoryFilter" class="nav-tabs-as-filters">
-        <uib-tab heading="{{::$ctrl.localization.get('App_UP_Attachments_All') }}"></uib-tab>
+        <uib-tab ng-if="!$ctrl.shouldHideDocRefs()" heading="{{::$ctrl.localization.get('App_UP_Attachments_All') }}"></uib-tab>
         <uib-tab heading="{{::$ctrl.localization.get('App_UP_Attachments_Attachments') }}"></uib-tab>
-        <uib-tab heading="{{::$ctrl.localization.get('App_UP_Attachments_Ref_Docs') }}"></uib-tab>
+        <uib-tab ng-if="!$ctrl.shouldHideDocRefs()" heading="{{::$ctrl.localization.get('App_UP_Attachments_Ref_Docs') }}"></uib-tab>
     </uib-tabset>
 </div>
 
@@ -90,10 +90,11 @@
         </label>
 
         <hr/>
-
-        <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
-        <button class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canUpdateDocRefs()}">
-            {{::$ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
-        </button>
+        <div ng-if="!$ctrl.shouldHideDocRefs()">
+            <p>{{::$ctrl.localization.get('App_UP_Attachments_Reference_Desc') }}</p>
+            <button class="btn btn-secondary btn-small" ng-click="$ctrl.addDocRef()" ng-class="{'disabled': !$ctrl.canUpdateDocRefs()}">
+                {{::$ctrl.localization.get('App_UP_Attachments_Add_Ref_Doc') }}
+            </button>
+        </div>
     </div>
 </div>

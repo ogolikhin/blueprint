@@ -20,16 +20,19 @@ export class BPCommentEditController {
     static $inject: [string] = [
         "$q",
         "mentionService",
-        "$window"
+        "$window",
+        "$scope"
     ];
 
     constructor(
         private $q: ng.IQService,
         private mentionService: IMentionService,
-        private $window: ng.IWindowService) {
+        private $window: ng.IWindowService,
+        private $scope: ng.IScope) {
     }
 
     private commentEditor: TinyMceEditor;
+    private editorBody: HTMLElement;
     public cancelComment: Function;
     public postComment: Function;
     public addButtonText: string;
@@ -79,6 +82,7 @@ export class BPCommentEditController {
         mentions: this.mentionService.create(this.emailDiscussionsEnabled),
         init_instance_callback: (editor) => { // https://www.tinymce.com/docs/configure/integration-and-setup/#init_instance_callback
             this.commentEditor = editor;
+            this.editorBody = editor.getBody() as HTMLElement;
             editor.focus();
             editor.formatter.register("font8", {
                 inline: "span",
@@ -116,6 +120,7 @@ export class BPCommentEditController {
                 inline: "span",
                 styles: {"font-size": "20pt"}
             });
+            this.addDragAndDropListeners();
         },
         setup: function (editor) {
             editor.addButton("format", {
@@ -234,7 +239,38 @@ export class BPCommentEditController {
         }
     }
 
+    // The DragEvent sequence is comprised of events being fired between the element being dragged and the drop target.
+    // The order is:
+    // elem.dragstart
+    // target.dragenter
+    // elem.drag/target.dragover (each every few hundreds milliseconds)
+    // target.drop or target.dragleave (depending if the element has been dropped on the target or dragged outside)
+    // elem.dragend
+    // see http://www.developerfusion.com/article/144828/the-html5-drag-and-drop-api/
+    private addDragAndDropListeners = () => {
+        if (this.editorBody) {
+            this.editorBody.addEventListener("drop", this.onDragEnd);
+        }
+    };
+
+    private removeDragAndDropListeners = () => {
+        if (this.editorBody) {
+            this.editorBody.removeEventListener("drop", this.onDragEnd);
+        }
+    };
+
+    private onDragEnd = (e: DragEvent) => {
+        this.$scope.$applyAsync(() => {
+            this.commentEditor.save();
+            const images = this.commentEditor.getBody().getElementsByTagName("img");
+            _.forEachRight(images, (image: HTMLImageElement) => {
+                image.parentNode.removeChild(image);
+            });
+        });
+    };
+
     public $onDestroy() {
+        this.removeDragAndDropListeners();
         this.tinymceOptions.setup = null;
         this.tinymceOptions.init_instance_callback = null;
         this.tinymceOptions = null;

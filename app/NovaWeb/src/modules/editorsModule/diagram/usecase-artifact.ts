@@ -3,7 +3,6 @@ import {IStatefulSubArtifact, StatefulSubArtifact} from "../../managers/artifact
 import {IArtifact} from "../../main/models/models";
 import {IDiagram, IDiagramElement} from "./impl/models";
 import {IUseCase} from "./impl/usecase/models";
-import {ItemTypePredefined} from "./../../main/models/enums";
 import {IItem} from "./../../main/models/models";
 import {Diagrams, Shapes, ShapeProps} from "./impl/utils/constants";
 import {StatefulDiagramArtifact} from "./diagram-artifact";

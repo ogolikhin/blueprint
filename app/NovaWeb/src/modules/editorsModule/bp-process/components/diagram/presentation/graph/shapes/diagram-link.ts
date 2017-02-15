@@ -1,13 +1,12 @@
-﻿import {IDiagramLink} from "../models/process-graph-interfaces";
+﻿import {Label, LabelStyle, LabelType} from "../labels/label";
+import {IDiagramLink} from "../models/process-graph-interfaces";
 import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramElement, IMenuContainer} from "../models/";
-import {IProcessLinkModel, PropertyTypePredefined, IPropertyValueInformation} from "../../../../../models/process-models";
-import {ArtifactUpdateType} from "../../../../../models/enums";
-import {NodeType, NodeChange, ElementType} from "../models/";
-import {Label, LabelStyle, LabelType, ILabel} from "../labels/label";
+import {ElementType, NodeType} from "../models/";
 import {DiagramElement} from "./diagram-element";
 import {Connector, ConnectorOverlay} from "./connector";
 import {ProcessEvents} from "../../../process-diagram-communication";
+import {IProcessLinkModel} from "../../../../../models/process-models";
 
 export class DiagramLink extends DiagramElement implements IDiagramLink {
     private LABEL_VIEW_MAXLENGTH: number = 25;

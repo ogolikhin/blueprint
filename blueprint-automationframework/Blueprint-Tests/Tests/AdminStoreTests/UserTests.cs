@@ -102,8 +102,7 @@ namespace AdminStoreTests
         #region 400 Bad Request Tests
 
         [TestCase(MinPasswordLength, 1)]
-        [TestCase(MaxPasswordLength, 19)] // TODO: any value more than 19 hours let the user change the password.
-        // TODO: we need to change the DateTime to UTC and retest this test
+        [TestCase(MaxPasswordLength, 23)]
         [TestRail(234569)]
         [Description("Try to reset the user's password which was changed within 24-hours password reset cooldown period." +
             "Verify that 400 BadRequest response and that the user still can login with its password.")]
@@ -115,7 +114,7 @@ namespace AdminStoreTests
             _adminUser.Password = changedPassword;
 
             // Execute: Attempt to change the password again after resetting the password.
-            DateTime alteredLastPasswordChangeTimestamp = DateTime.Now.AddHours(-hoursPassedAfterPasswordReset);
+            DateTime alteredLastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-hoursPassedAfterPasswordReset);
             _adminUser.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
 
             string newPassword = CreateValidPassword(length); 

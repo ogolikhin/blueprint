@@ -1,17 +1,14 @@
-import {Models} from "../../../main";
-import {
-    IStatefulArtifact,
-    IStatefulSubArtifact,
-    IStatefulItem
-} from "../../../managers/artifact-manager";
-import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
-import {PropertyEditor} from "../../../editorsModule/configuration/classes/bp-property-editor";
-import {IPropertyDescriptorBuilder, IPropertyDescriptor} from "../../../editorsModule/services";
-import {PropertyLookupEnum} from "../../../main/models/enums";
-import {Helper} from "../../../shared/utils/helper";
-import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
+import {PropertyEditor} from "../../../editorsModule/configuration/classes/bp-property-editor";
+import {IPropertyDescriptor, IPropertyDescriptorBuilder} from "../../../editorsModule/services";
+import {Models} from "../../../main";
+import {PropertyLookupEnum} from "../../../main/models/enums";
+import {ItemTypePredefined} from "../../../main/models/itemTypePredefined.enum";
+import {IStatefulArtifact, IStatefulItem, IStatefulSubArtifact} from "../../../managers/artifact-manager";
 import {IValidationService} from "../../../managers/artifact-manager/validation/validation.svc";
+import {Helper} from "../../../shared/utils/helper";
+import {BPBaseUtilityPanelController} from "../bp-base-utility-panel";
+import {PropertyEditorFilters} from "./bp-properties-panel-filters";
 
 export class BPPropertiesPanel implements ng.IComponentOptions {
     public template: string = require("./bp-properties-panel.html");
@@ -185,8 +182,8 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
                 });
 
                 const isReadOnly = selectedItem.artifactState.readonly ||
-                    (selectedItem.predefinedType !== Models.ItemTypePredefined.Process &&
-                        selectedItem.predefinedType !== Models.ItemTypePredefined.PROShape);
+                    (selectedItem.predefinedType !== ItemTypePredefined.Process &&
+                        selectedItem.predefinedType !== ItemTypePredefined.PROShape);
                 if (isReadOnly) {
                     field.templateOptions.disabled = true;
                     if (field.key !== "documentFile" &&
@@ -261,9 +258,9 @@ export class BPPropertiesController extends BPBaseUtilityPanelController {
     }
 
     public get specificPropertiesHeading(): string {
-        if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Document) {
+        if (this.selectedArtifact.predefinedType === ItemTypePredefined.Document) {
             return this.localization.get("Nova_Document_File", "File");
-        } else if (this.selectedArtifact.predefinedType === Models.ItemTypePredefined.Actor) {
+        } else if (this.selectedArtifact.predefinedType === ItemTypePredefined.Actor) {
             return this.localization.get("Property_Actor_Section_Name", "Actor Properties");
         } else if (this.isSubartifactSelected()) {
             return this.localization.get("Property_SubArtifact_Section_Name", "Sub-Artifact Properties");

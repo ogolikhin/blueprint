@@ -1,20 +1,21 @@
-import {ItemTypePredefined, PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {PropertyTypePredefined} from "../../../../../../../main/models/enums";
+import {ItemTypePredefined} from "../../../../../../../main/models/itemTypePredefined.enum";
+import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {ProcessShapeType, ProcessType} from "../../../../../models/enums";
 import {
-    ProcessShapeModel,
-    UserTaskShapeModel,
-    SystemTaskShapeModel,
-    IHashMapOfPropertyValues,
     IArtifactReference,
     IArtifactReferenceLink,
-    IPropertyValueInformation,
+    IHashMapOfPropertyValues,
     IProcessShape,
+    IPropertyValueInformation,
     ISystemTaskShape,
-    IUserTaskShape
+    IUserTaskShape,
+    ProcessShapeModel,
+    SystemTaskShapeModel,
+    UserTaskShapeModel
 } from "../../../../../models/process-models";
-import {IdGenerator} from "./id-generator";
-import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../../../../managers/artifact-manager/";
 import {StatefulProcessSubArtifact} from "../../../../../process-subartifact";
+import {IdGenerator} from "./id-generator";
 
 export interface IPropertyNameConstantsInformation {
     key: string;

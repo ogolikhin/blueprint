@@ -1,6 +1,6 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {ItemTypePredefined, PropertyTypePredefined} from "../../../models/enums";
+import {PropertyTypePredefined} from "../../../models/enums";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../messages/message.svc";

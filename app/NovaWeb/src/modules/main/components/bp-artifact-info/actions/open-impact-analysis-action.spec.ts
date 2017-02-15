@@ -1,12 +1,13 @@
-import * as angular from "angular";
-import "angular-mocks";
 import "../../../";
-import {OpenImpactAnalysisAction} from "./open-impact-analysis-action";
+import "angular-mocks";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
+import {RolePermissions} from "../../../../main/models/enums";
 import {IStatefulArtifact, IStatefulArtifactFactory} from "../../../../managers/artifact-manager";
 import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {LocalizationServiceMock} from "../../../../commonModule/localization/localization.service.mock";
-import {ItemTypePredefined, RolePermissions} from "../../../../main/models/enums";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
+import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
+import {OpenImpactAnalysisAction} from "./open-impact-analysis-action";
+import * as angular from "angular";
 
 describe("OpenImpactAnalysisAction", () => {
     beforeEach(angular.mock.module("app.main"));

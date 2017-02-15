@@ -173,7 +173,10 @@ namespace Model.Impl
             Username = userToCopy.Username;
             UserSALT = userToCopy.UserSALT;
 
-            GroupMembership.AddRange(userToCopy.GroupMembership);
+            if (userToCopy.GroupMembership != null)
+            {
+                GroupMembership.AddRange(userToCopy.GroupMembership);
+            }
         }
 
         /// <summary>

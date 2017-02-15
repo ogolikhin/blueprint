@@ -55,6 +55,9 @@ describe("Component BPCommentEdit", () => {
                 getContent: () => {
                     return "";
                 },
+                getBody: () => {
+                    return;
+                },
                 focus: () => {
                     return;
                 },
@@ -85,6 +88,9 @@ describe("Component BPCommentEdit", () => {
             //Arrange
             let formatter = {};
             let editor = {
+                getBody: () => {
+                    return;
+                },
                 formatter: formatter
             };
             formatter["register"] = (a, b) => undefined;

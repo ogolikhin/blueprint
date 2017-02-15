@@ -1,7 +1,6 @@
-﻿import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
-import {Artifact} from "../../main/models/models";
-import {Models, Enums} from "../../main";
-import {ItemTypePredefined} from "../../main/models/enums";
+﻿import {Enums, Models} from "../../main";
+import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
+import {IStatefulArtifact} from "../../managers/artifact-manager/artifact";
 
 export class Helper {
     static draftVersion = 2147483647;

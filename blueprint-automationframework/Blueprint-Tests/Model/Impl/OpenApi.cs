@@ -599,6 +599,32 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <summary>
+        /// Delete a user with specific useranme
+        /// (Runs:  'POST /api/v1/users/delete')
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="userWhoDeleteAnotherUser">A user that has permission to delete users.</param>
+        /// <param name="usernames">Usernames of users to remove</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only '201' is expected.</param>
+        /// <returns>List of usernames with theirs error codes and messages that was created together with global HTTP code.</returns>
+        public static DeleteResultSet DeleteUser(string address, IUser userWhoDeleteAnotherUser, List<string> usernames, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+            ThrowIf.ArgumentNull(usernames, nameof(usernames));
+            ThrowIf.ArgumentNull(userWhoDeleteAnotherUser, nameof(userWhoDeleteAnotherUser));
+
+            var restApi = new RestApiFacade(address, userWhoDeleteAnotherUser.Token?.OpenApiToken);
+            string path = RestPaths.OpenApi.Users.DELETE;
+
+            return restApi.SendRequestAndDeserializeObject<DeleteResultSet, List<string>>(
+                path,
+                RestRequestMethod.POST,
+                usernames,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
+
         #endregion User methods
 
         #region Version Control methods

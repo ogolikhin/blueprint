@@ -9,6 +9,7 @@ export interface IBPFieldBaseController {
     blurOnKey(event: KeyboardEvent, keyCode?: number | number[]): void;
     closeDropdownOnTab(event: KeyboardEvent): void;
     scrollIntoView(event): void;
+    dragDrop(e: DragEvent | any): void;
 }
 
 export class BPFieldBaseController implements IBPFieldBaseController {
@@ -84,6 +85,13 @@ export class BPFieldBaseController implements IBPFieldBaseController {
             target.parentElement.scrollTop = target.parentElement.clientHeight;
             target.focus();
             angular.element(target).triggerHandler("click");
+        }
+    };
+
+    public dragDrop = (e: DragEvent | any) => {
+        if (e.dataTransfer && _.indexOf(e.dataTransfer.types, "tinymce-image") !== -1) {
+            e.preventDefault();
+            e.stopPropagation();
         }
     };
 

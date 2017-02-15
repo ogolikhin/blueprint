@@ -222,7 +222,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         const baseUrl = this.getAppBaseUrl();
         const embeddedImagesUrls = _.clone(this.embeddedImagesUrls);
 
-        console.log(embeddedImagesUrls);
         if (this.mceEditor && this.dragAndDropState === DragAndDropState.None) {
             /*
              If it's not caused by drag&drop:
@@ -250,7 +249,6 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                 embeddedImagesUrls[imgSrc] = false;
             });
         }
-        console.log(embeddedImagesUrls);
 
         const images = node.getElementsByTagName("img");
         _.forEachRight(images, (image: HTMLImageElement | any) => {
@@ -525,9 +523,34 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
         let contentBeforeDrag: string;
 
         editor.on("dragstart", (e: DragEvent) => {
+            // TinyMce sets Text/URL data on the event's dataTransfer object to a special "data:text/mce-internal" url.
+            // This is to workaround the inability to set custom contentType on IE and Safari. The editor's selected
+            // content is encoded into this url so drag and drop between editors will work. Unfortunately, this approach
+            // creates issues when the user drags content from the editor into other input/textarea elements, as the
+            // dropped content is what TinyMce has encoded. Therefore the need to replace/handle it.
+
             this.dragAndDropState = DragAndDropState.Drag;
-            if (this.isIE11) {
-                contentBeforeDrag = editor.getContent();
+
+            if (e) {
+                if (!this.isIE11) {
+                    // In case we are dragging a single image, we attach a sort of "tag" to the dataTransfer object,
+                    // in order to be able to recognize it before dropping, as the dragged content is not available before
+                    // the drop event and it is writable only on dragstart. See:
+                    // - https://www.w3.org/TR/2011/WD-html5-20110113/dnd.html#the-datatransfer-interface
+                    // - http://stackoverflow.com/questions/11065803/determine-what-is-being-dragged-from-dragenter-dragover-events/23416174#23416174
+                    // - https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/Recommended_drag_types
+                    const data = e.dataTransfer.getData("text/html");
+                    const reImg = /^<img [^>]*>$/gi;
+                    if (reImg.test(data)) {
+                        e.dataTransfer.setData("tinymce-image", "");
+                    }
+                } else {
+                    // IE11 ONLY allows the type "text" and therefore the only approach is to replace the data being dragged
+                    // with a text-only equivalent (i.e. no html tags). This apporach cannot be used with Chrome or Firefox,
+                    // as those browsers use multiple and different types to transfer the data.
+                    e.dataTransfer.setData("text", editor.selection.getContent({format: "text"}));
+                    contentBeforeDrag = editor.getContent();
+                }
             }
         });
 
@@ -535,6 +558,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
             if (this.dragAndDropState === DragAndDropState.Drag) {
                 // we are dragging outside of the editor
                 this.dragAndDropState = DragAndDropState.None;
+
                 if (this.isIE11) {
                     this.$scope.$applyAsync(() => {
                         editor.setContent(contentBeforeDrag);

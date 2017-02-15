@@ -3,7 +3,6 @@ import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
-import {SpawnSyncReturns} from "child_process";
 
 /**
  * Usage:
@@ -398,10 +397,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                         }
                         if (_.isFunction(this.onGridReset)) {
                             this.onGridReset({isExpanding: isExpanding});
-                        }
-
-                        if (_.isFunction(this.setSelection)) {
-                            this.setSelection();
                         }
                     });
             }

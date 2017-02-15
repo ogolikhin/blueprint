@@ -218,13 +218,13 @@ export class ProjectExplorerService implements IProjectExplorerService {
     public openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void> {
         const openProjectIndex = _.findIndex(this.projects, project => project.model.id === projectId);
 
-        return this.metadataService.get(projectId)
+        return this.metadataService.refresh(projectId)
             .then(() => this.getProjectExpandedToNode(projectId, artifactIdToExpand))
             .then(project => {
                 this._selectedId = artifactIdToExpand;
 
                 // replace exising project
-                if (_.isUndefined(openProjectIndex)) {
+                if (openProjectIndex === -1) {
                     this.projects.unshift(project);
                 } else {
                     this.projects.splice(openProjectIndex, 1, project);

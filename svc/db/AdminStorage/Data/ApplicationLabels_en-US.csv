@@ -471,7 +471,7 @@ ST_Add_CannotAdd_MaximumConditionsReached, "Cannot add any more conditions becau
 ST_Delete_CannotDelete_UD_AtleastTwoConditions, "The task cannot be deleted. The preceding decision point would be left with one choice. Decision points require at least two choices."
 ST_Delete_CannotDelete_OnlyUserTask, "The task cannot be deleted. A Process requires at least one task."
 ST_Delete_CannotDelete_UT_Between_Two_UD, "The task cannot be deleted. Choices must begin with a task."
-ST_Bulk_Delete_Confirmation,"Process Shapes selected: {0}<br/>The following shapes and their impacted shapes will be deleted. Please review and confirm:"
+ST_Bulk_Delete_Confirmation,"Process Shapes selected: {0}<br/>Deleting a shape also removes any associated shapes. Please review and confirm:"
 ST_Settings_Label, "Settings"
 ST_Confirm_Delete_System_Decision, "Please confirm the deletion of the selected decision point. All conditions will also be deleted except for the first one."
 ST_Confirm_Delete_User_Decision, "Please confirm the deletion of the selected decision point. All choices will also be deleted except for the first one."

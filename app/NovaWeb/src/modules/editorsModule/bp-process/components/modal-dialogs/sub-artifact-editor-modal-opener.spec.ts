@@ -16,14 +16,13 @@ import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
-import {ICondition} from "./decisionEditor/condition.model";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {SystemTaskDialogModel} from "./task-editor/systemTaskDialogModel";
 import {UserTaskDialogModel} from "./task-editor/userTaskDialogModel";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
-import {ICondition} from "../diagram/presentation/graph/shapes/condition";
 import {DiagramNode} from "../diagram/presentation/graph/shapes/diagram-node";
+import {ICondition} from "./decisionEditor/condition.model";
 
 describe("SubArtifactEditorModalOpener test", () => {
     let dialogManager: IModalDialogCommunication;

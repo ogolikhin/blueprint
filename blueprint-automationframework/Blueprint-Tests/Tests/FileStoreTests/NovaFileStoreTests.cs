@@ -91,7 +91,7 @@ namespace FileStoreTests
             // Setup: create a fake file with a random byte array.
             var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            var futureDate = DateTime.Now.AddDays(1);
+            var futureDate = DateTime.UtcNow.AddDays(1);
 
             // Execute: Add the file to Filestore.
             var storedFile = Helper.FileStore.AddFile(file, _adminUser, expireTime: futureDate);
@@ -110,13 +110,13 @@ namespace FileStoreTests
 
         [TestCase((uint)2048, "2KB_File.txt", "text/plain")]
         [TestRail(234423)]
-        [Description("Add file to FileStore, delete it (it set Expiration Date to now), try to get file - it should return 404.")]
+        [Description("Add file to FileStore, delete it, try to get file - it should return 404.")]
         public void GetNovaFile_DeletedFile_Returns404(uint fileSize, string fakeFileName, string fileType)
         {
             // Setup:
             var file = FileStoreTestHelper.CreateAndAddFile(fileSize, fakeFileName, fileType, Helper.FileStore, _adminUser);
 
-            Helper.FileStore.DeleteFile(file.Guid, _adminUser);// TODO: if FileStore delete works as expected it is equivalent of setting ExpirationDate to Now - so test 234423 is equivalent of 234445
+            Helper.FileStore.DeleteFile(file.Guid, _adminUser);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => Helper.FileStore.GetNovaFile(file.Guid, _adminUser));
@@ -135,7 +135,7 @@ namespace FileStoreTests
             // Setup:
             var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            var expireTime = DateTime.Now.AddHours(-1);
+            var expireTime = DateTime.UtcNow.AddHours(-1);
             var storedFile = Helper.FileStore.AddFile(file, _adminUser, expireTime: expireTime);
 
             // Execute:
@@ -193,14 +193,17 @@ namespace FileStoreTests
             // Setup: get the default MaxFileSize and create a file larger than the MaxFileSize
             var maxAttachmentFileSizeInBytes = TestHelper.GetApplicationSetting(MAXATTACHMENTFILESIZE);
 
-            var largerThanMaxFileSize = maxAttachmentFileSizeInBytes.ToInt32Invariant() + 1024;
+            var largerThanMaxFileSize = maxAttachmentFileSizeInBytes.ToInt32Invariant() + 1;
 
             var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray((uint)largerThanMaxFileSize, fakeFileName, fileType);
 
-            var futureDate = DateTime.Now.AddDays(1);
+            var futureDate = DateTime.UtcNow.AddDays(1);
 
             // Execute: Add the file larger than the MaxFileSize
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.FileStore.AddFile(file, _adminUser, expireTime: futureDate, useMultiPartMime: false), "GET {0} call should return 409 Conflict when adding file larger than MaxFileSize!", NOVAFILE_PATH);
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+            {
+                Helper.FileStore.AddFile(file, _adminUser, expireTime: futureDate, useMultiPartMime: false);
+            }, "GET {0} call should return 409 Conflict when adding file larger than MaxFileSize!", NOVAFILE_PATH);
 
             // Verify: Check that 409 conflict with expected error
             var maxAttachmentFileSizeInKilobytes = (maxAttachmentFileSizeInBytes.ToInt32Invariant() / 1024f).ToStringInvariant("0");

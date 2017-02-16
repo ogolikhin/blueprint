@@ -17,7 +17,7 @@ import {IProjectExplorerService} from "../../../../../main/components/bp-explore
 import {AnalyticsServiceMock} from "../../../../../main/components/analytics/analytics.mock";
 import {IExtendedAnalyticsService} from "../../../../../main/components/analytics/analytics";
 
-xdescribe("GenerateUserStoriesAction", () => {
+describe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
     let $q: ng.IQService;
     let userStoryService: UserStoryServiceMock;
@@ -65,116 +65,6 @@ xdescribe("GenerateUserStoriesAction", () => {
             projectExplorerService = _projectExplorerService_;
             analytics = _analytics_;
         }));
-
-    describe("constructor", () => {
-        it("throws error if user story service is not provided", () => {
-            // arrange
-            const process = createStatefulProcessArtifact();
-            let error: Error;
-
-            // act
-            try {
-                new GenerateUserStoriesAction(process, null, messageService, localization,
-                    dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
-            } catch (exception) {
-                error = exception;
-            }
-
-            // assert
-            expect(error).not.toBeNull();
-            expect(error.message).toBe("User story service is not provided or is null");
-        });
-
-        it("throws error if message service is not provided", () => {
-            // arrange
-            const process = createStatefulProcessArtifact();
-            let error: Error;
-
-            // act
-            try {
-                new GenerateUserStoriesAction(process, userStoryService, null, localization,
-                    dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
-            } catch (exception) {
-                error = exception;
-            }
-
-            // assert
-            expect(error).not.toBeNull();
-            expect(error.message).toBe("Message service is not provided or is null");
-        });
-
-        it("throws error if localization service is not provided", () => {
-            // arrange
-            const process = createStatefulProcessArtifact();
-            let error: Error;
-
-            // act
-            try {
-                new GenerateUserStoriesAction(process, userStoryService, messageService, null,
-                    dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
-            } catch (exception) {
-                error = exception;
-            }
-
-            // assert
-            expect(error).not.toBeNull();
-            expect(error.message).toBe("Localization service is not provided or is null");
-        });
-
-        it("throws error if dialog service is not provided", () => {
-            // arrange
-            const process = createStatefulProcessArtifact();
-            let error: Error;
-
-            // act
-            try {
-                new GenerateUserStoriesAction(process, userStoryService, messageService, localization,
-                    null, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
-            } catch (exception) {
-                error = exception;
-            }
-
-            // assert
-            expect(error).not.toBeNull();
-            expect(error.message).toBe("Dialog service is not provided or is null");
-        });
-
-        it("throws error if loading overlay service is not provided", () => {
-            // arrange
-            const process = createStatefulProcessArtifact();
-            let error: Error;
-
-            // act
-            try {
-                new GenerateUserStoriesAction(process, userStoryService, messageService, localization,
-                    dialogService, null, processDiagramCommunication, projectExplorerService, analytics);
-            } catch (exception) {
-                error = exception;
-            }
-
-            // assert
-            expect(error).not.toBeNull();
-            expect(error.message).toBe("Loading overlay service is not provided or is null");
-        });
-
-        it("throws error if process diagram communication is not provided", () => {
-            // arrange
-            const process = createStatefulProcessArtifact();
-            let error: Error;
-
-            // act
-            try {
-                new GenerateUserStoriesAction(process, userStoryService, messageService, localization,
-                    dialogService, loadingOverlayService, null, projectExplorerService, analytics);
-            } catch (exception) {
-                error = exception;
-            }
-
-            // assert
-            expect(error).not.toBeNull();
-            expect(error.message).toBe("Process diagram manager is not provided or is null");
-        });
-    });
 
     it("returns correct icon", () => {
         // arrange

@@ -18,7 +18,7 @@ import {IProjectExplorerService} from "../../../../../main/components/bp-explore
 import {AnalyticsServiceMock} from "../../../../../main/components/analytics/analytics.mock";
 import {IExtendedAnalyticsService} from "../../../../../main/components/analytics/analytics";
 
-xdescribe("GenerateUserStoriesAction", () => {
+describe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
     let $q: ng.IQService;
     let userStoryService: UserStoryServiceMock;
@@ -267,8 +267,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             const successSpy = spyOn(messageService, "addInfo");
             const beginLoadingSpy = spyOn(loadingOverlayService, "beginLoading");
             const endLoadingSpy = spyOn(loadingOverlayService, "endLoading");
-            const projectManagerRefreshSpy = spyOn(projectExplorerService, "refresh").and.callThrough();
-            const projectManagertriggerProjectCollectionRefreshSpy = spyOn(projectExplorerService, "triggerProjectCollectionRefresh");
+            const projectExplorerRefreshSpy = spyOn(projectExplorerService, "refresh").and.callThrough();
 
             // act
             generateAll.execute();
@@ -279,8 +278,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             expect(successSpy).toHaveBeenCalledWith(localization.get("ST_US_Generate_All_Success_Message"));
             expect(beginLoadingSpy).toHaveBeenCalledTimes(1);
             expect(endLoadingSpy).toHaveBeenCalledTimes(1);
-            expect(projectManagerRefreshSpy).toHaveBeenCalledTimes(1);
-            expect(projectManagertriggerProjectCollectionRefreshSpy).toHaveBeenCalledTimes(1);
+            expect(projectExplorerRefreshSpy).toHaveBeenCalledTimes(1);
         });
     });
 });

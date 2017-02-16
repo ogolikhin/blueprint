@@ -1,4 +1,4 @@
-import {ICondition} from "../../diagram/presentation/graph/shapes/condition";
+import {ICondition} from "./condition.model";
 import {
     IProcessGraph,
     IDecision

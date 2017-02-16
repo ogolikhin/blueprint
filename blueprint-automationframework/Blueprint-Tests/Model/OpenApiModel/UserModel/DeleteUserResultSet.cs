@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace Model.Impl
+namespace Model.OpenApiModel.UserModel
 {
     /// <summary>
     /// Describes response returned from DeleteUser call
     /// </summary>
-    public class DeleteResultSet
+    public class DeleteUserResultSet
     {
         public List<DeleteUserResult> Results { get; set; }
         public HttpStatusCode ReturnCode { get; set; }

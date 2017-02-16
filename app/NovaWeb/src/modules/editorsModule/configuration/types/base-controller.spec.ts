@@ -1,5 +1,6 @@
 import * as angular from "angular";
 import "angular-mocks";
+import "lodash";
 
 import {BPFieldBaseController} from "./base-controller";
 
@@ -145,6 +146,59 @@ describe("Formly Base Controller", () => {
             expect(document.activeElement).toBe(input);
             expect(container.scrollTop).toBeGreaterThan(100);
             expect(hasBeenClicked).toBe(true);
+        });
+    });
+
+    // We can't create a DragEvent, see https://developer.mozilla.org/en-US/docs/Web/API/DragEvent/DragEvent
+    // Therefore we mock one
+    function mockDrageEvent(eventType: string = "dragenter", types?: string[]) {
+        let dragEvent = {
+            type: eventType,
+            defaultPrevented: false,
+            preventDefault: () => {
+                dragEvent.defaultPrevented = true;
+            },
+            stopPropagation: () => {
+                return;
+            }
+        };
+
+        if (types && types.length) {
+            const dataTransfer = {
+                types: types
+            };
+            const dragEventInit = {
+                dataTransfer: dataTransfer
+            };
+             _.merge(dragEvent, dragEventInit);
+        }
+
+        return dragEvent;
+    }
+
+    describe("dragDrop", () => {
+        it("cancels the event when 'tinymce-image' is within the types", () => {
+            const e = mockDrageEvent("drop", ["text/html", "tinymce-image"]);
+
+            controller.dragDrop(e);
+
+            expect(e.defaultPrevented).toBeTruthy();
+        });
+
+        it("doesn't cancel the event when 'tinymce-image' is not within the types", () => {
+            const e = mockDrageEvent("drop", ["text/html", "text/uri-list"]);
+
+            controller.dragDrop(e);
+
+            expect(e.defaultPrevented).toBeFalsy();
+        });
+
+        it("doesn't cancel the event when it's not a drag event", () => {
+            const e = mockDrageEvent("click");
+
+            controller.dragDrop(e);
+
+            expect(e.defaultPrevented).toBeFalsy();
         });
     });
 

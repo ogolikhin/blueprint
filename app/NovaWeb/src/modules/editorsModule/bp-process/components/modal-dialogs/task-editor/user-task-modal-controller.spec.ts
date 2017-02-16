@@ -82,7 +82,7 @@ describe("UserTaskModalController", () => {
         $uibModalInstance = _$uibModalInstance_;
     }));
 
-    describe("saveData", () => {
+    describe("applyChanges", () => {
         let model: UserTaskDialogModel;
         let controller: UserTaskModalController;
 
@@ -130,7 +130,7 @@ describe("UserTaskModalController", () => {
             model.isReadonly = true;
 
             // act
-            controller.saveData().catch((err: any) => error = err);
+            controller.applyChanges().catch((err: any) => error = err);
             $rootScope.$digest();
 
             // assert
@@ -143,7 +143,7 @@ describe("UserTaskModalController", () => {
             model.isHistoricalVersion = true;
 
             // act
-            controller.saveData().catch((err: any) => error = err);
+            controller.applyChanges().catch((err: any) => error = err);
             $rootScope.$digest();
 
             // assert
@@ -155,7 +155,7 @@ describe("UserTaskModalController", () => {
             model.action = "Test Action";
 
             // act
-            controller.saveData();
+            controller.applyChanges();
             $rootScope.$digest();
 
             // assert
@@ -171,7 +171,7 @@ describe("UserTaskModalController", () => {
             };
 
             // act
-            controller.saveData();
+            controller.applyChanges();
             $rootScope.$digest();
 
             // assert
@@ -183,7 +183,7 @@ describe("UserTaskModalController", () => {
             model.objective = "Test Objective";
 
             // act
-            controller.saveData();
+            controller.applyChanges();
             $rootScope.$digest();
 
             // assert
@@ -195,7 +195,7 @@ describe("UserTaskModalController", () => {
             model.label = "Test Label";
 
             // act
-            controller.saveData();
+            controller.applyChanges();
             $rootScope.$digest();
 
             // assert
@@ -216,7 +216,7 @@ describe("UserTaskModalController", () => {
             };
 
             // act
-            controller.saveData();
+            controller.applyChanges();
             $rootScope.$digest();
 
             // assert

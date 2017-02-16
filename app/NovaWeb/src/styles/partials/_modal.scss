@@ -212,6 +212,10 @@ $modal-open-project-height: 450px;
             .checkbox {
                 min-width: 25px;
             }
+            
+            .search-hidden-checkbox {
+                visibility: hidden;
+            }
 
             & > i {
                 color: $brand-secondary;

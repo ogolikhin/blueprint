@@ -122,7 +122,8 @@ export interface IBPTreeViewControllerApi {
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$log"];
+    private timers = [];
+    private subscribers: Rx.IDisposable[] = [];
 
     // BPTreeViewComponent bindings
     public gridClass: string;
@@ -143,7 +144,8 @@ export class BPTreeViewController implements IBPTreeViewController {
     // ag-grid bindings
     public options: agGrid.GridOptions;
 
-    private timers = [];
+
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$log"];
 
     constructor(private $q: ng.IQService,
                 private $element: ng.IAugmentedJQuery,
@@ -152,6 +154,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 private windowManager: IWindowManager,
                 private messageService: IMessageService,
                 private $log: ng.ILogService) {
+
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -161,11 +164,6 @@ export class BPTreeViewController implements IBPTreeViewController {
         this.columns = angular.isDefined(this.columns) ? this.columns : [];
         this.headerHeight = angular.isDefined(this.headerHeight) ? this.headerHeight : 0;
         this.sizeColumnsToFit = angular.isDefined(this.sizeColumnsToFit) ? this.sizeColumnsToFit : false;
-
-        if (_.isObject(this.rowDataObservable)) {
-            // TODO: add subscriber array
-            this.rowDataObservable.subscribeOnNext(this.onRowDataChange, this);
-        }
 
         this.options = {
             suppressRowClickSelection: true,
@@ -214,6 +212,10 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (this.sizeColumnsToFit) {
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
         }
+
+        if (_.isObject(this.rowDataObservable)) {
+            this.subscribers.push(this.rowDataObservable.subscribeOnNext(this.onRowDataChange, this));
+        }
     }
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
@@ -224,6 +226,18 @@ export class BPTreeViewController implements IBPTreeViewController {
 
             this.resetGridAsync(false, 0);
         }
+    }
+
+    public $onDestroy(): void {
+        this.subscribers.forEach(disposable => disposable.dispose());
+        this.subscribers = null;
+
+        this.options.api.setRowData(null);
+        _.each(this.timers, (timer) => {
+            this.$timeout.cancel(timer);
+        });
+        this.api = null;
+        this.rowData = null;
     }
 
     private onRowDataChange(change: IChangeSet) {
@@ -264,15 +278,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                 }, 900);
             }
         }
-    }
-
-    public $onDestroy(): void {
-        this.options.api.setRowData(null);
-        _.each(this.timers, (timer) => {
-            this.$timeout.cancel(timer);
-        });
-        this.api = null;
-        this.rowData = null;
     }
 
     public api: IBPTreeViewControllerApi = {

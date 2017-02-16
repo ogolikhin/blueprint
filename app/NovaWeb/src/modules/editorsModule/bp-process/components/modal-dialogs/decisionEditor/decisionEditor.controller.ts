@@ -86,7 +86,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     private get changedConditions(): ICondition[] {
         return _.filter(
             this.dialogModel.conditions,
-            condition => condition.isLabelChanged || condition.isOrderIndexChanged || condition.isMergeNodeChanged
+            condition => condition.isChanged
         );
     }
 
@@ -175,7 +175,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             return;
         }
 
-        condition.isDeleted = true;
+        condition.delete();
         this.deletedConditions.push(condition);
 
         const index = this.dialogModel.conditions.indexOf(condition);

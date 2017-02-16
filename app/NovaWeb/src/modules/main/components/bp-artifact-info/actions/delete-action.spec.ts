@@ -18,8 +18,10 @@ import {IMessageService} from "../../messages/message.svc";
 import {DeleteAction} from "./delete-action";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
+import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
+import {SelectionManagerMock} from "../../../../managers/selection-manager/selection-manager.mock";
 
-xdescribe("DeleteAction", () => {
+describe("DeleteAction", () => {
     let $q_: ng.IQService;
     let $scope: ng.IScope;
 
@@ -30,9 +32,9 @@ xdescribe("DeleteAction", () => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("messageService", MessageServiceMock);
         $provide.service("dialogService", DialogServiceMock);
-        $provide.service("selectionManager", SelectionManager);
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("projectExplorerService", ProjectExplorerServiceMock);
-        $provide.service("loadingOverlayService", LoadingOverlayService);
+        $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
     }));
 
@@ -40,57 +42,6 @@ xdescribe("DeleteAction", () => {
         $scope = $rootScope.$new();
         $q_ = $q;
     }));
-
-    it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-        selectionManager: ISelectionManager,
-        projectExplorerService: IProjectExplorerService,
-        messageService: IMessageService,
-        loadingOverlayService: ILoadingOverlayService,
-        dialogService: IDialogService,
-        navigationService: INavigationService
-    ) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-        const localization: ILocalizationService = null;
-        let error: Error = null;
-
-        // act
-        try {
-            new DeleteAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, dialogService, navigationService);
-        } catch (exception) {
-            error = exception;
-        }
-
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Localization service not provided or is null"));
-    }));
-
-    it("throws exception when dialogService is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-        localization: ILocalizationService,
-        selectionManager: ISelectionManager,
-        projectExplorerService: IProjectExplorerService,
-        messageService: IMessageService,
-        loadingOverlayService: ILoadingOverlayService,
-        navigationService: INavigationService
-    ) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-        const dialogService: IDialogService = null;
-        let error: Error = null;
-
-        // act
-        try {
-            new DeleteAction(artifact, localization, messageService, projectExplorerService, loadingOverlayService, dialogService, navigationService);
-        } catch (exception) {
-            error = exception;
-        }
-
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Dialog service not provided or is null"));
-    }));
-
 
     it("is disabled when artifact is null", inject((localization: ILocalizationService,
         selectionManager: ISelectionManager,
@@ -299,60 +250,32 @@ xdescribe("DeleteAction", () => {
             endLoadingSpy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
             dialogOpenSpy = spyOn(dialogService, "open");
             deleteSpy = spyOn(artifact, "delete");
-            completeDeleteSpy = spyOn(deleteAction, "complete").and.callFake(() => {
-                return true;
-            });
+            completeDeleteSpy = spyOn(deleteAction, "complete").and.callFake(() => true);
             spyOn(messageService, "addError").and.callFake((err) => {
                 error = err;
             });
-            refreshSpy = spyOn(artifact, "refresh").and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.resolve(true);
-                return deferred.promise;
-            });
-            getDescendantsSpy = spyOn(projectExplorerService, "getDescendantsToBeDeleted").and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.resolve({
+            refreshSpy = spyOn(artifact, "refresh").and.callFake(() => $q_.resolve(true));
+            getDescendantsSpy = spyOn(projectExplorerService, "getDescendantsToBeDeleted").and.callFake(() => $q_.resolve({
                     id: 1, name: "Test", children: null
-                });
-                return deferred.promise;
-            });
-
+                }));
         }));
 
         it("confirm and delete", () => {
             // assert
-            dialogOpenSpy.and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.resolve(true);
-                return deferred.promise;
-            });
-            deleteSpy.and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.resolve();
-                return deferred.promise;
-            });
+            dialogOpenSpy.and.callFake(() => $q_.resolve(true));
+            deleteSpy.and.callFake(() => $q_.resolve());
 
             deleteAction.execute();
             $scope.$digest();
 
             expect(getDescendantsSpy).toHaveBeenCalled();
             expect(deleteSpy).toHaveBeenCalled();
-
         });
 
         it("shows/hides loading screen", () => {
             // assert
-            dialogOpenSpy.and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.resolve(true);
-                return deferred.promise;
-            });
-            deleteSpy.and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.resolve();
-                return deferred.promise;
-            });
+            dialogOpenSpy.and.callFake(() => $q_.resolve(true));
+            deleteSpy.and.callFake(() => $q_.resolve());
 
             deleteAction.execute();
             $scope.$digest();
@@ -363,42 +286,24 @@ xdescribe("DeleteAction", () => {
 
         it("rejects delete", () => {
             // assert
-            dialogOpenSpy.and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.reject();
-                return deferred.promise;
-            });
-
+            dialogOpenSpy.and.callFake(() => $q_.reject());
 
             deleteAction.execute();
             $scope.$digest();
-
 
             expect(deleteSpy).not.toHaveBeenCalled();
         });
 
         it("failed delete", () => {
             // assert
-            dialogOpenSpy.and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.resolve(true);
-                return deferred.promise;
-            });
-            deleteSpy.and.callFake(() => {
-                const deferred = $q_.defer();
-                deferred.reject({});
-                return deferred.promise;
-            });
-
+            dialogOpenSpy.and.callFake(() => $q_.resolve(true));
+            deleteSpy.and.callFake(() => $q_.reject({}));
 
             deleteAction.execute();
             $scope.$digest();
 
-
             expect(completeDeleteSpy).not.toHaveBeenCalled();
             expect(error).toBeDefined();
-
         });
-
     });
 });

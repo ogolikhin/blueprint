@@ -1169,6 +1169,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Auto_Conf
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Possible_SubArtifact_Validation_Error', 'en-US', N'There may be issues with one or more sub-artifact property values. Please validate the artifact to confirm.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Project_NotFound', 'en-US', N'You have attempted to access a project that has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Refresh_Artifact_Deleted', 'en-US', N'The artifact you were viewing has been deleted. The artifact''s parent or project is now being displayed.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('SubArtifact_Has_Been_Deleted', 'en-US', N'The subartifact has been deleted or moved. Please refresh your display.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog_Header', 'en-US', N'Publish All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Dialog_Message', 'en-US', N'Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Publish_All_Success_Message', 'en-US', N'Changes have been published for all artifacts ({0}).')

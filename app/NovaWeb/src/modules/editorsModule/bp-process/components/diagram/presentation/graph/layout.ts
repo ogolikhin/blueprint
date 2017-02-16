@@ -492,24 +492,30 @@ export class Layout implements ILayout {
     private postRender(id: number) {
         const nodeToSelect: IDiagramNode = this.getNodeById(id.toString());
 
+        if (this.isAutoeditable(nodeToSelect)) {
+            // Select node and make it editable
+            this.selectNode(nodeToSelect);
+            nodeToSelect.setEditMode();
+        }
+    }
+
+    private isAutoeditable(nodeToSelect: IDiagramNode): boolean {
         if (!nodeToSelect) {
-            return;
+            return false;
         }
 
         if (this.viewModel.propertyValues["clientType"].value !== ProcessType.UserToSystemProcess) {
             if (nodeToSelect.getNodeType() === NodeType.SystemTask) {
-                return;
+                return false;
             }
         }
 
         if (nodeToSelect.getNodeType() === NodeType.ProcessEnd ||
             nodeToSelect.getNodeType() === NodeType.ProcessStart) {
-                return;
+                return false;
         }
 
-        // Select node and make it editable
-        this.selectNode(nodeToSelect);
-        nodeToSelect.setEditMode();
+        return true;
     }
 
     private addConnector(graphModel, link: IProcessLinkModel, sourceId: number = link.sourceId, destinationId: number = link.destinationId) {

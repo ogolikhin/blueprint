@@ -1,21 +1,12 @@
-﻿import {IProcessLinkModel} from "../../../../../models/process-models";
-import {ProcessEvents} from "../../../process-diagram-communication";
-import {Label, LabelStyle, LabelType} from "../labels/label";
-import {IDiagramNode, IProcessGraph} from "../models/";
+﻿import {Label, LabelStyle, LabelType} from "../labels/label";
+import {IDiagramLink} from "../models/process-graph-interfaces";
+import {IProcessGraph, IDiagramNode} from "../models/";
 import {IDiagramElement, IMenuContainer} from "../models/";
 import {ElementType, NodeType} from "../models/";
-import {Connector, ConnectorOverlay} from "./connector";
 import {DiagramElement} from "./diagram-element";
-
-export interface IDiagramLink extends IDiagramElement, IMenuContainer {
-    renderLabel();
-    initializeLabel(graph: IProcessGraph, sourceNode: IDiagramNode, targetNode: IDiagramNode);
-    label: string;
-    sourceNode: IDiagramNode;
-    targetNode: IDiagramNode;
-    showMenu(mxGraph: MxGraph);
-    getParentId(): number;
-}
+import {Connector, ConnectorOverlay} from "./connector";
+import {ProcessEvents} from "../../../process-diagram-communication";
+import {IProcessLinkModel} from "../../../../../models/process-models";
 
 export class DiagramLink extends DiagramElement implements IDiagramLink {
     private LABEL_VIEW_MAXLENGTH: number = 25;

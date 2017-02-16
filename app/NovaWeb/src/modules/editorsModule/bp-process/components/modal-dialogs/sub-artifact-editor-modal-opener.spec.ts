@@ -1,6 +1,7 @@
+import {ICondition} from "../diagram/presentation/graph/shapes/condition";
+require("script!mxClient");
 import * as angular from "angular";
 import "angular-mocks";
-require("script!mxClient");
 import {ExecutionEnvironmentDetectorMock} from "../../../../commonModule/services/executionEnvironmentDetector.mock";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./modal-dialog-constants";
@@ -13,7 +14,6 @@ import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
 import {UserTask, SystemTask, UserDecision} from "../diagram/presentation/graph/shapes";
 import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
-import {ICondition} from "../diagram/presentation/graph/models";
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
@@ -316,15 +316,17 @@ describe("SubArtifactEditorModalOpener test", () => {
                         label: decision.label,
                         conditions: [
                             <ICondition>{
-                                sourceId: shapeId,
-                                destinationId: 30,
-                                orderindex: 0,
+                                decisionId: shapeId,
+                                firstNodeId: null,
+                                mergeNodeId: 30,
+                                orderIndex: 0,
                                 label: ""
                             },
                             <ICondition>{
-                                sourceId: shapeId,
-                                destinationId: 40,
-                                orderindex: 1,
+                                decisionId: shapeId,
+                                firstNodeId: null,
+                                mergeNodeId: 40,
+                                orderIndex: 1,
                                 label: ""
                             }
                         ],
@@ -332,7 +334,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                         originalDecision: decision,
                         isReadonly: false,
                         isHistoricalVersion: false,
-                        conditionLabel: "Choice",
+                        conditionHeader: "Choice",
                         defaultDestinationId: null
                     }
                 },

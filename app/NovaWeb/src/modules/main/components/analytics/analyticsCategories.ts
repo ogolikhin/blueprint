@@ -1,3 +1,4 @@
-export namespace AnalyticsCategories {    
-    export const USER_STORY: string = "User Story";
+export namespace AnalyticsCategories {
+    export const userStory: string = "User Story";
+    export const impactAnalysis: string = "Impact Analysis";
 }

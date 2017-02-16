@@ -492,14 +492,14 @@ export class Layout implements ILayout {
     private postRender(id: number) {
         const nodeToSelect: IDiagramNode = this.getNodeById(id.toString());
 
-        if (this.isAutoeditable(nodeToSelect)) {
+        if (this.isAutoEditable(nodeToSelect)) {
             // Select node and make it editable
             this.selectNode(nodeToSelect);
             nodeToSelect.setEditMode();
         }
     }
 
-    private isAutoeditable(nodeToSelect: IDiagramNode): boolean {
+    private isAutoEditable(nodeToSelect: IDiagramNode): boolean {
         if (!nodeToSelect) {
             return false;
         }

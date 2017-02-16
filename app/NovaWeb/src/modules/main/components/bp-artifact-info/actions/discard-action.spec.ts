@@ -16,7 +16,7 @@ import {IMessageService} from "../../messages/message.svc";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
-xdescribe("DiscardAction", () => {
+describe("DiscardAction", () => {
     let $scope: ng.IScope;
     let $q: ng.IQService;
     let statefulArtifactFactory: IStatefulArtifactFactory;
@@ -56,24 +56,6 @@ xdescribe("DiscardAction", () => {
         loadingOverlayService = _loadingOverlayService_;
         navigationService = _navigationService_;
     }));
-
-    it("throws exception when localization is null", () => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-        const localization: ILocalizationService = null;
-        let error: Error = null;
-
-        // act
-        try {
-            new DiscardAction(artifact, localization, messageService, projectExplorerService, navigationService);
-        } catch (exception) {
-            error = exception;
-        }
-
-        // assert
-        expect(error).not.toBeNull();
-        expect(error).toEqual(new Error("Localization service not provided or is null"));
-    });
 
     it("is disabled when artifact is null", () => {
         // arrange

@@ -638,27 +638,9 @@ namespace Model.OpenApiModel.Services
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return DeleteUser(Address, userToAuthenticate, usernamesToDelete, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Delete a user with specific username.
-        /// (Runs:  'DELETE /api/v1/users/delete')
-        /// </summary>
-        /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="userToAuthenticate">A user that has permission to delete users.</param>
-        /// <param name="usernamesToDelete">Usernames of users to delete.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
-        public static DeleteUserResultSet DeleteUser(string address,
-            IUser userToAuthenticate,
-            List<string> usernamesToDelete,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
 
-            var restApi = new RestApiFacade(address, userToAuthenticate?.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.DELETE;
 
             return restApi.SendRequestAndDeserializeObject<DeleteUserResultSet, List<string>>(

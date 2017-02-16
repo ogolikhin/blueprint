@@ -152,7 +152,7 @@ namespace FileStoreTests
             // Setup:
             var file = FileStoreTestHelper.CreateNovaFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
-            var expireTime = DateTime.Now.AddHours(-1);
+            var expireTime = DateTime.UtcNow.AddHours(-1);
             var storedFile = Helper.FileStore.AddFile(file, _user, expireTime: expireTime);
 
             // Execute:

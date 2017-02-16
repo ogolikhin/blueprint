@@ -185,12 +185,8 @@ namespace Model.Impl
         /// <param name="source">The source where this user is defined.</param>
         public abstract void CreateUser(UserSource source = UserSource.Database);
 
-        /// <summary>
-        /// Deletes a user from the Blueprint server.
-        /// </summary>
-        /// <param name="deleteFromDatabase">(optional) By default the user is only disabled by setting the EndTimestamp field.
-        ///     Pass true to really delete the user from the database.</param>
-        public abstract void DeleteUser(bool deleteFromDatabase = false);
+        /// <seealso cref="IUser.DeleteUser(bool)"/>
+        public abstract void DeleteUser(bool useSqlUpdate = true);  // TODO: Change useSqlUpdate = false when OpenAPI Delete call is working.
 
         /// <summary>
         /// Sets the token for this user.
@@ -505,12 +501,8 @@ namespace Model.Impl
             }
         }
 
-        /// <summary>
-        /// Deletes a user from the Blueprint server.
-        /// </summary>
-        /// <param name="deleteFromDatabase">(optional) By default the user is only disabled by setting the EndTimestamp field.
-        ///     Pass true to really delete the user from the database.</param>
-        public override void DeleteUser(bool deleteFromDatabase = false)
+        /// <seealso cref="IUser.DeleteUser(bool)"/>
+        public override void DeleteUser(bool useSqlUpdate = true)   // TODO: Change useSqlUpdate = false when OpenAPI Delete call is working.
         {
             if (IsDeletedFromDatabase)
             {
@@ -525,14 +517,11 @@ namespace Model.Impl
                 string query = null;
                 DateTime? oldEndTimestamp = EndTimestamp;
 
-                if (deleteFromDatabase)
-                {
-                    query = I18NHelper.FormatInvariant("DELETE FROM {0} WHERE Login='{1}'", USERS_TABLE, Username);
-                }
-                else
+                if (useSqlUpdate)
                 {
                     EndTimestamp = DateTime.Now;
-                    query = I18NHelper.FormatInvariant("UPDATE {0} SET EndTimestamp='{1}' WHERE Login='{2}' and EndTimestamp is NULL", USERS_TABLE, dateTimeToString(EndTimestamp.Value), Username);
+                    query = I18NHelper.FormatInvariant("UPDATE {0} SET EndTimestamp='{1}' WHERE Login='{2}' and EndTimestamp is NULL",
+                        USERS_TABLE, dateTimeToString(EndTimestamp.Value), Username);
                 }
 
                 Logger.WriteDebug("Running: {0}", query);
@@ -608,12 +597,8 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Deletes a user from the Blueprint server.
-        /// </summary>
-        /// <param name="deleteFromDatabase">(optional) By default the user is only disabled by setting the EndTimestamp field.
-        ///     Pass true to really delete the user from the database.</param>
-        public override void DeleteUser(bool deleteFromDatabase = false)
+        /// <seealso cref="IUser.DeleteUser(bool)"/>
+        public override void DeleteUser(bool useSqlUpdate = false)
         {
             throw new NotImplementedException();
         }

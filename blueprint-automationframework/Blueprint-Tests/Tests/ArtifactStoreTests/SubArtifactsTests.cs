@@ -454,7 +454,7 @@ namespace ArtifactStoreTests
 
         #region 400 Bad Request
 
-        [TestRail(246535)]
+        [TestRail(246534)]
         [TestCase("9999999999", "The request is invalid.")]
         [TestCase("&amp;", "A potentially dangerous Request.Path value was detected from the client (&).")]
         [Description("Create a rest path that tries to get a subartifact with an invalid subartifact Id. " +

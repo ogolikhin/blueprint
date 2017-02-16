@@ -299,11 +299,13 @@ export class ProcessDeleteHelper {
         let newDestinationId = targetId;
         while (scopeContext.visitedIds[newDestinationId]) {
             newDestinationId = processGraph.viewModel.getNextShapeIds(newDestinationId)[0];
-            const innerParent = scopeContext.visitedIds[newDestinationId].innerParentCondition();
-            if (innerParent) {
-                  if (ProcessDeleteHelper.isInfiniteLoop(innerParent.targetId, innerParent, processGraph)) {
-                        newDestinationId = processGraph.layout.getConditionDestination(originalDecisionId).id;
-                  }
+            if (!!scopeContext.visitedIds[newDestinationId]) {
+                const innerParent = scopeContext.visitedIds[newDestinationId].innerParentCondition();
+                if (innerParent) {
+                    if (ProcessDeleteHelper.isInfiniteLoop(innerParent.targetId, innerParent, processGraph)) {
+                            newDestinationId = processGraph.layout.getConditionDestination(originalDecisionId).id;
+                    }
+                }
             }
         }
         return newDestinationId;

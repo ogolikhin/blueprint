@@ -344,7 +344,7 @@ namespace ArtifactStoreTests
 
         #region 400 Bad Request
 
-        [TestRail(999999)]
+        [TestRail(246533)]
         [TestCase("9999999999", "The request is invalid.")]
         [TestCase("&amp;", "A potentially dangerous Request.Path value was detected from the client (&).")]
         [Description("Create a rest path that tries to delete an artifact with an invalid artifact Id. " +

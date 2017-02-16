@@ -6,13 +6,13 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using Model.JobModel;
-using Model.JobModel.Impl;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Model.ModelHelpers;
@@ -23,7 +23,7 @@ using Utilities.Factories;
 
 namespace Helper
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is a Helper class, so this is expected to be large.
+    [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is a Helper class, so this is expected to be large.
     public class TestHelper : IDisposable, IArtifactObserver
     {
         public enum ProjectRole
@@ -735,7 +735,7 @@ namespace Helper
         /// <param name="customProperties">(optional) The custom properties to add to the changeset</param>
         /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
         /// <returns>The subartifact details changeset</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static NovaSubArtifact CreateSubArtifactChangeSet(NovaSubArtifact subArtifact, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null)
         {
             ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
@@ -1373,7 +1373,52 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Verifies that the content returned in the rest response does not contain a stack trace.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        public static void ValidateNoStackTraceInResponse(RestResponse restResponse)
+        {
+            Assert.False(restResponse.Content.Contains("BluePrintSys."), 
+                "The REST response received appears to contain a stack trace!\nActual REST Content: {0}",
+                restResponse.Content);
+        }
+
+        /// <summary>
+        /// Verifies that the error message returned in the rest response contains the expected message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorMessage">The expected error message</param>
+        public static void ValidateServiceErrorMessage(RestResponse restResponse, string expectedErrorMessage)
+        {
+            ValidateNoStackTraceInResponse(restResponse);
+
+            MessageResult errorMessage = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                var content = restResponse.Content.Replace("&", "");
+                errorMessage = JsonConvert.DeserializeObject<MessageResult>(content);
+            }, "Failed to deserialize the content of the REST response into a MessageResult object!");
+
+            Assert.AreEqual(expectedErrorMessage, errorMessage.Message,
+                "The error message does not contain the expected error message!\nActual Error Message: {0}",
+                errorMessage.Message);
+        }
+
         #endregion Custom Asserts
+
+        #region Message Classes
+
+        /// <summary>
+        /// This is the structure returned by the REST call to display error messages.
+        /// </summary>
+        public class MessageResult
+        {
+            public string Message { get; set; }
+        }
+
+        #endregion Message Classes
 
         #region Members inherited from IDisposable
 

@@ -540,7 +540,7 @@ export class BPFieldBaseRTFController implements IBPFieldBaseRTFController {
                     // - http://stackoverflow.com/questions/11065803/determine-what-is-being-dragged-from-dragenter-dragover-events/23416174#23416174
                     // - https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/Recommended_drag_types
                     const data = e.dataTransfer.getData("text/html");
-                    const reImg = /^<img [^>]*>$/gi;
+                    const reImg = /^(<[^>]*>)?<img [^>]*>(<\/[^>]*>)?$/gi;
                     if (reImg.test(data)) {
                         e.dataTransfer.setData("tinymce-image", "");
                     }

@@ -9,7 +9,7 @@ import * as Enums from "../../../../models/enums";
 import * as ProcessModels from "../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {IProcessGraphModel, ProcessGraphModel} from "../../viewmodel/process-graph-model";
-import {IProcessGraph, IDiagramNode} from "./models/";
+import {IDiagramNode, IProcessGraph, ProcessLinkModel} from "./models/";
 import {UserTask, UserDecision, Condition} from "./shapes/";
 import {NodeChange, NodeType} from "./models/";
 import {ProcessValidator} from "./process-graph-validator";
@@ -1785,6 +1785,121 @@ describe("ProcessGraph", () => {
             expect(systemTask2Spy).toHaveBeenCalled();
             expect(userTask2Spy).toHaveBeenCalled();
             expect(systemTask3Spy).toHaveBeenCalled();
+        });
+    });
+
+    describe("getBranchStartingLink", () => {
+
+        it("returns null when link does not exist in graph", () => {
+            const process = TestModels.createDefaultProcessModel();
+
+            const graph = createGraph(process);
+            const newLink = new ProcessLinkModel(null, 0, 0, 0);
+            const startLink = graph.getBranchStartingLink(newLink);
+
+            expect(startLink).toBeNull();
+        });
+
+        it("returns null if link is not a starting branch link", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const startId = graph.viewModel.getStartShapeId();
+            const nextLinks = graph.viewModel.getSortedNextLinks(startId);
+            const firstLink = nextLinks[0];
+
+            const endLink = graph.getBranchStartingLink(firstLink);
+            expect(endLink).toBeNull();
+        });
+
+        it("returns same link if it finds it in the model", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const decisionId = 4;
+            const nextLinks = graph.viewModel.getSortedNextLinks(decisionId);
+            const firstLink = nextLinks[1];
+
+            const startLink = graph.getBranchStartingLink(firstLink);
+            expect(startLink.sourceId).toBe(firstLink.sourceId);
+            expect(startLink.destinationId).toBe(firstLink.destinationId);
+            expect(startLink.orderindex).toBe(firstLink.orderindex);
+            expect(startLink.label).toBe(firstLink.label);
+        });
+
+        it("returns parent decision link if it is first branch of nested decision", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const decisionId = 4;
+            const parentNextLinks = graph.viewModel.getSortedNextLinks(decisionId);
+            const parentLink = parentNextLinks[1];
+            const nestedDecisionId = 8;
+            const nextLinks = graph.viewModel.getSortedNextLinks(nestedDecisionId);
+            const firstLink = nextLinks[0];
+
+            const startLink = graph.getBranchStartingLink(firstLink);
+            expect(startLink.sourceId).toBe(parentLink.sourceId);
+            expect(startLink.destinationId).toBe(parentLink.destinationId);
+            expect(startLink.orderindex).toBe(parentLink.orderindex);
+        });
+    });
+
+    describe("getBranchEndingLink", () => {
+
+        it("returns null when link does not exist in graph", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const newLink = new ProcessLinkModel(null, 0, 0, 0);
+            const endLink = graph.getBranchEndingLink(newLink);
+            expect(endLink).toBeNull();
+        });
+
+        it("returns null if its first link of decision on main branch", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const decisionId = 4;
+            const nextLinks = graph.viewModel.getSortedNextLinks(decisionId);
+            const firstLink = nextLinks[0];
+
+            const endLink = graph.getBranchEndingLink(firstLink);
+            expect(endLink).toBeNull();
+        });
+
+        it("returns null if link is not a starting branch link", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const startId = graph.viewModel.getStartShapeId();
+            const nextLinks = graph.viewModel.getSortedNextLinks(startId);
+            const firstLink = nextLinks[0];
+
+            const endLink = graph.getBranchEndingLink(firstLink);
+            expect(endLink).toBeNull();
+        });
+
+        it("returns parent branch's end link for the first branch of nested decision", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const lastShapeInBranchId = 9;
+            const branchDestinationId = 14;
+            const decisionId = 8;
+            const nextLinks = graph.viewModel.getSortedNextLinks(decisionId);
+            const nextLink = nextLinks[0];
+
+            const endLink = graph.getBranchEndingLink(nextLink);
+            expect(endLink.sourceId).toBe(lastShapeInBranchId);
+            expect(endLink.destinationId).toBe(branchDestinationId);
+        });
+
+        it("returns branch's end link for a branch in the decision", () => {
+            const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+            const graph = createGraph(process);
+            const decisionId = 4;
+            const lastShapeInBranchId = 9;
+            const branchDestinationId = 14;
+            const parentNextLinks = graph.viewModel.getSortedNextLinks(decisionId);
+            const parentLink = parentNextLinks[1];
+
+            const endLink = graph.getBranchEndingLink(parentLink);
+            expect(endLink.sourceId).toBe(lastShapeInBranchId);
+            expect(endLink.destinationId).toBe(branchDestinationId);
         });
     });
 

@@ -292,21 +292,15 @@ export class PageToolbarController {
             evt.preventDefault();
         }
 
-        this.projectExplorerService.refreshAll();
-
-        /*let promise: ng.IPromise<any>;
-        let artifact: IStatefulArtifact;
-        if (this.isProjectOpened) {
-            promise = this.projectManager.refreshAll();
-        } else if (artifact = this.selectionManager.getArtifact()) {
-            promise = artifact.refresh();
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (selectedArtifact) {
+            selectedArtifact.refresh();
         }
-        if (promise) {
-            let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
-            promise.finally(() => {
-                this.loadingOverlayService.endLoading(refreshAllLoadingId);
+        const overlayId = this.loadingOverlayService.beginLoading();
+        this.projectExplorerService.refreshAll()
+            .finally(() => {
+                this.loadingOverlayService.endLoading(overlayId);
             });
-        }*/
     };
 
     public openTour = (evt?: ng.IAngularEvent): void => {

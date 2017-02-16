@@ -129,7 +129,6 @@ export class ProjectExplorerService implements IProjectExplorerService {
                         this._selectedId = projectNode.model.id;
                         this.projects.unshift(projectNode);
 
-                        // FIXME: maybe return a promise here
                         projectNode.loadChildrenAsync().then((children: ExplorerNodeVM[]) => {
                             projectNode.children = children;
                             this.notifyProjectsUpdate();
@@ -312,10 +311,8 @@ export class ProjectExplorerService implements IProjectExplorerService {
     public refreshAll(): ng.IPromise<any> {
         return this.selectionManager.autosave().then(() => {
             const refreshQueue = [];
-
-            // FIXME: move this to page-toolbar
-            this.refreshCurrentArtifact();
             const currentArtifact = this.getArtifactNode(this.getSelectionId());
+
             _.forEach(this.projects, project => {
                 if (currentArtifact.model.projectId === project.model.id) {
                     refreshQueue.push(this.refresh(project.model.id, currentArtifact.model));
@@ -328,13 +325,6 @@ export class ProjectExplorerService implements IProjectExplorerService {
         });
     }
 
-    private refreshCurrentArtifact() {
-        const selectedArtifact = this.selectionManager.getArtifact();
-        if (selectedArtifact) {
-            selectedArtifact.refresh();
-        }
-    }
-
     private getArtifactNode(id: number): ExplorerNodeVM {
         let found: ExplorerNodeVM;
         _.find(this.projects, project => {
@@ -344,7 +334,6 @@ export class ProjectExplorerService implements IProjectExplorerService {
         return found;
     };
 
-    // FIXME: clean up method
     public calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: IArtifact): ng.IPromise<number> {
         let promise: ng.IPromise<void>;
         let orderIndex: number;

@@ -17,8 +17,9 @@ import {IMessageService} from "../../messages/message.svc";
 import {MessageServiceMock} from "../../messages/message.mock";
 import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
+import {ExplorerNodeVM} from "../../../models/tree-node-vm-factory";
 
-xdescribe("DiscardArtifactsAction", () => {
+describe("DiscardArtifactsAction", () => {
     let $q: ng.IQService;
     let $timeout: ng.ITimeoutService;
     let localization: ILocalizationService;
@@ -55,11 +56,6 @@ xdescribe("DiscardArtifactsAction", () => {
         dialogService = _dialogService_;
     }));
 
-    it("throws exception when localization is null", () => {
-        expect(() => new DiscardArtifactsAction(publishService, null, messageService, loadingOverlayService, projectExplorerService, dialogService))
-            .toThrow(new Error("Localization service not provided or is null"));
-    });
-
     it("is disabled when no artifacts are provided", () => {
         // arrange
         const artifacts = [];
@@ -94,8 +90,8 @@ xdescribe("DiscardArtifactsAction", () => {
             artifacts: artifacts,
             projects: [{id: 1}]
         }));
-        const projectCollectionSpy = spyOn(projectExplorerService, "projects").and.returnValue([1]);
-        const projectSpy = spyOn(projectExplorerService, "refreshAll");
+        projectExplorerService.projects = [{model: {id: 1}} as ExplorerNodeVM];
+        const refreshAllSpy = spyOn(projectExplorerService, "refreshAll");
         const messageSpy = spyOn(messageService, "addInfo");
         const overlaySpy = spyOn(loadingOverlayService, "endLoading");
 
@@ -105,7 +101,7 @@ xdescribe("DiscardArtifactsAction", () => {
 
         // assert
         expect(discardSpy).toHaveBeenCalled();
-        expect(projectSpy).toHaveBeenCalled();
+        expect(refreshAllSpy).toHaveBeenCalled();
         expect(messageSpy).toHaveBeenCalled();
         expect(overlaySpy).toHaveBeenCalled();
     });
@@ -120,8 +116,8 @@ xdescribe("DiscardArtifactsAction", () => {
             artifacts: artifacts,
             projects: [{id: 1}]
         }));
-        const projectCollectionSpy = spyOn(projectExplorerService, "projects").and.returnValue([]);
-        const projectSpy = spyOn(projectExplorerService, "refreshAll");
+        projectExplorerService.projects = [];
+        const refreshAllSpy = spyOn(projectExplorerService, "refreshAll");
         const messageSpy = spyOn(messageService, "addInfo");
         const overlaySpy = spyOn(loadingOverlayService, "endLoading");
 
@@ -131,7 +127,7 @@ xdescribe("DiscardArtifactsAction", () => {
 
         // assert
         expect(discardSpy).toHaveBeenCalled();
-        expect(projectSpy).not.toHaveBeenCalled();
+        expect(refreshAllSpy).not.toHaveBeenCalled();
         expect(messageSpy).toHaveBeenCalled();
         expect(overlaySpy).toHaveBeenCalled();
     });

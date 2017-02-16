@@ -245,6 +245,7 @@ export class ProjectExplorerService implements IProjectExplorerService {
                     return project;
                 });
         });
+        // TODO: add error handling in .catch
     }
 
     private openChildNodes(childrenNodes: ExplorerNodeVM[], childrenData: IArtifact[]) {

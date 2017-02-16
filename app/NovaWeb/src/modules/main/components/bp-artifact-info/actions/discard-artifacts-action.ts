@@ -3,7 +3,6 @@ import {IDialogService} from "../../../../shared";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IArtifact, IPublishResultSet} from "../../../models/models";
-import {IProjectManager} from "../../../../managers/project-manager/project-manager";
 import {IUnpublishedArtifactsService} from "../../../../editorsModule/unpublished/unpublished.service";
 import {IMessageService} from "../../messages/message.svc";
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";

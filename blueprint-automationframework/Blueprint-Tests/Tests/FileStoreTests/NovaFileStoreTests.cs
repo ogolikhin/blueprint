@@ -206,7 +206,7 @@ namespace FileStoreTests
             }, "GET {0} call should return 409 Conflict when adding file larger than MaxFileSize!", NOVAFILE_PATH);
 
             // Verify: Check that 409 conflict with expected error
-            var maxAttachmentFileSizeInMegabytes = ((maxAttachmentFileSizeInBytes.ToInt32Invariant() / 1024f) / 1024f).ToStringInvariant("0");
+            int maxAttachmentFileSizeInMegabytes = maxAttachmentFileSizeInBytes.ToInt32Invariant() / 1024 / 1024;
 
             string expectedMessage = I18NHelper.FormatInvariant("The file exceeds {0} MB.", maxAttachmentFileSizeInMegabytes);
 

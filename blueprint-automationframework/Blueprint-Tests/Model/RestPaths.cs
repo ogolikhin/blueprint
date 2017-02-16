@@ -55,6 +55,7 @@ namespace Model
             {
                 public const string CREATE                          = "api/v1/users/create";
                 public const string DELETE                          = "api/v1/users/delete";
+                public const string GET_id_                         = "api/v1/users/{0}";
             }
 
             public static class VersionControl

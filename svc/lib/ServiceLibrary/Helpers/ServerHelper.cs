@@ -29,7 +29,9 @@ namespace ServiceLibrary.Helpers
             // JSON is the default format
             else if (jsonFormatter != null)
             {
-                jsonFormatter.WriteToStream(error.GetType(), error,response.OutputStream, Encoding.UTF8);
+                // Use UTF8Encoding contractor that does not provide Unicode byte order mark (BOM)
+                // that in turn causes a deserialization error performed by Newtonsoft json formatter in integration tests.
+                jsonFormatter.WriteToStream(error.GetType(), error, response.OutputStream, new UTF8Encoding());
                 response.AddHeader("Content-Type", "application/json");
             }
             else

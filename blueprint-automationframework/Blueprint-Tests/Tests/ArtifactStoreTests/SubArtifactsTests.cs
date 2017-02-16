@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -450,6 +451,35 @@ namespace ArtifactStoreTests
         #endregion Custom Data
 
         #endregion Positive Tests
+
+        #region 400 Bad Request
+
+        [TestRail(246535)]
+        [TestCase("9999999999", "The request is invalid.")]
+        [TestCase("&amp;", "A potentially dangerous Request.Path value was detected from the client (&).")]
+        [Description("Create a rest path that tries to get a subartifact with an invalid subartifact Id. " +
+             "Attempt to get the subartifact. Verify that HTTP 400 Bad Request exception is thrown.")]
+        public void GetSubArtifact_InvalidSubArtifactId_400BadRequest(string subArtifactId, string expectedErrorMessage)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_, artifact.Id, subArtifactId);
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<NovaArtifactResponse, object>(
+               path,
+               RestRequestMethod.GET,
+               jsonObject: null),
+                "We should get a 400 Bad Request when the subArtifact Id is invalid!");
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+        }
+
+        #endregion 400 Bad Request
 
         #region 401 Unauthorized
 

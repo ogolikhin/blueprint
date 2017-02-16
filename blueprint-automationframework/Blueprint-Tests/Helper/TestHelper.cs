@@ -1379,6 +1379,8 @@ namespace Helper
         /// <param name="restResponse">The RestResponse that was returned.</param>
         public static void ValidateNoStackTraceInResponse(RestResponse restResponse)
         {
+            ThrowIf.ArgumentNull(restResponse, nameof(restResponse));
+
             Assert.False(restResponse.Content.Contains("BluePrintSys."), 
                 "The REST response received appears to contain a stack trace!\nActual REST Content: {0}",
                 restResponse.Content);

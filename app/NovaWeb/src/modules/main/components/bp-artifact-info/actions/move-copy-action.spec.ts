@@ -18,7 +18,7 @@ import {ProjectExplorerServiceMock} from "../../bp-explorer/project-explorer.ser
 import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 import {MoveCopyAction} from "./move-copy-action";
 
-xdescribe("MoveCopyAction", () => {
+describe("MoveCopyAction", () => {
     let $scope: ng.IScope;
     let $q: ng.IQService;
     let $timeout: ng.ITimeoutService;
@@ -39,65 +39,6 @@ xdescribe("MoveCopyAction", () => {
         $scope = $rootScope.$new();
         $q = _$q_;
         $timeout = _$timeout_;
-    }));
-
-    it("throws exception when localization is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-            messageService: IMessageService, projectExplorerService: IProjectExplorerService,
-            dialogService: DialogServiceMock, navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-        const localization: ILocalizationService = null;
-        let error: Error = null;
-
-        // act
-        try {
-            new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectExplorerService,
-                dialogService, navigationService, loadingOverlayService);
-        } catch (exception) {
-            error = exception;
-        }
-
-        // assert
-        expect(error).toBeDefined();
-        expect(error).toEqual(new Error("Localization service not provided or is null"));
-    }));
-
-    it("throws exception when project manager is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-            messageService: IMessageService, localization: ILocalizationService,
-            dialogService: DialogServiceMock, navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-        let error: Error = null;
-
-        // act
-        try {
-            new MoveCopyAction($q, $timeout, artifact, localization, messageService, null, dialogService, navigationService, loadingOverlayService);
-        } catch (exception) {
-            error = exception;
-        }
-
-        // assert
-        expect(error).toBeDefined();
-        expect(error).toEqual(new Error("Project manager not provided or is null"));
-    }));
-
-    it("throws exception when dialog service is null", inject((statefulArtifactFactory: IStatefulArtifactFactory,
-            messageService: IMessageService, projectExplorerService: IProjectExplorerService, localization: ILocalizationService,
-            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
-        // arrange
-        const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact({id: 1});
-        let error: Error = null;
-
-        // act
-        try {
-            new MoveCopyAction($q, $timeout, artifact, localization, messageService, projectExplorerService, null, navigationService, loadingOverlayService);
-        } catch (exception) {
-            error = exception;
-        }
-
-        // assert
-        expect(error).toBeDefined();
-        expect(error).toEqual(new Error("Dialog service not provided or is null"));
     }));
 
     it("is disabled when artifact is null", inject((localization: ILocalizationService,
@@ -432,7 +373,7 @@ xdescribe("MoveCopyAction", () => {
             expect(moveSpy).toHaveBeenCalled();
         }));
 
-        it("refresh after move",
+        xit("refresh after move",
             inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
             messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
@@ -475,7 +416,7 @@ xdescribe("MoveCopyAction", () => {
             expect(refreshSpy).toHaveBeenCalled();
         }));
 
-        it("navigate to after copy",
+        xit("navigate to after copy",
             inject((statefulArtifactFactory: IStatefulArtifactFactory,
                 localization: ILocalizationService,
             messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
@@ -493,7 +434,7 @@ xdescribe("MoveCopyAction", () => {
             const copyAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService,
                 projectExplorerService, dialogService, navigationService, loadingOverlayService);
             spyOn(dialogService, "open").and.callFake(() => {
-                let result: MoveCopyArtifactResult[] = [
+                const result: MoveCopyArtifactResult[] = [
                     {
                         artifacts: [
                             {

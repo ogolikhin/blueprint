@@ -54,6 +54,7 @@ namespace Model
             public static class Users
             {
                 public const string CREATE                          = "api/v1/users/create";
+                public const string DELETE                          = "api/v1/users/delete";
             }
 
             public static class VersionControl

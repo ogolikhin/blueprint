@@ -33,6 +33,7 @@ import {
     SaveAction
 } from "./actions";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
+import {IExtendedAnalyticsService} from "../analytics/analytics";
 
 enum InfoBannerEnum {
     None = 0,
@@ -64,7 +65,8 @@ export class BpArtifactInfoController {
         "metadataService",
         "mainbreadcrumbService",
         "collectionService",
-        "itemInfoService"
+        "itemInfoService",
+        "Analytics"
     ];
 
     protected subscribers: Rx.IDisposable[] = [];
@@ -110,7 +112,9 @@ export class BpArtifactInfoController {
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected collectionService: ICollectionService,
-                public itemInfoService: IItemInfoService) {
+                public itemInfoService: IItemInfoService,
+                protected analytics?: IExtendedAnalyticsService
+    ) {
         this.initProperties();
 
         this.breadcrumbLinks = [];
@@ -361,7 +365,7 @@ export class BpArtifactInfoController {
     }
 
     protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
-        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization, this.analytics);
         const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService,
             this.projectExplorerService, this.loadingOverlayService, this.dialogService, this.navigationService);
 

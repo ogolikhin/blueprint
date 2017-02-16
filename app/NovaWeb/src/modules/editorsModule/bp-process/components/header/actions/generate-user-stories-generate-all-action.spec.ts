@@ -15,7 +15,8 @@ import {LoadingOverlayService} from "../../../../../commonModule/loadingOverlay/
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {ProjectExplorerServiceMock} from "../../../../../main/components/bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../../../../main/components/bp-explorer/project-explorer.service";
-import {IAnalyticsService, AnalyticsServiceMock} from "../../../../../main/components/analytics";
+import {AnalyticsServiceMock} from "../../../../../main/components/analytics/analytics.mock";
+import {IExtendedAnalyticsService} from "../../../../../main/components/analytics/analytics";
 
 xdescribe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
@@ -27,7 +28,7 @@ xdescribe("GenerateUserStoriesAction", () => {
     let loadingOverlayService: LoadingOverlayService;
     let processDiagramCommunication: IProcessDiagramCommunication;
     let projectExplorerService: IProjectExplorerService;
-    let analyticsService: IAnalyticsService;
+    let analytics: IExtendedAnalyticsService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("userStoryService", UserStoryServiceMock);
@@ -37,7 +38,7 @@ xdescribe("GenerateUserStoriesAction", () => {
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("projectExplorerService", ProjectExplorerServiceMock);
-        $provide.service("analyticsService", AnalyticsServiceMock);
+        $provide.service("analytics", AnalyticsServiceMock);
     }));
 
     beforeEach(
@@ -51,7 +52,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             _loadingOverlayService_: LoadingOverlayService,
             _communicationManager_: CommunicationManager,
             _projectExplorerService_: IProjectExplorerService,
-            _analyticsService_: AnalyticsServiceMock,
+            _analytics_: AnalyticsServiceMock
         ) => {
             $rootScope = _$rootScope_;
             $rootScope["config"] = {labels: []};
@@ -63,7 +64,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             loadingOverlayService = _loadingOverlayService_;
             processDiagramCommunication = _communicationManager_.processDiagramCommunication;
             projectExplorerService = _projectExplorerService_;
-            analyticsService = _analyticsService_;
+            analytics = _analytics_;
         }));
 
     describe("generate all", () => {
@@ -73,7 +74,7 @@ xdescribe("GenerateUserStoriesAction", () => {
 
             // act
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
 
             // assert
@@ -84,7 +85,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
 
             // act
@@ -98,7 +99,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
 
             // act
@@ -112,7 +113,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
 
             // act
@@ -126,7 +127,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
             const userTask1 = TestShapes.createUserTask(2, $rootScope);
             const userTask2 = TestShapes.createUserTask(3, $rootScope);
@@ -142,7 +143,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(false);
             const executeSpy = spyOn(action, "execute").and.callFake(() => {/* no op */});
@@ -158,7 +159,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const executeSpy = spyOn(action, "execute").and.callFake(() => {/* no op */});
@@ -174,7 +175,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
@@ -198,7 +199,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
             const generateSpy = spyOn(userStoryService, "generateUserStories").and.callFake(() => {
@@ -222,7 +223,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const userStories = [ {}, {}, {} ];
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);
@@ -252,7 +253,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const userStories = [ {}, {}, {} ];
             const generateAll = action.actions[1];
             const canExecuteSpy = spyOn(action, "canExecuteGenerateAll").and.returnValue(true);

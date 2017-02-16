@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArtifactTests.cs" />
+    <Compile Include="DeleteUserTests.cs" />
     <Compile Include="LoginTests.cs" />
     <Compile Include="ProjectTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

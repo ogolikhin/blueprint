@@ -1,6 +1,6 @@
 ﻿import * as angular from "angular";
-import ".";
 import "angular-mocks";
+import ".";
 import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
@@ -22,6 +22,7 @@ import {MessageServiceMock} from "../messages/message.mock";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {BpArtifactInfoController} from "./bp-artifact-info";
 import {ProjectExplorerServiceMock} from "../bp-explorer/project-explorer.service.mock";
+import {AnalyticsServiceMock} from "../analytics/analytics.mock";
 
 xdescribe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
@@ -79,8 +80,6 @@ xdescribe("BpArtifactInfo", () => {
             getArtifact: () => artifact
         };
 
-
-
         $provide.service("messageService", MessageServiceMock);
         $provide.service("windowManager", () => windowManager);
         $provide.service("selectionManager", () => selectionManager);
@@ -93,6 +92,7 @@ xdescribe("BpArtifactInfo", () => {
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
         $provide.service("collectionService", CollectionServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
+        $provide.service("Analytics", AnalyticsServiceMock);
     }));
 
     beforeEach(inject((

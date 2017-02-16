@@ -1,3 +1,6 @@
+import {ProcessGraph} from "./process-graph";
+import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
+import {IProcessGraph} from "./models/process-graph-interfaces";
 import {
     IDiagramNode,
     IProcessShape,
@@ -13,6 +16,9 @@ import {DiagramLink} from "./shapes/diagram-link";
 import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessAddHelper {
+    private static MinNoOfShapesAddedPerSystemDecision: number = 1;
+    private static MinNoOfShapesAddedPerUserDecision: number = 2;
+
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         // insertTask adds two shapes:
         // user task + system task
@@ -269,4 +275,33 @@ export class ProcessAddHelper {
         return ProcessAddHelper.insertSystemDecisionConditionInternal(decisionId, conditionDestinationId,
             layout, shapesFactoryService, label);
     };
+
+    private static hasMaxConditions(decisionId: number, viewModel: IProcessViewModel): boolean {
+        return viewModel.getNextShapeIds(decisionId).length >= ProcessGraph.MaxConditions;
+    }
+
+    public static canAddDecisionConditions(decisionId: number, numberOfConditions: number, graph: IProcessGraph): boolean {
+        let shapeType = graph.viewModel.getShapeTypeById(decisionId);
+
+        if (!numberOfConditions) {
+            return false;
+        }
+
+        if (this.hasMaxConditions(decisionId, graph.viewModel)) {
+            graph.messageService.addError(graph.rootScope.config.labels["ST_Add_CannotAdd_MaximumConditionsReached"]);
+            return false;
+        }
+
+        if (shapeType === ProcessShapeType.SystemDecision &&
+            !graph.viewModel.isWithinShapeLimit(numberOfConditions * this.MinNoOfShapesAddedPerSystemDecision)) {
+            return false;
+        }
+
+        if (shapeType === ProcessShapeType.UserDecision &&
+            !graph.viewModel.isWithinShapeLimit(numberOfConditions * this.MinNoOfShapesAddedPerUserDecision)) {
+            return false;
+        }
+
+        return true;
+    }
 }

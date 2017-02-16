@@ -15,7 +15,8 @@ import {LoadingOverlayService} from "../../../../../commonModule/loadingOverlay/
 import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
 import {ProjectExplorerServiceMock} from "../../../../../main/components/bp-explorer/project-explorer.service.mock";
 import {IProjectExplorerService} from "../../../../../main/components/bp-explorer/project-explorer.service";
-import {IAnalyticsService, AnalyticsServiceMock} from "../../../../../main/components/analytics";
+import {AnalyticsServiceMock} from "../../../../../main/components/analytics/analytics.mock";
+import {IExtendedAnalyticsService} from "../../../../../main/components/analytics/analytics";
 
 xdescribe("GenerateUserStoriesAction", () => {
     let $rootScope: ng.IRootScopeService;
@@ -27,7 +28,7 @@ xdescribe("GenerateUserStoriesAction", () => {
     let loadingOverlayService: LoadingOverlayService;
     let processDiagramCommunication: IProcessDiagramCommunication;
     let projectExplorerService: IProjectExplorerService;
-    let analyticsService: IAnalyticsService;
+    let analytics: IExtendedAnalyticsService;
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("userStoryService", UserStoryServiceMock);
@@ -37,7 +38,7 @@ xdescribe("GenerateUserStoriesAction", () => {
         $provide.service("loadingOverlayService", LoadingOverlayService);
         $provide.service("communicationManager", CommunicationManager);
         $provide.service("projectExplorerService", ProjectExplorerServiceMock);
-        $provide.service("analyticsService", AnalyticsServiceMock);
+        $provide.service("analytics", AnalyticsServiceMock);
     }));
 
     beforeEach(
@@ -51,7 +52,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             _loadingOverlayService_: LoadingOverlayService,
             _communicationManager_: CommunicationManager,
             _projectExplorerService_: IProjectExplorerService,
-            _analyticsService_: AnalyticsServiceMock
+            _analytics_: AnalyticsServiceMock
         ) => {
             $rootScope = _$rootScope_;
             $rootScope["config"] = {labels: []};
@@ -63,7 +64,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             loadingOverlayService = _loadingOverlayService_;
             processDiagramCommunication = _communicationManager_.processDiagramCommunication;
             projectExplorerService = _projectExplorerService_;
-            analyticsService = _analyticsService_;
+            analytics = _analytics_;
         }));
 
     describe("generate from user task", () => {
@@ -73,7 +74,7 @@ xdescribe("GenerateUserStoriesAction", () => {
 
             // act
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
 
             // assert
@@ -84,7 +85,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
 
             // act
@@ -99,7 +100,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
 
             // act
@@ -113,7 +114,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact(1, ReuseSettings.Subartifacts);
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const savedUserTask = TestShapes.createUserTask(2, $rootScope);
 
@@ -128,7 +129,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
 
             // act
@@ -142,7 +143,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const start = TestShapes.createStart(2);
 
@@ -157,7 +158,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const end = TestShapes.createEnd(2);
 
@@ -172,7 +173,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const precondition = TestShapes.createSystemTask(2, $rootScope);
 
@@ -187,7 +188,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userDecision = TestShapes.createUserDecision(2, $rootScope);
 
@@ -202,7 +203,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const systemDecision = TestShapes.createSystemDecision(2, $rootScope);
 
@@ -217,7 +218,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const newUserTask = TestShapes.createUserTask(-1, $rootScope);
 
@@ -232,7 +233,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const savedUserTask = TestShapes.createUserTask(2, $rootScope);
 
@@ -247,7 +248,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact(1, ReuseSettings.Attachments);
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const savedUserTask = TestShapes.createUserTask(2, $rootScope);
 
@@ -262,7 +263,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTask1 = TestShapes.createUserTask(2, $rootScope);
             const userTask2 = TestShapes.createUserTask(3, $rootScope);
@@ -278,7 +279,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -296,7 +297,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -315,7 +316,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             const version = -1; // unpublished draft
             const process = createStatefulProcessArtifact(version);
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -335,7 +336,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -356,7 +357,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -383,7 +384,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -416,7 +417,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -449,7 +450,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -480,7 +481,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -506,7 +507,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
             createAndSelectUserTask(userTaskId);
@@ -532,7 +533,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const userStories = [ {} ];
             const generateFromTask = action.actions[0];
             const userTaskId = 2;
@@ -564,7 +565,7 @@ xdescribe("GenerateUserStoriesAction", () => {
             // arrange
             const process = createStatefulProcessArtifact();
             const action = new GenerateUserStoriesAction(process, userStoryService, messageService,
-                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analyticsService);
+                localization, dialogService, loadingOverlayService, processDiagramCommunication, projectExplorerService, analytics);
             const userStories = [ {} ];
             const generateFromTask = action.actions[0];
             const userTaskId = 2;

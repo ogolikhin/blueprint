@@ -26,7 +26,8 @@ import {LoadingOverlayServiceMock} from "../../../../commonModule/loadingOverlay
 import {CollectionServiceMock} from "../../../collection/collection.service.mock";
 import {MessageServiceMock} from "../../../../main/components/messages/message.mock";
 import {SessionSvcMock} from "../../../../shell/login/session.svc.mock";
-import {IAnalyticsService, AnalyticsServiceMock} from "../../../../main/components/analytics";
+import {AnalyticsServiceMock} from "../../../../main/components/analytics/analytics.mock";
+import {IExtendedAnalyticsService} from "../../../../main/components/analytics/analytics";
 
 xdescribe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -35,7 +36,7 @@ xdescribe("BpProcessHeader", () => {
     let controller: BpProcessHeaderController;
     let localization: LocalizationServiceMock;
     let breadcrumbService: IBreadcrumbService;
-    let analyticsService: IAnalyticsService;
+    let analytics: IExtendedAnalyticsService;
 
     beforeEach(angular.mock.module("bp.editors.process", ($provide: ng.auto.IProvideService) => {
             $provide.service("selectionManager", SelectionManager);
@@ -59,7 +60,7 @@ xdescribe("BpProcessHeader", () => {
             $provide.service("projectService", ProjectService);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
             $provide.service("collectionService", CollectionServiceMock);
-            $provide.service("analyticsService", AnalyticsServiceMock);
+            $provide.service("Analytics", AnalyticsServiceMock);
         }));
 
     beforeEach(inject((_$rootScope_: ng.IRootScopeService,

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using Model.OpenApiModel.Services;
 using Model.SearchServiceModel.Impl;
 using Utilities;
 using Utilities.Factories;

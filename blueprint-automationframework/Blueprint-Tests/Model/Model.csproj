@@ -93,14 +93,17 @@
     <Compile Include="ArtifactModel\INovaArtifactBase.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
+    <Compile Include="Factories\OpenApiFactory.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />
+    <Compile Include="Factories\SvcComponentsFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
     <Compile Include="IAlmTarget.cs" />
     <Compile Include="Impl\AlmTarget.cs" />
     <Compile Include="Impl\DatabaseHelper.cs" />
+    <Compile Include="Impl\DeleteResultSet.cs" />
     <Compile Include="Impl\LicenseUsage.cs" />
-    <Compile Include="Impl\OpenApi.cs" />
+    <Compile Include="OpenApiModel\Services\OpenApi.cs" />
     <Compile Include="Impl\SvcComponents.cs" />
     <Compile Include="ISvcComponents.cs" />
     <Compile Include="Impl\OpenApiUser.cs" />
@@ -112,6 +115,7 @@
     <Compile Include="JobModel\Impl\GenerateProcessTestsJobParameters.cs" />
     <Compile Include="JobModel\Impl\AddJobResult.cs" />
     <Compile Include="ModelHelpers\ArtifactObserverHelper.cs" />
+    <Compile Include="OpenApiModel\Services\IOpenApi.cs" />
     <Compile Include="SearchServiceModel\Impl\ItemSearchResult.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />

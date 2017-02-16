@@ -200,8 +200,8 @@ export class BPUtilityPanelController implements IUtilityPanelController {
 
     private toggleDiscussionsPanel(selection: ISelection) {
         const artifact = selection.artifact;
-        if (artifact && (artifact.predefinedType === ItemTypePredefined.BaselineFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
+        if (artifact && (artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
+            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.itemTypeId !== ItemTypePredefined.Baseline)
             || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
@@ -217,9 +217,8 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         const subArtifact = selection.subArtifact;
         if (subArtifact
             || (artifact &&
-            (artifact.predefinedType === ItemTypePredefined.BaselineFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
-            || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
+            (artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
+            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.itemTypeId !== ItemTypePredefined.Baseline)
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection
             || artifact.predefinedType === ItemTypePredefined.Project))) {
@@ -256,8 +255,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         const artifact = selection.artifact;
 
         if (artifact && (artifact.predefinedType === ItemTypePredefined.Document
-            || artifact.predefinedType === ItemTypePredefined.BaselineFolder
-            || artifact.predefinedType === ItemTypePredefined.ArtifactBaseline
+            || (artifact.predefinedType === ItemTypePredefined.BaselineFolder && artifact.itemTypeId !== ItemTypePredefined.Baseline)
             || artifact.predefinedType === ItemTypePredefined.ArtifactReviewPackage
             || artifact.predefinedType === ItemTypePredefined.CollectionFolder
             || artifact.predefinedType === ItemTypePredefined.ArtifactCollection

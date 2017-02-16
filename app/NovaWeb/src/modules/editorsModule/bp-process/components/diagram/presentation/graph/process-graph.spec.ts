@@ -10,7 +10,7 @@ import * as ProcessModels from "../../../../models/process-models";
 import {IProcessViewModel, ProcessViewModel} from "../../viewmodel/process-viewmodel";
 import {IProcessGraphModel, ProcessGraphModel} from "../../viewmodel/process-graph-model";
 import {IProcessGraph, IDiagramNode} from "./models/";
-import {UserTask, UserDecision, Condition} from "./shapes/";
+import {UserTask, UserDecision} from "./shapes/";
 import {NodeChange, NodeType} from "./models/";
 import {ProcessValidator} from "./process-graph-validator";
 import {ProcessDeleteHelper} from "./process-delete-helper";

@@ -9,20 +9,23 @@ export interface ICondition {
     mergeNodeId: number;
     mergeNodeLabel: string;
     validMergeNodes: IDiagramNode[];
+    isChanged: boolean;
     isCreated: boolean;
     isDeleted: boolean;
     isLabelChanged: boolean;
     isOrderIndexChanged: boolean;
     isMergeNodeChanged: boolean;
 
-    applyChanges(graph: IProcessGraph): boolean;
+    delete(): void;
+    applyChanges(graph: IProcessGraph): void;
 }
 
 export class Condition implements ICondition {
     public label: string;
     public orderIndex: number;
     public mergeNodeId: number;
-    public isDeleted: boolean;
+    private _isCreated: boolean;
+    private _isDeleted: boolean;
 
     constructor(
         private originalLink: IProcessLink,
@@ -32,6 +35,8 @@ export class Condition implements ICondition {
     ) {
         this.label = originalLink.label;
         this.orderIndex = originalLink.orderindex;
+        this._isCreated = !originalLink.destinationId;
+        this._isDeleted = false;
 
         if (branchDestinationLink) {
             this.mergeNodeId = branchDestinationLink.destinationId;
@@ -46,8 +51,18 @@ export class Condition implements ICondition {
         return this.originalLink.destinationId;
     }
 
+    public get isChanged(): boolean {
+        return this.isLabelChanged
+            || this.isOrderIndexChanged
+            || this.isMergeNodeChanged;
+    }
+
     public get isCreated(): boolean {
-        return !this.originalLink.destinationId;
+        return this._isCreated;
+    }
+
+    public get isDeleted(): boolean {
+        return this._isDeleted;
     }
 
     public get isLabelChanged(): boolean {
@@ -68,10 +83,14 @@ export class Condition implements ICondition {
 
     public get mergeNodeLabel(): string {
         const mergeNode = _.find(this.validMergeNodes, node => node.model.id === this.mergeNodeId);
-        return mergeNode ? mergeNode.label : null;
+        return mergeNode ? mergeNode.label : undefined;
     }
 
-    private delete(graph: IProcessGraph): boolean {
+    public delete(): void {
+        this._isDeleted = true;
+    }
+
+    private applyDelete(graph: IProcessGraph): boolean {
         if (this.isCreated) {
             return true;
         }
@@ -79,7 +98,7 @@ export class Condition implements ICondition {
         return ProcessDeleteHelper.deleteDecisionBranch(this.originalLink, graph);
     }
 
-    private create(graph: IProcessGraph): boolean {
+    private applyCreate(graph: IProcessGraph): boolean {
         return graph.addDecisionBranch(this.decisionId, this.label, this.mergeNodeId);
     }
 
@@ -116,19 +135,17 @@ export class Condition implements ICondition {
         return true;
     }
 
-    public applyChanges(graph: IProcessGraph): boolean {
+    public applyChanges(graph: IProcessGraph): void {
         if (this.isDeleted) {
-            return this.delete(graph);
+            this.applyDelete(graph);
         }
 
         if (this.isCreated) {
-            return this.create(graph);
+            this.applyCreate(graph);
         }
 
-        const isLabelUpdated = this.updateLabel(graph);
-        const isMergeNodeUpdated = this.updateMergeNode(graph);
-        const isOrderIndexUpdated = this.updateOrderIndex(graph);
-
-        return isLabelUpdated || isMergeNodeUpdated || isOrderIndexUpdated;
+        this.updateLabel(graph);
+        this.updateMergeNode(graph);
+        this.updateOrderIndex(graph);
     }
 }

@@ -5,7 +5,6 @@ import {SystemDecision} from "./system-decision";
 import {MergingPoint} from "./merging-point";
 import {ProcessStart} from "./process-start";
 import {ProcessEnd} from "./process-end";
-import {Condition} from "./condition";
 import {DiagramNode} from "./diagram-node";
 import {DiagramElement} from "./diagram-element";
 import {DiagramNodeElement} from "./diagram-element";
@@ -19,11 +18,8 @@ export {
     MergingPoint,
     ProcessStart,
     ProcessEnd,
-    Condition,
     DiagramNode,
     DiagramElement,
     DiagramNodeElement,
     DiagramLink
 }
-
-

@@ -56,7 +56,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
     constructor(
         $scope: IModalScope,
         $rootScope: ng.IRootScopeService,
-        private $timeout: ng.ITimeoutService,
+        $timeout: ng.ITimeoutService,
         private dialogService: IDialogService,
         protected $q: ng.IQService,
         protected localization: ILocalizationService,
@@ -70,7 +70,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: T
     ) {
-        super($rootScope, $scope, $uibModalInstance, dialogModel);
+        super($rootScope, $scope, $timeout, $uibModalInstance, dialogModel);
 
         this.nameOnBlur();
 
@@ -123,26 +123,6 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         }
     }
 
-    // This is a workaround to force re-rendering of the dialog
-    public refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog").item(0).parentElement;
-
-        if (!element) {
-            return;
-        }
-
-        const node = document.createTextNode(" ");
-        element.appendChild(node);
-
-        this.$timeout(
-            () => {
-                node.parentNode.removeChild(node);
-            },
-            20,
-            false
-        );
-    }
-
     public formatIncludeLabel(model: IArtifactReference) {
         if (!model) {
             return "";
@@ -159,7 +139,7 @@ export abstract class TaskModalController<T extends IModalDialogModel> extends B
         return `${model.typePrefix}${model.id} - ${model.name}`;
     }
 
-    public saveData(): ng.IPromise<void> {
+    public applyChanges(): ng.IPromise<void> {
         const savingDataOverlayId = this.loadingOverlayService.beginLoading();
 
         if (this.isReadonly) {

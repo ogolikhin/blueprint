@@ -32,7 +32,6 @@ import {ItemTypePredefined} from "../../../../../../main/models/itemTypePredefin
 import {IArtifact} from "../../../../../../main/models/models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
 import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {ICondition} from "./shapes/condition";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -614,7 +613,7 @@ export class ProcessGraph implements IProcessGraph {
 
         return artifactList;
     }
-    
+
     public updateSourcesWithDestinations(shapeId: number, newDestinationId: number): SourcesAndDestinations {
         let sources = this.viewModel.getPrevShapeIds(shapeId);
 

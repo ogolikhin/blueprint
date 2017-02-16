@@ -1,7 +1,5 @@
-﻿import {ProcessDeleteHelper} from "../process-delete-helper";
-import {IDiagramLink, IProcessGraph} from "../models/process-graph-interfaces";
-import {IProcessLink} from "../../../../../models/process-models";
-import {IDiagramNode} from "../models/";
+﻿import {IDiagramNode, IProcessGraph, IProcessLink} from "../../diagram/presentation/graph/models";
+import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 
 export interface ICondition {
     decisionId: number;
@@ -13,6 +11,9 @@ export interface ICondition {
     validMergeNodes: IDiagramNode[];
     isCreated: boolean;
     isDeleted: boolean;
+    isLabelChanged: boolean;
+    isOrderIndexChanged: boolean;
+    isMergeNodeChanged: boolean;
 
     applyChanges(graph: IProcessGraph): boolean;
 }
@@ -49,6 +50,22 @@ export class Condition implements ICondition {
         return !this.originalLink.destinationId;
     }
 
+    public get isLabelChanged(): boolean {
+        return this.originalLink
+            && !_.isEqual(this.originalLink.label, this.label);
+    }
+
+    public get isOrderIndexChanged(): boolean {
+        return this.originalLink
+            && !_.isEqual(this.originalLink.orderindex, this.orderIndex);
+    }
+
+    public get isMergeNodeChanged(): boolean {
+        return this.branchDestinationLink
+            && this.mergeNodeId
+            && !_.isEqual(this.branchDestinationLink.destinationId, this.mergeNodeId);
+    }
+
     public get mergeNodeLabel(): string {
         const mergeNode = _.find(this.validMergeNodes, node => node.model.id === this.mergeNodeId);
         return mergeNode ? mergeNode.label : null;
@@ -67,38 +84,22 @@ export class Condition implements ICondition {
     }
 
     private updateLabel(graph: IProcessGraph): boolean {
-        // const decisionNode = graph.getNodeById(this.decisionId.toString());
-
-        // const diagramLink = _.find(
-        //     decisionNode.getOutgoingLinks(graph.getMxGraphModel()),
-        //     link => _.isEqual(link.model.orderindex, this.orderIndex)
-        // );
-
-        // if (!_.isEqual(diagramLink.label, this.label)) {
-        //     diagramLink.label = this.label;
-        //     return true;
-        // }
-
-        if (!_.isEqual(this.originalLink.label, this.label)) {
-            this.originalLink.label = this.label;
-            return true;
-        }
-
-        return false;
-    }
-
-    private updateMergeNode(graph: IProcessGraph): boolean {
-        if (!this.mergeNodeId || !this.branchEndLink || !this.branchDestinationLink) {
+        if (!this.isLabelChanged) {
             return false;
         }
 
-        if (!_.isEqual(this.branchDestinationLink.destinationId, this.mergeNodeId)) {
-            this.branchEndLink.destinationId = this.mergeNodeId;
-            this.branchDestinationLink.destinationId = this.mergeNodeId;
-            return true;
+        this.originalLink.label = this.label;
+        return true;
+    }
+
+    private updateMergeNode(graph: IProcessGraph): boolean {
+        if (!this.isMergeNodeChanged) {
+            return false;
         }
 
-        return false;
+        this.branchEndLink.destinationId = this.mergeNodeId;
+        this.branchDestinationLink.destinationId = this.mergeNodeId;
+        return true;
     }
 
     private updateOrderIndex(graph: IProcessGraph): boolean {
@@ -106,13 +107,13 @@ export class Condition implements ICondition {
             return false;
         }
 
-        if (!_.isEqual(this.originalLink.orderindex, this.orderIndex)) {
-            this.originalLink.orderindex = this.orderIndex;
-            this.branchDestinationLink.orderindex = this.orderIndex;
-            return true;
+        if (!this.isOrderIndexChanged) {
+            return false;
         }
 
-        return false;
+        this.originalLink.orderindex = this.orderIndex;
+        this.branchDestinationLink.orderindex = this.orderIndex;
+        return true;
     }
 
     public applyChanges(graph: IProcessGraph): boolean {

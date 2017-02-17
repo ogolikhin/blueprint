@@ -27,8 +27,9 @@ import {MessageServiceMock} from "../../../../main/components/messages/message.m
 import {SessionSvcMock} from "../../../../shell/login/session.svc.mock";
 import {AnalyticsServiceMock} from "../../../../main/components/analytics/analytics.mock";
 import {IExtendedAnalyticsService} from "../../../../main/components/analytics/analytics";
+import {ProjectExplorerServiceMock} from "../../../../main/components/bp-explorer/project-explorer.service.mock";
 
-xdescribe("BpProcessHeader", () => {
+describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
     let $q: ng.IQService;
     let $compile: ng.ICompileService;
@@ -56,6 +57,7 @@ xdescribe("BpProcessHeader", () => {
             $provide.service("artifactRelationships", ArtifactRelationshipsService);
             $provide.service("itemInfoService", ItemInfoService);
             $provide.service("projectService", ProjectService);
+            $provide.service("projectExplorerService", ProjectExplorerServiceMock);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
             $provide.service("collectionService", CollectionServiceMock);
             $provide.service("Analytics", AnalyticsServiceMock);

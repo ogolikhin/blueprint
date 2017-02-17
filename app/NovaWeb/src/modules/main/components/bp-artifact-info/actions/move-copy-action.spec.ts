@@ -23,7 +23,7 @@ describe("MoveCopyAction", () => {
     let $q: ng.IQService;
     let $timeout: ng.ITimeoutService;
 
-    beforeEach(angular.mock.module("app.main"));
+    // beforeEach(angular.mock.module("app.main"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
@@ -373,26 +373,27 @@ describe("MoveCopyAction", () => {
             expect(moveSpy).toHaveBeenCalled();
         }));
 
-        xit("refresh after move",
-            inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                localization: ILocalizationService,
-            messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
-            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+        it("refresh after move",
+            inject((localization: ILocalizationService, messageService: IMessageService,
+                    projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
+                    navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
-            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-                {
+            const artifact = {
                     id: 1,
-                    predefinedType: ItemTypePredefined.TextualRequirement,
-                    lockedByUser: Enums.LockedByEnum.CurrentUser,
-                    lockedDateTime: null,
-                    permissions: RolePermissions.Edit
-                });
-            artifact.artifactState.dirty = true;
-            spyOn(artifact, "move").and.callFake(() => $q.resolve());
+                    artifactState: {
+                        dirty: true
+                    },
+                    move: () => null
+                } as any as IStatefulArtifact;
+            spyOn(artifact, "move").and.callFake(() => $q.resolve({
+                id: 1,
+                projectId: 10
+            }));
             const moveAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService,
                 projectExplorerService, dialogService, navigationService, loadingOverlayService);
+
             spyOn(dialogService, "open").and.callFake(() => {
-                let result: MoveCopyArtifactResult[] = [
+                const result: MoveCopyArtifactResult[] = [
                     {
                         artifacts: [
                             {
@@ -416,20 +417,15 @@ describe("MoveCopyAction", () => {
             expect(refreshSpy).toHaveBeenCalled();
         }));
 
-        xit("navigate to after copy",
-            inject((statefulArtifactFactory: IStatefulArtifactFactory,
-                localization: ILocalizationService,
-            messageService: IMessageService, projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
-            navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
+        it("navigate to after copy",
+            inject((localization: ILocalizationService, messageService: IMessageService,
+                    projectExplorerService: IProjectExplorerService, dialogService: DialogServiceMock,
+                    navigationService: NavigationServiceMock, loadingOverlayService: LoadingOverlayServiceMock) => {
             // arrange
-            const artifact: IStatefulArtifact = statefulArtifactFactory.createStatefulArtifact(
-                {
+            const artifact = {
                     id: 1,
-                    predefinedType: ItemTypePredefined.TextualRequirement,
-                    lockedByUser: Enums.LockedByEnum.CurrentUser,
-                    lockedDateTime: null,
-                    permissions: RolePermissions.Edit
-                });
+                    copy: () => null
+                } as any as IStatefulArtifact;
             spyOn(artifact, "copy").and.callFake(() => $q.resolve(<Models.ICopyResultSet>{artifact: {id: 1}}));
             const copyAction = new MoveCopyAction($q, $timeout, artifact, localization, messageService,
                 projectExplorerService, dialogService, navigationService, loadingOverlayService);

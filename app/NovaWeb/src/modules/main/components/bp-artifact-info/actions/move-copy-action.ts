@@ -187,11 +187,9 @@ export class MoveCopyAction extends BPDropdownAction {
     private prepareArtifactForMove(artifact: Models.IArtifact): ng.IPromise<IStatefulArtifact>  {
         //lock and presave if needed
         if (!this.artifact.artifactState.dirty) {
-            //lock
             return this.artifact.lock();
         }
         if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            //save
             return this.artifact.save();
         }
         //do nothing
@@ -207,13 +205,12 @@ export class MoveCopyAction extends BPDropdownAction {
     }
 
     private copyArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void> {
-        //finally, move the artifact
         return this.artifact.copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
             .then((result: Models.ICopyResultSet) => {
-                //refresh project
                 const selection = result && result.artifact ? result.artifact : null;
                 if (selection) {
                     this.projectExplorerService.setSelectionId(selection.id);
+                    this.navigationService.navigateTo({id: selection.id});
                 }
                 this.projectExplorerService.refresh(this.artifact.projectId, selection ? selection : null);
             });

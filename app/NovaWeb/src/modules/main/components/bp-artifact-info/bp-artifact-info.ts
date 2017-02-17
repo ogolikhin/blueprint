@@ -265,10 +265,8 @@ export class BpArtifactInfoController {
 
         this.isDeleted = state.deleted;
         if (this.isDeleted) {
-            let msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
-            msg = msg.replace("{0}", state.deletedByDisplayName);
-            msg = msg.replace("{1}", this.localization.current.formatShortDateTime(state.deletedDateTime));
-            this.deletedMessage = msg;
+            this.deletedMessage = this.formatDeletedMessage(
+                state.deletedByDisplayName, state.deletedDateTime);
         }
 
         switch (state.lockedBy) {
@@ -386,6 +384,19 @@ export class BpArtifactInfoController {
         }
 
         return nestedActions;
+    }
+
+    private formatDeletedMessage(deletedBy, deletedDate) {
+        let msg;
+        if (deletedBy && deletedDate) {
+            msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
+            msg = msg.replace("{0}", deletedBy);
+            msg = msg.replace("{1}", this.localization.current.formatShortDateTime(deletedDate));
+        }
+        else {
+            msg = this.localization.get("Artifact_InfoBanner_Deleted");
+        }
+        return msg;
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

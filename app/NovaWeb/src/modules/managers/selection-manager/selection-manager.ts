@@ -16,7 +16,7 @@ export interface ISelectionManager extends IDispose {
     setExplorerArtifact(artifact: IStatefulArtifact);
 
     getSubArtifact(): IStatefulSubArtifact;
-    setSubArtifact(subArtifact: IStatefulSubArtifact, multiSelect?: boolean);
+    setSubArtifact(subArtifact: IStatefulSubArtifact, multiSelect?: boolean, isDeleted?: boolean);
     autosave(showConfirm?: boolean): ng.IPromise<any>;
     clearAll();
     clearSubArtifact();
@@ -26,6 +26,7 @@ export interface ISelection {
     artifact?: IStatefulArtifact;
     subArtifact?: IStatefulSubArtifact;
     multiSelect?: boolean;
+    isDeleted?: boolean;
 }
 
 export class SelectionManager implements ISelectionManager {
@@ -43,7 +44,8 @@ export class SelectionManager implements ISelectionManager {
         const selection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined,
-            multiSelect: undefined
+            multiSelect: undefined,
+            isDeleted: undefined
         };
         this.selectionSubject = new Rx.BehaviorSubject<ISelection>(selection);
         this.explorerArtifactSelectionSubject = new Rx.BehaviorSubject<IStatefulArtifact>(null);
@@ -112,12 +114,14 @@ export class SelectionManager implements ISelectionManager {
         return null;
     }
 
-    public setSubArtifact(subArtifact: IStatefulSubArtifact, multiSelect: boolean = false) {
+    public setSubArtifact(subArtifact: IStatefulSubArtifact,
+        multiSelect: boolean = false, isDeleted: boolean = false) {
         const val = this.selectionSubject.getValue();
         const selection = <ISelection>{
             artifact: val.artifact,
             subArtifact: subArtifact,
-            multiSelect: multiSelect
+            multiSelect: multiSelect,
+            isDeleted: isDeleted
         };
 
         this.setSelectionSubject(selection);
@@ -135,7 +139,8 @@ export class SelectionManager implements ISelectionManager {
         const emptyselection = <ISelection>{
             artifact: undefined,
             subArtifact: undefined,
-            multiSelect: undefined
+            multiSelect: undefined,
+            isDeleted: undefined
         };
         this.setExplorerArtifact(undefined);
         this.setSelectionSubject(emptyselection);
@@ -146,7 +151,8 @@ export class SelectionManager implements ISelectionManager {
         const selection = <ISelection>{
             artifact: val.artifact,
             subArtifact: undefined,
-            multiSelect: undefined
+            multiSelect: undefined,
+            isDeleted: undefined 
         };
 
         this.setSelectionSubject(selection);

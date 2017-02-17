@@ -239,6 +239,8 @@ App_Possible_SubArtifact_Validation_Error, "There may be issues with one or more
 Refresh_Project_NotFound,"You have attempted to access a project that has been deleted."
 Refresh_Artifact_Deleted,"The artifact you were viewing has been deleted. The artifact's parent or project is now being displayed."
 
+SubArtifact_Has_Been_Deleted, "The subartifact has been deleted or moved. Please refresh your display."
+
 Publish_All_Dialog_Header,"Publish All"
 Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:"
 Publish_All_Success_Message,"Changes have been published for all artifacts ({0})."
@@ -386,6 +388,7 @@ Artifact_InfoBanner_LockedBy,"Locked by {0}."
 Artifact_InfoBanner_LockedOn,"Locked on {0}."
 Artifact_InfoBanner_LockedByOn,"Locked by {0} on {1}."
 Artifact_InfoBanner_DeletedByOn,"Deleted by {0} on {1}."
+Artifact_InfoBanner_Deleted,"This artifact has been deleted or moved."
 Artifact_InfoBanner_Historical,"Version {0}, published by {1} on {2}."
 
 Label_Name,"Name"
@@ -525,7 +528,7 @@ ST_Choice_Label, "Choice"
 ST_Decision_Modal_Next_Task_Label, "Next Task"
 ST_Cannot_Include_Parent_Process,"A task cannot include its parent Process"
 ST_Userstory_Has_Been_Deleted, "User story has been deleted or moved. To preview it, please generate it again."
-
+ST_SubArtifact_Has_Been_Deleted, "This shape has been deleted or moved. Please refresh your display."
 ST_Given_Label, "Given"
 ST_Then_Label, "Then"
 ST_When_Label, "When"

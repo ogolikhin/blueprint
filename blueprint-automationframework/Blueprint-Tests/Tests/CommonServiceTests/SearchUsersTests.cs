@@ -17,13 +17,7 @@ namespace CommonServiceTests
 {
     public class SearchUsersTests : TestBase
     {
-        /// <summary>
-        /// This is the structure returned by the REST call to display error messages.
-        /// </summary>
-        public class MessageResult
-        {
-            public string Message { get; set; }
-        }
+
 
         private const string REST_PATH = RestPaths.Svc.Shared.Users.SEARCH;
         private const string LIMIT_EXCEEDS_MAX = "Query parameter 'limit' exceeds the max value 500.";
@@ -221,11 +215,8 @@ namespace CommonServiceTests
                 "'GET {0}' should return 400 BadRequest when an invalid limit parameter is passed!", REST_PATH);
 
             // Verify:
-            MessageResult messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
 
-            Assert.AreEqual(expectedMessage, messageResult.Message,
-                "If limit={0}, we should get an error message of '{1}'!",
-                limit, expectedMessage);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }
 
         [TestCase]
@@ -562,11 +553,8 @@ namespace CommonServiceTests
                 "'GET {0}' should return 401 Unauthorized when a bad or missing token is passed!", REST_PATH);
 
             // Verify:
-            var messageResult = JsonConvert.DeserializeObject<MessageResult>(ex.RestResponse.Content);
-            const string expectedMessage = "Unauthorized call";
 
-            Assert.AreEqual(expectedMessage, messageResult.Message,
-                "If a bad or missing token is passed, we should get an error message of '{0}'!", expectedMessage);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Unauthorized call");
         }
 
         // TODO: Verify that Users with images have 'HasImage=true' property.

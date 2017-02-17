@@ -8,10 +8,12 @@ using System.Collections.Generic;
 using Model.ArtifactModel;
 using System.Linq;
 using Helper;
+using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 
 namespace StorytellerTests
 {
@@ -410,6 +412,33 @@ namespace StorytellerTests
             var stTitleProperty = GetPropertyByName(userStories[0].CustomProperties, "ST-Title");
             Assert.AreEqual(expectedStoryTitle, stTitleProperty.Value);
         }
+
+        #region 400 Bad Request
+
+        [TestRail(246537)]
+        [TestCase("9999999999", "The request is invalid.")]
+        [TestCase("&amp;", "A potentially dangerous Request.Path value was detected from the client (&).")]
+        [Description("Create a rest path that tries to generate user stories for a process with an invalid artifact Id. " +
+                     "Attempt to  generate the user stories. Verify that HTTP 400 Bad Request exception is thrown.")]
+        public void GenerateUserStories_InvalidArtifactId_400BadRequest(string artifactId, string expectedErrorMessage)
+        {
+            // Setup:
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, _project.Id, artifactId);
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<NovaArtifactResponse, object>(
+               path,
+               RestRequestMethod.POST,
+               jsonObject: null),
+                "We should get a 400 Bad Request when the artifact Id is invalid!");
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+        }
+
+        #endregion 400 Bad Request
 
         #endregion Tests
 

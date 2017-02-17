@@ -6,6 +6,7 @@ import {GlossaryEditor} from "./glossary";
 import {ArtifactEditors} from "./artifactEditor";
 import {DiagramEditor} from "./diagram";
 import {CollectionEditors} from "./collection";
+import {BaselineEditors} from "./baseline";
 import {UnpublishedEditor} from "./unpublished";
 import {JobsEditor} from "./jobs";
 
@@ -29,6 +30,7 @@ angular.module("bp.editors", [
     DiagramEditor,
     ProcessEditor,
     CollectionEditors,
+    BaselineEditors,
     JobsEditor,
     UnpublishedEditor
 ])

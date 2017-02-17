@@ -1061,23 +1061,3 @@ bp-select.persona-reference__dropdown .dropdown{
     @include text-ellipsis-flex-width(100%);
     display: inline-block;
 }
-.btn__icon--storyteller-move-branch {
-    color: $gray-dark;
-    width: 18px;
-    height: 18px;
-    position: relative;
-    top: -5px;
-    .fonticon2-circle-up:before, .fonticon2-circle-down:before {
-        font-size: 1.4rem;
-        line-height: normal;
-    }
-    &:hover,
-    &:focus,
-    &:active,
-    &.active,
-    &.focus,
-    &:active:focus {
-        color: $brand-secondary;
-        border: 0;
-    }
-}

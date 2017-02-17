@@ -94,6 +94,10 @@ export class SelectionManagerMock implements ISelectionManager {
         return this.explorerArtifactSelectionSubject.getValue();
     }
 
+    public getArtifactProjectId(): number {
+        return 1;
+    }
+
     public setExplorerArtifact(artifact: IStatefulArtifact) {
         return undefined;
     }

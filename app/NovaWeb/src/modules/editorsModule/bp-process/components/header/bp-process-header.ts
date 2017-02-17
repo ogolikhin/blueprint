@@ -5,7 +5,6 @@ import {INavigationService} from "../../../../commonModule/navigation/navigation
 import {BpArtifactInfoController} from "../../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IMainBreadcrumbService} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc";
 import {IWindowManager} from "../../../../main/services";
-import {IProjectManager} from "../../../../managers";
 import {IMetaDataService} from "../../../../managers/artifact-manager";
 import {BPButtonOrDropdownSeparator, IDialogService} from "../../../../shared";
 import {IBreadcrumbLink} from "../../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
@@ -20,6 +19,7 @@ import {ICollectionService} from "../../../collection/collection.service";
 import {IItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../../../../main/components/bp-explorer/project-explorer.service";
 import {IExtendedAnalyticsService} from "../../../../main/components/analytics/analytics";
 
 export class BpProcessHeader implements ng.IComponentOptions {
@@ -40,7 +40,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         "windowManager",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
+        "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
         "communicationManager",
@@ -62,7 +62,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         windowManager: IWindowManager,
         loadingOverlayService: ILoadingOverlayService,
         navigationService: INavigationService,
-        projectManager: IProjectManager,
+        projectExplorerService: IProjectExplorerService,
         metadataService: IMetaDataService,
         mainBreadcrumbService: IMainBreadcrumbService,
         private communicationManager: ICommunicationManager,
@@ -83,7 +83,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             windowManager,
             loadingOverlayService,
             navigationService,
-            projectManager,
+            projectExplorerService,
             metadataService,
             mainBreadcrumbService,
             collectionService,
@@ -154,7 +154,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
         }
 
         const processDeleteAction = new ProcessDeleteAction(
-            processArtifact, this.localization, this.messageService, this.selectionManager, this.projectManager,
+            processArtifact, this.localization, this.messageService, this.selectionManager, this.projectExplorerService,
             this.loadingOverlayService, this.dialogService, this.navigationService, this.communicationManager.processDiagramCommunication);
         const openProcessImpactAnalysisAction = new OpenProcessImpactAnalysisAction(
             processArtifact,
@@ -169,7 +169,7 @@ export class BpProcessHeaderController extends BpArtifactInfoController {
             this.dialogService,
             this.loadingOverlayService,
             this.communicationManager.processDiagramCommunication,
-            this.projectManager,
+            this.projectExplorerService,
             this.analytics);
         const copyAction = new CopyAction(
             processArtifact,

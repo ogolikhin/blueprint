@@ -2,22 +2,21 @@ import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadi
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {IJobsService} from "../../../editorsModule/jobs/jobs.service";
-import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
-import {IProjectManager} from "../../../managers";
-import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
-import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
-import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
-import {IDialogService, IDialogSettings} from "../../../shared";
-import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
-import {Enums, Models} from "../../models";
-import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
-import {IArtifact} from "../../models/models";
 import {ArtifactPickerDialogController, IArtifactPickerOptions} from "../bp-artifact-picker/bp-artifact-picker-dialog";
+import {IDialogSettings, IDialogService} from "../../../shared";
+import {Models, Enums} from "../../models";
+import {IUnpublishedArtifactsService} from "../../../editorsModule/unpublished/unpublished.service";
+import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../dialogs/bp-confirm-publish";
 import {BPTourController} from "../dialogs/bp-tour/bp-tour";
+import {IArtifactService} from "../../../managers/artifact-manager/artifact/artifact.svc";
+import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
+import {ApplicationError, IApplicationError} from "../../../shell/error/applicationError";
+import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
+import {IArtifact} from "../../models/models";
 import {IMessageService} from "../messages/message.svc";
 import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
-
 
 export class PageToolbar implements ng.IComponentOptions {
     public template: string = require("./page-toolbar.html");
@@ -40,7 +39,7 @@ export class PageToolbarController {
         "$timeout",
         "localization",
         "dialogService",
-        "projectManager",
+        "projectExplorerService",
         "selectionManager",
         "publishService",
         "messageService",
@@ -56,7 +55,7 @@ export class PageToolbarController {
                 private $timeout: ng.ITimeoutService,
                 private localization: ILocalizationService,
                 private dialogService: IDialogService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private selectionManager: ISelectionManager,
                 private publishService: IUnpublishedArtifactsService,
                 private messageService: IMessageService,
@@ -85,7 +84,7 @@ export class PageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        this.projectManager.openProjectWithDialog();
+        this.projectExplorerService.openProjectWithDialog();
     };
 
     /**
@@ -122,7 +121,7 @@ export class PageToolbarController {
             .then(this.getProjectsWithUnpublishedArtifacts)
             .then((projectsWithUnpublishedArtifacts) => {
                 const unpublishedArtifactsByProject = _.countBy(projectsWithUnpublishedArtifacts);
-                const openProjects = _.map(this.projectManager.projectCollection.getValue(), (project) => project.model.id);
+                const openProjects = _.map(this.projectExplorerService.projects, project => project.model.id);
                 let numberOfUnpublishedArtifacts = 0;
                 _.forEach(openProjects, (projectId) => numberOfUnpublishedArtifacts += unpublishedArtifactsByProject[projectId] || 0);
 
@@ -149,22 +148,15 @@ export class PageToolbarController {
             event.preventDefault();
         }
 
-        let newArtifactId;
-
         this.createArtifactService.createNewArtifact(-1, this._currentArtifact, true)
             .then((artifact: IArtifact) => {
-                newArtifactId = artifact.id;
-                return this.projectManager.refresh(this._currentArtifact.projectId, null, true);
-            })
-            .catch(this.newArtifactCreationErrorHandler)
-            .finally(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-
-                this.$timeout(() => {
-                    this.navigationService.navigateTo({id: newArtifactId});
+                // this.projectExplorerService.setSelectionId(artifact.id);
+                this.navigationService.navigateTo({id: artifact.id}).then(() => {
+                    this.projectExplorerService.refresh(this._currentArtifact.projectId, artifact);
                 });
-            });
-    }
+            })
+            .catch(this.newArtifactCreationErrorHandler);
+    };
 
     private newArtifactCreationErrorHandler = ((error: any) => {
         if (error === "cancel") {
@@ -176,27 +168,20 @@ export class PageToolbarController {
         if (error instanceof ApplicationError) {
             if (error.statusCode === 404 && error.errorCode === 102) {
                 // project not found, we refresh all
-                this.projectManager.refreshAll()
-                    .then(() => {
-                        this.messageService.addError("Create_New_Artifact_Error_404_102", true);
-                    });
+                this.projectExplorerService.refreshAll();
+                this.messageService.addError("Create_New_Artifact_Error_404_102", true);
             } else if (error.statusCode === 404 && error.errorCode === 101) {
                 // parent not found, we refresh the single project and move to the root
                 this.navigationService.navigateTo({id: projectId})
                     .finally(() => {
-                        this.projectManager.refresh(projectId)
-                            .then(() => {
-                                this.projectManager.triggerProjectCollectionRefresh();
-                                this.messageService.addError("Create_New_Artifact_Error_404_101", true);
-                            });
+                        this.projectExplorerService.refresh(projectId);
+                        this.messageService.addError("Create_New_Artifact_Error_404_101", true);
                     });
             } else if (error.statusCode === 404 && error.errorCode === 109) {
                 // artifact type not found, we refresh the single project
-                this.projectManager.refresh(projectId)
-                    .then(() => {
-                        this.projectManager.triggerProjectCollectionRefresh();
-                        this.messageService.addError("Create_New_Artifact_Error_404_109", true);
-                    });
+                this.projectExplorerService.refresh(projectId);
+                this.messageService.addError("Create_New_Artifact_Error_404_109", true);
+
             } else if (!error.handled) {
                 this.messageService.addError("Create_New_Artifact_Error_Generic");
             }
@@ -273,8 +258,8 @@ export class PageToolbarController {
 
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
-        if (!this.projectManager.getProject(projectId)) {
-            loadProjectPromise = this.projectManager.add(projectId);
+        if (!this.projectExplorerService.getProject(projectId)) {
+            loadProjectPromise = this.projectExplorerService.add(projectId);
         } else {
             loadProjectPromise = this.$q.resolve();
         }
@@ -287,7 +272,7 @@ export class PageToolbarController {
                 const processes = items.map((item: Models.IArtifact) => { return {processId: item.id}; });
                 this.jobService.addProcessTestsGenerationJobs(
                         projectId,
-                        this.projectManager.getProject(projectId).model.name,
+                        this.projectExplorerService.getProject(projectId).model.name,
                     processes
                 ).then((result) => {
                     const link = `<a href="#/main/jobs" class="btn-white-link">${this.localization.get("Jobs_Label")}</a>`;
@@ -305,20 +290,21 @@ export class PageToolbarController {
         if (evt) {
             evt.preventDefault();
         }
-        let promise: ng.IPromise<any>;
-        let artifact: IStatefulArtifact;
-        if (this.isProjectOpened) {
-            promise = this.projectManager.refreshAll();
-        } else if (artifact = this.selectionManager.getArtifact()) {
-            promise = artifact.refresh();
+
+        const selectedArtifact = this.selectionManager.getArtifact();
+        if (selectedArtifact) {
+            selectedArtifact.refresh();
         }
-        if (promise) {
-            let refreshAllLoadingId = this.loadingOverlayService.beginLoading();
-            promise.finally(() => {
-                this.loadingOverlayService.endLoading(refreshAllLoadingId);
-            });
+
+        if (this.isProjectOpened) {
+            const overlayId = this.loadingOverlayService.beginLoading();
+            this.projectExplorerService.refreshAll()
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(overlayId);
+                });
         }
     };
+
     public openTour = (evt?: ng.IAngularEvent): void => {
         if (evt) {
             evt.preventDefault();
@@ -332,7 +318,7 @@ export class PageToolbarController {
     };
 
     private confirmDiscardAll(data: Models.IPublishResultSet) {
-        const selectedProjectId: number = this.projectManager.getSelectedProjectId();
+        const selectedProjectId: number = this.selectionManager.getArtifactProjectId();
         if (this.$state.current.name === "main.unpublished") {
             this.publishService.getUnpublishedArtifacts().then((result) => {
                 const numArtifacts = result.artifacts.length;
@@ -372,7 +358,7 @@ export class PageToolbarController {
         if (this.$state.current.name === "main.unpublished") {
             this.publishAllInternal(data);
         } else {
-            const selectedProjectId: number = this.projectManager.getSelectedProjectId();
+            const selectedProjectId: number = this.selectionManager.getArtifactProjectId();
             this.dialogService.open(<IDialogSettings>{
                 okButton: this.localization.get("App_Button_Publish_All"),
                 cancelButton: this.localization.get("App_Button_Cancel"),
@@ -411,11 +397,12 @@ export class PageToolbarController {
     }
 
     private closeProjectById(projectId: number) {
-        const isOpened = _.some(this.projectManager.projectCollection.getValue(), (p) => p.model.id === projectId);
+        const isOpened = _.some(this.projectExplorerService.projects, project => project.model.id === projectId);
         if (isOpened) {
-            this.projectManager.remove(projectId);
+            this.projectExplorerService.remove(projectId);
         }
-        const nextProject = _.first(this.projectManager.projectCollection.getValue());
+
+        const nextProject = _.first(this.projectExplorerService.projects);
         if (nextProject) {
             this.navigationService.navigateTo({id: nextProject.model.id});
         } else {
@@ -425,7 +412,7 @@ export class PageToolbarController {
     }
 
     private closeAllProjectsInternal (): ng.IPromise<any> {
-        this.projectManager.removeAll();
+        this.projectExplorerService.removeAll();
         this.clearStickyMessages();
         return this.navigationService.navigateToMain();
     }
@@ -516,7 +503,7 @@ export class PageToolbarController {
     };
 
     public get isProjectOpened(): boolean {
-        return this.projectManager.projectCollection.getValue().length > 0;
+        return this.projectExplorerService.projects.length > 0;
     }
 
     public get isArtifactSelected(): boolean {

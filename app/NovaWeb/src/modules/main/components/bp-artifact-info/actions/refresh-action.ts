@@ -1,45 +1,23 @@
+import {BPButtonAction} from "../../../../shared";
+import {IStatefulArtifact, IMetaDataService} from "../../../../managers/artifact-manager";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
-import {IMetaDataService, IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager} from "../../../../managers/project-manager";
-import {BPButtonAction} from "../../../../shared";
 import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMainBreadcrumbService} from "../../bp-page-content/mainbreadcrumb.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
+import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 
 export class RefreshAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         private localization: ILocalizationService,
-        private projectManager: IProjectManager,
+        private projectExplorerService: IProjectExplorerService,
         private loadingOverlayService: ILoadingOverlayService,
         private metaDataService: IMetaDataService,
+        private navigationService: INavigationService,
         private mainBreadcrumbService: IMainBreadcrumbService
     ) {
         super();
-
-        if (!this.artifact) {
-            throw new Error("Artifact not provided or is null");
-        }
-
-        if (!this.localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!this.projectManager) {
-            throw new Error("Project manager not provided or is null");
-        }
-
-        if (!this.loadingOverlayService) {
-            throw new Error("Loading overlay service not provided or is null");
-        }
-
-        if (!this.metaDataService) {
-            throw new Error("MetaData service not provided or is null");
-        }
-
-        if (!this.mainBreadcrumbService) {
-            throw new Error("Main breadcrumb service not provided or is null");
-        }
     }
 
     public get icon(): string {
@@ -71,14 +49,18 @@ export class RefreshAction extends BPButtonAction {
         const overlayId = this.loadingOverlayService.beginLoading();
 
         if (this.artifact.predefinedType === ItemTypePredefined.Project) {
-            this.projectManager.refreshCurrent()
+            this.projectExplorerService.refresh(this.artifact.id)
+                .then(() => {
+                    this.navigationService.reloadCurrentState();
+                })
                 .finally(() => {
-                    this.projectManager.triggerProjectCollectionRefresh();
                     this.loadingOverlayService.endLoading(overlayId);
                 });
+
         } else {
             //project is getting refreshed by listening to selection in bp-page-content
             this.mainBreadcrumbService.reloadBreadcrumbs(this.artifact);
+
             this.artifact.refresh()
                 .finally(() => this.loadingOverlayService.endLoading(overlayId));
         }

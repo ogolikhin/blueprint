@@ -10,4 +10,3 @@ angular.module("bp.managers", [
 ]);
 
 export {ISelectionManager, ISelection} from  "./artifact-manager";
-export {IProjectManager} from  "./project-manager";

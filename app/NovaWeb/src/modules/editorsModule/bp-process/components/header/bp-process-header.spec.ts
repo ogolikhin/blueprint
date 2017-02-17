@@ -18,7 +18,6 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {WindowResize} from "../../../../commonModule/services/windowResize";
-import {ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
@@ -28,6 +27,7 @@ import {MessageServiceMock} from "../../../../main/components/messages/message.m
 import {SessionSvcMock} from "../../../../shell/login/session.svc.mock";
 import {AnalyticsServiceMock} from "../../../../main/components/analytics/analytics.mock";
 import {IExtendedAnalyticsService} from "../../../../main/components/analytics/analytics";
+import {ProjectExplorerServiceMock} from "../../../../main/components/bp-explorer/project-explorer.service.mock";
 
 describe("BpProcessHeader", () => {
     let $rootScope: ng.IRootScopeService;
@@ -56,8 +56,8 @@ describe("BpProcessHeader", () => {
             $provide.service("artifactAttachments", ArtifactAttachmentsService);
             $provide.service("artifactRelationships", ArtifactRelationshipsService);
             $provide.service("itemInfoService", ItemInfoService);
-            $provide.service("projectManager", ProjectManager);
             $provide.service("projectService", ProjectService);
+            $provide.service("projectExplorerService", ProjectExplorerServiceMock);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
             $provide.service("collectionService", CollectionServiceMock);
             $provide.service("Analytics", AnalyticsServiceMock);

@@ -18,14 +18,16 @@ import {IDispose} from "../models";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 
-export interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
+interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
     children?: this[];
     expanded?: boolean;
     unloadChildren(): void;
     getNode(comparator: Models.IArtifact | ((model: Models.IArtifact) => boolean), item?: this): this;
 }
 
-export interface IProjectManager extends IDispose {
+// USE PROJECT EXPLORER SERVICE INSTEAD OF THIS.
+// THIS WILL BE REMOVED SOON.
+interface IProjectManager extends IDispose {
     projectCollection: Rx.BehaviorSubject<Models.IViewModel<Models.IArtifact>[]>;
 
     // eventManager
@@ -46,7 +48,7 @@ export interface IProjectManager extends IDispose {
     openProject(project: AdminStoreModels.IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
 }
 
-export class ProjectManager implements IProjectManager {
+class ProjectManager implements IProjectManager {
     private factory: TreeModels.TreeNodeVMFactory;
     private _projectCollection: Rx.BehaviorSubject<IArtifactNode[]>;
     private subscribers: Rx.IDisposable[];

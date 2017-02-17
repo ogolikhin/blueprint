@@ -1,8 +1,12 @@
-import "../../main";
+import * as angular from "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "../../main";
 import {IItemInfoResult, IItemInfoService} from "../../commonModule/itemInfo/itemInfo.service";
 import {ItemInfoServiceMock} from "../../commonModule/itemInfo/itemInfo.service.mock";
+import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
+import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {ItemStateController} from "./itemState.controller";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
@@ -10,17 +14,12 @@ import {NavigationServiceMock} from "../../commonModule/navigation/navigation.se
 import {Message, MessageType} from "../../main/components/messages/message";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {IMessageService} from "../../main/components/messages/message.svc";
-import {Models} from "../../main/models";
 import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifact} from "../../managers/artifact-manager/artifact/artifact";
-import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
-import {StatefulArtifactFactoryMock} from "../../managers/artifact-manager/artifact/artifact.factory.mock";
-import {IProjectManager} from "../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {SelectionManagerMock} from "../../managers/selection-manager/selection-manager.mock";
-import {ItemStateController} from "./itemState.controller";
-import * as angular from "angular";
+import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
+import {ProjectExplorerServiceMock} from "../../main/components/bp-explorer/project-explorer.service.mock";
 
 describe("Item State Controller tests", () => {
     let $stateParams: ng.ui.IStateParamsService,
@@ -28,7 +27,7 @@ describe("Item State Controller tests", () => {
         $rootScope: ng.IRootScopeService,
         $q: ng.IQService,
         selectionManager: ISelectionManager,
-        projectManager: IProjectManager,
+        projectExplorerService: IProjectExplorerService,
         localization: ILocalizationService,
         messageService: IMessageService,
         navigationService: INavigationService,
@@ -44,7 +43,7 @@ describe("Item State Controller tests", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
         $provide.service("selectionManager", SelectionManagerMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
         $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
     }));
@@ -55,7 +54,7 @@ describe("Item State Controller tests", () => {
         _$rootScope_: ng.IRootScopeService,
         _$q_: ng.IQService,
         _selectionManager_: ISelectionManager,
-        _projectManager_: IProjectManager,
+        _projectExplorerService_: IProjectExplorerService,
         _localization_: ILocalizationService,
         _messageService_: IMessageService,
         _navigationService_: INavigationService,
@@ -67,7 +66,7 @@ describe("Item State Controller tests", () => {
         $rootScope = _$rootScope_;
         $q = _$q_;
         selectionManager = _selectionManager_;
-        projectManager = _projectManager_;
+        projectExplorerService = _projectExplorerService_;
         localization = _localization_;
         messageService = _messageService_;
         navigationService = _navigationService_;
@@ -88,7 +87,7 @@ describe("Item State Controller tests", () => {
         return new ItemStateController(
             $stateParams,
             selectionManager,
-            projectManager,
+            projectExplorerService,
             messageService,
             localization,
             navigationService,
@@ -272,7 +271,7 @@ describe("Item State Controller tests", () => {
                     projectId: artifactId
                 } as any as IItemInfoResult;
                 const navigationSpy = spyOn(navigationService, "navigateTo");
-                const projectManagerSpy = spyOn(projectManager, "openProject").and.callFake(() => $q.resolve());
+                const projectManagerSpy = spyOn(projectExplorerService, "openProject").and.callFake(() => $q.resolve());
                 const reloadNavigationSpy = spyOn(navigationService, "reloadCurrentState");
 
                 // act

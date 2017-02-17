@@ -1,9 +1,8 @@
-import {IPaginationData} from "../../main/components/pagination/model";
 import moment = require("moment");
+import {IPaginationData} from "../../main/components/pagination/model";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {ILoadingOverlayService} from "../../commonModule/loadingOverlay/loadingOverlay.service";
-import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {INavigationService} from "../../commonModule/navigation/navigation.service";
 import {IJobsService} from "./jobs.service";
 import {IJobInfo, IJobResult, JobStatus, JobType} from "./model/models";
@@ -12,6 +11,11 @@ import {IMessageService} from "../../main/components/messages/message.svc";
 import {IDownloadService} from "../../commonModule/download/download.service";
 
 export class JobsController {
+    public jobs: IJobInfo[];
+    public toolbarActions: IBPAction[];
+    public isLoading: boolean;
+    public paginationData: IPaginationData;
+
     public static $inject: [string] = [
         "$log",
         "$window",
@@ -20,15 +24,8 @@ export class JobsController {
         "jobsService",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
         "downloadService"
     ];
-
-    public jobs: IJobInfo[];
-    public toolbarActions: IBPAction[];
-    public isLoading: boolean;
-
-    public paginationData: IPaginationData;
 
     constructor(
         private $log: ng.ILogService,
@@ -38,7 +35,6 @@ export class JobsController {
         private jobsService: IJobsService,
         private loadingOverlayService: ILoadingOverlayService,
         private navigationService: INavigationService,
-        private projectManager: IProjectManager,
         private downloadService: IDownloadService
     ) {
         this.toolbarActions = [];

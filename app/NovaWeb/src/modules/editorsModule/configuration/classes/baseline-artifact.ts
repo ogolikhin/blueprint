@@ -21,8 +21,6 @@ export interface IBaselineArtifact {
 }
 
 export interface IStatefulBaselineArtifact extends IStatefulArtifact {
-    rapidReviewCreated: boolean;
-    reviewName: string;
     artifacts: IBaselineArtifact[];
     addArtifactsToBaseline(artifactIds: IArtifact[]);
     removeArtifacts(artifactIds: IArtifact[]);
@@ -34,20 +32,6 @@ export class StatefulBaselineArtifact extends StatefulArtifact implements IState
     protected getArtifactModel(id: number, versionId: number): ng.IPromise<IArtifact> {
         const url = `/svc/bpartifactstore/baseline/${id}`;
         return this.services.artifactService.getArtifactModel<IBaseline>(url, id, versionId);
-    }
-
-    public get rapidReviewCreated() {
-        if (this.artifact) {
-            return (<IBaseline>this.artifact).isCreated;
-        }
-        return false;
-    }
-
-    public get reviewName() {
-        if (this.artifact) {
-            return (<IBaseline>this.artifact).reviewName;
-        }
-        return undefined;
     }
 
     public get artifacts() {

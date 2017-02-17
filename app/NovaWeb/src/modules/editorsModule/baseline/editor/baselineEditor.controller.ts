@@ -58,14 +58,6 @@ export class BpArtifactBaselineEditorController extends BpArtifactDetailsEditorC
         super($window, messageService, selectionManager, windowManager, localization, propertyDescriptorBuilder, validationService);
     }
 
-    public get reviewUrl(): string {
-        if (this.artifact && (<IStatefulBaselineArtifact>this.artifact).rapidReviewCreated) {
-            return this.$location.protocol() + "://" + this.$window.location.host + "/ArtifactMgmt/RapidReview/" + this.artifact.id;
-        }
-
-        return "";
-    }
-
     private unsubscribe(): void {
         if (this.baselineSubscriber) {
             this.baselineSubscriber.dispose();
@@ -314,7 +306,7 @@ export class BpArtifactBaselineEditorController extends BpArtifactDetailsEditorC
             }
         }
 
-        let item_selected = this.localization.get("Artifact_Baseline_Items_Selected");
+        let item_selected = this.localization.get("Artifact_Baseline_Items_Selected", "Items Selected: {0}");
         this.itemsSelected = item_selected.replace("{0}", (this.selectedVMs.length).toString());
         this.$scope.$applyAsync();
     }

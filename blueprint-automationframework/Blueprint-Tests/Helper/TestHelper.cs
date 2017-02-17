@@ -1399,8 +1399,7 @@ namespace Helper
 
             Assert.DoesNotThrow(() =>
             {
-                var content = restResponse.Content.Replace("&", "");
-                errorMessage = JsonConvert.DeserializeObject<MessageResult>(content);
+                errorMessage = JsonConvert.DeserializeObject<MessageResult>(restResponse.Content);
             }, "Failed to deserialize the content of the REST response into a MessageResult object!");
 
             Assert.AreEqual(expectedErrorMessage, errorMessage.Message,

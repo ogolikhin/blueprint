@@ -3,6 +3,7 @@ import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadi
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IProcessShape} from "../../../editorsModule/bp-process/models/process-models";
 import {IStatefulCollectionArtifact, StatefulCollectionArtifact} from "../../../editorsModule/configuration/classes/collection-artifact";
+import {IStatefulBaselineArtifact, StatefulBaselineArtifact} from "../../../editorsModule/configuration/classes/baseline-artifact";
 import {IStatefulDiagramArtifact, StatefulDiagramArtifact} from "../../../editorsModule/diagram/diagram-artifact";
 import {StatefulUseCaseArtifact} from "../../../editorsModule/diagram/usecase-artifact";
 import {StatefulUseCaseDiagramArtifact} from "../../../editorsModule/diagram/usecase-diagram-artifact";
@@ -138,6 +139,8 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
                 return this.createStatefulCollectionArtifact(artifact);
             case ItemTypePredefined.Glossary:
                 return this.createStatefulGlossaryArtifact(artifact);
+            case ItemTypePredefined.ArtifactBaseline:
+                return this.createStatefulBaselineArtifact(artifact);
             default:
                 return new StatefulArtifact(artifact, this.services);
         }
@@ -153,6 +156,10 @@ export class StatefulArtifactFactory implements IStatefulArtifactFactory {
 
     public createStatefulCollectionArtifact(artifact: IArtifact): IStatefulCollectionArtifact {
         return new StatefulCollectionArtifact(artifact, this.services);
+    }
+
+    public createStatefulBaselineArtifact(artifact: IArtifact): IStatefulBaselineArtifact {
+        return new StatefulBaselineArtifact(artifact, this.services);
     }
 
     public createStatefulGlossaryArtifact(artifact: IArtifact): IStatefulGlossaryArtifact {

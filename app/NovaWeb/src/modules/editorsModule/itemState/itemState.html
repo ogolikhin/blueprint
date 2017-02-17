@@ -3,6 +3,7 @@
         <div class="page-heading" ng-switch="$ctrl.activeEditor">
             <bp-process-header ng-switch-when="process"></bp-process-header>
             <bp-collection-header ng-switch-when="collection"></bp-collection-header>
+            <bp-baseline-header ng-switch-when="baseline"></bp-baseline-header>
             <bp-artifact-info ng-switch-default></bp-artifact-info>
         </div>
         <div class="page-body-wrapper">
@@ -12,6 +13,7 @@
                 <bp-artifact-details-editor ng-switch-when="details" class="properties-editor__container"></bp-artifact-details-editor>
                 <bp-diagram ng-switch-when="diagram"></bp-diagram>
                 <bp-collection ng-switch-when="collection"></bp-collection>
+                <bp-baseline ng-switch-when="baseline"></bp-baseline>
                 <bp-artifact-general-editor ng-switch-when="general"></bp-artifact-general-editor>
             </div>
         </div>

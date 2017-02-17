@@ -165,6 +165,9 @@ export class ItemStateController {
             case ItemTypePredefined.Process:
                 this.activeEditor = "process";
                 break;
+            case ItemTypePredefined.ArtifactBaseline:
+                this.activeEditor = "baseline";
+                break;
             default:
                 this.activeEditor = "details";
         }

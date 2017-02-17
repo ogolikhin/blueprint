@@ -186,6 +186,11 @@ export interface ICollectionContentPropertyValue {
     removedArtifacts: number[];
 }
 
+export interface IBaselineContentPropertyValue {
+    addedArtifacts: number[];
+    removedArtifacts: number[];
+}
+
 export interface IProjectMeta {
     artifactTypes: IItemType[];
     propertyTypes: IPropertyType[];

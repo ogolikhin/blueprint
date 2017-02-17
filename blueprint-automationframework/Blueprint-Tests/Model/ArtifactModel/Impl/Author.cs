@@ -1,4 +1,4 @@
-﻿namespace Model.ArtifactModel
+﻿namespace Model.ArtifactModel.Impl
 {
     public class Author
     {

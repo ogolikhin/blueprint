@@ -1,7 +1,7 @@
-﻿using Model.ArtifactModel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Model.ArtifactModel;
 
-namespace Model
+namespace Model.Archive.ArtifactModel
 {
     public interface IBaselineAndReviewFolder : IArtifactBase
     {

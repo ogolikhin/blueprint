@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Model.Impl
+namespace Model
 {
     public interface IPrimitiveFolder
     {

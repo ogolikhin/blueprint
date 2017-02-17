@@ -165,6 +165,7 @@ namespace ArtifactStore.Repositories
 
         private PropertyType ConvertPropertyTypeVersion(PropertyTypeVersion pv)
         {
+            // Property XmlInfo is not supposed to be null, see bug 4819
             var propertyFromXml = pv.PrimitiveType == PropertyPrimitiveType.Choice
                 ? XmlModelSerializer.DeserializeCustomProperties(pv.XmlInfo).CustomProperties[0]
                 : null;

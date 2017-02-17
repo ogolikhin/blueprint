@@ -5,10 +5,10 @@ import {DecisionEditorModel} from "./decisionEditor.model";
 import {IProcessLink} from "../../../models/process-models";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
-import {NodeType, IDiagramNode, IDiagramLink} from "../../diagram/presentation/graph/models";
+import {IDiagramLink, IDiagramNode, IProcessGraph, NodeType} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
-import {ICondition, Condition} from "../../diagram/presentation/graph/shapes/condition";
+import {ICondition, Condition} from "./condition.model";
 
 export class DecisionEditorController extends BaseModalDialogController<DecisionEditorModel> implements ng.IComponentController {
     private CONDITION_MAX_LENGTH = 512;
@@ -45,7 +45,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     constructor(
         $rootScope: ng.IRootScopeService,
         $scope: IModalScope,
-        private $timeout: ng.ITimeoutService,
+        $timeout: ng.ITimeoutService,
         private $anchorScroll: ng.IAnchorScrollService,
         private $location: ng.ILocationService,
         private $q: ng.IQService,
@@ -53,7 +53,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         $uibModalInstance?: ng.ui.bootstrap.IModalServiceInstance,
         dialogModel?: DecisionEditorModel
     ) {
-        super($rootScope, $scope, $uibModalInstance, dialogModel);
+        super($rootScope, $scope, $timeout, $uibModalInstance, dialogModel);
     }
 
     public get defaultMergeNodeLabel(): string {
@@ -77,41 +77,50 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     }
 
     private get createdConditions(): ICondition[] {
-        return _.filter(this.dialogModel.conditions, condition => condition.isCreated);
+        return _.filter(
+            this.dialogModel.conditions,
+            condition => condition.isCreated
+        );
     }
 
-    public saveData(): ng.IPromise<void> {
+    private get changedConditions(): ICondition[] {
+        return _.filter(
+            this.dialogModel.conditions,
+            condition => condition.isChanged
+        );
+    }
+
+    public applyChanges(): ng.IPromise<void> {
         this.dialogModel.originalDecision.setLabelWithRedrawUi(this.dialogModel.label);
 
         const decisionId: number = this.dialogModel.subArtifactId;
+        const graph: IProcessGraph = this.dialogModel.graph;
 
         if (this.createdConditions.length > 0 &&
-            !ProcessAddHelper.canAddDecisionConditions(decisionId, this.createdConditions.length, this.dialogModel.graph)) {
+            !ProcessAddHelper.canAddDecisionConditions(decisionId, this.createdConditions.length, graph)) {
             return this.$q.resolve();
         }
 
         const firstNodeIds = _.map(this.deletedConditions, condition => condition.firstNodeId);
         if (this.deletedConditions.length > 0 &&
-            !ProcessDeleteHelper.canDeleteDecisionConditions(decisionId, firstNodeIds, this.dialogModel.graph)) {
+            !ProcessDeleteHelper.canDeleteDecisionConditions(decisionId, firstNodeIds, graph)) {
             return this.$q.resolve();
         }
 
-        // process updated then created then deleted conditions
-        const conditionsToProcess = _.orderBy(this.dialogModel.conditions, condition => condition.isCreated, "asc");
-        conditionsToProcess.push(...this.deletedConditions);
+        const conditionsToSave = _.merge(this.changedConditions, this.createdConditions, this.deletedConditions);
+        const hasOrderIndexChanges = this.dialogModel.conditions.some(condition => condition.isOrderIndexChanged);
 
-        const hasChanges: boolean = _.reduce(
-            conditionsToProcess,
-            (isChanged, condition) => condition.applyChanges(this.dialogModel.graph) || isChanged,
-            false
-        );
+        if (conditionsToSave.length > 0) {
+            _.each(conditionsToSave, condition => condition.applyChanges(graph));
 
-        if (hasChanges) {
-            this.dialogModel.graph.viewModel.links = _.orderBy(this.dialogModel.graph.viewModel.links, link => link.orderindex);
+            // Links are always assumed to be ordered by ascending order index for rendering
+            if (hasOrderIndexChanges) {
+                graph.viewModel.links = _.orderBy(graph.viewModel.links, link => link.orderindex);
+            }
 
             //Calls model update to redraw components of the decision to show changes.
-            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(decisionId);
-            this.dialogModel.graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
+            graph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(decisionId);
+            graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
         }
 
         return this.$q.resolve();
@@ -166,7 +175,7 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
             return;
         }
 
-        condition.isDeleted = true;
+        condition.delete();
         this.deletedConditions.push(condition);
 
         const index = this.dialogModel.conditions.indexOf(condition);
@@ -175,19 +184,6 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         }
 
         this.refreshView();
-    }
-
-    private getFirstNonMergingPointShapeId(link: IProcessLink) {
-        let targetId: number;
-        const linkDestinationNode = this.dialogModel.graph.getNodeById(link.destinationId.toString());
-        if (linkDestinationNode.getNodeType() === NodeType.MergingPoint) {
-            const outgoingLinks = linkDestinationNode.getOutgoingLinks(this.dialogModel.graph.getMxGraphModel());
-            targetId = outgoingLinks[0].model.destinationId;
-        } else {
-            targetId = linkDestinationNode.model.id;
-        }
-
-        return targetId;
     }
 
     public canReorder(condition: ICondition): boolean {
@@ -213,10 +209,6 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     public canMoveDown(condition: ICondition): boolean {
         if (this.isReadonly) {
-            return false;
-        }
-
-        if (!this.dialogModel.conditions || this.dialogModel.conditions.length === 0) {
             return false;
         }
 
@@ -289,26 +281,6 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
     public isUserDecision(): boolean {
         return this.dialogModel.originalDecision.getNodeType() === NodeType.UserDecision;
-    }
-
-    // This is a workaround to force re-rendering of the dialog
-    public refreshView() {
-        const element: HTMLElement = document.getElementsByClassName("modal-dialog").item(0).parentElement;
-
-        if (!element) {
-            return;
-        }
-
-        const node = document.createTextNode(" ");
-        element.appendChild(node);
-
-        this.$timeout(
-            () => {
-                node.parentNode.removeChild(node);
-            },
-            20,
-            false
-        );
     }
 
     public get deleteConditionLabel(): string {

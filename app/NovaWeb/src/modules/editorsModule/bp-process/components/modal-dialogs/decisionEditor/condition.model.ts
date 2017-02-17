@@ -52,9 +52,11 @@ export class Condition implements ICondition {
     }
 
     public get isChanged(): boolean {
-        return this.isLabelChanged
+        return !this.isCreated
+            && !this.isDeleted
+            && (this.isLabelChanged
             || this.isOrderIndexChanged
-            || this.isMergeNodeChanged;
+            || this.isMergeNodeChanged);
     }
 
     public get isCreated(): boolean {
@@ -122,10 +124,6 @@ export class Condition implements ICondition {
     }
 
     private updateOrderIndex(graph: IProcessGraph): boolean {
-        if (!this.originalLink || !this.branchDestinationLink) {
-            return false;
-        }
-
         if (!this.isOrderIndexChanged) {
             return false;
         }

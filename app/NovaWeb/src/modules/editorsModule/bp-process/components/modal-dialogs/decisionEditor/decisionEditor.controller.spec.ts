@@ -1070,6 +1070,7 @@ describe("DecisionEditorController", () => {
                 getShapeById: (id) => null,
                 getShapeTypeById: (id) => ProcessShapeType.None,
                 getNextShapeIds: (id) => [],
+                getNextOrderIndex: (id) => 2,
                 communicationManager: {
                     processDiagramCommunication: {
                         modelUpdate: (id) => { return; },

@@ -139,6 +139,39 @@ describe("Condition", () => {
         });
     });
 
+    describe("isChanged", () => {
+        it("returns false if condition has changes but is created", () => {
+            // arrange
+            originalLink.destinationId = undefined;
+            condition = new Condition(originalLink, undefined, undefined, validMergeNodes);
+
+            // act
+            condition.label = "New Label";
+
+            // assert
+            expect(condition.isChanged).toBe(false);
+        });
+
+        it("returns false if condition has changes but is deleted", () => {
+            // arrange
+            condition.delete();
+
+            // act
+            condition.label = "New Label";
+
+            // assert
+            expect(condition.isChanged).toBe(false);
+        });
+
+        it("returns true if condition has changes but is neither created nor deleted", () => {
+            // act
+            condition.label = "New Label";
+
+            // assert
+            expect(condition.isChanged).toBe(true);
+        });
+    });
+
     describe("delete", () => {
         it("sets condtions state to deleted", () => {
             // act

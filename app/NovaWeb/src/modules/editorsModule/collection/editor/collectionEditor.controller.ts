@@ -14,6 +14,8 @@ import {BpArtifactDetailsEditorController} from "../../artifactEditor/details/ar
 import {ICollectionArtifact, IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 import {IPropertyDescriptorBuilder} from "../../services";
 import {ICollectionService} from "../collection.service";
+import {AnalyticsCategories, AnalyticsActions} from "../../../main/components/analytics";
+import {IExtendedAnalyticsService} from "../../../main/components/analytics/analytics";
 
 export class BpArtifactCollectionEditorController extends BpArtifactDetailsEditorController {
     public static $inject: [string] = [
@@ -29,7 +31,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
         "metadataService",
         "$location",
         "$window",
-        "$scope"
+        "$scope",
+        "Analytics"
     ];
 
     public selectAll: boolean = false;
@@ -54,7 +57,8 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
                 private metadataService: IMetaDataService,
                 private $location: ng.ILocationService,
                 protected $window: ng.IWindowService,
-                private $scope: ng.IScope) {
+                private $scope: ng.IScope,
+                private analytics: IExtendedAnalyticsService) {
         super($window, messageService, selectionManager, windowManager, localization, propertyDescriptorBuilder, validationService);
     }
 
@@ -329,6 +333,35 @@ export class BpArtifactCollectionEditorController extends BpArtifactDetailsEdito
             collectionArtifact.removeArtifacts(artifactsToBeDeleted);
             this.selectedVMs.length = 0;
         });
+    }
+
+    private getCollectionArtifactCount(): number {
+        const collectionArtifact = this.artifact as IStatefulCollectionArtifact;
+        if (!collectionArtifact) {
+            return 0;
+        }
+
+        if (collectionArtifact.artifacts) {
+            return collectionArtifact.artifacts.length;
+        }
+
+        return 0;
+    }
+
+    public editRapidReview(): void {
+        const startTime = new Date().getTime();
+        const url = `Web/#/RapidReview/${this.artifact.id}/edit`;
+        window.open(url);
+        this.analytics.trackAnalyticsTemporalEvent(startTime, AnalyticsCategories.rapidReview,
+            AnalyticsActions.rapidReviewEdit, undefined, {metric1: this.getCollectionArtifactCount()});
+    }
+
+    public openRapidReview(): void {
+        const startTime = new Date().getTime();
+        const url = this.reviewUrl;
+        window.open(url);
+        this.analytics.trackAnalyticsTemporalEvent(startTime, AnalyticsCategories.rapidReview,
+           AnalyticsActions.rapidReviewReview, undefined, {metric1: this.getCollectionArtifactCount()});
     }
 
     public hasRequiredPermissions(): boolean {

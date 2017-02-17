@@ -15,6 +15,7 @@ import {ICollectionService} from "../collection.service";
 import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IExtendedAnalyticsService} from "../../../main/components/analytics/analytics";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -39,7 +40,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "metadataService",
         "mainbreadcrumbService",
         "collectionService",
-        "itemInfoService"
+        "itemInfoService",
+        "Analytics"
     ];
 
     constructor($q: ng.IQService,
@@ -57,7 +59,8 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
                 collectionService: ICollectionService,
-                itemInfoService: IItemInfoService) {
+                itemInfoService: IItemInfoService,
+                protected analytics: IExtendedAnalyticsService) {
         super(
             $q,
             $scope,
@@ -87,7 +90,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
 
         const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
             this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
-        const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
+        const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService, this.analytics);
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 
         if (buttonGroup) {

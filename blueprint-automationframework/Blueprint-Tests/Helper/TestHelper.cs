@@ -1409,18 +1409,6 @@ namespace Helper
 
         #endregion Custom Asserts
 
-        #region Message Classes
-
-        /// <summary>
-        /// This is the structure returned by the REST call to display error messages.
-        /// </summary>
-        public class MessageResult
-        {
-            public string Message { get; set; }
-        }
-
-        #endregion Message Classes
-
         #region Members inherited from IDisposable
 
         /// <summary>

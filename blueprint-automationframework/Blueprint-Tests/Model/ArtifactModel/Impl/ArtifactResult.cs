@@ -135,4 +135,12 @@ namespace Model.ArtifactModel.Impl
         public DiscardResult Result { get; set; }
         public string Message { get; set; }
     }
+
+    /// <summary>
+    /// This is the structure returned by the REST call to display error messages.
+    /// </summary>
+    public class MessageResult
+    {
+        public string Message { get; set; }
+    }
 }

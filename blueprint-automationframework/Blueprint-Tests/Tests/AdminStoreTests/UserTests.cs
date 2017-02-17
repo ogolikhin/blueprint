@@ -215,8 +215,6 @@ namespace AdminStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
-        //TODO: enable and update this test once User Story 4560:[Security] Enforce server side password validation for Expired Password dialog is completed.
         [TestCase]
         [TestRail(234560)]
         [Description("Try to reset the user's password to a string value identical to the username of the user." +
@@ -232,12 +230,10 @@ namespace AdminStoreTests
             // Verify: Make sure the user can still login with their old password.
             VerifyLogin(Helper, _adminUser.Username, _adminUser.Password);
 
-            const string expectedExceptionMessage = "Password reset failed, new password is invalid";
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
+            const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to login name";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsLogin, expectedExceptionMessage);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
-        //TODO: enable and update this test once User Story 4560:[Security] Enforce server side password validation for Expired Password dialog is completed.
         [TestCase]
         [TestRail(234570)]
         [Description("Try to reset the user's password to a string value identical to the user's display name." +
@@ -253,8 +249,8 @@ namespace AdminStoreTests
             // Verify: Make sure the user can still login with their old password.
             VerifyLogin(Helper, _adminUser.Username, _adminUser.Password);
 
-            const string expectedExceptionMessage = "Password reset failed, new password is invalid";
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, expectedExceptionMessage);
+            const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to display name";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsDisplayName, expectedExceptionMessage);
         }
 
         #endregion 400 Bad Request Tests

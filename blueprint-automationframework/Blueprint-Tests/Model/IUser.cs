@@ -50,9 +50,9 @@ namespace Model
         /// <summary>
         /// Deletes a user from the Blueprint server.
         /// </summary>
-        /// <param name="deleteFromDatabase">(optional) By default the user is only disabled by setting the EndTimestamp field.
-        ///     Pass true to really delete the user from the database.</param>
-        void DeleteUser(bool deleteFromDatabase = false);
+        /// <param name="useSqlUpdate">(optional) By default the user is deleted by a REST call.
+        ///     Pass true to update the user in the database by setting the EndTimestamp field instead of the REST call.</param>
+        void DeleteUser(bool useSqlUpdate = true);  // TODO: Change useSqlUpdate = false when OpenAPI Delete call is working.
 
         /// <summary>
         ///  Adds an icon for user

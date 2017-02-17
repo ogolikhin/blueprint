@@ -1,3 +1,6 @@
+import {ProcessGraph} from "./process-graph";
+import {IProcessViewModel} from "../../viewmodel/process-viewmodel";
+import {IProcessGraph} from "./models/process-graph-interfaces";
 import {
     IDiagramNode,
     IProcessShape,
@@ -13,6 +16,9 @@ import {DiagramLink} from "./shapes/diagram-link";
 import {NodeType} from "./models/process-graph-constants";
 
 export class ProcessAddHelper {
+    private static MinNoOfShapesAddedPerSystemDecision: number = 1;
+    private static MinNoOfShapesAddedPerUserDecision: number = 2;
+
     public static insertTaskWithUpdate(edge: MxCell, layout: ILayout, shapesFactoryService: ShapesFactory): void {
         // insertTask adds two shapes:
         // user task + system task
@@ -131,16 +137,22 @@ export class ProcessAddHelper {
         return userDecisionShape.id;
     }
 
-    private static insertUserDecisionConditionInternal(userDecisionId: number, branchDestinationId: number,
-                                                       layout: ILayout, shapesFactoryService: ShapesFactory, label?: string): number {
+    private static insertUserDecisionConditionInternal(
+        userDecisionId: number,
+        branchDestinationId: number,
+        layout: ILayout,
+        shapesFactoryService: ShapesFactory,
+        label?: string,
+        orderIndex?: number
+    ): number {
         // add user task and system task shapes
         let userTaskShapeId = ProcessAddHelper.insertUserTaskInternal(layout, shapesFactoryService);
         let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
-        let orderIndex = layout.viewModel.getNextOrderIndex(userDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(userDecisionId, NodeType.UserDecision) : label;
+        let currentOrderIndex = orderIndex || layout.viewModel.getNextOrderIndex(userDecisionId);
+        let currentLabel: string = label || layout.getDefaultBranchLabel(userDecisionId, NodeType.UserDecision);
 
         // add links
-        let condition = ProcessAddHelper.addLinkInfo(userDecisionId, userTaskShapeId, layout, orderIndex, currentLabel);
+        let condition = ProcessAddHelper.addLinkInfo(userDecisionId, userTaskShapeId, layout, currentOrderIndex, currentLabel);
         ProcessAddHelper.addLinkInfo(userTaskShapeId, systemTaskId, layout);
         ProcessAddHelper.addLinkInfo(systemTaskId, branchDestinationId, layout);
 
@@ -150,11 +162,11 @@ export class ProcessAddHelper {
             orderindex: condition.orderindex,
             label: null
         };
+
         ProcessAddHelper.updateBranchDestination(branchDestinationLink, layout);
 
         return userTaskShapeId;
     }
-
 
     private static updateBranchDestination(processLink: IProcessLink, layout: ILayout) {
         if (processLink == null) {
@@ -177,8 +189,13 @@ export class ProcessAddHelper {
         }
     }
 
-    public static insertUserDecisionConditionWithUpdate(decisionId: number, layout: ILayout,
-                                                        shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number): number {
+    public static insertUserDecisionConditionWithUpdate(
+        decisionId: number,
+        layout: ILayout,
+        shapesFactoryService: ShapesFactory,
+        label?: string,
+        conditionDestinationId?: number
+    ): number {
         // insertUserDecisionCondition adds 2 shapes:
         // user task + system task
         if (layout.viewModel.isWithinShapeLimit(2)) {
@@ -189,14 +206,21 @@ export class ProcessAddHelper {
         }
     }
 
-    public static insertUserDecisionCondition(decisionId: number, layout: ILayout,
-                                              shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number): number {
+    public static insertUserDecisionCondition(
+        decisionId: number,
+        layout: ILayout,
+        shapesFactoryService: ShapesFactory,
+        label?: string,
+        orderIndex?: number,
+        conditionDestinationId?: number
+    ): number {
         if (!conditionDestinationId) {
             let branchDestination: IProcessShape = layout.getConditionDestination(decisionId);
             conditionDestinationId = branchDestination.id;
         }
 
-        return ProcessAddHelper.insertUserDecisionConditionInternal(decisionId, conditionDestinationId, layout, shapesFactoryService, label);
+        return ProcessAddHelper.insertUserDecisionConditionInternal(decisionId, conditionDestinationId,
+            layout, shapesFactoryService, label, orderIndex);
     }
 
     public static insertSystemDecision(connector: DiagramLink, layout: ILayout, shapesFactoryService: ShapesFactory) {
@@ -227,13 +251,20 @@ export class ProcessAddHelper {
         return systemDecision.id;
     }
 
-    private static insertSystemDecisionConditionInternal(systemDecisionId: number, branchDestinationId: number, layout: ILayout,
-                                                         shapesFactoryService: ShapesFactory, label?: string): number {
+    private static insertSystemDecisionConditionInternal(
+        systemDecisionId: number,
+        branchDestinationId: number,
+        layout: ILayout,
+        shapesFactoryService: ShapesFactory,
+        label?: string,
+        orderIndex?: number
+    ): number {
         let systemTaskId = ProcessAddHelper.insertSystemTaskInternal(layout, shapesFactoryService);
 
-        let orderIndex: number = layout.viewModel.getNextOrderIndex(systemDecisionId);
-        let currentLabel: string = label == null ? layout.getDefaultBranchLabel(systemDecisionId, NodeType.SystemDecision) : label;
-        let condition = ProcessAddHelper.addLinkInfo(systemDecisionId, systemTaskId, layout, orderIndex, currentLabel);
+        let currentOrderIndex: number = orderIndex || layout.viewModel.getNextOrderIndex(systemDecisionId);
+        let currentLabel: string = label || layout.getDefaultBranchLabel(systemDecisionId, NodeType.SystemDecision);
+        let condition = ProcessAddHelper.addLinkInfo(systemDecisionId, systemTaskId, layout, currentOrderIndex, currentLabel);
+
         ProcessAddHelper.addLinkInfo(systemTaskId, branchDestinationId, layout);
 
         let branchDestinationLink: IProcessLink = {
@@ -242,13 +273,19 @@ export class ProcessAddHelper {
             orderindex: condition.orderindex,
             label: null
         };
+
         ProcessAddHelper.updateBranchDestination(branchDestinationLink, layout);
 
         return systemTaskId;
     }
 
-    public static insertSystemDecisionConditionWithUpdate(decisionId: number, layout: ILayout,
-                                                          shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number): number {
+    public static insertSystemDecisionConditionWithUpdate(
+        decisionId: number,
+        layout: ILayout,
+        shapesFactoryService: ShapesFactory,
+        label?: string,
+        conditionDestinationId?: number
+    ): number {
         // insertSystemDecisionCondition adds 1 shape:
         // system task
         if (layout.viewModel.isWithinShapeLimit(1)) {
@@ -259,14 +296,49 @@ export class ProcessAddHelper {
         }
     }
 
-    public static insertSystemDecisionCondition(decisionId: number, layout: ILayout,
-                                                shapesFactoryService: ShapesFactory, label?: string, conditionDestinationId?: number): number {
+    public static insertSystemDecisionCondition(
+        decisionId: number,
+        layout: ILayout,
+        shapesFactoryService: ShapesFactory,
+        label?: string,
+        orderIndex?: number,
+        conditionDestinationId?: number
+    ): number {
         if (!conditionDestinationId) {
             let branchDestination: IProcessShape = layout.getConditionDestination(decisionId);
             conditionDestinationId = branchDestination.id;
         }
 
         return ProcessAddHelper.insertSystemDecisionConditionInternal(decisionId, conditionDestinationId,
-            layout, shapesFactoryService, label);
+            layout, shapesFactoryService, label, orderIndex);
     };
+
+    private static hasMaxConditions(decisionId: number, viewModel: IProcessViewModel): boolean {
+        return viewModel.getNextShapeIds(decisionId).length >= ProcessGraph.MaxConditions;
+    }
+
+    public static canAddDecisionConditions(decisionId: number, numberOfConditions: number, graph: IProcessGraph): boolean {
+        let shapeType = graph.viewModel.getShapeTypeById(decisionId);
+
+        if (!numberOfConditions) {
+            return false;
+        }
+
+        if (this.hasMaxConditions(decisionId, graph.viewModel)) {
+            graph.messageService.addError(graph.rootScope.config.labels["ST_Add_CannotAdd_MaximumConditionsReached"]);
+            return false;
+        }
+
+        if (shapeType === ProcessShapeType.SystemDecision &&
+            !graph.viewModel.isWithinShapeLimit(numberOfConditions * this.MinNoOfShapesAddedPerSystemDecision)) {
+            return false;
+        }
+
+        if (shapeType === ProcessShapeType.UserDecision &&
+            !graph.viewModel.isWithinShapeLimit(numberOfConditions * this.MinNoOfShapesAddedPerUserDecision)) {
+            return false;
+        }
+
+        return true;
+    }
 }

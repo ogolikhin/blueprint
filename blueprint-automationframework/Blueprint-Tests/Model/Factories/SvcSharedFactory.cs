@@ -1,4 +1,5 @@
-﻿using Model.Impl;
+﻿using System.Data;
+using Model.Impl;
 using TestConfig;
 
 namespace Model.Factories
@@ -10,10 +11,10 @@ namespace Model.Factories
         /// </summary>
         /// <param name="address">The URI address of the Blueprint server.</param>
         /// <returns>An ISvcShared object.</returns>
-        public static ISvcShared CreateArtifactStore(string address)
+        public static ISvcShared CreateSvcShared(string address)
         {
-            var adminStore = new SvcShared(address);
-            return adminStore;
+            var service = new SvcShared(address);
+            return service;
         }
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace Model.Factories
         {
             var testConfig = TestConfiguration.GetInstance();
 
-            return CreateArtifactStore(testConfig.BlueprintServerAddress);
+            return CreateSvcShared(testConfig.BlueprintServerAddress);
         }
     }
 }

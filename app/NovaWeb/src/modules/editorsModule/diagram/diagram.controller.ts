@@ -140,10 +140,8 @@ export class BPDiagramController extends BpBaseEditor {
                     if (artifactPromise) {
                         artifactPromise.then((artifact) => {
                             if (artifact.artifactState.deleted) {
-                                let deletedMessage = this.bpFormatFilter(this.localization.get("Artifact_InfoBanner_DeletedByOn"),
-                                    artifact.artifactState.deletedByDisplayName,
-                                    this.localization.current.formatShortDateTime(artifact.artifactState.deletedDateTime));
-                                this.messageService.addMessage(new Message(MessageType.Deleted, deletedMessage));
+                                let deletedMessage = this.localization.get("SubArtifact_Has_Been_Deleted");
+                                this.messageService.addMessage(new Message(MessageType.Warning, deletedMessage));
                             }
 
                             this.selectionManager.setArtifact(artifact);
@@ -173,6 +171,18 @@ export class BPDiagramController extends BpBaseEditor {
         if (this.diagramView) {
             this.diagramView.clearSelection();
         }
+    }
+
+    private formatDeletedMessage(deletedBy, deletedDate) {
+        let deletedMessage;
+        if (deletedBy && deletedDate) {
+            deletedMessage = this.bpFormatFilter(this.localization.get("Artifact_InfoBanner_DeletedByOn"),
+                deletedBy, this.localization.current.formatShortDateTime(deletedDate));
+        }
+        else {
+            deletedMessage = this.localization.get("Artifact_InfoBanner_Deleted");
+        }
+        return deletedMessage;
     }
 
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {

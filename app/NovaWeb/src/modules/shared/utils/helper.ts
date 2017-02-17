@@ -208,7 +208,6 @@ export class Helper {
             ItemTypePredefined.Project,
             ItemTypePredefined.Collections,
             ItemTypePredefined.BaselinesAndReviews,
-            ItemTypePredefined.BaselineFolder,
             ItemTypePredefined.ArtifactBaseline,
             ItemTypePredefined.ArtifactReviewPackage,
             ItemTypePredefined.CollectionFolder,

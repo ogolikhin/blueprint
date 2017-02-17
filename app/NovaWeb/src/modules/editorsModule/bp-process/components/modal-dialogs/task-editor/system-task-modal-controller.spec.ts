@@ -255,7 +255,7 @@ describe("SystemTaskModalController", () => {
             const artifactReference: IArtifactReference = null;
 
             // act and assert
-            expect(controller.saveData).toThrow();
+            expect(controller.applyChanges).toThrow();
         });
     });
 
@@ -307,7 +307,7 @@ describe("SystemTaskModalController", () => {
             const artifactReference: IArtifactReference = null;
 
             //act
-            controller.saveData();
+            controller.applyChanges();
             $rootScope.$digest();
 
             //assert
@@ -411,7 +411,7 @@ describe("SystemTaskModalController", () => {
                     version: null
                 };
 
-                controller.saveData();
+                controller.applyChanges();
                 $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();
@@ -424,7 +424,7 @@ describe("SystemTaskModalController", () => {
 
                 model.action = "new system action";
 
-                controller.saveData();
+                controller.applyChanges();
                 $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();
@@ -437,7 +437,7 @@ describe("SystemTaskModalController", () => {
 
                 model.imageId = "6b021f82-0e3c-4df7-8eb2-74730b92dc3a";
 
-                controller.saveData();
+                controller.applyChanges();
                 $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();
@@ -461,7 +461,7 @@ describe("SystemTaskModalController", () => {
 
                 model.associatedArtifact = artifactReference;
 
-                controller.saveData();
+                controller.applyChanges();
                 $rootScope.$digest();
 
                 expect(lockSpy).toHaveBeenCalled();

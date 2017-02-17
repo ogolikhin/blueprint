@@ -9,8 +9,10 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.Impl;
+using Model.OpenApiModel.Services;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -327,6 +329,33 @@ namespace ArtifactStoreTests
         }
 
         #endregion 200 OK Tests
+
+        #region 400 Bad Request
+
+        [TestRail(246535)]
+        [TestCase("9999999999", "The request is invalid.")]
+        [TestCase("&amp;", "A potentially dangerous Request.Path value was detected from the client (&).")]
+        [Description("Create a rest path that tries to get an artifact with an invalid artifact Id. " +
+                     "Attempt to get the artifact. Verify that HTTP 400 Bad Request exception is thrown.")]
+        public void GetArtifactDetails_InvalidArtifactId_400BadRequest(string artifactId, string expectedErrorMessage)
+        {
+            // Setup:
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<NovaArtifactResponse, object>(
+               path,
+               RestRequestMethod.GET,
+               jsonObject: null),
+                "We should get a 400 Bad Request when the artifact Id is invalid!");
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+        }
+
+        #endregion 400 Bad Request
 
         #region 401 Unauthorized Tests
 

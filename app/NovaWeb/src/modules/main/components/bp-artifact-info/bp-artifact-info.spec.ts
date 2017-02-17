@@ -22,6 +22,7 @@ import {MessageServiceMock} from "../messages/message.mock";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {BpArtifactInfoController} from "./bp-artifact-info";
 import * as angular from "angular";
+import {AnalyticsServiceMock} from "../analytics/analytics.mock";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
@@ -79,8 +80,6 @@ describe("BpArtifactInfo", () => {
             getArtifact: () => artifact
         };
 
-
-
         $provide.service("messageService", MessageServiceMock);
         $provide.service("windowManager", () => windowManager);
         $provide.service("selectionManager", () => selectionManager);
@@ -93,6 +92,7 @@ describe("BpArtifactInfo", () => {
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
         $provide.service("collectionService", CollectionServiceMock);
         $provide.service("itemInfoService", ItemInfoServiceMock);
+        $provide.service("Analytics", AnalyticsServiceMock);
     }));
 
     beforeEach(inject((

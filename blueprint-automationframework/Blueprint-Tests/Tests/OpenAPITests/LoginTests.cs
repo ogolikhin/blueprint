@@ -163,7 +163,7 @@ namespace OpenAPITests
             finally
             {
                 // Cleanup: delete all the users we created.
-                users.ForEach(u => u.DeleteUser(deleteFromDatabase: true));
+                users.ForEach(u => u.DeleteUser());
             }
         }
     }

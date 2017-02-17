@@ -1,6 +1,6 @@
+import {ICondition} from "./condition.model";
 import {
     IProcessGraph,
-    ICondition,
     IDecision
 } from "../../diagram/presentation/graph/models/process-graph-interfaces";
 import {IModalDialogModel} from "../models/modal-dialog-model-interface";
@@ -14,6 +14,6 @@ export class DecisionEditorModel implements IModalDialogModel {
     public originalDecision: IDecision;
     public isReadonly: boolean;
     public isHistoricalVersion: boolean;
-    public conditionLabel: string;
+    public conditionHeader: string;
     public defaultDestinationId: number;
 }

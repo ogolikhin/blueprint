@@ -1,14 +1,13 @@
 import {SystemTaskDialogModel} from "./task-editor/systemTaskDialogModel";
 import {UserTaskDialogModel} from "./task-editor/userTaskDialogModel";
 import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
-import {Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
+import {ICondition, Condition} from "./decisionEditor/condition.model";
 import {
     IProcessGraph,
     IDiagramNode,
-    ICondition,
     IDecision
 } from "../diagram/presentation/graph/models/process-graph-interfaces";
 import {UserTask} from "../diagram/presentation/graph/shapes/user-task";
@@ -229,7 +228,7 @@ export class SubArtifactEditorModalOpener {
         model.isHistoricalVersion = graph.viewModel.isHistorical;
         model.graph = graph;
         model.originalDecision = decision;
-        model.conditionLabel = node.getNodeType() === NodeType.SystemDecision ?
+        model.conditionHeader = node.getNodeType() === NodeType.SystemDecision ?
             this.localization.get("ST_Condition_Label") :
             this.localization.get("ST_Choice_Label");
         model.defaultDestinationId = graph.layout.getConditionDestination(decision.model.id).id;
@@ -238,39 +237,19 @@ export class SubArtifactEditorModalOpener {
     }
 
     private getConditions(decision: IDecision, graph: IProcessGraph): ICondition[] {
-        const conditions: ICondition[] = [];
         const outgoingLinks: IProcessLink[] = graph.getNextLinks(decision.model.id);
 
-        for (let index = 0; index < outgoingLinks.length; index++) {
-            const outgoingLink: IProcessLink = outgoingLinks[index];
-            let mergePoint: IDiagramNode = null;
-            let condition: ICondition;
-            let mergeNodes: IDiagramNode[];
-            // First flow of nested decision.
-            if (this.graph.isInNestedFlow(decision.model.id) && index === 0) {
-                // Find parent decision and creates merge nodes based off of parent's condition
-                const shapeContext = graph.globalScope.visitedIds[decision.model.id];
-                const parentCondition = _.last(shapeContext.parentConditions);
-                mergePoint = graph.getMergeNode(parentCondition.decisionId, parentCondition.orderindex);
+        return _.map(
+            outgoingLinks,
+            outgoingLink => {
+                const branchStartLink: IProcessLink = graph.getBranchStartingLink(outgoingLink);
+                const decisionId: number = branchStartLink.sourceId;
+                const branchEndLink = graph.getBranchEndingLink(branchStartLink);
+                const branchDestinationLink = graph.getDecisionBranchDestLinkForIndex(decisionId, branchStartLink.orderindex);
+                const validMergeNodes = graph.getValidMergeNodes(branchStartLink);
 
-                const parentDecisionOutgoingLink = graph.getNextLinks(parentCondition.decisionId).filter(a => a.orderindex === parentCondition.orderindex)[0];
-                mergeNodes = graph.getValidMergeNodes(parentDecisionOutgoingLink);
-
-            } else {
-
-                // Flows of nested decision, or any non-main flows to find merge points. Ignores main flow.
-                if (this.graph.isInNestedFlow(decision.model.id) || index !== 0) {
-                    mergePoint = graph.getMergeNode(decision.model.id, outgoingLink.orderindex);
-                }
-
-                mergeNodes = graph.getValidMergeNodes(outgoingLink);
-            }
-
-            condition = Condition.create(outgoingLink, mergePoint, mergeNodes);
-            conditions.push(condition);
-        }
-
-        return conditions;
+                return new Condition(outgoingLink, branchEndLink, branchDestinationLink, validMergeNodes);
+            });
     }
 
     private getUserStoryDialogModel(shapeId: number, graph: IProcessGraph): UserStoryDialogModel {

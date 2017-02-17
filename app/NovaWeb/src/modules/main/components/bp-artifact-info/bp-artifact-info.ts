@@ -33,6 +33,7 @@ import {
     RefreshAction,
     SaveAction
 } from "./actions";
+import {IExtendedAnalyticsService} from "../analytics/analytics";
 
 enum InfoBannerEnum {
     None = 0,
@@ -64,7 +65,8 @@ export class BpArtifactInfoController {
         "metadataService",
         "mainbreadcrumbService",
         "collectionService",
-        "itemInfoService"
+        "itemInfoService",
+        "Analytics"
     ];
 
     protected subscribers: Rx.IDisposable[] = [];
@@ -110,7 +112,9 @@ export class BpArtifactInfoController {
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected collectionService: ICollectionService,
-                public itemInfoService: IItemInfoService) {
+                public itemInfoService: IItemInfoService,
+                protected analytics?: IExtendedAnalyticsService
+    ) {
         this.initProperties();
 
         this.breadcrumbLinks = [];
@@ -261,10 +265,8 @@ export class BpArtifactInfoController {
 
         this.isDeleted = state.deleted;
         if (this.isDeleted) {
-            let msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
-            msg = msg.replace("{0}", state.deletedByDisplayName);
-            msg = msg.replace("{1}", this.localization.current.formatShortDateTime(state.deletedDateTime));
-            this.deletedMessage = msg;
+            this.deletedMessage = this.formatDeletedMessage(
+                state.deletedByDisplayName, state.deletedDateTime);
         }
 
         switch (state.lockedBy) {
@@ -362,7 +364,7 @@ export class BpArtifactInfoController {
     }
 
     protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
-        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization);
+        const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization, this.analytics);
         const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
             this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
 
@@ -382,6 +384,19 @@ export class BpArtifactInfoController {
         }
 
         return nestedActions;
+    }
+
+    private formatDeletedMessage(deletedBy, deletedDate) {
+        let msg;
+        if (deletedBy && deletedDate) {
+            msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
+            msg = msg.replace("{0}", deletedBy);
+            msg = msg.replace("{1}", this.localization.current.formatShortDateTime(deletedDate));
+        }
+        else {
+            msg = this.localization.get("Artifact_InfoBanner_Deleted");
+        }
+        return msg;
     }
 
     private onWidthResized(mainWindow: IMainWindow) {

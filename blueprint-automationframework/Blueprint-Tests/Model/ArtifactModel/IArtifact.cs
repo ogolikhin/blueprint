@@ -46,15 +46,14 @@ namespace Model.ArtifactModel
 
         /// <summary>
         /// Gets diagram content for RapidReview (Storyteller).
-        /// (Runs:  svc/components/RapidReview/diagram/{artifactId})
+        /// (Runs:  'GET /svc/components/RapidReview/diagram/{artifactId}')
         /// </summary>
-        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        /// of the user that created the artifact. </param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
+        /// <param name="user">(optional) The user to authenticate to Blueprint.  If null, attempts to get the version using the credentials
+        ///     of the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
         /// <exception cref="ArgumentException">If method called for Artifact different than diagram.</exception>
-        RapidReviewDiagram GetDiagramContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        RapidReviewDiagram GetRapidReviewDiagramContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets UseCase content for RapidReview (Storyteller).

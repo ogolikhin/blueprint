@@ -1,3 +1,4 @@
+/* tslint:disable max-file-line-count */
 require("script!mxClient");
 import * as angular from "angular";
 import "angular-mocks";
@@ -8,10 +9,23 @@ import {ModalServiceInstanceMock} from "../../../../../shell/login/mocks.spec";
 import {LocalizationServiceMock} from "../../../../../commonModule/localization/localization.service.mock";
 import {IModalScope} from "../base-modal-dialog-controller";
 import {ProcessGraph} from "../../diagram/presentation/graph/process-graph";
-import {ICondition, IDecision, IDiagramLink, IDiagramNode, IProcessGraph, IUserTask, NodeType} from "../../diagram/presentation/graph/models";
+import {
+    IDecision,
+    IDiagramLink,
+    IDiagramNode,
+    IProcessGraph,
+    IProcessLinkModel,
+    IUserTask,
+    NodeType,
+    ProcessShapeType
+} from "../../diagram/presentation/graph/models";
 import {ProcessEvents} from "../../diagram/process-diagram-communication";
 import {ProcessDeleteHelper} from "../../diagram/presentation/graph/process-delete-helper";
 import {ILocalizationService} from "../../../../../commonModule/localization/localization.service";
+import {ProcessAddHelper} from "../../diagram/presentation/graph/process-add-helper";
+import {IMessageService} from "../../../../../main/components/messages/message.svc";
+import {MessageServiceMock} from "../../../../../main/components/messages/message.mock";
+import {ICondition} from "./condition.model";
 
 describe("DecisionEditorController", () => {
     let $rootScope: ng.IRootScopeService;
@@ -24,11 +38,13 @@ describe("DecisionEditorController", () => {
     let $uibModalInstance: ng.ui.bootstrap.IModalServiceInstance;
     let model: DecisionEditorModel;
     let controller: DecisionEditorController;
+    let messageService: IMessageService;
     let noop = () => {/*noop*/};
 
     beforeEach(angular.mock.module("decisionEditor", ($provide: ng.auto.IProvideService) => {
         $provide.service("$uibModalInstance", ModalServiceInstanceMock);
         $provide.service("localization", LocalizationServiceMock);
+        $provide.service("messageService", MessageServiceMock);
     }));
 
     beforeEach(inject((
@@ -38,15 +54,22 @@ describe("DecisionEditorController", () => {
         _$location_: ng.ILocationService,
         _$q_: ng.IQService,
         _localization_: ILocalizationService,
-        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance
+        _$uibModalInstance_: ng.ui.bootstrap.IModalServiceInstance,
+        _messageService_: IMessageService
     ) => {
         $rootScope = _$rootScope_;
+        $rootScope["config"] = {
+            labels: {
+                "ST_Delete_CannotDelete_UD_AtleastTwoConditions": "ST_Delete_CannotDelete_UD_AtleastTwoConditions"
+            }
+        };
         $timeout = _$timeout_;
         $anchorScroll = _$anchorScroll_;
         $location = _$location_;
         $q = _$q_;
         localization = _localization_;
         $uibModalInstance = _$uibModalInstance_;
+        messageService = _messageService_;
 
         model = new DecisionEditorModel();
         model.graph = createMockGraph();
@@ -252,8 +275,8 @@ describe("DecisionEditorController", () => {
 
             // assert
             const lastAddedCondition = model.conditions[model.conditions.length - 1];
-            expect(lastAddedCondition.mergeNode).toBeDefined();
-            expect(lastAddedCondition.mergeNode.model.id).toBe(mergingUserTask.model.id);
+            expect(lastAddedCondition.mergeNodeId).toBeDefined();
+            expect(lastAddedCondition.mergeNodeId).toBe(mergingUserTask.model.id);
         });
     });
 
@@ -458,8 +481,9 @@ describe("DecisionEditorController", () => {
             model.conditions = createConditions(ProcessGraph.MinConditions);
             const userTaskNode = createDiagramNode(NodeType.UserTask);
             userTaskNode.label = "Test";
-            model.conditions[0].mergeNode = userTaskNode;
-            model.conditions[1].mergeNode = createDiagramNode(NodeType.ProcessEnd);
+            model.conditions[0].mergeNodeId = userTaskNode.model.id;
+            model.conditions[0].mergeNodeLabel = userTaskNode.label;
+            model.conditions[1].mergeNodeId = createDiagramNode(NodeType.ProcessEnd).model.id;
 
             // act
             const label = controller.getMergeNodeLabel(model.conditions[0]);
@@ -585,16 +609,20 @@ describe("DecisionEditorController", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MaxConditions);
             const index = model.conditions.length - 1;
-            const prevIndex = index - 1;
             const condition = model.conditions[index];
+            const orderindex = condition.orderIndex;
+            const prevIndex = index - 1;
             const prevCondition = model.conditions[prevIndex];
+            const prevOrderindex = prevCondition.orderIndex;
 
             // act
             controller.moveUp(condition);
 
             // assert
             expect(model.conditions[index]).toBe(prevCondition);
+            expect(prevCondition.orderIndex).toBe(orderindex);
             expect(model.conditions[prevIndex]).toBe(condition);
+            expect(condition.orderIndex).toBe(prevOrderindex);
         });
     });
 
@@ -687,16 +715,20 @@ describe("DecisionEditorController", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MaxConditions);
             const index = 1;
-            const nextIndex = index + 1;
             const condition = model.conditions[index];
+            const orderindex = condition.orderIndex;
+            const nextIndex = index + 1;
             const nextCondition = model.conditions[nextIndex];
+            const nextOrderindex = nextCondition.orderIndex;
 
             // act
             controller.moveDown(condition);
 
             // assert
             expect(model.conditions[index]).toBe(nextCondition);
+            expect(nextCondition.orderIndex).toBe(orderindex);
             expect(model.conditions[nextIndex]).toBe(condition);
+            expect(condition.orderIndex).toBe(nextOrderindex);
         });
     });
 
@@ -729,7 +761,7 @@ describe("DecisionEditorController", () => {
 
             // act
             model.label = "UD1";
-            model.conditions[1].mergeNode = null;
+            model.conditions[1].mergeNodeId = null;
 
             // assert
             expect(controller.canApplyChanges).toBe(false);
@@ -744,179 +776,330 @@ describe("DecisionEditorController", () => {
             model.isReadonly = false;
             model.isHistoricalVersion = false;
             model.label = "UD1";
-            model.conditions[0].mergeNode = endNode;
-            model.conditions[1].mergeNode = endNode;
+            model.conditions[0].mergeNodeId = endNode.model.id;
+            model.conditions[1].mergeNodeId = endNode.model.id;
 
             // assert
             expect(controller.canApplyChanges).toBe(true);
         });
     });
 
-    describe("saveData", () => {
-        it("updates label", () => {
-            // arrange
-            model.label = "UD1";
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            const decision = <IDecision>createDiagramNode(NodeType.UserDecision);
+    describe("applyChanges", () => {
+        let decision: IDecision;
+
+        beforeEach(() => {
+            decision = <IDecision>createDiagramNode(NodeType.UserDecision);
+            decision.label = "UD1";
             decision.setLabelWithRedrawUi = noop;
-            decision.getOutgoingLinks = () => [];
             model.originalDecision = decision;
-            model.graph = createMockGraph();
-            const newValue = "Decision Label";
-            const setLabelSpy = spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
-            spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-
-            // act
-            model.label = newValue;
-            controller.saveData();
-            $rootScope.$digest();
-
-            // assert
-            expect(setLabelSpy).toHaveBeenCalledWith(newValue);
+            model.label = model.originalDecision.label;
         });
 
-        it("updates merge node", () => {
+        it("calls setLabel on decision shape", () => {
             // arrange
-            model.label = "UD1";
             model.conditions = createConditions(ProcessGraph.MinConditions);
-            model.conditions[0].mergeNode = createDiagramNode(NodeType.ProcessEnd);
-            model.conditions[1].mergeNode = createDiagramNode(NodeType.UserTask);
-            const decision = <IDecision>createDiagramNode(NodeType.UserDecision);
-            decision.setLabelWithRedrawUi = noop;
-            decision.getOutgoingLinks = () => [<IDiagramLink>{}, <IDiagramLink>{}];
-            model.originalDecision = decision;
-            model.graph = createMockGraph();
+            const newLabel = "Decision Label";
+            const setLabelSpy = spyOn(model.originalDecision, "setLabelWithRedrawUi");
 
-            spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
+            // act
+            model.label = newLabel;
+            controller.applyChanges();
+
+            // assert
+            expect(setLabelSpy).toHaveBeenCalledWith(newLabel);
+        });
+
+        it("doesn't apply changes if no conditions changed", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const applyChangeSpies = _.map(model.conditions, condition => spyOn(condition, "applyChanges"));
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            _.every(applyChangeSpies, spy => expect(spy).not.toHaveBeenCalled());
+        });
+
+        it("doesn't raise update model event if no conditions changed", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const modelUpdatedSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(modelUpdatedSpy).not.toHaveBeenCalled();
+        });
+
+        it("applies changes if condition label has changed", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const conditionToChange = model.conditions[1];
+            const applyChangesSpy = spyOn(conditionToChange, "applyChanges");
+
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(applyChangesSpy).toHaveBeenCalled();
+        });
+
+        it("raises update model event if condition changed", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const conditionToChange = model.conditions[1];
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
+            const modelUpdatedSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(modelUpdatedSpy).toHaveBeenCalled();
+        });
+
+        it("applies changes if condition order index has changed", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const conditionToChange = model.conditions[1];
+            const applyChangesSpy = spyOn(conditionToChange, "applyChanges");
+
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(applyChangesSpy).toHaveBeenCalled();
+        });
+
+        it("applies changes if condition merge node has changed", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            const conditionToChange = model.conditions[1];
+            const applyChangesSpy = spyOn(conditionToChange, "applyChanges");
+
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(applyChangesSpy).toHaveBeenCalled();
+        });
+
+        it("calls applyChanges on added condition if condition can be added", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
+            spyOn(ProcessAddHelper, "canAddDecisionConditions").and.returnValue(true);
+            spyOn(controller, "refreshView").and.callFake(noop);
+            controller.addCondition();
+            const applyChangesCondition = spyOn(_.last(model.conditions), "applyChanges");
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(applyChangesCondition).toHaveBeenCalled();
+        });
+
+        it("doesn't call applyChanges on added condition if condition cannot be added", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
+            spyOn(ProcessAddHelper, "canAddDecisionConditions").and.returnValue(false);
+            spyOn(controller, "refreshView").and.callFake(noop);
+            controller.addCondition();
+            const applyChangesCondition = spyOn(_.last(model.conditions), "applyChanges");
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(applyChangesCondition).not.toHaveBeenCalled();
+        });
+
+        it("calls applyChanges on deleted condition if condition can be deleted", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
+            spyOn(ProcessDeleteHelper, "canDeleteDecisionConditions").and.returnValue(true);
+            spyOn(controller, "refreshView").and.callFake(noop);
+            const conditionToDelete = model.conditions[1];
+            const applyChangesCondition = spyOn(conditionToDelete, "applyChanges");
+
+            // act
+            controller.deleteCondition(conditionToDelete);
+            controller.applyChanges();
+
+            // assert
+            expect(applyChangesCondition).toHaveBeenCalled();
+        });
+
+        it("doesn't call applyChanges on deleted condition if condition cannot be deleted", () => {
+            // arrange
+            model.conditions = createConditions(ProcessGraph.MaxConditions);
+            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
+            spyOn(ProcessDeleteHelper, "canDeleteDecisionConditions").and.returnValue(false);
+            spyOn(controller, "refreshView").and.callFake(noop);
+            const conditionToDelete = model.conditions[1];
+            const applyChangesCondition = spyOn(conditionToDelete, "applyChanges");
+
+            // act
+            controller.deleteCondition(conditionToDelete);
+            controller.applyChanges();
+
+            // assert
+            expect(applyChangesCondition).not.toHaveBeenCalled();
+        });
+
+        it("re-orders links if order index for condition has changed", () => {
+            // arrange
+            spyOn(controller, "refreshView").and.callFake(noop);
+            spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
+
+            const links = createOrderIndexTestLinks();
+            model.graph.viewModel.links = links;
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            controller.addCondition();
+            const conditionToMove = model.conditions[1];
+            spyOn(conditionToMove, "isChanged").and.returnValue(true);
+            spyOn(conditionToMove, "isOrderIndexChanged").and.returnValue(true);
+
+            const expectedLinks = _.orderBy(links, link => link.orderindex);
+
+            // act
+            controller.applyChanges();
+
+            // assert
+            expect(model.graph.viewModel.links[0]).toBe(expectedLinks[0]);
+            expect(model.graph.viewModel.links[1]).toBe(expectedLinks[1]);
+            expect(model.graph.viewModel.links[2]).toBe(expectedLinks[2]);
+        });
+
+        it("doesn't re-order links if order index for condition has not changed", () => {
+            // arrange
+            const links = createOrderIndexTestLinks();
+            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
+            model.graph.viewModel.links = links;
+            spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callFake(noop);
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-            spyOn(model.graph, "updateMergeNode").and.returnValue(true);
             spyOn(model.graph, "isFirstFlow").and.returnValue(false);
             spyOn(model.graph, "getBranchStartingLink").and.returnValue({});
-            spyOn(controller, "updateConditionLabels").and.returnValue(false);
 
-            const modelUpdateSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
-            const actionSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "action");
+            const expectedLinks = links;
 
             // act
-            controller.saveData();
-            $rootScope.$digest();
+            controller.applyChanges();
 
             // assert
-            expect(modelUpdateSpy).toHaveBeenCalled();
-            expect(actionSpy).toHaveBeenCalledWith(ProcessEvents.ArtifactUpdate);
+            expect(model.graph.viewModel.links[0]).toBe(expectedLinks[0]);
+            expect(model.graph.viewModel.links[1]).toBe(expectedLinks[1]);
+            expect(model.graph.viewModel.links[2]).toBe(expectedLinks[2]);
         });
 
-        it("updates deleted conditions", () => {
-            // arrange
-            const endNode = createDiagramNode(NodeType.ProcessEnd);
-            model.label = "UD1";
-            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
-            model.conditions[0].mergeNode = endNode;
-            model.conditions[1].mergeNode = endNode;
-            model.conditions[2].mergeNode = endNode;
-            const decision = <IDecision>createDiagramNode(NodeType.UserDecision);
-            decision.setLabelWithRedrawUi = noop;
-            decision.getOutgoingLinks = () => [];
-            model.originalDecision = decision;
-            model.graph = createMockGraph();
-
-            spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
-            spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-            spyOn(controller, "refreshView").and.callFake(noop);
-            const deleteSpy = spyOn(ProcessDeleteHelper, "deleteDecisionBranches").and.callFake(noop);
-            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
-            spyOn(model.graph, "getBranchStartingLink").and.returnValue(null);
-
-            // act
-            controller.deleteCondition(model.conditions[model.conditions.length - 1]);
-            controller.saveData();
-            $rootScope.$digest();
-
-            // assert
-            expect(deleteSpy).toHaveBeenCalled();
-        });
-
-        it("updates added conditions", () => {
-            // arrange
-            const endNode = createDiagramNode(NodeType.ProcessEnd);
-            model.label = "UD1";
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            model.conditions[0].mergeNode = endNode;
-            model.conditions[1].mergeNode = endNode;
-            const decision = <IDecision>createDiagramNode(NodeType.UserDecision);
-            decision.setLabelWithRedrawUi = noop;
-            decision.getOutgoingLinks = () => [];
-            model.originalDecision = decision;
-            model.graph = createMockGraph();
-            model.graph["addDecisionBranches"] = noop;
-
-            spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callThrough();
-            spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-            spyOn(controller, "refreshView").and.callFake(noop);
-            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
-            spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
-            const addSpy = spyOn(model.graph, "addDecisionBranches").and.callFake(noop);
-            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
-            spyOn(model.graph, "getBranchStartingLink").and.returnValue(null);
-
-            // act
-            controller.addCondition();
-            const condition = model.conditions[model.conditions.length - 1];
-            condition.mergeNode = endNode;
-            controller.saveData();
-            $rootScope.$digest();
-
-            // assert
-            expect(addSpy).toHaveBeenCalled();
-        });
+        function createOrderIndexTestLinks(): IProcessLinkModel[] {
+            return [
+                {
+                    sourceId: model.originalDecision.model.id,
+                    destinationId: 2,
+                    orderindex: 0,
+                    label: "",
+                    parentId: null,
+                    sourceNode: null,
+                    destinationNode: null
+                },
+                {
+                    sourceId: model.originalDecision.model.id,
+                    destinationId: 4,
+                    orderindex: 2,
+                    label: "",
+                    parentId: null,
+                    sourceNode: null,
+                    destinationNode: null
+                },
+                {
+                    sourceId: model.originalDecision.model.id,
+                    destinationId: 3,
+                    orderindex: 1,
+                    label: "",
+                    parentId: null,
+                    sourceNode: null,
+                    destinationNode: null
+                }
+            ];
+        }
     });
-});
 
-function createConditions(howMany: number): ICondition[] {
-    const conditions: ICondition[] = [];
+    function createConditions(howMany: number): ICondition[] {
+        const conditions: ICondition[] = [];
 
-    for (let i: number = 0; i < howMany; i++) {
-        const condition = <ICondition>{
-            sourceId: 0,
-            destinationId: i,
-            orderindex: i,
-            label: `Condition ${i + 1}`,
-            mergeNode: null,
-            validMergeNodes: []
-        };
-        conditions.push(condition);
+        for (let i: number = 0; i < howMany; i++) {
+            const condition = <ICondition>{
+                decisionId: 1,
+                firstNodeId: 2,
+                orderIndex: i,
+                label: `Condition ${i + 1}`,
+                mergeNodeId: null,
+                mergeNodeLabel: undefined,
+                validMergeNodes: [],
+                isChanged: false,
+                isCreated: false,
+                isDeleted: false,
+                isLabelChanged: false,
+                isOrderIndexChanged: false,
+                isMergeNodeChanged: false,
+                applyChanges: (graph) => true,
+                delete: noop
+            };
+
+            conditions.push(condition);
+        }
+
+        return conditions;
     }
 
-    return conditions;
-}
-
-function createMockGraph(): IProcessGraph {
-    return <IProcessGraph>{
-        viewModel: {
-            communicationManager: {
-                processDiagramCommunication: {
-                    modelUpdate: null,
-                    action: null
+    function createMockGraph(): IProcessGraph {
+        return <IProcessGraph>{
+            viewModel: {
+                getShapeById: (id) => null,
+                getShapeTypeById: (id) => ProcessShapeType.None,
+                getNextShapeIds: (id) => [],
+                getNextOrderIndex: (id) => 2,
+                communicationManager: {
+                    processDiagramCommunication: {
+                        modelUpdate: (id) => { return; },
+                        action: (evts) => { return; }
+                    }
                 }
-            }
-        },
-        getValidMergeNodes: null,
-        getMxGraphModel: null,
-        isFirstFlow: null,
-        updateMergeNode: null,
-        getBranchStartingLink: null
-    };
-}
+            },
+            rootScope: $rootScope,
+            messageService: messageService,
+            getValidMergeNodes: (id) => { return; },
+            getMxGraphModel: null,
+            isFirstFlow: null,
+            getBranchStartingLink: null,
+            addDecisionBranch: (decisionId, label, mergeNodeId) => true,
+            isInMainFlow: (id) => false,
+            isInNestedFlow: (id) => false
+        };
+    }
 
-function createDiagramNode(nodeType: NodeType): IDiagramNode {
-    return <IDiagramNode>{
-        model: {id: 1},
-        direction: null,
-        action: null,
-        label: null,
-        row: null,
-        column: null,
-        newShapeColor: null,
-        getNodeType: () => nodeType
-    };
-}
+    function createDiagramNode(nodeType: NodeType): IDiagramNode {
+        return <IDiagramNode>{
+            model: {id: 1},
+            direction: null,
+            action: null,
+            label: null,
+            row: null,
+            column: null,
+            newShapeColor: null,
+            getNodeType: () => nodeType
+        };
+    }
+});

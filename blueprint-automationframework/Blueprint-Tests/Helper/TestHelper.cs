@@ -6,23 +6,24 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using Model.JobModel;
-using Model.JobModel.Impl;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Model.ModelHelpers;
+using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 
 namespace Helper
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is a Helper class, so this is expected to be large.
+    [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is a Helper class, so this is expected to be large.
     public class TestHelper : IDisposable, IArtifactObserver
     {
         public enum ProjectRole
@@ -51,6 +52,7 @@ namespace Helper
         public IBlueprintServer BlueprintServer { get; } = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
         public IConfigControl ConfigControl { get; } = ConfigControlFactory.GetConfigControlFromTestConfig();
         public IFileStore FileStore { get; } = FileStoreFactory.GetFileStoreFromTestConfig();
+        public IOpenApi OpenApi { get; } = OpenApiFactory.GetOpenApiFromTestConfig();
         public ISearchService SearchService { get; } = SearchServiceFactory.GetSearchServiceFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
         public ISvcShared SvcShared { get; } = SvcSharedFactory.GetSvcSharedFromTestConfig();
@@ -733,7 +735,7 @@ namespace Helper
         /// <param name="customProperties">(optional) The custom properties to add to the changeset</param>
         /// <param name="specificProperties">(optional) The specific properties to add to the changeset</param>
         /// <returns>The subartifact details changeset</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static NovaSubArtifact CreateSubArtifactChangeSet(NovaSubArtifact subArtifact, List<CustomProperty> customProperties = null, List<CustomProperty> specificProperties = null)
         {
             ThrowIf.ArgumentNull(subArtifact, nameof(subArtifact));
@@ -1133,7 +1135,7 @@ namespace Helper
         /// <param name="numberOfJobsToBeCreated">The number of ALM Change Summary Jobs to be created.</param>
         /// <param name="project">The project where ALM targets reside.</param>
         /// <returns> List of ALM Summary Jobs created in decending order by jobId </returns>
-        public static List<IOpenAPIJob> CreateALMSummaryJobsSetup(string address, IUser user, int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
+        public List<IOpenAPIJob> CreateALMSummaryJobsSetup(string address, IUser user, int baselineOrReviewId, int numberOfJobsToBeCreated, IProject project)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -1144,7 +1146,7 @@ namespace Helper
 
             for (int i = 0; i < numberOfJobsToBeCreated; i++)
             {
-                var openAPIJob = OpenApi.AddAlmChangeSummaryJob(address, user, project, baselineOrReviewId, almTarget);
+                var openAPIJob = OpenApi.AddAlmChangeSummaryJob(user, project, baselineOrReviewId, almTarget);
                 jobsToBeFound.Add(openAPIJob);
             }
 
@@ -1343,9 +1345,9 @@ namespace Helper
         /// <param name="expectedErrorMessage">The expected error message.</param>
         /// <param name="expectedInvalidShapeIds">The expected list of shape's ids.</param>
         public static void ValidateProcessValidationError(RestResponse restResponse, int expectedErrorCode,
-            string expectedErrorMessage, List<int> invalidShapeIds)
+            string expectedErrorMessage, List<int> expectedInvalidShapeIds)
         {
-            ThrowIf.ArgumentNull(invalidShapeIds, nameof(invalidShapeIds));
+            ThrowIf.ArgumentNull(expectedInvalidShapeIds, nameof(expectedInvalidShapeIds));
             ProcessValidationError processValidationError = null;
 
             Assert.DoesNotThrow(() =>
@@ -1362,13 +1364,47 @@ namespace Helper
                 processValidationError.Message);
             actualError.AssertEquals(expectedError);
 
-            Assert.AreEqual(invalidShapeIds.Count, processValidationError.ErrorContent.Count,
+            Assert.AreEqual(expectedInvalidShapeIds.Count, processValidationError.ErrorContent.Count,
                 "Number of invalid shapes should have expected value.");
-            foreach (int id in invalidShapeIds)
+            foreach (int id in expectedInvalidShapeIds)
             {
                 Assert.True(processValidationError.ErrorContent.Exists(shapeId => shapeId == id),
                     "List of invalid shapes id should contain expected values.");
             }
+        }
+
+        /// <summary>
+        /// Verifies that the content returned in the rest response does not contain a stack trace.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        public static void ValidateNoStackTraceInResponse(RestResponse restResponse)
+        {
+            ThrowIf.ArgumentNull(restResponse, nameof(restResponse));
+
+            Assert.False(restResponse.Content.Contains("BluePrintSys."), 
+                "The REST response received appears to contain a stack trace!\nActual REST Content: {0}",
+                restResponse.Content);
+        }
+
+        /// <summary>
+        /// Verifies that the error message returned in the rest response contains the expected message.
+        /// </summary>
+        /// <param name="restResponse">The RestResponse that was returned.</param>
+        /// <param name="expectedErrorMessage">The expected error message</param>
+        public static void ValidateServiceErrorMessage(RestResponse restResponse, string expectedErrorMessage)
+        {
+            ValidateNoStackTraceInResponse(restResponse);
+
+            MessageResult errorMessage = null;
+
+            Assert.DoesNotThrow(() =>
+            {
+                errorMessage = JsonConvert.DeserializeObject<MessageResult>(restResponse.Content);
+            }, "Failed to deserialize the content of the REST response into a MessageResult object!");
+
+            Assert.AreEqual(expectedErrorMessage, errorMessage.Message,
+                "The error message does not contain the expected error message!\nActual Error Message: {0}",
+                errorMessage.Message);
         }
 
         #endregion Custom Asserts

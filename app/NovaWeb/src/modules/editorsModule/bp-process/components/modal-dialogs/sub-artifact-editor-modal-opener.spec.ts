@@ -1,6 +1,6 @@
+require("script!mxClient");
 import * as angular from "angular";
 import "angular-mocks";
-require("script!mxClient");
 import {ExecutionEnvironmentDetectorMock} from "../../../../commonModule/services/executionEnvironmentDetector.mock";
 import {IModalDialogCommunication, ModalDialogCommunication} from "./modal-dialog-communication";
 import {ModalDialogType} from "./modal-dialog-constants";
@@ -13,7 +13,6 @@ import {ProcessGraph} from "../diagram/presentation/graph/process-graph";
 import {ProcessViewModel} from "../diagram/viewmodel/process-viewmodel";
 import {UserTask, SystemTask, UserDecision} from "../diagram/presentation/graph/shapes";
 import {ShapesFactory} from "../diagram/presentation/graph/shapes/shapes-factory";
-import {ICondition} from "../diagram/presentation/graph/models";
 import {SubArtifactEditorModalOpener} from "./sub-artifact-editor-modal-opener";
 import {UserStoryPreviewController} from "./user-story-preview/user-story-preview";
 import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
@@ -22,6 +21,8 @@ import {SystemTaskDialogModel} from "./task-editor/systemTaskDialogModel";
 import {UserTaskDialogModel} from "./task-editor/userTaskDialogModel";
 import * as TestModels from "../../models/test-model-factory";
 import * as ProcessModels from "../../models/process-models";
+import {DiagramNode} from "../diagram/presentation/graph/shapes/diagram-node";
+import {ICondition} from "./decisionEditor/condition.model";
 
 describe("SubArtifactEditorModalOpener test", () => {
     let dialogManager: IModalDialogCommunication;
@@ -316,15 +317,17 @@ describe("SubArtifactEditorModalOpener test", () => {
                         label: decision.label,
                         conditions: [
                             <ICondition>{
-                                sourceId: shapeId,
-                                destinationId: 30,
-                                orderindex: 0,
+                                decisionId: shapeId,
+                                firstNodeId: null,
+                                mergeNodeId: 30,
+                                orderIndex: 0,
                                 label: ""
                             },
                             <ICondition>{
-                                sourceId: shapeId,
-                                destinationId: 40,
-                                orderindex: 1,
+                                decisionId: shapeId,
+                                firstNodeId: null,
+                                mergeNodeId: 40,
+                                orderIndex: 1,
                                 label: ""
                             }
                         ],
@@ -332,7 +335,7 @@ describe("SubArtifactEditorModalOpener test", () => {
                         originalDecision: decision,
                         isReadonly: false,
                         isHistoricalVersion: false,
-                        conditionLabel: "Choice",
+                        conditionHeader: "Choice",
                         defaultDestinationId: null
                     }
                 },
@@ -772,6 +775,83 @@ describe("SubArtifactEditorModalOpener test", () => {
                 expect(model.label).toEqual(userDecision.label);
                 expect(model.conditions).not.toBeNull();
                 expect(model.conditions.length).toBe(2);
+            });
+
+            describe("getConditions", () => {
+                it("returns no merge id for first branch for decision on main graph branch", () => {
+                    // arrange
+                    const process = TestModels.createUserDecisionForAddBranchTestModel();
+                    const userDecisionShape = process.shapes[3];
+                    const shapeId: number = userDecisionShape.id;
+                    const userDecision = new UserDecision(userDecisionShape, rootScope);
+
+                    graph = createGraph(process);
+                    spyOn(graph, "getNodeById").and.returnValue(userDecision);
+                    modalOpener["graph"] = graph;
+
+                    // act
+                    const model = modalOpener["getDecisionEditorModel"](shapeId, graph);
+
+                    // assert
+                    expect(model.conditions).not.toBeNull();
+                    expect(model.conditions.length).toBe(2);
+                    const firstCondition = model.conditions[0];
+                    expect(firstCondition.mergeNodeId).toBeUndefined();
+                });
+
+                it("returns merge id for first branch for nested decision", () => {
+                    const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+                    const nestedDecisionId = 8;
+                    const userDecisionModel = _.find(process.shapes, shape => shape.id === nestedDecisionId);
+                    const userDecision = new UserDecision(userDecisionModel, rootScope);
+
+                    graph = createGraph(process);
+                    const endId = graph.viewModel.getEndShapeId();
+                    spyOn(graph, "getNodeById").and.returnValue(userDecision);
+                    modalOpener["graph"] = graph;
+
+                    // act
+                    const model = modalOpener["getDecisionEditorModel"](nestedDecisionId, graph);
+
+                    expect(model.conditions).not.toBeNull();
+                    expect(model.conditions.length).toBe(2);
+                    const firstCondition = model.conditions[0];
+                    expect(firstCondition.mergeNodeId).toBeDefined();
+                    expect(firstCondition.mergeNodeId).toBe(endId);
+                });
+
+                it("returned valid merge node ids for nested decision first branch is same as containing branch of parent decision", () => {
+                    const process = TestModels.createNestedSystemDecisionsWithLoopModel();
+                    const parentDecisionId = 4;
+                    const nestedDecisionId = 8;
+                    const userDecisionModel = _.find(process.shapes, shape => shape.id === nestedDecisionId);
+                    const userDecision = new UserDecision(userDecisionModel, rootScope);
+
+                    graph = createGraph(process);
+                    const endId = graph.viewModel.getEndShapeId();
+                    spyOn(graph, "getNodeById").and.callFake( //.returnValue(userDecision);
+                        (id) => {
+                            const numId = _.toNumber(id);
+                            if (numId === nestedDecisionId) {
+                                return userDecision;
+                            }
+                            const model = _.find(process.shapes, shape => shape.id === numId);
+                            return new DiagramNode(model);
+                        }
+                    );
+                    modalOpener["graph"] = graph;
+                    const parentDecisionLink = graph.viewModel.getSortedNextLinks(parentDecisionId)[1];
+                    const expectedMergeNodeIds = graph.getValidMergeNodes(parentDecisionLink).map(node => node.model.id);
+
+                    // act
+                    const model = modalOpener["getDecisionEditorModel"](nestedDecisionId, graph);
+
+                    expect(model.conditions).not.toBeNull();
+                    expect(model.conditions.length).toBe(2);
+                    const firstCondition = model.conditions[0];
+                    const firstConditionMergeNodeIds = firstCondition.validMergeNodes.map(node => node.model.id);
+                    expect(firstConditionMergeNodeIds).toEqual(expectedMergeNodeIds);
+                });
             });
         });
 

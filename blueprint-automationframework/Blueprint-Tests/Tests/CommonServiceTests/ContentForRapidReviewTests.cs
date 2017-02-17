@@ -44,7 +44,7 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                diagramContent = artifact.GetDiagramContentForRapidReview(_user);
+                diagramContent = artifact.GetRapidReviewDiagramContent(_user);
             }, "GetDiagramContentForRapidReview must not throw errors.");
 
             // Verify:

@@ -9,6 +9,7 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using Model.OpenApiModel.Services;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;

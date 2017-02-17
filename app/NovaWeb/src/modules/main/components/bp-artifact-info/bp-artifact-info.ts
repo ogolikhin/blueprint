@@ -389,7 +389,7 @@ export class BpArtifactInfoController {
     private formatDeletedMessage(deletedBy, deletedDate) {
         let msg;
         if (deletedBy && deletedDate) {
-            let msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
+            msg = this.localization.get("Artifact_InfoBanner_DeletedByOn");
             msg = msg.replace("{0}", deletedBy);
             msg = msg.replace("{1}", this.localization.current.formatShortDateTime(deletedDate));
         }

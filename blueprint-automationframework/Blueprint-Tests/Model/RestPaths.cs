@@ -16,6 +16,7 @@ namespace Model
             public const string LOGIN                               = "authentication/v1/login";
             public const string PROJECTS_id_                        = "api/v1/projects/{0}";
             public const string PROJECTS                            = "api/v1/projects";
+            public const string USERS                               = "api/v1/users";
 
             [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
             public static class Projects_id_
@@ -54,7 +55,6 @@ namespace Model
             public static class Users
             {
                 public const string CREATE                          = "api/v1/users/create";
-                public const string DELETE                          = "api/v1/users/delete";
                 public const string GET_id_                         = "api/v1/users/{0}";
             }
 

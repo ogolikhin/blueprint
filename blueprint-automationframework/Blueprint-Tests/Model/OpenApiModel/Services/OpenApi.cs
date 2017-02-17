@@ -642,7 +642,7 @@ namespace Model.OpenApiModel.Services
             ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
 
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.Users.DELETE;
+            string path = RestPaths.OpenApi.USERS;
 
             return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, List<string>>(
                 path,

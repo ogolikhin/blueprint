@@ -197,14 +197,19 @@ export class MoveCopyAction extends BPDropdownAction {
     }
 
     private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<Models.IArtifact> {
+        const overlayId = this.loadingOverlayService.beginLoading();
         return this.artifact.move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
             .then((artifact: Models.IArtifact) => {
-                this.projectExplorerService.refresh(artifact.projectId, artifact);
+                this.projectExplorerService.refresh(artifact.projectId, artifact)
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(overlayId);
+                    });
                 return artifact;
             });
     }
 
     private copyArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void> {
+        const overlayId = this.loadingOverlayService.beginLoading();
         return this.artifact.copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
             .then((result: Models.ICopyResultSet) => {
                 const selection = result && result.artifact ? result.artifact : null;
@@ -212,7 +217,10 @@ export class MoveCopyAction extends BPDropdownAction {
                     this.projectExplorerService.setSelectionId(selection.id);
                     this.navigationService.navigateTo({id: selection.id});
                 }
-                this.projectExplorerService.refresh(this.artifact.projectId, selection ? selection : null);
+                this.projectExplorerService.refresh(this.artifact.projectId, selection ? selection : null)
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(overlayId);
+                    });
             });
     }
 }

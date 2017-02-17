@@ -217,7 +217,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private getDecisionConditionInsertMethod(decisionId: number): (
         decisionId: number, layout: ILayout, shapesFactoryService: ShapesFactory,
-        label?: string, conditionDestinationId?: number) => number {
+        label?: string, orderIndex?: number, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
         switch (shapeType) {
             case ProcessShapeType.SystemDecision:
@@ -229,13 +229,15 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    public addDecisionBranch(decisionId: number, label: string, mergeNodeId: number): boolean {
+    public addDecisionBranch(decisionId: number, label: string, mergeNodeId: number, orderIndex?: number): boolean {
         if (!ProcessAddHelper.canAddDecisionConditions(decisionId, 1, this)) {
             return false;
         }
 
         const insertMethod = this.getDecisionConditionInsertMethod(decisionId);
-        insertMethod(decisionId, this.layout, this.shapesFactory, label, mergeNodeId);
+        const id = insertMethod(decisionId, this.layout, this.shapesFactory, label, orderIndex, mergeNodeId);
+
+        this.notifyUpdateInModel(NodeChange.Update, id);
 
         return true;
     }

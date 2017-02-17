@@ -908,22 +908,6 @@ describe("DecisionEditorController", () => {
             expect(applyChangesCondition).toHaveBeenCalled();
         });
 
-        it("raises update model event if condition is added", () => {
-            // arrange
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
-            spyOn(ProcessAddHelper, "canAddDecisionConditions").and.returnValue(true);
-            spyOn(controller, "refreshView").and.callFake(noop);
-            controller.addCondition();
-            const modelUpdatedSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
-
-            // act
-            controller.applyChanges();
-
-            // assert
-            expect(modelUpdatedSpy).toHaveBeenCalled();
-        });
-
         it("doesn't call applyChanges on added condition if condition cannot be added", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions);
@@ -957,23 +941,6 @@ describe("DecisionEditorController", () => {
             expect(applyChangesCondition).toHaveBeenCalled();
         });
 
-        it("raises update model event if condition is deleted", () => {
-            // arrange
-            model.conditions = createConditions(ProcessGraph.MaxConditions);
-            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
-            spyOn(ProcessDeleteHelper, "canDeleteDecisionConditions").and.returnValue(true);
-            spyOn(controller, "refreshView").and.callFake(noop);
-            const conditionToDelete = model.conditions[1];
-            controller.deleteCondition(conditionToDelete);
-            const modelUpdatedSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
-
-            // act
-            controller.applyChanges();
-
-            // assert
-            expect(modelUpdatedSpy).toHaveBeenCalled();
-        });
-
         it("doesn't call applyChanges on deleted condition if condition cannot be deleted", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MaxConditions);
@@ -991,18 +958,18 @@ describe("DecisionEditorController", () => {
             expect(applyChangesCondition).not.toHaveBeenCalled();
         });
 
-        it("re-orders links if order index for conditions has changed", () => {
+        it("re-orders links if order index for condition has changed", () => {
             // arrange
+            spyOn(controller, "refreshView").and.callFake(noop);
+            spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
+
             const links = createOrderIndexTestLinks();
-            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             model.graph.viewModel.links = links;
-            spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callFake(noop);
-            spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
-            spyOn(model.graph, "getBranchStartingLink").and.returnValue({});
-            const conditionToChange = model.conditions[1];
-            spyOn(conditionToChange, "isChanged").and.returnValue(true);
-            spyOn(conditionToChange, "isOrderIndexChanged").and.returnValue(true);
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            controller.addCondition();
+            const conditionToMove = model.conditions[1];
+            spyOn(conditionToMove, "isChanged").and.returnValue(true);
+            spyOn(conditionToMove, "isOrderIndexChanged").and.returnValue(true);
 
             const expectedLinks = _.orderBy(links, link => link.orderindex);
 
@@ -1015,7 +982,7 @@ describe("DecisionEditorController", () => {
             expect(model.graph.viewModel.links[2]).toBe(expectedLinks[2]);
         });
 
-        it("doesn't re-order links if order index for conditions has not changed", () => {
+        it("doesn't re-order links if order index for condition has not changed", () => {
             // arrange
             const links = createOrderIndexTestLinks();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);
@@ -1103,6 +1070,7 @@ describe("DecisionEditorController", () => {
                 getShapeById: (id) => null,
                 getShapeTypeById: (id) => ProcessShapeType.None,
                 getNextShapeIds: (id) => [],
+                getNextOrderIndex: (id) => 2,
                 communicationManager: {
                     processDiagramCommunication: {
                         modelUpdate: (id) => { return; },

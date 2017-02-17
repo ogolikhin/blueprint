@@ -138,14 +138,18 @@ export class Condition implements ICondition {
     public applyChanges(graph: IProcessGraph): void {
         if (this.isDeleted) {
             this.applyDelete(graph);
+            return;
         }
 
         if (this.isCreated) {
             this.applyCreate(graph);
+            return;
         }
 
-        this.updateLabel(graph);
-        this.updateMergeNode(graph);
-        this.updateOrderIndex(graph);
+        if (this.isChanged) {
+            this.updateLabel(graph);
+            this.updateMergeNode(graph);
+            this.updateOrderIndex(graph);
+        }
     }
 }

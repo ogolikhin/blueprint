@@ -235,7 +235,9 @@ export class ProcessGraph implements IProcessGraph {
         }
 
         const insertMethod = this.getDecisionConditionInsertMethod(decisionId);
-        insertMethod(decisionId, this.layout, this.shapesFactory, label, mergeNodeId);
+        const id = insertMethod(decisionId, this.layout, this.shapesFactory, label, mergeNodeId);
+
+        this.notifyUpdateInModel(NodeChange.Update, id);
 
         return true;
     }

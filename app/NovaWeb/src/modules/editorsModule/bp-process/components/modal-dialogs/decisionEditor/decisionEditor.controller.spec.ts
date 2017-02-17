@@ -908,22 +908,6 @@ describe("DecisionEditorController", () => {
             expect(applyChangesCondition).toHaveBeenCalled();
         });
 
-        it("raises update model event if condition is added", () => {
-            // arrange
-            model.conditions = createConditions(ProcessGraph.MinConditions);
-            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
-            spyOn(ProcessAddHelper, "canAddDecisionConditions").and.returnValue(true);
-            spyOn(controller, "refreshView").and.callFake(noop);
-            controller.addCondition();
-            const modelUpdatedSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
-
-            // act
-            controller.applyChanges();
-
-            // assert
-            expect(modelUpdatedSpy).toHaveBeenCalled();
-        });
-
         it("doesn't call applyChanges on added condition if condition cannot be added", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MinConditions);
@@ -955,23 +939,6 @@ describe("DecisionEditorController", () => {
 
             // assert
             expect(applyChangesCondition).toHaveBeenCalled();
-        });
-
-        it("raises update model event if condition is deleted", () => {
-            // arrange
-            model.conditions = createConditions(ProcessGraph.MaxConditions);
-            spyOn(model.graph, "getValidMergeNodes").and.returnValue([]);
-            spyOn(ProcessDeleteHelper, "canDeleteDecisionConditions").and.returnValue(true);
-            spyOn(controller, "refreshView").and.callFake(noop);
-            const conditionToDelete = model.conditions[1];
-            controller.deleteCondition(conditionToDelete);
-            const modelUpdatedSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
-
-            // act
-            controller.applyChanges();
-
-            // assert
-            expect(modelUpdatedSpy).toHaveBeenCalled();
         });
 
         it("doesn't call applyChanges on deleted condition if condition cannot be deleted", () => {

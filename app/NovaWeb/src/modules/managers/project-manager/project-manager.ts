@@ -18,35 +18,37 @@ import {IDispose} from "../models";
 import {ISelectionManager} from "../selection-manager/selection-manager";
 import {IProjectService, ProjectServiceStatusCode} from "./project-service";
 
-export interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
+interface IArtifactNode extends Models.IViewModel<Models.IArtifact> {
     children?: this[];
     expanded?: boolean;
     unloadChildren(): void;
     getNode(comparator: Models.IArtifact | ((model: Models.IArtifact) => boolean), item?: this): this;
 }
 
-export interface IProjectManager extends IDispose {
-    // projectCollection: Rx.BehaviorSubject<Models.IViewModel<Models.IArtifact>[]>;
+// USE PROJECT EXPLORER SERVICE INSTEAD OF THIS.
+// THIS WILL BE REMOVED SOON.
+interface IProjectManager extends IDispose {
+    projectCollection: Rx.BehaviorSubject<Models.IViewModel<Models.IArtifact>[]>;
 
     // eventManager
-    // initialize(): void;
-    // add(projectId: number): ng.IPromise<void>;
-    // openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
-    // openProjectWithDialog(): void;
-    // remove(projectId: number): void;
-    // removeAll(): void;
-    // refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
-    // refreshCurrent(): ng.IPromise<void>;
-    // refreshAll(): ng.IPromise<void>;
-    // getProject(id: number): Models.IViewModel<Models.IArtifact>;
-    // getSelectedProjectId(): number;
-    // triggerProjectCollectionRefresh(): void;
-    // getDescendantsToBeDeleted(artifact: Models.IArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
-    // calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
-    // openProject(project: AdminStoreModels.IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
+    initialize(): void;
+    add(projectId: number): ng.IPromise<void>;
+    openProjectAndExpandToNode(projectId: number, artifactIdToExpand: number): ng.IPromise<void>;
+    openProjectWithDialog(): void;
+    remove(projectId: number): void;
+    removeAll(): void;
+    refresh(id: number, selectionId?: number, forceOpen?: boolean): ng.IPromise<void>;
+    refreshCurrent(): ng.IPromise<void>;
+    refreshAll(): ng.IPromise<void>;
+    getProject(id: number): Models.IViewModel<Models.IArtifact>;
+    getSelectedProjectId(): number;
+    triggerProjectCollectionRefresh(): void;
+    getDescendantsToBeDeleted(artifact: Models.IArtifact): ng.IPromise<Models.IArtifactWithProject[]>;
+    calculateOrderIndex(insertMethod: MoveCopyArtifactInsertMethod, selectedArtifact: Models.IArtifact): ng.IPromise<number>;
+    openProject(project: AdminStoreModels.IInstanceItem | IProjectSearchResult | IItemInfoResult): ng.IPromise<void>;
 }
 
-export class ProjectManager implements IProjectManager {
+class ProjectManager implements IProjectManager {
     private factory: TreeModels.TreeNodeVMFactory;
     private _projectCollection: Rx.BehaviorSubject<IArtifactNode[]>;
     private subscribers: Rx.IDisposable[];

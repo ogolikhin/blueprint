@@ -14,14 +14,14 @@ namespace OpenAPITests
     [Category(Categories.OpenApi)]
     public class CreateUsersTests : TestBase
     {
-        private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
-        private IUser _user = null;
+//        private IBlueprintServer _server = BlueprintServerFactory.GetBlueprintServerFromTestConfig();
+//        private IUser _user = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
+//            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
         }
 
         [TearDown]
@@ -30,12 +30,12 @@ namespace OpenAPITests
             Helper?.Dispose();
         }
 
-        [TestCase]
+        [TestCase(2)]
         [TestRail(0)]
         [Description("Create user with all properties")]
-        public void CreateUser_VerifyUserCreated(uint length)
+        public void CreateUser_VerifyUserCreated(int userCount)
         {
-            GenerateListOfUsersWithRequiredValues(userCount: 5);
+            GenerateListOfUserModelsWithRequiredValues(userCount);
 /*
         public int Id { get; set; }
         public string Username { get; set; }
@@ -85,11 +85,11 @@ namespace OpenAPITests
 
             // Verify: make sure user can login with the new password.
             VerifyLogin(Helper, _adminUser.Username, newPassword); */
-}
+        }
 
         #region Private methods
 
-        private List<UserDataModel> GenerateListOfUserModelsWithRequiredValues(int userCount)
+        private static List<UserDataModel> GenerateListOfUserModelsWithRequiredValues(int userCount)
         {
             List<UserDataModel> userModels = null;
 

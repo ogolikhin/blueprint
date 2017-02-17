@@ -839,7 +839,7 @@ describe("DecisionEditorController", () => {
             const conditionToChange = model.conditions[1];
             const applyChangesSpy = spyOn(conditionToChange, "applyChanges");
 
-            spyOn(conditionToChange, "isLabelChanged").and.returnValue(true);
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
 
             // act
             controller.applyChanges();
@@ -852,7 +852,7 @@ describe("DecisionEditorController", () => {
             // arrange
             model.conditions = createConditions(ProcessGraph.MaxConditions);
             const conditionToChange = model.conditions[1];
-            spyOn(conditionToChange, "isLabelChanged").and.returnValue(true);
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
             const modelUpdatedSpy = spyOn(model.graph.viewModel.communicationManager.processDiagramCommunication, "modelUpdate");
 
             // act
@@ -868,7 +868,7 @@ describe("DecisionEditorController", () => {
             const conditionToChange = model.conditions[1];
             const applyChangesSpy = spyOn(conditionToChange, "applyChanges");
 
-            spyOn(conditionToChange, "isOrderIndexChanged").and.returnValue(true);
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
 
             // act
             controller.applyChanges();
@@ -883,7 +883,7 @@ describe("DecisionEditorController", () => {
             const conditionToChange = model.conditions[1];
             const applyChangesSpy = spyOn(conditionToChange, "applyChanges");
 
-            spyOn(conditionToChange, "isMergeNodeChanged").and.returnValue(true);
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
 
             // act
             controller.applyChanges();
@@ -1000,7 +1000,9 @@ describe("DecisionEditorController", () => {
             spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
             spyOn(model.graph, "isFirstFlow").and.returnValue(false);
             spyOn(model.graph, "getBranchStartingLink").and.returnValue({});
-            spyOn(model.conditions[1], "isOrderIndexChanged").and.returnValue(true);
+            const conditionToChange = model.conditions[1];
+            spyOn(conditionToChange, "isChanged").and.returnValue(true);
+            spyOn(conditionToChange, "isOrderIndexChanged").and.returnValue(true);
 
             const expectedLinks = _.orderBy(links, link => link.orderindex);
 
@@ -1072,16 +1074,21 @@ describe("DecisionEditorController", () => {
 
         for (let i: number = 0; i < howMany; i++) {
             const condition = <ICondition>{
+                decisionId: 1,
+                firstNodeId: 2,
                 orderIndex: i,
                 label: `Condition ${i + 1}`,
                 mergeNodeId: null,
+                mergeNodeLabel: undefined,
                 validMergeNodes: [],
-                applyChanges: (graph) => true,
+                isChanged: false,
                 isCreated: false,
                 isDeleted: false,
                 isLabelChanged: false,
                 isOrderIndexChanged: false,
-                isMergeNodeChanged: false
+                isMergeNodeChanged: false,
+                applyChanges: (graph) => true,
+                delete: noop
             };
 
             conditions.push(condition);

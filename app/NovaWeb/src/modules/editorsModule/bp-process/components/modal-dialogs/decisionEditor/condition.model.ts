@@ -101,7 +101,7 @@ export class Condition implements ICondition {
     }
 
     private applyCreate(graph: IProcessGraph): boolean {
-        return graph.addDecisionBranch(this.decisionId, this.label, this.mergeNodeId);
+        return graph.addDecisionBranch(this.decisionId, this.label, this.mergeNodeId, this.orderIndex);
     }
 
     private updateLabel(graph: IProcessGraph): boolean {

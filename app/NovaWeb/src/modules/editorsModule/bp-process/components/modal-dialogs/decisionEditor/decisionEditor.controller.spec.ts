@@ -958,18 +958,18 @@ describe("DecisionEditorController", () => {
             expect(applyChangesCondition).not.toHaveBeenCalled();
         });
 
-        it("re-orders links if order index for conditions has changed", () => {
+        it("re-orders links if order index for condition has changed", () => {
             // arrange
+            spyOn(controller, "refreshView").and.callFake(noop);
+            spyOn(controller, "scrollToBottomOfConditionList").and.callFake(noop);
+
             const links = createOrderIndexTestLinks();
-            model.conditions = createConditions(ProcessGraph.MinConditions + 1);
             model.graph.viewModel.links = links;
-            spyOn(model.originalDecision, "setLabelWithRedrawUi").and.callFake(noop);
-            spyOn(model.graph, "getMxGraphModel").and.returnValue(null);
-            spyOn(model.graph, "isFirstFlow").and.returnValue(false);
-            spyOn(model.graph, "getBranchStartingLink").and.returnValue({});
-            const conditionToChange = model.conditions[1];
-            spyOn(conditionToChange, "isChanged").and.returnValue(true);
-            spyOn(conditionToChange, "isOrderIndexChanged").and.returnValue(true);
+            model.conditions = createConditions(ProcessGraph.MinConditions);
+            controller.addCondition();
+            const conditionToMove = model.conditions[1];
+            spyOn(conditionToMove, "isChanged").and.returnValue(true);
+            spyOn(conditionToMove, "isOrderIndexChanged").and.returnValue(true);
 
             const expectedLinks = _.orderBy(links, link => link.orderindex);
 
@@ -982,7 +982,7 @@ describe("DecisionEditorController", () => {
             expect(model.graph.viewModel.links[2]).toBe(expectedLinks[2]);
         });
 
-        it("doesn't re-order links if order index for conditions has not changed", () => {
+        it("doesn't re-order links if order index for condition has not changed", () => {
             // arrange
             const links = createOrderIndexTestLinks();
             model.conditions = createConditions(ProcessGraph.MinConditions + 1);

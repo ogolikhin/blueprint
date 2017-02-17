@@ -93,14 +93,30 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
     public applyChanges(): ng.IPromise<void> {
         const decisionId: number = this.dialogModel.subArtifactId;
         const graph: IProcessGraph = this.dialogModel.graph;
+        const hasOrderIndexChanges = this.changedConditions.some(condition => condition.isOrderIndexChanged);
+        const firstNodeIds = this.deletedConditions.filter(condition => condition.firstNodeId).map(condition => condition.firstNodeId);
+        let updated: boolean = false;
 
         this.dialogModel.originalDecision.setLabelWithRedrawUi(this.dialogModel.label);
 
         if (this.changedConditions.length > 0) {
-            const hasOrderIndexChanges = this.changedConditions.some(condition => condition.isOrderIndexChanged);
-
             _.each(this.changedConditions, condition => condition.applyChanges(graph));
+            updated = true;
+        }
 
+        if (this.createdConditions.length > 0 &&
+            ProcessAddHelper.canAddDecisionConditions(decisionId, this.createdConditions.length, graph)) {
+            _.each(this.createdConditions, condition => condition.applyChanges(graph));
+            updated = true;
+        }
+
+        if (this.deletedConditions.length > 0 &&
+            ProcessDeleteHelper.canDeleteDecisionConditions(decisionId, firstNodeIds, graph)) {
+            _.each(this.deletedConditions, condition => condition.applyChanges(graph));
+            updated = true;
+        }
+
+        if (updated) {
             // For process, links are always assumed to be ordered by ascending order index
             if (hasOrderIndexChanges) {
                 graph.viewModel.links = _.orderBy(graph.viewModel.links, link => link.orderindex);
@@ -108,19 +124,6 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
 
             graph.viewModel.communicationManager.processDiagramCommunication.modelUpdate(decisionId);
             graph.viewModel.communicationManager.processDiagramCommunication.action(ProcessEvents.ArtifactUpdate);
-        }
-
-        if (this.createdConditions.length > 0 &&
-            ProcessAddHelper.canAddDecisionConditions(decisionId, this.createdConditions.length, graph)) {
-            _.each(this.createdConditions, condition => condition.applyChanges(graph));
-        }
-
-        const firstNodeIds = this.deletedConditions
-            .filter(condition => !!condition.firstNodeId)
-            .map(condition => condition.firstNodeId);
-        if (this.deletedConditions.length > 0 &&
-            ProcessDeleteHelper.canDeleteDecisionConditions(decisionId, firstNodeIds, graph)) {
-            _.each(this.deletedConditions, condition => condition.applyChanges(graph));
         }
 
         return this.$q.resolve();
@@ -136,12 +139,12 @@ export class DecisionEditorController extends BaseModalDialogController<Decision
         }
 
         const decisionId = this.dialogModel.originalDecision.model.id;
-        const conditionNumber = this.dialogModel.conditions.length + 1;
+        const newOrderIndex = _.last(this.dialogModel.conditions).orderIndex + 1;
         const processLink = <IProcessLink>{
             sourceId: decisionId,
             destinationId: null,
-            orderindex: this.dialogModel.graph.viewModel.getNextOrderIndex(decisionId),
-            label: `${this.dialogModel.conditionHeader} ${conditionNumber}`
+            orderindex: newOrderIndex,
+            label: `${this.dialogModel.conditionHeader}${newOrderIndex + 1}`
         };
 
         const validMergeNodes = this.dialogModel.graph.getValidMergeNodes(processLink);

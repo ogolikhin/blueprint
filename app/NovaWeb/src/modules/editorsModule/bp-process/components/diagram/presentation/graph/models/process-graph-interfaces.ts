@@ -102,7 +102,7 @@ export interface IProcessGraph {
     getHtmlElement(): HTMLElement;
     getDefaultParent(): MxCell;
     render(useAutolayout: boolean, selectedNodeId: number): void;
-    addDecisionBranch(decisionId: number, label: string, mergeNodeId: number): boolean;
+    addDecisionBranch(decisionId: number, label: string, mergeNodeId: number, orderIndex?: number): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
     getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;

@@ -1,6 +1,6 @@
 ﻿using Model.ArtifactModel;
 
-namespace Model
+namespace Model.Archive.ArtifactModel
 {
     public interface IBaseline : IArtifactBase
     {

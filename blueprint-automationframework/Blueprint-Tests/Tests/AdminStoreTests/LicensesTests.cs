@@ -3,6 +3,7 @@ using NUnit.Framework;
 using CustomAttributes;
 using Model;
 using Helper;
+using Model.Impl;
 using TestCommon;
 using Utilities;
 

@@ -9,6 +9,7 @@ using Model.JobModel;
 using Model.JobModel.Enums;
 using Model.JobModel.Impl;
 using Model.OpenApiModel.UserModel;
+using Model.OpenApiModel.UserModel.Results;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -633,7 +634,7 @@ namespace Model.OpenApiModel.Services
         }
 
         /// <seealso cref="IOpenApi.DeleteUser(IUser, List{string}, List{HttpStatusCode})"/>
-        public DeleteUserResultSet DeleteUser(
+        public UserDeleteResultCollection DeleteUser(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -643,7 +644,7 @@ namespace Model.OpenApiModel.Services
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.DELETE;
 
-            return restApi.SendRequestAndDeserializeObject<DeleteUserResultSet, List<string>>(
+            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, List<string>>(
                 path,
                 RestRequestMethod.DELETE,
                 usernamesToDelete,

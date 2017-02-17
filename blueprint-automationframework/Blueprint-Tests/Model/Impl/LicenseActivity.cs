@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace Model
+namespace Model.Impl
 {
     public class LicenseActivity: ILicenseActivity
     {

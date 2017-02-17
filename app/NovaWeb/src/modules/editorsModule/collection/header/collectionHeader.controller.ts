@@ -3,7 +3,6 @@ import {DeleteAction} from "../../../main/components/bp-artifact-info/actions/de
 import {IWindowManager} from "../../../main/services";
 import {BpArtifactInfoController} from "../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IDialogService, BPButtonOrDropdownSeparator} from "../../../shared";
-import {IProjectManager} from "../../../managers";
 import {IMetaDataService} from "../../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
@@ -36,7 +35,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "windowManager",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
         "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
@@ -55,7 +53,6 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 windowManager: IWindowManager,
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
-                projectManager: IProjectManager,
                 projectExplorerService: IProjectExplorerService,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,

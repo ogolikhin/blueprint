@@ -1,4 +1,5 @@
-﻿import "angular-mocks";
+﻿import * as angular from "angular";
+import "angular-mocks";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
 import {IProjectService} from "../../../managers/project-manager/project-service";
@@ -8,10 +9,9 @@ import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../m
 import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
-import * as angular from "angular";
 import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
-xdescribe("BpArtifactPicker", () => {
+describe("BpArtifactPicker", () => {
     angular.module("bp.components.artifactpicker", [])
         .component("bpArtifactPicker", new BpArtifactPicker());
 
@@ -22,7 +22,7 @@ xdescribe("BpArtifactPicker", () => {
         $provide.service("selectionManager", () => ({
             getArtifact: () => ({projectId: 1})
         }));
-        $provide.service("projectManager", () => ({
+        $provide.service("projectExplorerService", () => ({
             getProject: (id: number) => ({model: {id: id, name: "default"}, group: true})
         }));
         $provide.service("projectService", () => ({

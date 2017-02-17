@@ -18,7 +18,6 @@ import {StatefulArtifactFactoryMock} from "../../../../managers/artifact-manager
 import {BreadcrumbServiceMock} from "../../services/breadcrumb.svc.mock";
 import {SelectionManager} from "../../../../managers/selection-manager/selection-manager";
 import {WindowResize} from "../../../../commonModule/services/windowResize";
-import {ProjectManager} from "../../../../managers/project-manager/project-manager";
 import {ProjectService} from "../../../../managers/project-manager/project-service";
 import {MainBreadcrumbServiceMock} from "../../../../main/components/bp-page-content/mainbreadcrumb.svc.mock";
 import {ItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
@@ -56,7 +55,6 @@ xdescribe("BpProcessHeader", () => {
             $provide.service("artifactAttachments", ArtifactAttachmentsService);
             $provide.service("artifactRelationships", ArtifactRelationshipsService);
             $provide.service("itemInfoService", ItemInfoService);
-            $provide.service("projectManager", ProjectManager);
             $provide.service("projectService", ProjectService);
             $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
             $provide.service("collectionService", CollectionServiceMock);

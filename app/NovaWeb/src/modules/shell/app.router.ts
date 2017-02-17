@@ -1,5 +1,5 @@
 import {ISession} from "./login/session.svc";
-import {IProjectManager, ISelectionManager} from "../managers";
+import {ISelectionManager} from "../managers";
 import {INavigationService} from "../commonModule/navigation/navigation.service";
 import {ILicenseService} from "./license/license.svc";
 import {IClipboardService} from "../editorsModule/bp-process/services/clipboard.svc";

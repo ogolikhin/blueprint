@@ -139,7 +139,7 @@ export class BPUtilityPanelController implements IUtilityPanelController {
         if (this.propertySubscriber) {
             this.propertySubscriber.dispose();
         }
-        if (this.emptySelection(selection) || selection.multiSelect) {
+        if (this.emptySelection(selection) || selection.multiSelect || selection.isDeleted) {
             this.hidePanels();
         } else if (item) {
             this.propertySubscriber = item.getPropertyObservable().subscribeOnNext(this.updateItem);

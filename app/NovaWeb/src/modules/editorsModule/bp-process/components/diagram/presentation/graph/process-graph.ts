@@ -32,7 +32,6 @@ import {ItemTypePredefined} from "../../../../../../main/models/itemTypePredefin
 import {IArtifact} from "../../../../../../main/models/models";
 import {ConfirmPublishController, IConfirmPublishDialogData} from "../../../../../../main/components/dialogs/bp-confirm-publish/bp-confirm-publish";
 import {IDialogSettings} from "../../../../../../shared/widgets/bp-dialog/bp-dialog";
-import {ICondition} from "./shapes/condition";
 
 export class ProcessGraph implements IProcessGraph {
     public layout: ILayout;
@@ -218,7 +217,7 @@ export class ProcessGraph implements IProcessGraph {
 
     private getDecisionConditionInsertMethod(decisionId: number): (
         decisionId: number, layout: ILayout, shapesFactoryService: ShapesFactory,
-        label?: string, conditionDestinationId?: number) => number {
+        label?: string, orderIndex?: number, conditionDestinationId?: number) => number {
         let shapeType = this.viewModel.getShapeTypeById(decisionId);
         switch (shapeType) {
             case ProcessShapeType.SystemDecision:
@@ -230,13 +229,15 @@ export class ProcessGraph implements IProcessGraph {
         }
     }
 
-    public addDecisionBranch(decisionId: number, label: string, mergeNodeId: number): boolean {
+    public addDecisionBranch(decisionId: number, label: string, mergeNodeId: number, orderIndex?: number): boolean {
         if (!ProcessAddHelper.canAddDecisionConditions(decisionId, 1, this)) {
             return false;
         }
 
         const insertMethod = this.getDecisionConditionInsertMethod(decisionId);
-        insertMethod(decisionId, this.layout, this.shapesFactory, label, mergeNodeId);
+        const id = insertMethod(decisionId, this.layout, this.shapesFactory, label, orderIndex, mergeNodeId);
+
+        this.notifyUpdateInModel(NodeChange.Update, id);
 
         return true;
     }
@@ -614,7 +615,7 @@ export class ProcessGraph implements IProcessGraph {
 
         return artifactList;
     }
-    
+
     public updateSourcesWithDestinations(shapeId: number, newDestinationId: number): SourcesAndDestinations {
         let sources = this.viewModel.getPrevShapeIds(shapeId);
 
@@ -1177,24 +1178,32 @@ export class ProcessGraph implements IProcessGraph {
         return this.viewModel.isInMainFlow(id);
     }
 
-    public getBranchStartingLink(link: IProcessLink): IProcessLink {
-        if (this.viewModel.isFirstFlow(link) && !this.viewModel.isInMainFlow(link.sourceId)) {
-            const shapeContext = this.globalScope.visitedIds[link.sourceId];
+    public getBranchStartingLink(branchStartlink: IProcessLink): IProcessLink {
+        if (!this.viewModel.isDecision(branchStartlink.sourceId)) {
+            return null;
+        }
+
+        if (this.viewModel.isFirstFlow(branchStartlink) && !this.viewModel.isInMainFlow(branchStartlink.sourceId)) {
+            const shapeContext = this.globalScope.visitedIds[branchStartlink.sourceId];
             const last = _.last(shapeContext.parentConditions);
 
             return this.getNextLinks(last.decisionId).filter(a => a.orderindex === last.orderindex)[0];
         }
 
-        return this.getLink(link.sourceId, link.destinationId);
+        return this.getLink(branchStartlink.sourceId, branchStartlink.destinationId);
     }
 
-    public getBranchEndingLink(link: IProcessLink): IProcessLink {
-        if (this.viewModel.isFirstFlow(link) && this.viewModel.isInMainFlow(link.sourceId)) {
+    public getBranchEndingLink(branchStartLink: IProcessLink): IProcessLink {
+        const branchLink = this.getBranchStartingLink(branchStartLink);
+
+        if (!branchLink ||
+            !this.viewModel.isDecision(branchLink.sourceId) ||
+            (this.viewModel.isFirstFlow(branchLink) && this.viewModel.isInMainFlow(branchLink.sourceId))) {
             return null;
         }
 
         const mainBranchOnly = context => [this.viewModel.getNextShapeIds(context.id)[0]];
-        const scope = this.getBranchScope(link, mainBranchOnly);
+        const scope = this.getBranchScope(branchLink, mainBranchOnly);
         const lastShapeId = scope.mappings[0].endId;
 
         return this.getNextLinks(lastShapeId)[0];

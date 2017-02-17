@@ -16,9 +16,16 @@ interface TinyMceEditor extends TinyMceObservable {
     setContent: (content: string, args?: Object) => string;
     focus: (skip_focus?: boolean) => void;
     undoManager: TinyMceUndoManager;
+    selection: TinyMceSelection;
     settings: Object;
     getBody: () => Element;
     save: () => void;
+}
+
+interface TinyMceSelection {
+    getNode: () => Node;
+    getContent: (args?: Object) => string;
+    isCollapsed: () => boolean;
 }
 
 interface TinyMceUndoManager {

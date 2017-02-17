@@ -102,7 +102,7 @@ export interface IProcessGraph {
     getHtmlElement(): HTMLElement;
     getDefaultParent(): MxCell;
     render(useAutolayout: boolean, selectedNodeId: number): void;
-    addDecisionBranch(decisionId: number, label: string, mergeNodeId: number): boolean;
+    addDecisionBranch(decisionId: number, label: string, mergeNodeId: number, orderIndex?: number): boolean;
     getDecisionBranchDestLinkForIndex(decisionId: number, orderIndex: number): IProcessLink;
     updateSourcesWithDestinations(shapeId: number, newDestinationId: number): ISourcesAndDestinations;
     getBranchScope(initialBranchLink: IProcessLink, nextIdsProvider: INextIdsProvider): IScopeContext;
@@ -138,8 +138,8 @@ export interface IProcessGraph {
     // Determines if shape belongs on the main process flow.
     isInMainFlow(id: number): boolean;
     // Finds the correct starting link of branch given any decision id and its next shape's id.
-    getBranchStartingLink(link: IProcessLink): IProcessLink;
-    getBranchEndingLink(link: IProcessLink): IProcessLink;
+    getBranchStartingLink(branchStartLink: IProcessLink): IProcessLink;
+    getBranchEndingLink(branchStartLink: IProcessLink): IProcessLink;
     destroy(): void;
 }
 

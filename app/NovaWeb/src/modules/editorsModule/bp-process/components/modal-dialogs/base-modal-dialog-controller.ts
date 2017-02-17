@@ -16,6 +16,7 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     public static $inject = [
         "$rootScope",
         "$scope",
+        "$timeout",
         "$uibModalInstance",
         "dialogModel"
     ];
@@ -23,6 +24,7 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     constructor(
         protected $rootScope: ng.IRootScopeService,
         protected $scope: IModalScope,
+        protected $timeout: ng.ITimeoutService,
         $uibModalInstance?: angular.ui.bootstrap.IModalServiceInstance,
         dialogModel?: T
     ) {
@@ -37,7 +39,7 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
     }
 
     public ok = () => {
-        this.saveData()
+        this.applyChanges()
             .finally(() => {
                 this.$scope.dialogModel = null;
                 this.modalInstance.close();
@@ -49,7 +51,7 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
         this.modalInstance.dismiss("cancel");
     };
 
-    protected saveData(): ng.IPromise<void> {
+    protected applyChanges(): ng.IPromise<void> {
         return;
     }
 
@@ -82,4 +84,24 @@ export class BaseModalDialogController<T extends IModalDialogModel> {
             throw new Error("Could not initialize dialog model");
         }
     };
+
+    // This is a workaround to force re-rendering of the dialog
+    public refreshView() {
+        const element: HTMLElement = document.getElementsByClassName("modal-dialog").item(0).parentElement;
+
+        if (!element) {
+            return;
+        }
+
+        const node = document.createTextNode(" ");
+        element.appendChild(node);
+
+        this.$timeout(
+            () => {
+                node.parentNode.removeChild(node);
+            },
+            20,
+            false
+        );
+    }
 }

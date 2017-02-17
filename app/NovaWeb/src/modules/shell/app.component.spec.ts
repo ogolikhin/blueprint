@@ -95,7 +95,7 @@ describe("Component AppComponent", () => {
 
             //Assert
             // tslint:disable-next-line: max-line-length
-            const expectedOptions: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = no, resizable = yes, copyhistory = no, width = 1300, height = 800, top = 160, left = 150";
+            const expectedOptions: string = "toolbar = no, location = no, directories = no, status = no, menubar = no, titlebar = no, scrollbars = yes, resizable = yes, copyhistory = no, width = 1300, height = 800, top = 160, left = 150";
             expect($window.open).toHaveBeenCalledWith("http://HelpURL", "_blank", expectedOptions);
             expect(event.defaultPrevented).toBeTruthy();
 

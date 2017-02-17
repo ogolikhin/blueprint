@@ -2,6 +2,7 @@
 using System.Net;
 using Model.Impl;
 using Model.JobModel;
+using Model.OpenApiModel.UserModel;
 
 namespace Model.OpenApiModel.Services
 {
@@ -52,9 +53,22 @@ namespace Model.OpenApiModel.Services
         /// <param name="usernamesToDelete">Usernames of users to delete.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
-        DeleteResultSet DeleteUser(
+        DeleteUserResultSet DeleteUser(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get a user with the specified ID.
+        /// (Runs:  'GET /api/v1/users/{id}')
+        /// </summary>
+        /// <param name="userToAuthenticate">A user that has permission to get users.</param>
+        /// <param name="userId">ID of the user to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>The details for the specified user.</returns>
+        GetUserResult GetUser(
+            IUser userToAuthenticate,
+            int userId,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion User methods

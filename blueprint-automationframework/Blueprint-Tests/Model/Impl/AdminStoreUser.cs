@@ -49,7 +49,7 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        public override void DeleteUser(bool deleteFromDatabase = false)
+        public override void DeleteUser(bool useSqlUpdate = false)
         {
             throw new NotImplementedException();
         }

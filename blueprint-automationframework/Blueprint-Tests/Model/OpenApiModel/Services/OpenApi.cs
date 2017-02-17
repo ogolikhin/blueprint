@@ -8,6 +8,7 @@ using Model.Impl;
 using Model.JobModel;
 using Model.JobModel.Enums;
 using Model.JobModel.Impl;
+using Model.OpenApiModel.UserModel;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -620,9 +621,8 @@ namespace Model.OpenApiModel.Services
         {
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
-            ThrowIf.ArgumentNull(userWhoCreatesAnotherUser, nameof(userWhoCreatesAnotherUser));
 
-            var restApi = new RestApiFacade(address, userWhoCreatesAnotherUser.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(address, userWhoCreatesAnotherUser?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.CREATE;
 
             return restApi.SendRequestAndDeserializeObject<UserDataModel, UserDataModel>(
@@ -633,42 +633,37 @@ namespace Model.OpenApiModel.Services
         }
 
         /// <seealso cref="IOpenApi.DeleteUser(IUser, List{string}, List{HttpStatusCode})"/>
-        public DeleteResultSet DeleteUser(
+        public DeleteUserResultSet DeleteUser(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return DeleteUser(Address, userToAuthenticate, usernamesToDelete, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Delete a user with specific username.
-        /// (Runs:  'DELETE /api/v1/users/delete')
-        /// </summary>
-        /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="userToAuthenticate">A user that has permission to delete users.</param>
-        /// <param name="usernamesToDelete">Usernames of users to delete.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
-        public static DeleteResultSet DeleteUser(string address,
-            IUser userToAuthenticate,
-            List<string> usernamesToDelete,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
-            ThrowIf.ArgumentNull(userToAuthenticate, nameof(userToAuthenticate));
 
-            var restApi = new RestApiFacade(address, userToAuthenticate.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.DELETE;
 
-            return restApi.SendRequestAndDeserializeObject<DeleteResultSet, List<string>>(
+            return restApi.SendRequestAndDeserializeObject<DeleteUserResultSet, List<string>>(
                 path,
                 RestRequestMethod.DELETE,
                 usernamesToDelete,
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IOpenApi.GetUser(IUser, int, List{HttpStatusCode})"/>
+        public GetUserResult GetUser(
+            IUser userToAuthenticate,
+            int userId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.Users.GET_id_, userId);
+
+            return restApi.SendRequestAndDeserializeObject<GetUserResult>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+        }
 
         #endregion User methods
 

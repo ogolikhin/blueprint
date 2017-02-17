@@ -1,10 +1,10 @@
 import {SystemTaskDialogModel} from "./task-editor/systemTaskDialogModel";
 import {UserTaskDialogModel} from "./task-editor/userTaskDialogModel";
 import {IModalDialogCommunication} from "../modal-dialogs/modal-dialog-communication";
-import {ICondition, Condition} from "../diagram/presentation/graph/shapes/condition";
 import {ModalDialogType} from "./modal-dialog-constants";
 import {UserStoryDialogModel} from "./models/user-story-dialog-model";
 import {DecisionEditorModel} from "./decisionEditor/decisionEditor.model";
+import {ICondition, Condition} from "./decisionEditor/condition.model";
 import {
     IProcessGraph,
     IDiagramNode,

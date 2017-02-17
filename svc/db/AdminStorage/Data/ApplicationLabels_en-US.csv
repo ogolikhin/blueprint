@@ -388,6 +388,7 @@ Artifact_InfoBanner_LockedBy,"Locked by {0}."
 Artifact_InfoBanner_LockedOn,"Locked on {0}."
 Artifact_InfoBanner_LockedByOn,"Locked by {0} on {1}."
 Artifact_InfoBanner_DeletedByOn,"Deleted by {0} on {1}."
+Artifact_InfoBanner_Deleted,"This artifact has been deleted or moved."
 Artifact_InfoBanner_Historical,"Version {0}, published by {1} on {2}."
 
 Label_Name,"Name"

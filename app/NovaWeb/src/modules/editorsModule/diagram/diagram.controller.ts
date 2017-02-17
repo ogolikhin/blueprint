@@ -173,6 +173,18 @@ export class BPDiagramController extends BpBaseEditor {
         }
     }
 
+    private formatDeletedMessage(deletedBy, deletedDate) {
+        let deletedMessage;
+        if (deletedBy && deletedDate) {
+            deletedMessage = this.bpFormatFilter(this.localization.get("Artifact_InfoBanner_DeletedByOn"),
+                deletedBy, this.localization.current.formatShortDateTime(deletedDate));
+        }
+        else {
+            deletedMessage = this.localization.get("Artifact_InfoBanner_Deleted");
+        }
+        return deletedMessage;
+    }
+
     private stylizeSvg($element: ng.IAugmentedJQuery, width: number, height: number) {
         const w = width + "px";
         const h = height + "px";

@@ -41,7 +41,7 @@ namespace CommonServiceTests
         {
             foreach (var user in _users)
             {
-                user.DeleteUser(deleteFromDatabase: true);
+                user.DeleteUser();
             }
 
             foreach (var group in _groups)

@@ -190,12 +190,12 @@ namespace AdminStore.Repositories
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }
 
-            if(newPassword == user.Login)
+            if(newPassword.ToLower() == user.Login.ToLower())
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to login name", ErrorCodes.PasswordSameAsLogin);
             }
 
-            if (newPassword == user.DisplayName)
+            if (newPassword.ToLower() == user.DisplayName.ToLower())
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to display name", ErrorCodes.PasswordSameAsDisplayName);
             }

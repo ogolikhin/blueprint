@@ -18,7 +18,6 @@ import {IArtifact} from "../../models/models";
 import {IMessageService} from "../messages/message.svc";
 import {ICreateArtifactService} from "../projectControls/create-artifact.svc";
 
-
 export class PageToolbar implements ng.IComponentOptions {
     public template: string = require("./page-toolbar.html");
     public controller: ng.Injectable<ng.IControllerConstructor> = PageToolbarController;
@@ -296,11 +295,14 @@ export class PageToolbarController {
         if (selectedArtifact) {
             selectedArtifact.refresh();
         }
-        const overlayId = this.loadingOverlayService.beginLoading();
-        this.projectExplorerService.refreshAll()
-            .finally(() => {
-                this.loadingOverlayService.endLoading(overlayId);
-            });
+
+        if (this.isProjectOpened) {
+            const overlayId = this.loadingOverlayService.beginLoading();
+            this.projectExplorerService.refreshAll()
+                .finally(() => {
+                    this.loadingOverlayService.endLoading(overlayId);
+                });
+        }
     };
 
     public openTour = (evt?: ng.IAngularEvent): void => {

@@ -116,6 +116,7 @@
     <Compile Include="JobModel\Impl\AddJobResult.cs" />
     <Compile Include="ModelHelpers\ArtifactObserverHelper.cs" />
     <Compile Include="OpenApiModel\Services\IOpenApi.cs" />
+    <Compile Include="OpenApiModel\UserModel\Enums\ResultStatusEnum.cs" />
     <Compile Include="OpenApiModel\UserModel\GetGroupResultSet.cs" />
     <Compile Include="OpenApiModel\UserModel\GetUserResultSet.cs" />
     <Compile Include="SearchServiceModel\Impl\ItemSearchResult.cs" />

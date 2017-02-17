@@ -101,7 +101,7 @@
     <Compile Include="IAlmTarget.cs" />
     <Compile Include="Impl\AlmTarget.cs" />
     <Compile Include="Impl\DatabaseHelper.cs" />
-    <Compile Include="OpenApiModel\UserModel\DeleteUserResultSet.cs" />
+    <Compile Include="OpenApiModel\UserModel\Results\UserDeleteResultCollection.cs" />
     <Compile Include="Impl\LicenseUsage.cs" />
     <Compile Include="OpenApiModel\Services\OpenApi.cs" />
     <Compile Include="Impl\SvcComponents.cs" />
@@ -119,6 +119,7 @@
     <Compile Include="OpenApiModel\UserModel\Enums\ResultStatusEnum.cs" />
     <Compile Include="OpenApiModel\UserModel\GetGroupResultSet.cs" />
     <Compile Include="OpenApiModel\UserModel\GetUserResultSet.cs" />
+    <Compile Include="OpenApiModel\UserModel\Results\UserDeleteResult.cs" />
     <Compile Include="SearchServiceModel\Impl\ItemSearchResult.cs" />
     <Compile Include="IDeepCopyable.cs" />
     <Compile Include="Impl\ProjectRole.cs" />

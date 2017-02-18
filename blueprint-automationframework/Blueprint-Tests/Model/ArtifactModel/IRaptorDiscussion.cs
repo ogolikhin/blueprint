@@ -1,8 +1,8 @@
-﻿using Model.ArtifactModel.Adaptors;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Model.ArtifactModel.Adaptors;
 
-namespace Model
+namespace Model.ArtifactModel
 {
     //This representation is used for Discussion in RapidReview,
     //Impact Analysis and Storyteller

@@ -110,6 +110,8 @@ namespace Helper
 
         public const int ImageTypeNotSupported = 131;
 
+        public const int UploadFailed = 132;
+
         // Process shapes validation errors
         public const int ProcessValidationFailed = 133;
 

@@ -67,6 +67,7 @@ export enum PropertyTypePredefined {
     ImageId = 4132,
     AssociatedArtifact = 4133,
     CollectionContent = 4135,
+    BaselineContent = 4136,
 
     VisualizationGroup = 8192,
     X = 8193,

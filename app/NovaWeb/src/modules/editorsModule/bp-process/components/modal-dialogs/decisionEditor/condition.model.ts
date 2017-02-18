@@ -52,9 +52,11 @@ export class Condition implements ICondition {
     }
 
     public get isChanged(): boolean {
-        return this.isLabelChanged
+        return !this.isCreated
+            && !this.isDeleted
+            && (this.isLabelChanged
             || this.isOrderIndexChanged
-            || this.isMergeNodeChanged;
+            || this.isMergeNodeChanged);
     }
 
     public get isCreated(): boolean {
@@ -99,7 +101,7 @@ export class Condition implements ICondition {
     }
 
     private applyCreate(graph: IProcessGraph): boolean {
-        return graph.addDecisionBranch(this.decisionId, this.label, this.mergeNodeId);
+        return graph.addDecisionBranch(this.decisionId, this.label, this.mergeNodeId, this.orderIndex);
     }
 
     private updateLabel(graph: IProcessGraph): boolean {
@@ -122,10 +124,6 @@ export class Condition implements ICondition {
     }
 
     private updateOrderIndex(graph: IProcessGraph): boolean {
-        if (!this.originalLink || !this.branchDestinationLink) {
-            return false;
-        }
-
         if (!this.isOrderIndexChanged) {
             return false;
         }
@@ -138,14 +136,18 @@ export class Condition implements ICondition {
     public applyChanges(graph: IProcessGraph): void {
         if (this.isDeleted) {
             this.applyDelete(graph);
+            return;
         }
 
         if (this.isCreated) {
             this.applyCreate(graph);
+            return;
         }
 
-        this.updateLabel(graph);
-        this.updateMergeNode(graph);
-        this.updateOrderIndex(graph);
+        if (this.isChanged) {
+            this.updateLabel(graph);
+            this.updateMergeNode(graph);
+            this.updateOrderIndex(graph);
+        }
     }
 }

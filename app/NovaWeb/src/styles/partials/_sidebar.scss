@@ -143,6 +143,13 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+
+    .ag-group-value {
+        padding-right: 0;
+    }
+    .ag-group-checkbox {
+        display: none;
+    }
 }
 
 .explorer__tree {

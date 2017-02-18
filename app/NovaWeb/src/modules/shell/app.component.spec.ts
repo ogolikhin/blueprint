@@ -8,20 +8,15 @@ import {INavigationService} from "../commonModule/navigation/navigation.service"
 import {NavigationServiceMock} from "../commonModule/navigation/navigation.service.mock";
 import {UnpublishedArtifactsServiceMock} from "../editorsModule/unpublished/unpublished.service.mock";
 import {IUser} from "./login/auth.svc";
+import {SelectionManagerMock} from "../managers/selection-manager/selection-manager.mock";
 
 describe("Component AppComponent", () => {
     beforeEach(angular.mock.module("app.shell"));
 
-
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("session", SessionSvcMock);
         $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("projectManager", () => ({
-            removeAll: () => undefined
-        }));
-        $provide.service("selectionManager", () => ({
-            clearAll: () => undefined
-        }));
+        $provide.service("selectionManager", SelectionManagerMock);
         $provide.service("settings", SettingsMock);
         $provide.service("$window", WindowMock);
         $provide.service("dialogService", () => ({}));

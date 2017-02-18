@@ -8,9 +8,9 @@ import {Models} from "../../main/models";
 import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IStatefulArtifact} from "../../managers/artifact-manager";
 import {IStatefulArtifactFactory} from "../../managers/artifact-manager/artifact/artifact.factory";
-import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IApplicationError} from "../../shell/error/applicationError";
+import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
 
 export class ItemStateController {
 
@@ -19,7 +19,7 @@ export class ItemStateController {
     public static $inject = [
         "$stateParams",
         "selectionManager",
-        "projectManager",
+        "projectExplorerService",
         "messageService",
         "localization",
         "navigationService",
@@ -31,7 +31,7 @@ export class ItemStateController {
 
     constructor(private $stateParams: ng.ui.IStateParamsService,
                 private selectionManager: ISelectionManager,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private navigationService: INavigationService,
@@ -55,8 +55,8 @@ export class ItemStateController {
         } else if (this.itemInfoService.isProject(itemInfo)) {
             itemInfo.predefinedType = ItemTypePredefined.Project;
 
-            this.projectManager.openProject(itemInfo).then(() => {
-                const projectNode = this.projectManager.getProject(itemInfo.id);
+            this.projectExplorerService.openProject(itemInfo).then(() => {
+                const projectNode = this.projectExplorerService.getProject(itemInfo.id);
                 const project = this.createArtifact(itemInfo);
                 project.itemTypeId = ItemTypePredefined.Project;
                 project.itemTypeName = "Project";
@@ -127,6 +127,7 @@ export class ItemStateController {
         // do not select artifact in explorer if navigated from another artifact
         if (!this.$stateParams["path"]) {
             this.selectionManager.setExplorerArtifact(artifact);
+            this.projectExplorerService.setSelectionId(artifact.id);
         }
 
         this.selectionManager.setArtifact(artifact);
@@ -163,6 +164,9 @@ export class ItemStateController {
                 break;
             case ItemTypePredefined.Process:
                 this.activeEditor = "process";
+                break;
+            case ItemTypePredefined.ArtifactBaseline:
+                this.activeEditor = "baseline";
                 break;
             default:
                 this.activeEditor = "details";

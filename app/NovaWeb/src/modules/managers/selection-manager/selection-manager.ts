@@ -20,6 +20,8 @@ export interface ISelectionManager extends IDispose {
     autosave(showConfirm?: boolean): ng.IPromise<any>;
     clearAll();
     clearSubArtifact();
+
+    getArtifactProjectId(): number;
 }
 
 export interface ISelection {
@@ -92,6 +94,15 @@ export class SelectionManager implements ISelectionManager {
 
     public getArtifact(): IStatefulArtifact {
         return this.selectionSubject.getValue().artifact;
+    }
+
+    public getArtifactProjectId(): number {
+        const artifact = this.selectionSubject.getValue().artifact;
+        if (!artifact) {
+            return null;
+        }
+
+        return artifact.projectId;
     }
 
     public setArtifact(artifact: IStatefulArtifact) {

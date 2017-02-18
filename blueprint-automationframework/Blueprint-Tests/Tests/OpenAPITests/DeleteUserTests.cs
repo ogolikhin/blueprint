@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Common;
-using Model.OpenApiModel.UserModel;
+using Model.Factories;
+using Model.OpenApiModel.UserModel.Results;
+using Newtonsoft.Json;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
@@ -48,14 +50,14 @@ namespace OpenAPITests
 
             for (int i = 0; i < numberOfUsersToDelete; ++i)
             {
-                var userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+                var userToDelete = Helper.CreateUserAndAddToDatabase();
                 usersToDelete.Add(userToDelete);
             }
 
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            DeleteUserResultSet result = null;
+            UserDeleteResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete), 
                 "'DELETE {0}' should return '200 OK' when valid data is passed to it!", DELETE_PATH);
@@ -78,12 +80,12 @@ namespace OpenAPITests
             for (int i = 0; i < numberOfUsersToDelete; ++i)
             {
                 // Add an active user.
-                var userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+                var userToDelete = Helper.CreateUserAndAddToDatabase();
                 usersToDelete.Add(userToDelete);
                 activeUsersToDelete.Add(userToDelete);
 
                 // Add a user and then delete it.
-                userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+                userToDelete = Helper.CreateUserAndAddToDatabase();
                 usersToDelete.Add(userToDelete);
                 userToDelete.DeleteUser(useSqlUpdate: true);
             }
@@ -91,7 +93,7 @@ namespace OpenAPITests
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            DeleteUserResultSet result = null;
+            UserDeleteResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete, new List<HttpStatusCode> { (HttpStatusCode)207 }),
                 "'DELETE {0}' should return '207 Partial Success' when valid data is passed to it!", DELETE_PATH);
@@ -102,7 +104,7 @@ namespace OpenAPITests
 
         #endregion Positive tests
 
-        #region Negative tests
+        #region 400 tests
 
         [TestCase]
         [TestRail(246539)]
@@ -110,7 +112,7 @@ namespace OpenAPITests
         public void DeleteUser_InvalidUserParameters_400BadRequest()
         {
             // Setup:
-            var userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var userToDelete = Helper.CreateUserAndAddToDatabase();
             var badData = new Dictionary<string, int> { { userToDelete.Username, userToDelete.Id } };
 
             // Execute:
@@ -121,12 +123,106 @@ namespace OpenAPITests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotAcceptable, "TODO: Add real message here");
         }
 
-        // TODO: Add 401 tests.
-        // TODO: Add 403 tests.
-        // TODO: Add 404 tests.
-        // TODO: Add 409 tests.
+        #endregion 400 tests
 
-        #endregion Negative tests
+        #region 401 tests
+
+        [TestCase(null)]
+        [TestCase(CommonConstants.InvalidToken)]
+        [TestRail(246543)]
+        [Description("Delete a user and pass invalid or missing token.  Verify it returns 401 Unauthorized.")]
+        public void DeleteUser_InvalidToken_401Unauthorized(string invalidToken)
+        {
+            // Setup:
+            _adminUser.Token.OpenApiToken = invalidToken;
+
+            var usernamesToDelete = new List<string> { _adminUser.Username };
+
+            // Execute:
+            UserDeleteResultCollection result = null;
+
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete),
+                "'DELETE {0}' should return '401 Unauthorized' when an invalid or missing token is passed to it!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, "TODO: Add real message here");
+        }
+
+        #endregion 401 tests
+
+        #region 403 tests
+
+        [TestCase]
+        [TestRail(246544)]
+        [Description("Delete a user and pass a token for a user without permission to delete users.  Verify it returns 403 Forbidden.")]
+        public void DeleteUser_InsufficientPermissions_403Forbidden()
+        {
+            // Setup:
+            // Create an Author user.  Authors shouldn't have permission to delete other users.
+            var project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
+
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+            var usernamesToDelete = new List<string> { authorUser.Username };
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.DeleteUser(authorUser, usernamesToDelete),
+                "'DELETE {0}' should return '403 Forbidden' when called by a user without permission to delete users!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "TODO: Add real message here");
+        }
+
+        #endregion 403 tests
+
+        #region 409 tests
+
+        [TestCase]
+        [TestRail(246545)]
+        [Description("Delete a user that was already deleted.  Verify it returns 409 Conflict.")]
+        public void DeleteUser_DeletedUser_409Conflict()
+        {
+            // Setup:
+            var userToDelete = Helper.CreateUserAndAddToDatabase();
+            var usernamesToDelete = new List<string> { userToDelete.Username };
+
+            userToDelete.DeleteUser(useSqlUpdate: true);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete),
+                "'DELETE {0}' should return '409 Conflict' when passed a username that doesn't exist!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "TODO: Add real message here");
+
+            var expectedFailedDeletedUsers = new Dictionary<int, IUser> { { InternalApiErrorCodes.NotFound, userToDelete } };
+
+            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict);
+        }
+
+        [TestCase]
+        [TestRail(246546)]
+        [Description("Delete a user that doesn't exist.  Verify it returns 409 Conflict.")]
+        public void DeleteUser_NonExistingUsername_409Conflict()
+        {
+            // Setup:
+            var userToDelete = UserFactory.CreateUserOnly();
+            var usernamesToDelete = new List<string> { userToDelete.Username };
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete),
+                "'DELETE {0}' should return '409 Conflict' when passed a username that doesn't exist!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotFound, "TODO: Add real message here");
+
+            var expectedFailedDeletedUsers = new Dictionary<int, IUser> { { InternalApiErrorCodes.NotFound, userToDelete } };
+
+            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict);
+        }
+
+        #endregion 409 tests
 
         #region Private methods
 
@@ -137,12 +233,12 @@ namespace OpenAPITests
         /// <param name="userToAuthenticate">The user to authenticate with.</param>
         /// <param name="jsonBody">The data to send in the body.</param>
         /// <returns>A DeleteUserResultSet object if successful.</returns>
-        private DeleteUserResultSet DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
+        private UserDeleteResultCollection DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
         {
             var restApi = new RestApiFacade(Helper.OpenApi.Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.DELETE;
 
-            return restApi.SendRequestAndDeserializeObject<DeleteUserResultSet, T>(
+            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, T>(
                 path,
                 RestRequestMethod.DELETE,
                 jsonBody);
@@ -153,28 +249,28 @@ namespace OpenAPITests
         /// </summary>
         /// <param name="resultSet">Result set from delete users call.</param>
         /// <param name="expectedSuccessfullyDeletedUsers">(optional) A list of users that we expect to be successfully deleted.</param>
-        /// <param name="expectedFailedDeletedUsers">(optional) A map of Http Status Codes and Users that we expect got errors when we tried to delete them.</param>
+        /// <param name="expectedFailedDeletedUsers">(optional) A map of InternalApiErrorCodes and Users that we expect got errors when we tried to delete them.</param>
         /// <param name="expectedStatusCode">(optional) The expected main ReturnCode.</param>
         private void VerifyDeleteUserResultSet(
-            DeleteUserResultSet resultSet,
+            UserDeleteResultCollection resultSet,
             List<IUser> expectedSuccessfullyDeletedUsers = null,
-            Dictionary<HttpStatusCode, IUser> expectedFailedDeletedUsers = null,
+            Dictionary<int, IUser> expectedFailedDeletedUsers = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
             expectedSuccessfullyDeletedUsers = expectedSuccessfullyDeletedUsers ?? new List<IUser>();
-            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<HttpStatusCode, IUser>();
+            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<int, IUser>();
 
-            Assert.AreEqual(expectedStatusCode, resultSet.ReturnCode,
-                "'{0}' should be '{1}'!", nameof(resultSet.ReturnCode), expectedStatusCode);
+            Assert.AreEqual(expectedStatusCode, resultSet.Status,
+                "'{0}' should be '{1}'!", nameof(resultSet.Status), expectedStatusCode);
 
             foreach (var deletedUser in expectedSuccessfullyDeletedUsers)
             {
-                var result = resultSet.Results.Find(a => a.Username == deletedUser.Username);
+                var result = resultSet.Find(a => a.User.Username == deletedUser.Username);
 
                 Assert.AreEqual("User successfully deleted.", result.Message, "'{0}' is incorrect!", nameof(result.Message));
-                Assert.AreEqual(HttpStatusCode.OK, result.ReturnCode, "'{0}' should be 200 OK!", nameof(result.ReturnCode));
+                Assert.AreEqual(InternalApiErrorCodes.Ok, result.ResultCode, "'{0}' should be 200 OK!", nameof(result.ResultCode));
 
                 VerifyUserIsDeleted(deletedUser);
             }
@@ -183,34 +279,34 @@ namespace OpenAPITests
         }
 
         /// <summary>
-        /// A map of HttpStatusCode to error message for the DeleteUserResultSet.
+        /// A map of InternalApiErrorCodes to error message for the DeleteUserResultSet.
         /// </summary>
-        private Dictionary<HttpStatusCode, string> ReturnCodeToErrorMessageMap { get; } = new Dictionary<HttpStatusCode, string>
+        private Dictionary<int, string> ErrorCodeToErrorMessageMap { get; } = new Dictionary<int, string>
         {
-            { HttpStatusCode.OK, "User successfully deleted." }
+            { InternalApiErrorCodes.Ok, "User successfully deleted." }
         };
 
         /// <summary>
         /// Verifies that the users that were NOT successfully deleted have the expected status codes.
         /// </summary>
         /// <param name="resultSet">Result set from delete users call.</param>
-        /// <param name="expectedFailedDeletedUsers">(optional) A map of Http Status Codes and Users that we expect got errors when we tried to delete them.</param>
+        /// <param name="expectedFailedDeletedUsers">(optional) A map of InternalApiErrorCodes and Users that we expect got errors when we tried to delete them.</param>
         private void VerifyUnsuccessfullyDeletedUsers(
-            DeleteUserResultSet resultSet,
-            Dictionary<HttpStatusCode, IUser> expectedFailedDeletedUsers = null)
+            UserDeleteResultCollection resultSet,
+            Dictionary<int, IUser> expectedFailedDeletedUsers = null)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
-            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<HttpStatusCode, IUser>();
+            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<int, IUser>();
 
             foreach (var statusAndDeletedUser in expectedFailedDeletedUsers)
             {
                 var returnCode = statusAndDeletedUser.Key;
                 var deletedUser = statusAndDeletedUser.Value;
-                var result = resultSet.Results.Find(a => a.Username == deletedUser.Username);
+                var result = resultSet.Find(a => a.User.Username == deletedUser.Username);
 
-                Assert.AreEqual(ReturnCodeToErrorMessageMap[returnCode], result.Message, "'{0}' is incorrect!", nameof(result.Message));
-                Assert.AreEqual(returnCode, result.ReturnCode, "'{0}' should be '{1}'!", nameof(result.ReturnCode), returnCode);
+                Assert.AreEqual(ErrorCodeToErrorMessageMap[returnCode], result.Message, "'{0}' is incorrect!", nameof(result.Message));
+                Assert.AreEqual(returnCode, result.ResultCode, "'{0}' should be '{1}'!", nameof(result.ResultCode), returnCode);
 
                 VerifyUserIsDeleted(deletedUser);
             }

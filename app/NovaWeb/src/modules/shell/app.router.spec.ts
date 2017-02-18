@@ -8,12 +8,12 @@ import {MainStateController, LogoutStateController} from "./app.router";
 import {INavigationService} from "../commonModule/navigation/navigation.service";
 import {NavigationServiceMock} from "../commonModule/navigation/navigation.service.mock";
 import {IClipboardService} from "../editorsModule/bp-process/services/clipboard.svc";
-import {IProjectManager} from "../managers/project-manager/project-manager";
 import {ISession} from "./login/session.svc";
 import {IMessageService} from "../main/components/messages/message.svc";
 import {MessageServiceMock} from "../main/components/messages/message.mock";
 import {MessageType} from "../main/components/messages/message";
 import {SessionSvcMock} from "./login/session.svc.mock";
+import {IProjectExplorerService} from "../main/components/bp-explorer/project-explorer.service";
 
 describe("AppRouter", () => {
     let $rootScope: ng.IRootScopeService,
@@ -24,7 +24,7 @@ describe("AppRouter", () => {
         messageService: IMessageService,
         navigationService: INavigationService,
         clipboardService: IClipboardService,
-        projectManager: IProjectManager,
+        projectExplorerService: IProjectExplorerService,
         session: ISession,
         isServerLicenseValid: boolean,
         ctrl: MainStateController,
@@ -42,7 +42,7 @@ describe("AppRouter", () => {
                 clearData: () => null
             };
         });
-        $provide.service("projectManager", () => {
+        $provide.service("projectExplorerService", () => {
             return {
                 removeAll: () => null
             };
@@ -58,7 +58,7 @@ describe("AppRouter", () => {
                        _messageService_: IMessageService,
                        _navigationService_: INavigationService,
                        _clipboardService_: IClipboardService,
-                       _projectManager_: IProjectManager,
+                       _projectExplorerService_: IProjectExplorerService,
                        _session_: ISession,
                        _isServerLicenseValid_: boolean) => {
 
@@ -70,7 +70,7 @@ describe("AppRouter", () => {
         messageService = _messageService_;
         navigationService = _navigationService_;
         clipboardService = _clipboardService_;
-        projectManager = _projectManager_;
+        projectExplorerService = _projectExplorerService_;
         session = _session_;
         isServerLicenseValid = true;
     }));
@@ -178,9 +178,9 @@ describe("AppRouter", () => {
                     finally: function(callback) { return callback(); }
                 };
             });
-            const removeAllSpy = spyOn(projectManager, "removeAll");
+            const removeAllSpy = spyOn(projectExplorerService, "removeAll");
             const clearDataSpy = spyOn(clipboardService, "clearData");
-            ctrlLogout = new LogoutStateController($log, session, projectManager, navigationService, clipboardService);
+            ctrlLogout = new LogoutStateController($log, session, projectExplorerService, navigationService, clipboardService);
 
             // act
 

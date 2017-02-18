@@ -3,7 +3,6 @@ import "angular-mocks";
 import "rx";
 import "lodash";
 import {NavigationServiceMock} from "../../commonModule/navigation/navigation.service.mock";
-import {ProjectManagerMock} from "../../managers/project-manager/project-manager.mock";
 import {LoadingOverlayServiceMock} from "../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {LocalizationServiceMock} from "../../commonModule/localization/localization.service.mock";
 import {IJobsService} from "./jobs.service";
@@ -12,6 +11,7 @@ import {JobsController} from "./jobs.controller";
 import {JobsServiceMock} from "./jobs.service.mock";
 import {MessageServiceMock} from "../../main/components/messages/message.mock";
 import {DownloadServiceMock} from "../../commonModule/download/download.service.mock";
+import {ProjectExplorerServiceMock} from "../../main/components/bp-explorer/project-explorer.service.mock";
 
 describe("Controller: Jobs", () => {
     let controller: JobsController;
@@ -27,7 +27,7 @@ describe("Controller: Jobs", () => {
         $provide.service("messageService", MessageServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("downloadService", DownloadServiceMock);
     }));
 

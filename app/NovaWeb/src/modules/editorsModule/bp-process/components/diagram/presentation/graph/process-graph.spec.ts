@@ -1073,33 +1073,6 @@ describe("ProcessGraph", () => {
                 expect(spy).not.toHaveBeenCalled();
             });
 
-            it("fails if null for label is provided", () => {
-                // Arrange
-                const graph = createGraph(TestModels.createUserDecisionWithTwoBranchesModel());
-                const decisionId = 4;
-                const endId = 9;
-                const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
-
-                // Act
-                graph.addDecisionBranch(decisionId, null, endId);
-
-                // Assert
-                expect(spy).not.toHaveBeenCalled();
-            });
-
-            it("fails if null for merge node id is provided", () => {
-                // Arrange
-                const graph = createGraph(TestModels.createUserDecisionWithTwoBranchesModel());
-                const decisionId = 4;
-                const spy = spyOn(graph, "notifyUpdateInModel").and.callThrough();
-
-                // Act
-                graph.addDecisionBranch(decisionId, "Condition 1", null);
-
-                // Assert
-                expect(spy).not.toHaveBeenCalled();
-            });
-
             describe("to user decision", () => {
                 it("succeeds if condition is provided", () => {
                     // Arrange

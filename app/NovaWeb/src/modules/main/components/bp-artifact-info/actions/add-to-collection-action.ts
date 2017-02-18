@@ -1,16 +1,15 @@
+import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
+import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {IItemInfoResult, IItemInfoService} from "../../../../commonModule/itemInfo/itemInfo.service";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
-import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {ICollectionService} from "../../../../editorsModule/collection/collection.service";
 import {AddArtifactToCollectionDialogController, IAddArtifactToCollectionResult} from "../../../../main/components/dialogs/add-artifact-to-collection";
-import {IProjectManager} from "../../../../managers";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {ErrorCode} from "../../../../shell/error/error-code";
 import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {IMessageService} from "../../messages/message.svc";
-
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class AddToCollectionAction extends BPDropdownAction {
 
@@ -20,7 +19,7 @@ export class AddToCollectionAction extends BPDropdownAction {
                 private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService,
@@ -57,8 +56,8 @@ export class AddToCollectionAction extends BPDropdownAction {
     private loadProjectIfNeeded() {
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
-        if (!this.projectManager.getProject(this.artifact.projectId)) {
-            loadProjectPromise = this.projectManager.add(this.artifact.projectId);
+        if (!this.projectExplorerService.getProject(this.artifact.projectId)) {
+            loadProjectPromise = this.projectExplorerService.add(this.artifact.projectId);
         } else {
             loadProjectPromise = this.$q.resolve();
         }

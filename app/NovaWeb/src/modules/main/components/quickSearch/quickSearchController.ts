@@ -1,7 +1,6 @@
 import ModalSettings = angular.ui.bootstrap.IModalSettings;
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IQuickSearchService} from "./quickSearchService";
-import {IProjectManager} from "../../../managers/project-manager/project-manager";
 
 export interface IQuickSearchController {
     clearSearch();

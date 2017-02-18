@@ -1,5 +1,8 @@
+import "angular";
 import "angular-mocks";
 import "angular-sanitize";
+import "rx";
+import "./";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {Models} from "../../../main";
@@ -10,19 +13,26 @@ import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {PageContentCtrl} from "./bp-page-content";
 import {IMainBreadcrumbService} from "./mainbreadcrumb.svc";
 import {MainBreadcrumbServiceMock} from "./mainbreadcrumb.svc.mock";
+import {SelectionManagerMock} from "../../../managers/selection-manager/selection-manager.mock";
+import {StatefulArtifactFactoryMock} from "../../../managers/artifact-manager/artifact/artifact.factory.mock";
+import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
+import {ProjectExplorerServiceMock} from "../bp-explorer/project-explorer.service.mock";
 
 describe("Component BPPageContent", () => {
 
     let vm: PageContentCtrl;
 
-    beforeEach(angular.mock.module("app.main"));
+    beforeEach(angular.mock.module("ui.router"));
+    beforeEach(angular.mock.module("bp.components.pagecontent"));
 
     beforeEach(angular.mock.module(($provide: ng.auto.IProvideService) => {
         $provide.service("localization", LocalizationServiceMock);
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
-        $provide.service("selectionManager", SelectionManager);
-        $provide.service("statefulArtifactFactory", StatefulArtifactFactory);
+        $provide.service("selectionManager", SelectionManagerMock);
+        $provide.service("statefulArtifactFactory", StatefulArtifactFactoryMock);
         $provide.service("navigationService", NavigationServiceMock);
+        $provide.service("dialogService", DialogServiceMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
     }));
 
     let directiveTest: ComponentTest<PageContentCtrl>;

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Model
+namespace Model.Impl
 {
     public class AccessControlLicensesInfo : IAccessControlLicensesInfo
     {

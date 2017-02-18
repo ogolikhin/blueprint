@@ -2,8 +2,7 @@ import {BPButtonGroupAction} from "../../../shared/widgets/bp-toolbar/actions/bp
 import {DeleteAction} from "../../../main/components/bp-artifact-info/actions/delete-action";
 import {IWindowManager} from "../../../main/services";
 import {BpArtifactInfoController} from "../../../main/components/bp-artifact-info/bp-artifact-info";
-import {IDialogService, BPButtonOrDropdownSeparator} from "../../../shared";
-import {IProjectManager} from "../../../managers";
+import {IDialogService} from "../../../shared";
 import {IMetaDataService} from "../../../managers/artifact-manager";
 import {IStatefulBaselineArtifact} from "../../configuration/classes/baseline-artifact";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
@@ -16,6 +15,7 @@ import {ICollectionService} from "../../collection/collection.service";
 import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../../../main/components/bp-explorer/project-explorer.service";
 
 export class BpBaselineHeader implements ng.IComponentOptions {
     public template: string = require("../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -54,7 +54,7 @@ export class BpBaselineHeaderController extends BpArtifactInfoController {
                 windowManager: IWindowManager,
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
-                projectManager: IProjectManager,
+                projectExplorerService: IProjectExplorerService,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
                 collectionService: ICollectionService,
@@ -71,7 +71,7 @@ export class BpBaselineHeaderController extends BpArtifactInfoController {
             windowManager,
             loadingOverlayService,
             navigationService,
-            projectManager,
+            projectExplorerService,
             metadataService,
             mainBreadcrumbService,
             collectionService,
@@ -86,8 +86,8 @@ export class BpBaselineHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
-            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService,
+            this.projectExplorerService, this.loadingOverlayService, this.dialogService, this.navigationService);
         //const rapidReviewAction = new RapidReviewAction(baselineArtifact, this.localization, this.dialogService);
         //const addBaselineArtifactAction = new AddBaselineArtifactAction(baselineArtifact, this.localization, this.dialogService);
 

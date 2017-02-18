@@ -2,6 +2,7 @@ import * as agGrid from "ag-grid/main";
 import {IWindowManager, IMainWindow, ResizeCause} from "../../../main/services";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
+import {IChangeSet, ChangeTypeEnum} from "../../../managers/artifact-manager/changeset/changeset";
 
 /**
  * Usage:
@@ -33,11 +34,13 @@ export class BPTreeViewComponent implements ng.IComponentOptions {
         selectionMode: "<",
         rowHeight: "<",
         rowData: "<",
+        rowDataObservable: "<?",
         rootNodeVisible: "<",
         columns: "<",
         headerHeight: "<",
         sizeColumnsToFit: "<",
         // Output
+        setSelection: "&?",
         onSelect: "&?",
         onDoubleClick: "&?",
         onGridReset: "&?"
@@ -52,9 +55,11 @@ export interface IBPTreeViewController extends ng.IComponentController {
     selectionMode: "single" | "multiple" | "checkbox";
     rowHeight: number;
     rowData: ITreeNode[];
+    rowDataObservable: Rx.Observable<IChangeSet>;
     rootNodeVisible: boolean;
     columns: IColumn[];
     headerHeight: number;
+    setSelection: () => void;
     onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     onDoubleClick: (param: {vm: ITreeNode}) => void;
     onGridReset: (param: {isExpanding: boolean}) => void;
@@ -117,7 +122,8 @@ export interface IBPTreeViewControllerApi {
 }
 
 export class BPTreeViewController implements IBPTreeViewController {
-    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$log"];
+    private timers = [];
+    private subscribers: Rx.IDisposable[] = [];
 
     // BPTreeViewComponent bindings
     public gridClass: string;
@@ -125,10 +131,12 @@ export class BPTreeViewController implements IBPTreeViewController {
     public selectionMode: "single" | "multiple" | "checkbox";
     public rowHeight: number;
     public rowData: ITreeNode[];
+    public rowDataObservable: Rx.Observable<IChangeSet>;
     public rootNodeVisible: boolean;
     public columns: IColumn[];
     public headerHeight: number;
     public sizeColumnsToFit: boolean;
+    public setSelection: () => void;
     public onSelect: (param: {vm: ITreeNode, isSelected: boolean}) => any;
     public onDoubleClick: (param: {vm: ITreeNode}) => void;
     public onGridReset: (param: {isExpanding: boolean}) => void;
@@ -136,7 +144,8 @@ export class BPTreeViewController implements IBPTreeViewController {
     // ag-grid bindings
     public options: agGrid.GridOptions;
 
-    private timers = [];
+
+    public static $inject = ["$q", "$element", "localization", "$timeout", "windowManager", "messageService", "$log"];
 
     constructor(private $q: ng.IQService,
                 private $element: ng.IAugmentedJQuery,
@@ -145,6 +154,7 @@ export class BPTreeViewController implements IBPTreeViewController {
                 private windowManager: IWindowManager,
                 private messageService: IMessageService,
                 private $log: ng.ILogService) {
+
         this.gridClass = angular.isDefined(this.gridClass) ? this.gridClass : "project-explorer";
         this.rowBuffer = angular.isDefined(this.rowBuffer) ? this.rowBuffer : 200;
         this.selectionMode = angular.isDefined(this.selectionMode) ? this.selectionMode : "single";
@@ -202,12 +212,60 @@ export class BPTreeViewController implements IBPTreeViewController {
         if (this.sizeColumnsToFit) {
             this.windowManager.mainWindow.subscribeOnNext(this.onWidthResized, this);
         }
+
+        if (_.isObject(this.rowDataObservable)) {
+            this.subscribers.push(this.rowDataObservable.subscribeOnNext(this.onRowDataChange, this));
+        }
     }
 
     public $onChanges(onChangesObj: ng.IOnChangesObject): void {
-        if (onChangesObj["selectionMode"] || onChangesObj["rowData"] || onChangesObj["rootNodeVisible"] || onChangesObj["columns"]) {
+        if (onChangesObj["selectionMode"]
+            || onChangesObj["rowData"]
+            || onChangesObj["rootNodeVisible"]
+            || onChangesObj["columns"]) {
+
             this.resetGridAsync(false, 0);
         }
+    }
+
+    public $onDestroy(): void {
+        this.subscribers.forEach(disposable => disposable.dispose());
+        this.subscribers = null;
+
+        this.options.api.setRowData(null);
+        _.each(this.timers, (timer) => {
+            this.$timeout.cancel(timer);
+        });
+        this.api = null;
+        this.rowData = null;
+    }
+
+    private onRowDataChange(change: IChangeSet) {
+        switch (change.type) {
+            case ChangeTypeEnum.Select:
+                this.selectRowData();
+                break;
+
+            case ChangeTypeEnum.Update:
+                this.updateRowData();
+                break;
+
+            default:
+                throw new Error("Unrecognized row data observable type");
+        }
+    }
+
+    private selectRowData() {
+        if (_.isFunction(this.setSelection)) {
+            this.$timeout(() => {
+                this.setSelection();
+            });
+        }
+    }
+
+    private updateRowData() {
+        this.options.api.setRowData(this.rowData);
+        this.selectRowData();
     }
 
     private onWidthResized(mainWindow: IMainWindow) {
@@ -220,15 +278,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                 }, 900);
             }
         }
-    }
-
-    public $onDestroy(): void {
-        this.options.api.setRowData(null);
-        _.each(this.timers, (timer) => {
-            this.$timeout.cancel(timer);
-        });
-        this.api = null;
-        this.rowData = null;
     }
 
     public api: IBPTreeViewControllerApi = {
@@ -312,6 +361,8 @@ export class BPTreeViewController implements IBPTreeViewController {
                 this.options.api.showLoadingOverlay();
             }
 
+            this.options.api.setRowData([]);
+
             if (this.rowData) {
                 return this.$q.all(this.rowData.filter(vm => vm.expanded)
                     .map(vm => this.loadExpanded(vm)))
@@ -354,7 +405,6 @@ export class BPTreeViewController implements IBPTreeViewController {
                         }
                     });
             }
-
         }
         return this.$q.resolve();
     }

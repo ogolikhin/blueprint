@@ -1,7 +1,7 @@
-﻿import "angular-mocks";
+﻿import * as angular from "angular";
+import "angular-mocks";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {IMetaDataService} from "../../../managers/artifact-manager/metadata";
-import {IProjectManager} from "../../../managers/project-manager";
 import {IProjectService} from "../../../managers/project-manager/project-service";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {IColumnRendererParams} from "../../../shared/widgets/bp-tree-view/";
@@ -9,7 +9,7 @@ import {AdminStoreModels, Models, SearchServiceModels, TreeModels} from "../../m
 import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {BpArtifactPicker, BpArtifactPickerController} from "./bp-artifact-picker";
 import {ArtifactSearchResultVM, ProjectSearchResultVM} from "./search-result-vm";
-import * as angular from "angular";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 describe("BpArtifactPicker", () => {
     angular.module("bp.components.artifactpicker", [])
@@ -22,7 +22,7 @@ describe("BpArtifactPicker", () => {
         $provide.service("selectionManager", () => ({
             getArtifact: () => ({projectId: 1})
         }));
-        $provide.service("projectManager", () => ({
+        $provide.service("projectExplorerService", () => ({
             getProject: (id: number) => ({model: {id: id, name: "default"}, group: true})
         }));
         $provide.service("projectService", () => ({
@@ -111,13 +111,13 @@ describe("BpArtifactPickerController", () => {
         spyOn(localization, "get").and.returnValue("All types");
         const selectionManager = jasmine.createSpyObj("selectionManager", ["getArtifact"]) as ISelectionManager;
         (selectionManager.getArtifact as jasmine.Spy).and.returnValue({projectId: 1});
-        const projectManager = jasmine.createSpyObj("projectManager", ["getProject"]) as IProjectManager;
-        (projectManager.getProject as jasmine.Spy).and.returnValue(project);
+        const projectExplorerService = jasmine.createSpyObj("projectExplorerService", ["getProject"]) as IProjectExplorerService;
+        (projectExplorerService.getProject as jasmine.Spy).and.returnValue(project);
         projectService = jasmine.createSpyObj("projectService", ["abort", "searchItemNames", "searchProjects"]) as IProjectService;
         metadataService = jasmine.createSpyObj("metadataService", ["get"]) as IMetaDataService;
         (metadataService.get as jasmine.Spy).and.returnValue($q.resolve({data: {artifactTypes: []}}));
         controller = new BpArtifactPickerController($q, $scope, localization, selectionManager,
-            projectManager, projectService, metadataService);
+            projectExplorerService, projectService, metadataService);
     }));
 
     it("$onInit sets selected project", inject(($rootScope: ng.IRootScopeService) => {

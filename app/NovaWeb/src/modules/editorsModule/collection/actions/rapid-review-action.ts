@@ -5,12 +5,15 @@ import {BPButtonAction} from "../../../shared";
 import {IDialogService} from "../../../shared";
 import {Helper} from "../../../shared/utils/helper";
 import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
+import {AnalyticsCategories, AnalyticsActions} from "../../../main/components/analytics";
+import {IExtendedAnalyticsService} from "../../../main/components/analytics/analytics";
 
 export class RapidReviewAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulCollectionArtifact,
         private localization: ILocalizationService,
-        private dialogService: IDialogService
+        private dialogService: IDialogService,
+        private analyticsService: IExtendedAnalyticsService
     ) {
         super();
 
@@ -58,15 +61,26 @@ export class RapidReviewAction extends BPButtonAction {
 
             this.dialogService.confirm(message)
                 .then(() => this.artifact.publish())
-                .then(() => this.openRapidReview(this.artifact.id));
+                .then(() => this.openRapidReview(this.artifact.id, this.getCollectionArtifactCount()));
         } else {
-            this.openRapidReview(this.artifact.id);
+            this.openRapidReview(this.artifact.id, this.getCollectionArtifactCount());
         }
 
     }
 
-    private openRapidReview(id: number): void {
+    private getCollectionArtifactCount(): number {
+        if (this.artifact && this.artifact.artifacts) {
+            return this.artifact.artifacts.length;
+        }
+        return 0;
+    }
+
+    private openRapidReview(id: number, artifactCount: number): void {
+        const startTime = new Date().getTime();
         const url = `Web/#/RapidReview/${id}/edit`;
         window.open(url);
+        this.analyticsService.trackAnalyticsTemporalEvent(startTime,
+            AnalyticsCategories.rapidReview, AnalyticsActions.rapidReviewCreate,
+            undefined, {metric1: artifactCount});
     }
 }

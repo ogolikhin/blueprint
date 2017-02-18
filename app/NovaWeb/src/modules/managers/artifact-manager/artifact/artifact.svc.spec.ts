@@ -234,13 +234,13 @@ describe("Artifact Repository", () => {
 
         it("successful", inject(($httpBackend: ng.IHttpBackendService, artifactService: IArtifactService) => {
             // Arrange
-
+            // FIXME: should not return an array
             $httpBackend.expectPOST("/svc/bpartifactstore/artifacts/100/moveTo/50")
                 .respond(HttpStatusCode.Success, ArtifactServiceMock.createChildren(99, 1));
 
             // Act
             let error: any;
-            let data: Models.IArtifact[];
+            let data: Models.IArtifact;
             artifactService.moveArtifact(100, 50).then((responce) => {
                 data = responce;
             }, (err) => error = err);
@@ -248,8 +248,6 @@ describe("Artifact Repository", () => {
 
             // Assert
             expect(error).toBeUndefined();
-            expect(data).toEqual(jasmine.any(Array));
-            expect(data.length).toEqual(1);
             $httpBackend.verifyNoOutstandingExpectation();
             $httpBackend.verifyNoOutstandingRequest();
         }));
@@ -263,7 +261,7 @@ describe("Artifact Repository", () => {
 
             // Act
             let error: any;
-            let data: Models.IArtifact[];
+            let data: Models.IArtifact;
             artifactService.moveArtifact(100, 50).then((responce) => {
                 data = responce;
             }, (err) => error = err);

@@ -3,7 +3,6 @@ import {DeleteAction} from "../../../main/components/bp-artifact-info/actions/de
 import {IWindowManager} from "../../../main/services";
 import {BpArtifactInfoController} from "../../../main/components/bp-artifact-info/bp-artifact-info";
 import {IDialogService, BPButtonOrDropdownSeparator} from "../../../shared";
-import {IProjectManager} from "../../../managers";
 import {IMetaDataService} from "../../../managers/artifact-manager";
 import {IStatefulCollectionArtifact} from "../../configuration/classes/collection-artifact";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
@@ -15,6 +14,8 @@ import {ICollectionService} from "../collection.service";
 import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {IMessageService} from "../../../main/components/messages/message.svc";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
+import {IProjectExplorerService} from "../../../main/components/bp-explorer/project-explorer.service";
+import {IExtendedAnalyticsService} from "../../../main/components/analytics/analytics";
 
 export class BpCollectionHeader implements ng.IComponentOptions {
     public template: string = require("../../../main/components/bp-artifact-info/bp-artifact-info.html");
@@ -35,11 +36,12 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
         "windowManager",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
+        "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
         "collectionService",
-        "itemInfoService"
+        "itemInfoService",
+        "Analytics"
     ];
 
     constructor($q: ng.IQService,
@@ -53,11 +55,12 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
                 windowManager: IWindowManager,
                 loadingOverlayService: ILoadingOverlayService,
                 navigationService: INavigationService,
-                projectManager: IProjectManager,
+                projectExplorerService: IProjectExplorerService,
                 metadataService: IMetaDataService,
                 mainBreadcrumbService: IMainBreadcrumbService,
                 collectionService: ICollectionService,
-                itemInfoService: IItemInfoService) {
+                itemInfoService: IItemInfoService,
+                protected analytics: IExtendedAnalyticsService) {
         super(
             $q,
             $scope,
@@ -70,7 +73,7 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             windowManager,
             loadingOverlayService,
             navigationService,
-            projectManager,
+            projectExplorerService,
             metadataService,
             mainBreadcrumbService,
             collectionService,
@@ -85,9 +88,9 @@ export class BpCollectionHeaderController extends BpArtifactInfoController {
             return;
         }
 
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
-            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
-        const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService,
+            this.projectExplorerService, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const rapidReviewAction = new RapidReviewAction(collectionArtifact, this.localization, this.dialogService, this.analytics);
         const addCollectionArtifactAction = new AddCollectionArtifactAction(collectionArtifact, this.localization, this.dialogService);
 
         if (buttonGroup) {

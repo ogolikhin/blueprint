@@ -1,15 +1,15 @@
 ﻿import {IWindowVisibility, VisibilityStatus} from "../../commonModule/services/windowVisibility";
-import {IStatefulArtifact} from "../../managers/artifact-manager";
-import {IProjectManager} from "../../managers/project-manager";
 import {ISelectionManager} from "../../managers/selection-manager/selection-manager";
 import {IDialogService, IDialogSettings} from "../../shared";
-import {ISession, IUser} from "../../shell";
+import {ISession} from "../../shell";
 import {IUtilityPanelService} from "../../shell/bp-utility-panel/utility-panel.svc";
 import {BPTourController} from "../components/dialogs/bp-tour/bp-tour";
-import {IViewModel} from "../models/models";
 import {IMessageService} from "../components/messages/message.svc";
 import {ILocalizationService} from "../../commonModule/localization/localization.service";
 import {ILocalStorageService} from "../../commonModule/localStorage/localStorage.service";
+import {IProjectExplorerService} from "../components/bp-explorer/project-explorer.service";
+import {ExplorerNodeVM} from "../models/tree-node-vm-factory";
+import {IChangeSet, ChangeTypeEnum} from "../../managers/artifact-manager/changeset/changeset";
 
 export class MainView implements ng.IComponentOptions {
     public template: string = require("./view.html");
@@ -25,7 +25,7 @@ export class MainViewController {
     static $inject: [string] = [
         "$document",
         "session",
-        "projectManager",
+        "projectExplorerService",
         "messageService",
         "localization",
         "selectionManager",
@@ -37,7 +37,7 @@ export class MainViewController {
 
     constructor(private $document: ng.IDocumentService,
                 public session: ISession,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private messageService: IMessageService,
                 private localization: ILocalizationService,
                 private selectionManager: ISelectionManager,
@@ -48,9 +48,10 @@ export class MainViewController {
     }
 
     public $onInit() {
-        this.projectManager.initialize();
         this._subscribers = [
-            this.projectManager.projectCollection.subscribeOnNext(this.onProjectCollectionChanged, this),
+            this.projectExplorerService.projectsChangeObservable
+                .filter(change => change.type === ChangeTypeEnum.Update)
+                .subscribeOnNext(this.onProjectCollectionChanged, this),
             this.windowVisibility.visibilityObservable.distinctUntilChanged().subscribeOnNext(this.onVisibilityChanged, this)
         ];
 
@@ -76,12 +77,9 @@ export class MainViewController {
     }
 
     public $onDestroy() {
-        this._subscribers = this._subscribers.filter((it: Rx.IDisposable) => {
-            it.dispose();
-            return false;
-        });
+        this._subscribers.forEach((subscriber: Rx.IDisposable) => subscriber.dispose());
+        this._subscribers = [];
         this.messageService.dispose();
-        this.projectManager.dispose();
         this.selectionManager.dispose();
     }
 
@@ -90,7 +88,8 @@ export class MainViewController {
         this.$document[0].body.classList.add(status === VisibilityStatus.Visible ? "is-visible" : "is-hidden");
     };
 
-    private onProjectCollectionChanged(projects: IViewModel<IStatefulArtifact>[]) {
+    private onProjectCollectionChanged(projectsUpdate: IChangeSet) {
+        const projects = projectsUpdate.value as ExplorerNodeVM[];
         if (projects.length === 0) {
             //Close the panel if no projects are open.
             this.toggleLeft(false);

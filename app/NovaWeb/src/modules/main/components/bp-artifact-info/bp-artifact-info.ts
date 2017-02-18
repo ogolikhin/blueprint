@@ -1,10 +1,12 @@
+import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
+import {LockedByEnum} from "../../models/enums";
+import {IWindowManager, IMainWindow, ResizeCause} from "../../services";
 import {IItemInfoService} from "../../../commonModule/itemInfo/itemInfo.service";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../commonModule/navigation/navigation.service";
 import {ICollectionService} from "../../../editorsModule/collection/collection.service";
 import {IArtifactState, IItemChangeSet, IMetaDataService, IStatefulArtifact} from "../../../managers/artifact-manager";
-import {IProjectManager} from "../../../managers/project-manager";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {
     BPButtonGroupAction,
@@ -16,11 +18,8 @@ import {
     IBPDropdownAction,
     IDialogService
 } from "../../../shared";
-import {IBreadcrumbLink} from "../../../shared/widgets/bp-breadcrumb/breadcrumb-link";
 import {Enums} from "../../models";
-import {LockedByEnum} from "../../models/enums";
 import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
-import {IMainWindow, IWindowManager, ResizeCause} from "../../services";
 import {IMainBreadcrumbService} from "../bp-page-content/mainbreadcrumb.svc";
 import {IMessageService} from "../messages/message.svc";
 import {
@@ -33,6 +32,7 @@ import {
     RefreshAction,
     SaveAction
 } from "./actions";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 import {IExtendedAnalyticsService} from "../analytics/analytics";
 
 enum InfoBannerEnum {
@@ -61,7 +61,7 @@ export class BpArtifactInfoController {
         "windowManager",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
+        "projectExplorerService",
         "metadataService",
         "mainbreadcrumbService",
         "collectionService",
@@ -108,7 +108,7 @@ export class BpArtifactInfoController {
                 protected windowManager: IWindowManager,
                 protected loadingOverlayService: ILoadingOverlayService,
                 protected navigationService: INavigationService,
-                protected projectManager: IProjectManager,
+                protected projectExplorerService: IProjectExplorerService,
                 protected metadataService: IMetaDataService,
                 protected mainBreadcrumbService: IMainBreadcrumbService,
                 protected collectionService: ICollectionService,
@@ -309,7 +309,7 @@ export class BpArtifactInfoController {
             return false;
         }
 
-        const project = this.projectManager.getProject(this.artifact.projectId);
+        const project = this.projectExplorerService.getProject(this.artifact.projectId);
 
         return !project;
     }
@@ -321,11 +321,10 @@ export class BpArtifactInfoController {
 
         const projectId = this.artifact.projectId;
         const artifactId = this.artifact.id;
-
         const openProjectLoadingId = this.loadingOverlayService.beginLoading();
+        const openProjects = _.map(this.projectExplorerService.projects, "model.id");
 
-        let openProjects = _.map(this.projectManager.projectCollection.getValue(), "model.id");
-        this.projectManager.openProjectAndExpandToNode(projectId, artifactId)
+        this.projectExplorerService.openProjectAndExpandToNode(projectId, artifactId)
             .finally(() => {
                 //(eventCollection, action, label?, value?, custom?, jQEvent?
                 const label = _.includes(openProjects, projectId) ? "duplicate" : "new";
@@ -341,12 +340,12 @@ export class BpArtifactInfoController {
         const saveAction = new SaveAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
         const publishAction = new PublishAction(this.artifact, this.localization, this.messageService, this.loadingOverlayService);
         const discardAction = new DiscardAction(this.artifact, this.localization, this.messageService,
-            this.projectManager, this.loadingOverlayService, this.navigationService);
-        const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectManager, this.loadingOverlayService,
-            this.metadataService, this.mainBreadcrumbService);
-        const moveCopyAction = new MoveCopyAction(this.$q, this.$timeout, this.artifact, this.localization, this.messageService, this.projectManager,
+            this.projectExplorerService, this.navigationService);
+        const refreshAction = new RefreshAction(this.artifact, this.localization, this.projectExplorerService, this.loadingOverlayService,
+            this.metadataService, this.navigationService, this.mainBreadcrumbService);
+        const moveCopyAction = new MoveCopyAction(this.$q, this.$timeout, this.artifact, this.localization, this.messageService, this.projectExplorerService,
             this.dialogService, this.navigationService, this.loadingOverlayService);
-        const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectManager,
+        const addToCollectionAction = new AddToCollectionAction(this.$q, this.artifact, this.localization, this.messageService, this.projectExplorerService,
             this.dialogService, this.navigationService, this.loadingOverlayService, this.collectionService, this.itemInfoService);
         const buttonGroup = new BPButtonGroupAction(saveAction, publishAction, discardAction, refreshAction);
 
@@ -365,8 +364,8 @@ export class BpArtifactInfoController {
 
     protected createCustomToolbarActions(buttonGroup: BPButtonGroupAction): void {
         const openImpactAnalysisAction = new OpenImpactAnalysisAction(this.artifact, this.localization, this.analytics);
-        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService, this.selectionManager,
-            this.projectManager, this.loadingOverlayService, this.dialogService, this.navigationService);
+        const deleteAction = new DeleteAction(this.artifact, this.localization, this.messageService,
+            this.projectExplorerService, this.loadingOverlayService, this.dialogService, this.navigationService);
 
         if (buttonGroup) {
             buttonGroup.actions.push(deleteAction);

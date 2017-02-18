@@ -1,41 +1,20 @@
 import {BPButtonAction} from "../../../../shared";
 import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {IProjectManager} from "../../../../managers";
-import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {IMessageService} from "../../messages/message.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
+import {IArtifact} from "../../../models/models";
 
 export class DiscardAction extends BPButtonAction {
     constructor(
         private artifact: IStatefulArtifact,
         private localization: ILocalizationService,
         private messageService: IMessageService,
-        private projectManager: IProjectManager,
-        private loadingOverlayService: ILoadingOverlayService,
+        private projectExplorerService: IProjectExplorerService,
         private navigationService: INavigationService
     ) {
         super();
-
-        if (!this.localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!this.messageService) {
-            throw new Error("Message service not provided or is null");
-        }
-
-        if (!this.projectManager) {
-            throw new Error("Project manager not provided or is null");
-        }
-
-        if (!this.loadingOverlayService) {
-            throw new Error("Loading overlay service not provided or is null");
-        }
-
-        if (!this.navigationService) {
-            throw new Error("Navigation service not provided or is null");
-        }
     }
 
     public get icon(): string {
@@ -54,16 +33,24 @@ export class DiscardAction extends BPButtonAction {
     public execute(): void {
         this.artifact.discardArtifact()
             .then(() => {
-                if (this.projectManager.projectCollection.getValue().length > 0) {
-                    this.projectManager.refresh(this.artifact.projectId)
-                        .then(() => this.projectManager.triggerProjectCollectionRefresh());
-                } else {
-                    // If artifact has never been published, navigate back to the main page;
-                    // otherwise, refresh the artifact
-                    if (this.artifact.version === -1) {
-                        this.navigationService.navigateToMain(true);
+                const hasEverBeenPublished = this.artifact.version !== -1;
+                if (this.projectExplorerService.projects.length) {
+                    if (hasEverBeenPublished) {
+                        this.projectExplorerService.refresh(this.artifact.projectId, this.artifact);
                     } else {
+                        const parentArtifact: IArtifact = {
+                            id: this.artifact.parentId,
+                            projectId: this.artifact.projectId
+                        };
+                        this.navigationService.navigateTo({id: parentArtifact.id}).then(() => {
+                            this.projectExplorerService.refresh(this.artifact.projectId, parentArtifact);
+                        });
+                    }
+                } else {
+                    if (hasEverBeenPublished) {
                         this.artifact.refresh();
+                    } else {
+                        this.navigationService.navigateToMain(true);
                     }
                 }
             })

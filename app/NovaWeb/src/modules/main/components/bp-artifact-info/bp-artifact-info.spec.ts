@@ -1,28 +1,29 @@
-﻿import ".";
+﻿import * as angular from "angular";
 import "angular-mocks";
+import "rx";
+import ".";
 import {ItemInfoServiceMock} from "../../../commonModule/itemInfo/itemInfo.service.mock";
 import {ILoadingOverlayService} from "../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {LoadingOverlayServiceMock} from "../../../commonModule/loadingOverlay/loadingOverlay.service.mock";
 import {LocalizationServiceMock} from "../../../commonModule/localization/localization.service.mock";
 import {NavigationServiceMock} from "../../../commonModule/navigation/navigation.service.mock";
 import {CollectionServiceMock} from "../../../editorsModule/collection/collection.service.mock";
+import {MetaDataServiceMock} from "../../../managers/artifact-manager/metadata/metadata.svc.mock";
+import {MainBreadcrumbServiceMock} from "../bp-page-content/mainbreadcrumb.svc.mock";
 import {IStatefulArtifact} from "../../../managers/artifact-manager/artifact/artifact";
 import {IItemChangeSet} from "../../../managers/artifact-manager/changeset/changeset";
-import {MetaDataServiceMock} from "../../../managers/artifact-manager/metadata/metadata.svc.mock";
 import {IArtifactState} from "../../../managers/artifact-manager/state/state";
-import {IProjectManager} from "../../../managers/project-manager/project-manager";
-import {ProjectManagerMock} from "../../../managers/project-manager/project-manager.mock";
 import {ISelectionManager} from "../../../managers/selection-manager/selection-manager";
 import {DialogServiceMock} from "../../../shared/widgets/bp-dialog/bp-dialog.mock";
 import {LockedByEnum} from "../../models/enums";
 import {ItemTypePredefined} from "../../models/itemTypePredefined.enum";
 import {IMainWindow, IWindowManager} from "../../services/window-manager";
-import {MainBreadcrumbServiceMock} from "../bp-page-content/mainbreadcrumb.svc.mock";
 import {MessageServiceMock} from "../messages/message.mock";
 import {OpenImpactAnalysisAction} from "./actions/open-impact-analysis-action";
 import {BpArtifactInfoController} from "./bp-artifact-info";
-import * as angular from "angular";
+import {ProjectExplorerServiceMock} from "../bp-explorer/project-explorer.service.mock";
 import {AnalyticsServiceMock} from "../analytics/analytics.mock";
+import {IProjectExplorerService} from "../bp-explorer/project-explorer.service";
 
 describe("BpArtifactInfo", () => {
     let $compile: ng.ICompileService;
@@ -30,7 +31,7 @@ describe("BpArtifactInfo", () => {
     let $rootScope: ng.IRootScopeService;
     let windowManager: IWindowManager;
     let selectionManager: ISelectionManager;
-    let projectManager: IProjectManager;
+    let projectExplorerService: IProjectExplorerService;
     let loadingOverlayService: ILoadingOverlayService;
     let mainWindowSubject: Rx.BehaviorSubject<IMainWindow>;
     let artifactSubject: Rx.BehaviorSubject<IStatefulArtifact>;
@@ -87,7 +88,7 @@ describe("BpArtifactInfo", () => {
         $provide.service("dialogService", DialogServiceMock);
         $provide.service("loadingOverlayService", LoadingOverlayServiceMock);
         $provide.service("navigationService", NavigationServiceMock);
-        $provide.service("projectManager", ProjectManagerMock);
+        $provide.service("projectExplorerService", ProjectExplorerServiceMock);
         $provide.service("metadataService", MetaDataServiceMock);
         $provide.service("mainbreadcrumbService", MainBreadcrumbServiceMock);
         $provide.service("collectionService", CollectionServiceMock);
@@ -99,14 +100,14 @@ describe("BpArtifactInfo", () => {
         _$compile_: ng.ICompileService,
         _$q_: ng.IQService,
         _$rootScope_: ng.IRootScopeService,
-        _projectManager_: IProjectManager,
+        _projectExplorerService_: IProjectExplorerService,
         _loadingOverlayService_: ILoadingOverlayService,
         _itemInfoService_: ItemInfoServiceMock
         ) => {
         $compile = _$compile_;
         $q = _$q_;
         $rootScope = _$rootScope_;
-        projectManager = _projectManager_;
+        projectExplorerService = _projectExplorerService_;
         loadingOverlayService = _loadingOverlayService_;
     }));
 
@@ -746,7 +747,7 @@ describe("BpArtifactInfo", () => {
                 // arrange
                 const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
-                spyOn(projectManager, "getProject").and.returnValue({});
+                spyOn(projectExplorerService, "getProject").and.returnValue({});
 
                 // act
                 const result = controller.canLoadProject;
@@ -759,7 +760,7 @@ describe("BpArtifactInfo", () => {
                 // arrange
                 const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
-                spyOn(projectManager, "getProject").and.returnValue(undefined);
+                spyOn(projectExplorerService, "getProject").and.returnValue(undefined);
 
                 // act
                 const result = controller.canLoadProject;
@@ -773,7 +774,7 @@ describe("BpArtifactInfo", () => {
             it("does not load project when canLoadProject is false", () => {
                 // arrange
                 spyOn(controller, "canLoadProjectInternal").and.returnValue(false);
-                const spy = spyOn(projectManager, "openProjectAndExpandToNode").and.callThrough();
+                const spy = spyOn(projectExplorerService, "openProjectAndExpandToNode").and.callThrough();
 
                 // act
                 controller.loadProject();
@@ -785,7 +786,7 @@ describe("BpArtifactInfo", () => {
             it("load project when canLoadProject is true", () => {
                 // arrange
                 spyOn(controller, "canLoadProjectInternal").and.returnValue(true);
-                const spy = spyOn(projectManager, "openProjectAndExpandToNode").and.callThrough();
+                const spy = spyOn(projectExplorerService, "openProjectAndExpandToNode").and.callThrough();
 
                 // act
                 controller.loadProject();
@@ -811,7 +812,7 @@ describe("BpArtifactInfo", () => {
                 // arrange
                 const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
-                spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.resolve());
+                spyOn(projectExplorerService, "openProjectAndExpandToNode").and.returnValue($q.resolve());
                 const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
 
                 // act
@@ -827,7 +828,7 @@ describe("BpArtifactInfo", () => {
                 // arrange
                 const artifact = selectionManager.getArtifact();
                 artifact.projectId = 34;
-                spyOn(projectManager, "openProjectAndExpandToNode").and.returnValue($q.reject(new Error()));
+                spyOn(projectExplorerService, "openProjectAndExpandToNode").and.returnValue($q.reject(new Error()));
                 const spy = spyOn(loadingOverlayService, "endLoading").and.callThrough();
 
                 // act

@@ -4,9 +4,9 @@ import {INavigationService} from "../../commonModule/navigation/navigation.servi
 import {DiscardArtifactsAction} from "../../main/components/bp-artifact-info/actions/discard-artifacts-action";
 import {PublishArtifactsAction} from "../../main/components/bp-artifact-info/actions/publish-artifacts-action";
 import {IMessageService} from "../../main/components/messages/message.svc";
+import {IProjectExplorerService} from "../../main/components/bp-explorer/project-explorer.service";
 import {ItemTypePredefined} from "../../main/models/itemTypePredefined.enum";
 import {IArtifact, IPublishResultSet} from "../../main/models/models";
-import {IProjectManager} from "../../managers/project-manager/project-manager";
 import {IDialogService} from "../../shared/";
 import {IBPAction} from "../../shared/widgets/bp-toolbar/actions/bp-action";
 import {BPButtonGroupAction} from "../../shared/widgets/bp-toolbar/actions/bp-button-group-action";
@@ -24,7 +24,7 @@ export class UnpublishedController {
         "publishService",
         "loadingOverlayService",
         "navigationService",
-        "projectManager",
+        "projectExplorerService",
         "dialogService"
     ];
 
@@ -44,7 +44,7 @@ export class UnpublishedController {
                 private publishService: IUnpublishedArtifactsService,
                 private loadingOverlayService: ILoadingOverlayService,
                 private navigationService: INavigationService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private dialogService: IDialogService) {
         this.toolbarActions = [];
         this.selectedArtifacts = [];
@@ -75,7 +75,7 @@ export class UnpublishedController {
             this.localization,
             this.messageService,
             this.loadingOverlayService,
-            this.projectManager,
+            this.projectExplorerService,
             this.dialogService);
 
         this.toolbarActions.push(

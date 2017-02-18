@@ -1,10 +1,9 @@
+import {IDialogSettings, IDialogService, BPDropdownAction, BPDropdownItemAction} from "../../../../shared";
+import {IStatefulArtifact} from "../../../../managers/artifact-manager";
 import {ILoadingOverlayService} from "../../../../commonModule/loadingOverlay/loadingOverlay.service";
 import {ILocalizationService} from "../../../../commonModule/localization/localization.service";
 import {INavigationService} from "../../../../commonModule/navigation/navigation.service";
 import {Enums, Models} from "../../../../main/models";
-import {IProjectManager} from "../../../../managers";
-import {IStatefulArtifact} from "../../../../managers/artifact-manager";
-import {BPDropdownAction, BPDropdownItemAction, IDialogService, IDialogSettings} from "../../../../shared";
 import {ItemTypePredefined} from "../../../models/itemTypePredefined.enum";
 import {
     IMoveCopyArtifactPickerOptions,
@@ -14,6 +13,7 @@ import {
     MoveCopyArtifactResult
 } from "../../dialogs/move-copy-artifact/move-copy-artifact";
 import {IMessageService} from "../../messages/message.svc";
+import {IProjectExplorerService} from "../../bp-explorer/project-explorer.service";
 
 export class MoveCopyAction extends BPDropdownAction {
     private actionType: MoveCopyActionType;
@@ -23,23 +23,11 @@ export class MoveCopyAction extends BPDropdownAction {
                 private artifact: IStatefulArtifact,
                 private localization: ILocalizationService,
                 private messageService: IMessageService,
-                private projectManager: IProjectManager,
+                private projectExplorerService: IProjectExplorerService,
                 private dialogService: IDialogService,
                 private navigationService: INavigationService,
                 private loadingOverlayService: ILoadingOverlayService) {
         super();
-
-        if (!localization) {
-            throw new Error("Localization service not provided or is null");
-        }
-
-        if (!projectManager) {
-            throw new Error("Project manager not provided or is null");
-        }
-
-        if (!dialogService) {
-            throw new Error("Dialog service not provided or is null");
-        }
 
         this.actions.push(
             new BPDropdownItemAction(
@@ -110,8 +98,8 @@ export class MoveCopyAction extends BPDropdownAction {
     private loadProjectIfNeeded() {
         //first, check if project is loaded, and if not - load it
         let loadProjectPromise: ng.IPromise<any>;
-        if (!this.projectManager.getProject(this.artifact.projectId)) {
-            loadProjectPromise = this.projectManager.add(this.artifact.projectId);
+        if (!this.projectExplorerService.getProject(this.artifact.projectId)) {
+            loadProjectPromise = this.projectExplorerService.add(this.artifact.projectId);
         } else {
             loadProjectPromise = this.$q.resolve();
         }
@@ -169,8 +157,7 @@ export class MoveCopyAction extends BPDropdownAction {
 
         return this.dialogService.open(dialogSettings, dialogData).then((result: MoveCopyArtifactResult[]) => {
             if (result && result.length === 1) {
-                return this.computeNewOrderIndex(result[0])
-                .then((orderIndex: number) => {
+                return this.computeNewOrderIndex(result[0]).then((orderIndex: number) => {
                     if (this.actionType === MoveCopyActionType.Move) {
                         return this.prepareArtifactForMove(result[0].artifacts[0]).then(() => {
                             return this.moveArtifact(result[0].insertMethod, result[0].artifacts[0], orderIndex);
@@ -191,7 +178,7 @@ export class MoveCopyAction extends BPDropdownAction {
         const artifacts: Models.IArtifact[] = result.artifacts;
         if (artifacts && artifacts.length === 1) {
             let insertMethod: MoveCopyArtifactInsertMethod = result.insertMethod;
-            return this.projectManager.calculateOrderIndex(insertMethod, result.artifacts[0]);
+            return this.projectExplorerService.calculateOrderIndex(insertMethod, result.artifacts[0]);
         } else {
             return this.$q.reject("No artifact provided");
         }
@@ -200,50 +187,40 @@ export class MoveCopyAction extends BPDropdownAction {
     private prepareArtifactForMove(artifact: Models.IArtifact): ng.IPromise<IStatefulArtifact>  {
         //lock and presave if needed
         if (!this.artifact.artifactState.dirty) {
-            //lock
             return this.artifact.lock();
         }
         if (this.artifact.artifactState.lockedBy === Enums.LockedByEnum.CurrentUser) {
-            //save
             return this.artifact.save();
         }
         //do nothing
         return this.$q.resolve(null);
     }
 
-    private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
-        //finally, move the artifact
-        return this.artifact
-        .move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
-        .then(() => {
-            //refresh project
-            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
-            this.projectManager.refresh(this.artifact.projectId).then(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-            }).finally(() => {
-                this.loadingOverlayService.endLoading(refreshLoadingOverlayId);
+    private moveArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<Models.IArtifact> {
+        const overlayId = this.loadingOverlayService.beginLoading();
+        return this.artifact.move(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
+            .then((artifact: Models.IArtifact) => {
+                this.projectExplorerService.refresh(artifact.projectId, artifact)
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(overlayId);
+                    });
+                return artifact;
             });
-        });
     }
 
-    private copyArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void>  {
-        //finally, move the artifact
-        return this.artifact
-        .copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
-        .then((result: Models.ICopyResultSet) => {
-            let selectionId = result && result.artifact ? result.artifact.id : null;
-            //refresh project
-            const refreshLoadingOverlayId = this.loadingOverlayService.beginLoading();
-            this.projectManager.refresh(this.artifact.projectId, selectionId).then(() => {
-                this.projectManager.triggerProjectCollectionRefresh();
-                if (selectionId) {
-                    this.$timeout(() => {
-                        this.navigationService.navigateTo({id: selectionId});
-                    });
+    private copyArtifact(insertMethod: MoveCopyArtifactInsertMethod, artifact: Models.IArtifact, orderIndex: number): ng.IPromise<void> {
+        const overlayId = this.loadingOverlayService.beginLoading();
+        return this.artifact.copy(insertMethod === MoveCopyArtifactInsertMethod.Inside ? artifact.id : artifact.parentId, orderIndex)
+            .then((result: Models.ICopyResultSet) => {
+                const selection = result && result.artifact ? result.artifact : null;
+                if (selection) {
+                    this.projectExplorerService.setSelectionId(selection.id);
+                    this.navigationService.navigateTo({id: selection.id});
                 }
-            }).finally(() => {
-                this.loadingOverlayService.endLoading(refreshLoadingOverlayId);
+                this.projectExplorerService.refresh(this.artifact.projectId, selection ? selection : null)
+                    .finally(() => {
+                        this.loadingOverlayService.endLoading(overlayId);
+                    });
             });
-        });
     }
 }

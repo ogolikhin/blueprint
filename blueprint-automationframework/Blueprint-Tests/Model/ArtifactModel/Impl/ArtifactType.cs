@@ -1,9 +1,7 @@
-﻿using Model.ArtifactModel;
+﻿using System.Collections.Generic;
 using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl;
-using System.Collections.Generic;
 
-namespace Model.Impl
+namespace Model.ArtifactModel.Impl
 {
     public abstract class ArtifactTypeBase
     {

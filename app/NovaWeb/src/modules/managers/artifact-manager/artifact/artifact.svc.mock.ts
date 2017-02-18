@@ -61,7 +61,7 @@ export class ArtifactServiceMock implements IArtifactService {
         });
     }
 
-    public static createLightArtifact(id: number, properties?: number): any {
+    public static createLightArtifact(id: number, properties?: number): Models.Artifact {
         return new Models.Artifact({
             id: id,
             version: 1,
@@ -179,8 +179,8 @@ export class ArtifactServiceMock implements IArtifactService {
         return deferred.promise;
     }
 
-    public moveArtifact(artifactId: number, newParentId: number, orderIndex?: number) {
-        return this.$q.resolve(ArtifactServiceMock.createLockResult(artifactId));
+    public moveArtifact(artifactId: number, newParentId: number, orderIndex?: number): ng.IPromise<Models.IArtifact> {
+        return this.$q.resolve(ArtifactServiceMock.createLightArtifact(1));
     }
 
     public copyArtifact(artifactId: number, newParentId: number, orderIndex?: number) {

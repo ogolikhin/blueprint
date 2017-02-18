@@ -299,7 +299,7 @@ describe("ProcessGraph", () => {
         // Start -> Pre -> UT1 -> ST1 -> UT2 -> ST2 -> End
         it("deletes user task in a process with multiple user tasks and without any decisions", () => {
             // Arrange
-            process = TestModels.createTwoUserTaskModel();
+            process = TestModels.createXUserTasksGraphModel(2);
             clientModel = new ProcessGraphModel(process);
             viewModel = new ProcessViewModel(clientModel, communicationManager);
             graph = new ProcessGraph(rootScope, localScope, container, viewModel, dialogService, localization, shapesFactory, null, null, null);
@@ -308,12 +308,12 @@ describe("ProcessGraph", () => {
             spyOn(viewModel, "removeStatefulShape").and.returnValue(null);
 
             // Act
-            const result = ProcessDeleteHelper.deleteUserTask(35, null, graph);
+            const result = ProcessDeleteHelper.deleteUserTask(30, null, graph);
 
             // Assert
             expect(result).toBe(true);
             expect(process.shapes.length).toEqual(5);
-            expect(hasShapes(process, 35, 40)).toBe(false);
+            expect(hasShapes(process, 30, 35)).toBe(false);
         });
 
         describe("from user decision with two conditions", () => {
@@ -753,9 +753,9 @@ describe("ProcessGraph", () => {
 
         it("executes action after delete if one is provided", () => {
             // Arrange
-            process = TestModels.createTwoUserTaskModel();
+            process = TestModels.createXUserTasksGraphModel(2);
             graph = createGraph(process);
-            const userTaskId = 35;
+            const userTaskId = 30;
             const test = {action: null};
             const spy = spyOn(test, "action");
 

@@ -218,6 +218,7 @@ export function createTwoNestedUserTasksWithSystemTaskModelWithoutXAndY(): IProc
 
     return process;
 }
+
 export function createTwoNestedUserTasksWithSystemTaskModel(): IProcess {
     // Start -> Pre -> UD1 -> UT1 -> SD -> ST1 -> End
     //                                     ST2 -> UD2 -> UT2 -> ST3 -> UT5
@@ -255,20 +256,44 @@ export function createTwoNestedUserTasksWithSystemTaskModel(): IProcess {
     return process;
 }
 
+export function createXUserTasksGraphModel(numUserTasks: number): IProcess {
+    let process: IProcess = createProcessModel(5, ProcessType.UserToSystemProcess);
 
-export function createTwoUserTaskModel(): IProcess {
-    let process: IProcess = createDefaultProcessModel();
+    let start = createShapeModel(ProcessShapeType.Start, 10, 0, 0);
+    let pre = createShapeModel(ProcessShapeType.PreconditionSystemTask, 15, 1, 0);
+    process.shapes.push(start);
+    process.shapes.push(pre);
+    process.links.push({sourceId: 10, destinationId: 15, orderindex: 0, label: null});
+    let lastId = 15;
+    let lastX = 1;
 
-    let end = process.shapes[4];
-    let ut2 = createShapeModel(ProcessShapeType.UserTask, 35, 0, 0);
-    let st2 = createShapeModel(ProcessShapeType.SystemTask, 40, 0, 0);
+    for (let i = 0; i < numUserTasks; i++) {
+        const newUserTaskId = lastId + 5;
+        const newSystemTaskId = newUserTaskId + 5;
 
-    process.shapes.splice(4, 0, ut2, st2);
-    process.links[process.links.length - 1].destinationId = ut2.id;
-    process.links.push(
-        {sourceId: ut2.id, destinationId: st2.id, orderindex: 0, label: null},
-        {sourceId: st2.id, destinationId: end.id, orderindex: 0, label: null}
-    );
+        let ut = createUserTask(newUserTaskId, lastX++, 0); // first user task id is 20, next user task would be + 10
+        let st = createSystemTask(newSystemTaskId, lastX++, 0); // first system task id is 25, next system task would be + 10
+
+        process.links.push({sourceId: lastId, destinationId: newUserTaskId, orderindex: 0, label: null});
+        process.links.push({sourceId: newUserTaskId, destinationId: newSystemTaskId, orderindex: 0, label: null});
+
+        process.shapes.push(ut);
+        process.shapes.push(st);
+
+        populatePropertyValues(ut, `User Task ${i}`, ut.propertyValues["x"].value , 0, ProcessShapeType.UserTask);
+        populatePropertyValues(st, `System Task ${i}`, st.propertyValues["x"].value, 0, ProcessShapeType.SystemTask);
+
+        lastId = newSystemTaskId;
+    }
+    const endId = lastId + 5;
+    let end = createShapeModel(ProcessShapeType.End, endId, lastX++, 0);
+    process.links.push({sourceId: lastId, destinationId: endId, orderindex: 0, label: null});
+
+    process.shapes.push(end);
+
+    populatePropertyValues(start, "Start", start.propertyValues["x"].value, 0, ProcessShapeType.Start);
+    populatePropertyValues(pre, "Precondition", pre.propertyValues["x"].value, 0, ProcessShapeType.PreconditionSystemTask);
+    populatePropertyValues(end, "End", end.propertyValues["x"].value, 0, ProcessShapeType.End);
 
     return process;
 }
@@ -458,6 +483,7 @@ export function createUserDecisionInSecondConditionModel(): IProcess {
 
     return process;
 }
+
 export function createMergingSystemDecisionsModel(): IProcess {
     let process: IProcess = createProcessModel();
 
@@ -504,6 +530,7 @@ export function createMergingSystemDecisionsModel(): IProcess {
 
     return process;
 }
+
 export function createMergingSystemDecisionsWithInfiniteLoopModel(): IProcess {
     let process: IProcess = createProcessModel();
 
@@ -852,7 +879,6 @@ export function createUserDecisionTestModel(decisionShape: IProcessShape, type: 
 
     return model;
 }
-
 
 export function createSystemDecisionTestModel(decisionShape: IProcessShape, type: ProcessType = ProcessType.UserToSystemProcess): IProcess {
     const shapesFactory = createShapesFactoryService();

@@ -35,7 +35,7 @@ namespace Model.OpenApiModel.Services
 
         /// <summary>
         /// Create a user with specified user properties.
-        /// (Runs:  'POST /api/v1/users/create')
+        /// (Runs:  'POST /api/v1/users')
         /// </summary>
         /// <param name="userToAuthenticate">A user that has permission to create users.</param>
         /// <param name="userToCreate">User to create.</param>
@@ -48,7 +48,7 @@ namespace Model.OpenApiModel.Services
 
         /// <summary>
         /// Delete a user with specific username.
-        /// (Runs:  'DELETE /api/v1/users/delete')
+        /// (Runs:  'DELETE /api/v1/users')
         /// </summary>
         /// <param name="userToAuthenticate">A user that has permission to delete users.</param>
         /// <param name="usernamesToDelete">Usernames of users to delete.</param>

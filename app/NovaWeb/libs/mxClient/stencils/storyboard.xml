@@ -1,7 +1,0 @@
-﻿<shapes name="mxgraph.storyboard">
-  <shape h="16" w="16" name="first" aspect="variable" strokewidth="inherit">
-    <background>
-      <image src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAA7DAAAOwwHHb6hkAAABB0lEQVR4nH1Sy04CQRCsIftHhgssUT9gSYjPiAcPHjhw8h8kXvwIg4mJB35B8XH3c4TZ6abmsSMbiJudnp2q7qqe9JrqaqqqAobWwvYZ5IUYv4p9yR7DDhZXISK4vbnE4VEfogaOoGP+9l5T/eNtiZenOTq+ql/2CAKWhHWK2f0DTqoR1jyvebbkuoNBdPD2zlCZBF+cDUdoHhuwiNehS6FDUrXJYb5Y5ILgQLxxUbYfHHxiVIl7dpD2fVJLsU+f2BDZocGTUGyJ4bd2+YKTi9NccDc+T+0qVnWcReHD9/snDsoSajp4fH5tqXohS8Gfr2VwMMfVte4OScJU9w7uv8kicX+/iGIDF41QMFk9h1YAAAAASUVORK5CYII=" x="0" y="0" w="16" h="16"/>
-    </background>
-  </shape>
-</shapes>

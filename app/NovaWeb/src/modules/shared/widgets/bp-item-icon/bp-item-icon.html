@@ -1,7 +1,0 @@
-﻿<img class="item-icon__image" ng-if="!$ctrl.showBasicIcon && !$ctrl.fallback" ng-src="{{ $ctrl.imageSource }}" alt="{{ $ctrl.altText }}" />
-<i class="item-icon__loading"></i>
-<i class="item-icon__icon" ng-if="$ctrl.showBasicIcon && !$ctrl.fallback" ng-class="$ctrl.iconClass" title="{{ $ctrl.altText }}"></i>
-<span class="item-icon__fallback" ng-if="$ctrl.fallback">
-    <img class="item-icon__image item-icon__image--fallback" ng-if="!$ctrl.showBasicIcon" ng-src="{{ $ctrl.imageSource }}" alt="{{ $ctrl.altText }}" onerror="this.parentElement.removeChild(this)" />
-    <i class="item-icon__icon item-icon__icon--fallback" ng-class="$ctrl.iconClass" title="{{ $ctrl.altText }}"></i>
-</span>

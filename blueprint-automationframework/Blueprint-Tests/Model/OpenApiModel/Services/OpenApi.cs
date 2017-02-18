@@ -596,13 +596,13 @@ namespace Model.OpenApiModel.Services
 
         #region User methods
 
-        /// <seealso cref="IOpenApi.CreateUser(IUser, UserDataModel, List{HttpStatusCode})"/>
-        public UserDataModel CreateUser(
+        /// <seealso cref="IOpenApi.CreateUsers(IUser, List{UserDataModel}, List{HttpStatusCode})"/>
+        public DeleteUserResultSet CreateUsers(
             IUser userToAuthenticate,
-            UserDataModel userToCreate,
+            List<UserDataModel> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateUser(Address, userToAuthenticate, userToCreate, expectedStatusCodes);
+            return CreateUser(userToAuthenticate, usersToCreate, expectedStatusCodes);
         }
 
         /// <summary>
@@ -610,25 +610,24 @@ namespace Model.OpenApiModel.Services
         /// (Runs:  'POST /api/v1/users/create')
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="userWhoCreatesAnotherUser">A user that has permission to create users.</param>
-        /// <param name="userToCreate">User to create</param>
+        /// <param name="userToAuthenticate">A user that has permission to create users.</param>
+        /// <param name="usersToCreate">List of users to create</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected</param>
-        /// <returns>User that was created.</returns>
-        public static UserDataModel CreateUser(string address,
-            IUser userWhoCreatesAnotherUser,
-            UserDataModel userToCreate,
+        /// <returns>List of created users.</returns>
+        public DeleteUserResultSet CreateUser(
+            IUser userToAuthenticate,
+            List<UserDataModel> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
+            ThrowIf.ArgumentNull(usersToCreate, nameof(usersToCreate));
 
-            var restApi = new RestApiFacade(address, userWhoCreatesAnotherUser?.Token?.OpenApiToken);
+            var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.CREATE;
 
-            return restApi.SendRequestAndDeserializeObject<UserDataModel, UserDataModel>(
+            return restApi.SendRequestAndDeserializeObject<DeleteUserResultSet, List<UserDataModel>>(
                 path,
                 RestRequestMethod.POST,
-                userToCreate,
+                usersToCreate,
                 expectedStatusCodes: expectedStatusCodes);
         }
 

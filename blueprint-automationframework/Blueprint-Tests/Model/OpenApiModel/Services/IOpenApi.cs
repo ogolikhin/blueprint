@@ -37,12 +37,12 @@ namespace Model.OpenApiModel.Services
         /// (Runs:  'POST /api/v1/users/create')
         /// </summary>
         /// <param name="userToAuthenticate">A user that has permission to create users.</param>
-        /// <param name="userToCreate">User to create.</param>
+        /// <param name="usersToCreate">List of users to create.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>User that was created.</returns>
-        UserDataModel CreateUser(
+        DeleteUserResultSet CreateUser(
             IUser userToAuthenticate,
-            UserDataModel userToCreate,
+            List<UserDataModel> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

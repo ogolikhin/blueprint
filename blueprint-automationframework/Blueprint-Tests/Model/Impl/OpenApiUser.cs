@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using Utilities;
 
 namespace Model.Impl
@@ -8,13 +10,16 @@ namespace Model.Impl
         protected UserDataModel UserData { get; set; }
 
         #region Serialized JSON Properties
-
+        
         public int Id
         {
             get { return UserData.Id; }
-            set { UserData.Id = value; }
         }
-        public string Username
+        
+        [JsonProperty("Type")]
+        public string UserOrGroupType { get; set; }
+
+        public string Name
         {
             get { return UserData.Username; }
             set { UserData.Username = value; }
@@ -34,6 +39,14 @@ namespace Model.Impl
             get { return UserData.LastName; }
             set { UserData.LastName = value; }
         }
+        public string Password
+        {
+            get { return UserData.Password; }
+            set { UserData.Password = value; }
+        }
+
+        public DateTime? ExpiredPassword { get; set; }
+
         public string Email
         {
             get { return UserData.Email; }
@@ -49,31 +62,22 @@ namespace Model.Impl
             get { return UserData.Department; }
             set { UserData.Department = value; }
         }
-        public string Password
-        {
-            get { return UserData.Password; }
-            set { UserData.Password = value; }
-        }
-        public List<IGroup> GroupMembership
+
+        public List<IGroup> Groups
         {
             get { return UserData.GroupMembership; }
             set { UserData.GroupMembership = value; }
         }
-        public InstanceAdminRole? InstanceAdminRole
-        {
-            get { return UserData.InstanceAdminRole; }
-            set { UserData.InstanceAdminRole = value; }
-        }
-        public bool? ExpirePassword
-        {
-            get { return UserData.ExpirePassword; }
-            set { UserData.ExpirePassword = value; }
-        }
+
+        public List<int> GroupIds { get; set; }
+
         public bool Enabled
         {
             get { return UserData.Enabled; }
             set { UserData.Enabled = value; }
         }
+
+        public string InstanceAdminRole { get; set; }
 
         #endregion Serialized JSON Properties
 
@@ -83,7 +87,8 @@ namespace Model.Impl
         /// Default constructor.
         /// </summary>
         public OpenApiUser()
-        { 
+        {
+            UserData = new UserDataModel();
         }
 
         /// <summary>
@@ -96,7 +101,9 @@ namespace Model.Impl
         /// <param name="displayname">User display name</param>
         public OpenApiUser(string username, string firstname, string lastname, string password, string displayname)
         {
-            Username = username;
+            UserData = new UserDataModel();
+
+            Name = username;
             FirstName = firstname;
             LastName = lastname;
             Password = password;

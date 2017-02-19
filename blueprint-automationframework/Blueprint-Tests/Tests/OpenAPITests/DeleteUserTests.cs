@@ -57,7 +57,7 @@ namespace OpenAPITests
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            UserDeleteResultCollection result = null;
+            UserCallResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete), 
                 "'DELETE {0}' should return '200 OK' when valid data is passed to it!", DELETE_PATH);
@@ -93,7 +93,7 @@ namespace OpenAPITests
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            UserDeleteResultCollection result = null;
+            UserCallResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete, new List<HttpStatusCode> { (HttpStatusCode)207 }),
                 "'DELETE {0}' should return '207 Partial Success' when valid data is passed to it!", DELETE_PATH);
@@ -139,7 +139,7 @@ namespace OpenAPITests
             var usernamesToDelete = new List<string> { _adminUser.Username };
 
             // Execute:
-            UserDeleteResultCollection result = null;
+            UserCallResultCollection result = null;
 
             var ex = Assert.Throws<Http401UnauthorizedException>(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete),
                 "'DELETE {0}' should return '401 Unauthorized' when an invalid or missing token is passed to it!", DELETE_PATH);
@@ -196,7 +196,7 @@ namespace OpenAPITests
 
             var expectedFailedDeletedUsers = new Dictionary<int, IUser> { { InternalApiErrorCodes.NotFound, userToDelete } };
 
-            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict);
         }
 
@@ -218,7 +218,7 @@ namespace OpenAPITests
 
             var expectedFailedDeletedUsers = new Dictionary<int, IUser> { { InternalApiErrorCodes.NotFound, userToDelete } };
 
-            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict);
         }
 
@@ -233,12 +233,12 @@ namespace OpenAPITests
         /// <param name="userToAuthenticate">The user to authenticate with.</param>
         /// <param name="jsonBody">The data to send in the body.</param>
         /// <returns>A DeleteUserResultSet object if successful.</returns>
-        private UserDeleteResultCollection DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
+        private UserCallResultCollection DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
         {
             var restApi = new RestApiFacade(Helper.OpenApi.Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.Users.DELETE;
 
-            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, T>(
+            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, T>(
                 path,
                 RestRequestMethod.DELETE,
                 jsonBody);
@@ -252,7 +252,7 @@ namespace OpenAPITests
         /// <param name="expectedFailedDeletedUsers">(optional) A map of InternalApiErrorCodes and Users that we expect got errors when we tried to delete them.</param>
         /// <param name="expectedStatusCode">(optional) The expected main ReturnCode.</param>
         private void VerifyDeleteUserResultSet(
-            UserDeleteResultCollection resultSet,
+            UserCallResultCollection resultSet,
             List<IUser> expectedSuccessfullyDeletedUsers = null,
             Dictionary<int, IUser> expectedFailedDeletedUsers = null,
             HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
@@ -292,7 +292,7 @@ namespace OpenAPITests
         /// <param name="resultSet">Result set from delete users call.</param>
         /// <param name="expectedFailedDeletedUsers">(optional) A map of InternalApiErrorCodes and Users that we expect got errors when we tried to delete them.</param>
         private void VerifyUnsuccessfullyDeletedUsers(
-            UserDeleteResultCollection resultSet,
+            UserCallResultCollection resultSet,
             Dictionary<int, IUser> expectedFailedDeletedUsers = null)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));

@@ -745,14 +745,11 @@ namespace ArtifactStoreTests
 
             artifact.Lock();
 
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
-            // Verify:
-            string expectedExceptionMessage = "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
-            StringAssert.Contains(expectedExceptionMessage, ex.RestResponse.Content,
-                "{0} when user tries to move an artifact to artifact that has Id 0", expectedExceptionMessage);
+            // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
         }
 
         [TestCase(BaseArtifactType.Process)]
@@ -764,14 +761,11 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
 
-            // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
+            // Execute & Verify:
+            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
-            // Verify:
-            string expectedExceptionMessage = "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} when user tries to move an artifact to artifact that has Id 0", expectedExceptionMessage);
+            // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
         }
 
         [TestCase(BaseArtifactType.Process, int.MaxValue)]

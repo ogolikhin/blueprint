@@ -1133,13 +1133,13 @@ namespace ServiceLibrary.Repositories
             var result = await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, false, userId);
 
             // Assert
-            Assert.AreEqual(children1.Count, result.Count);
-            Assert.AreEqual(children1[0].Id, result[0].Id);
-            Assert.AreEqual(children1[1].Id, result[1].Id);
+            Assert.AreEqual(result.Count, children1.Count);
+            Assert.AreEqual(result[0].Id, children1[0].Id);
+            Assert.AreEqual(result[1].Id, children1[1].Id);
 
-            Assert.AreEqual(children2.Count, result[0].Children.Count);
-            Assert.AreEqual(children2[0].Id, result[0].Children[0].Id);
-            Assert.AreEqual(children2[1].Id, result[0].Children[1].Id);
+            Assert.AreEqual(result[0].Children.Count, children2.Count);
+            Assert.AreEqual(result[0].Children[0].Id, children2[0].Id);
+            Assert.AreEqual(result[0].Children[1].Id, children2[1].Id);
 
             Assert.IsNull(result[0].Children[0].Children);
         }
@@ -1190,17 +1190,107 @@ namespace ServiceLibrary.Repositories
             var result = await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, true, userId);
 
             // Assert
-            Assert.AreEqual(children1.Count, result.Count);
-            Assert.AreEqual(children1[0].Id, result[0].Id);
-            Assert.AreEqual(children1[1].Id, result[1].Id);
+            Assert.AreEqual(result.Count, children1.Count);
+            Assert.AreEqual(result[0].Id, children1[0].Id);
+            Assert.AreEqual(result[1].Id, children1[1].Id);
 
-            Assert.AreEqual(children2.Count, result[0].Children.Count);
-            Assert.AreEqual(children2[0].Id, result[0].Children[0].Id);
-            Assert.AreEqual(children2[1].Id, result[0].Children[1].Id);
+            Assert.AreEqual(result[0].Children.Count, children2.Count);
+            Assert.AreEqual(result[0].Children[0].Id, children2[0].Id);
+            Assert.AreEqual(result[0].Children[1].Id, children2[1].Id);
 
-            Assert.AreEqual(children3.Count, result[0].Children[0].Children.Count);
-            Assert.AreEqual(children3[0].Id, result[0].Children[0].Children[0].Id);
-            Assert.AreEqual(children3[1].Id, result[0].Children[0].Children[1].Id);
+            Assert.AreEqual(result[0].Children[0].Children.Count, children3.Count);
+            Assert.AreEqual(result[0].Children[0].Children[0].Id, children3[0].Id);
+            Assert.AreEqual(result[0].Children[0].Children[1].Id, children3[1].Id);
+        }
+
+        [TestMethod]
+        public async Task GetExpandedTreeToArtifactAsync_OrphanedCollectionArtifact_Success()
+        {
+            // Arrange
+            const int projectId = 1;
+            const int artifactId = 999;
+            const int userId = 99;
+            var ancestorsAndSelf = new List<ArtifactVersion>
+            {
+                new ArtifactVersion { ItemId = 2 },
+            };
+
+            var children1 = new List<Artifact>
+            {
+                new Artifact { Id = 2, PredefinedType = ItemTypePredefined.CollectionFolder },
+                new Artifact { Id = 3, PredefinedType = ItemTypePredefined.BaselineFolder }
+            };
+
+            var children2 = new List<Artifact>
+            {
+                new Artifact { Id = artifactId }
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
+
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
+
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
+                .ReturnsAsync(children1);
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[0].Id, userId))
+                .ReturnsAsync(children2);
+
+            // Act
+            var result = await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, false, userId);
+
+            // Assert
+            Assert.AreEqual(result.Count, children1.Count);
+            Assert.AreEqual(result[0].Id, children1[0].Id);
+            Assert.AreEqual(result[1].Id, children1[1].Id);
+
+            Assert.AreEqual(result[0].Children.Count, 1);
+            Assert.AreEqual(result[0].Children[0].Id, artifactId);
+        }
+
+        [TestMethod]
+        public async Task GetExpandedTreeToArtifactAsync_OrphanedBaselinesAndReviewsArtifact_Success()
+        {
+            // Arrange
+            const int projectId = 1;
+            const int artifactId = 999;
+            const int userId = 99;
+            var ancestorsAndSelf = new List<ArtifactVersion>
+            {
+                new ArtifactVersion { ItemId = 3 },
+            };
+
+            var children1 = new List<Artifact>
+            {
+                new Artifact { Id = 2, PredefinedType = ItemTypePredefined.CollectionFolder },
+                new Artifact { Id = 3, PredefinedType = ItemTypePredefined.BaselineFolder }
+            };
+
+            var children2 = new List<Artifact>
+            {
+                new Artifact { Id = artifactId }
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactAncestorsAndSelf", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, ancestorsAndSelf);
+
+            var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
+
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
+                .ReturnsAsync(children1);
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[1].Id, userId))
+                .ReturnsAsync(children2);
+
+            // Act
+            var result = await mockRepository.Object.GetExpandedTreeToArtifactAsync(projectId, artifactId, false, userId);
+
+            // Assert
+            Assert.AreEqual(result.Count, children1.Count);
+            Assert.AreEqual(result[0].Id, children1[0].Id);
+            Assert.AreEqual(result[1].Id, children1[1].Id);
+
+            Assert.AreEqual(result[1].Children.Count, 1);
+            Assert.AreEqual(result[1].Children[0].Id, artifactId);
         }
 
         #endregion GetExpandedTreeToArtifactAsync

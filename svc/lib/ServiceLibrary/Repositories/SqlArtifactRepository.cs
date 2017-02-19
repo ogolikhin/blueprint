@@ -361,9 +361,10 @@ namespace ServiceLibrary.Repositories
             throw new AuthorizationException(errorMessage, ErrorCodes.UnauthorizedAccess);
         }
 
-        #endregion
+        #endregion GetProjectOrArtifactChildrenAsync
 
         #region GetSubArtifactTreeAsync
+
         private async Task<IEnumerable<SubArtifact>> GetSubArtifacts(int artifactId, int userId, int revisionId, bool includeDrafts)
         {
             var getSubArtifactsDraftPrm = new DynamicParameters();
@@ -430,7 +431,7 @@ namespace ServiceLibrary.Repositories
             return result;
         }
 
-        #endregion
+        #endregion GetSubArtifactTreeAsync
 
         #region GetExpandedTreeToArtifactAsync
 
@@ -527,7 +528,7 @@ namespace ServiceLibrary.Repositories
             }
         }
 
-        #endregion
+        #endregion GetExpandedTreeToArtifactAsync
 
         #region GetArtifactNavigationPathAsync
 
@@ -591,7 +592,7 @@ namespace ServiceLibrary.Repositories
             return result;
         }
 
-        #endregion
+        #endregion GetArtifactNavigationPathAsync
 
         #region GetArtifactsNavigationPathsAsync
 
@@ -647,9 +648,10 @@ namespace ServiceLibrary.Repositories
             return result;
         }
 
-        #endregion
+        #endregion GetArtifactsNavigationPathsAsync
 
-        #region GetProjectNamesById
+        #region GetProjectNameByIdsAsync
+
         public async Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds)
         {
             var param = new DynamicParameters();
@@ -657,6 +659,7 @@ namespace ServiceLibrary.Repositories
             
             return (await _connectionWrapper.QueryAsync<ProjectNameIdPair>("GetProjectNameByIds", param, commandType: CommandType.StoredProcedure));            
         }
-        #endregion
+
+        #endregion GetProjectNameByIdsAsync
     }
 }

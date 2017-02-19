@@ -949,7 +949,7 @@ namespace ServiceLibrary.Repositories
             };
         }
 
-        #endregion
+        #endregion GetProjectOrArtifactChildrenAsync
 
         #region GetExpandedTreeToArtifactAsync
 
@@ -1203,7 +1203,7 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual(children3[1].Id, result[0].Children[0].Children[1].Id);
         }
 
-        #endregion
+        #endregion GetExpandedTreeToArtifactAsync
 
         #region GetSubArtifactTreeAsync
 
@@ -1284,7 +1284,7 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual("Postcondition", result[1].DisplayName);
         }
 
-        #endregion
+        #endregion GetSubArtifactTreeAsync
 
         #region GetArtifactNavigationPathAsync
 
@@ -1454,7 +1454,7 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual(expected[1].ItemTypeId, actual[1].ItemTypeId);
         }
 
-        #endregion
+        #endregion GetArtifactNavigationPathAsync
 
         #region GetArtifactsNavigationPathsAsync
 
@@ -1538,8 +1538,6 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual(2, actual[1].Count());
         }
 
-        #endregion
-
+        #endregion GetArtifactsNavigationPathsAsync
     }
 }
-

@@ -13,11 +13,11 @@ namespace ServiceLibrary.Repositories
     [TestClass]
     public class SqlArtifactRepositoryTests
     {
-        #region GetProjectOrGetChildrenAsync
+        #region GetProjectOrArtifactChildrenAsync
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetProjectOrGetChildrenAsync_InvalidProjectId()
+        public async Task GetProjectOrArtifactChildrenAsync_InvalidProjectId()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -31,7 +31,7 @@ namespace ServiceLibrary.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetProjectOrGetChildrenAsync_InvalidArtifactId()
+        public async Task GetProjectOrArtifactChildrenAsync_InvalidArtifactId()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -45,7 +45,7 @@ namespace ServiceLibrary.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetProjectOrGetChildrenAsync_InvalidUserId()
+        public async Task GetProjectOrArtifactChildrenAsync_InvalidUserId()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -59,7 +59,7 @@ namespace ServiceLibrary.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectOrGetChildrenAsync_ArtifactIdIsEqualToProjectId_NotFound()
+        public async Task GetProjectOrArtifactChildrenAsync_ArtifactIdIsEqualToProjectId_NotFound()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -73,7 +73,7 @@ namespace ServiceLibrary.Repositories
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectOrGetChildrenAsync_ProjectNotFound()
+        public async Task GetProjectOrArtifactChildrenAsync_ProjectNotFound()
         {
             // Arrange
             var projectId = 1;
@@ -83,12 +83,12 @@ namespace ServiceLibrary.Repositories
             var input = new List<ArtifactVersion>();
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectOrGetChildrenAsync_ArtifactInProjectNotFound()
+        public async Task GetProjectOrArtifactChildrenAsync_ArtifactInProjectNotFound()
         {
             // Arrange
             var projectId = 1;
@@ -98,12 +98,12 @@ namespace ServiceLibrary.Repositories
             var input = new List<ArtifactVersion>();
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ResourceNotFoundException))]
-        public async Task GetProjectOrGetChildrenAsync_ArtifactInProjectNotFoundWhenItsVersionMissing()
+        public async Task GetProjectOrArtifactChildrenAsync_ArtifactInProjectNotFoundWhenItsVersionMissing()
         {
             // Arrange
             var projectId = 1;
@@ -115,12 +115,12 @@ namespace ServiceLibrary.Repositories
             input[1].HasDraft = false;
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetProjectOrGetChildrenAsync_Forbidden_NullDirectPermissions()
+        public async Task GetProjectOrArtifactChildrenAsync_Forbidden_NullDirectPermissions()
         {
             // Arrange
             var projectId = 1;
@@ -133,12 +133,12 @@ namespace ServiceLibrary.Repositories
             input[0].DirectPermissions = null;
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task GetProjectOrGetChildrenAsync_Forbidden_NoneDirectPermissions()
+        public async Task GetProjectOrArtifactChildrenAsync_Forbidden_NoneDirectPermissions()
         {
             // Arrange
             var projectId = 1;
@@ -151,11 +151,11 @@ namespace ServiceLibrary.Repositories
             input[0].DirectPermissions = RolePermissions.None;
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, null);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, null);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildPublished_DirectPermissons()
+        public async Task GetProjectOrArtifactChildrenAsync_ChildPublished_DirectPermissons()
         {
             // Arrange
             var projectId = 1;
@@ -187,11 +187,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildPublished_ProjectPermissons()
+        public async Task GetProjectOrArtifactChildrenAsync_ChildPublished_ProjectPermissons()
         {
             // Arrange
             var projectId = 1;
@@ -227,11 +227,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildPublished_AncestorPermissons()
+        public async Task GetProjectOrArtifactChildrenAsync_ChildPublished_AncestorPermissons()
         {
             // Arrange
             var projectId = 1;
@@ -274,11 +274,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildDraft()
+        public async Task GetProjectOrArtifactChildrenAsync_ChildDraft()
         {
             // Arrange
             var projectId = 1;
@@ -310,11 +310,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildDraftMovedWithinProject()
+        public async Task GetProjectOrArtifactChildrenAsync_ChildDraftMovedWithinProject()
         {
             // Arrange
             var projectId = 1;
@@ -329,11 +329,11 @@ namespace ServiceLibrary.Repositories
             var expected = new List<Artifact>();
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildDraftMovedToAnotherProject()
+        public async Task GetProjectOrArtifactChildrenAsync_ChildDraftMovedToAnotherProject()
         {
             // Arrange
             var projectId = 1;
@@ -348,11 +348,11 @@ namespace ServiceLibrary.Repositories
             var expected = new List<Artifact>();
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_ChildDraftByAnotherUser()
+        public async Task GetProjectOrArtifactChildrenAsync_ChildDraftByAnotherUser()
         {
             // Arrange
             var projectId = 1;
@@ -386,11 +386,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, artifactId, userId, input, expected);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, artifactId, userId, input, expected);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_Order_CollectionsBaselinesAndReviews()
+        public async Task GetProjectOrArtifactChildrenAsync_Order_CollectionsBaselinesAndReviews()
         {
             // Arrange
             var projectId = 1;
@@ -485,11 +485,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_NoOrphans()
+        public async Task GetProjectOrArtifactChildrenAsync_NoOrphans()
         {
             // Arrange
             var projectId = 1;
@@ -526,11 +526,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Project_OrphanArtifact_IncludeOrphan()
+        public async Task GetProjectOrArtifactChildrenAsync_OrphanPublished_Project_OrphanArtifact_IncludeOrphan()
         {
             // Arrange
             var projectId = 1;
@@ -572,11 +572,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Project_OrphanCollection_DoNotIncludeOrphan()
+        public async Task GetProjectOrArtifactChildrenAsync_OrphanPublished_Project_OrphanCollection_DoNotIncludeOrphan()
         {
             // Arrange
             var projectId = 1;
@@ -602,11 +602,11 @@ namespace ServiceLibrary.Repositories
             var expected = new List<Artifact>();
             
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Collections_OrphanCollection_IncludeOrphan()
+        public async Task GetProjectOrArtifactChildrenAsync_OrphanPublished_Collections_OrphanCollection_IncludeOrphan()
         {
             // Arrange
             var projectId = 1;
@@ -651,11 +651,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, collectionsId, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, collectionsId, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_OrphanPublished_Collections_OrphanArtifact_DoNotIncludeOrphan()
+        public async Task GetProjectOrArtifactChildrenAsync_OrphanPublished_Collections_OrphanArtifact_DoNotIncludeOrphan()
         {
             // Arrange
             var projectId = 1;
@@ -682,11 +682,11 @@ namespace ServiceLibrary.Repositories
             var expected = new List<Artifact>();
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, collectionsId, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, collectionsId, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_OrphanDraft()
+        public async Task GetProjectOrArtifactChildrenAsync_OrphanDraft()
         {
             // Arrange
             var projectId = 1;
@@ -728,11 +728,11 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, null, userId, input, expected, inputOrphans);
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_OrphanDraftByAnotherUser()
+        public async Task GetProjectOrArtifactChildrenAsync_OrphanDraftByAnotherUser()
         {
             // Arrange
             var projectId = 1;
@@ -776,10 +776,10 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act and Assert
-            await GetProjectOrGetChildrenBaseTest(projectId, null, userId, input, expected, inputOrphans);
+            await GetProjectOrArtifactChildrenBaseTestAsync(projectId, null, userId, input, expected, inputOrphans);
         }
 
-        private async Task GetProjectOrGetChildrenBaseTest(int projectId, int? artifactId, int userId,
+        private async Task GetProjectOrArtifactChildrenBaseTestAsync(int projectId, int? artifactId, int userId,
                                     List<ArtifactVersion> input, List<Artifact> expected,
                                     List<ArtifactVersion> inputOrphans = null)
         {
@@ -1286,39 +1286,39 @@ namespace ServiceLibrary.Repositories
 
         #endregion
 
-        #region GetArtifactNavigatioPathAsync
+        #region GetArtifactNavigationPathAsync
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetArtifactNavigatioPathAsync_InvalidArtifactId()
+        public async Task GetArtifactNavigationPathAsync_InvalidArtifactId()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
-            await repository.GetArtifactNavigatioPathAsync(0, 1);
+            await repository.GetArtifactNavigationPathAsync(0, 1);
 
             // Assert
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetArtifactNavigatioPathAsync_InvalidUserId()
+        public async Task GetArtifactNavigationPathAsync_InvalidUserId()
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
-            await repository.GetArtifactNavigatioPathAsync(1, 0);
+            await repository.GetArtifactNavigationPathAsync(1, 0);
 
             // Assert
         }
 
         [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
-        public async Task GetArtifactNavigatioPathAsync_ArtifactNotFound_ThrowException()
+        public async Task GetArtifactNavigationPathAsync_ArtifactNotFound_ThrowException()
         {
             // Arrange
             const int artifactId = 3;
@@ -1332,7 +1332,7 @@ namespace ServiceLibrary.Repositories
             // Act
             try
             {
-                await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+                await repository.GetArtifactNavigationPathAsync(artifactId, userId);
             }
             catch (ResourceNotFoundException e)
             {
@@ -1344,7 +1344,7 @@ namespace ServiceLibrary.Repositories
 
         [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
-        public async Task GetArtifactNavigatioPathAsync_ArtifactIsDeletedAndPublished_ThrowException()
+        public async Task GetArtifactNavigationPathAsync_ArtifactIsDeletedAndPublished_ThrowException()
         {
             // Arrange
             const int artifactId = 3;
@@ -1359,7 +1359,7 @@ namespace ServiceLibrary.Repositories
             // Act
             try
             {
-                await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+                await repository.GetArtifactNavigationPathAsync(artifactId, userId);
             }
             catch (ResourceNotFoundException e)
             {
@@ -1371,7 +1371,7 @@ namespace ServiceLibrary.Repositories
 
         [ExpectedException(typeof(AuthorizationException))]
         [TestMethod]
-        public async Task GetArtifactNavigatioPathAsync_NoPermissionsForArtifact_ThrowException()
+        public async Task GetArtifactNavigationPathAsync_NoPermissionsForArtifact_ThrowException()
         {
             // Arrange
             const int artifactId = 3;
@@ -1392,7 +1392,7 @@ namespace ServiceLibrary.Repositories
             // Act
             try
             {
-                await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+                await repository.GetArtifactNavigationPathAsync(artifactId, userId);
             }
             catch (AuthorizationException e)
             {
@@ -1403,7 +1403,7 @@ namespace ServiceLibrary.Repositories
         }
 
         [TestMethod]
-        public async Task GetArtifactNavigatioPathAsync_Success()
+        public async Task GetArtifactNavigationPathAsync_Success()
         {
             // Arrange
             const int projectId = 1;
@@ -1438,7 +1438,7 @@ namespace ServiceLibrary.Repositories
             };
 
             // Act
-            var actual = await repository.GetArtifactNavigatioPathAsync(artifactId, userId);
+            var actual = await repository.GetArtifactNavigationPathAsync(artifactId, userId);
 
             // Assert
             Assert.AreEqual(expected.Count, actual.Count);
@@ -1456,7 +1456,7 @@ namespace ServiceLibrary.Repositories
 
         #endregion
 
-        #region GetArtifactNavigatioPathAsync
+        #region GetArtifactsNavigationPathsAsync
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
@@ -1467,7 +1467,7 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactRepository(cxn.Object);
 
             // Act
-            await repository.GetArtifactsNavigationPaths(1, null);
+            await repository.GetArtifactsNavigationPathsAsync(1, null);
 
             // Assert
         }
@@ -1497,7 +1497,7 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
-            var actual = await repository.GetArtifactsNavigationPaths(userId, artifactIds);
+            var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds);
 
             // Assert
             Assert.AreEqual(queryResult.Length, actual.Count);
@@ -1531,7 +1531,7 @@ namespace ServiceLibrary.Repositories
             var repository = new SqlArtifactRepository(cxn.Object, null, null);
 
             // Act
-            var actual = await repository.GetArtifactsNavigationPaths(userId, artifactIds, false, null);
+            var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds, false, null);
 
             // Assert
             Assert.AreEqual(1, actual.Count);

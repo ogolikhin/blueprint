@@ -227,7 +227,7 @@ namespace SearchService.Repositories
             {
                 itemsNavigationPaths =
                     await
-                        _artifactRepository.GetArtifactsNavigationPaths(userId, items.Select(i => i.ItemId).ToList(),
+                        _artifactRepository.GetArtifactsNavigationPathsAsync(userId, items.Select(i => i.ItemId).ToList(),
                             false);
             }
             else

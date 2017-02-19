@@ -529,9 +529,9 @@ namespace ServiceLibrary.Repositories
 
         #endregion
 
-        #region GetArtifactNavigatioPathAsync
+        #region GetArtifactNavigationPathAsync
 
-        public async Task<List<Artifact>> GetArtifactNavigatioPathAsync(int artifactId, int userId)
+        public async Task<List<Artifact>> GetArtifactNavigationPathAsync(int artifactId, int userId)
         {
             if (artifactId < 1)
                 throw new ArgumentOutOfRangeException(nameof(artifactId));
@@ -593,9 +593,9 @@ namespace ServiceLibrary.Repositories
 
         #endregion
 
-        #region GetArtifactsNavigationPaths
+        #region GetArtifactsNavigationPathsAsync
 
-        public async Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPaths(
+        public async Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPathsAsync(
             int userId,
             IEnumerable<int> artifactIds,
             bool includeArtifactItself = true,
@@ -650,7 +650,7 @@ namespace ServiceLibrary.Repositories
         #endregion
 
         #region GetProjectNamesById
-        public async Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIds(IEnumerable<int> projectIds)
+        public async Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds)
         {
             var param = new DynamicParameters();
             param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(projectIds, "Int32Collection", "Int32Value"));

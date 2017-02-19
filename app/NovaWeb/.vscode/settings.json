@@ -1,9 +1,0 @@
-// Place your settings in this file to overwrite default and user settings.
-{
-    "typescript.tsdk": "./node_modules/typescript/lib",
-    "typescriptHero.resolver.pathStringDelimiter": "\"",
-    "typescriptHero.resolver.insertSpaceBeforeAndAfterImportBraces": false,
-    "typescriptHero.resolver.multiLineWrapThreshold": 160,
-    "typescriptHero.restartDebugger.watchFolders": [],
-    "typescriptHero.restartDebugger.active": false
-}

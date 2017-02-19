@@ -52,7 +52,7 @@ namespace OpenAPITests
                 "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
 
             // Verify:
-            VerifyCreateUserResultSet(usersToCreate, result, 201, "User has been created successfully");
+            VerifyCreateUserResultSet(usersToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
         }
 
         [TestCase]
@@ -63,8 +63,6 @@ namespace OpenAPITests
         {
             // Setup:
             const int NUMBER_OF_USERS_TO_CREATE = 3;
-            const int CREATED = 201;
-            const int USERNAME_IS_NOT_UNIQUE = 1192;
             const int PARTIAL = 207;
 
             var existingUsersToCreate = GenerateListOfOpenApiUsers(NUMBER_OF_USERS_TO_CREATE);
@@ -83,8 +81,8 @@ namespace OpenAPITests
                 "'CREATE {0}' should return '207 Partial Success' when valid data is passed to it and some users exist!", CREATE_PATH);
 
             // Verify:
-            VerifyCreateUserResultSet(usersToCreate, result, CREATED, "User has been created successfully");
-            VerifyCreateUserResultSet(existingUsersToCreate, result, USERNAME_IS_NOT_UNIQUE, "User login name must be unique");
+            VerifyCreateUserResultSet(usersToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
+            VerifyCreateUserResultSet(existingUsersToCreate, result, expectedHttpCode: 1192, expectedMessage: "User login name must be unique");
         }
 
         #endregion Positive tests

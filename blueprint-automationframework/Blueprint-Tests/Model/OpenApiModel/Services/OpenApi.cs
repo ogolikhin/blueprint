@@ -615,8 +615,8 @@ namespace Model.OpenApiModel.Services
                 expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IOpenApi.DeleteUser(IUser, List{string}, List{HttpStatusCode})"/>
-        public UserDeleteResultCollection DeleteUser(
+        /// <seealso cref="IOpenApi.DeleteUsers(IUser, List{string}, List{HttpStatusCode})"/>
+        public UserDeleteResultCollection DeleteUsers(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)

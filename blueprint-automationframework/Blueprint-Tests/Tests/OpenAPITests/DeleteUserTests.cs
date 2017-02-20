@@ -60,7 +60,7 @@ namespace OpenAPITests
             // Execute:
             UserDeleteResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete), 
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete), 
                 "'DELETE {0}' should return '200 OK' when valid data is passed to it!", DELETE_PATH);
                 
             // Verify:
@@ -99,7 +99,7 @@ namespace OpenAPITests
             // Execute:
             UserDeleteResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete, new List<HttpStatusCode> { (HttpStatusCode)207 }),
                 "'DELETE {0}' should return '207 Partial Success' when valid data is passed to it!", DELETE_PATH);
 
             // Verify:
@@ -148,7 +148,7 @@ namespace OpenAPITests
             // Execute:
             UserDeleteResultCollection result = null;
 
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
                 "'DELETE {0}' should return '401 Unauthorized' when an invalid or missing token is passed to it!", DELETE_PATH);
 
             // Verify:
@@ -172,7 +172,7 @@ namespace OpenAPITests
             var usernamesToDelete = new List<string> { authorUser.Username };
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.DeleteUser(authorUser, usernamesToDelete),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.DeleteUsers(authorUser, usernamesToDelete),
                 "'DELETE {0}' should return '403 Forbidden' when called by a user without permission to delete users!", DELETE_PATH);
 
             // Verify:
@@ -195,7 +195,7 @@ namespace OpenAPITests
             userToDelete.DeleteUser(useSqlUpdate: true);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
                 "'DELETE {0}' should return '409 Conflict' when passed a username that doesn't exist!", DELETE_PATH);
 
             // Verify:
@@ -215,7 +215,7 @@ namespace OpenAPITests
             var usernamesToDelete = new List<string> { userToDelete.Username };
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
                 "'DELETE {0}' should return '409 Conflict' when passed a username that doesn't exist!", DELETE_PATH);
 
             // Verify:
@@ -267,6 +267,9 @@ namespace OpenAPITests
 
             expectedSuccessfullyDeletedUsers = expectedSuccessfullyDeletedUsers ?? new List<IUser>();
             expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<IUser, int>();
+
+            int expectedTotalUserCount = expectedSuccessfullyDeletedUsers.Count + expectedFailedDeletedUsers.Count;
+            Assert.AreEqual(expectedTotalUserCount, resultSet.Count, "Wrong number of User results were returned!");
 
 //            Assert.AreEqual(expectedStatusCode, resultSet.Status,
 //                "'{0}' should be '{1}'!", nameof(resultSet.Status), expectedStatusCode);

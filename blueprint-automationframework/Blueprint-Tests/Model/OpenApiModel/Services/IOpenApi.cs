@@ -41,7 +41,7 @@ namespace Model.OpenApiModel.Services
         /// <param name="usersToCreate">List of users to create.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
         /// <returns>Collection of users which were created with returned http code and message.</returns>
-        UserCallResultCollection CreateUser(
+        UserCallResultCollection CreateUsers(
             IUser userToAuthenticate,
             List<OpenApiUser> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null);

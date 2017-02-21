@@ -9,7 +9,6 @@ using Utilities.Factories;
 using Common;
 using Model.OpenApiModel.UserModel.Results;
 using System.Net;
-using System;
 
 namespace OpenAPITests
 {
@@ -48,7 +47,7 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUser(_adminUser, usersToCreate),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, usersToCreate),
                 "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
 
             // Verify:
@@ -66,7 +65,7 @@ namespace OpenAPITests
             const int PARTIAL = 207;
 
             var existingUsersToCreate = GenerateListOfOpenApiUsers(NUMBER_OF_USERS_TO_CREATE);
-            Helper.OpenApi.CreateUser(_adminUser, existingUsersToCreate);
+            Helper.OpenApi.CreateUsers(_adminUser, existingUsersToCreate);
 
             var usersToCreate = GenerateListOfOpenApiUsers(NUMBER_OF_USERS_TO_CREATE);
 
@@ -77,7 +76,7 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUser(_adminUser, plannedToBeCreatedUsers, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, plannedToBeCreatedUsers, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when valid data is passed to it and some users exist!", CREATE_PATH);
 
             // Verify:
@@ -91,6 +90,7 @@ namespace OpenAPITests
         // TODO: 409 when password is special and numerical characters
         // TODO: 409 when password is alfabetical & numeric characters
         // TODO: 207 for each type of error
+        // TODO: 409 Admin role does not exists
 
         #region Private methods
 
@@ -117,7 +117,7 @@ namespace OpenAPITests
             {
                 OpenApiUser userToCreate = new OpenApiUser()
                 {
-                    Name = RandomGenerator.RandomAlphaNumeric(10),
+                    Username = RandomGenerator.RandomAlphaNumeric(10),
                     DisplayName = RandomGenerator.RandomAlphaNumeric(10),
                     FirstName = RandomGenerator.RandomAlphaNumeric(10),
                     LastName = RandomGenerator.RandomAlphaNumeric(10),
@@ -126,10 +126,9 @@ namespace OpenAPITests
                     Email = I18NHelper.FormatInvariant("{0}@{1}.com", RandomGenerator.RandomAlphaNumeric(5), RandomGenerator.RandomAlphaNumeric(5)),
                     Title = RandomGenerator.RandomAlphaNumeric(10),
                     Department = RandomGenerator.RandomAlphaNumeric(10),
-                    Groups = groupList,
                     GroupIds = groupIds,
                     InstanceAdminRole = "Default Instance Administrator",
-                    ExpiredPassword = DateTime.Now.AddMonths(1),
+                    ExpirePassword = true,
                     Enabled = true,
                     UserOrGroupType = "User"
                 };
@@ -152,7 +151,7 @@ namespace OpenAPITests
 
             foreach (var user in userList)
             {
-                var result = resultSet.Find(u => u.User.Username == user.Name);
+                var result = resultSet.Find(u => u.User.Username == user.Username);
 
                 Assert.AreEqual(expectedHttpCode, result.ResultCode, "'{0}' is incorrect!", nameof(result.ResultCode));
                 Assert.AreEqual(expectedMessage, result.Message, "'{0}' is incorrect!", nameof(result.Message));

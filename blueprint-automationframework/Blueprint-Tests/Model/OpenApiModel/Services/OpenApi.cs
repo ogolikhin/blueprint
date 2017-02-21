@@ -597,8 +597,8 @@ namespace Model.OpenApiModel.Services
 
         #region User methods
 
-        /// <seealso cref="IOpenApi.CreateUser(IUser, List{OpenApiUser}, List{HttpStatusCode})"/>
-        public UserCallResultCollection CreateUser(
+        /// <seealso cref="IOpenApi.CreateUsers(IUser, List{OpenApiUser}, List{HttpStatusCode})"/>
+        public UserCallResultCollection CreateUsers(
             IUser userToAuthenticate,
             List<OpenApiUser> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null)

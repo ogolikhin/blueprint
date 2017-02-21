@@ -14,12 +14,14 @@ namespace Model.Impl
         public int Id
         {
             get { return UserData.Id; }
+            set { UserData.Id = value; }
         }
         
         [JsonProperty("Type")]
         public string UserOrGroupType { get; set; }
 
-        public string Name
+        [JsonProperty("Name")]
+        public string Username
         {
             get { return UserData.Username; }
             set { UserData.Username = value; }
@@ -44,9 +46,11 @@ namespace Model.Impl
             get { return UserData.Password; }
             set { UserData.Password = value; }
         }
-
-        public DateTime? ExpiredPassword { get; set; }
-
+        public bool? ExpirePassword
+        {
+            get { return UserData.ExpirePassword; }
+            set { UserData.ExpirePassword = value; }
+        }
         public string Email
         {
             get { return UserData.Email; }
@@ -62,15 +66,16 @@ namespace Model.Impl
             get { return UserData.Department; }
             set { UserData.Department = value; }
         }
-
         public List<IGroup> Groups
         {
             get { return UserData.GroupMembership; }
             set { UserData.GroupMembership = value; }
         }
-
-        public List<int> GroupIds { get; set; }
-
+        public List<int> GroupIds
+        {
+            get { return UserData.GroupIds; }
+            set { UserData.GroupIds = value; }
+        }
         public bool Enabled
         {
             get { return UserData.Enabled; }
@@ -103,7 +108,7 @@ namespace Model.Impl
         {
             UserData = new UserDataModel();
 
-            Name = username;
+            Username = username;
             FirstName = firstname;
             LastName = lastname;
             Password = password;

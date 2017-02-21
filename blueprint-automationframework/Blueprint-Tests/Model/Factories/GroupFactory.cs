@@ -16,7 +16,7 @@ namespace Model.Factories
             string name = RandomGenerator.RandomAlphaNumeric(6);
             string description = RandomGenerator.RandomAlphaNumeric(10);
             string email = I18NHelper.FormatInvariant("{0}@{1}.com", name, RandomGenerator.RandomAlphaNumeric(10));
-            var group = new Group(name, email, description, licenseType);
+            var group = new Group(name, description, email, licenseType);
             return group;
         }
 

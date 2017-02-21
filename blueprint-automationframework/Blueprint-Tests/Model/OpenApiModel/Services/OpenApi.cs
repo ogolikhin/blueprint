@@ -603,28 +603,10 @@ namespace Model.OpenApiModel.Services
             UserDataModel userToCreate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return CreateUser(Address, userToAuthenticate, userToCreate, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Create a user with specified user properties in open API
-        /// (Runs:  'POST /api/v1/users/create')
-        /// </summary>
-        /// <param name="address">The base URL of the Blueprint server.</param>
-        /// <param name="userWhoCreatesAnotherUser">A user that has permission to create users.</param>
-        /// <param name="userToCreate">User to create</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected</param>
-        /// <returns>User that was created.</returns>
-        public static UserDataModel CreateUser(string address,
-            IUser userWhoCreatesAnotherUser,
-            UserDataModel userToCreate,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
 
-            var restApi = new RestApiFacade(address, userWhoCreatesAnotherUser?.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.Users.CREATE;
+            var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
+            string path = RestPaths.OpenApi.USERS;
 
             return restApi.SendRequestAndDeserializeObject<UserDataModel, UserDataModel>(
                 path,
@@ -633,8 +615,8 @@ namespace Model.OpenApiModel.Services
                 expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IOpenApi.DeleteUser(IUser, List{string}, List{HttpStatusCode})"/>
-        public UserDeleteResultCollection DeleteUser(
+        /// <seealso cref="IOpenApi.DeleteUsers(IUser, List{string}, List{HttpStatusCode})"/>
+        public UserDeleteResultCollection DeleteUsers(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -642,7 +624,7 @@ namespace Model.OpenApiModel.Services
             ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
 
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.Users.DELETE;
+            string path = RestPaths.OpenApi.USERS;
 
             return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, List<string>>(
                 path,

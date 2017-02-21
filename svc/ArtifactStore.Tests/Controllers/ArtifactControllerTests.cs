@@ -187,7 +187,7 @@ namespace ArtifactStore.Controllers
             const int artifactId = 10;
             var navPath = new List<Artifact>();
             var mockArtifactRepository = new Mock<ISqlArtifactRepository>();
-            mockArtifactRepository.Setup(r => r.GetArtifactNavigatioPathAsync(artifactId, userId)).ReturnsAsync(navPath);
+            mockArtifactRepository.Setup(r => r.GetArtifactNavigationPathAsync(artifactId, userId)).ReturnsAsync(navPath);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             var mockServiceLogRepository = new Mock<IServiceLogRepository>();
             var artifactController = new ArtifactController(mockArtifactRepository.Object, mockArtifactPermissionsRepository.Object, mockServiceLogRepository.Object)

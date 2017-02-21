@@ -12,15 +12,15 @@ namespace ServiceLibrary.Repositories
 
         Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true);
 
-        Task<List<Artifact>> GetArtifactNavigatioPathAsync(int artifactId, int userId);
+        Task<List<Artifact>> GetArtifactNavigationPathAsync(int artifactId, int userId);
 
-        Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPaths(
+        Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPathsAsync(
             int userId,
             IEnumerable<int> artifactIds,
             bool includeArtifactItself = true,
             int? revisionId = null,
             bool addDraft = true);
 
-        Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIds(IEnumerable<int> projectIds);
+        Task<IEnumerable<ProjectNameIdPair>> GetProjectNameByIdsAsync(IEnumerable<int> projectIds);
     }
 }

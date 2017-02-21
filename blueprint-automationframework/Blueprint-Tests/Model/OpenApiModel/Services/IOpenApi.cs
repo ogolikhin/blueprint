@@ -34,7 +34,8 @@ namespace Model.OpenApiModel.Services
         #region User methods
 
         /// <summary>
-        /// Create users with specified properties.
+
+        /// Create a user with specified user properties.
         /// (Runs:  'POST /api/v1/users')
         /// </summary>
         /// <param name="userToAuthenticate">A user that has permission to create users.</param>
@@ -47,14 +48,14 @@ namespace Model.OpenApiModel.Services
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Delete a user with specific username.
-        /// (Runs:  'DELETE /api/v1/users/delete')
+        /// Delete a list of users with specific usernames.
+        /// (Runs:  'DELETE /api/v1/users')
         /// </summary>
         /// <param name="userToAuthenticate">A user that has permission to delete users.</param>
         /// <param name="usernamesToDelete">Usernames of users to delete.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
-        UserCallResultCollection DeleteUser(
+        UserCallResultCollection DeleteUsers(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null);

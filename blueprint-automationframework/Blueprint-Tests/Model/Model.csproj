@@ -93,6 +93,7 @@
     <Compile Include="ArtifactModel\INovaArtifactBase.cs" />
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
+    <Compile Include="Common\Constants\BusinessLayerErrorCodes.cs" />
     <Compile Include="Factories\OpenApiFactory.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />

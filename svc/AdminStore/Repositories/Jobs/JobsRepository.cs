@@ -269,7 +269,7 @@ namespace AdminStore.Repositories.Jobs
 
         private async Task<Dictionary<int, string>> GetProjectNamesForUserMapping(HashSet<int> projectIds, int? userId)
         {
-            var projectNameIdDictionary = (await _sqlArtifactRepository.GetProjectNameByIds(projectIds)).ToDictionary(x => x.ItemId, x => x.Name);
+            var projectNameIdDictionary = (await _sqlArtifactRepository.GetProjectNameByIdsAsync(projectIds)).ToDictionary(x => x.ItemId, x => x.Name);
             if (!userId.HasValue)
             {
                 return projectNameIdDictionary;

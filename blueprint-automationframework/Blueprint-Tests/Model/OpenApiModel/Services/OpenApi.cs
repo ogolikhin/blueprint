@@ -605,10 +605,8 @@ namespace Model.OpenApiModel.Services
         {
             ThrowIf.ArgumentNull(usersToCreate, nameof(usersToCreate));
 
-            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
-
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.Users.CREATE;
+            string path = RestPaths.OpenApi.USERS;
 
             return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, List<OpenApiUser>>(
                 path,
@@ -617,8 +615,8 @@ namespace Model.OpenApiModel.Services
                 expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IOpenApi.DeleteUser(IUser, List{string}, List{HttpStatusCode})"/>
-        public UserCallResultCollection DeleteUser(
+        /// <seealso cref="IOpenApi.DeleteUsers(IUser, List{string}, List{HttpStatusCode})"/>
+        public UserCallResultCollection DeleteUsers(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -626,7 +624,7 @@ namespace Model.OpenApiModel.Services
             ThrowIf.ArgumentNull(usernamesToDelete, nameof(usernamesToDelete));
 
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.Users.DELETE;
+            string path = RestPaths.OpenApi.USERS;
 
             return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, List<string>>(
                 path,

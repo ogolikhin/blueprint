@@ -146,7 +146,7 @@ namespace ArtifactStore.Controllers
         public async Task<List<Artifact>> GetArtifactNavigationPathAsync(int artifactId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetArtifactNavigatioPathAsync(artifactId, session.UserId);
+            return await ArtifactRepository.GetArtifactNavigationPathAsync(artifactId, session.UserId);
         }
     }
 }

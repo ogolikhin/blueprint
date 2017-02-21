@@ -6,7 +6,7 @@ namespace Model.ArtifactModel.Impl
 {
     public class CollectionItem
     {
-        public DateTime? CreatedOn { get; set; }
+        public DateTime? CreatedOn { get; set; } //now this property is always null for Collection
         public int Id { get; set; }
 
         public string Name { get; set; }

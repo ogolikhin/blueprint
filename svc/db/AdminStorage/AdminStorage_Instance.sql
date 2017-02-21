@@ -1603,6 +1603,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_StartDate', '
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_EndDate', 'en-US', N'Completed on')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Error_Label', 'en-US', N'Error')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Button_Label_GetJobs', 'en-US', N'Get Jobs')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_Button_Label', 'en-US', N'Walkthrough')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

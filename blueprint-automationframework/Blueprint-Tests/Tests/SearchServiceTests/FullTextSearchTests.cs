@@ -1,21 +1,23 @@
-﻿using CustomAttributes;
+﻿using Common;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
+using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using Model.SearchServiceModel.Impl;
+using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl;
-using Model.StorytellerModel.Impl;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 using Utilities.Factories;
 
 namespace SearchServiceTests
@@ -778,6 +780,34 @@ namespace SearchServiceTests
             Assert.That(serviceErrorMessage.ErrorCode.Equals(ErrorCodes.IncorrectSearchCriteria),
                 "POST {0} call with the searchCriteria less than minimum length search term should return {1} errorCode but {2} is returned",
                 FULLTEXTSEARCH_PATH, ErrorCodes.IncorrectSearchCriteria, serviceErrorMessage.ErrorCode);
+        }
+
+        [TestCase("*")]
+        [TestCase("&")]
+        [TestRail(246562)]
+        [Description("FullTextSearch using the invalid URL containing a special character. Verify that 400 bad request is returned.")]
+        public void FullTextSearch_SendInvalidUrl_400BadRequest(string invalidCharacter)
+        {
+            // Setup:
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
+            string invalidPath = FULLTEXTSEARCH_PATH + invalidCharacter;
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<FullTextSearchResult, FullTextSearchCriteria>(
+                invalidPath,
+                RestRequestMethod.POST,
+                searchCriteria,
+                shouldControlJsonChanges: false
+                ),
+                "POST {0} call should return a 400 Bad Request exception when trying with invalid URL.", FULLTEXTSEARCH_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharacter);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }
 
         #endregion 400 Bad Request Tests

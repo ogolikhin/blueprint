@@ -6,19 +6,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Common;
-using Model.OpenApiModel.UserModel;
+using Model.Common.Constants;
+using Model.Factories;
+using Model.OpenApiModel.UserModel.Results;
+using Newtonsoft.Json;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
 
 namespace OpenAPITests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // US4967
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class DeleteUserTests : TestBase
     {
-        private const string DELETE_PATH = RestPaths.OpenApi.Users.DELETE;
+        private const string DELETE_PATH = RestPaths.OpenApi.USERS;
 
         private IUser _adminUser = null;
 
@@ -37,6 +39,7 @@ namespace OpenAPITests
 
         #region Positive tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // https://trello.com/c/28l7J1Qz  Returns 201 instead of 200 for successfully deleted users.
         [TestCase(1)]
         [TestCase(5)]
         [TestRail(246522)]
@@ -48,22 +51,23 @@ namespace OpenAPITests
 
             for (int i = 0; i < numberOfUsersToDelete; ++i)
             {
-                var userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+                var userToDelete = Helper.CreateUserAndAddToDatabase();
                 usersToDelete.Add(userToDelete);
             }
 
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            DeleteUserResultSet result = null;
+            UserDeleteResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete), 
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete), 
                 "'DELETE {0}' should return '200 OK' when valid data is passed to it!", DELETE_PATH);
                 
             // Verify:
             VerifyDeleteUserResultSet(result, usersToDelete);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // https://trello.com/c/28l7J1Qz  Returns 201 instead of 200 for successfully deleted users.
         [TestCase]
         [TestRail(246538)]
         [Description("Delete a list of users (some users are active and others are already deleted) and verify a 207 HTTP status was returned and " +
@@ -74,43 +78,48 @@ namespace OpenAPITests
             const int numberOfUsersToDelete = 3;
             var usersToDelete = new List<IUser>();
             var activeUsersToDelete = new List<IUser>();
+            var deletedUsersToDelete = new Dictionary<IUser, int>();
 
             for (int i = 0; i < numberOfUsersToDelete; ++i)
             {
                 // Add an active user.
-                var userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+                var userToDelete = Helper.CreateUserAndAddToDatabase();
                 usersToDelete.Add(userToDelete);
                 activeUsersToDelete.Add(userToDelete);
 
                 // Add a user and then delete it.
-                userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+                userToDelete = Helper.CreateUserAndAddToDatabase();
                 usersToDelete.Add(userToDelete);
+                deletedUsersToDelete.Add(userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist);
                 userToDelete.DeleteUser(useSqlUpdate: true);
             }
 
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            DeleteUserResultSet result = null;
+            UserDeleteResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUser(_adminUser, usernamesToDelete, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete, new List<HttpStatusCode> { (HttpStatusCode)207 }),
                 "'DELETE {0}' should return '207 Partial Success' when valid data is passed to it!", DELETE_PATH);
 
             // Verify:
-            VerifyDeleteUserResultSet(result, usersToDelete);
+            VerifyDeleteUserResultSet(result,
+                expectedSuccessfullyDeletedUsers: activeUsersToDelete,
+                expectedFailedDeletedUsers: deletedUsersToDelete);
         }
 
         #endregion Positive tests
 
-        #region Negative tests
+        #region 400 tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // https://trello.com/c/kssNExR2  Gets 500 error instead of 400.
         [TestCase]
         [TestRail(246539)]
         [Description("Delete a user and pass invalid parameters in the JSON body.  Verify it returns 400 Bad Request.")]
         public void DeleteUser_InvalidUserParameters_400BadRequest()
         {
             // Setup:
-            var userToDelete = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var userToDelete = Helper.CreateUserAndAddToDatabase();
             var badData = new Dictionary<string, int> { { userToDelete.Username, userToDelete.Id } };
 
             // Execute:
@@ -121,12 +130,102 @@ namespace OpenAPITests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotAcceptable, "TODO: Add real message here");
         }
 
-        // TODO: Add 401 tests.
-        // TODO: Add 403 tests.
-        // TODO: Add 404 tests.
-        // TODO: Add 409 tests.
+        #endregion 400 tests
 
-        #endregion Negative tests
+        #region 401 tests
+
+        [TestCase(null)]
+        [TestCase(CommonConstants.InvalidToken)]
+        [TestRail(246543)]
+        [Description("Delete a user and pass invalid or missing token.  Verify it returns 401 Unauthorized.")]
+        public void DeleteUser_InvalidToken_401Unauthorized(string invalidToken)
+        {
+            // Setup:
+            _adminUser.Token.OpenApiToken = invalidToken;
+
+            var usernamesToDelete = new List<string> { _adminUser.Username };
+
+            // Execute:
+            UserDeleteResultCollection result = null;
+
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
+                "'DELETE {0}' should return '401 Unauthorized' when an invalid or missing token is passed to it!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call.");
+        }
+
+        #endregion 401 tests
+
+        #region 403 tests
+
+        [TestCase]
+        [TestRail(246544)]
+        [Description("Delete a user and pass a token for a user without permission to delete users.  Verify it returns 403 Forbidden.")]
+        public void DeleteUser_InsufficientPermissions_403Forbidden()
+        {
+            // Setup:
+            // Create an Author user.  Authors shouldn't have permission to delete other users.
+            var project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
+
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+            var usernamesToDelete = new List<string> { authorUser.Username };
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.DeleteUsers(authorUser, usernamesToDelete),
+                "'DELETE {0}' should return '403 Forbidden' when called by a user without permission to delete users!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have the privileges required to perform the action.");
+        }
+
+        #endregion 403 tests
+
+        #region 409 tests
+
+        [TestCase]
+        [TestRail(246545)]
+        [Description("Delete a user that was already deleted.  Verify it returns 409 Conflict.")]
+        public void DeleteUser_DeletedUser_409Conflict()
+        {
+            // Setup:
+            var userToDelete = Helper.CreateUserAndAddToDatabase();
+            var usernamesToDelete = new List<string> { userToDelete.Username };
+
+            userToDelete.DeleteUser(useSqlUpdate: true);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
+                "'DELETE {0}' should return '409 Conflict' when passed a username that doesn't exist!", DELETE_PATH);
+
+            // Verify:
+            var expectedFailedDeletedUsers = new Dictionary<IUser, int> { { userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist } };
+
+            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict);
+        }
+
+        [TestCase]
+        [TestRail(246546)]
+        [Description("Delete a user that doesn't exist.  Verify it returns 409 Conflict.")]
+        public void DeleteUser_NonExistingUsername_409Conflict()
+        {
+            // Setup:
+            var userToDelete = UserFactory.CreateUserOnly();
+            var usernamesToDelete = new List<string> { userToDelete.Username };
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
+                "'DELETE {0}' should return '409 Conflict' when passed a username that doesn't exist!", DELETE_PATH);
+
+            // Verify:
+            var expectedFailedDeletedUsers = new Dictionary<IUser, int> { { userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist } };
+
+            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict, checkIfUserExists: false);
+        }
+
+        #endregion 409 tests
 
         #region Private methods
 
@@ -137,12 +236,12 @@ namespace OpenAPITests
         /// <param name="userToAuthenticate">The user to authenticate with.</param>
         /// <param name="jsonBody">The data to send in the body.</param>
         /// <returns>A DeleteUserResultSet object if successful.</returns>
-        private DeleteUserResultSet DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
+        private UserDeleteResultCollection DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
         {
             var restApi = new RestApiFacade(Helper.OpenApi.Address, userToAuthenticate?.Token?.OpenApiToken);
-            string path = RestPaths.OpenApi.Users.DELETE;
+            string path = DELETE_PATH;
 
-            return restApi.SendRequestAndDeserializeObject<DeleteUserResultSet, T>(
+            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, T>(
                 path,
                 RestRequestMethod.DELETE,
                 jsonBody);
@@ -153,66 +252,83 @@ namespace OpenAPITests
         /// </summary>
         /// <param name="resultSet">Result set from delete users call.</param>
         /// <param name="expectedSuccessfullyDeletedUsers">(optional) A list of users that we expect to be successfully deleted.</param>
-        /// <param name="expectedFailedDeletedUsers">(optional) A map of Http Status Codes and Users that we expect got errors when we tried to delete them.</param>
+        /// <param name="expectedFailedDeletedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to delete them.</param>
         /// <param name="expectedStatusCode">(optional) The expected main ReturnCode.</param>
+        /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "expectedStatusCode")] // TODO: Remove this and uncomment code once Status is serialized.
         private void VerifyDeleteUserResultSet(
-            DeleteUserResultSet resultSet,
+            UserDeleteResultCollection resultSet,
             List<IUser> expectedSuccessfullyDeletedUsers = null,
-            Dictionary<HttpStatusCode, IUser> expectedFailedDeletedUsers = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK)
+            Dictionary<IUser, int> expectedFailedDeletedUsers = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
+            bool checkIfUserExists = true)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
             expectedSuccessfullyDeletedUsers = expectedSuccessfullyDeletedUsers ?? new List<IUser>();
-            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<HttpStatusCode, IUser>();
+            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<IUser, int>();
 
-            Assert.AreEqual(expectedStatusCode, resultSet.ReturnCode,
-                "'{0}' should be '{1}'!", nameof(resultSet.ReturnCode), expectedStatusCode);
+            int expectedTotalUserCount = expectedSuccessfullyDeletedUsers.Count + expectedFailedDeletedUsers.Count;
+            Assert.AreEqual(expectedTotalUserCount, resultSet.Count, "Wrong number of User results were returned!");
+
+//            Assert.AreEqual(expectedStatusCode, resultSet.Status,
+//                "'{0}' should be '{1}'!", nameof(resultSet.Status), expectedStatusCode);
 
             foreach (var deletedUser in expectedSuccessfullyDeletedUsers)
             {
-                var result = resultSet.Results.Find(a => a.Username == deletedUser.Username);
+                var result = resultSet.Find(a => a.User.Username == deletedUser.Username);
 
-                Assert.AreEqual("User successfully deleted.", result.Message, "'{0}' is incorrect!", nameof(result.Message));
-                Assert.AreEqual(HttpStatusCode.OK, result.ReturnCode, "'{0}' should be 200 OK!", nameof(result.ReturnCode));
+                Assert.AreEqual(ErrorCodeToErrorMessageMap[InternalApiErrorCodes.Ok], result.Message, "'{0}' is incorrect!", nameof(result.Message));
+                Assert.AreEqual(InternalApiErrorCodes.Ok, result.ResultCode, "'{0}' should be 200 OK!", nameof(result.ResultCode));
 
-                VerifyUserIsDeleted(deletedUser);
+                if (checkIfUserExists)
+                {
+                    VerifyUserIsDeleted(deletedUser);
+                }
             }
 
-            VerifyUnsuccessfullyDeletedUsers(resultSet, expectedFailedDeletedUsers);
+            VerifyUnsuccessfullyDeletedUsers(resultSet, expectedFailedDeletedUsers, checkIfUserExists);
         }
 
         /// <summary>
-        /// A map of HttpStatusCode to error message for the DeleteUserResultSet.
+        /// A map of InternalApiErrorCodes to error message for the DeleteUserResultSet.
         /// </summary>
-        private Dictionary<HttpStatusCode, string> ReturnCodeToErrorMessageMap { get; } = new Dictionary<HttpStatusCode, string>
+        private Dictionary<int, string> ErrorCodeToErrorMessageMap { get; } = new Dictionary<int, string>
         {
-            { HttpStatusCode.OK, "User successfully deleted." }
+            { InternalApiErrorCodes.Ok, "User has been successfully deleted." },
+            { BusinessLayerErrorCodes.LoginDoesNotExist, "User with User Name={0} does not exist" }
         };
 
         /// <summary>
         /// Verifies that the users that were NOT successfully deleted have the expected status codes.
         /// </summary>
         /// <param name="resultSet">Result set from delete users call.</param>
-        /// <param name="expectedFailedDeletedUsers">(optional) A map of Http Status Codes and Users that we expect got errors when we tried to delete them.</param>
+        /// <param name="expectedFailedDeletedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to delete them.</param>
+        /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
         private void VerifyUnsuccessfullyDeletedUsers(
-            DeleteUserResultSet resultSet,
-            Dictionary<HttpStatusCode, IUser> expectedFailedDeletedUsers = null)
+            UserDeleteResultCollection resultSet,
+            Dictionary<IUser, int> expectedFailedDeletedUsers = null,
+            bool checkIfUserExists = true)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
-            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<HttpStatusCode, IUser>();
+            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<IUser, int>();
 
-            foreach (var statusAndDeletedUser in expectedFailedDeletedUsers)
+            foreach (var deletedUserAndStatus in expectedFailedDeletedUsers)
             {
-                var returnCode = statusAndDeletedUser.Key;
-                var deletedUser = statusAndDeletedUser.Value;
-                var result = resultSet.Results.Find(a => a.Username == deletedUser.Username);
+                var deletedUser = deletedUserAndStatus.Key;
+                var returnCode = deletedUserAndStatus.Value;
+                var result = resultSet.Find(a => a.User.Username == deletedUser.Username);
+                string expectedErrorMessage = I18NHelper.FormatInvariant(ErrorCodeToErrorMessageMap[returnCode],
+                    deletedUser.Username);
 
-                Assert.AreEqual(ReturnCodeToErrorMessageMap[returnCode], result.Message, "'{0}' is incorrect!", nameof(result.Message));
-                Assert.AreEqual(returnCode, result.ReturnCode, "'{0}' should be '{1}'!", nameof(result.ReturnCode), returnCode);
+                Assert.AreEqual(expectedErrorMessage, result.Message, "'{0}' is incorrect!", nameof(result.Message));
+                Assert.AreEqual(returnCode, result.ResultCode, "'{0}' should be '{1}'!", nameof(result.ResultCode), returnCode);
 
-                VerifyUserIsDeleted(deletedUser);
+                if (checkIfUserExists)
+                {
+                    VerifyUserIsDeleted(deletedUser);
+                }
             }
         }
 
@@ -227,10 +343,10 @@ namespace OpenAPITests
                 "GetUser should return 500 Internal Server Error if the user was deleted!");
 
             string expectedErrorMessage =
-                I18NHelper.FormatInvariant("Message=DUser with Id: {0} was deleted by some other user. Please refresh.",
+                I18NHelper.FormatInvariant("DUser with Id: {0} was deleted by some other user. Please refresh.",
                     deletedUser.Id);
 
-            TestHelper.ValidateServiceError(ex.RestResponse, expectedErrorMessage);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
         }
 
         #endregion Private methods

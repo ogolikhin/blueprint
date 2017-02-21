@@ -1,6 +1,0 @@
-﻿<div class="avatar__wrapper">
-    <img class="avatar__img" ng-src="{{ $ctrl.icon }}" ng-if="!$ctrl.guest" alt="{{ $ctrl.name }}" onerror="this.parentElement.removeChild(this)" />
-    <div class="avatar__initials"
-         ng-class="{ 'avatar__initials--guest': $ctrl.guest }"
-         ng-style="{ 'background-color': $ctrl.background, 'color': $ctrl.initialsColor }">{{ $ctrl.initials }}</div>
-</div>

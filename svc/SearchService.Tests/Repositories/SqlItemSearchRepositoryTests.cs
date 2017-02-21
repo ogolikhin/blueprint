@@ -163,7 +163,7 @@ namespace SearchService.Repositories
 
             var navigationPaths = new Dictionary<int, IEnumerable<string>> { { 0, new List<string> { "ArtifactPath" } } };
             var mockSqlArtifactRepository = new Mock<ISqlArtifactRepository>();
-            mockSqlArtifactRepository.Setup(r => r.GetArtifactsNavigationPaths(1, new List<int> { 0 }, false, null, true)).ReturnsAsync(navigationPaths);
+            mockSqlArtifactRepository.Setup(r => r.GetArtifactsNavigationPathsAsync(1, new List<int> { 0 }, false, null, true)).ReturnsAsync(navigationPaths);
 
             var itemSearchRepository = CreateItemNameRepository(searchCriteria, queryResult, mockArtifactPermissionsRepository.Object, mockSqlArtifactRepository.Object);
 

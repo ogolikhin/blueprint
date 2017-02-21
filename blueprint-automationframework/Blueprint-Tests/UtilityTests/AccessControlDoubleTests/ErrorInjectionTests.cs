@@ -10,7 +10,7 @@ using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 
-namespace UtilityTests.AccessControlDoubleTests
+namespace AccessControlDoubleTests
 {
     /// <summary>
     /// These tests don't test any Blueprint functionality.  They only test whether the AccessControlDouble is functioning properly.

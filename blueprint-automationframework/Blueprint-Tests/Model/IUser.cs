@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Model.Impl;
 
 namespace Model
 {
@@ -14,6 +15,8 @@ namespace Model
     public interface IUser
     {
         #region Properties
+
+        UserDataModel UserData { get; }
 
         string Department { get; set; }                     // (NULLABLE)
         string Email { get; set; }                          // (NULLABLE)

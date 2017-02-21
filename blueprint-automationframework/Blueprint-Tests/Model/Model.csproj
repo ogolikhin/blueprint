@@ -99,6 +99,7 @@
     <Compile Include="Factories\SearchServiceFactory.cs" />
     <Compile Include="Factories\SvcComponentsFactory.cs" />
     <Compile Include="Factories\SvcSharedFactory.cs" />
+    <Compile Include="Factories\UserDataModelFactory.cs" />
     <Compile Include="IAlmTarget.cs" />
     <Compile Include="Impl\AlmTarget.cs" />
     <Compile Include="Impl\DatabaseHelper.cs" />

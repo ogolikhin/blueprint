@@ -648,6 +648,24 @@ namespace Model.OpenApiModel.Services
                 expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IOpenApi.UpdateUsers(IUser, List{UserDataModel}, List{HttpStatusCode})"/>
+        public UserDeleteResultCollection UpdateUsers(
+            IUser userToAuthenticate,
+            List<UserDataModel> usersToUpdate,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(usersToUpdate, nameof(usersToUpdate));
+
+            var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
+            string path = RestPaths.OpenApi.USERS;
+
+            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, List<UserDataModel>>(
+                path,
+                RestRequestMethod.PATCH,
+                usersToUpdate,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
         #endregion User methods
 
         #region Version Control methods

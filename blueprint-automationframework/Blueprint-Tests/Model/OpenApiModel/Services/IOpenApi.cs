@@ -53,7 +53,7 @@ namespace Model.OpenApiModel.Services
         /// <param name="userToAuthenticate">A user that has permission to delete users.</param>
         /// <param name="usernamesToDelete">Usernames of users to delete.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
+        /// <returns>List of usernames with their error codes and messages that was deleted.</returns>
         UserDeleteResultCollection DeleteUsers(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
@@ -70,6 +70,19 @@ namespace Model.OpenApiModel.Services
         GetUserResult GetUser(
             IUser userToAuthenticate,
             int userId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Updates a list of users with specific usernames.
+        /// (Runs:  'PATCH /api/v1/users')
+        /// </summary>
+        /// <param name="userToAuthenticate">A user that has permission to update users.</param>
+        /// <param name="usersToUpdate">Users to update (only Type, Username and the properties being updated are required).</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of usernames with their error codes and messages.</returns>
+        UserDeleteResultCollection UpdateUsers(
+            IUser userToAuthenticate,
+            List<UserDataModel> usersToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion User methods

@@ -1,0 +1,247 @@
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using CustomAttributes;
+using Helper;
+using Model;
+using Model.Factories;
+using Model.Impl;
+using Model.OpenApiModel.UserModel.Enums;
+using Model.OpenApiModel.UserModel.Results;
+using NUnit.Framework;
+using TestCommon;
+using Utilities;
+using Utilities.Factories;
+
+namespace OpenAPITests
+{
+    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // US4966
+    [TestFixture]
+    [Category(Categories.OpenApi)]
+    public class UpdateUserTests : TestBase
+    {
+        private const string UPDATE_PATH = RestPaths.OpenApi.USERS;
+
+        private IUser _adminUser = null;
+
+        [SetUp]
+        public void SetUp()
+        {
+            Helper = new TestHelper();
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.OpenApiToken);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Helper?.Dispose();
+        }
+
+        #region Positive tests
+
+        [TestCase(1, nameof(UserDataModel.Department))]
+        [TestCase(5, nameof(UserDataModel.DisplayName))]
+        [TestRail(000)]
+        [Description("Update some properties of one or more users and verify that the users were updated.")]
+        public void UpdateUser_ValidUserParameters_VerifyUserUpdated(int numberOfUsersToUpdate, string propertyToUpdate)
+        {
+            // Setup:
+            var usersToUpdate = new List<IUser>();
+
+            for (int i = 0; i < numberOfUsersToUpdate; ++i)
+            {
+                var userToUpdate = Helper.CreateUserAndAddToDatabase();
+                usersToUpdate.Add(userToUpdate);
+            }
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { propertyToUpdate, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+
+            var usernamesToUpdate = usersToUpdate.Select(u => u.Username).ToList();
+            var userDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            // Execute:
+            UserDeleteResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
+                "'PATCH {0}' should return '200 OK' when valid data is passed to it!", UPDATE_PATH);
+
+            // Verify:
+            VerifyUpdateUserResultSet(result, usersToUpdate, userDataToUpdate);
+        }
+
+        [TestCase]
+        [TestRail(000)]
+        [Description("Update a list of users (some users are active and others are deleted) and verify a 207 HTTP status was returned and " +
+                     "that the active users were updated and the deleted users are reported as deleted.")]
+        public void UpdateUsers_ListOfActiveAndDeletedUsers_207PartialSuccess()
+        {
+            // Setup:
+            const int numberOfUsersToUpdate = 3;
+            var usersToUpdate = new List<IUser>();
+            var activeUsersToUpdate = new List<IUser>();
+
+            for (int i = 0; i < numberOfUsersToUpdate; ++i)
+            {
+                // Add an active user.
+                var userToUpdate = Helper.CreateUserAndAddToDatabase();
+                usersToUpdate.Add(userToUpdate);
+                activeUsersToUpdate.Add(userToUpdate);
+
+                // Add a user and then delete it.
+                userToUpdate = Helper.CreateUserAndAddToDatabase();
+                usersToUpdate.Add(userToUpdate);
+                userToUpdate.DeleteUser(useSqlUpdate: true);
+            }
+
+            var userDataToUpdate = usersToUpdate.Select(u => u.UserData).ToList();
+
+            // Execute:
+            UserDeleteResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+                "'PATCH {0}' should return '207 Partial Success' when valid data is passed to it!", UPDATE_PATH);
+
+            // Verify:
+            VerifyUpdateUserResultSet(result, usersToUpdate);
+        }
+
+        #endregion Positive tests
+
+        #region Private functions
+
+        /// <summary>
+        /// Creates a list of new UserDataModels with only the properties we want to update set to a value.
+        /// </summary>
+        /// <param name="usernames">The usernames of the users to update.</param>
+        /// <param name="userPropertiesToUpdate">A map of user property names and values to update.</param>
+        /// <returns>The list of new UserDataModels to send to the UpdateUsers REST call.</returns>
+        private static List<UserDataModel> CreateUserDataModelsForUpdate(
+            List<string> usernames,
+            Dictionary<string, string> userPropertiesToUpdate)
+        {
+            List<UserDataModel> userDataModels = new List<UserDataModel>();
+
+            foreach (string username in usernames)
+            {
+                var userData = CreateUserDataModelForUpdate(username, userPropertiesToUpdate);
+                userDataModels.Add(userData);
+            }
+
+            return userDataModels;
+        }
+
+        /// <summary>
+        /// Creates a new UserDataModel with only the properties we want to update set to a value.
+        /// </summary>
+        /// <param name="username">The username of the user to update.</param>
+        /// <param name="userPropertiesToUpdate">A map of user property names and values to update.</param>
+        /// <returns>The new UserDataModel to send to the UpdateUsers REST call.</returns>
+        private static UserDataModel CreateUserDataModelForUpdate(
+            string username,
+            Dictionary<string, string> userPropertiesToUpdate)
+        {
+            var newUserData = UserDataModelFactory.CreateUserDataModel(username);
+
+            foreach (var propertyNameValue in userPropertiesToUpdate)
+            {
+                CSharpUtilities.SetProperty(propertyNameValue.Key, propertyNameValue.Value, newUserData);
+            }
+
+            return newUserData;
+        }
+
+        /// <summary>
+        /// Returns a new UserDataModel with all properties of the baseUserDataModel but with non-null properties from updateUserDataModel
+        /// overwriting the baseUserDataModel values.  i.e. This is how the user should look after it is updated.
+        /// </summary>
+        /// <param name="baseUserDataModel">The base UserDataModel to get most of the properties from.</param>
+        /// <param name="updateUserDataModel">The UserDataModel used to update the user.  All non-null properties will be copied into the
+        ///     UserDataModel that is returned.</param>
+        /// <returns>A UserDataModel with properties from baseUserDataModel and updateUserDataModel merged together.</returns>
+        private static UserDataModel MergeNewAndOldUserData(UserDataModel baseUserDataModel, UserDataModel updateUserDataModel)
+        {
+            var newUserData = UserDataModelFactory.CreateCopyOfUserDataModel(baseUserDataModel);
+
+            foreach (var property in updateUserDataModel.GetType().GetProperties())
+            {
+                if ((property.DeclaringType == typeof (UserDataModel)) && (property.GetValue(updateUserDataModel) != null))
+                {
+                    CSharpUtilities.SetProperty(property.Name, property.GetValue(updateUserDataModel), newUserData);
+                }
+            }
+
+            return newUserData;
+        }
+
+        /// <summary>
+        /// Verifies that all the specified users were updated properly.
+        /// </summary>
+        /// <param name="resultSet">Result set from update users call.</param>
+        /// <param name="usersBeforeUpdate">The original users before they were updated.</param>
+        /// <param name="expectedSuccessfullyUpdatedUsers">(optional) A list of users that we expect to be successfully updated.</param>
+        /// <param name="expectedFailedUpdatedUsers">(optional) A map of InternalApiErrorCodes and Users that we expect got errors when we tried to update them.</param>
+        private void VerifyUpdateUserResultSet(
+            UserDeleteResultCollection resultSet,
+            List<IUser> usersBeforeUpdate,
+            List<UserDataModel> expectedSuccessfullyUpdatedUsers = null,
+            Dictionary<int, UserDataModel> expectedFailedUpdatedUsers = null)
+        {
+            ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
+
+            expectedSuccessfullyUpdatedUsers = expectedSuccessfullyUpdatedUsers ?? new List<UserDataModel>();
+            expectedFailedUpdatedUsers = expectedFailedUpdatedUsers ?? new Dictionary<int, UserDataModel>();
+
+            int expectedUpdateCount = expectedSuccessfullyUpdatedUsers.Count + expectedFailedUpdatedUsers.Count;
+
+            Assert.AreEqual(expectedUpdateCount, resultSet.Count,
+                "The number of users returned by the update call is different than expected!");
+
+//            Assert.AreEqual((int)expectedStatusCode, resultSet.ResultCode,
+//                "'{0}' should be '{1}'!", nameof(resultSet.ResultCode), expectedStatusCode);
+
+            VerifySuccessfullyUpdatedUsers(resultSet, expectedSuccessfullyUpdatedUsers, usersBeforeUpdate);
+//            VerifyUnsuccessfullyDeletedUsers(resultSet, expectedFailedUpdatedUsers);
+        }
+
+        /// <summary>
+        /// Verifies that all the specified users were updated properly.
+        /// </summary>
+        /// <param name="resultSet">Result set from update users call.</param>
+        /// <param name="expectedSuccessfullyUpdatedUsers">A list of users that we expect to be successfully updated with only the updated properties set.</param>
+        /// <param name="originalUsers">The original users before they were updated.</param>
+        private void VerifySuccessfullyUpdatedUsers(
+            UserDeleteResultCollection resultSet,
+            List<UserDataModel> expectedSuccessfullyUpdatedUsers,
+            List<IUser> originalUsers)
+        {
+            foreach (var updatedUser in expectedSuccessfullyUpdatedUsers)
+            {
+                var result = resultSet.Find(a => a.User.Username == updatedUser.Username);
+
+                Assert.AreEqual("User successfully updated.", result.Message, "'{0}' is incorrect!", nameof(result.Message));
+                Assert.AreEqual(InternalApiErrorCodes.Ok, result.ResultCode, "'{0}' should be 200 OK!", nameof(result.ResultCode));
+
+                var originalUserData = originalUsers.Find(u => u.Username == updatedUser.Username);
+                var expectedUserData = MergeNewAndOldUserData(originalUserData.UserData, updatedUser);
+
+                VerifyUserIsUpdated(expectedUserData);
+            }
+        }
+
+        /// <summary>
+        /// Gets the user and compares against the expected user data.
+        /// </summary>
+        /// <param name="expectedUserData">The expected user data values after an update.</param>
+        private void VerifyUserIsUpdated(UserDataModel expectedUserData)
+        {
+            var actualUserData = Helper.OpenApi.GetUser(_adminUser, expectedUserData.Id);
+
+            UserDataModel.AssertAreEqual(expectedUserData, actualUserData);
+        }
+
+        #endregion Private functions
+    }
+}

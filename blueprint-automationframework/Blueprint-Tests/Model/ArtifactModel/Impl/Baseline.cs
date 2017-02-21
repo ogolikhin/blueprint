@@ -2,7 +2,7 @@
 
 namespace Model.ArtifactModel.Impl
 {
-    public class Baseline : NovaArtifactDetails
+    public class Baseline : NovaCollectionBase
     {
         #region JSON Properties
         public bool IsAvailableInAnalytics { get; set; }
@@ -11,7 +11,6 @@ namespace Model.ArtifactModel.Impl
 
         public bool IsSealed { get; set; }
 
-        public List<CollectionItem> Artifacts { get; set; }
         #endregion
 
         #region Constructors

@@ -888,7 +888,7 @@ namespace Helper
         /// </summary>
         /// <param name="collection">collection returned from get collection call</param>
         /// <param name="artifactList">list of artifact that represents expected artifacts from the returned collection call</param>
-        public static void ValidateCollection(Collection collection, List<IArtifactBase> artifactList)
+        public static void ValidateCollection(NovaCollectionBase collection, List<IArtifactBase> artifactList)
         {
             ThrowIf.ArgumentNull(collection, nameof(collection));
             ThrowIf.ArgumentNull(artifactList, nameof(artifactList));

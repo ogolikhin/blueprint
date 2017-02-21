@@ -6,7 +6,6 @@ using Helper;
 using Model;
 using Model.Factories;
 using Model.Impl;
-using Model.OpenApiModel.UserModel.Enums;
 using Model.OpenApiModel.UserModel.Results;
 using NUnit.Framework;
 using TestCommon;
@@ -41,7 +40,7 @@ namespace OpenAPITests
 
         [TestCase(1, nameof(UserDataModel.Department))]
         [TestCase(5, nameof(UserDataModel.DisplayName))]
-        [TestRail(000)]
+        [TestRail(246613)]
         [Description("Update some properties of one or more users and verify that the users were updated.")]
         public void UpdateUser_ValidUserParameters_VerifyUserUpdated(int numberOfUsersToUpdate, string propertyToUpdate)
         {
@@ -69,11 +68,11 @@ namespace OpenAPITests
                 "'PATCH {0}' should return '200 OK' when valid data is passed to it!", UPDATE_PATH);
 
             // Verify:
-            VerifyUpdateUserResultSet(result, usersToUpdate, userDataToUpdate);
+            VerifyUpdateUserResultSet(result, usersToUpdate, expectedSuccessfullyUpdatedUsers: userDataToUpdate);
         }
 
         [TestCase]
-        [TestRail(000)]
+        [TestRail(246614)]
         [Description("Update a list of users (some users are active and others are deleted) and verify a 207 HTTP status was returned and " +
                      "that the active users were updated and the deleted users are reported as deleted.")]
         public void UpdateUsers_ListOfActiveAndDeletedUsers_207PartialSuccess()
@@ -82,6 +81,7 @@ namespace OpenAPITests
             const int numberOfUsersToUpdate = 3;
             var usersToUpdate = new List<IUser>();
             var activeUsersToUpdate = new List<IUser>();
+            var deletedUsersToUpdate = new List<IUser>();
 
             for (int i = 0; i < numberOfUsersToUpdate; ++i)
             {
@@ -93,19 +93,33 @@ namespace OpenAPITests
                 // Add a user and then delete it.
                 userToUpdate = Helper.CreateUserAndAddToDatabase();
                 usersToUpdate.Add(userToUpdate);
+                deletedUsersToUpdate.Add(userToUpdate);
                 userToUpdate.DeleteUser(useSqlUpdate: true);
             }
 
-            var userDataToUpdate = usersToUpdate.Select(u => u.UserData).ToList();
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.DisplayName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+
+            var usernamesToUpdate = activeUsersToUpdate.Select(u => u.Username).ToList();
+            var activeUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            usernamesToUpdate = deletedUsersToUpdate.Select(u => u.Username).ToList();
+            var deletedUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            var allUserDataToUpdate = new List<UserDataModel>(activeUserDataToUpdate);
+            allUserDataToUpdate.AddRange(deletedUserDataToUpdate);
 
             // Execute:
             UserDeleteResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
                 "'PATCH {0}' should return '207 Partial Success' when valid data is passed to it!", UPDATE_PATH);
 
             // Verify:
-            VerifyUpdateUserResultSet(result, usersToUpdate);
+            VerifyUpdateUserResultSet(result, usersToUpdate);   // TODO: Add expectedSuccessfullyUpdatedUsers & expectedFailedUpdatedUsers.
         }
 
         #endregion Positive tests

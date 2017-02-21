@@ -597,18 +597,20 @@ namespace Model.OpenApiModel.Services
 
         #region User methods
 
-        /// <seealso cref="IOpenApi.CreateUsers(IUser, List{OpenApiUser}, List{HttpStatusCode})"/>
+        /// <seealso cref="IOpenApi.CreateUsers(IUser, List{UserDataModel}, List{HttpStatusCode})"/>
         public UserCallResultCollection CreateUsers(
             IUser userToAuthenticate,
-            List<OpenApiUser> usersToCreate,
+            List<UserDataModel> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(usersToCreate, nameof(usersToCreate));
 
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
+
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.USERS;
 
-            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, List<OpenApiUser>>(
+            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, List<UserDataModel>>(
                 path,
                 RestRequestMethod.POST,
                 usersToCreate,

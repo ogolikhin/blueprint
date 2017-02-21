@@ -44,7 +44,7 @@ namespace Model.OpenApiModel.Services
         /// <returns>Collection of users which were created with returned http code and message.</returns>
         UserCallResultCollection CreateUsers(
             IUser userToAuthenticate,
-            List<OpenApiUser> usersToCreate,
+            List<UserDataModel> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

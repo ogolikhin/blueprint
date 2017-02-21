@@ -100,8 +100,8 @@ namespace Model.Impl
         }
         public List<IGroup> GroupMembership
         {
-            get { return UserData.GroupMembership; }
-            set { UserData.GroupMembership = value; }
+            get { return UserData.Groups; }
+            set { UserData.Groups = value; }
         }
         public InstanceAdminRole? InstanceAdminRole
         {

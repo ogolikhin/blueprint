@@ -69,7 +69,7 @@ namespace OpenAPITests
 
             var usersToCreate = GenerateListOfOpenApiUsers(NUMBER_OF_USERS_TO_CREATE);
 
-            var plannedToBeCreatedUsers = new List<OpenApiUser>(usersToCreate);
+            var plannedToBeCreatedUsers = new List<UserDataModel>(usersToCreate);
 
             plannedToBeCreatedUsers.AddRange(existingUsersToCreate);
 
@@ -91,6 +91,8 @@ namespace OpenAPITests
         // TODO: 409 when password is alfabetical & numeric characters
         // TODO: 207 for each type of error
         // TODO: 409 Admin role does not exists
+        // TODO: 400 Missing property
+        // TODO: Missing Login name
 
         #region Private methods
 
@@ -99,9 +101,9 @@ namespace OpenAPITests
         /// </summary>
         /// <param name="numberOfUsersToCreate">Number of users to generate</param>
         /// <returns>List of generated users</returns>
-        public List<OpenApiUser> GenerateListOfOpenApiUsers(int numberOfUsersToCreate)
+        public List<UserDataModel> GenerateListOfOpenApiUsers(int numberOfUsersToCreate)
         {
-            var usersToCreate = new List<OpenApiUser>();
+            var usersToCreate = new List<UserDataModel>();
 
             var groupList = new List<IGroup>
             {
@@ -115,7 +117,7 @@ namespace OpenAPITests
 
             for (int i = 0; i < numberOfUsersToCreate; ++i)
             {
-                OpenApiUser userToCreate = new OpenApiUser()
+                var userToCreate = new UserDataModel()
                 {
                     Username = RandomGenerator.RandomAlphaNumeric(10),
                     DisplayName = RandomGenerator.RandomAlphaNumeric(10),
@@ -126,6 +128,7 @@ namespace OpenAPITests
                     Email = I18NHelper.FormatInvariant("{0}@{1}.com", RandomGenerator.RandomAlphaNumeric(5), RandomGenerator.RandomAlphaNumeric(5)),
                     Title = RandomGenerator.RandomAlphaNumeric(10),
                     Department = RandomGenerator.RandomAlphaNumeric(10),
+                    Groups = groupList,
                     GroupIds = groupIds,
                     InstanceAdminRole = "Default Instance Administrator",
                     ExpirePassword = true,
@@ -144,7 +147,7 @@ namespace OpenAPITests
         /// <param name="resultSet">Result of create users call</param>
         /// <param name="expectedHttpCode">Expected HTTP code for this user</param>
         /// <param name="expectedHttpCode">Expected message for this user</param>
-        private static void VerifyCreateUserResultSet(List<OpenApiUser> userList, UserCallResultCollection resultSet, int expectedHttpCode, string expectedMessage)
+        private static void VerifyCreateUserResultSet(List<UserDataModel> userList, UserCallResultCollection resultSet, int expectedHttpCode, string expectedMessage)
         {
             Assert.IsNotNull(userList, "The list of expected users is empty!");
             Assert.IsNotNull(resultSet, "Result set from create users call is empty!");

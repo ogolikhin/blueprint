@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using Utilities;
 
@@ -16,10 +15,13 @@ namespace Model.Impl
             get { return UserData.Id; }
             set { UserData.Id = value; }
         }
-        
+       
         [JsonProperty("Type")]
-        public string UserOrGroupType { get; set; }
-
+        public string UserOrGroupType
+        {
+            get { return UserData.UserOrGroupType; }
+            set { UserData.UserOrGroupType = value; }
+        }
         [JsonProperty("Name")]
         public string Username
         {
@@ -68,8 +70,8 @@ namespace Model.Impl
         }
         public List<IGroup> Groups
         {
-            get { return UserData.GroupMembership; }
-            set { UserData.GroupMembership = value; }
+            get { return UserData.Groups; }
+            set { UserData.Groups = value; }
         }
         public List<int> GroupIds
         {

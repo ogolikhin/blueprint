@@ -5,11 +5,10 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.OpenApiModel.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
-using Model.Impl;
-using Model.OpenApiModel.Services;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
@@ -353,6 +352,33 @@ namespace ArtifactStoreTests
 
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
+        }
+
+        [TestCase("*")]
+        [TestCase("&")]
+        [TestRail(246558)]
+        [Description("GetArtifactDetails using the invalid URL containing a special charactor. Verify that 400 bad request is returned.")]
+        public void GetArtifactDetails_SendInvalidUrl_400BadRequest(string invalidCharactor)
+        {
+            // Setup:
+            int nonExistingArtifactId = int.MaxValue;
+            string invalidPath = I18NHelper.FormatInvariant(GET_ARTIFACT_ID_PATH, invalidCharactor + nonExistingArtifactId);
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<NovaArtifactResponse, object>(
+                invalidPath,
+                RestRequestMethod.GET,
+                jsonObject: null,
+                shouldControlJsonChanges: true
+                ),
+                "GET {0} call should return a 400 Bad Request exception when trying with invalid URL.", GET_ARTIFACT_ID_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharactor);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }
 
         #endregion 400 Bad Request

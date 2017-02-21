@@ -1,10 +1,13 @@
-﻿using System;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using NUnit.Framework;
+using System;
+using System.Linq;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 
 namespace FileStoreTests
 {
@@ -12,6 +15,8 @@ namespace FileStoreTests
     [Category(Categories.FileStore)]
     public class BasicTests : TestBase
     {
+        private const string POSTFILE_PATH = RestPaths.Svc.FileStore.FILES;
+
         private IUser _user;
 
         #region Setup and Cleanup
@@ -30,6 +35,8 @@ namespace FileStoreTests
         }
 
         #endregion Setup and Cleanup
+
+        #region 200 OK Tests
 
         [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
@@ -169,6 +176,42 @@ namespace FileStoreTests
             FileStoreTestHelper.AssertFilesAreIdentical(storedFile, returnedFile);
         }
 
+        #endregion 200 OK Tests
+
+        #region 400 Bad Request Tests
+
+        [TestCase((uint)0, "0KB_File.txt", "text/plain", "*")]
+        [TestCase((uint)1024, "1KB_File.txt", "text/plain", "&")]
+        [TestRail(246561)]
+        [Description("Post a file using the invalid URL containing a special charactor. Verify that 400 bad request is returned.")]
+        public void PostFile_SendInvalidUrl_400BadRequest(uint fileSize, string fakeFileName, string fileType, string invalidCharactor)
+        {
+            // Setup:
+            var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
+            string invalidPath = POSTFILE_PATH + invalidCharactor;
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndGetResponse(
+                invalidPath,
+                RestRequestMethod.POST,
+                file.FileName,
+                file.Content.ToArray(),
+                file.FileType
+                ),
+                "POST {0} call should return a 400 Bad Request exception when trying with invalid URL.", POSTFILE_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharactor);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
+        }
+
+        #endregion 400 Bad Request Tests
+
+        #region 404 Not Found Tests
+
         [TestCase((uint)0, "0KB_File.txt", "text/plain")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain")]
         [TestRail(153877)]
@@ -209,5 +252,7 @@ namespace FileStoreTests
                 Helper.FileStore.GetFile(storedFile.Guid, _user);
             }, "The file still exists after it was deleted!");
         }
+
+        #endregion 404 NotFound Tests
     }
 }

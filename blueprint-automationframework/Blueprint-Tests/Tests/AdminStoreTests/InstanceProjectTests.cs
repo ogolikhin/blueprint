@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 
 namespace AdminStoreTests
 {
@@ -18,7 +19,7 @@ namespace AdminStoreTests
     public class InstanceProjectTests : TestBase
     {
         private const int NON_EXISTING_PROJECT_ID = int.MaxValue;
-        private const string PATH_INSTANCEPROJECTBYID = RestPaths.Svc.AdminStore.Instance.PROJECTS_id_;
+        private const string INSTANCEPROJECTBYID_PATH = RestPaths.Svc.AdminStore.Instance.PROJECTS_id_;
 
         private IUser _adminUser = null;
         private List<IProject> _allProjects = null;
@@ -73,7 +74,7 @@ namespace AdminStoreTests
                 // Execute:
                 InstanceProject returnedInstanceProject = null;
                 Assert.DoesNotThrow(() => returnedInstanceProject = Helper.AdminStore.GetProjectById(project.Id, _adminUser),
-                    "GET {0} with project Id {1} failed.", PATH_INSTANCEPROJECTBYID, project.Id);
+                    "GET {0} with project Id {1} failed.", INSTANCEPROJECTBYID_PATH, project.Id);
 
                 // Verify:
                 AdminStoreHelper.AssertAreEqual(Helper, project, returnedInstanceProject);
@@ -81,6 +82,35 @@ namespace AdminStoreTests
         }
 
         #endregion 200 OK Tests
+
+        #region 400 Bad Request Tests
+
+        [TestCase("*")]
+        [TestCase("&")]
+        [TestRail(246556)]
+        [Description("Get a project using the invalid URL containing a special charactor. Verify that 400 bad request is returned.")]
+        public void GetProjectById_SendInvalidUrl_400BadRequest(string invalidCharactor)
+        {
+            // Setup:
+            string invalidPath = I18NHelper.FormatInvariant(INSTANCEPROJECTBYID_PATH, invalidCharactor + _allProjects.First().Id);
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _adminUser?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<InstanceProject>(
+                invalidPath,
+                RestRequestMethod.GET,
+                shouldControlJsonChanges: true
+                ),
+                "GET {0} call should return a 400 Bad Request exception when trying with invalid URL.", INSTANCEPROJECTBYID_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharactor);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
+        }
+
+        #endregion 400 Bad Request Tests
 
         #region 401 Unauthorized Tests
 
@@ -135,7 +165,7 @@ namespace AdminStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.AdminStore.GetProjectById(_allProjects.First().Id, userWithNoPermissionToProject),
-                "GET {0} using the user with no permission to the project with Id {1} should return a 403 Forbidden.", PATH_INSTANCEPROJECTBYID, _allProjects.First().Id);
+                "GET {0} using the user with no permission to the project with Id {1} should return a 403 Forbidden.", INSTANCEPROJECTBYID_PATH, _allProjects.First().Id);
 
             // Verify:
             var expectedMessage = I18NHelper.FormatInvariant("The user does not have permissions for Project (Id:{0}).", _allProjects.First().Id) ;

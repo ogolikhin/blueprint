@@ -676,7 +676,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == artifact.Id), artifactDetails);
+            NovaArtifactDetails.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == artifact.Id), artifactDetails);
         }
 
         [TestCase()]
@@ -705,9 +705,9 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionFolder.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionFolder.Id), artifactDetails);
+            NovaArtifactDetails.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionFolder.Id), artifactDetails);
             artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, collectionArtifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionArtifact.Id), artifactDetails);
+            NovaArtifactDetails.AssertArtifactsEqual(publishResponse.Artifacts.Find(a => a.Id == collectionArtifact.Id), artifactDetails);
         }
 
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactCollection)]
@@ -742,7 +742,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
+            NovaArtifactDetails.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentDev)] // User Story: 3578  [Nova] [Collection] Edit a Collection Folder / Collection Container
@@ -779,7 +779,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(publishResponse.Projects, expectedProjects);
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
+            NovaArtifactDetails.AssertArtifactsEqual(publishResponse.Artifacts[0], artifactDetails);
         }
 
         #endregion 200 OK Tests

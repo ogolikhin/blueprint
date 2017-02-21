@@ -88,11 +88,11 @@ namespace AdminStoreTests
         [TestCase("*")]
         [TestCase("&")]
         [TestRail(246556)]
-        [Description("Get a project using the invalid URL containing a special charactor. Verify that 400 bad request is returned.")]
-        public void GetProjectById_SendInvalidUrl_400BadRequest(string invalidCharactor)
+        [Description("Get a project using the invalid URL containing a special character. Verify that 400 bad request is returned.")]
+        public void GetProjectById_SendInvalidUrl_400BadRequest(string invalidCharacter)
         {
             // Setup:
-            string invalidPath = I18NHelper.FormatInvariant(INSTANCEPROJECTBYID_PATH, invalidCharactor + _allProjects.First().Id);
+            string invalidPath = I18NHelper.FormatInvariant(INSTANCEPROJECTBYID_PATH, invalidCharacter + _allProjects.First().Id);
 
             var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _adminUser?.Token?.AccessControlToken);
 
@@ -105,7 +105,7 @@ namespace AdminStoreTests
                 "GET {0} call should return a 400 Bad Request exception when trying with invalid URL.", INSTANCEPROJECTBYID_PATH);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharactor);
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharacter);
 
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }

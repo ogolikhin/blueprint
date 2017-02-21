@@ -785,13 +785,13 @@ namespace SearchServiceTests
         [TestCase("*")]
         [TestCase("&")]
         [TestRail(246562)]
-        [Description("FullTextSearch using the invalid URL containing a special charactor. Verify that 400 bad request is returned.")]
-        public void FullTextSearch_SendInvalidUrl_400BadRequest(string invalidCharactor)
+        [Description("FullTextSearch using the invalid URL containing a special character. Verify that 400 bad request is returned.")]
+        public void FullTextSearch_SendInvalidUrl_400BadRequest(string invalidCharacter)
         {
             // Setup:
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
             var searchCriteria = new FullTextSearchCriteria("NonExistingSearchTerm", selectedProjectIds);
-            string invalidPath = FULLTEXTSEARCH_PATH + invalidCharactor;
+            string invalidPath = FULLTEXTSEARCH_PATH + invalidCharacter;
 
             var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
 
@@ -805,7 +805,7 @@ namespace SearchServiceTests
                 "POST {0} call should return a 400 Bad Request exception when trying with invalid URL.", FULLTEXTSEARCH_PATH);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharactor);
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharacter);
 
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }

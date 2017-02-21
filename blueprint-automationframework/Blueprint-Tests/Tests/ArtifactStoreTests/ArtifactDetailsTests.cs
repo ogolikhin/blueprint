@@ -357,12 +357,12 @@ namespace ArtifactStoreTests
         [TestCase("*")]
         [TestCase("&")]
         [TestRail(246558)]
-        [Description("GetArtifactDetails using the invalid URL containing a special charactor. Verify that 400 bad request is returned.")]
-        public void GetArtifactDetails_SendInvalidUrl_400BadRequest(string invalidCharactor)
+        [Description("GetArtifactDetails using the invalid URL containing a special character. Verify that 400 bad request is returned.")]
+        public void GetArtifactDetails_SendInvalidUrl_400BadRequest(string invalidCharacter)
         {
             // Setup:
             int nonExistingArtifactId = int.MaxValue;
-            string invalidPath = I18NHelper.FormatInvariant(GET_ARTIFACT_ID_PATH, invalidCharactor + nonExistingArtifactId);
+            string invalidPath = I18NHelper.FormatInvariant(GET_ARTIFACT_ID_PATH, invalidCharacter + nonExistingArtifactId);
 
             var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
 
@@ -376,7 +376,7 @@ namespace ArtifactStoreTests
                 "GET {0} call should return a 400 Bad Request exception when trying with invalid URL.", GET_ARTIFACT_ID_PATH);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharactor);
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharacter);
 
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }

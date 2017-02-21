@@ -183,12 +183,12 @@ namespace FileStoreTests
         [TestCase((uint)0, "0KB_File.txt", "text/plain", "*")]
         [TestCase((uint)1024, "1KB_File.txt", "text/plain", "&")]
         [TestRail(246561)]
-        [Description("Post a file using the invalid URL containing a special charactor. Verify that 400 bad request is returned.")]
-        public void PostFile_SendInvalidUrl_400BadRequest(uint fileSize, string fakeFileName, string fileType, string invalidCharactor)
+        [Description("Post a file using the invalid URL containing a special character. Verify that 400 bad request is returned.")]
+        public void PostFile_SendInvalidUrl_400BadRequest(uint fileSize, string fakeFileName, string fileType, string invalidCharacter)
         {
             // Setup:
             var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
-            string invalidPath = POSTFILE_PATH + invalidCharactor;
+            string invalidPath = POSTFILE_PATH + invalidCharacter;
 
             var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _user?.Token?.AccessControlToken);
 
@@ -203,7 +203,7 @@ namespace FileStoreTests
                 "POST {0} call should return a 400 Bad Request exception when trying with invalid URL.", POSTFILE_PATH);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharactor);
+            string expectedMessage = I18NHelper.FormatInvariant("A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharacter);
 
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }

@@ -154,5 +154,11 @@ namespace ServiceLibrary.Repositories
             }
             return table;
         }
+
+        public static DataTable ToInt32Collection<T>(IEnumerable<T> values)
+            where T : struct
+        {
+            return ToDataTable(values, "Int32Collection", "Int32Value");
+        }
     }
 }

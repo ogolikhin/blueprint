@@ -40,7 +40,7 @@ namespace ServiceLibrary.Repositories
 
         #region GetProjectOrArtifactChildrenAsync
 
-        public virtual async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
+        public virtual async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId, bool includeAuthorHistory = false)
         {
             if (projectId < 1)
                 throw new ArgumentOutOfRangeException(nameof(projectId));
@@ -183,24 +183,7 @@ namespace ServiceLibrary.Repositories
                 }
             }
 
-            return userArtifactVersionChildren.Select(v => new Artifact
-            {
-                Id = v.ItemId,
-                Name = v.Name,
-                ProjectId = v.VersionProjectId,
-                ParentId = v.ParentId,
-                ItemTypeId = GetItemTypeId(v),
-                Prefix = v.Prefix,
-                ItemTypeIconId = v.ItemTypeIconId,
-                PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
-                Version = v.VersionsCount,
-                OrderIndex = v.OrderIndex,
-                HasChildren = v.HasChildren,
-                Permissions = v.EffectivePermissions,
-                LockedByUser = v.LockedByUserId.HasValue ? new UserGroup { Id = v.LockedByUserId } : null,
-                LockedDateTime = v.LockedByUserTime
-            })
-            .OrderBy(a => {
+            var artifacts = userArtifactVersionChildren.Select(ComposeArtifact).OrderBy(a => {
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)
                     return a.OrderIndex;
@@ -212,6 +195,43 @@ namespace ServiceLibrary.Repositories
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
                 return double.MaxValue;
             }).ToList();
+
+            if (includeAuthorHistory)
+            {
+                var artifactIds = artifacts.Select(a => a.Id);
+                var authorHistories = (await GetAuthorHistories(artifactIds)).ToDictionary(a => a.ItemId);
+                foreach (var artifact in artifacts)
+                {
+                    AuthorHistory authorHistory;
+                    if (authorHistories.TryGetValue(artifact.Id, out authorHistory))
+                    {
+                        artifact.AuthorHistory = authorHistory;
+                    }
+                }
+            }
+
+            return artifacts;
+        }
+
+        private Artifact ComposeArtifact(ArtifactVersion artifactVersion)
+        {
+            return new Artifact
+            {
+                Id = artifactVersion.ItemId,
+                Name = artifactVersion.Name,
+                ProjectId = artifactVersion.VersionProjectId,
+                ParentId = artifactVersion.ParentId,
+                ItemTypeId = GetItemTypeId(artifactVersion),
+                Prefix = artifactVersion.Prefix,
+                ItemTypeIconId = artifactVersion.ItemTypeIconId,
+                PredefinedType = artifactVersion.ItemTypePredefined.GetValueOrDefault(),
+                Version = artifactVersion.VersionsCount,
+                OrderIndex = artifactVersion.OrderIndex,
+                HasChildren = artifactVersion.HasChildren,
+                Permissions = artifactVersion.EffectivePermissions,
+                LockedByUser = artifactVersion.LockedByUserId.HasValue ? new UserGroup { Id = artifactVersion.LockedByUserId } : null,
+                LockedDateTime = artifactVersion.LockedByUserTime
+            };
         }
 
         private ArtifactVersion FindRoot(ItemTypePredefined rootType, IEnumerable<ArtifactVersion> artifacts, int projectId)
@@ -657,5 +677,15 @@ namespace ServiceLibrary.Repositories
         }
 
         #endregion GetProjectNameByIdsAsync
+
+        public async Task<IEnumerable<AuthorHistory>> GetAuthorHistories(IEnumerable<int> artifactIds)
+        {
+            var param = new DynamicParameters();
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
+            param.Add("@revisionId", int.MaxValue);
+
+            return (await _connectionWrapper.QueryAsync<SqlAuthorHistory>("GetOpenArtifactAuthorHistories", param, commandType: CommandType.StoredProcedure)).Select(a => (AuthorHistory)a);
+        }
+        
     }
 }

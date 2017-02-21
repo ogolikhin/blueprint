@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ArtifactStore.Models;
-using ArtifactStore.Repositories;
 using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
@@ -51,12 +49,12 @@ namespace ArtifactStore.Controllers
         /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("projects/{projectId:int:min(1)}/children"), SessionRequired]
+        [Route("projects/{projectId:int:min(1)}/children/{includeAuthorHistory=includeAuthorHistory?}"), SessionRequired]
         [ActionName("GetProjectChildren")]
-        public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId)
+        public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId, bool? includeAuthorHistory = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId);
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId, includeAuthorHistory.GetValueOrDefault(false));
         }
 
         /// <summary>
@@ -71,12 +69,12 @@ namespace ArtifactStore.Controllers
         /// <response code="404">Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("projects/{projectId:int:min(1)}/artifacts/{artifactId:int:min(1)}/children"), SessionRequired]
+        [Route("projects/{projectId:int:min(1)}/artifacts/{artifactId:int:min(1)}/children/{includeAuthorHistory=includeAuthorHistory?}"), SessionRequired]
         [ActionName("GetArtifactChildren")]
-        public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId)
+        public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId, bool? includeAuthorHistory = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId, includeAuthorHistory.GetValueOrDefault(false));
         }
 
         /// <summary>

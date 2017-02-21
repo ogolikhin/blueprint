@@ -3,9 +3,11 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 using Utilities.Factories;
 
 namespace AccessControlTests
@@ -123,6 +125,33 @@ namespace AccessControlTests
         {
             // Call the DELETE RestAPI without a session token which should return a 400 error.
             Assert.Throws<Http400BadRequestException>(() => { Helper.AccessControl.DeleteSession(null); });
+        }
+
+        [TestCase("*")]
+        [TestCase("&")]
+        [TestRail(246571)]
+        [Description("GetSession using the invalid URL containing a special character. Verify that 400 bad request is returned.")]
+        public void GetSession_SendInvalidUrl_400BadRequest(string invalidCharacter)
+        {
+            // Setup:
+            int nonExistingUserId = int.MaxValue;
+            string invalidPath = I18NHelper.FormatInvariant(GET_SESSION_PATH, invalidCharacter + nonExistingUserId);
+
+            var restApi = new RestApiFacade(Helper.ArtifactStore.Address, _adminUser?.Token?.AccessControlToken);
+
+            // Execute & Verify:
+            var ex = Assert.Throws<Http400BadRequestException>(() => restApi.SendRequestAndDeserializeObject<Session>(
+                invalidPath,
+                RestRequestMethod.GET,
+                shouldControlJsonChanges: true
+                ),
+                "GET {0} call should return a 400 Bad Request exception when trying with invalid URL.", GET_SESSION_PATH);
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant(
+                "A potentially dangerous Request.Path value was detected from the client ({0}).", invalidCharacter);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedMessage);
         }
 
         #endregion 400 Bad Request Tests

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Model.Impl;
 
 namespace Model
 {
@@ -17,9 +18,9 @@ namespace Model
 
         string Department { get; set; }                     // (NULLABLE)
         string Email { get; set; }                          // (NULLABLE)
-        bool Enabled { get; set; }
+        bool? Enabled { get; set; }
         string FirstName { get; set; }
-        List<IGroup> GroupMembership { get; }
+        List<Group> GroupMembership { get; }
         InstanceAdminRole? InstanceAdminRole { get; set; }  // (NULLABLE) From "InstanceAdminRoleId" field in database.
         string LastName { get; set; }
         LicenseType License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
@@ -29,6 +30,7 @@ namespace Model
         string Title { get; set; }                          // (NULLABLE)
         IBlueprintToken Token { get; set; }                 // This isn't in the database.
         string Username { get; set; }                       // i.e. "Login" field in database.
+        bool? FallBack { set; get; }
 
         #endregion Properties
 

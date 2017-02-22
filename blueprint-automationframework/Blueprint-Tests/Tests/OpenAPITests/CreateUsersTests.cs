@@ -35,6 +35,35 @@ namespace OpenAPITests
 
         #region Positive tests
 
+        [TestCase("Default Instance Administrator")]
+        [TestCase("Administer ALL Projects")]
+        [TestCase("Assign Instance Administrators")]
+        [TestCase("Blueprint Analytics")]
+        [TestCase("Email, Active Directory, SAML Settings")]
+        [TestCase("Instance Standards Manager")]
+        [TestCase("Log Gathering and License Reporting")]
+        [TestCase("Manage Administrator Roles")]
+        [TestCase("Provision Projects")]
+        [TestCase("Provision Users")]
+        [TestRail(246611)]
+        [Description("Create one user with specific admin role and verify that the user was created.")]
+        public void CreateUser_SpecificAdminRole_VerifyUserCreated(string instanceAdminRole)
+        {
+            // Setup:
+            var userToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            userToCreate[0].InstanceAdminRole = instanceAdminRole;
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userToCreate),
+                "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
+
+            // Verify:
+            VerifyCreateUserResultSet(userToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
+        }
+
         [TestCase(1)]
         [TestCase(5)]
         [TestRail(246547)]
@@ -42,7 +71,7 @@ namespace OpenAPITests
         public void CreateUsers_ValidUserParameters_VerifyUserCreated(int numberOfUsersToCreate)
         {
             // Setup:
-            var usersToCreate = GenerateListOfOpenUserModels(numberOfUsersToCreate);
+            var usersToCreate = GenerateListOfUserModels(numberOfUsersToCreate);
 
             // Execute:
             UserCallResultCollection result = null;
@@ -64,10 +93,10 @@ namespace OpenAPITests
             const int NUMBER_OF_USERS_TO_CREATE = 3;
             const int PARTIAL = 207;
 
-            var existingUsersToCreate = GenerateListOfOpenUserModels(NUMBER_OF_USERS_TO_CREATE);
+            var existingUsersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
             Helper.OpenApi.CreateUsers(_adminUser, existingUsersToCreate);
 
-            var usersToCreate = GenerateListOfOpenUserModels(NUMBER_OF_USERS_TO_CREATE);
+            var usersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
 
             var newAndExistingUsersToCreate = new List<UserDataModel>(usersToCreate);
 
@@ -102,7 +131,7 @@ namespace OpenAPITests
         /// </summary>
         /// <param name="numberOfUsersToCreate">Number of users to generate</param>
         /// <returns>List of generated users</returns>
-        public List<UserDataModel> GenerateListOfOpenUserModels(int numberOfUsersToCreate)
+        public List<UserDataModel> GenerateListOfUserModels(int numberOfUsersToCreate)
         {
             var usersToCreate = new List<UserDataModel>();
 

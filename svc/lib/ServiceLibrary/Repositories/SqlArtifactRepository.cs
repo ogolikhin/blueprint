@@ -40,7 +40,7 @@ namespace ServiceLibrary.Repositories
 
         #region GetProjectOrArtifactChildrenAsync
 
-        public virtual async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
+        public virtual async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId, bool includeAuthorHistory = false)
         {
             if (projectId < 1)
                 throw new ArgumentOutOfRangeException(nameof(projectId));
@@ -160,10 +160,6 @@ namespace ServiceLibrary.Repositories
 
             var userArtifactVersionChildren = ProcessChildren(dicUserArtifactVersions, parentUserArtifactVersion);
 
-            var maxIndexOrder = userArtifactVersionChildren.Any()
-                ? userArtifactVersionChildren.Max(a => a.OrderIndex)
-                : 0;
-
             // Bug 4357: If the project (the Collections root is a child of the project) and there are orphans in Collection section,
             if (artifactId == null)
             {
@@ -183,7 +179,15 @@ namespace ServiceLibrary.Repositories
                 }
             }
 
-            return userArtifactVersionChildren.Select(v => new Artifact
+            return await ComposeArtifacts(userArtifactVersionChildren, includeAuthorHistory);
+        }
+
+        private async Task<List<Artifact>> ComposeArtifacts(IEnumerable<ArtifactVersion> userArtifactVersionChildren, bool includeAuthorHistory)
+        {
+            var maxIndexOrder = userArtifactVersionChildren.Any() ?
+                userArtifactVersionChildren.Max(a => a.OrderIndex) : 0;
+
+            var artifacts = userArtifactVersionChildren.Select(v => new Artifact
             {
                 Id = v.ItemId,
                 Name = v.Name,
@@ -199,8 +203,8 @@ namespace ServiceLibrary.Repositories
                 Permissions = v.EffectivePermissions,
                 LockedByUser = v.LockedByUserId.HasValue ? new UserGroup { Id = v.LockedByUserId } : null,
                 LockedDateTime = v.LockedByUserTime
-            })
-            .OrderBy(a => {
+            }).OrderBy(a =>
+            {
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)
                     return a.OrderIndex;
@@ -212,6 +216,22 @@ namespace ServiceLibrary.Repositories
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
                 return double.MaxValue;
             }).ToList();
+
+            if (includeAuthorHistory)
+            {
+                var artifactIds = artifacts.Select(a => a.Id);
+                var authorHistories = (await GetAuthorHistories(artifactIds)).ToDictionary(a => a.ItemId);
+                foreach (var artifact in artifacts)
+                {
+                    AuthorHistory authorHistory;
+                    if (authorHistories.TryGetValue(artifact.Id, out authorHistory))
+                    {
+                        artifact.CreatedOn = authorHistory.CreatedOn;
+                    }
+                }
+            }
+
+            return artifacts;
         }
 
         private ArtifactVersion FindRoot(ItemTypePredefined rootType, IEnumerable<ArtifactVersion> artifacts, int projectId)
@@ -657,5 +677,15 @@ namespace ServiceLibrary.Repositories
         }
 
         #endregion GetProjectNameByIdsAsync
+
+        public async Task<IEnumerable<AuthorHistory>> GetAuthorHistories(IEnumerable<int> artifactIds)
+        {
+            var param = new DynamicParameters();
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
+            param.Add("@revisionId", int.MaxValue);
+
+            return (await _connectionWrapper.QueryAsync<SqlAuthorHistory>("GetOpenArtifactAuthorHistories", param, commandType: CommandType.StoredProcedure)).Select(a => (AuthorHistory)a);
+        }
+        
     }
 }

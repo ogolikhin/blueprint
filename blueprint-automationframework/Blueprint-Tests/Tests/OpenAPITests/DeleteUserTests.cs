@@ -43,7 +43,7 @@ namespace OpenAPITests
         [TestCase(5)]
         [TestRail(246522)]
         [Description("Delete one or more users and verify that the users were deleted.")]
-        public void DeleteUser_ValidUserParameters_VerifyUserDeleted(int numberOfUsersToDelete)
+        public void DeleteUsers_ValidUserParameters_VerifyUserDeleted(int numberOfUsersToDelete)
         {
             // Setup:
             var usersToDelete = new List<IUser>();
@@ -110,13 +110,17 @@ namespace OpenAPITests
 
         #region 400 tests
 
+        private const string REQUEST_IS_MISSING_OR_INVALID_MESSAGE = "The request parameter is missing or invalid";
+
         [TestCase]
         [TestRail(246539)]
-        [Description("Delete a user and pass invalid parameters in the JSON body.  Verify it returns 400 Bad Request.")]
-        public void DeleteUser_InvalidUserParameters_400BadRequest()
+        [Description("Call the Delete Users API with an invalid JSON body.  Verify it returns 400 Bad Request.")]
+        public void DeleteUsers_InvalidJsonBody_400BadRequest()
         {
             // Setup:
             var userToDelete = Helper.CreateUserAndAddToDatabase();
+
+            // DeleteUsers REST call expects a List of strings.  Try passing a Dictionary instead.
             var badData = new Dictionary<string, int> { { userToDelete.Username, userToDelete.Id } };
 
             // Execute:
@@ -124,7 +128,39 @@ namespace OpenAPITests
                 "'DELETE {0}' should return '400 Bad Request' when invalid data is passed to it!", DELETE_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The request parameter is missing or invalid");
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, REQUEST_IS_MISSING_OR_INVALID_MESSAGE);
+        }
+
+        [TestCase]
+        [TestRail(246642)]
+        [Description("Call the Delete Users API with an empty request body.  Verify it returns 400 Bad Request.")]
+        public void DeleteUsers_EmptyBody_400BadRequest()
+        {
+            // Setup:
+            List<string> nullListOfUsers = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => DeleteUserWithInvalidBody(_adminUser, nullListOfUsers),
+                "'DELETE {0}' should return '400 Bad Request' when invalid data is passed to it!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, REQUEST_IS_MISSING_OR_INVALID_MESSAGE);
+        }
+
+        [TestCase]
+        [TestRail(246643)]
+        [Description("Call the Delete Users API with an empty list in the JSON body.  Verify it returns 400 Bad Request.")]
+        public void DeleteUsers_EmptyListInBody_400BadRequest()
+        {
+            // Setup:
+            var emptyListOfUsers = new List<string>();
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.OpenApi.DeleteUsers(_adminUser, emptyListOfUsers),
+                "'DELETE {0}' should return '400 Bad Request' when invalid data is passed to it!", DELETE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, REQUEST_IS_MISSING_OR_INVALID_MESSAGE);
         }
 
         #endregion 400 tests
@@ -135,7 +171,7 @@ namespace OpenAPITests
         [TestCase(CommonConstants.InvalidToken)]
         [TestRail(246543)]
         [Description("Delete a user and pass invalid or missing token.  Verify it returns 401 Unauthorized.")]
-        public void DeleteUser_InvalidToken_401Unauthorized(string invalidToken)
+        public void DeleteUsers_InvalidToken_401Unauthorized(string invalidToken)
         {
             // Setup:
             _adminUser.Token.OpenApiToken = invalidToken;
@@ -143,9 +179,7 @@ namespace OpenAPITests
             var usernamesToDelete = new List<string> { _adminUser.Username };
 
             // Execute:
-            UserCallResultCollection result = null;
-
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
                 "'DELETE {0}' should return '401 Unauthorized' when an invalid or missing token is passed to it!", DELETE_PATH);
 
             // Verify:
@@ -159,7 +193,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(246544)]
         [Description("Delete a user and pass a token for a user without permission to delete users.  Verify it returns 403 Forbidden.")]
-        public void DeleteUser_InsufficientPermissions_403Forbidden()
+        public void DeleteUsers_InsufficientPermissions_403Forbidden()
         {
             // Setup:
             // Create an Author user.  Authors shouldn't have permission to delete other users.
@@ -183,7 +217,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(246545)]
         [Description("Delete a user that was already deleted.  Verify it returns 409 Conflict.")]
-        public void DeleteUser_DeletedUser_409Conflict()
+        public void DeleteUsers_DeletedUser_409Conflict()
         {
             // Setup:
             var userToDelete = Helper.CreateUserAndAddToDatabase();
@@ -205,7 +239,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(246546)]
         [Description("Delete a user that doesn't exist.  Verify it returns 409 Conflict.")]
-        public void DeleteUser_NonExistingUsername_409Conflict()
+        public void DeleteUsers_NonExistingUsername_409Conflict()
         {
             // Setup:
             var userToDelete = UserFactory.CreateUserOnly();

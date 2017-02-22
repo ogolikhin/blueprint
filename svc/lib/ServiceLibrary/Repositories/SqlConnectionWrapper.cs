@@ -142,7 +142,7 @@ namespace ServiceLibrary.Repositories
             ((DynamicParameters)parameters).Add(name, value);
         }
 
-        public static DataTable ToDataTable<T>(IEnumerable<T> values, string typeName, string columnName)
+        public static DataTable ToDataTable<T>(IEnumerable<T> values, string typeName = "Int32Collection", string columnName = "Int32Value")
             where T : struct
         {
             var table = new DataTable { Locale = CultureInfo.InvariantCulture };
@@ -154,5 +154,6 @@ namespace ServiceLibrary.Repositories
             }
             return table;
         }
+
     }
 }

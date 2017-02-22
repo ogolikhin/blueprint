@@ -484,22 +484,17 @@ namespace ServiceLibrary.Repositories
             bool isFetched = await AddChildrenToAncestors(rootArtifacts, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId);
             if (!isFetched && !setAncestorsAndSelfIds.Contains(projectId))
             {
-                // Could be an orphan in the Collections hierarchy
-                var rootCollections = rootArtifacts.FirstOrDefault(a => a.PredefinedType == ItemTypePredefined.CollectionFolder);
-                if (rootCollections != null)
+                // Could be an orphan in the Collections or Baselines and Reviews hierarchy
+                var rootCollections = rootArtifacts.Where(a => a.PredefinedType == ItemTypePredefined.CollectionFolder).Take(1);
+                var rootBaselinesAndReviews = rootArtifacts.Where(a => a.PredefinedType == ItemTypePredefined.BaselineFolder).Take(1);
+                foreach (var root in rootCollections.Union(rootBaselinesAndReviews))
                 {
-                    setAncestorsAndSelfIds = new HashSet<int> { rootCollections.Id };
-                    isFetched = await AddChildrenToAncestors(new[] { rootCollections }, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId);
-                }
-
-                if (!isFetched)
-                {
-                    // Could be an orphan in the Baselines and Reviews hierarchy
-                    var rootBaselinesAndReviews = rootArtifacts.FirstOrDefault(a => a.PredefinedType == ItemTypePredefined.BaselineFolder);
-                    if (rootBaselinesAndReviews != null)
+                    var children = await GetProjectOrArtifactChildrenAsync(projectId, root.Id, userId);
+                    if (children.Any(child => child.Id == expandedToArtifactId))
                     {
-                        setAncestorsAndSelfIds = new HashSet<int> { rootBaselinesAndReviews.Id };
-                        isFetched = await AddChildrenToAncestors(new[] { rootBaselinesAndReviews }, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId);
+                        root.Children = children.Cast<IArtifact>().ToList();
+                        isFetched = true;
+                        break;
                     }
                 }
             }
@@ -524,9 +519,8 @@ namespace ServiceLibrary.Repositories
                 {
                     return isArtifactToExpandToFetched;
                 }
-                var children = await GetProjectOrArtifactChildrenAsync(projectId, ancestor.Id, userId);
-                ancestor.Children = children.Cast<IArtifact>().ToList();
-                siblings = children;
+                siblings = await GetProjectOrArtifactChildrenAsync(projectId, ancestor.Id, userId);
+                ancestor.Children = siblings.Cast<IArtifact>().ToList();
             }
         }
 

@@ -172,9 +172,12 @@ namespace OpenAPITests
                     var getUserResult = Helper.OpenApi.GetUser(_adminUser, result.User.Id);
                     Assert.IsNotNull(getUserResult, "User does not exists!");
 
+                    Assert.AreEqual(result.User.Department, getUserResult.Department, "Department is not matching!");
                     Assert.AreEqual(result.User.DisplayName, getUserResult.DisplayName, "DisplayName is not matching!");
+                    Assert.AreEqual(result.User.Email, getUserResult.Email, "Email is not matching!");
                     Assert.AreEqual(result.User.Firstname, getUserResult.Firstname, "FirstName is not matching!");
                     Assert.AreEqual(result.User.Lastname, getUserResult.Lastname, "LastName is not matching!");
+                    Assert.AreEqual(result.User.Title, getUserResult.Title, "Department is not matching!");
                     Assert.AreEqual(result.User.Username, getUserResult.Username, "Username is not matching!");
                     Assert.AreEqual(result.User.UserOrGroupType, getUserResult.UserOrGroupType, "UserOrGroupType is not matching!");
                 }

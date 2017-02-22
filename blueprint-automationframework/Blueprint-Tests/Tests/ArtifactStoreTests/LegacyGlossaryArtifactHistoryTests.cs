@@ -55,7 +55,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
             // Validation: Verify that the returned from GetGlossaryArtifact in valid format
-            ArtifactStoreHelper.AssertArtifactsEqual(glossaryArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(glossaryArtifact, retrievedArtifact);
         }
 
         [TestCase]
@@ -73,7 +73,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => { glossaryArtifact = Helper.ArtifactStore.GetGlossaryArtifact(viewer, publishedGlossaryArtifact.Id, versionId: 1); },
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.GLOSSARY_id_);
 
-            ArtifactStoreHelper.AssertArtifactsEqual(glossaryArtifact, retrievedArtifactVersion1);
+            NovaArtifactDetails.AssertArtifactsEqual(glossaryArtifact, retrievedArtifactVersion1);
         }
 
         #endregion 200 OK Tests

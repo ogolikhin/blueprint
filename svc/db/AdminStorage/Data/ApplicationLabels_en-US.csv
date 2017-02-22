@@ -624,6 +624,8 @@ Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
 Jobs_Button_Label_GetJobs, "Get Jobs"
 
+Walkthrough_Button_Label, "Walkthrough"
+
 
 
 

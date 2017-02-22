@@ -28,6 +28,7 @@ namespace Model.Impl
             get { return UserData.Username; }
             set { UserData.Username = value; }
         }
+
         public string DisplayName
         {
             get { return UserData.DisplayName; }
@@ -83,17 +84,20 @@ namespace Model.Impl
             get { return UserData.Enabled; }
             set { UserData.Enabled = value; }
         }
+        public string InstanceAdminRole
+        {
+            get { return UserData.InstanceAdminRole; }
+            set { UserData.InstanceAdminRole = value; }
+        }
 
-        public string InstanceAdminRole { get; set; }
+#endregion Serialized JSON Properties
 
-        #endregion Serialized JSON Properties
+#region Constructors
 
-        #region Constructors
-
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        public OpenApiUser()
+/// <summary>
+/// Default constructor.
+/// </summary>
+public OpenApiUser()
         {
             UserData = new UserDataModel();
         }

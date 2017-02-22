@@ -234,25 +234,7 @@ namespace Helper
             Assert.AreEqual(expectedArtifactBase.ProjectId, actualNovaArtifactBase.ProjectId, "The ProjectId  parameters don't match!");
         }
 
-        /// <summary>
-        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
-        /// </summary>
-        /// <param name="novaArtifactBase1">The INovaArtifactBase to compare against.</param>
-        /// <param name="novaArtifactBase2">The IArtifactBase to compare against.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactBase novaArtifactBase1, INovaArtifactBase novaArtifactBase2)
-        {
-            ThrowIf.ArgumentNull(novaArtifactBase1, nameof(novaArtifactBase1));
-            ThrowIf.ArgumentNull(novaArtifactBase2, nameof(novaArtifactBase2));
-
-            Assert.AreEqual(novaArtifactBase1.Id, novaArtifactBase2.Id, "The Id parameters don't match!");
-            Assert.AreEqual(novaArtifactBase1.Name, novaArtifactBase2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase1.ParentId, novaArtifactBase2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase1.ItemTypeId, novaArtifactBase2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase1.ProjectId, novaArtifactBase2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(novaArtifactBase1.Version, novaArtifactBase2.Version, "The Version  parameters don't match!");
-        }
-
+        
         /// <summary>
         /// Asserts that both INovaArtifactDetails objects are equal.
         /// </summary>
@@ -718,6 +700,39 @@ namespace Helper
             Assert.AreEqual(expectedArtifact.Name, actualCollectionItem.Name);
             Assert.AreEqual(expectedArtifact.ArtifactTypeId, actualCollectionItem.ItemTypeId);
             Assert.AreEqual(expectedArtifact.BaseArtifactType.ToItemTypePredefined(), actualCollectionItem.ItemTypePredefined);
+        }
+
+        /// <summary>
+        /// Compare two Baselines
+        /// </summary>
+        /// <param name="expectedBaseline">Expected Baseline</param>
+        /// <param name="actualBaseline">Actual Baseline</param>
+        /// <param name="skipArtifacts">(optional) Pass false to compare Artifacts</param>
+        /// <param name="skipNovaArtifactDetails">(optional) Pass false to compare Baseline's properties common for all artifacts</param>
+        public static void AssertBaselinesAreEqual(Baseline expectedBaseline, Baseline actualBaseline,
+            bool skipArtifacts = true, bool skipNovaArtifactDetails = true)
+        {
+            ThrowIf.ArgumentNull(expectedBaseline, nameof(expectedBaseline));
+            ThrowIf.ArgumentNull(actualBaseline, nameof(actualBaseline));
+
+            Assert.AreEqual(expectedBaseline.IsAvailableInAnalytics, actualBaseline.IsAvailableInAnalytics,
+                "Baseline should have expected value of IsAvailableInAnalytics.");
+            Assert.AreEqual(expectedBaseline.NotAllArtifactsAreShown, actualBaseline.NotAllArtifactsAreShown,
+                "Baseline should have expected value of NotAllArtifactsAreShown.");
+            Assert.AreEqual(expectedBaseline.IsSealed, actualBaseline.IsSealed,
+                "Baseline should have expected value of IsSealed.");
+
+            if(!skipArtifacts)
+            {
+                Assert.AreEqual(expectedBaseline.Artifacts?.Count, actualBaseline.Artifacts?.Count,
+                    "Baseline should have expected number of Artifacts.");
+                // TODO: add comparison of Artifacts
+            }
+
+            if(!skipNovaArtifactDetails)
+            {
+                AssertArtifactsEqual(expectedBaseline, actualBaseline);
+            }
         }
 
         #endregion Custom Asserts

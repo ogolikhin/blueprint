@@ -35,7 +35,7 @@ namespace Model.OpenApiModel.Services
 
         /// <summary>
 
-        /// Create a user with specified user properties.
+        /// Create one or more users with specified user properties.
         /// (Runs:  'POST /api/v1/users')
         /// </summary>
         /// <param name="userToAuthenticate">A user that has permission to create users.</param>

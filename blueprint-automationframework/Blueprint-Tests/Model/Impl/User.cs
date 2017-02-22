@@ -422,6 +422,8 @@ namespace Model.Impl
                 return null;
             }
 
+            // Creates pattern to replace capital letters with the new character and capital letter
+            // from https://gist.github.com/rymoore99/9091263
             var r = new Regex(@"(?<=[A-Z])(?=[A-Z][a-z]) | (?<=[^A-Z])(?=[A-Z]) | (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
 
             return r.Replace(role.ToString(), " ");

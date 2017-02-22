@@ -95,6 +95,7 @@ namespace OpenAPITests
         public void CreateUsers_ListOfUsersAndAlreadyExistingUsers_207PartialSuccess()
         {
             // Setup:
+            const int PARTIAL = 207;
             const int NUMBER_OF_USERS_TO_CREATE = 3;
 
             var existingUsersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
@@ -108,7 +109,7 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, newAndExistingUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode.Created) }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, newAndExistingUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when valid data is passed to it and some users exist!", CREATE_PATH);
 
             // Verify:
@@ -122,7 +123,7 @@ namespace OpenAPITests
         [TestCase("FirstName", "First name is required")]
         [TestCase("LastName", "Last name is required")]
         [TestCase("Password", "Password is required")]
-        [TestRail(0)]
+        [TestRail(246644)]
         [Description("Create couple of users (one user with all required values and second one with empty property) and verify a 207 HTTP status was returned")]
         public void CreateUsers_EmptyProperties_207PartialSuccess(string propertyName, string errorMessage)
         {
@@ -150,7 +151,7 @@ namespace OpenAPITests
         }
 
         [TestCase]
-        [TestRail(0)]
+        [TestRail(246645)]
         [Description("Create couple of users (one user with all required values and second one with non-existing instance admin role). " +
             "Verify a 207 HTTP status was returned")]
         public void CreateUsers_NonExistingRole_207PartialSuccess()
@@ -180,7 +181,7 @@ namespace OpenAPITests
         }
 
         [TestCase]
-        [TestRail(0)]
+        [TestRail(246646)]
         [Description("Create couple of users (one user with all required values and second one with non-existing group id). Verify a 207 HTTP status was returned")]
         public void CreateUsers_NonExistingGroup_207PartialSuccess()
         {
@@ -206,57 +207,6 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
             VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
         }
-
-        [TestCase]
-        [TestRail(0)]
-        [Description("Create couple of users (one user with all required values and second one with invalid parameters). Verify a 207 HTTP status was returned")]
-        public void CreateUsers_InvalidUserParameters_207PartialSuccess()
-        {
-            // Setup:
-            const int PARTIAL = 207;
-
-            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-            var userWithBadParameters = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-
-            string requestBody = JsonConvert.SerializeObject(userWithBadParameters);
-
-            requestBody = requestBody.Replace(toChange, changeTo);
-
-            var badData = new Dictionary<string, int> { { userWithBadParameters[0].Username, userWithBadParameters[0].Id } };
-
-            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
-            allUsersToCreate.AddRange(userWithBadParameters);
-
-            // Execute:
-            UserCallResultCollection result = null;
-
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
-                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
-
-            // Verify:
-            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
-            VerifyCreateUserResultSet(userWithBadParameters, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
-        }
-
-
-        [TestCase]
-        [TestRail(246539)]
-        [Description("Delete a user and pass invalid parameters in the JSON body.  Verify it returns 400 Bad Request.")]
-        public void DeleteUser_InvalidUserParameters_400BadRequest()
-        {
-            // Setup:
-            var userToDelete = Helper.CreateUserAndAddToDatabase();
-            var badData = new Dictionary<string, int> { { userToDelete.Username, userToDelete.Id } };
-
-            // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => CreateUserWithInvalidBody(_adminUser, badData),
-                "'DELETE {0}' should return '400 Bad Request' when invalid data is passed to it!", DELETE_PATH);
-
-            // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotAcceptable, "TODO: Add real message here");
-        }
-
 
         #endregion Positive tests
 
@@ -335,6 +285,8 @@ namespace OpenAPITests
             }
         }
 
+ // Under development part 
+ /*
         /// <summary>
         /// Runs the OpenAPI Create User call with invalid data in the body.
         /// </summary>
@@ -379,7 +331,7 @@ namespace OpenAPITests
                 contentType);
 
             return response.Content;
-        }
+        }*/
 
         #endregion Private methods
     }

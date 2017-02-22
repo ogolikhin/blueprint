@@ -80,9 +80,9 @@ namespace OpenAPITests
                 "'CREATE {0}' should return '207 Partial Success' when valid data is passed to it and some users exist!", CREATE_PATH);
 
             // Verify:
+            Assert.AreEqual(newAndExistingUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
             VerifyCreateUserResultSet(usersToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
             VerifyCreateUserResultSet(existingUsersToCreate, result, expectedHttpCode: 1192, expectedMessage: "User login name must be unique");
-            Assert.AreEqual(newAndExistingUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
         }
 
         #endregion Positive tests

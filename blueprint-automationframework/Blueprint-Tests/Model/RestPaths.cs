@@ -54,8 +54,6 @@ namespace Model
 
             public static class Users
             {
-                public const string CREATE                          = "api/v1/users";
-                public const string DELETE                          = "api/v1/users/delete";
                 public const string GET_id_                         = "api/v1/users/{0}";
             }
 

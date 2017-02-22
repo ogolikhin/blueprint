@@ -18,7 +18,7 @@ namespace OpenAPITests
     {
         private IUser _adminUser = null;
 
-        private const string CREATE_PATH = RestPaths.OpenApi.Users.CREATE;
+        private const string CREATE_PATH = RestPaths.OpenApi.USERS;
 
         [SetUp]
         public void SetUp()
@@ -42,7 +42,7 @@ namespace OpenAPITests
         public void CreateUsers_ValidUserParameters_VerifyUserCreated(int numberOfUsersToCreate)
         {
             // Setup:
-            var usersToCreate = GenerateListOfOpenApiUsers(numberOfUsersToCreate);
+            var usersToCreate = GenerateListOfOpenUserModels(numberOfUsersToCreate);
 
             // Execute:
             UserCallResultCollection result = null;
@@ -57,26 +57,26 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(246548)]
         [Description("Create a list of users (some users already created) and verify a 207 HTTP status was returned and " +
-        "that the users that were alredy existing are reported as already existing.")]
+        "that the users that were already existing are reported as already existing.")]
         public void CreateUsers_ListOfUsersAndAlreadyExistingUsers_207PartialSuccess()
         {
             // Setup:
             const int NUMBER_OF_USERS_TO_CREATE = 3;
             const int PARTIAL = 207;
 
-            var existingUsersToCreate = GenerateListOfOpenApiUsers(NUMBER_OF_USERS_TO_CREATE);
+            var existingUsersToCreate = GenerateListOfOpenUserModels(NUMBER_OF_USERS_TO_CREATE);
             Helper.OpenApi.CreateUsers(_adminUser, existingUsersToCreate);
 
-            var usersToCreate = GenerateListOfOpenApiUsers(NUMBER_OF_USERS_TO_CREATE);
+            var usersToCreate = GenerateListOfOpenUserModels(NUMBER_OF_USERS_TO_CREATE);
 
-            var plannedToBeCreatedUsers = new List<UserDataModel>(usersToCreate);
+            var newAndExistingUsersToCreate = new List<UserDataModel>(usersToCreate);
 
-            plannedToBeCreatedUsers.AddRange(existingUsersToCreate);
+            newAndExistingUsersToCreate.AddRange(existingUsersToCreate);
 
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, plannedToBeCreatedUsers, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, newAndExistingUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when valid data is passed to it and some users exist!", CREATE_PATH);
 
             // Verify:
@@ -86,7 +86,7 @@ namespace OpenAPITests
 
         #endregion Positive tests
 
-        // TODO: 409 when paasword is alfabetical & special characters
+        // TODO: 409 when paasword is alphabetical & special characters
         // TODO: 409 when password is special and numerical characters
         // TODO: 409 when password is alfabetical & numeric characters
         // TODO: 207 for each type of error
@@ -101,7 +101,7 @@ namespace OpenAPITests
         /// </summary>
         /// <param name="numberOfUsersToCreate">Number of users to generate</param>
         /// <returns>List of generated users</returns>
-        public List<UserDataModel> GenerateListOfOpenApiUsers(int numberOfUsersToCreate)
+        public List<UserDataModel> GenerateListOfOpenUserModels(int numberOfUsersToCreate)
         {
             var usersToCreate = new List<UserDataModel>();
 

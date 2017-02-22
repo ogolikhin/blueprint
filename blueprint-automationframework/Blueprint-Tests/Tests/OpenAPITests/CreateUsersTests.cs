@@ -157,7 +157,8 @@ namespace OpenAPITests
         {
             Assert.IsNotNull(userList, "The list of expected users is not created!");
             Assert.IsNotNull(resultSet, "Result set from create users call is not created!");
-            Assert.IsNotEmpty(userList, "The list of expected users is empty!");
+            Assert.IsTrue(userList.Count > 0, "The list of expected users is empty!");
+            Assert.IsTrue(resultSet.Count > 0, "The list of resulted users is empty!");
 
             foreach (var user in userList)
             {

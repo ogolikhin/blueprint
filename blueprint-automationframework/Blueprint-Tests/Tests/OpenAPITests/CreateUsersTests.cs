@@ -177,7 +177,7 @@ namespace OpenAPITests
                     Assert.AreEqual(result.User.Email, getUserResult.Email, "Email is not matching!");
                     Assert.AreEqual(result.User.Firstname, getUserResult.Firstname, "FirstName is not matching!");
                     Assert.AreEqual(result.User.Lastname, getUserResult.Lastname, "LastName is not matching!");
-                    Assert.AreEqual(result.User.Title, getUserResult.Title, "Department is not matching!");
+                    Assert.AreEqual(result.User.Title, getUserResult.Title, "Title is not matching!");
                     Assert.AreEqual(result.User.Username, getUserResult.Username, "Username is not matching!");
                     Assert.AreEqual(result.User.UserOrGroupType, getUserResult.UserOrGroupType, "UserOrGroupType is not matching!");
                 }

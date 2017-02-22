@@ -9,6 +9,8 @@ using Utilities.Factories;
 using Common;
 using Model.OpenApiModel.UserModel.Results;
 using System.Net;
+using Utilities;
+using Model.Common.Constants;
 
 namespace OpenAPITests
 {
@@ -61,10 +63,10 @@ namespace OpenAPITests
                 "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
 
             // Verify:
-            VerifyCreateUserResultSet(userToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
+            Assert.AreEqual(userToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
         }
 
-        [TestCase(1)]
         [TestCase(5)]
         [TestRail(246547)]
         [Description("Create one or more users and verify that the users were created.")]
@@ -80,7 +82,8 @@ namespace OpenAPITests
                 "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
 
             // Verify:
-            VerifyCreateUserResultSet(usersToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
+            Assert.AreEqual(usersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, expectedMessage: "User has been created successfully");
         }
 
         [TestCase]
@@ -91,7 +94,6 @@ namespace OpenAPITests
         {
             // Setup:
             const int NUMBER_OF_USERS_TO_CREATE = 3;
-            const int PARTIAL = 207;
 
             var existingUsersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
             Helper.OpenApi.CreateUsers(_adminUser, existingUsersToCreate);
@@ -99,20 +101,53 @@ namespace OpenAPITests
             var usersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
 
             var newAndExistingUsersToCreate = new List<UserDataModel>(usersToCreate);
-
             newAndExistingUsersToCreate.AddRange(existingUsersToCreate);
 
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, newAndExistingUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, newAndExistingUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode.Created) }),
                 "'CREATE {0}' should return '207 Partial Success' when valid data is passed to it and some users exist!", CREATE_PATH);
 
             // Verify:
             Assert.AreEqual(newAndExistingUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(usersToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
-            VerifyCreateUserResultSet(existingUsersToCreate, result, expectedHttpCode: 1192, expectedMessage: "User login name must be unique");
+            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(existingUsersToCreate, result, BusinessLayerErrorCodes.UserValidationFailed, "User login name must be unique");
         }
+
+        [TestCase("Username", "Login name is required")]
+        [TestCase("DisplayName", "Display name is required")]
+        [TestCase("FirstName", "First name is required")]
+        [TestCase("LastName", "Last name is required")]
+        [TestCase("Password", "Password is required")]
+        [TestRail(0)]
+        [Description("Create couple of users (one user with all required values and second with empty property) and verify a 207 HTTP status was returned and")]
+        public void CreateUsers_EmptyProperties_207PartialSuccess(string propertyName, string errorMessage)
+        {
+            // Setup:
+            const int PARTIAL = 207;
+
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithEmptyProperty = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            CSharpUtilities.SetProperty(propertyName, "", userWithEmptyProperty[0]);
+
+            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
+            allUsersToCreate.AddRange(userWithEmptyProperty);
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
+
+            // Verify:
+            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(userWithEmptyProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
+        }
+
+
 
         #endregion Positive tests
 

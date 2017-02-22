@@ -160,10 +160,6 @@ namespace ServiceLibrary.Repositories
 
             var userArtifactVersionChildren = ProcessChildren(dicUserArtifactVersions, parentUserArtifactVersion);
 
-            var maxIndexOrder = userArtifactVersionChildren.Any()
-                ? userArtifactVersionChildren.Max(a => a.OrderIndex)
-                : 0;
-
             // Bug 4357: If the project (the Collections root is a child of the project) and there are orphans in Collection section,
             if (artifactId == null)
             {
@@ -183,7 +179,32 @@ namespace ServiceLibrary.Repositories
                 }
             }
 
-            var artifacts = userArtifactVersionChildren.Select(ComposeArtifact).OrderBy(a => {
+            return await ComposeArtifacts(userArtifactVersionChildren, includeAuthorHistory);
+        }
+
+        private async Task<List<Artifact>> ComposeArtifacts(IEnumerable<ArtifactVersion> userArtifactVersionChildren, bool includeAuthorHistory)
+        {
+            var maxIndexOrder = userArtifactVersionChildren.Any() ?
+                userArtifactVersionChildren.Max(a => a.OrderIndex) : 0;
+
+            var artifacts = userArtifactVersionChildren.Select(v => new Artifact
+            {
+                Id = v.ItemId,
+                Name = v.Name,
+                ProjectId = v.VersionProjectId,
+                ParentId = v.ParentId,
+                ItemTypeId = GetItemTypeId(v),
+                Prefix = v.Prefix,
+                ItemTypeIconId = v.ItemTypeIconId,
+                PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
+                Version = v.VersionsCount,
+                OrderIndex = v.OrderIndex,
+                HasChildren = v.HasChildren,
+                Permissions = v.EffectivePermissions,
+                LockedByUser = v.LockedByUserId.HasValue ? new UserGroup { Id = v.LockedByUserId } : null,
+                LockedDateTime = v.LockedByUserTime
+            }).OrderBy(a =>
+            {
                 // To put Collections and Baselines and Reviews folder at the end of the project children 
                 if (a.OrderIndex >= 0)
                     return a.OrderIndex;
@@ -205,33 +226,12 @@ namespace ServiceLibrary.Repositories
                     AuthorHistory authorHistory;
                     if (authorHistories.TryGetValue(artifact.Id, out authorHistory))
                     {
-                        artifact.AuthorHistory = authorHistory;
+                        artifact.CreatedOn = authorHistory.CreatedOn;
                     }
                 }
             }
 
             return artifacts;
-        }
-
-        private Artifact ComposeArtifact(ArtifactVersion artifactVersion)
-        {
-            return new Artifact
-            {
-                Id = artifactVersion.ItemId,
-                Name = artifactVersion.Name,
-                ProjectId = artifactVersion.VersionProjectId,
-                ParentId = artifactVersion.ParentId,
-                ItemTypeId = GetItemTypeId(artifactVersion),
-                Prefix = artifactVersion.Prefix,
-                ItemTypeIconId = artifactVersion.ItemTypeIconId,
-                PredefinedType = artifactVersion.ItemTypePredefined.GetValueOrDefault(),
-                Version = artifactVersion.VersionsCount,
-                OrderIndex = artifactVersion.OrderIndex,
-                HasChildren = artifactVersion.HasChildren,
-                Permissions = artifactVersion.EffectivePermissions,
-                LockedByUser = artifactVersion.LockedByUserId.HasValue ? new UserGroup { Id = artifactVersion.LockedByUserId } : null,
-                LockedDateTime = artifactVersion.LockedByUserTime
-            };
         }
 
         private ArtifactVersion FindRoot(ItemTypePredefined rootType, IEnumerable<ArtifactVersion> artifacts, int projectId)
@@ -681,7 +681,7 @@ namespace ServiceLibrary.Repositories
         public async Task<IEnumerable<AuthorHistory>> GetAuthorHistories(IEnumerable<int> artifactIds)
         {
             var param = new DynamicParameters();
-            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             param.Add("@revisionId", int.MaxValue);
 
             return (await _connectionWrapper.QueryAsync<SqlAuthorHistory>("GetOpenArtifactAuthorHistories", param, commandType: CommandType.StoredProcedure)).Select(a => (AuthorHistory)a);

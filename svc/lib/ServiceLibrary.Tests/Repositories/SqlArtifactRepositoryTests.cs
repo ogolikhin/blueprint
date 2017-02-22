@@ -290,19 +290,23 @@ namespace ServiceLibrary.Repositories
 
             var authorHistory = new SqlAuthorHistory
             {
-                ItemId = childArtifactId
+                ItemId = childArtifactId,
+                CreationTimestamp = DateTime.Today.AddHours(-2),
+                CreationUserId = 1,
+                ModificationTimestamp = DateTime.Today.AddHours(-1),
+                ModificationUserId = 2
             };
 
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactRepository(cxn.Object);
             cxn.SetupQueryAsync("GetArtifactChildren", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, input);
-            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToInt32Collection(Enumerable.Repeat(childArtifactId, 1)) }, { "revisionId", int.MaxValue } }, Enumerable.Repeat(authorHistory, 1));
+            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(Enumerable.Repeat(childArtifactId, 1)) }, { "revisionId", int.MaxValue } }, Enumerable.Repeat(authorHistory, 1));
             // Act
             var actual = await repository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId, true);
 
             // Assert
             cxn.Verify();
-            Assert.IsNotNull(actual[0].AuthorHistory);
+            Assert.IsNotNull(actual[0].CreatedOn);
         }
 
         [TestMethod]
@@ -322,7 +326,7 @@ namespace ServiceLibrary.Repositories
 
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlArtifactRepository(cxn.Object);
-            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToInt32Collection(artifactIds) }, { "revisionId", int.MaxValue } }, Enumerable.Repeat(authorHistory, 1));
+            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) }, { "revisionId", int.MaxValue } }, Enumerable.Repeat(authorHistory, 1));
             // Act
             var actual = await repository.GetAuthorHistories(artifactIds);
 

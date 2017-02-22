@@ -43,6 +43,9 @@ namespace ArtifactStore.Controllers
         /// <remarks>
         /// Returns child artifacts of the project with the specified id.
         /// </remarks>
+        /// <param name="projectId">Id of the project</param>
+        /// <param name="includeAuthorHistory">[Optional] The default value is fasle.
+        /// Used to retrieve extra information about artifact like 'createdOn'</param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
@@ -63,6 +66,10 @@ namespace ArtifactStore.Controllers
         /// <remarks>
         /// Returns child artifacts of the artifact with the specified project and artifact ids.
         /// </remarks>
+        /// <param name="projectId">Id of the project</param>
+        /// <param name="artifactId">Id of the artifact</param>
+        /// <param name="includeAuthorHistory">[Optional] The default value is fasle.
+        /// Used to retrieve extra information about artifact like 'createdOn'</param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>

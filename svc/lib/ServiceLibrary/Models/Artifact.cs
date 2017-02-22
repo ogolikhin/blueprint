@@ -54,6 +54,6 @@ namespace ServiceLibrary.Models
         public List<IArtifact> Children { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public AuthorHistory AuthorHistory { get; set; }
+        public DateTime? CreatedOn { get; set; }
     }
 }

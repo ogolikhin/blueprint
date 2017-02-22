@@ -42,7 +42,7 @@ namespace OpenAPITests
         public void CreateUsers_ValidUserParameters_VerifyUserCreated(int numberOfUsersToCreate)
         {
             // Setup:
-            var usersToCreate = GenerateListOfOpenUserModels(numberOfUsersToCreate);
+            var usersToCreate = GenerateListOfUserModels(numberOfUsersToCreate);
 
             // Execute:
             UserCallResultCollection result = null;
@@ -64,10 +64,10 @@ namespace OpenAPITests
             const int NUMBER_OF_USERS_TO_CREATE = 3;
             const int PARTIAL = 207;
 
-            var existingUsersToCreate = GenerateListOfOpenUserModels(NUMBER_OF_USERS_TO_CREATE);
+            var existingUsersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
             Helper.OpenApi.CreateUsers(_adminUser, existingUsersToCreate);
 
-            var usersToCreate = GenerateListOfOpenUserModels(NUMBER_OF_USERS_TO_CREATE);
+            var usersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
 
             var newAndExistingUsersToCreate = new List<UserDataModel>(usersToCreate);
 
@@ -102,7 +102,7 @@ namespace OpenAPITests
         /// </summary>
         /// <param name="numberOfUsersToCreate">Number of users to generate</param>
         /// <returns>List of generated users</returns>
-        public List<UserDataModel> GenerateListOfOpenUserModels(int numberOfUsersToCreate)
+        public List<UserDataModel> GenerateListOfUserModels(int numberOfUsersToCreate)
         {
             var usersToCreate = new List<UserDataModel>();
 
@@ -147,7 +147,7 @@ namespace OpenAPITests
         /// <param name="userList">List of users that was supposed to be created</param>
         /// <param name="resultSet">Result of create users call</param>
         /// <param name="expectedHttpCode">Expected HTTP code for this user</param>
-        /// <param name="expectedHttpCode">Expected message for this user</param>
+        /// <param name="expectedMessage">Expected message for this user</param>
         private static void VerifyCreateUserResultSet(List<UserDataModel> userList, UserCallResultCollection resultSet, int expectedHttpCode, string expectedMessage)
         {
             Assert.IsNotNull(userList, "The list of expected users is empty!");

@@ -89,7 +89,7 @@ namespace OpenAPITests
 
         // TODO: 409 when paasword is alphabetical & special characters
         // TODO: 409 when password is special and numerical characters
-        // TODO: 409 when password is alfabetical & numeric characters
+        // TODO: 409 when password is alphabetical & numeric characters
         // TODO: 207 for each type of error
         // TODO: 409 Admin role does not exists
         // TODO: 400 Missing property

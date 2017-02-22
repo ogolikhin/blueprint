@@ -211,7 +211,12 @@ namespace AdminStore.Repositories
                 throw new BadRequestException("Password reset failed, password reset cooldown in effect", ErrorCodes.ChangePasswordCooldownInEffect);
             }
 
-            Guid newGuid = Guid.NewGuid();
+            if (!await _userRepository.ValidadeUserPasswordForHistoryAsync(user.Id, newPassword))
+            {
+                throw new BadRequestException("The new password matches a previously used password.", ErrorCodes.PasswordAlreadyUsedPreviously);
+            }
+
+            var newGuid = Guid.NewGuid();
             user.UserSalt = newGuid;
             user.Password = HashingUtilities.GenerateSaltedHash(newPassword, user.UserSalt);
 

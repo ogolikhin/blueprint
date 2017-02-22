@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using Dapper;
 using ServiceLibrary.Repositories;
@@ -71,10 +73,38 @@ namespace AdminStore.Repositories
         public async Task UpdateUserOnPasswordResetAsync(AuthenticationUser user)
         {
             var prm = new DynamicParameters();
+            prm.Add("@userId", user.Id);
+            await _connectionWrapper.ExecuteAsync("AddCurrentUserPasswordToHistory", prm, commandType: CommandType.StoredProcedure);
+
+            prm = new DynamicParameters();
             prm.Add("@Login", user.Login);
             prm.Add("@Password", user.Password);
             prm.Add("@UserSALT", user.UserSalt);
             await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", prm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<bool> ValidadeUserPasswordForHistoryAsync(int userId, string newPassword)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@userId", userId);
+            var passwordHistory = await _connectionWrapper.QueryAsync<HashedPassword>("GetLastUserPasswords", prm, commandType: CommandType.StoredProcedure);
+
+            foreach (var password in passwordHistory)
+            {
+                var newHashedPassword = HashingUtilities.GenerateSaltedHash(newPassword, password.UserSALT);
+                if (string.Equals(newHashedPassword, password.Password))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        internal class HashedPassword
+        {
+            internal string Password { get; set; }
+            internal Guid UserSALT { get; set; }
         }
     }
 }

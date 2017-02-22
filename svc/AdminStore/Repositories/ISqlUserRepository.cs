@@ -19,5 +19,7 @@ namespace AdminStore.Repositories
         Task UpdateUserOnInvalidLoginAsync(AuthenticationUser login);
 
         Task UpdateUserOnPasswordResetAsync(AuthenticationUser user);
+
+        Task<bool> ValidateUserPasswordForHistoryAsync(int userId, string newPassword);
     }
 }

@@ -57,7 +57,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             // Validation: Verify that the returned from GetDiagramArtifact in valid format
-            ArtifactStoreHelper.AssertArtifactsEqual(diagramArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(diagramArtifact, retrievedArtifact);
         }
 
         [TestCase(BaseArtifactType.DomainDiagram)]
@@ -77,7 +77,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => {diagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(viewer, publishedDiagramArtifact.Id, versionId: 1);},
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
-            ArtifactStoreHelper.AssertArtifactsEqual(diagramArtifact, retrievedArtifactVersion1);
+            NovaArtifactDetails.AssertArtifactsEqual(diagramArtifact, retrievedArtifactVersion1);
         }
 
         #endregion 200 OK Tests

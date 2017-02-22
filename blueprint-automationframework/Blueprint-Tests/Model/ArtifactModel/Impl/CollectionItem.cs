@@ -1,10 +1,12 @@
-﻿using Model.ArtifactModel.Enums;
+﻿using System;
+using Model.ArtifactModel.Enums;
 using System.Collections.Generic;
 
 namespace Model.ArtifactModel.Impl
 {
     public class CollectionItem
     {
+        public DateTime? CreatedOn { get; set; } //now this property is always null for Collection
         public int Id { get; set; }
 
         public string Name { get; set; }

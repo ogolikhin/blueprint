@@ -55,7 +55,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
 
             // Validation: Verify that the returned from GetUseCaseArtifact in valid format
-            ArtifactStoreHelper.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
         }
 
         [TestCase]
@@ -73,7 +73,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(viewer, publishedUseCaseArtifact.Id, versionId: 1);}, 
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
 
-            ArtifactStoreHelper.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion1);
+            NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion1);
         }
 
         #endregion 200 OK Tests

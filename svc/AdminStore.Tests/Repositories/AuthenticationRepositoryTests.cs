@@ -28,6 +28,7 @@ namespace AdminStore.Repositories
         private const string Login = "admin";
         private const string Password = "changeme";
         private const string NewPassword = "123EWQ!@#";
+        private const string NewPreviouslyUsedPassword = "$PreviouslyUsed99";
         private const string HashedPassword = "ALqCo8odf0FtFQBndSz1dH8P2bSIDmSqjGjTj4fj+Ao=";
         private static readonly Guid UserSalt = Guid.Parse("39CAB5B0-076E-403F-B682-A761CF34E466");
 
@@ -54,6 +55,12 @@ namespace AdminStore.Repositories
             _sqlUserRepositoryMock
                 .Setup(m => m.GetUserByLoginAsync(Login))
                 .ReturnsAsync(_loginUser);
+            _sqlUserRepositoryMock
+                .Setup(m => m.ValidateUserPasswordForHistoryAsync(It.IsAny<int>(), It.Is<string>(p => p != NewPreviouslyUsedPassword)))
+                .ReturnsAsync(true);
+            _sqlUserRepositoryMock
+                .Setup(m => m.ValidateUserPasswordForHistoryAsync(It.IsAny<int>(), It.Is<string>(p => p == NewPreviouslyUsedPassword)))
+                .ReturnsAsync(false);
 
             _instanceSettings = new InstanceSettings
             {
@@ -811,6 +818,25 @@ namespace AdminStore.Repositories
 
             // Assert
             Assert.IsNull(exception);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task ResetPassword_PreviouslyUsedPassword_BadRequestException()
+        {
+            // Arrange
+
+            try
+            {
+                // Act
+                await _authenticationRepository.ResetPassword(_loginUser, Password, NewPreviouslyUsedPassword);
+            }
+            catch (BadRequestException e)
+            {
+                // Assert
+                Assert.AreEqual(ErrorCodes.PasswordAlreadyUsedPreviously, e.ErrorCode);
+                throw;
+            }
         }
 
         #endregion

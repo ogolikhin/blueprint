@@ -314,7 +314,7 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of artifact.</param>
         /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Artifact details.</returns>
         NovaDiagramArtifact GetDiagramArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -325,7 +325,7 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of artifact.</param>
         /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Artifact details.</returns>
         NovaGlossaryArtifact GetGlossaryArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -336,7 +336,7 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of artifact.</param>
         /// <param name="versionId">(optional) The version of the artifact whose details you want to get.  null = latest version.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Artifact details.</returns>
         NovaUseCaseArtifact GetUseCaseArtifact(IUser user, int artifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -346,7 +346,7 @@ namespace Model
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifact">The artifact containing the relationship to get.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>RelationshipsDetails object for the specified artifact/subartifact.</returns>
         TraceDetails GetRelationshipsDetails(IUser user, IArtifactBase artifact, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -356,7 +356,7 @@ namespace Model
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>List of subartifacts.</returns>
         List<SubArtifact> GetSubartifacts(IUser user, int artifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -367,7 +367,7 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of artifact.</param>
         /// <param name="subArtifactId">Id of the subArtifact</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>The requested subArtifact</returns>
         NovaSubArtifact GetSubartifact(IUser user, int artifactId, int subArtifactId, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -376,7 +376,7 @@ namespace Model
         /// (Runs: GET svc/bpartifactstore/artifacts/unpublished)
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>List of artifacts and projects for the unpublished changes.</returns>
         INovaArtifactsAndProjectsResponse GetUnpublishedChanges(IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -387,7 +387,7 @@ namespace Model
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="itemId">Id of artifact or sub-artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>The artifact that was requested.</returns>
         INovaVersionControlArtifactInfo GetVersionControlInfo(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -400,7 +400,7 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         INovaArtifactDetails MoveArtifact(
             IArtifactBase artifact,
@@ -414,7 +414,7 @@ namespace Model
         /// </summary>
         /// <param name="artifact">The artifact to publish.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
         INovaArtifactsAndProjectsResponse PublishArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -424,7 +424,7 @@ namespace Model
         /// <param name="artifacts">The artifacts to publish.  This can be null if the 'all' parameter is true.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
         INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -433,7 +433,7 @@ namespace Model
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="itemId">Id of artifact or sub-artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>An artifact path</returns>
         List<INovaVersionControlArtifactInfo>GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -445,7 +445,7 @@ namespace Model
         /// <param name="itemId">Id of artifact or sub-artifact.</param>
         /// <param name="fileId">Id of file.</param>
         /// <param name="versionId">Id of version.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>File</returns>
         IFile GetAttachmentFile(IUser user, int itemId, int fileId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -455,7 +455,7 @@ namespace Model
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="collectionId">Id of collection.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Collection</returns>
         Collection GetCollection(IUser user, int collectionId, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -467,7 +467,7 @@ namespace Model
         /// <param name="artifactId">Id of Artifact to add.</param>
         /// <param name="collectionId">Id of Collection.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Number of artifacts added to Collection</returns>
         int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -478,8 +478,17 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="actorArtifactId">Id of artifact or sub-artifact.</param>
         /// <param name="versionId">Id of version.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>IFile representing Actor's icon</returns>
         IFile GetActorIcon(IUser user, int actorArtifactId, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets the Baseline by Id.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="baselineId">Id of Baseline to get.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Baseline object</returns>
+        Baseline GetBaseline(IUser user, int baselineId, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

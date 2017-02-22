@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AdminStore.Helpers;
 using AdminStore.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceLibrary.Helpers;
@@ -207,5 +209,108 @@ namespace AdminStore.Repositories
         }
 
         #endregion UpdateUserOnInvalidLoginAsync
+
+        #region UpdateUserOnPasswordResetAsync
+
+        [TestMethod]
+        public async Task UpdateUserOnPasswordResetAsync_Success()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            var user = new AuthenticationUser
+            {
+                Login = "User",
+                Id = 99,
+                Password = "Password",
+                UserSalt = new Guid()
+            };
+            cxn.SetupExecuteAsync(
+                "AddCurrentUserPasswordToHistory",
+                new Dictionary<string, object>
+                {
+                    { "@userId", user.Id }
+                },
+                1);
+
+            cxn.SetupExecuteAsync(
+                "UpdateUserOnPasswordResetAsync",
+                new Dictionary<string, object>
+                {
+                    { "@Login", user.Login },
+                    { "@Password", user.Password },
+                    { "@UserSALT", user.UserSalt }
+                },
+                1);
+
+            // Act
+            await repository.UpdateUserOnPasswordResetAsync(user);
+
+            // Assert
+            cxn.Verify();
+        }
+
+        #endregion UpdateUserOnPasswordResetAsync
+
+        #region ValidadeUserPasswordForHistoryAsync
+
+        [TestMethod]
+        public async Task ValidadeUserPasswordForHistoryAsync_Valid_True()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            const int userId = 99;
+            const string newPassword = "NewPassword";
+            var passwordHystory = new List<SqlUserRepository.HashedPassword>
+            {
+                new SqlUserRepository.HashedPassword { Password = "aaa", UserSALT = new Guid() }
+            };
+            cxn.SetupQueryAsync(
+                "GetLastUserPasswords",
+                new Dictionary<string, object>
+                {
+                    { "@userId", userId }
+                },
+                passwordHystory);
+
+            // Act
+            var result = await repository.ValidadeUserPasswordForHistoryAsync(userId, newPassword);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(true, result);
+        }
+
+        [TestMethod]
+        public async Task ValidadeUserPasswordForHistoryAsync_Invalid_False()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object);
+            const int userId = 99;
+            var userSalt = new Guid();
+            const string newPassword = "NewPassword";
+            var passwordHystory = new List<SqlUserRepository.HashedPassword>
+            {
+                new SqlUserRepository.HashedPassword { Password = HashingUtilities.GenerateSaltedHash(newPassword, userSalt), UserSALT = userSalt }
+            };
+            cxn.SetupQueryAsync(
+                "GetLastUserPasswords",
+                new Dictionary<string, object>
+                {
+                    { "@userId", userId }
+                },
+                passwordHystory);
+
+            // Act
+            var result = await repository.ValidadeUserPasswordForHistoryAsync(userId, newPassword);
+
+            // Assert
+            cxn.Verify();
+            Assert.AreEqual(false, result);
+        }
+
+        #endregion ValidadeUserPasswordForHistoryAsync
     }
 }

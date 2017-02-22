@@ -56,10 +56,10 @@ namespace AdminStore.Repositories
                 .Setup(m => m.GetUserByLoginAsync(Login))
                 .ReturnsAsync(_loginUser);
             _sqlUserRepositoryMock
-                .Setup(m => m.ValidadeUserPasswordForHistoryAsync(It.IsAny<int>(), It.Is<string>(p => p != NewPreviouslyUsedPassword)))
+                .Setup(m => m.ValidateUserPasswordForHistoryAsync(It.IsAny<int>(), It.Is<string>(p => p != NewPreviouslyUsedPassword)))
                 .ReturnsAsync(true);
             _sqlUserRepositoryMock
-                .Setup(m => m.ValidadeUserPasswordForHistoryAsync(It.IsAny<int>(), It.Is<string>(p => p == NewPreviouslyUsedPassword)))
+                .Setup(m => m.ValidateUserPasswordForHistoryAsync(It.IsAny<int>(), It.Is<string>(p => p == NewPreviouslyUsedPassword)))
                 .ReturnsAsync(false);
 
             _instanceSettings = new InstanceSettings

@@ -252,7 +252,7 @@ namespace AdminStore.Repositories
 
         #endregion UpdateUserOnPasswordResetAsync
 
-        #region ValidadeUserPasswordForHistoryAsync
+        #region ValidateUserPasswordForHistoryAsync
 
         [TestMethod]
         public async Task ValidadeUserPasswordForHistoryAsync_Valid_True()
@@ -275,7 +275,7 @@ namespace AdminStore.Repositories
                 passwordHystory);
 
             // Act
-            var result = await repository.ValidadeUserPasswordForHistoryAsync(userId, newPassword);
+            var result = await repository.ValidateUserPasswordForHistoryAsync(userId, newPassword);
 
             // Assert
             cxn.Verify();
@@ -304,13 +304,13 @@ namespace AdminStore.Repositories
                 passwordHystory);
 
             // Act
-            var result = await repository.ValidadeUserPasswordForHistoryAsync(userId, newPassword);
+            var result = await repository.ValidateUserPasswordForHistoryAsync(userId, newPassword);
 
             // Assert
             cxn.Verify();
             Assert.AreEqual(false, result);
         }
 
-        #endregion ValidadeUserPasswordForHistoryAsync
+        #endregion ValidateUserPasswordForHistoryAsync
     }
 }

@@ -83,7 +83,7 @@ namespace AdminStore.Repositories
             await _connectionWrapper.ExecuteAsync("UpdateUserOnPasswordResetAsync", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<bool> ValidadeUserPasswordForHistoryAsync(int userId, string newPassword)
+        public async Task<bool> ValidateUserPasswordForHistoryAsync(int userId, string newPassword)
         {
             var prm = new DynamicParameters();
             prm.Add("@userId", userId);

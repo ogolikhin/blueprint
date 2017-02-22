@@ -39,7 +39,6 @@ namespace OpenAPITests
 
         #region Positive tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // https://trello.com/c/28l7J1Qz  Returns 201 instead of 200 for successfully deleted users.
         [TestCase(1)]
         [TestCase(5)]
         [TestRail(246522)]
@@ -67,7 +66,6 @@ namespace OpenAPITests
             VerifyDeleteUserResultSet(result, usersToDelete);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // https://trello.com/c/28l7J1Qz  Returns 201 instead of 200 for successfully deleted users.
         [TestCase]
         [TestRail(246538)]
         [Description("Delete a list of users (some users are active and others are already deleted) and verify a 207 HTTP status was returned and " +
@@ -112,7 +110,6 @@ namespace OpenAPITests
 
         #region 400 tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // https://trello.com/c/kssNExR2  Gets 500 error instead of 400.
         [TestCase]
         [TestRail(246539)]
         [Description("Delete a user and pass invalid parameters in the JSON body.  Verify it returns 400 Bad Request.")]
@@ -127,7 +124,7 @@ namespace OpenAPITests
                 "'DELETE {0}' should return '400 Bad Request' when invalid data is passed to it!", DELETE_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.NotAcceptable, "TODO: Add real message here");
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The request parameter is missing or invalid");
         }
 
         #endregion 400 tests
@@ -202,7 +199,7 @@ namespace OpenAPITests
             var expectedFailedDeletedUsers = new Dictionary<IUser, int> { { userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist } };
 
             var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
-            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict);
+            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers);
         }
 
         [TestCase]
@@ -222,7 +219,7 @@ namespace OpenAPITests
             var expectedFailedDeletedUsers = new Dictionary<IUser, int> { { userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist } };
 
             var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
-            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, expectedStatusCode: HttpStatusCode.Conflict, checkIfUserExists: false);
+            VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, checkIfUserExists: false);
         }
 
         #endregion 409 tests
@@ -253,14 +250,11 @@ namespace OpenAPITests
         /// <param name="resultSet">Result set from delete users call.</param>
         /// <param name="expectedSuccessfullyDeletedUsers">(optional) A list of users that we expect to be successfully deleted.</param>
         /// <param name="expectedFailedDeletedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to delete them.</param>
-        /// <param name="expectedStatusCode">(optional) The expected main ReturnCode.</param>
         /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "expectedStatusCode")] // TODO: Remove this and uncomment code once Status is serialized.
         private void VerifyDeleteUserResultSet(
             UserDeleteResultCollection resultSet,
             List<IUser> expectedSuccessfullyDeletedUsers = null,
             Dictionary<IUser, int> expectedFailedDeletedUsers = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK,
             bool checkIfUserExists = true)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
@@ -270,9 +264,6 @@ namespace OpenAPITests
 
             int expectedTotalUserCount = expectedSuccessfullyDeletedUsers.Count + expectedFailedDeletedUsers.Count;
             Assert.AreEqual(expectedTotalUserCount, resultSet.Count, "Wrong number of User results were returned!");
-
-//            Assert.AreEqual(expectedStatusCode, resultSet.Status,
-//                "'{0}' should be '{1}'!", nameof(resultSet.Status), expectedStatusCode);
 
             foreach (var deletedUser in expectedSuccessfullyDeletedUsers)
             {

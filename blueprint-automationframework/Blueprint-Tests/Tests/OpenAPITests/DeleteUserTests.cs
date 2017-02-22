@@ -57,7 +57,7 @@ namespace OpenAPITests
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            UserDeleteResultCollection result = null;
+            UserCallResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete), 
                 "'DELETE {0}' should return '200 OK' when valid data is passed to it!", DELETE_PATH);
@@ -95,7 +95,7 @@ namespace OpenAPITests
             var usernamesToDelete = usersToDelete.Select(u => u.Username).ToList();
 
             // Execute:
-            UserDeleteResultCollection result = null;
+            UserCallResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete, new List<HttpStatusCode> { (HttpStatusCode)207 }),
                 "'DELETE {0}' should return '207 Partial Success' when valid data is passed to it!", DELETE_PATH);
@@ -232,7 +232,7 @@ namespace OpenAPITests
             // Verify:
             var expectedFailedDeletedUsers = new Dictionary<IUser, int> { { userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist } };
 
-            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers);
         }
 
@@ -252,7 +252,7 @@ namespace OpenAPITests
             // Verify:
             var expectedFailedDeletedUsers = new Dictionary<IUser, int> { { userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist } };
 
-            var result = JsonConvert.DeserializeObject<UserDeleteResultCollection>(ex.RestResponse.Content);
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyDeleteUserResultSet(result, expectedFailedDeletedUsers: expectedFailedDeletedUsers, checkIfUserExists: false);
         }
 
@@ -267,12 +267,12 @@ namespace OpenAPITests
         /// <param name="userToAuthenticate">The user to authenticate with.</param>
         /// <param name="jsonBody">The data to send in the body.</param>
         /// <returns>A DeleteUserResultSet object if successful.</returns>
-        private UserDeleteResultCollection DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
+        private UserCallResultCollection DeleteUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
         {
             var restApi = new RestApiFacade(Helper.OpenApi.Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = DELETE_PATH;
 
-            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, T>(
+            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, T>(
                 path,
                 RestRequestMethod.DELETE,
                 jsonBody);
@@ -286,7 +286,7 @@ namespace OpenAPITests
         /// <param name="expectedFailedDeletedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to delete them.</param>
         /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
         private void VerifyDeleteUserResultSet(
-            UserDeleteResultCollection resultSet,
+            UserCallResultCollection resultSet,
             List<IUser> expectedSuccessfullyDeletedUsers = null,
             Dictionary<IUser, int> expectedFailedDeletedUsers = null,
             bool checkIfUserExists = true)
@@ -331,7 +331,7 @@ namespace OpenAPITests
         /// <param name="expectedFailedDeletedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to delete them.</param>
         /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
         private void VerifyUnsuccessfullyDeletedUsers(
-            UserDeleteResultCollection resultSet,
+            UserCallResultCollection resultSet,
             Dictionary<IUser, int> expectedFailedDeletedUsers = null,
             bool checkIfUserExists = true)
         {

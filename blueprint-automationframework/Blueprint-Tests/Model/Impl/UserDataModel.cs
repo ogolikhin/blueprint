@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Model.Impl
 {
@@ -7,7 +8,10 @@ namespace Model.Impl
         #region Properties
 
         public int Id { get; set; }
+
+        [JsonProperty("Name")]
         public string Username { get; set; }
+
         public string DisplayName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -15,10 +19,14 @@ namespace Model.Impl
         public string Title { get; set; }
         public string Department { get; set; }
         public string Password { get; set; }
-        public List<IGroup> GroupMembership { get; set; } = new List<IGroup>();
-        public InstanceAdminRole? InstanceAdminRole { get; set; }
+        public List<IGroup> Groups { get; set; } = new List<IGroup>();
+        public List<int> GroupIds { get; set; }
+        public string InstanceAdminRole { get; set; }
         public bool? ExpirePassword { get; set; }
         public bool Enabled { get; set; }
+
+        [JsonProperty("Type")]
+        public string UserOrGroupType { get; set; }
 
         #endregion Properties
     }

@@ -9,6 +9,7 @@ using Utilities.Factories;
 using Common;
 using Model.OpenApiModel.UserModel.Results;
 using System.Net;
+using Model.Common.Constants;
 
 namespace OpenAPITests
 {
@@ -51,7 +52,8 @@ namespace OpenAPITests
                 "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
 
             // Verify:
-            VerifyCreateUserResultSet(usersToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
+            Assert.AreEqual(usersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
         }
 
         [TestCase]
@@ -81,8 +83,8 @@ namespace OpenAPITests
 
             // Verify:
             Assert.AreEqual(newAndExistingUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(usersToCreate, result, expectedHttpCode: 201, expectedMessage: "User has been created successfully");
-            VerifyCreateUserResultSet(existingUsersToCreate, result, expectedHttpCode: 1192, expectedMessage: "User login name must be unique");
+            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(existingUsersToCreate, result, BusinessLayerErrorCodes.UserValidationFailed, "User login name must be unique");
         }
 
         #endregion Positive tests
@@ -94,6 +96,9 @@ namespace OpenAPITests
         // TODO: 409 Admin role does not exists
         // TODO: 400 Missing property
         // TODO: Missing Login name
+        // TODO: After I merge my PR #3994 you should change this to:
+        // var userToCreate = UserDataModelFactory.CreateUserDataModel();
+        // Then you can remove the UserOrGroupType = "User" step since it's done in the factory.
 
         #region Private methods
 
@@ -148,10 +153,11 @@ namespace OpenAPITests
         /// <param name="resultSet">Result of create users call</param>
         /// <param name="expectedHttpCode">Expected HTTP code for this user</param>
         /// <param name="expectedMessage">Expected message for this user</param>
-        private static void VerifyCreateUserResultSet(List<UserDataModel> userList, UserCallResultCollection resultSet, int expectedHttpCode, string expectedMessage)
+        private void VerifyCreateUserResultSet(List<UserDataModel> userList, UserCallResultCollection resultSet, int expectedHttpCode, string expectedMessage)
         {
-            Assert.IsNotNull(userList, "The list of expected users is empty!");
-            Assert.IsNotNull(resultSet, "Result set from create users call is empty!");
+            Assert.IsNotNull(userList, "The list of expected users is not created!");
+            Assert.IsNotNull(resultSet, "Result set from create users call is not created!");
+            Assert.IsNotEmpty(userList, "The list of expected users is empty!");
 
             foreach (var user in userList)
             {
@@ -159,6 +165,18 @@ namespace OpenAPITests
 
                 Assert.AreEqual(expectedHttpCode, result.ResultCode, "'{0}' is incorrect!", nameof(result.ResultCode));
                 Assert.AreEqual(expectedMessage, result.Message, "'{0}' is incorrect!", nameof(result.Message));
+
+                if (expectedHttpCode == BusinessLayerErrorCodes.Created)
+                {
+                    var getUserResult = Helper.OpenApi.GetUser(_adminUser, result.User.Id);
+                    Assert.IsNotNull(getUserResult, "User does not exists!");
+
+                    Assert.AreEqual(result.User.DisplayName, getUserResult.DisplayName, "DisplayName is not matching!");
+                    Assert.AreEqual(result.User.Firstname, getUserResult.Firstname, "FirstName is not matching!");
+                    Assert.AreEqual(result.User.Lastname, getUserResult.Lastname, "LastName is not matching!");
+                    Assert.AreEqual(result.User.Username, getUserResult.Username, "Username is not matching!");
+                    Assert.AreEqual(result.User.UserOrGroupType, getUserResult.UserOrGroupType, "UserOrGroupType is not matching!");
+                }
             }
         }
 

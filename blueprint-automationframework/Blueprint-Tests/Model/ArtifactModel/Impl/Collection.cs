@@ -1,5 +1,4 @@
-﻿using Model.ArtifactModel.Impl.PredefinedProperties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Model.ArtifactModel.Impl
@@ -16,9 +15,14 @@ namespace Model.ArtifactModel.Impl
         // IsCreated is a bolean parameter indicating if Rapid Review is created or not for the collection
         public bool IsCreated { get; set; }
 
+        /// <summary>
+        /// Updates Collection's artifacts.
+        /// </summary>
+        /// <param name="artifactsIdsToAdd">List of artifact's Id to add to Collection.</param>
+        /// <param name="artifactsIdsToRemove">List of artifact's Id to remove from Collection.</param>
         public void UpdateArtifacts(List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {
-            UpdateArtifacts(PropertyTypePredefined.Collection, artifactsIdsToAdd, artifactsIdsToRemove);
+            UpdateArtifacts(PropertyTypePredefined.CollectionContent, artifactsIdsToAdd, artifactsIdsToRemove);
         }
     }
 }

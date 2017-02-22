@@ -15,7 +15,7 @@ namespace Model.ArtifactModel.Impl
         /// </summary>
         /// <param name="artifactsIdsToAdd">List of artifact's Id to add to Collection.</param>
         /// <param name="artifactsIdsToRemove">List of artifact's Id to remove from Collection.</param>
-        public void UpdateArtifacts(PropertyTypePredefined collectionBaseType,
+        protected void UpdateArtifacts(PropertyTypePredefined collectionBaseType,
             List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {
 
@@ -33,7 +33,7 @@ namespace Model.ArtifactModel.Impl
             }
 
             var collectionContentProperty = new CustomProperty();
-            collectionContentProperty.Name = "CollectionContent";
+            collectionContentProperty.Name = nameof(collectionBaseType);
             collectionContentProperty.PropertyTypeId = -1;
             collectionContentProperty.PropertyType = collectionBaseType;
             collectionContentProperty.CustomPropertyValue = collectionContentValue;

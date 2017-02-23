@@ -38,7 +38,8 @@ namespace ArtifactStoreTests
             // Setup:
             const int baselineId = 83;
             const int expectedArtifactsNumber = 2;
-            Baseline expectedBaseline = new Baseline(false, false, false);
+            var expectedBaseline = new Baseline(isAvailableInAnalytics: false, notAllArtifactsAreShown: false,
+                isSealed: false);
 
             // Execute: 
             Baseline baseline = null;

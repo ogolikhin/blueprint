@@ -11,7 +11,7 @@ namespace Model.Impl
         [JsonProperty("Type")]
         public string UserOrGroupType { get; set; }
 
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("Name")]
         public string Username { get; set; }
@@ -31,12 +31,6 @@ namespace Model.Impl
         public bool? Enabled { get; set; }
         public bool? FallBack { set; get; }
         public string Email { get; set; }
-
-        // Don't serialize Id property if it's set to 0.
-        public virtual bool ShouldSerializeId()
-        {
-            return Id != 0;
-        }
 
         // Don't serialize Groups property if empty list.
         public virtual bool ShouldSerializeGroups()

@@ -69,7 +69,7 @@ namespace Model.Impl
             get { return UserData.Department; }
             set { UserData.Department = value; }
         }
-        public List<IGroup> Groups
+        public List<Group> Groups
         {
             get { return UserData.Groups; }
             set { UserData.Groups = value; }
@@ -79,7 +79,7 @@ namespace Model.Impl
             get { return UserData.GroupIds; }
             set { UserData.GroupIds = value; }
         }
-        public bool Enabled
+        public bool? Enabled
         {
             get { return UserData.Enabled; }
             set { UserData.Enabled = value; }
@@ -89,15 +89,20 @@ namespace Model.Impl
             get { return UserData.InstanceAdminRole; }
             set { UserData.InstanceAdminRole = value; }
         }
+        public bool? FallBack
+        {
+            get { return UserData.FallBack; }
+            set { UserData.FallBack = value; }
+        }
 
-#endregion Serialized JSON Properties
+        #endregion Serialized JSON Properties
 
-#region Constructors
+        #region Constructors
 
-/// <summary>
-/// Default constructor.
-/// </summary>
-public OpenApiUser()
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public OpenApiUser()
         {
             UserData = new UserDataModel();
         }

@@ -5,6 +5,7 @@ using Model.ArtifactModel;
 using System.Collections.Generic;
 using Utilities;
 using NUnit.Framework;
+using Newtonsoft.Json;
 
 namespace Model.Impl
 {
@@ -17,6 +18,11 @@ namespace Model.Impl
         public const string ROLEASSIGNMENTS_TABLE = "[dbo].[RoleAssignments]";
 
         #region Implements IGroup
+
+        [JsonProperty("Type")]
+        public string GroupType { get; set; }
+
+        [JsonProperty("Id")]
         public int GroupId { get; set; }
 
         public string Name { get; set; }

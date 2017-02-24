@@ -98,7 +98,7 @@ namespace Model.Impl
             get { return UserData.Password; }
             set { UserData.Password = value; }
         }
-        public List<IGroup> GroupMembership
+        public List<Group> GroupMembership
         {
             get { return UserData.Groups; }
             set { UserData.Groups = value; }
@@ -113,10 +113,15 @@ namespace Model.Impl
             get { return UserData.ExpirePassword; }
             set { UserData.ExpirePassword = value; }
         }
-        public bool Enabled
+        public bool? Enabled
         {
             get { return UserData.Enabled; }
             set { UserData.Enabled = value; }
+        }
+        public bool? FallBack
+        {
+            get { return UserData.FallBack; }
+            set { UserData.FallBack = value; }
         }
 
         #endregion Serialized JSON Properties

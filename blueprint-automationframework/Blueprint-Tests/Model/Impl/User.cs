@@ -21,10 +21,11 @@ namespace Model.Impl
             "[InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp]," +
             "[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]";
 
-        protected UserDataModel UserData { get; set; }
         protected bool IsDeletedFromDatabase { get; set; }
 
         #region Properties
+
+        public UserDataModel UserData { get; protected set; }
 
         public bool IsDeleted { get { return (!IsDeletedFromDatabase && (EndTimestamp != null)); } }
 

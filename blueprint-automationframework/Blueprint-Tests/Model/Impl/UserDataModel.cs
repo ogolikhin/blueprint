@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using Utilities;
@@ -14,21 +14,32 @@ namespace Model.Impl
         [JsonProperty("Type")]
         public string UserOrGroupType { get; set; }
 
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [JsonProperty("Name")]
         public string Username { get; set; }
+
         public string DisplayName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Email { get; set; }
+
+        public List<Group> Groups { get; set; } = new List<Group>();
+        public List<int> GroupIds { get; set; }
+
         public string Title { get; set; }
         public string Department { get; set; }
         public string Password { get; set; }
-        public List<IGroup> GroupMembership { get; set; } = new List<IGroup>();
-        public InstanceAdminRole? InstanceAdminRole { get; set; }
         public bool? ExpirePassword { get; set; }
-        public bool Enabled { get; set; }
+        public string InstanceAdminRole { get; set; }
+        public bool? Enabled { get; set; }
+        public bool? FallBack { set; get; }
+        public string Email { get; set; }
+
+        // Don't serialize Groups property if empty list.
+        public virtual bool ShouldSerializeGroups()
+        {
+            return Groups.Count > 0;
+        }
 
         #endregion Properties
 
@@ -53,14 +64,16 @@ namespace Model.Impl
             DisplayName = userDataToCopy.DisplayName;
             FirstName = userDataToCopy.FirstName;
             LastName = userDataToCopy.LastName;
-            Email = userDataToCopy.Email;
+            Groups = new List<Group>(userDataToCopy.Groups);
+            GroupIds = new List<int>(userDataToCopy.GroupIds);
             Title = userDataToCopy.Title;
             Department = userDataToCopy.Department;
             Password = userDataToCopy.Password;
-            GroupMembership = new List<IGroup>(userDataToCopy.GroupMembership);
-            InstanceAdminRole = userDataToCopy.InstanceAdminRole;
             ExpirePassword = userDataToCopy.ExpirePassword;
+            InstanceAdminRole = userDataToCopy.InstanceAdminRole;
             Enabled = userDataToCopy.Enabled;
+            FallBack = userDataToCopy.FallBack;
+            Email = userDataToCopy.Email;
         }
 
         #endregion Constructors
@@ -89,11 +102,11 @@ namespace Model.Impl
             Assert.AreEqual(expectedUserData.ExpirePassword, actualUserData.ExpirePassword, "'{0}' has a different value than expected!", nameof(ExpirePassword));
             Assert.AreEqual(expectedUserData.Enabled, actualUserData.Enabled, "'{0}' has a different value than expected!", nameof(Enabled));
 
-            Assert.AreEqual(expectedUserData.GroupMembership.Count, actualUserData.GroupMembership.Count, "'{0}' has a different number of groups than expected!", nameof(GroupMembership));
+            Assert.AreEqual(expectedUserData.Groups.Count, actualUserData.Groups.Count, "'{0}' has a different number of groups than expected!", nameof(Groups));
 
-            for (int i = 0; i < expectedUserData.GroupMembership.Count; ++i)
+            for (int i = 0; i < expectedUserData.Groups.Count; ++i)
             {
-                Assert.AreEqual(expectedUserData.GroupMembership[i], actualUserData.GroupMembership[i], "'{0}[{1}]' has a different value than expected!", nameof(GroupMembership), i);
+                Assert.AreEqual(expectedUserData.Groups[i], actualUserData.Groups[i], "'{0}[{1}]' has a different value than expected!", nameof(Groups), i);
             }
         }
     }

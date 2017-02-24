@@ -193,6 +193,25 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Other properties
+
+        /// <summary>
+        /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
+        /// </summary>
+        /// <param name="novaArtifactBase1">The INovaArtifactBase to compare against.</param>
+        /// <param name="novaArtifactBase2">The IArtifactBase to compare against.</param>
+        /// <exception cref="AssertionException">If any of the properties are different.</exception>
+        public static void AssertArtifactsEqual(INovaArtifactBase novaArtifactBase1, INovaArtifactBase novaArtifactBase2)
+        {
+            ThrowIf.ArgumentNull(novaArtifactBase1, nameof(novaArtifactBase1));
+            ThrowIf.ArgumentNull(novaArtifactBase2, nameof(novaArtifactBase2));
+
+            Assert.AreEqual(novaArtifactBase1.Id, novaArtifactBase2.Id, "The Id parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.Name, novaArtifactBase2.Name, "The Name  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.ParentId, novaArtifactBase2.ParentId, "The ParentId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.ItemTypeId, novaArtifactBase2.ItemTypeId, "The ItemTypeId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.ProjectId, novaArtifactBase2.ProjectId, "The ProjectId  parameters don't match!");
+            Assert.AreEqual(novaArtifactBase1.Version, novaArtifactBase2.Version, "The Version  parameters don't match!");
+        }
     }
 
     /// <summary>
@@ -400,8 +419,9 @@ namespace Model.ArtifactModel.Impl
     public enum PropertyTypePredefined
     {
         ActorInheritance = 4128,
+        BaselineContent = 4136,
         DocumentFile = 4129,
-        Collection = 4135,
+        CollectionContent = 4135,
         ActorIcon = 8202
     }
 

@@ -62,7 +62,7 @@ namespace OpenAPITests
             var userDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
 
             // Execute:
-            UserDeleteResultCollection result = null;
+            UserCallResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
                 "'PATCH {0}' should return '200 OK' when valid data is passed to it!", UPDATE_PATH);
@@ -113,7 +113,7 @@ namespace OpenAPITests
             allUserDataToUpdate.AddRange(deletedUserDataToUpdate);
 
             // Execute:
-            UserDeleteResultCollection result = null;
+            UserCallResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
                 "'PATCH {0}' should return '207 Partial Success' when valid data is passed to it!", UPDATE_PATH);
@@ -198,7 +198,7 @@ namespace OpenAPITests
         /// <param name="expectedSuccessfullyUpdatedUsers">(optional) A list of users that we expect to be successfully updated.</param>
         /// <param name="expectedFailedUpdatedUsers">(optional) A map of InternalApiErrorCodes and Users that we expect got errors when we tried to update them.</param>
         private void VerifyUpdateUserResultSet(
-            UserDeleteResultCollection resultSet,
+            UserCallResultCollection resultSet,
             List<IUser> usersBeforeUpdate,
             List<UserDataModel> expectedSuccessfullyUpdatedUsers = null,
             Dictionary<int, UserDataModel> expectedFailedUpdatedUsers = null)
@@ -227,7 +227,7 @@ namespace OpenAPITests
         /// <param name="expectedSuccessfullyUpdatedUsers">A list of users that we expect to be successfully updated with only the updated properties set.</param>
         /// <param name="originalUsers">The original users before they were updated.</param>
         private void VerifySuccessfullyUpdatedUsers(
-            UserDeleteResultCollection resultSet,
+            UserCallResultCollection resultSet,
             List<UserDataModel> expectedSuccessfullyUpdatedUsers,
             List<IUser> originalUsers)
         {
@@ -251,7 +251,7 @@ namespace OpenAPITests
         /// <param name="expectedUserData">The expected user data values after an update.</param>
         private void VerifyUserIsUpdated(UserDataModel expectedUserData)
         {
-            var actualUserData = Helper.OpenApi.GetUser(_adminUser, expectedUserData.Id);
+            var actualUserData = Helper.OpenApi.GetUser(_adminUser, expectedUserData.Id.Value);
 
             UserDataModel.AssertAreEqual(expectedUserData, actualUserData);
         }

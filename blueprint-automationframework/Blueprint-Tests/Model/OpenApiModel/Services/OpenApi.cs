@@ -597,26 +597,28 @@ namespace Model.OpenApiModel.Services
 
         #region User methods
 
-        /// <seealso cref="IOpenApi.CreateUser(IUser, UserDataModel, List{HttpStatusCode})"/>
-        public UserDataModel CreateUser(
+        /// <seealso cref="IOpenApi.CreateUsers(IUser, List{UserDataModel}, List{HttpStatusCode})"/>
+        public UserCallResultCollection CreateUsers(
             IUser userToAuthenticate,
-            UserDataModel userToCreate,
+            List<UserDataModel> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(userToCreate, nameof(userToCreate));
+            ThrowIf.ArgumentNull(usersToCreate, nameof(usersToCreate));
+
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
 
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.USERS;
 
-            return restApi.SendRequestAndDeserializeObject<UserDataModel, UserDataModel>(
+            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, List<UserDataModel>>(
                 path,
                 RestRequestMethod.POST,
-                userToCreate,
+                usersToCreate,
                 expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IOpenApi.DeleteUsers(IUser, List{string}, List{HttpStatusCode})"/>
-        public UserDeleteResultCollection DeleteUsers(
+        public UserCallResultCollection DeleteUsers(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -626,7 +628,7 @@ namespace Model.OpenApiModel.Services
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.USERS;
 
-            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, List<string>>(
+            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, List<string>>(
                 path,
                 RestRequestMethod.DELETE,
                 usernamesToDelete,
@@ -649,7 +651,7 @@ namespace Model.OpenApiModel.Services
         }
 
         /// <seealso cref="IOpenApi.UpdateUsers(IUser, List{UserDataModel}, List{HttpStatusCode})"/>
-        public UserDeleteResultCollection UpdateUsers(
+        public UserCallResultCollection UpdateUsers(
             IUser userToAuthenticate,
             List<UserDataModel> usersToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -659,7 +661,7 @@ namespace Model.OpenApiModel.Services
             var restApi = new RestApiFacade(Address, userToAuthenticate?.Token?.OpenApiToken);
             string path = RestPaths.OpenApi.USERS;
 
-            return restApi.SendRequestAndDeserializeObject<UserDeleteResultCollection, List<UserDataModel>>(
+            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, List<UserDataModel>>(
                 path,
                 RestRequestMethod.PATCH,
                 usersToUpdate,

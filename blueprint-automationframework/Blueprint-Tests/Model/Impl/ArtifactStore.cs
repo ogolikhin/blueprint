@@ -611,6 +611,21 @@ namespace Model.Impl
             return file;
         }
 
+        /// <seealso cref="IArtifactStore.GetBaseline(IUser, int, List{HttpStatusCode})"/>
+        public Baseline GetBaseline(IUser user, int baselineId, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.BASELINE_id_, baselineId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var baseline = restApi.SendRequestAndDeserializeObject<Baseline>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return baseline;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Members inherited from IDisposable

@@ -294,12 +294,17 @@ Artifact_Glossary_Definition,"Definition"
 Artifact_Glossary_Empty,"No terms have been defined."
 
 Artifact_Collection_Content_Header,"Collection Contents"
+Artifact_Baseline_Content_Header,"Baseline Contents"
 Artifact_Collection_Edit_Rapid_Review,"Edit Rapid Review"
 Artifact_Collection_Items_Selected,"Items selected: {0}"
+Artifact_Baseline_Items_Selected,"Items selected: {0}"
 Artifact_Collection_Delete_Selected,"Delete selected"
 Artifact_Collection_Confirmation_Delete_Item,"Please confirm the deletion of the item."
 Artifact_Collection_Confirmation_Delete_Items,"Please confirm the deletion of the selected items ({0})."
+Artifact_Baseline_Confirmation_Delete_Item,"Please confirm the deletion of the item."
+Artifact_Baseline_Confirmation_Delete_Items,"Please confirm the deletion of the selected items ({0})."
 Artifact_Collection_No_Artifacts_In_Collection,"No artifacts available in this collection"
+Artifact_Baseline_No_Artifacts_In_Baseline,"No artifacts available in this baseline"
 Artifact_Collection_Add_Artifacts_Picker_Header,"Add Artifacts to Collection"
 Artifact_Add_To_Collection_Picker_Header,"Add Artifact to Collection"
 Artifact_Add_To_Collection,"Add to Collection"
@@ -362,6 +367,7 @@ Login_Session_NewPasswordCannotBeUsername,"Ensure your new password is different
 Login_Session_NewPasswordCannotBeDisplayname,"Ensure your new password is different from your display name."
 Login_Session_PasswordChangeCooldown,"Your password has not been updated. It can be changed <br> once every 24 hours. Please try again later."
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
+Login_Session_NewPasswordAlreadyUsedPreviously,"Your password matches a previously used password. Please enter a new password."
 Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
 Login_Session_InvalidLicense,"Your license does not include access to this application."
 
@@ -622,6 +628,8 @@ Jobs_StartDate, "Started on"
 Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
 Jobs_Button_Label_GetJobs, "Get Jobs"
+
+Walkthrough_Button_Label, "Walkthrough"
 
 
 

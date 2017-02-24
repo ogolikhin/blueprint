@@ -6,6 +6,7 @@ using Model.Factories;
 using Utilities;
 using NUnit.Framework;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace Model.Impl
 {
@@ -55,7 +56,7 @@ namespace Model.Impl
 
         public int Id
         {
-            get { return UserData.Id; }
+            get { return UserData.Id.Value; }
             set { UserData.Id = value; }
         }
         public string Username
@@ -98,25 +99,30 @@ namespace Model.Impl
             get { return UserData.Password; }
             set { UserData.Password = value; }
         }
-        public List<IGroup> GroupMembership
+        public List<Group> GroupMembership
         {
-            get { return UserData.GroupMembership; }
-            set { UserData.GroupMembership = value; }
+            get { return UserData.Groups; }
+            set { UserData.Groups = value; }
         }
         public InstanceAdminRole? InstanceAdminRole
         {
-            get { return UserData.InstanceAdminRole; }
-            set { UserData.InstanceAdminRole = value; }
+            get { return ConvertStringToInstanceAdminRole(UserData.InstanceAdminRole); }
+            set { UserData.InstanceAdminRole = ConvertInstanceAdminRoleToString(value); }
         }
         public bool? ExpirePassword
         {
             get { return UserData.ExpirePassword; }
             set { UserData.ExpirePassword = value; }
         }
-        public bool Enabled
+        public bool? Enabled
         {
             get { return UserData.Enabled; }
             set { UserData.Enabled = value; }
+        }
+        public bool? FallBack
+        {
+            get { return UserData.FallBack; }
+            set { UserData.FallBack = value; }
         }
 
         #endregion Serialized JSON Properties
@@ -392,6 +398,43 @@ namespace Model.Impl
                 }
             }
         }
+
+        /// <summary>
+        /// Converting instance admin role string into InstanceAdminRole enum
+        /// </summary>
+        /// <param name="adminRole">Instance admin string</param>
+        /// <returns>InstanceAdminRole enum value</returns>
+        private static InstanceAdminRole? ConvertStringToInstanceAdminRole(string adminRole)
+        {
+            if (adminRole == null)
+            {
+                return null;
+            }
+
+            string enumString = Regex.Replace(adminRole, @"[\s+]|,", "");
+
+            return (InstanceAdminRole)Enum.Parse(typeof(InstanceAdminRole), enumString);
+        }
+
+        /// <summary>
+        /// Converting InstanceAdminRole enum value into string
+        /// </summary>
+        /// <param name="role">InstanceAdminRole enum value</param>
+        /// <returns>Instance admin role string</returns>
+        private static string ConvertInstanceAdminRoleToString(InstanceAdminRole? role)
+        {
+            if (role == null)
+            {
+                return null;
+            }
+
+            // Creates pattern to replace capital letters with the new character and capital letter
+            // from https://gist.github.com/rymoore99/9091263
+            var r = new Regex(@"(?<=[A-Z])(?=[A-Z][a-z]) | (?<=[^A-Z])(?=[A-Z]) | (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
+
+            return r.Replace(role.ToString(), " ");
+        }
+
         #endregion Private function
     }
 

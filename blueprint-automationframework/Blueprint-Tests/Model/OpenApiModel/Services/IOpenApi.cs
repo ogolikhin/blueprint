@@ -34,16 +34,17 @@ namespace Model.OpenApiModel.Services
         #region User methods
 
         /// <summary>
-        /// Create a user with specified user properties.
+
+        /// Create one or more users with specified user properties.
         /// (Runs:  'POST /api/v1/users')
         /// </summary>
         /// <param name="userToAuthenticate">A user that has permission to create users.</param>
-        /// <param name="userToCreate">User to create.</param>
+        /// <param name="usersToCreate">List of users to create.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '201 Created' is expected.</param>
-        /// <returns>User that was created.</returns>
-        UserDataModel CreateUser(
+        /// <returns>Collection of users which were created with returned http code and message.</returns>
+        UserCallResultCollection CreateUsers(
             IUser userToAuthenticate,
-            UserDataModel userToCreate,
+            List<UserDataModel> usersToCreate,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -53,8 +54,8 @@ namespace Model.OpenApiModel.Services
         /// <param name="userToAuthenticate">A user that has permission to delete users.</param>
         /// <param name="usernamesToDelete">Usernames of users to delete.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <returns>List of usernames with their error codes and messages that was deleted.</returns>
-        UserDeleteResultCollection DeleteUsers(
+        /// <returns>List of usernames with their error codes and messages that was created together with global HTTP code.</returns>
+        UserCallResultCollection DeleteUsers(
             IUser userToAuthenticate,
             List<string> usernamesToDelete,
             List<HttpStatusCode> expectedStatusCodes = null);
@@ -80,7 +81,7 @@ namespace Model.OpenApiModel.Services
         /// <param name="usersToUpdate">Users to update (only Type, Username and the properties being updated are required).</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>List of usernames with their error codes and messages.</returns>
-        UserDeleteResultCollection UpdateUsers(
+        UserCallResultCollection UpdateUsers(
             IUser userToAuthenticate,
             List<UserDataModel> usersToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null);

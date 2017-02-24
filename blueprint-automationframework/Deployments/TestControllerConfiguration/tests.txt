@@ -1,5 +1,5 @@
 "C:\jenkins\workspace\test-integration-NTestController\blueprint-automationframework\Blueprint-Tests\bin\Release\AccessControlTests.dll" | AccessControlTests
-#"C:\jenkins\workspace\test-integration-NTestController\blueprint-automationframework\Blueprint-Tests\bin\Release\AdminStoreTests.dll" | AdminStoreTests
+"C:\jenkins\workspace\test-integration-NTestController\blueprint-automationframework\Blueprint-Tests\bin\Release\AdminStoreTests.dll" | AdminStoreTests
 "C:\jenkins\workspace\test-integration-NTestController\blueprint-automationframework\Blueprint-Tests\bin\Release\ArtifactStoreTests.dll" | ArtifactStoreTests.ActorPropertiesTests
 "C:\jenkins\workspace\test-integration-NTestController\blueprint-automationframework\Blueprint-Tests\bin\Release\ArtifactStoreTests.dll" | ArtifactStoreTests.ArtifactDetailsTests
 "C:\jenkins\workspace\test-integration-NTestController\blueprint-automationframework\Blueprint-Tests\bin\Release\ArtifactStoreTests.dll" | ArtifactStoreTests.ArtifactHistoryTests

@@ -55,7 +55,7 @@ namespace Model.Impl
 
         public int Id
         {
-            get { return UserData.Id; }
+            get { return UserData.Id.Value; }
             set { UserData.Id = value; }
         }
         public string Username

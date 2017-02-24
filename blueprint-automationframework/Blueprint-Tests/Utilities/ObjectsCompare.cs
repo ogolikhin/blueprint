@@ -22,8 +22,8 @@ namespace Utilities
             {
                 var expectedPropertyValue = expectedProperties[i].GetValue(expectedObject, null);
                 var actualPropertyValue = actualProperties[i].GetValue(actualObject, null);
-                var type = expectedPropertyValue?.GetType();
-                if ((type == typeof(bool)) || (type == typeof(string)) || (type == typeof(int?)))
+                var propertyType = expectedPropertyValue?.GetType();
+                if ((propertyType == typeof(bool)) || (propertyType == typeof(string)) || (propertyType == typeof(int?)))
                 {
                     Assert.AreEqual(expectedPropertyValue, actualPropertyValue,
                          I18NHelper.FormatInvariant("{0} should have expected value of {1}", objectType.Name,

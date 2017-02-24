@@ -28,13 +28,13 @@ namespace Model
 
         GroupSource Source { get; set; }
 
-        GroupLicenseType LicenseType { get; set; }
+        GroupLicenseType? LicenseType { get; set; }
 
         IProject Scope { get; set; }
 
         IGroup Parent { get; set; }
 
-        bool IsLicenseGroup { get; set; }
+        bool? IsLicenseGroup { get; set; }
         #endregion Properties
 
         #region Methods

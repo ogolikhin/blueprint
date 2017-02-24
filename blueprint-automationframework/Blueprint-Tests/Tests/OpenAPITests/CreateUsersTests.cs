@@ -11,6 +11,9 @@ using Model.OpenApiModel.UserModel.Results;
 using System.Net;
 using Utilities;
 using Model.Common.Constants;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Utilities.Facades;
 
 namespace OpenAPITests
 {
@@ -209,6 +212,39 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
         }
 
+        [TestCase]
+        [TestRail(0)]
+        [Description("Create couple of users (one user with all required values and second one with invalid format). Verify a 207 HTTP status was returned")]
+
+        public void CreateUsers_InvalidFormat_207PartialSuccess()
+        {
+            // Setup:
+//            const int PARTIAL = 207;
+
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
+            allUsersToCreate.AddRange(userWithInvalidData);
+
+            string validJson = JsonConvert.SerializeObject(allUsersToCreate); 
+            string toReplace = "\"" + userWithInvalidData[0].LastName + "\"";
+            string corruptedJson = Regex.Replace(validJson, @toReplace, "1");
+            //            string corruptedJson = Regex.Replace(validJson, @"[\s+]|,", "1");
+
+
+            // Execute:
+            RestResponse result = null;
+
+            Assert.DoesNotThrow(() => result = UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, corruptedJson, _adminUser),
+                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
+/*
+            // Verify:
+            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(userWithInvalidData, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
+*/        }
+
         #endregion Positive tests
 
         // TODO: 409 when paasword is alphabetical & special characters
@@ -256,7 +292,7 @@ namespace OpenAPITests
                     Email = I18NHelper.FormatInvariant("{0}@{1}.com", RandomGenerator.RandomAlphaNumeric(5), RandomGenerator.RandomAlphaNumeric(5)),
                     Title = RandomGenerator.RandomAlphaNumeric(10),
                     Department = RandomGenerator.RandomAlphaNumeric(10),
-//                    Groups = groupList.ConvertAll(o => (Group)o),
+                    Groups = groupList.ConvertAll(o => (Model.Impl.Group)o),
                     GroupIds = groupIds,
                     InstanceAdminRole = "Default Instance Administrator",
                     ExpirePassword = true,
@@ -307,53 +343,51 @@ namespace OpenAPITests
             }
         }
 
- // Under development part 
- /*
-        /// <summary>
-        /// Runs the OpenAPI Create User call with invalid data in the body.
-        /// </summary>
-        /// <typeparam name="T">The data type to send in the body.  Valid type is a List of strings.</typeparam>
-        /// <param name="userToAuthenticate">The user to authenticate with.</param>
-        /// <param name="jsonBody">The data to send in the body.</param>
-        /// <returns>CreateUserResultSet object if successful.</returns>
-        private UserCallResultCollection CreateUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
-        {
-            var restApi = new RestApiFacade(Helper.OpenApi.Address, userToAuthenticate?.Token?.OpenApiToken);
-            string path = CREATE_PATH;
+        // Under development part 
+        /*
+               /// <summary>
+               /// Runs the OpenAPI Create User call with invalid data in the body.
+               /// </summary>
+               /// <typeparam name="T">The data type to send in the body.  Valid type is a List of strings.</typeparam>
+               /// <param name="userToAuthenticate">The user to authenticate with.</param>
+               /// <param name="jsonBody">The data to send in the body.</param>
+               /// <returns>CreateUserResultSet object if successful.</returns>
+               private UserCallResultCollection CreateUserWithInvalidBody<T>(IUser userToAuthenticate, T jsonBody) where T : new()
+               {
+                   var restApi = new RestApiFacade(Helper.OpenApi.Address, userToAuthenticate?.Token?.OpenApiToken);
+                   string path = CREATE_PATH;
 
-            return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, T>(
-                path,
-                RestRequestMethod.POST,
-                jsonBody);
-        }
+                   return restApi.SendRequestAndDeserializeObject<UserCallResultCollection, T>(
+                       path,
+                       RestRequestMethod.POST,
+                       jsonBody);
+               }
 
-        /// <summary>
-        /// Try to create an invalid user with Property Changes.  Use this for testing cases where the save is expected to fail.
-        /// </summary>
-        /// <param name="address">The base address used for the REST call.</param>
-        /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
-        /// <param name="userModel">The UserDatamodel to create user.</param>
-        /// <param name="user">The user creating another user.</param>
-        /// <returns>The body content returned.</returns>
-        public string CreateUserWithInvalidParameters(string address, string requestBody,
-            UserDataModel userModel, IUser user)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
+               /// <summary>
+               /// Try to create an invalid user with Property Changes.  Use this for testing cases where the save is expected to fail.
+               /// </summary>
+               /// <param name="address">The base address used for the REST call.</param>
+               /// <param name="requestBody">The request body (i.e. artifact to be updated).</param>
+               /// <param name="userModel">The UserDatamodel to create user.</param>
+               /// <param name="user">The user creating another user.</param>
+               /// <returns>The body content returned.</returns>*/
+               public static RestResponse UpdateUserInListWithInvalidParameters(string address, string requestBody, IUser user)
+               {
+                   ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.AccessControlToken;
+                   string tokenValue = user.Token?.AccessControlToken;
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, userModel);
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-            const string contentType = "application/json";
+                   RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+                   const string contentType = "application/json";
 
-            var response = restApi.SendRequestBodyAndGetResponse(
-                path,
-                RestRequestMethod.POST,
-                requestBody,
-                contentType);
+                   var response = restApi.SendRequestBodyAndGetResponse(
+                       CREATE_PATH,
+                       RestRequestMethod.POST,
+                       requestBody,
+                       contentType);
 
-            return response.Content;
-        }*/
+                   return response;
+               }
 
         #endregion Private methods
     }

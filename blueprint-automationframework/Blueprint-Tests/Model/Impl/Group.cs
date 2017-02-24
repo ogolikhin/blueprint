@@ -31,28 +31,30 @@ namespace Model.Impl
 
         public string Email { get; set; }
 
+        [JsonIgnore]
         public GroupSource Source { get; set; }//for now Database groups only
 
-        public GroupLicenseType LicenseType { get; set; }
+        public GroupLicenseType? LicenseType { get; set; }
 
         public IProject Scope { get; set; }
 
         public IGroup Parent { get; set; }
 
-        public bool IsLicenseGroup { get; set; }
-        # endregion Implements IGroup
+        public bool? IsLicenseGroup { get; set; }
+        #endregion Implements IGroup
 
         // These are fields not included by IGroup:
 
+        [JsonIgnore]
         public int CurrentVersion { get; set; }
 
-        public DateTime StartTimestamp { get; set; }
+        public DateTime? StartTimestamp { get; set; }
 
         public DateTime? EndTimestamp { get; set; }
 
         #region Methods
         public Group (string name, string description, string email,
-            GroupLicenseType licenseType = GroupLicenseType.Author)
+            GroupLicenseType? licenseType = GroupLicenseType.Author)
         {
             CurrentVersion = 0;//always 0(?)
             Name = name;
@@ -77,7 +79,7 @@ namespace Model.Impl
 
                 object[] valueArray =
                 {
-                    CurrentVersion, Name, Description, Email, (int)Source, (int)LicenseType, DateTime.Now, EndTimestamp,
+                    CurrentVersion, Name, Description, Email, (int)Source, (int?)LicenseType, DateTime.Now, EndTimestamp,
                     Scope?.Id, Parent?.GroupId
                 };
 

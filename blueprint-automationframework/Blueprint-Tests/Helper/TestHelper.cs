@@ -1098,7 +1098,8 @@ namespace Helper
                 ProjectRoles.Add(projectRole);
             }
 
-            var permissionsGroup = CreateGroupAndAddToDatabase();
+            var licenseType = GroupLicenseType.Author;
+            var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
             permissionsGroup.AddUser(user);
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
 
@@ -1113,9 +1114,9 @@ namespace Helper
         /// <summary>
         /// Creates a new group object with random values and adds it to the Blueprint database.
         /// </summary>
-        /// <param name="licenseType">(optional) The license level to assign to the group. By default it is Author.</param>
+        /// <param name="licenseType">(optional) The license level to assign to the group. By default there is no license.</param>
         /// <returns>A new unique group object that was added to the database.</returns>
-        public IGroup CreateGroupAndAddToDatabase(GroupLicenseType licenseType = GroupLicenseType.Author)
+        public IGroup CreateGroupAndAddToDatabase(GroupLicenseType? licenseType = null)
         {
             var group = GroupFactory.CreateGroup(licenseType);
             group.AddGroupToDatabase();

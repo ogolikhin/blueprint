@@ -10,10 +10,7 @@ namespace Model.Factories
         /// <returns>A new UserDataModel.</returns>
         public static UserDataModel CreateUserDataModel()
         {
-            var userData = new UserDataModel
-            {
-                UserOrGroupType = "User"
-            };
+            var userData = new UserDataModel();
 
             return userData;
         }

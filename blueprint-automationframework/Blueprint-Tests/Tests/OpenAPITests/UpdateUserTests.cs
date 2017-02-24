@@ -116,7 +116,7 @@ namespace OpenAPITests
             UserCallResultCollection result = null;
 
             Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
-                "'PATCH {0}' should return '207 Partial Success' when valid data is passed to it!", UPDATE_PATH);
+                "'PATCH {0}' should return '207 Partial Success' when some users were updated and others weren't!", UPDATE_PATH);
 
             // Verify:
             VerifyUpdateUserResultSet(result, usersToUpdate);   // TODO: Add expectedSuccessfullyUpdatedUsers & expectedFailedUpdatedUsers.

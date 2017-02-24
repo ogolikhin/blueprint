@@ -13,8 +13,9 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Updates Collection's artifacts.
         /// </summary>
-        /// <param name="artifactsIdsToAdd">List of artifact's Id to add to Collection.</param>
-        /// <param name="artifactsIdsToRemove">List of artifact's Id to remove from Collection.</param>
+        /// <param name="collectionBaseType">Type of artifact - Collection or Baseline.</param>
+        /// <param name="artifactsIdsToAdd">(optional) List of artifact's Id to add to Collection.</param>
+        /// <param name="artifactsIdsToRemove">(optional) List of artifact's Id to remove from Collection.</param>
         protected void UpdateArtifacts(PropertyTypePredefined collectionBaseType,
             List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {

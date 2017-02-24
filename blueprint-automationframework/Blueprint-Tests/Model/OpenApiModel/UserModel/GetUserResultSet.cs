@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Model.Impl;
 using Newtonsoft.Json;
 
 namespace Model.OpenApiModel.UserModel
@@ -10,30 +11,14 @@ namespace Model.OpenApiModel.UserModel
     }
 
     // Dev code can be found in:  blueprint-current/Source/BluePrintSys.RC.Api.Business/Models/User.cs
-    public class GetUserResult
+    public class GetUserResult : UserDataModel
     {
         private string _password;
 
         #region Serialized properties
 
-        [JsonProperty("Type")]
-        public string UserOrGroupType { get; set; }
-        public int Id { get; set; }
-
-        [JsonProperty("Name")]
-        public string Username { get; set; }
-        public string DisplayName { get; set; }
-
-        public string Firstname { get; set; }
-        public string Lastname { get; set; }
-        public List<GetGroupResult> Groups { get; set; }
-
-        // These properties were added during US4965.
-        public string Title { get; set; }
-        public string Department { get; set; }
-
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
-        public string Password  // NOTE: Password should NEVER be returned by OpenAPI.
+        public new string Password  // NOTE: Password should NEVER be returned by OpenAPI.
         {
             get
             {
@@ -45,9 +30,6 @@ namespace Model.OpenApiModel.UserModel
             }
             set { _password = value; }
         }
-        public DateTime? PasswordExpired { get; set; }
-        public string InstanceAdminRole { get; set; }
-        public string Email { get; set; }
 
         #endregion Serialized properties
     }

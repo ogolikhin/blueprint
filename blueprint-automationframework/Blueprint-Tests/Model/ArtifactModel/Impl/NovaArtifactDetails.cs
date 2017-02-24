@@ -419,8 +419,9 @@ namespace Model.ArtifactModel.Impl
     public enum PropertyTypePredefined
     {
         ActorInheritance = 4128,
+        BaselineContent = 4136,
         DocumentFile = 4129,
-        Collection = 4135,
+        CollectionContent = 4135,
         ActorIcon = 8202
     }
 

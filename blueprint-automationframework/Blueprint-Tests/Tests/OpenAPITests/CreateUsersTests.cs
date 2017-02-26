@@ -15,9 +15,11 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Utilities.Facades;
 using System;
+using Model.Factories;
 
 namespace OpenAPITests
 {
+    [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/CxyAoVo1/1304-4965-create-user-call-does-not-create-association-with-the-group-in-groupuser-table-when-existing-group-id-is-passed-in-the-body
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class CreateUsersTests : TestBase
@@ -316,12 +318,8 @@ namespace OpenAPITests
         }
 */
 
-        // TODO: 207 for each type of error
         // TODO: 409 Admin role does not exists
         // TODO: 400 Missing property
-        // TODO: After I merge my PR #3994 you should change this to:
-        // var userToCreate = UserDataModelFactory.CreateUserDataModel();
-        // Then you can remove the UserOrGroupType = "User" step since it's done in the factory.
 
         #region Private methods
 
@@ -347,24 +345,22 @@ namespace OpenAPITests
             for (int i = 0; i < numberOfUsersToCreate; ++i)
             {
                 var userToCreate = UserDataModelFactory.CreateUserDataModel();
-///                var userToCreate = new UserDataModel()
-                {
-                    Username = RandomGenerator.RandomAlphaNumeric(10),
-                    DisplayName = RandomGenerator.RandomAlphaNumeric(10),
-                    FirstName = RandomGenerator.RandomAlphaNumeric(10),
-                    LastName = RandomGenerator.RandomAlphaNumeric(10),
-                    Password = "Password" + RandomGenerator.RandomSpecialChars(3) + RandomGenerator.RandomNumber(3),
 
-                    Email = I18NHelper.FormatInvariant("{0}@{1}.com", RandomGenerator.RandomAlphaNumeric(5), RandomGenerator.RandomAlphaNumeric(5)),
-                    Title = RandomGenerator.RandomAlphaNumeric(10),
-                    Department = RandomGenerator.RandomAlphaNumeric(10),
-                    Groups = groupList.ConvertAll(o => (Model.Impl.Group)o),
-                    GroupIds = groupIds,
-                    InstanceAdminRole = "Default Instance Administrator",
-                    ExpirePassword = true,
-                    Enabled = true,
-                    UserOrGroupType = "User"
-                };
+                userToCreate.Username = RandomGenerator.RandomAlphaNumeric(10);
+                userToCreate.DisplayName = RandomGenerator.RandomAlphaNumeric(10);
+                userToCreate.FirstName = RandomGenerator.RandomAlphaNumeric(10);
+                userToCreate.LastName = RandomGenerator.RandomAlphaNumeric(10);
+                userToCreate.Password = "Password" + RandomGenerator.RandomSpecialChars(3) + RandomGenerator.RandomNumber(3);
+
+                userToCreate.Email = I18NHelper.FormatInvariant("{0}@{1}.com", RandomGenerator.RandomAlphaNumeric(5), RandomGenerator.RandomAlphaNumeric(5));
+                userToCreate.Title = RandomGenerator.RandomAlphaNumeric(10);
+                userToCreate.Department = RandomGenerator.RandomAlphaNumeric(10);
+                userToCreate.Groups = groupList.ConvertAll(o => (Model.Impl.Group)o);
+                userToCreate.GroupIds = groupIds;
+                userToCreate.InstanceAdminRole = "Default Instance Administrator";
+                userToCreate.ExpirePassword = true;
+                userToCreate.Enabled = true;
+
                 usersToCreate.Add(userToCreate);
             }
             return usersToCreate;

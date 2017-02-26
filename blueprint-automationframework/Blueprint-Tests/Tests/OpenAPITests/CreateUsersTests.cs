@@ -393,7 +393,7 @@ namespace OpenAPITests
 
                 if (expectedHttpCode == BusinessLayerErrorCodes.Created)
                 {
-                    var getUserResult = Helper.OpenApi.GetUser(_adminUser, result.User.Id);
+                    var getUserResult = Helper.OpenApi.GetUser(_adminUser, result.User.Id.Value);
                     Assert.IsNotNull(getUserResult, "User does not exists!");
 
                     // TODO: After PR #3994 is merged, change the Asserts below to call: UserDataModel.AssertAreEqual()

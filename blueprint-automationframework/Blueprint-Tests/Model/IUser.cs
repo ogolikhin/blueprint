@@ -16,6 +16,8 @@ namespace Model
     {
         #region Properties
 
+        UserDataModel UserData { get; }
+
         string Department { get; set; }                     // (NULLABLE)
         string Email { get; set; }                          // (NULLABLE)
         bool? Enabled { get; set; }

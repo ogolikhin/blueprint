@@ -98,7 +98,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-            var collectionFolder = GetDefaultCollectionFolder(_project, authorUser);
+            var collectionFolder = GetDefaultCollectionFolder(_project, authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
@@ -122,7 +122,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
+            var collectionFolder = GetDefaultCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
             var parentCollectionsFolder = CreateArtifactWithRandomName(
                 ItemTypePredefined.CollectionFolder, _user, _project, collectionFolder.Id, baseType: dummyType);
 
@@ -171,6 +171,48 @@ namespace ArtifactStoreTests
 
             Assert.NotNull(newArtifact.OrderIndex, "OrderIndex of newly created artifact must not be null!");
             Assert.AreEqual(orderIndexToSet, newArtifact.OrderIndex.Value, "The OrderIndex of the new artifact is not correct!");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestRail(261313)]
+        [Description("Create an artifact of a supported type under a folder. Get the artifact. " +
+            "Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidBaselineOrBaselineFolderUnderBaselineFolder_CanGetArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var baselineFolder = GetDefaultCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.BaselineFolder);
+            string folderName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var parentBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user,
+                ItemTypePredefined.BaselineFolder, folderName, _project, baselineFolder.Id);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, artifactType,
+                artifactName, _project, parentBaselineFolder.Id),
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+
+            NovaArtifactDetails artifactDetails = null;
+            if (newArtifact.ItemTypeId == _project.GetNovaBaseItemTypeId(ItemTypePredefined.ArtifactBaseline))
+            {
+                artifactDetails = Helper.ArtifactStore.GetBaseline(_user, newArtifact.Id);
+            }
+            else if
+                (newArtifact.ItemTypeId == _project.GetNovaBaseItemTypeId(ItemTypePredefined.BaselineFolder))
+            {
+                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, newArtifact.Id);
+            }
+            else
+            {
+                Assert.Fail("Created Artifact has unexpected ItemType.");
+            }
+            NovaArtifactDetails.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
         #endregion 201 Created tests
@@ -239,33 +281,6 @@ namespace ArtifactStoreTests
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "An artifact is not defined.");
-        }
-
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
-        [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
-        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
-        [TestRail(182485)]
-        [Description("Create an artifact of an unsupported type.  Verify 400 Bad Request is returned.")]
-        public void CreateArtifact_UnsupportedArtifactType_400BadRequest(ItemTypePredefined artifactType)
-        {
-            // Setup:
-            var artifact = new NovaArtifactDetails
-            {
-                ItemTypeId = _project.GetItemTypeIdForPredefinedType(artifactType),
-                Name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
-                ProjectId = _project.Id,
-                ParentId = _project.Id,
-            };
-
-            string jsonBody = JsonConvert.SerializeObject(artifact);
-            
-            // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => CreateArtifactFromJson(_user, jsonBody),
-                "'POST {0}' should return 400 Bad Request when trying to create an unsupported artifact type of: '{1}'!",
-                SVC_PATH, artifactType);
-
-            // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "Cannot create an artifact with the specified Artifact Type.");
         }
 
         [TestCase]
@@ -429,7 +444,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddArtifactUnderCollectionsFolder_409Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user);
+            var collectionFolder = GetDefaultCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id),
@@ -772,24 +787,26 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// Gets the default Collections folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
+        /// Gets the default Collections or BaselineReviews folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
         /// </summary>
-        /// <param name="project">The project whose collections folder you want to get.</param>
+        /// <param name="project">The project whose Collections or BaselineReviews folder you want to get.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <returns>The default Collections folder for the project.</returns>
-        private INovaArtifactBase GetDefaultCollectionFolder(IProject project, IUser user)
+        /// <param name="folderType">BaselineReview or Collection</param>
+        /// <returns>The default Collections or BaselineReviews folder for the project.</returns>
+        private INovaArtifactBase GetDefaultCollectionFolder(IProject project, IUser user, BaselineAndCollectionTypePredefined folderType)
         {
-            var collectionFolder = project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, user);
+            var folder = project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
+                user, folderType);
 
             return new NovaArtifactDetails
             {
-                Id = collectionFolder.Id,
-                PredefinedType = collectionFolder.PredefinedType,
+                Id = folder.Id,
+                PredefinedType = folder.PredefinedType,
                 ProjectId = project.Id,
-                ItemTypeId = collectionFolder.ItemTypeId
+                ItemTypeId = folder.ItemTypeId
             };
         }
-        
+
         #endregion Private functions
     }
 }

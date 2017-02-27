@@ -272,7 +272,8 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
             var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
@@ -306,7 +307,8 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
             var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
@@ -508,7 +510,8 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _user,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
@@ -657,7 +660,8 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -685,7 +689,8 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -713,7 +718,8 @@ namespace ArtifactStoreTests
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var collection = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);

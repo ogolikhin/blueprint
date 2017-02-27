@@ -58,7 +58,7 @@ namespace OpenAPITests
             // Setup:
             var userToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
-            userToCreate[0].InstanceAdminRole = InstanceAdminRoles.ConvertInstanceAdminRoleToString(instanceAdminRole);
+            userToCreate[0].InstanceAdminRole = InstanceAdminRoleExtensions.ToInstanceAdminRoleString(instanceAdminRole);
 
             // Execute:
             UserCallResultCollection result = null;

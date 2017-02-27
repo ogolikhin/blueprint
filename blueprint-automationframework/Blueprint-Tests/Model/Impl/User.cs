@@ -6,7 +6,6 @@ using Model.Factories;
 using Utilities;
 using NUnit.Framework;
 using System.Data;
-using System.Text.RegularExpressions;
 
 namespace Model.Impl
 {
@@ -106,8 +105,8 @@ namespace Model.Impl
         }
         public InstanceAdminRole? InstanceAdminRole
         {
-            get { return InstanceAdminRoles.ConvertStringToInstanceAdminRole(UserData.InstanceAdminRole); }
-            set { UserData.InstanceAdminRole = InstanceAdminRoles.ConvertInstanceAdminRoleToString(value); }
+            get { return InstanceAdminRoleExtensions.ToInstanceAdminRoleValue(UserData.InstanceAdminRole); }
+            set { UserData.InstanceAdminRole = InstanceAdminRoleExtensions.ToInstanceAdminRoleString(value); }
         }
         public bool? ExpirePassword
         {

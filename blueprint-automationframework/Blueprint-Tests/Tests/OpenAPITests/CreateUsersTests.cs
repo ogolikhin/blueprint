@@ -244,7 +244,7 @@ namespace OpenAPITests
             // Verify:
             Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
             VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
-            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserAddToGroupFailed, errorMessage);
+            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
         }
 
         [TestCase("Username", "User")]
@@ -272,7 +272,7 @@ namespace OpenAPITests
             // Verify:
             Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
             VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
-            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserAddToGroupFailed, 
+            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserValidationFailed, 
                 "Password must not be similar to " + message + " Name");
         }
 

@@ -510,7 +510,7 @@ namespace ServiceLibrary.Repositories
                 foreach (var root in rootCollections.Union(rootBaselinesAndReviews))
                 {
                     var children = await GetProjectOrArtifactChildrenAsync(projectId, root.Id, userId);
-                    if (children.Any(child => child.Id == expandedToArtifactId))
+                    if (await AddChildrenToAncestors(children, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId))
                     {
                         root.Children = children.Cast<IArtifact>().ToList();
                         isFetched = true;

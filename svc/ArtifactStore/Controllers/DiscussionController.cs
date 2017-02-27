@@ -90,14 +90,17 @@ namespace ArtifactStore.Controllers
                 discussion.CanEdit = !projectPermissions.HasFlag(ProjectPermissions.CommentsModificationDisabled) 
                           && permissions.TryGetValue(artifactId, out permission) && (permission.HasFlag(RolePermissions.Comment) && discussion.UserId == session.UserId);
             }
-            
+
+            var availableStatuses = await _discussionsRepository.GetThreadStatusCollection(itemInfo.ProjectId);
+
             var result = new DiscussionResultSet
             {
-                CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled) 
+                CanDelete = !projectPermissions.HasFlag(ProjectPermissions.CommentsDeletionDisabled)
                           && permission.HasFlag(RolePermissions.DeleteAnyComment) && revisionId == int.MaxValue,
                 CanCreate = permission.HasFlag(RolePermissions.Comment) && revisionId == int.MaxValue,
                 Discussions = discussions,
-                EmailDiscussionsEnabled = await _discussionsRepository.AreEmailDiscussionsEnabled(itemInfo.ProjectId)
+                EmailDiscussionsEnabled = await _discussionsRepository.AreEmailDiscussionsEnabled(itemInfo.ProjectId),
+                ThreadStatuses = availableStatuses
             };
             return result;
         }

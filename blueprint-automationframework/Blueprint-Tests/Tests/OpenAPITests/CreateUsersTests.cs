@@ -215,37 +215,6 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
         }
 
-        [TestCase]
-        [TestRail(246665)]
-        [Description("Create couple of users (one user with all required values and second one with parameter in invalid format). Verify a 207 HTTP status was returned")]
-        public void CreateUsers_InvalidParameterFormat_207PartialSuccess()
-        {
-            // Setup:
-            const int PARTIAL = 207;
-
-            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-
-            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
-            allUsersToCreate.AddRange(userWithInvalidData);
-
-            var validJson = JsonConvert.SerializeObject(allUsersToCreate); 
-            var toReplace = "\"" + userWithInvalidData[0].LastName + "\"";
-            var corruptedJson = Regex.Replace(validJson, @toReplace, "1");
-
-            // Execute:
-            RestResponse result = null;
-
-            Assert.DoesNotThrow(() => result = UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, corruptedJson, _adminUser, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
-                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
-/*
-            // Verify:
-            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
-            VerifyCreateUserResultSet(userWithInvalidData, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
-*/        }
-
-        [TestCase("1111&&&&AAA", "Password must contain a low-case letter")]
         [TestCase("1111&&&&", "Password must contain an upper-case letter")]
         [TestCase("1111AAAA", "Password must contain a non-alphanumeric character")]
         [TestCase("AAAA&&&&", "Password must contain a number")]
@@ -262,61 +231,24 @@ namespace OpenAPITests
             errorMessage = errorMessage + "";
 
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithInvalidPassword = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
-            userWithInvalidData[0].Password = invalidPassword;
+            userWithInvalidPassword[0].Password = invalidPassword;
 
             var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
-            allUsersToCreate.AddRange(userWithInvalidData);
+            allUsersToCreate.AddRange(userWithInvalidPassword);
 
-            var jsonBody = JsonConvert.SerializeObject(allUsersToCreate);
-
-            // Execute:
-            RestResponse result = null;
-
-            Assert.DoesNotThrow(() => result = UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, jsonBody, _adminUser, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
-            /*
-                        // Verify:
-                        Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-                        VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
-                        VerifyCreateUserResultSet(userWithInvalidData, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
-            */
+
+            // Verify:
+            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserAddToGroupFailed, errorMessage);
         }
+
         #endregion Positive tests
-
-        /*************** 401
-        [TestCase]
-        [TestRail(0)]
-        [Description("Create couple of users (one user with all required values and second one with missing open API token). Verify a 207 HTTP status was returned")]
-        public void CreateUsers_MissingOpenApiToken_207PartialSuccess()
-        {
-            // Setup:
-            //            const int PARTIAL = 207;
-
-            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-
-            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
-            allUsersToCreate.AddRange(userWithInvalidData);
-
-            var validJson = JsonConvert.SerializeObject(allUsersToCreate);
-            var toReplace = "\"" + userWithInvalidData[0].LastName + "\"";
-            var corruptedJson = Regex.Replace(validJson, @toReplace, "1");
-
-            // Execute:
-            RestResponse result = null;
-
-            Assert.DoesNotThrow(() => result = UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, corruptedJson, user: null),
-                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
-            /*
-                        // Verify:
-                        Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-                        VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
-                        VerifyCreateUserResultSet(userWithInvalidData, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
-            
-        }
-*/
 
         // TODO: 409 Admin role does not exists
         // TODO: 400 Missing property
@@ -418,19 +350,16 @@ namespace OpenAPITests
 
             var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             const string contentType = "application/json";
-
-            var response = restApi.SendRequestBodyAndGetResponse(
+            
+            return restApi.SendRequestBodyAndGetResponse(
                 CREATE_PATH,
                 RestRequestMethod.POST,
                 requestBody,
                 contentType,
                 expectedStatusCodes: expectedStatusCodes);
-
-            return response;
         }
 
         #endregion Private methods
     }
 }
-
 

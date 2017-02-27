@@ -24,7 +24,7 @@ namespace Model
         /// <summary>
         /// This is a map of InstanceAdminRole enum values to InstanceAdminRole enum names.
         /// </summary>
-        public static Dictionary<InstanceAdminRole?, string> InstanceAdminRoleStringMap { get; } =
+        internal static Dictionary<InstanceAdminRole?, string> InstanceAdminRoleStringMap { get; } =
             new Dictionary<InstanceAdminRole?, string>
         {
             {InstanceAdminRole.AdministerALLProjects,               "Administer ALL Projects"},
@@ -52,7 +52,7 @@ namespace Model
         /// <summary>
         /// This is a map of InstanceAdminRole enum values to InstanceAdminRole enum names.
         /// </summary>
-        public static Dictionary<string, InstanceAdminRole?> StringInstanceAdminRoleMap { get; } =
+        internal static Dictionary<string, InstanceAdminRole?> StringInstanceAdminRoleMap { get; } =
             new Dictionary<string, InstanceAdminRole?>
         {
             {"Administer ALL Projects",                 InstanceAdminRole.AdministerALLProjects},

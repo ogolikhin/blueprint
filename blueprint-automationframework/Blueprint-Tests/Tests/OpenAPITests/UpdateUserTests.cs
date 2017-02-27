@@ -73,6 +73,7 @@ namespace OpenAPITests
             VerifyUpdateUserResultSet(result, usersToUpdate, expectedSuccessfullyUpdatedUsers: userDataToUpdate);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu  GetUser doesn't return all user properties.
         [TestCase]
         [TestRail(246614)]
         [Description("Update a list of users (some users are active and others are deleted) and verify a 207 HTTP status was returned and " +
@@ -80,26 +81,9 @@ namespace OpenAPITests
         public void UpdateUsers_ListOfActiveAndDeletedUsers_207PartialSuccess()
         {
             // Setup:
-            const int numberOfUsersToUpdate = 1;
-            var usersToUpdate = new List<IUser>();
-            var activeUsersToUpdate = new List<IUser>();
-            var deletedUsersToUpdate = new List<IUser>();
-            var deletedUserDataAndErrorCode = new Dictionary<IUser, int>();
-
-            for (int i = 0; i < numberOfUsersToUpdate; ++i)
-            {
-                // Add an active user.
-                var userToUpdate = Helper.CreateUserAndAddToDatabase();
-                usersToUpdate.Add(userToUpdate);
-                activeUsersToUpdate.Add(userToUpdate);
-
-                // Add a user and then delete it.
-                userToUpdate = Helper.CreateUserAndAddToDatabase();
-                usersToUpdate.Add(userToUpdate);
-                deletedUsersToUpdate.Add(userToUpdate);
-                userToUpdate.DeleteUser(useSqlUpdate: true);
-                deletedUserDataAndErrorCode.Add(userToUpdate, BusinessLayerErrorCodes.LoginDoesNotExist);
-            }
+            var activeUsersToUpdate = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
+            var deletedUsersToUpdate = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
+            deletedUsersToUpdate[0].DeleteUser(useSqlUpdate: true);
 
             var propertiesToUpdate = new Dictionary<string, string>
             {
@@ -123,7 +107,11 @@ namespace OpenAPITests
                 "'PATCH {0}' should return '207 Partial Success' when some users were updated and others weren't!", UPDATE_PATH);
 
             // Verify:
-            VerifyUpdateUserResultSet(result, usersToUpdate,
+            var deletedUserDataAndErrorCode = new Dictionary<IUser, int> { { deletedUsersToUpdate[0], BusinessLayerErrorCodes.LoginDoesNotExist } };
+            var allUsersToUpdate = new List<IUser>(activeUsersToUpdate);
+            allUsersToUpdate.AddRange(deletedUsersToUpdate);
+
+            VerifyUpdateUserResultSet(result, allUsersToUpdate,
                 expectedSuccessfullyUpdatedUsers: activeUserDataToUpdate,
                 expectedFailedUpdatedUsers: deletedUserDataAndErrorCode);
         }
@@ -136,24 +124,8 @@ namespace OpenAPITests
         public void UpdateUsers_ListOfUsersAndChangeSomeToGroups_207PartialSuccess()
         {
             // Setup:
-            const int numberOfUsersToUpdate = 1;
-            var allUsersToUpdate = new List<IUser>();
-            var usersToUpdate = new List<IUser>();
-            var usersToUpdateToGroups = new List<IUser>();
-
-            for (int i = 0; i < numberOfUsersToUpdate; ++i)
-            {
-                // Add an active user.
-                var userToUpdate = Helper.CreateUserAndAddToDatabase();
-                allUsersToUpdate.Add(userToUpdate);
-                usersToUpdate.Add(userToUpdate);
-
-                // Add a user and then delete it.
-                userToUpdate = Helper.CreateUserAndAddToDatabase();
-                allUsersToUpdate.Add(userToUpdate);
-                usersToUpdateToGroups.Add(userToUpdate);
-                userToUpdate.DeleteUser(useSqlUpdate: true);
-            }
+            var usersToUpdate = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
+            var usersToUpdateToGroups = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
 
             var propertiesToUpdate = new Dictionary<string, string>
             {
@@ -180,6 +152,9 @@ namespace OpenAPITests
                 "'PATCH {0}' should return '207 Partial Success' when some users were updated and others weren't!", UPDATE_PATH);
 
             // Verify:
+            var allUsersToUpdate = new List<IUser>(usersToUpdate);
+            allUsersToUpdate.AddRange(usersToUpdateToGroups);
+
             VerifyUpdateUserResultSet(result, allUsersToUpdate);   // TODO: Add expectedSuccessfullyUpdatedUsers & expectedFailedUpdatedUsers.
         }
 

@@ -47,7 +47,7 @@ namespace ArtifactStoreTests
                 "Get Baseline shouldn't return an error.");
 
             // Verify:
-            ArtifactStoreHelper.AssertBaselinesAreEqual(expectedBaseline, baseline);
+            Baseline.AssertBaselinesAreEqual(expectedBaseline, baseline);
             Assert.AreEqual(expectedArtifactsNumber, baseline.Artifacts.Count, "Baseline should have expected number of Artifacts.");
         }
         #endregion

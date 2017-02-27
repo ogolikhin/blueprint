@@ -114,11 +114,14 @@ namespace TestConfig
         /// <returns>The TestConfiguration object.</returns>
         public static TestConfiguration GetInstance(string path = null)
         {
-            if (path == null) { path = Path.Combine(Directory.GetCurrentDirectory(), "TestConfiguration.xml"); }
+            if (path == null)
+            {
+                var testConfig = Environment.GetEnvironmentVariable("TEST_CONFIG_FILE", EnvironmentVariableTarget.Process);
 
-            if (_instance == null) { _instance = ReadTestConfigFile(path); }
+                path = testConfig ?? Path.Combine(Directory.GetCurrentDirectory(), "TestConfiguration.xml");
+            }
 
-            return _instance;
+            return _instance ?? (_instance = ReadTestConfigFile(path));
         }
 
         /// <summary>

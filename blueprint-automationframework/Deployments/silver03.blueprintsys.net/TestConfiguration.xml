@@ -1,0 +1,26 @@
+<TestConfiguration>
+
+  <!-- This is the URL of the Blueprint server to test against. -->
+  <BlueprintServer address="http://silver03.blueprintsys.net/" username="admin" password="$Blueprint99" />
+
+  <BlueprintServices>
+    <Service name="AdminStore"    address="http://silver03.blueprintsys.net/" />
+    <Service name="AccessControl" address="http://silver03.blueprintsys.net:8182/" />
+    <Service name="ArtifactStore" address="http://silver03.blueprintsys.net" />
+    <Service name="ConfigControl" address="http://silver03.blueprintsys.net:82/" />
+    <Service name="FileStore"     address="http://silver03.blueprintsys.net/" />
+    <Service name="Storyteller"   address="http://silver03.blueprintsys.net" />
+    <Service name="SearchService" address="http://silver03.blueprintsys.net" />
+  </BlueprintServices>
+
+  <Databases>
+    <Database name="Blueprint"     connection_string="Data Source=silver03.blueprintsys.net;Initial Catalog=Blueprint;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AdminStore"    connection_string="Data Source=silver03.blueprintsys.net;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="AccessControl" connection_string="Data Source=silver03.blueprintsys.net;Initial Catalog=Blueprint_AdminStorage;Integrated Security=False;min pool size=4;max pool size=128;load balance timeout=2;packet size=16384;connectretrycount=3;connectretryinterval=3;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;" />
+    <Database name="FileStore"     connection_string="Data Source=silver03.blueprintsys.net;Initial Catalog=Blueprint_FileStorage;Integrated Security=False;MultipleActiveResultSets=True;User ID=sa;Password=$Admin99;"/>
+  </Databases>
+  
+  <!-- This is the level of logging to use.  Valid values are:  NONE, ERROR, WARNING, INFO, DEBUG, TRACE -->
+  <LogLevel>TRACE</LogLevel>
+
+</TestConfiguration>

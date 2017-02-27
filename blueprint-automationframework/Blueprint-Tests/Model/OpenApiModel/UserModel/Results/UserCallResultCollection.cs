@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Model.OpenApiModel.UserModel.Enums;
 
 namespace Model.OpenApiModel.UserModel.Results
 {
@@ -9,6 +8,5 @@ namespace Model.OpenApiModel.UserModel.Results
     /// </summary>
     public class UserCallResultCollection : List<UserCallResult>
     {
-        public ResultStatusEnum Status { get; set; }
     }
 }

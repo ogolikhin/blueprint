@@ -247,6 +247,35 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserAddToGroupFailed, errorMessage);
         }
 
+        [TestCase("Username", "User")]
+        [TestCase("DisplayName, Display")]
+        [TestRail(261315)]
+        [Description("Create couple of users (one user with all required values and second one with the password that the same as Username or DiplayName). " +
+            "Verify 207 Partial Success HTTP status was returned")]
+        public void CreateUsers_PasswordEqualToUserNameOrDisplayName_207PartialSuccess(string propertyName, string message)
+        {
+            // Setup:
+            const int PARTIAL = 207;
+
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithInvalidPassword = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+             
+            CSharpUtilities.SetProperty(propertyName, userWithInvalidPassword[0].Password, userWithInvalidPassword[0]);
+
+            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
+            allUsersToCreate.AddRange(userWithInvalidPassword);
+
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
+
+            // Verify:
+            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
+            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserAddToGroupFailed, 
+                "Password must not be similar to " + message + " Name");
+        }
+
         #endregion Positive tests
 
         // TODO: 409 Admin role does not exists

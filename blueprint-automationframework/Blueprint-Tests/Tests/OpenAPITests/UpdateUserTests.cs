@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
+using Model.Common.Constants;
 using Model.Factories;
 using Model.Impl;
 using Model.OpenApiModel.UserModel.Results;
@@ -14,7 +16,6 @@ using Utilities.Factories;
 
 namespace OpenAPITests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // US4966
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class UpdateUserTests : TestBase
@@ -38,6 +39,7 @@ namespace OpenAPITests
 
         #region Positive tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu  GetUser doesn't return all user properties.
         [TestCase(1, nameof(UserDataModel.Department))]
         [TestCase(5, nameof(UserDataModel.DisplayName))]
         [TestRail(246613)]
@@ -78,10 +80,11 @@ namespace OpenAPITests
         public void UpdateUsers_ListOfActiveAndDeletedUsers_207PartialSuccess()
         {
             // Setup:
-            const int numberOfUsersToUpdate = 3;
+            const int numberOfUsersToUpdate = 1;
             var usersToUpdate = new List<IUser>();
             var activeUsersToUpdate = new List<IUser>();
             var deletedUsersToUpdate = new List<IUser>();
+            var deletedUserDataAndErrorCode = new Dictionary<IUser, int>();
 
             for (int i = 0; i < numberOfUsersToUpdate; ++i)
             {
@@ -95,6 +98,7 @@ namespace OpenAPITests
                 usersToUpdate.Add(userToUpdate);
                 deletedUsersToUpdate.Add(userToUpdate);
                 userToUpdate.DeleteUser(useSqlUpdate: true);
+                deletedUserDataAndErrorCode.Add(userToUpdate, BusinessLayerErrorCodes.LoginDoesNotExist);
             }
 
             var propertiesToUpdate = new Dictionary<string, string>
@@ -119,7 +123,64 @@ namespace OpenAPITests
                 "'PATCH {0}' should return '207 Partial Success' when some users were updated and others weren't!", UPDATE_PATH);
 
             // Verify:
-            VerifyUpdateUserResultSet(result, usersToUpdate);   // TODO: Add expectedSuccessfullyUpdatedUsers & expectedFailedUpdatedUsers.
+            VerifyUpdateUserResultSet(result, usersToUpdate,
+                expectedSuccessfullyUpdatedUsers: activeUserDataToUpdate,
+                expectedFailedUpdatedUsers: deletedUserDataAndErrorCode);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello:  https://trello.com/c/G62ah53O  Returns 200 instead of 207.
+        [TestCase]
+        [TestRail(266425)]
+        [Description("Update a list of users and change the Type of some users to 'Group' and verify a 207 HTTP status was returned and that the users " +
+                     "with Type 'User' were updated and the ones with Type 'Group' failed to be updated.")]
+        public void UpdateUsers_ListOfUsersAndChangeSomeToGroups_207PartialSuccess()
+        {
+            // Setup:
+            const int numberOfUsersToUpdate = 1;
+            var allUsersToUpdate = new List<IUser>();
+            var usersToUpdate = new List<IUser>();
+            var usersToUpdateToGroups = new List<IUser>();
+
+            for (int i = 0; i < numberOfUsersToUpdate; ++i)
+            {
+                // Add an active user.
+                var userToUpdate = Helper.CreateUserAndAddToDatabase();
+                allUsersToUpdate.Add(userToUpdate);
+                usersToUpdate.Add(userToUpdate);
+
+                // Add a user and then delete it.
+                userToUpdate = Helper.CreateUserAndAddToDatabase();
+                allUsersToUpdate.Add(userToUpdate);
+                usersToUpdateToGroups.Add(userToUpdate);
+                userToUpdate.DeleteUser(useSqlUpdate: true);
+            }
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.DisplayName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+
+            var usernamesToUpdate = usersToUpdate.Select(u => u.Username).ToList();
+            var activeUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            // Change the Type of some users to "Group", which should fail.
+            propertiesToUpdate.Add(nameof(UserDataModel.UserOrGroupType), "Group");
+
+            usernamesToUpdate = usersToUpdateToGroups.Select(u => u.Username).ToList();
+            var deletedUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            var allUserDataToUpdate = new List<UserDataModel>(activeUserDataToUpdate);
+            allUserDataToUpdate.AddRange(deletedUserDataToUpdate);
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+                "'PATCH {0}' should return '207 Partial Success' when some users were updated and others weren't!", UPDATE_PATH);
+
+            // Verify:
+            VerifyUpdateUserResultSet(result, allUsersToUpdate);   // TODO: Add expectedSuccessfullyUpdatedUsers & expectedFailedUpdatedUsers.
         }
 
         #endregion Positive tests
@@ -196,17 +257,17 @@ namespace OpenAPITests
         /// <param name="resultSet">Result set from update users call.</param>
         /// <param name="usersBeforeUpdate">The original users before they were updated.</param>
         /// <param name="expectedSuccessfullyUpdatedUsers">(optional) A list of users that we expect to be successfully updated.</param>
-        /// <param name="expectedFailedUpdatedUsers">(optional) A map of InternalApiErrorCodes and Users that we expect got errors when we tried to update them.</param>
+        /// <param name="expectedFailedUpdatedUsers">(optional) A map of Users and InternalApiErrorCodes that we expect got errors when we tried to update them.</param>
         private void VerifyUpdateUserResultSet(
             UserCallResultCollection resultSet,
             List<IUser> usersBeforeUpdate,
             List<UserDataModel> expectedSuccessfullyUpdatedUsers = null,
-            Dictionary<int, UserDataModel> expectedFailedUpdatedUsers = null)
+            Dictionary<IUser, int> expectedFailedUpdatedUsers = null)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
             expectedSuccessfullyUpdatedUsers = expectedSuccessfullyUpdatedUsers ?? new List<UserDataModel>();
-            expectedFailedUpdatedUsers = expectedFailedUpdatedUsers ?? new Dictionary<int, UserDataModel>();
+            expectedFailedUpdatedUsers = expectedFailedUpdatedUsers ?? new Dictionary<IUser, int>();
 
             int expectedUpdateCount = expectedSuccessfullyUpdatedUsers.Count + expectedFailedUpdatedUsers.Count;
 
@@ -217,7 +278,7 @@ namespace OpenAPITests
 //                "'{0}' should be '{1}'!", nameof(resultSet.ResultCode), expectedStatusCode);
 
             VerifySuccessfullyUpdatedUsers(resultSet, expectedSuccessfullyUpdatedUsers, usersBeforeUpdate);
-//            VerifyUnsuccessfullyDeletedUsers(resultSet, expectedFailedUpdatedUsers);
+            VerifyUnsuccessfullyUpdatedUsers(resultSet, expectedFailedUpdatedUsers);
         }
 
         /// <summary>
@@ -235,13 +296,55 @@ namespace OpenAPITests
             {
                 var result = resultSet.Find(a => a.User.Username == updatedUser.Username);
 
-                Assert.AreEqual("User successfully updated.", result.Message, "'{0}' is incorrect!", nameof(result.Message));
+                Assert.AreEqual("User information has been updated successfully", result.Message, "'{0}' is incorrect!", nameof(result.Message));
                 Assert.AreEqual(InternalApiErrorCodes.Ok, result.ResultCode, "'{0}' should be 200 OK!", nameof(result.ResultCode));
 
                 var originalUserData = originalUsers.Find(u => u.Username == updatedUser.Username);
                 var expectedUserData = MergeNewAndOldUserData(originalUserData.UserData, updatedUser);
 
                 VerifyUserIsUpdated(expectedUserData);
+            }
+        }
+
+        /// <summary>
+        /// A map of InternalApiErrorCodes to error message for the DeleteUserResultSet.
+        /// </summary>
+        private Dictionary<int, string> ErrorCodeToErrorMessageMap { get; } = new Dictionary<int, string>
+        {
+            { InternalApiErrorCodes.Ok, "User has been successfully deleted." },
+            { BusinessLayerErrorCodes.LoginDoesNotExist, "User with User Name={0} does not exist" }
+        };
+
+        /// <summary>
+        /// Verifies that the users that were NOT successfully updated have the expected status codes.
+        /// </summary>
+        /// <param name="resultSet">Result set from update users call.</param>
+        /// <param name="expectedFailedDeletedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to update them.</param>
+        /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
+        private void VerifyUnsuccessfullyUpdatedUsers(
+            UserCallResultCollection resultSet,
+            Dictionary<IUser, int> expectedFailedDeletedUsers = null,
+            bool checkIfUserExists = true)
+        {
+            ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
+
+            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<IUser, int>();
+
+            foreach (var deletedUserAndStatus in expectedFailedDeletedUsers)
+            {
+                var deletedUser = deletedUserAndStatus.Key;
+                var returnCode = deletedUserAndStatus.Value;
+                var result = resultSet.Find(a => a.User.Username == deletedUser.Username);
+                string expectedErrorMessage = I18NHelper.FormatInvariant(ErrorCodeToErrorMessageMap[returnCode],
+                    deletedUser.Username);
+
+                Assert.AreEqual(expectedErrorMessage, result.Message, "'{0}' is incorrect!", nameof(result.Message));
+                Assert.AreEqual(returnCode, result.ResultCode, "'{0}' should be '{1}'!", nameof(result.ResultCode), returnCode);
+
+                if (checkIfUserExists)
+                {
+                    VerifyUserIsDeleted(deletedUser);
+                }
             }
         }
 
@@ -254,6 +357,23 @@ namespace OpenAPITests
             var actualUserData = Helper.OpenApi.GetUser(_adminUser, expectedUserData.Id.Value);
 
             UserDataModel.AssertAreEqual(expectedUserData, actualUserData);
+        }
+
+        /// <summary>
+        /// Tries to get the specified user and verifies that GetUser doesn't find the user because it was deleted.
+        /// </summary>
+        /// <param name="deletedUser">The user that was deleted.</param>
+        private void VerifyUserIsDeleted(IUser deletedUser)
+        {
+            // Try to get the deleted user and verify an error is returned.
+            var ex = Assert.Throws<Http500InternalServerErrorException>(() => Helper.OpenApi.GetUser(_adminUser, deletedUser.Id),
+                "GetUser should return 500 Internal Server Error if the user was deleted!");
+
+            string expectedErrorMessage =
+                I18NHelper.FormatInvariant("DUser with Id: {0} was deleted by some other user. Please refresh.",
+                    deletedUser.Id);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
         }
 
         #endregion Private functions

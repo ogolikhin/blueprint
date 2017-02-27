@@ -24,7 +24,7 @@ namespace Model.Impl
         public string LastName { get; set; }
 
         public List<Group> Groups { get; set; } = new List<Group>();
-        public List<int> GroupIds { get; set; }
+        public List<int> GroupIds { get; set; } = new List<int>();
 
         public string Title { get; set; }
         public string Department { get; set; }
@@ -39,6 +39,12 @@ namespace Model.Impl
         public virtual bool ShouldSerializeGroups()
         {
             return Groups.Count > 0;
+        }
+
+        // Don't serialize GroupIds property if empty list.
+        public virtual bool ShouldSerializeGroupIds()
+        {
+            return GroupIds.Count > 0;
         }
 
         #endregion Properties

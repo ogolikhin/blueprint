@@ -21,10 +21,11 @@ namespace Model.Impl
             "[InvalidLogonAttemptsNumber],[LastInvalidLogonTimeStamp],[LastName],[LastPasswordChangeTimestamp]," +
             "[Login],[Password],[Source],[StartTimestamp],[Title],[UserId],[UserSALT]";
 
-        protected UserDataModel UserData { get; set; }
         protected bool IsDeletedFromDatabase { get; set; }
 
         #region Properties
+
+        public UserDataModel UserData { get; protected set; }
 
         public bool IsDeleted { get { return (!IsDeletedFromDatabase && (EndTimestamp != null)); } }
 
@@ -55,7 +56,7 @@ namespace Model.Impl
 
         public int Id
         {
-            get { return UserData.Id; }
+            get { return UserData.Id.Value; }
             set { UserData.Id = value; }
         }
         public string Username

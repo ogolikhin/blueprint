@@ -287,6 +287,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Confirmation_Delete_Items', 'en-US', N'Please confirm the deletion of the selected items ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_No_Artifacts_In_Collection', 'en-US', N'No artifacts available in this collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_No_Artifacts_In_Baseline', 'en-US', N'No artifacts available in this baseline')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_To_Baseline', 'en-US', N'Click here to add Artifacts to this Baseline')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Baseline', 'en-US', N'Seal this Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Add_Artifacts_Picker_Header', 'en-US', N'Add Artifacts to Collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Picker_Header', 'en-US', N'Add Artifact to Collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection', 'en-US', N'Add to Collection')

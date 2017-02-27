@@ -65,7 +65,6 @@ namespace Model
             {"Manage Administrator Roles",              InstanceAdminRole.ManageAdministratorRoles},
             {"Provision Projects",                      InstanceAdminRole.ProvisionProjects},
             {"Provision Users",                         InstanceAdminRole.ProvisionUsers},
-            {"NULL",                                    null }
         };
 
         /// <summary>

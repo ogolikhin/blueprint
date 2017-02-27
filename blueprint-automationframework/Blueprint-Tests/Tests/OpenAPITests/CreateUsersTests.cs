@@ -54,7 +54,7 @@ namespace OpenAPITests
         [TestCase("Provision Projects")]
         [TestCase("Provision Users")]
         [TestRail(246611)]
-        [Description("Create a user with specific admin role and verify that the user was created.")]
+        [Description("Create a user with specific admin role and verify that the user was created successfully")]
         public void CreateUsers_SpecificAdminRole_VerifyUserCreated(string instanceAdminRole)
         {
             // Setup:
@@ -73,7 +73,6 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
         }
 
-        [Explicit(IgnoreReasons.TestBug)]   // JSON Serialization compare fails for groups.
         [TestCase(5)]
         [TestRail(246547)]
         [Description("Create multiple users and verify that the users were created.")]
@@ -94,10 +93,9 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
         }
 
-        [Explicit(IgnoreReasons.TestBug)]   // JSON Serialization compare fails for groups.
         [TestCase]
         [TestRail(246548)]
-        [Description("Create a list of users (some users already created) and verify a 207 HTTP status was returned and " +
+        [Description("Create a list of users (some users already created) and verify 207 HTTP status was returned and " +
         "that the users that were already existing are reported as already existing.")]
         public void CreateUsers_ListOfUsersAndAlreadyExistingUsers_207PartialSuccess()
         {
@@ -131,7 +129,7 @@ namespace OpenAPITests
         [TestCase("LastName", "Last name is required")]
         [TestCase("Password", "Password is required")]
         [TestRail(246644)]
-        [Description("Create couple of users (one user with all required values and second one with empty property) and verify a 207 HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with empty property) and verify 207 HTTP status was returned")]
         public void CreateUsers_EmptyProperties_207PartialSuccess(string propertyName, string errorMessage)
         {
             // Setup:
@@ -189,7 +187,7 @@ namespace OpenAPITests
 
         [TestCase]
         [TestRail(246646)]
-        [Description("Create couple of users (one user with all required values and second one with non-existing group id). Verify a 207 HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with non-existing group id). Verify 207 HTTP status was returned")]
         public void CreateUsers_NonExistingGroup_207PartialSuccess()
         {
             // Setup:
@@ -222,13 +220,11 @@ namespace OpenAPITests
         [TestCase("vGvK1lJu0Io1wvqYg50Tbooi55l9Q0gSYbdJ4XFREwZrxLKLP0PvoIlStitsC1fRqtASQtPNHfmzyLTdTU8FeKL9KWVGuw4vGbgQ1bjeX63ZrK2HwMlMFc3I7qNOCJbtvB",
             "Password must be between 8 and 128 characters\r\nPassword must contain a non-alphanumeric character")]
         [TestRail(246666)]
-        [Description("Create couple of users (one user with all required values and second one with password in invalid format). Verify a 207 HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with password in invalid format). Verify 207 HTTP status was returned")]
         public void CreateUsers_InvalidPassword_207PartialSuccess(string invalidPassword, string errorMessage)
         {
             // Setup:
             const int PARTIAL = 207;
-
-            errorMessage = errorMessage + "";
 
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithInvalidPassword = GenerateListOfUserModels(numberOfUsersToCreate: 1);
@@ -238,6 +234,7 @@ namespace OpenAPITests
             var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
             allUsersToCreate.AddRange(userWithInvalidPassword);
 
+            // Execute:
             UserCallResultCollection result = null;
             Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
@@ -248,7 +245,90 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserAddToGroupFailed, errorMessage);
         }
 
+        [TestCase]
+        [TestRail(246700)]
+        [Description("Create couple of users (one user with all required values and second one with missing property). Verify 207 PartialSuccess HTTP status was returned")]
+        public void CreateUsers_MissingProperty_207PartialSuccess()
+        {
+            // Setup:
+            const int PARTIAL = 207;
+
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
+            allUsersToCreate.AddRange(userWithInvalidData);
+
+            userWithInvalidData[0].LastName = null;
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
+
+            // Verify:
+            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(userWithInvalidData, result, BusinessLayerErrorCodes.UserValidationFailed, "Last name is required");
+        }
+
         #endregion Positive tests
+
+        #region 400 Bad Request
+
+        [TestCase]
+        [TestRail(246665)]
+        [Description("Create couple of users (one user with all required values and second one with parameter in invalid format). " +
+            "Verify 400 Bad request HTTP status was returned")]
+        public void CreateUsers_InvalidParameterFormat_400BadRequest()
+        {
+            // Setup:
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
+            allUsersToCreate.AddRange(userWithInvalidData);
+
+            var validJson = JsonConvert.SerializeObject(allUsersToCreate);
+            var toReplace = "\"" + userWithInvalidData[0].LastName + "\"";
+            var corruptedJson = Regex.Replace(validJson, @toReplace, "$1");
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, corruptedJson, _adminUser),
+                "'POST {0}' should return 400 Bad Request when trying to create user with invalid parameter!", CREATE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The request parameter is missing or invalid.");
+        }
+
+        #endregion 400 Bad Request
+
+        #region 401 Unauthorized
+
+        [TestCase]
+        [TestRail(246690)]
+        [Description("Create a user with no open api token in a header. Verify 401 Unauthorized HTTP status was returned")]
+        public void CreateUsers_MissingOpenApiToken_401Unauthorized()
+        {
+            // Setup:
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
+            allUsersToCreate.AddRange(userWithInvalidData);
+
+            var validJson = JsonConvert.SerializeObject(allUsersToCreate);
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, validJson, user: null),
+                "'POST {0}' should return 401 Unauthorized when trying to create user with no token in a header!", CREATE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
+        }
+
+        #endregion 401 Unauthorized
+
 
         // TODO: 409 Admin role does not exists
         // TODO: 400 Missing property
@@ -344,7 +424,7 @@ namespace OpenAPITests
         /// <param name="requestBody">The request body (i.e. user to be created).</param>
         /// <param name="user">The user creating another user.</param>
         /// <returns>The call response returned.</returns>
-        public static RestResponse UpdateUserInListWithInvalidParameters(string address, string requestBody, IUser user, List<HttpStatusCode> expectedStatusCodes)
+        public static RestResponse UpdateUserInListWithInvalidParameters(string address, string requestBody, IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -355,8 +435,7 @@ namespace OpenAPITests
                 CREATE_PATH,
                 RestRequestMethod.POST,
                 requestBody,
-                contentType,
-                expectedStatusCodes: expectedStatusCodes);
+                contentType);
         }
 
         #endregion Private methods

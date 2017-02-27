@@ -96,6 +96,7 @@
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="Common\Constants\BusinessLayerErrorCodes.cs" />
+    <Compile Include="Common\Enums\InstanceAdminRole.cs" />
     <Compile Include="Factories\OpenApiFactory.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />
@@ -228,7 +229,6 @@
     <Compile Include="Impl\ServiceErrorMessage.cs" />
     <Compile Include="Impl\Session.cs" />
     <Compile Include="Impl\User.cs" />
-    <Compile Include="InstanceAdminRole.cs" />
     <Compile Include="Archive\IPaginable.cs" />
     <Compile Include="IProject.cs" />
     <Compile Include="Archive\ArtifactModel\IRelationship.cs" />

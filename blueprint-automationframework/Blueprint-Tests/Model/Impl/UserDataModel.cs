@@ -116,6 +116,12 @@ namespace Model.Impl
             }
 
             Assert.AreEqual(expectedUserData.Groups.Count, actualUserData.Groups.Count, "'{0}' has a different number of Groups than expected!", nameof(Groups));
+
+            for (int i = 0; i < expectedUserData.Groups.Count; ++i)
+            {
+                Assert.AreEqual(expectedUserData.Groups[i], actualUserData.Groups[i], "'{0}[{1}]' has a different value than expected!", nameof(Groups), i);
+            }
+
             Assert.AreEqual(expectedUserData.GroupIds.Count, actualUserData.GroupIds.Count, "'{0}' has a different number of GroupIds than expected!", nameof(Groups));
 
             for (int i = 0; i < expectedUserData.GroupIds.Count; ++i)

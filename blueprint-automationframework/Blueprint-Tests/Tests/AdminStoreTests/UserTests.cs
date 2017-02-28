@@ -565,7 +565,7 @@ namespace AdminStoreTests
         }
 
         /// <summary>
-        /// 
+        /// Resets password for the user
         /// </summary>
         /// <param name="helper">TestHelper instance.</param>
         /// <param name="user">user that will have the password</param>

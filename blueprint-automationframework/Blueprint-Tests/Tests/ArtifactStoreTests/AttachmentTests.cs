@@ -13,6 +13,7 @@ using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel.Impl;
 using Model.NovaModel;
+using Model.Common.Enums;
 
 namespace ArtifactStoreTests
 {

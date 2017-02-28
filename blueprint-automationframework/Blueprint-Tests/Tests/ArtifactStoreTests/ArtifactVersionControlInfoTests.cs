@@ -4,6 +4,7 @@ using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
+using Model.Common.Enums;
 using Model.Factories;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;

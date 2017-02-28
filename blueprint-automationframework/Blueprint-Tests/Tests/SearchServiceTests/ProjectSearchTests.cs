@@ -31,7 +31,8 @@ namespace SearchServiceTests
             _userAdmin = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _userAuthorLicense = Helper.CreateUserAndAddToDatabase(instanceAdminRole: null);
 
-            _group = Helper.CreateGroupAndAddToDatabase();
+            var licenseType = GroupLicenseType.Author;
+            _group = Helper.CreateGroupAndAddToDatabase(licenseType);
             _group.AddUser(_userAuthorLicense);
 
             _project = ProjectFactory.GetProject(_userAdmin);

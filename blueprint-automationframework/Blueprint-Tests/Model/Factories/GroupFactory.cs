@@ -11,7 +11,7 @@ namespace Model.Factories
         /// </summary>
         /// <param name="licenseType">The group license type.</param>
         /// <returns>The created Group.</returns>
-        public static IGroup CreateGroup(GroupLicenseType licenseType)
+        public static IGroup CreateGroup(GroupLicenseType? licenseType)
         {
             string name = RandomGenerator.RandomAlphaNumeric(6);
             string description = RandomGenerator.RandomAlphaNumeric(10);

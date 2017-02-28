@@ -13,6 +13,7 @@ using Utilities;
 using Model.Common.Constants;
 using Utilities.Facades;
 using Model.Factories;
+using Model.Common.Enums;
 
 namespace OpenAPITests
 {

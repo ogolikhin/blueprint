@@ -20,6 +20,7 @@ using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using Model.Common.Enums;
 
 namespace Helper
 {

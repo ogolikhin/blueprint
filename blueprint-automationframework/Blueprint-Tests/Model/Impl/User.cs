@@ -6,6 +6,7 @@ using Model.Factories;
 using Utilities;
 using NUnit.Framework;
 using System.Data;
+using Model.Common.Enums;
 
 namespace Model.Impl
 {

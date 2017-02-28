@@ -98,7 +98,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-            var collectionFolder = GetDefaultCollectionFolder(_project, authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = GetDefaultBaselineOrCollectionFolder(_project, authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
@@ -122,7 +122,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
             var parentCollectionsFolder = CreateArtifactWithRandomName(
                 ItemTypePredefined.CollectionFolder, _user, _project, collectionFolder.Id, baseType: dummyType);
 
@@ -176,15 +176,15 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
         [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
         [TestRail(261313)]
-        [Description("Create an artifact of a supported type under a folder. Get the artifact. " +
+        [Description("Create baseline folder under default baseline folder. Create the artifact. " +
             "Verify the artifact returned has the same properties as the artifact we created.")]
         public void CreateArtifact_ValidBaselineOrBaselineFolderUnderBaselineFolder_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var baselineFolder = GetDefaultCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.BaselineFolder);
+            var defaultBaselineFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.BaselineFolder);
             string folderName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var parentBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user,
-                ItemTypePredefined.BaselineFolder, folderName, _project, baselineFolder.Id);
+                ItemTypePredefined.BaselineFolder, folderName, _project, defaultBaselineFolder.Id);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
@@ -444,7 +444,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddArtifactUnderCollectionsFolder_409Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            var collectionFolder = GetDefaultCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id),
@@ -793,7 +793,7 @@ namespace ArtifactStoreTests
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="folderType">BaselineReview or Collection</param>
         /// <returns>The default Collections or BaselineReviews folder for the project.</returns>
-        private INovaArtifactBase GetDefaultCollectionFolder(IProject project, IUser user, BaselineAndCollectionTypePredefined folderType)
+        private INovaArtifactBase GetDefaultBaselineOrCollectionFolder(IProject project, IUser user, BaselineAndCollectionTypePredefined folderType)
         {
             var folder = project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
                 user, folderType);

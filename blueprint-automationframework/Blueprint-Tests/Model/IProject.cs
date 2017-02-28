@@ -134,7 +134,8 @@ namespace Model
         /// </summary>
         /// <param name="itemTypePredefined">itemTypePredefined for which itemTypeId should be returned</param>
         /// <returns>itemTypeId</returns>
-        /// <exception cref="ArgumentNullException">Throws when itemTypePredefined cannot be wound within NovaArtifactTypes</exception>
+        /// <exception cref="ArgumentNullException">Throws when NovaArtifactTypes is empty</exception>
+        /// <exception cref="AssertionException">Throws when itemTypePredefined cannot be wound within NovaArtifactTypes</exception>
         int GetNovaBaseItemTypeId(ItemTypePredefined itemTypePredefined);
 
         #endregion Methods

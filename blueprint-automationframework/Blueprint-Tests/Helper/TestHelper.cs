@@ -287,9 +287,6 @@ namespace Helper
                 BaseArtifactType.PrimitiveFolder,
                 name: name);
 
-            // TODO: better way to set specific artifactTypeId value for the collection artifact?
-
-            //Set ArtifactTypeId for collection: Delete collection
             collectionArtifact.ArtifactTypeId = project.GetNovaBaseItemTypeId(ItemTypePredefined.ArtifactCollection);
 
             return collectionArtifact;

@@ -82,7 +82,6 @@ namespace Model.Impl
         public INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(string address, IUser user,
             BaselineAndCollectionTypePredefined folderType)
         {
-            ThrowIf.ArgumentNull(folderType, nameof(folderType));
             var expectedTypesPredefined = new List<BaselineAndCollectionTypePredefined> { BaselineAndCollectionTypePredefined.BaselineFolder,
             BaselineAndCollectionTypePredefined.CollectionFolder};
             Assert.IsTrue(expectedTypesPredefined.Contains(folderType), "Method works for BaselineFolder or CollectionFolder only.");
@@ -197,7 +196,6 @@ namespace Model.Impl
         /// <seealso cref="IProject.GetNovaBaseItemTypeId(ItemTypePredefined)"/>
         public int GetNovaBaseItemTypeId(ItemTypePredefined itemTypePredefined)
         {
-            ThrowIf.ArgumentNull(itemTypePredefined, nameof(itemTypePredefined));
             Assert.IsNotEmpty(NovaArtifactTypes,
                 "Call GetAllNovaArtifactTypes to get Nova Artifact type before using this method.");
             var novaArtifactType = NovaArtifactTypes.Find(t => (int)(t.PredefinedType) == (int)itemTypePredefined);

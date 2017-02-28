@@ -91,6 +91,23 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<DiscussionState>("GetItemDiscussionStates", discussionsPrm, commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<IEnumerable<ThreadStatus>> GetThreadStatusCollection(int projectId)
+        {
+            var itemPrm = new DynamicParameters();
+            itemPrm.Add("@projectId", projectId);
+            try
+            {
+                var result = await ConnectionWrapper.QueryAsync<ThreadStatus>("GetThreadStatusCollection", itemPrm, commandType: CommandType.StoredProcedure);
+
+                return result;
+            }
+            catch(Exception e)
+            {
+                string msg = e.Message;
+            }
+            return null;
+        }
+
         private async Task InitializeCommentsProperties<T>(IEnumerable<T> comments, bool areEmailDiscussionsEnabled, Action<T> onCommentInit = null)
             where T : CommentBase
         {

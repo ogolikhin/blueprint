@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 
 namespace OpenAPITests
 {
+    [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/CxyAoVo1  Groups not returned in get user call
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class CreateUsersTests : TestBase
@@ -157,6 +158,7 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userWithEmptyProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/xUsPpY3J 500 error code instead of 409
         [TestCase]
         [TestRail(246645)]
         [Description("Create couple of users (one user with all required values and second one with non-existing instance admin role). " +
@@ -411,6 +413,7 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userWithMissingProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/xUsPpY3J 500 error code instead of 409
         [TestCase]
         [TestRail(266436)]
         [Description("Create a user with non-existing admin role. Verify 409 Conflict HTTP status was returned")]

@@ -362,7 +362,7 @@ Login_Session_NewPasswordCannotBeUsername,"Ensure your new password is different
 Login_Session_NewPasswordCannotBeDisplayname,"Ensure your new password is different from your display name."
 Login_Session_PasswordChangeCooldown,"Your password has not been updated. It can be changed <br> once every 24 hours. Please try again later."
 Login_Session_NewPasswordCriteria,"Your new password must contain at least one number, <br>uppercase letter, and non-alphanumeric character."
-Login_Session_NewPasswordAlreadyUsedPreviously,"Your password matches a previously used password. Please enter a new password."
+Login_Session_NewPasswordAlreadyUsedPreviously,"Ensure your new password is different from previously used ones."
 Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
 Login_Session_InvalidLicense,"Your license does not include access to this application."
 

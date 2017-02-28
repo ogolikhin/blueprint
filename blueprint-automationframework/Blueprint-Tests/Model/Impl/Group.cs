@@ -19,28 +19,38 @@ namespace Model.Impl
 
         #region Implements IGroup
 
-        [JsonProperty("Type")]
-        public string GroupType { get; set; }
+        [JsonIgnore]
+        public string Description { get; set; }
+
+        [JsonIgnore]
+        public bool? IsLicenseGroup { get; set; }
+
+        [JsonIgnore]
+        public GroupLicenseType? LicenseType { get; set; }
+
+        [JsonIgnore]
+        public IGroup Parent { get; set; }
+
+        [JsonIgnore]
+        public IProject Scope { get; set; }
+
+        [JsonIgnore]
+        public GroupSource Source { get; set; }//for now Database groups only
+
+        #region Serialized Properties
+
+        public string Email { get; set; }
 
         [JsonProperty("Id")]
         public int GroupId { get; set; }
 
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        [JsonProperty("Type")]
+        public string GroupType { get; set; }
 
-        public string Email { get; set; }
+        #endregion Serialized Properties
 
-        [JsonIgnore]
-        public GroupSource Source { get; set; }//for now Database groups only
-
-        public GroupLicenseType? LicenseType { get; set; }
-
-        public IProject Scope { get; set; }
-
-        public IGroup Parent { get; set; }
-
-        public bool? IsLicenseGroup { get; set; }
         #endregion Implements IGroup
 
         // These are fields not included by IGroup:

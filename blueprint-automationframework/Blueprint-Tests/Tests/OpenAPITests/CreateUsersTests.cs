@@ -11,10 +11,11 @@ using Model.OpenApiModel.UserModel.Results;
 using System.Net;
 using Utilities;
 using Model.Common.Constants;
-using System.Text.RegularExpressions;
-using Newtonsoft.Json;
 using Utilities.Facades;
 using Model.Factories;
+using Model.Common.Enums;
+using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace OpenAPITests
 {
@@ -26,6 +27,7 @@ namespace OpenAPITests
         private IUser _adminUser = null;
 
         private const string CREATE_PATH = RestPaths.OpenApi.USERS;
+        private const string USER_CREATED_SUCCESSFULLY_MESSAGE = "User has been created successfully";
 
         [SetUp]
         public void SetUp()
@@ -42,24 +44,24 @@ namespace OpenAPITests
 
         #region Positive tests
 
-        [TestCase("Default Instance Administrator")]
-        [TestCase("Administer ALL Projects")]
-        [TestCase("Assign Instance Administrators")]
-        [TestCase("Blueprint Analytics")]
-        [TestCase("Email, Active Directory, SAML Settings")]
-        [TestCase("Instance Standards Manager")]
-        [TestCase("Log Gathering and License Reporting")]
-        [TestCase("Manage Administrator Roles")]
-        [TestCase("Provision Projects")]
-        [TestCase("Provision Users")]
+        [TestCase(InstanceAdminRole.DefaultInstanceAdministrator)]
+        [TestCase(InstanceAdminRole.AdministerALLProjects)]
+        [TestCase(InstanceAdminRole.AssignInstanceAdministrators)]
+        [TestCase(InstanceAdminRole.BlueprintAnalytics)]
+        [TestCase(InstanceAdminRole.Email_ActiveDirectory_SAMLSettings)]
+        [TestCase(InstanceAdminRole.InstanceStandardsManager)]
+        [TestCase(InstanceAdminRole.LogGatheringAndLicenseReporting)]
+        [TestCase(InstanceAdminRole.ManageAdministratorRoles)]
+        [TestCase(InstanceAdminRole.ProvisionProjects)]
+        [TestCase(InstanceAdminRole.ProvisionUsers)]
         [TestRail(246611)]
-        [Description("Create a user with specific admin role and verify that the user was created successfully")]
-        public void CreateUsers_SpecificAdminRole_VerifyUserCreated(string instanceAdminRole)
+        [Description("Create a user with specific admin role and verify that the user was created successfully.")]
+        public void CreateUsers_SpecificAdminRole_VerifyUserCreated(InstanceAdminRole instanceAdminRole)
         {
             // Setup:
             var userToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
-            userToCreate[0].InstanceAdminRole = instanceAdminRole;
+            userToCreate[0].InstanceAdminRole = InstanceAdminRoleExtensions.ToInstanceAdminRoleString(instanceAdminRole);
 
             // Execute:
             UserCallResultCollection result = null;
@@ -69,12 +71,12 @@ namespace OpenAPITests
 
             // Verify:
             Assert.AreEqual(userToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
         }
 
         [TestCase(5)]
         [TestRail(246547)]
-        [Description("Create multiple users and verify that the users were created.")]
+        [Description("Create multiple users and verify that the users were created successfully.")]
         public void CreateUsers_ValidUserParameters_VerifyUserCreated(int numberOfUsersToCreate)
         {
             // Setup:
@@ -89,13 +91,13 @@ namespace OpenAPITests
             // Verify:
             Assert.AreEqual(usersToCreate.Count, result.Count, "Wrong number of User results were returned!");
 
-            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
         }
 
         [TestCase]
         [TestRail(246548)]
-        [Description("Create a list of users (some users already created) and verify 207 HTTP status was returned and " +
-        "that the users that were already existing are reported as already existing.")]
+        [Description("Create a list of users (some users already created) and verify 207 Partial Success HTTP status was returned and " +
+            "that the users that were already existing are reported as already existing.")]
         public void CreateUsers_ListOfUsersAndAlreadyExistingUsers_207PartialSuccess()
         {
             // Setup:
@@ -113,12 +115,13 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, newAndExistingUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, newAndExistingUsersToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when valid data is passed to it and some users exist!", CREATE_PATH);
 
             // Verify:
             Assert.AreEqual(newAndExistingUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
             VerifyCreateUserResultSet(existingUsersToCreate, result, BusinessLayerErrorCodes.UserValidationFailed, "User login name must be unique");
         }
 
@@ -128,7 +131,8 @@ namespace OpenAPITests
         [TestCase("LastName", "Last name is required")]
         [TestCase("Password", "Password is required")]
         [TestRail(246644)]
-        [Description("Create couple of users (one user with all required values and second one with empty property) and verify 207 HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with empty property). " +
+            "Verify 207 Partial Success HTTP status was returned")]
         public void CreateUsers_EmptyProperties_207PartialSuccess(string propertyName, string errorMessage)
         {
             // Setup:
@@ -150,14 +154,14 @@ namespace OpenAPITests
 
             // Verify:
             Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
             VerifyCreateUserResultSet(userWithEmptyProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
         }
 
         [TestCase]
         [TestRail(246645)]
         [Description("Create couple of users (one user with all required values and second one with non-existing instance admin role). " +
-            "Verify a 207 HTTP status was returned")]
+            "Verify 207 Partial Success HTTP status was returned")]
         public void CreateUsers_NonExistingRole_207PartialSuccess()
         {
             // Setup:
@@ -179,14 +183,15 @@ namespace OpenAPITests
 
             // Verify:
             Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
             VerifyCreateUserResultSet(userWithNonExistingRole, result, BusinessLayerErrorCodes.UserAddInstanceAdminRoleFailed,
                 "Specified Instance admin role doesn't exist");
         }
 
         [TestCase]
         [TestRail(246646)]
-        [Description("Create couple of users (one user with all required values and second one with non-existing group id). Verify 207 HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with non-existing group id). " +
+            "Verify 207 Partial Success HTTP status was returned")]
         public void CreateUsers_NonExistingGroup_207PartialSuccess()
         {
             // Setup:
@@ -208,8 +213,9 @@ namespace OpenAPITests
 
             // Verify:
             Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
-            VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed, "User is created, but cannot be added to a group");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
+            VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed,
+                "User is created, but cannot be added to a group");
         }
 
         [TestCase("1111&&&&", "Password must contain an upper-case letter")]
@@ -219,7 +225,8 @@ namespace OpenAPITests
         [TestCase("vGvK1lJu0Io1wvqYg50Tbooi55l9Q0gSYbdJ4XFREwZrxLKLP0PvoIlStitsC1fRqtASQtPNHfmzyLTdTU8FeKL9KWVGuw4vGbgQ1bjeX63ZrK2HwMlMFc3I7qNOCJbtvB",
             "Password must be between 8 and 128 characters\r\nPassword must contain a non-alphanumeric character")]
         [TestRail(246666)]
-        [Description("Create couple of users (one user with all required values and second one with password in invalid format). Verify 207 HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with password in invalid format). " +
+            "Verify 207 Partial Success HTTP status was returned")]
         public void CreateUsers_InvalidPassword_207PartialSuccess(string invalidPassword, string errorMessage)
         {
             // Setup:
@@ -240,8 +247,37 @@ namespace OpenAPITests
 
             // Verify:
             Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, "User has been created successfully");
-            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserAddToGroupFailed, errorMessage);
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
+            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
+        }
+
+        [TestCase("Username", "User")]
+        [TestCase("DisplayName, Display")]
+        [TestRail(261315)]
+        [Description("Create couple of users (one user with all required values and second one with the password that the same as Username or DiplayName). " +
+            "Verify 207 Partial Success HTTP status was returned")]
+        public void CreateUsers_PasswordEqualToUserNameOrDisplayName_207PartialSuccess(string propertyName, string message)
+        {
+            // Setup:
+            const int PARTIAL = 207;
+
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userWithInvalidPassword = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+             
+            CSharpUtilities.SetProperty(propertyName, userWithInvalidPassword[0].Password, userWithInvalidPassword[0]);
+
+            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
+            allUsersToCreate.AddRange(userWithInvalidPassword);
+
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+                "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
+
+            // Verify:
+            Assert.AreEqual(allUsersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(validUserToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
+            VerifyCreateUserResultSet(userWithInvalidPassword, result, BusinessLayerErrorCodes.UserValidationFailed, 
+                "Password must not be similar to " + message + " Name");
         }
 
         [TestCase]

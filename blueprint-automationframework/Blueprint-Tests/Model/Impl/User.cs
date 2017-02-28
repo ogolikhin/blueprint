@@ -6,7 +6,7 @@ using Model.Factories;
 using Utilities;
 using NUnit.Framework;
 using System.Data;
-using System.Text.RegularExpressions;
+using Model.Common.Enums;
 
 namespace Model.Impl
 {
@@ -56,7 +56,7 @@ namespace Model.Impl
 
         public int Id
         {
-            get { return UserData.Id.Value; }
+            get { return UserData.Id ?? 0; }
             set { UserData.Id = value; }
         }
         public string Username
@@ -106,8 +106,8 @@ namespace Model.Impl
         }
         public InstanceAdminRole? InstanceAdminRole
         {
-            get { return ConvertStringToInstanceAdminRole(UserData.InstanceAdminRole); }
-            set { UserData.InstanceAdminRole = ConvertInstanceAdminRoleToString(value); }
+            get { return InstanceAdminRoleExtensions.ToInstanceAdminRoleValue(UserData.InstanceAdminRole); }
+            set { UserData.InstanceAdminRole = InstanceAdminRoleExtensions.ToInstanceAdminRoleString(value); }
         }
         public bool? ExpirePassword
         {
@@ -397,42 +397,6 @@ namespace Model.Impl
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Converting instance admin role string into InstanceAdminRole enum
-        /// </summary>
-        /// <param name="adminRole">Instance admin string</param>
-        /// <returns>InstanceAdminRole enum value</returns>
-        private static InstanceAdminRole? ConvertStringToInstanceAdminRole(string adminRole)
-        {
-            if (adminRole == null)
-            {
-                return null;
-            }
-
-            string enumString = Regex.Replace(adminRole, @"[\s+]|,", "");
-
-            return (InstanceAdminRole)Enum.Parse(typeof(InstanceAdminRole), enumString);
-        }
-
-        /// <summary>
-        /// Converting InstanceAdminRole enum value into string
-        /// </summary>
-        /// <param name="role">InstanceAdminRole enum value</param>
-        /// <returns>Instance admin role string</returns>
-        private static string ConvertInstanceAdminRoleToString(InstanceAdminRole? role)
-        {
-            if (role == null)
-            {
-                return null;
-            }
-
-            // Creates pattern to replace capital letters with the new character and capital letter
-            // from https://gist.github.com/rymoore99/9091263
-            var r = new Regex(@"(?<=[A-Z])(?=[A-Z][a-z]) | (?<=[^A-Z])(?=[A-Z]) | (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
-
-            return r.Replace(role.ToString(), " ");
         }
 
         #endregion Private function

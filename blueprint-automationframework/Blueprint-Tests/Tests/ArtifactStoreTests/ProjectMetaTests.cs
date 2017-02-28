@@ -9,6 +9,7 @@ using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Model.Common.Enums;
 
 namespace ArtifactStoreTests
 {

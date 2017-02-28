@@ -252,7 +252,7 @@ namespace OpenAPITests
         }
 
         [TestCase("Username", "User")]
-        [TestCase("DisplayName, Display")]
+        [TestCase("DisplayName", "Display")]
         [TestRail(261315)]
         [Description("Create couple of users (one user with all required values and second one with the password that the same as Username or DiplayName). " +
             "Verify 207 Partial Success HTTP status was returned")]
@@ -333,7 +333,7 @@ namespace OpenAPITests
                 "'POST {0}' should return 400 Bad Request when trying to create user with invalid parameter!", CREATE_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The request parameter is missing or invalid.");
+            TestHelper.ValidateServiceError(ex.RestResponse, ApiBusinessErrorCodes.BadRequestDueToIncorrectQueryParameterValue, "The request parameter is missing or invalid");
         }
 
         #endregion 400 Bad Request
@@ -371,16 +371,16 @@ namespace OpenAPITests
         [Description("Create a user with no permissions to create another users. Verify 403 Forbidden HTTP status was returned.")]
         public void CreateUser_InsufficientPermissions_403Forbidden()
         {
-            var project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
-            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
-
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.CreateUsers(authorUser, validUserToCreate),
-                "'POST {0}' should return 403 Forbidden when trying to create user with no permissions!", CREATE_PATH);
+            var project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, project);
 
-            // Verify:
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have the privileges required to perform the action.");
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.CreateUsers(authorUser, validUserToCreate),
+                "'CREATE {0}' should return '403 Forbidden' when user has missing property!", CREATE_PATH);
+
+            TestHelper.ValidateServiceError(ex.RestResponse, ApiBusinessErrorCodes.Forbidden, 
+                "The user does not have the privileges required to perform the action.");
         }
 
         #endregion 403 Forbidden
@@ -405,7 +405,6 @@ namespace OpenAPITests
 
             // Execute:
             UserCallResultCollection result = null;
-
             Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithMissingProperty, new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
                 "'CREATE {0}' should return '409 Conflict' when user has missing property!", CREATE_PATH);
 
@@ -416,7 +415,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(266436)]
         [Description("Create a user with non-existing admin role. Verify 409 Conflict HTTP status was returned")]
-        public void CreateUsers_NonExistingAdminRole_VerifyUserCreated()
+        public void CreateUser_NonExistingAdminRole_409Conflict()
         {
             // Setup:
             const int CONFLICT = 409;
@@ -508,15 +507,7 @@ namespace OpenAPITests
                     var getUserResult = Helper.OpenApi.GetUser(_adminUser, result.User.Id.Value);
                     Assert.IsNotNull(getUserResult, "User does not exists!");
 
-                    // TODO: After PR #3994 is merged, change the Asserts below to call: UserDataModel.AssertAreEqual()
-                    Assert.AreEqual(result.User.Department, getUserResult.Department, "Department is not matching!");
-                    Assert.AreEqual(result.User.DisplayName, getUserResult.DisplayName, "DisplayName is not matching!");
-                    Assert.AreEqual(result.User.Email, getUserResult.Email, "Email is not matching!");
-                    Assert.AreEqual(result.User.FirstName, getUserResult.FirstName, "FirstName is not matching!");
-                    Assert.AreEqual(result.User.LastName, getUserResult.LastName, "LastName is not matching!");
-                    Assert.AreEqual(result.User.Title, getUserResult.Title, "Title is not matching!");
-                    Assert.AreEqual(result.User.Username, getUserResult.Username, "Username is not matching!");
-                    Assert.AreEqual(result.User.UserOrGroupType, getUserResult.UserOrGroupType, "UserOrGroupType is not matching!");
+                    UserDataModel.AssertAreEqual(result.User, getUserResult, skipPropertiesNotReturnedByOpenApi: true);
                 }
             }
         }

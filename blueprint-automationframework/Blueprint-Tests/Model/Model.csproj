@@ -96,6 +96,7 @@
     <Compile Include="ArtifactModel\IOpenApiArtifact.cs" />
     <Compile Include="ArtifactModel\ITrace.cs" />
     <Compile Include="Common\Constants\BusinessLayerErrorCodes.cs" />
+    <Compile Include="Common\Constants\ApiBusinessErrorCodes.cs" />
     <Compile Include="Common\Enums\InstanceAdminRole.cs" />
     <Compile Include="Common\Enums\InstanceAdminRoleExtension.cs" />
     <Compile Include="Factories\OpenApiFactory.cs" />

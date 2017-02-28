@@ -273,7 +273,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 
@@ -287,10 +288,7 @@ namespace Helper
                 BaseArtifactType.PrimitiveFolder,
                 name: name);
 
-            // TODO: better way to set specific artifactTypeId value for the collection artifact?
-            
-            //Set ArtifactTypeId for collection: Delete collection
-            collectionArtifact.ArtifactTypeId = 83;
+            collectionArtifact.ArtifactTypeId = project.GetNovaBaseItemTypeId(ItemTypePredefined.ArtifactCollection);
 
             return collectionArtifact;
         }
@@ -312,7 +310,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 
@@ -330,7 +329,8 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+            var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             return CreateWrapAndSaveNovaArtifact(project, user, (ItemTypePredefined)artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
         }
@@ -492,7 +492,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 
@@ -518,7 +519,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 

@@ -106,20 +106,8 @@ namespace Model.Impl
         }
         public InstanceAdminRole? InstanceAdminRole
         {
-            get {
-                if (UserData.InstanceAdminRole == null)
-                    return null;
-                else
-                {
-                    return InstanceAdminRoleExtensions.ToInstanceAdminRoleValue(UserData.InstanceAdminRole);
-                }
-            }
-            set {
-                if (value == null)
-                { UserData.InstanceAdminRole = null; }
-                else
-                { UserData.InstanceAdminRole = InstanceAdminRoleExtensions.ToInstanceAdminRoleString(value); }
-                }
+            get { return UserData.InstanceAdminRole?.ToInstanceAdminRoleValue(); }
+            set { UserData.InstanceAdminRole = value.ToInstanceAdminRoleString(); }
         }
         public bool? ExpirePassword
         {

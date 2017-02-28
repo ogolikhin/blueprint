@@ -19,7 +19,6 @@ using System.Text.RegularExpressions;
 
 namespace OpenAPITests
 {
-    [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/CxyAoVo1  Groups not returned in get user call
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class CreateUsersTests : TestBase

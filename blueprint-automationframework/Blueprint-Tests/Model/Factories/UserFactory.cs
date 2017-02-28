@@ -1,4 +1,5 @@
 ﻿using Common;
+using Model.Common.Enums;
 using Model.Impl;
 using System;
 using System.Collections.Generic;

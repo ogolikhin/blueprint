@@ -19,6 +19,7 @@ using TestCommon;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using Model.Common.Enums;
 
 namespace ArtifactStoreTests
 {

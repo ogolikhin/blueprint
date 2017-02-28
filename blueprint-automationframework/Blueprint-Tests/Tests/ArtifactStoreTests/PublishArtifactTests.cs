@@ -660,7 +660,8 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, author, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
@@ -688,7 +689,8 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author, defaultCollectionFolder.Id);
             var collectionArtifact = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
@@ -719,7 +721,8 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var novaArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10),
                 _project, defaultCollectionFolder.Id);
@@ -755,7 +758,8 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, author);
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var novaArtifact = Helper.ArtifactStore.GetArtifactDetails(author, defaultCollectionFolder.Id);
 

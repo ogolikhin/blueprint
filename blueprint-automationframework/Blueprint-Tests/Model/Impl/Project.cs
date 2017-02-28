@@ -78,15 +78,20 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IProject.GetDefaultCollectionFolder(string, IUser)"/>
-        public INovaArtifact GetDefaultCollectionFolder(string address, IUser user)
+        /// <seealso cref="IProject.GetDefaultCollectionOrBaselineReviewFolder(string, IUser, BaselineAndCollectionTypePredefined)"/>
+        public INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(string address, IUser user,
+            BaselineAndCollectionTypePredefined folderType)
         {
+            var expectedTypesPredefined = new List<BaselineAndCollectionTypePredefined> { BaselineAndCollectionTypePredefined.BaselineFolder,
+            BaselineAndCollectionTypePredefined.CollectionFolder};
+            Assert.IsTrue(expectedTypesPredefined.Contains(folderType), "Method works for BaselineFolder or CollectionFolder only.");
+
             var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(address, Id, user);
 
             Assert.That((novaArtifacts != null) && novaArtifacts.Any(),
                 "No artifacts were found in Project ID: {0}.", Id);
 
-            return novaArtifacts.Find(a => a.PredefinedType.Value == (int)BaselineAndCollectionTypePredefined.CollectionFolder);
+            return novaArtifacts.Find(a => a.PredefinedType.Value == (int)folderType);
         }
 
         /// <seealso cref="IProject.GetItemTypeIdForPredefinedType(ItemTypePredefined)"/>
@@ -186,6 +191,16 @@ namespace Model.Impl
             NovaSubArtifactTypes.AddRange(artifactTypesResult.SubArtifactTypes);
 
             return artifactTypes;
+        }
+
+        /// <seealso cref="IProject.GetNovaBaseItemTypeId(ItemTypePredefined)"/>
+        public int GetNovaBaseItemTypeId(ItemTypePredefined itemTypePredefined)
+        {
+            Assert.IsNotEmpty(NovaArtifactTypes,
+                "Call GetAllNovaArtifactTypes to get Nova Artifact type before using this method.");
+            var novaArtifactType = NovaArtifactTypes.Find(t => (int)(t.PredefinedType) == (int)itemTypePredefined);
+            Assert.IsNotNull(novaArtifactType, "NovaItemType was not found for the specefied ItemTypePredefined.");
+            return novaArtifactType.Id;
         }
 
         #endregion Public Methods

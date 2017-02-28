@@ -20,6 +20,7 @@ using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
+using Model.Common.Enums;
 
 namespace Helper
 {
@@ -272,7 +273,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 
@@ -286,10 +288,7 @@ namespace Helper
                 BaseArtifactType.PrimitiveFolder,
                 name: name);
 
-            // TODO: better way to set specific artifactTypeId value for the collection artifact?
-            
-            //Set ArtifactTypeId for collection: Delete collection
-            collectionArtifact.ArtifactTypeId = 83;
+            collectionArtifact.ArtifactTypeId = project.GetNovaBaseItemTypeId(ItemTypePredefined.ArtifactCollection);
 
             return collectionArtifact;
         }
@@ -311,7 +310,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 
@@ -329,7 +329,8 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+            var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                BaselineAndCollectionTypePredefined.CollectionFolder);
 
             return CreateWrapAndSaveNovaArtifact(project, user, (ItemTypePredefined)artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
         }
@@ -491,7 +492,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 
@@ -517,7 +519,8 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionOrBaselineReviewFolder(ArtifactStore.Address, user,
+                    BaselineAndCollectionTypePredefined.CollectionFolder);
                 parentId = collectionFolder.Id;
             }
 
@@ -967,7 +970,7 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
 
-            var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null);
+            var newUser = CreateUserAndAddToDatabase();
 
             foreach (var project in projects)
             {
@@ -1098,7 +1101,8 @@ namespace Helper
                 ProjectRoles.Add(projectRole);
             }
 
-            var permissionsGroup = CreateGroupAndAddToDatabase();
+            var licenseType = GroupLicenseType.Author;
+            var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
             permissionsGroup.AddUser(user);
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
 
@@ -1113,9 +1117,9 @@ namespace Helper
         /// <summary>
         /// Creates a new group object with random values and adds it to the Blueprint database.
         /// </summary>
-        /// <param name="licenseType">(optional) The license level to assign to the group. By default it is Author.</param>
+        /// <param name="licenseType">(optional) The license level to assign to the group. By default there is no license.</param>
         /// <returns>A new unique group object that was added to the database.</returns>
-        public IGroup CreateGroupAndAddToDatabase(GroupLicenseType licenseType = GroupLicenseType.Author)
+        public IGroup CreateGroupAndAddToDatabase(GroupLicenseType? licenseType = null)
         {
             var group = GroupFactory.CreateGroup(licenseType);
             group.AddGroupToDatabase();

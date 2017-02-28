@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace ArtifactStore.Models
 {
@@ -17,6 +18,39 @@ namespace ArtifactStore.Models
         public bool EmailDiscussionsEnabled { get; set; }
 
         public IEnumerable<Discussion> Discussions { get; set; }
+
+        public IEnumerable<ThreadStatus> ThreadStatuses { get; set; }
+    }
+
+    public class ThreadStatus
+    {
+        private string Setting { get; set; }
+        public int StatusId { get; set; }
+        public bool ReadOnly { get; set; }
+        public bool IsClosed
+        {
+            get
+            {
+                return Setting.Split(';')[0].ToUpperInvariant().Equals("TRUE");
+            }
+            set
+            {
+                Setting = value.ToString() + ";" + Name;
+            }
+        }
+        
+        public string Name
+        {
+            get
+            {
+                string[] parts = Setting.Split(';');
+                return parts.Length == 2 ? parts[1] : "";
+            }
+            set
+            {
+                Setting = IsClosed.ToString() + ";" + value;
+            }
+        }
     }
 
     public class CommentBase

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Model.Impl;
+using Model.Common.Enums;
 
 namespace Model
 {

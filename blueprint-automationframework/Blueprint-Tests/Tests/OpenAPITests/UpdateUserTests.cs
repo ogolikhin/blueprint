@@ -76,6 +76,54 @@ namespace OpenAPITests
 
         [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu  GetUser doesn't return all user properties.
         [TestCase]
+        [TestRail(266425)]
+        [Description("Update a list of users and change the Type of some users to 'Group' and verify a 200 OK status was returned and that the users " +
+                     "with Type 'User' were updated and the ones with Type 'Group' were not updated.  NOTE: The reason this returns 200 OK instead of " +
+                     "207 Partial Success is because on the backend, the 'Type' property is read-only, so it fails to deserialize if Type != 'User'.")]
+        public void UpdateUsers_ListOfUsersAndChangeSomeToGroups_UsersWereNotUpdatedToGroups()
+        {
+            // Setup:
+            var usersToUpdate = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
+            var usersToUpdateToGroups = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.DisplayName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+
+            var usernamesToUpdate = usersToUpdate.Select(u => u.Username).ToList();
+            var validUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            // Change the Type of some users to "Group", which should fail.
+            propertiesToUpdate.Add(nameof(UserDataModel.UserOrGroupType), "Group");
+
+            usernamesToUpdate = usersToUpdateToGroups.Select(u => u.Username).ToList();
+            var invalidUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            var allUserDataToUpdate = new List<UserDataModel>(validUserDataToUpdate);
+            allUserDataToUpdate.AddRange(invalidUserDataToUpdate);
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate),
+                "'PATCH {0}' should return '200 OK' when some users were updated and others changed their Type to 'Group'!", UPDATE_PATH);
+
+            // Verify:
+            var allUsersToUpdate = new List<IUser>(usersToUpdate);
+            allUsersToUpdate.AddRange(usersToUpdateToGroups);
+
+            VerifyUpdateUserResultSet(result, usersToUpdate, expectedSuccessfullyUpdatedUsers: validUserDataToUpdate);
+
+            var invalidUserAfterUpdate = Helper.OpenApi.GetUser(_adminUser, usersToUpdateToGroups[0].Id);
+
+            UserDataModel.AssertAreEqual(usersToUpdateToGroups[0].UserData, invalidUserAfterUpdate,
+                skipPropertiesNotReturnedByOpenApi: true);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu  GetUser doesn't return all user properties.
+        [TestCase]
         [TestRail(246614)]
         [Description("Update a list of users (some users are active and others are deleted) and verify a 207 HTTP status was returned and " +
                      "that the active users were updated and the deleted users are reported as deleted.")]
@@ -115,48 +163,6 @@ namespace OpenAPITests
             VerifyUpdateUserResultSet(result, allUsersToUpdate,
                 expectedSuccessfullyUpdatedUsers: activeUserDataToUpdate,
                 expectedFailedUpdatedUsers: deletedUserDataAndErrorCode);
-        }
-
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello:  https://trello.com/c/G62ah53O  Returns 200 instead of 207.
-        [TestCase]
-        [TestRail(266425)]
-        [Description("Update a list of users and change the Type of some users to 'Group' and verify a 207 HTTP status was returned and that the users " +
-                     "with Type 'User' were updated and the ones with Type 'Group' failed to be updated.")]
-        public void UpdateUsers_ListOfUsersAndChangeSomeToGroups_207PartialSuccess()
-        {
-            // Setup:
-            var usersToUpdate = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
-            var usersToUpdateToGroups = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
-
-            var propertiesToUpdate = new Dictionary<string, string>
-            {
-                { nameof(UserDataModel.DisplayName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
-                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
-            };
-
-            var usernamesToUpdate = usersToUpdate.Select(u => u.Username).ToList();
-            var activeUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
-
-            // Change the Type of some users to "Group", which should fail.
-            propertiesToUpdate.Add(nameof(UserDataModel.UserOrGroupType), "Group");
-
-            usernamesToUpdate = usersToUpdateToGroups.Select(u => u.Username).ToList();
-            var deletedUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
-
-            var allUserDataToUpdate = new List<UserDataModel>(activeUserDataToUpdate);
-            allUserDataToUpdate.AddRange(deletedUserDataToUpdate);
-
-            // Execute:
-            UserCallResultCollection result = null;
-
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
-                "'PATCH {0}' should return '207 Partial Success' when some users were updated and others weren't!", UPDATE_PATH);
-
-            // Verify:
-            var allUsersToUpdate = new List<IUser>(usersToUpdate);
-            allUsersToUpdate.AddRange(usersToUpdateToGroups);
-
-            VerifyUpdateUserResultSet(result, allUsersToUpdate);   // TODO: Add expectedSuccessfullyUpdatedUsers & expectedFailedUpdatedUsers.
         }
 
         #endregion Positive tests

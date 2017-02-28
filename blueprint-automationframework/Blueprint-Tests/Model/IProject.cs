@@ -66,12 +66,14 @@ namespace Model
         void DeleteProject();
 
         /// <summary>
-        /// Gets the default collection folder for this project.
+        /// Gets the default collection or baselinereview folder for this project.
         /// </summary>
         /// <param name="address">The base Uri address of the ArtifactStore server.</param>
         /// <param name="user">The user to authenticate to the server with.</param>
-        /// <returns>The default collection folder for this project.</returns>
-        INovaArtifact GetDefaultCollectionFolder(string address, IUser user);
+        /// <param name="folderType">BaselineReview or Collection</param>
+        /// <returns>The default collection or baselinereview folder for this project.</returns>
+        INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(string address, IUser user,
+            BaselineAndCollectionTypePredefined folderType);
 
         /// <summary>
         /// Converts the specified Predefined (Base) Type into the specific Item Type ID for this project.
@@ -126,6 +128,15 @@ namespace Model
             IArtifactStore artifactStore,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Returns itemTypeId for the base artifact type of the current project
+        /// </summary>
+        /// <param name="itemTypePredefined">itemTypePredefined for which itemTypeId should be returned</param>
+        /// <returns>itemTypeId</returns>
+        /// <exception cref="ArgumentNullException">Throws when NovaArtifactTypes is empty</exception>
+        /// <exception cref="AssertionException">Throws when itemTypePredefined cannot be found within NovaArtifactTypes</exception>
+        int GetNovaBaseItemTypeId(ItemTypePredefined itemTypePredefined);
 
         #endregion Methods
     }

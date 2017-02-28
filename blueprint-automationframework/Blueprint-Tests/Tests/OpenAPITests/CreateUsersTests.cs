@@ -14,7 +14,6 @@ using Model.Common.Constants;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Utilities.Facades;
-using System;
 using Model.Factories;
 
 namespace OpenAPITests
@@ -296,6 +295,24 @@ namespace OpenAPITests
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, corruptedJson, _adminUser),
                 "'POST {0}' should return 400 Bad Request when trying to create user with invalid parameter!", CREATE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The request parameter is missing or invalid.");
+        }
+
+        [TestCase]
+        [TestRail(266429)]
+        [Description("Create a user with missing property. Verify 400 Bad request HTTP status was returned")]
+        public void CreateUser_MissingProperty_400BadRequest()
+        {
+            // Setup:
+            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            userWithInvalidData[0].LastName = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.OpenApi.CreateUsers(_adminUser, userWithInvalidData, new List<HttpStatusCode> { (HttpStatusCode.BadRequest) }),
+                "'CREATE {0}' should return '400 Bad request' when user has missing property!", CREATE_PATH);
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The request parameter is missing or invalid.");

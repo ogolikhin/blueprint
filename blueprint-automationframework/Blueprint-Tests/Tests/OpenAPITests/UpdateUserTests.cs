@@ -9,6 +9,7 @@ using Model.Common.Constants;
 using Model.Factories;
 using Model.Impl;
 using Model.OpenApiModel.UserModel.Results;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -160,7 +161,7 @@ namespace OpenAPITests
 
         #endregion Positive tests
 
-        #region Negative tests
+        #region 400 tests
 
         [TestCase]
         [TestRail(266434)]
@@ -187,9 +188,126 @@ namespace OpenAPITests
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The request parameter is missing or invalid");
         }
 
-        #endregion Negative tests
+        #endregion 400 tests
+
+        #region 401 tests
+
+        [TestCase(null)]
+        [TestCase(CommonConstants.InvalidToken)]
+        [TestRail(266443)]
+        [Description("Update a user and pass invalid or missing token.  Verify it returns 401 Unauthorized.")]
+        public void UpdateUsers_InvalidToken_401Unauthorized(string invalidToken)
+        {
+            // Setup:
+            _adminUser.Token.OpenApiToken = invalidToken;
+
+            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty();
+
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
+                "'PATCH {0}' should return '401 Unauthorized' when an invalid or missing token is passed to it!", UPDATE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call.");
+        }
+
+        #endregion 401 tests
+
+        #region 403 tests
+
+        [TestCase]
+        [TestRail(266444)]
+        [Description("Update a user and pass a token for a user without permission to update users.  Verify it returns 403 Forbidden.")]
+        public void UpdateUsers_InsufficientPermissions_403Forbidden()
+        {
+            // Setup:
+            // Create an Author user.  Authors shouldn't have permission to delete other users.
+            var project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
+
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty(authorUser);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.UpdateUsers(authorUser, userDataToUpdate),
+                "'PATCH {0}' should return '403 Forbidden' when called by a user without permission to update users!", UPDATE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have the privileges required to perform the action.");
+        }
+
+        #endregion 403 tests
+
+        #region 409 tests
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/eym3P3pE  Returns 500 error instead of 409.
+        [TestCase]
+        [TestRail(266447)]
+        [Description("Update a user that was deleted.  Verify it returns 409 Conflict.")]
+        public void UpdateUsers_DeletedUser_409Conflict()
+        {
+            // Setup:
+            var userToUpdate = Helper.CreateUserAndAddToDatabase();
+            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty(userToUpdate);
+
+            userToUpdate.DeleteUser(useSqlUpdate: true);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
+                "'PATCH {0}' should return '409 Conflict' when passed a username that was deleted!", UPDATE_PATH);
+
+            // Verify:
+            var expectedFailedUpdatedUsers = new Dictionary<IUser, int> { { userToUpdate, BusinessLayerErrorCodes.LoginDoesNotExist } };
+
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
+            var usersBeforeUpdate = new List<IUser> { userToUpdate };
+
+            VerifyUpdateUserResultSet(result, usersBeforeUpdate, expectedFailedUpdatedUsers: expectedFailedUpdatedUsers);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/eym3P3pE  Returns 500 error instead of 409.
+        [TestCase]
+        [TestRail(266448)]
+        [Description("Update a user that doesn't exist.  Verify it returns 409 Conflict.")]
+        public void UpdateUsers_NonExistingUsername_409Conflict()
+        {
+            // Setup:
+            var userToUpdate = UserFactory.CreateUserOnly();
+            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty(userToUpdate);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
+                "'PATCH {0}' should return '409 Conflict' when passed a username that doesn't exist!", UPDATE_PATH);
+
+            // Verify:
+            var expectedFailedUpdatedUsers = new Dictionary<IUser, int> { { userToUpdate, BusinessLayerErrorCodes.LoginDoesNotExist } };
+
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
+            var usersBeforeUpdate = new List<IUser> { userToUpdate };
+
+            VerifyUpdateUserResultSet(result, usersBeforeUpdate, expectedFailedUpdatedUsers: expectedFailedUpdatedUsers, checkIfUserExists: false);
+        }
+
+        #endregion 409 tests
 
         #region Private functions
+
+        /// <summary>
+        /// Creates a list of new UserDataModels with only one property updated.
+        /// </summary>
+        /// <param name="userToUpdate">(optional) The user whose property you want to update.  By default a new user is created.</param>
+        /// <returns>The list of new UserDataModels to send to the UpdateUsers REST call.</returns>
+        private List<UserDataModel> CreateUserDataModelsWithOneUpdatedProperty(IUser userToUpdate = null)
+        {
+            var usersToUpdate = new List<IUser> { userToUpdate ?? Helper.CreateUserAndAddToDatabase() };
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+
+            var usernamesToUpdate = usersToUpdate.Select(u => u.Username).ToList();
+            return CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+        }
 
         /// <summary>
         /// Creates a list of new UserDataModels with only the properties we want to update set to a value.
@@ -262,11 +380,13 @@ namespace OpenAPITests
         /// <param name="usersBeforeUpdate">The original users before they were updated.</param>
         /// <param name="expectedSuccessfullyUpdatedUsers">(optional) A list of users that we expect to be successfully updated.</param>
         /// <param name="expectedFailedUpdatedUsers">(optional) A map of Users and InternalApiErrorCodes that we expect got errors when we tried to update them.</param>
+        /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
         private void VerifyUpdateUserResultSet(
             UserCallResultCollection resultSet,
             List<IUser> usersBeforeUpdate,
             List<UserDataModel> expectedSuccessfullyUpdatedUsers = null,
-            Dictionary<IUser, int> expectedFailedUpdatedUsers = null)
+            Dictionary<IUser, int> expectedFailedUpdatedUsers = null,
+            bool checkIfUserExists = true)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
@@ -282,7 +402,7 @@ namespace OpenAPITests
 //                "'{0}' should be '{1}'!", nameof(resultSet.ResultCode), expectedStatusCode);
 
             VerifySuccessfullyUpdatedUsers(resultSet, expectedSuccessfullyUpdatedUsers, usersBeforeUpdate);
-            VerifyUnsuccessfullyUpdatedUsers(resultSet, expectedFailedUpdatedUsers);
+            VerifyUnsuccessfullyUpdatedUsers(resultSet, expectedFailedUpdatedUsers, checkIfUserExists);
         }
 
         /// <summary>
@@ -371,7 +491,7 @@ namespace OpenAPITests
         {
             // Try to get the deleted user and verify an error is returned.
             var ex = Assert.Throws<Http500InternalServerErrorException>(() => Helper.OpenApi.GetUser(_adminUser, deletedUser.Id),
-                "GetUser should return 500 Internal Server Error if the user was deleted!");
+                "GetUser should return 500 Internal Server Error if the user was deleted!");    // TFS Bug:  5452  Getting a deleted user returns 500 instead of 404.
 
             string expectedErrorMessage =
                 I18NHelper.FormatInvariant("DUser with Id: {0} was deleted by some other user. Please refresh.",

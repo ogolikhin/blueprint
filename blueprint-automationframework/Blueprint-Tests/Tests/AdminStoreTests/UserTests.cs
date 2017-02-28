@@ -98,29 +98,30 @@ namespace AdminStoreTests
         [TestCase(MinPasswordLength, "2")]
         [TestCase(MaxPasswordLength, "3")]
         [TestRail(266426)]
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [Description("Reset the user's password with the previously used password which is qualified to be reused " +
             "(outside of CannotUseLastPasswords boundary). Verify that password rest works and that the user can " +
             "login with the updated password.")]
-        public void ResetUserPassword_UsingPreviousPasswordGreaterThanPasswordHistoryLimit_PasswordIsChanged(uint length, string customCannotUseLastPasswords)
+        public void ResetUserPassword_UsingPreviousPasswordGreaterThanPasswordHistoryLimit_PasswordIsChanged(uint length, string cannotUseLastPasswords)
         {
             // Setup: Reset the password with valid new password
             SetUserWithValidPassword(Helper, _adminUser, length);
-            int resetIterationCount = customCannotUseLastPasswords.ToInt32Invariant() + 2;
 
-            // Setup: Update the CannotUseLastPasswords value by setting new value and generate list of valid passwords, one more than the password history limit
+            int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 2;
+
+            // Setup: Update the CannotUseLastPasswords value by setting new value and generate list of valid passwords,
+            // one extra more than the password history limit value
             List<string> usedValidPasswords = new List<string>();
-            for (int i = 0; i < resetIterationCount; i++)
+            for (int i = 0; i < resetExecutionCount; i++)
             {
                 usedValidPasswords.Add(CreateValidPassword(length));
             }
             var originalCannotUseLastPassword = TestHelper.GetInstances(CANNOTUSELASTPASSWORDS);
-            TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, customCannotUseLastPasswords);
+            TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
 
             try
             {
                 // Setup: Reset password multiple times (one more than the current CannotUseLastPasswords value)
-                for (int i = 0; i < resetIterationCount; i++)
+                for (int i = 0; i < resetExecutionCount; i++)
                 {
                     Helper.AdminStore.ResetPassword(_adminUser, usedValidPasswords[i]);
                     _adminUser.Password = usedValidPasswords[i];
@@ -128,7 +129,7 @@ namespace AdminStoreTests
                 }
 
                 // Execute: Change the password using the very first used password value which qualifiess to be reused
-                Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords[0]),
+                Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
                     "POST {0} failed when user tried to reset the password after 24-hours password reset cooldown period.",
                     USERSRESET_PATH);
 
@@ -145,7 +146,6 @@ namespace AdminStoreTests
         [TestCase(MinPasswordLength)]
         [TestCase(MaxPasswordLength)]
         [TestRail(266427)]
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [Description("Disable CannotUseLastPassword by setting its value to '0' and Verify that CannotUseLastPasswords " +
             "feature is disabled by resetting user's password with the same password twice.")]
         public void ResetUserPassword_UsingPreviousPasswordWhenPasswordHistoryLimitDisabled_PasswordIsChanged(uint length)
@@ -169,7 +169,7 @@ namespace AdminStoreTests
 
                 // Execute: Attempt to change the password with the first updated password
                 Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: firstUpdatedPassword),
-                    "POST {0} failed when user tried to reset the password with previously used password when PasswordHistoryLimitDisabled.",
+                    "POST {0} failed when user tried to reset the password with previously used password when PasswordHistoryLimit is disabled.",
                     USERSRESET_PATH);
 
                 // Verify: Make sure the user can login with the new password, which is same as the first changed value.
@@ -199,8 +199,7 @@ namespace AdminStoreTests
             _adminUser.Password = changedPassword;
 
             // Execute: Attempt to change the password again after resetting the password.
-            DateTime alteredLastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-hoursPassedAfterPasswordReset);
-            _adminUser.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
+            SimulateTimeSpentAfterLastPasswordUpdate(_adminUser, timespent: hoursPassedAfterPasswordReset);
 
             string newPassword = CreateValidPassword(length); 
             var ex = Assert.Throws<Http400BadRequestException>(
@@ -341,29 +340,29 @@ namespace AdminStoreTests
         [TestCase(MinPasswordLength, "2")]
         [TestCase(MaxPasswordLength, "3")]
         [TestRail(266428)]
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
         [Description("Reset the user's password with the previously used password which is not qualified to be reused " +
             "(within CannotUseLastPasswords boundary). Verify that 400 BadRequest response and that the user still can " +
             "login with its current password.")]
-        public void ResetUserPassword_UsingPreviousPasswordLessThanPasswordHistoryLimit_400BadRequest(uint length, string customCannotUseLastPasswords)
+        public void ResetUserPassword_UsingPreviousPasswordLessThanPasswordHistoryLimit_400BadRequest(uint length, string cannotUseLastPasswords)
         {
             // Setup: Reset the password with valid new password
             SetUserWithValidPassword(Helper, _adminUser, length);
 
-            int resetIterationCount = customCannotUseLastPasswords.ToInt32Invariant() + 1;
+            int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 1;
 
-            // Setup: Update the CannotUseLastPasswords value by setting new value and generate list of valid passwords
+            // Setup: Update the CannotUseLastPasswords by setting new value and generate list of valid passwords
             List<string> usedValidPasswords = new List<string>();
-            for (int i = 0; i < resetIterationCount; i++)
+            for (int i = 0; i < resetExecutionCount; i++)
             {
                 usedValidPasswords.Add(CreateValidPassword(length));
             }
+
             var originalCannotUseLastPassword = TestHelper.GetInstances(CANNOTUSELASTPASSWORDS);
-            TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, customCannotUseLastPasswords);
+            TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
 
             try
             {
-                // Setup: Reset password multiple times (the current CannotUseLastPasswords value)
+                // Setup: Reset password multiple times which equals current CannotUseLastPasswords value
                 foreach (string password in usedValidPasswords)
                 {
                     ResetPassword(Helper, _adminUser, password);
@@ -371,8 +370,8 @@ namespace AdminStoreTests
 
                 // Execute: Attempt to change the password using the used password value not qualified to be reused
                 var ex = Assert.Throws<Http400BadRequestException>(
-                    () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords[0]),
-                    "POST {0} should get a 400 Bad Request when passing its display name as a new password!",
+                    () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
+                    "POST {0} should get a 400 Bad Request when passing the used password which is not qualified to be reused.",
                     USERSRESET_PATH);
 
                 // Verify: Make sure the user can still login with their old password.

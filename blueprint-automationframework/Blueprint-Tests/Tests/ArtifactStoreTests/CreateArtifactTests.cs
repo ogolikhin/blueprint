@@ -27,6 +27,7 @@ namespace ArtifactStoreTests
     {
         private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts.CREATE;
 
+        private IUser _adminUser = null;
         private IUser _user = null;
         private IProject _project = null;
 
@@ -34,9 +35,10 @@ namespace ArtifactStoreTests
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
+            _user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
         }
 
         [TearDown]
@@ -212,6 +214,59 @@ namespace ArtifactStoreTests
             {
                 Assert.Fail("Created Artifact has unexpected ItemType.");
             }
+            NovaArtifactDetails.AssertArtifactsEqual(artifactDetails, newArtifact);
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestRail(266440)]
+        [Description("Create baseline under default baseline folder. Get the baseline. " +
+            "Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidBaselineInDefaultBaselineFolder_CanGetArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var defaultBaselineFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.BaselineFolder);
+            
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, artifactType,
+                artifactName, _project, defaultBaselineFolder.Id),
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetBaseline(_user, newArtifact.Id);
+            NovaArtifactDetails.AssertArtifactsEqual(artifactDetails, newArtifact);
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestRail(266441)]
+        [Description("Create baseline under newly created baseline. Get the baseline. " +
+            "Verify the artifact returned has the same properties as the artifact we created.")]
+        public void CreateArtifact_ValidBaselineInNewBaseline_CanGetArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var defaultBaselineFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.BaselineFolder);
+            string parentArtifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var parentBaseline = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, artifactType,
+                parentArtifactName, _project, defaultBaselineFolder.Id);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            Assert.DoesNotThrow(() =>
+                newArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, artifactType,
+                artifactName, _project, parentBaseline.Id),
+                "'POST {0}' should return 201 Created when trying to create an artifact of type: '{1}'!", SVC_PATH, artifactType);
+
+            // Verify:
+            Assert.NotNull(newArtifact, "'POST {0}' returned null for an artifact of type: {1}!", SVC_PATH, artifactType);
+
+            NovaArtifactDetails artifactDetails = Helper.ArtifactStore.GetBaseline(_user, newArtifact.Id);
             NovaArtifactDetails.AssertArtifactsEqual(artifactDetails, newArtifact);
         }
 
@@ -605,22 +660,69 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ParentExistsInADifferentProject_409Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
-            var parentArtifact = Helper.CreateAndPublishArtifact(projects[0], _user, BaseArtifactType.PrimitiveFolder);
-            projects[1].GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            var projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2);
+            var parentArtifact = Helper.CreateAndPublishArtifact(projects[0], _adminUser, BaseArtifactType.PrimitiveFolder);
+            projects[1].GetAllNovaArtifactTypes(Helper.ArtifactStore, _adminUser);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, projects[1], parentArtifact.Id),
+            var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _adminUser, projects[1], parentArtifact.Id),
                 "'POST {0}' should return 409 Conflict when the Project ID is different than the project of the parent!");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent, "Invalid request.");
         }
 
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
+        [TestRail(266442)]
+        [Description("Try to create baseline/review/baseline folder in the project root. " +
+            "Verify 409 and error message.")]
+        public void CreateArtifact_ValidBaselineInProjectRoot_Check409(ItemTypePredefined artifactType)
+        {
+            // Setup & Execute:
+            INovaArtifactDetails newArtifact = null;
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                newArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, artifactType,
+                artifactName, _project, _project.Id),
+                "Server should return 409 error when we try to create baseline/review/baseline folder in the root of the project.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactReviewPackage)]
+        [TestRail(266445)]
+        [Description("Try to create baseline/review/baseline folder in the default collection folder. " +
+            "Verify 409 and error message.")]
+        public void CreateArtifact_ValidBaselineInDefaultCollectionFolder_Check409(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            var defaultCollectionFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
+
+            // Execute:
+            INovaArtifactDetails newArtifact = null;
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+                newArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, artifactType,
+                artifactName, _project, defaultCollectionFolder.Id),
+                "Server should return 409 error when we try to create baseline/review/baseline folder in the default collection folder.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveConflictWithParent,
+                "Cannot create an artifact at this location.");
+        }
+
         #endregion Negative tests
 
         #region Manually run performance tests
-        
+
         [Explicit(IgnoreReasons.ManualOnly)]
         [TestCase]
         [TestRail(183565)]

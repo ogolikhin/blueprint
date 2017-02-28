@@ -24,7 +24,7 @@ namespace Model.Impl
         public string LastName { get; set; }
 
         public List<Group> Groups { get; set; } = new List<Group>();
-        public List<int> GroupIds { get; set; }
+        public List<int> GroupIds { get; set; } = new List<int>();
 
         public string Title { get; set; }
         public string Department { get; set; }
@@ -39,6 +39,12 @@ namespace Model.Impl
         public virtual bool ShouldSerializeGroups()
         {
             return Groups.Count > 0;
+        }
+
+        // Don't serialize GroupIds property if empty list.
+        public virtual bool ShouldSerializeGroupIds()
+        {
+            return GroupIds.Count > 0;
         }
 
         #endregion Properties
@@ -83,7 +89,9 @@ namespace Model.Impl
         /// </summary>
         /// <param name="expectedUserData">The expected UserDataModel.</param>
         /// <param name="actualUserData">The actual UserDataModel.</param>
-        public static void AssertAreEqual(UserDataModel expectedUserData, UserDataModel actualUserData)
+        /// <param name="skipPropertiesNotReturnedByOpenApi">(optional) Pass true to skip comparison of all properties that aren't returned by OpenAPI.</param>
+        public static void AssertAreEqual(UserDataModel expectedUserData, UserDataModel actualUserData,
+            bool skipPropertiesNotReturnedByOpenApi = false)
         {
             ThrowIf.ArgumentNull(expectedUserData, nameof(expectedUserData));
             ThrowIf.ArgumentNull(actualUserData, nameof(actualUserData));
@@ -97,16 +105,28 @@ namespace Model.Impl
             Assert.AreEqual(expectedUserData.Email, actualUserData.Email, "'{0}' has a different value than expected!", nameof(Email));
             Assert.AreEqual(expectedUserData.Title, actualUserData.Title, "'{0}' has a different value than expected!", nameof(Title));
             Assert.AreEqual(expectedUserData.Department, actualUserData.Department, "'{0}' has a different value than expected!", nameof(Department));
-            Assert.AreEqual(expectedUserData.Password, actualUserData.Password, "'{0}' has a different value than expected!", nameof(Password));
-            Assert.AreEqual(expectedUserData.InstanceAdminRole, actualUserData.InstanceAdminRole, "'{0}' has a different value than expected!", nameof(InstanceAdminRole));
-            Assert.AreEqual(expectedUserData.ExpirePassword, actualUserData.ExpirePassword, "'{0}' has a different value than expected!", nameof(ExpirePassword));
-            Assert.AreEqual(expectedUserData.Enabled, actualUserData.Enabled, "'{0}' has a different value than expected!", nameof(Enabled));
 
-            Assert.AreEqual(expectedUserData.Groups.Count, actualUserData.Groups.Count, "'{0}' has a different number of groups than expected!", nameof(Groups));
+            if (!skipPropertiesNotReturnedByOpenApi)
+            {
+                Assert.AreEqual(expectedUserData.Password, actualUserData.Password, "'{0}' has a different value than expected!", nameof(Password));
+                Assert.AreEqual(expectedUserData.InstanceAdminRole, actualUserData.InstanceAdminRole, "'{0}' has a different value than expected!", nameof(InstanceAdminRole));
+                Assert.AreEqual(expectedUserData.ExpirePassword, actualUserData.ExpirePassword, "'{0}' has a different value than expected!", nameof(ExpirePassword));
+                Assert.AreEqual(expectedUserData.Enabled, actualUserData.Enabled, "'{0}' has a different value than expected!", nameof(Enabled));
+                Assert.AreEqual(expectedUserData.FallBack, actualUserData.FallBack, "'{0}' has a different value than expected!", nameof(FallBack));
+            }
+
+            Assert.AreEqual(expectedUserData.Groups.Count, actualUserData.Groups.Count, "'{0}' has a different number of Groups than expected!", nameof(Groups));
 
             for (int i = 0; i < expectedUserData.Groups.Count; ++i)
             {
                 Assert.AreEqual(expectedUserData.Groups[i], actualUserData.Groups[i], "'{0}[{1}]' has a different value than expected!", nameof(Groups), i);
+            }
+
+            Assert.AreEqual(expectedUserData.GroupIds.Count, actualUserData.GroupIds.Count, "'{0}' has a different number of GroupIds than expected!", nameof(Groups));
+
+            for (int i = 0; i < expectedUserData.GroupIds.Count; ++i)
+            {
+                Assert.AreEqual(expectedUserData.GroupIds[i], actualUserData.GroupIds[i], "'{0}[{1}]' has a different value than expected!", nameof(GroupIds), i);
             }
         }
     }

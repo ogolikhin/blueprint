@@ -3,9 +3,12 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
 using Model.JobModel;
+using Model.ModelHelpers;
+using Model.OpenApiModel.Services;
 using Model.SearchServiceModel;
 using Model.StorytellerModel;
 using Newtonsoft.Json;
@@ -15,12 +18,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using Model.ModelHelpers;
-using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
-using Model.Common.Enums;
 
 namespace Helper
 {
@@ -1184,6 +1184,47 @@ namespace Helper
         public static void UpdateApplicationSettings(string key, string value)
         {
             string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
+
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+                string query = updateQuery;
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
+                {
+                    if (sqlDataReader.RecordsAffected <= 0)
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the specific column value of the Instances from the database.
+        /// </summary>
+        /// <param name="column">The Instances column name.</param>
+        /// <returns>The value for the specified column.</returns>
+        /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
+        public static string GetInstances(string column)
+        {
+            string selectQuery = I18NHelper.FormatInvariant("SELECT {0} FROM [dbo].[Instances]", column);
+
+            return DatabaseHelper.ExecuteSingleValueSqlQuery<string>(selectQuery, column);
+        }
+
+        /// <summary>
+        /// Updates the specific Instances column with a new value.
+        /// </summary>
+        /// <param name="column">The Instances column name.</param>
+        /// <param name="value">The new value to set.</param>
+        /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
+        public static void UpdateInstances(string column, string value)
+        {
+            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[Instances] SET {0} = {1}", column, value);
 
             using (var database = DatabaseFactory.CreateDatabase())
             {

@@ -160,6 +160,35 @@ namespace OpenAPITests
 
         #endregion Positive tests
 
+        #region Negative tests
+
+        [TestCase]
+        [TestRail(266434)]
+        [Description("Update a user and change the Type of to 'Group' and verify a 400 Bad Request is returned and the user failed to be updated.")]
+        public void UpdateUsers_ChangeUserTypeToGroup_400BadRequest()
+        {
+            // Setup:
+            var usersToUpdate = new List<IUser> { Helper.CreateUserAndAddToDatabase() };
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.UserOrGroupType), "Group" }
+            };
+
+            var usernamesToUpdate = usersToUpdate.Select(u => u.Username).ToList();
+            var allUserDataToUpdate = CreateUserDataModelsForUpdate(usernamesToUpdate, propertiesToUpdate);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate),
+                "'PATCH {0}' should return '400 Bad Request' when trying to change a user to a Group!", UPDATE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The request parameter is missing or invalid");
+        }
+
+        #endregion Negative tests
+
         #region Private functions
 
         /// <summary>

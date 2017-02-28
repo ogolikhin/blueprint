@@ -18,7 +18,7 @@ using Model.Factories;
 
 namespace OpenAPITests
 {
-    [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/CxyAoVo1/1304-4965-create-user-call-does-not-create-association-with-the-group-in-groupuser-table-when-existing-group-id-is-passed-in-the-body
+    [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/CxyAoVo1  Groups not returned in get user call
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class CreateUsersTests : TestBase
@@ -300,24 +300,6 @@ namespace OpenAPITests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The request parameter is missing or invalid.");
         }
 
-        [TestCase]
-        [TestRail(266429)]
-        [Description("Create a user with missing property. Verify 400 Bad request HTTP status was returned")]
-        public void CreateUser_MissingProperty_400BadRequest()
-        {
-            // Setup:
-            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
-
-            userWithInvalidData[0].LastName = null;
-
-            // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.OpenApi.CreateUsers(_adminUser, userWithInvalidData, new List<HttpStatusCode> { (HttpStatusCode.BadRequest) }),
-                "'CREATE {0}' should return '400 Bad request' when user has missing property!", CREATE_PATH);
-
-            // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.IncorrectInputParameters, "The request parameter is missing or invalid.");
-        }
-
         #endregion 400 Bad Request
 
         #region 401 Unauthorized
@@ -341,14 +323,83 @@ namespace OpenAPITests
                 "'POST {0}' should return 401 Unauthorized when trying to create user with no token in a header!", CREATE_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call");
+            TestHelper.ValidateServiceError(ex.RestResponse, "Unauthorized call.");
         }
 
         #endregion 401 Unauthorized
 
+        #region 403 Forbidden
 
-        // TODO: 409 Admin role does not exists
-        // TODO: 400 Missing property
+        [TestCase]
+        [TestRail(266435)]
+        [Description("Create a user with no permissions to create another users. Verify 403 Forbidden HTTP status was returned.")]
+        public void CreateUser_InsufficientPermissions_403Forbidden()
+        {
+            var project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, project);
+
+            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.CreateUsers(authorUser, validUserToCreate),
+                "'POST {0}' should return 403 Forbidden when trying to create user with no permissions!", CREATE_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The user does not have the privileges required to perform the action.");
+        }
+
+        #endregion 403 Forbidden
+
+        #region 409 Conflict
+
+        [TestCase("Username", "Login name is required")]
+        [TestCase("DisplayName", "Display name is required")]
+        [TestCase("FirstName", "First name is required")]
+        [TestCase("LastName", "Last name is required")]
+        [TestCase("Password", "Password is required")]
+        [TestRail(266429)]
+        [Description("Create a user with missing property. Verify 409 Conflict HTTP status was returned")]
+        public void CreateUser_MissingProperty_409Conflict(string propertyName, string errorMessage)
+        {
+            // Setup:
+            const int CONFLICT = 409;
+
+            var userWithMissingProperty = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            CSharpUtilities.SetProperty<string>(propertyName, null, userWithMissingProperty[0]);
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithMissingProperty, new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                "'CREATE {0}' should return '409 Conflict' when user has missing property!", CREATE_PATH);
+
+            // Verify:
+            VerifyCreateUserResultSet(userWithMissingProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
+        }
+
+        [TestCase]
+        [TestRail(266436)]
+        [Description("Create a user with non-existing admin role. Verify 409 Conflict HTTP status was returned")]
+        public void CreateUsers_NonExistingAdminRole_VerifyUserCreated()
+        {
+            // Setup:
+            const int CONFLICT = 409;
+
+            var userToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            userToCreate[0].InstanceAdminRole = RandomGenerator.RandomAlphaNumeric(10);
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userToCreate, new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                "'CREATE {0}' should return '409 Conflict' when instance administrator role does not exists!", CREATE_PATH);
+
+            // Verify:
+            Assert.AreEqual(userToCreate.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.UserAddInstanceAdminRoleFailed, "Specified Instance admin role doesn't exist");
+        }
+
+        #endregion 409 Conflict
 
         #region Private methods
 
@@ -443,8 +494,6 @@ namespace OpenAPITests
         /// <returns>The call response returned.</returns>
         public static RestResponse UpdateUserInListWithInvalidParameters(string address, string requestBody, IUser user)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
             var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             const string contentType = "application/json";
             

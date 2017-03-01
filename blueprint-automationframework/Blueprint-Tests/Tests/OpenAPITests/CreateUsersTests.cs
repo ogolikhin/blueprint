@@ -27,6 +27,7 @@ namespace OpenAPITests
 
         private const string CREATE_PATH = RestPaths.OpenApi.USERS;
         private const string USER_CREATED_SUCCESSFULLY_MESSAGE = "User has been created successfully";
+        const int PARTIAL = 207;
 
         [SetUp]
         public void SetUp()
@@ -123,7 +124,7 @@ namespace OpenAPITests
         public void CreateUsers_ListOfUsersAndAlreadyExistingUsers_207PartialSuccess()
         {
             // Setup:
-            const int PARTIAL = 207;
+
             const int NUMBER_OF_USERS_TO_CREATE = 3;
 
             var existingUsersToCreate = GenerateListOfUserModels(NUMBER_OF_USERS_TO_CREATE);
@@ -158,8 +159,6 @@ namespace OpenAPITests
         public void CreateUsers_EmptyProperties_207PartialSuccess(string propertyName, string errorMessage)
         {
             // Setup:
-            const int PARTIAL = 207;
-
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithEmptyProperty = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
@@ -188,8 +187,6 @@ namespace OpenAPITests
         public void CreateUsers_NonExistingRole_207PartialSuccess()
         {
             // Setup:
-            const int PARTIAL = 207;
-
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithNonExistingRole = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
@@ -219,8 +216,6 @@ namespace OpenAPITests
         public void CreateUsers_NonExistingGroup_207PartialSuccess()
         {
             // Setup:
-            const int PARTIAL = 207;
-
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithNonExistingGroup = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
@@ -255,8 +250,6 @@ namespace OpenAPITests
         public void CreateUsers_InvalidPassword_207PartialSuccess(string invalidPassword, string errorMessage)
         {
             // Setup:
-            const int PARTIAL = 207;
-
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithInvalidPassword = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
@@ -285,8 +278,6 @@ namespace OpenAPITests
         public void CreateUsers_PasswordEqualToUserNameOrDisplayName_207PartialSuccess(string propertyName, string message)
         {
             // Setup:
-            const int PARTIAL = 207;
-
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithInvalidPassword = GenerateListOfUserModels(numberOfUsersToCreate: 1);
              
@@ -314,8 +305,6 @@ namespace OpenAPITests
         public void CreateUsers_MissingProperty_207PartialSuccess()
         {
             // Setup:
-            const int PARTIAL = 207;
-
             var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
@@ -358,7 +347,7 @@ namespace OpenAPITests
             var corruptedJson = Regex.Replace(validJson, @toReplace, "$1");
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateUserInListWithInvalidParameters(
+            var ex = Assert.Throws<Http400BadRequestException>(() => CreateUserInListWithInvalidParameters(
                 Helper.ArtifactStore.Address,corruptedJson, _adminUser),
                 "'POST {0}' should return 400 Bad Request when trying to create user with invalid parameter!", CREATE_PATH);
 
@@ -377,16 +366,12 @@ namespace OpenAPITests
         public void CreateUsers_MissingOpenApiToken_401Unauthorized()
         {
             // Setup:
-            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
-            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
-            allUsersToCreate.AddRange(userWithInvalidData);
-
-            var validJson = JsonConvert.SerializeObject(allUsersToCreate);
+            var validJson = JsonConvert.SerializeObject(userWithInvalidData);
 
             // Execute:
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => UpdateUserInListWithInvalidParameters(
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateUserInListWithInvalidParameters(
                 Helper.ArtifactStore.Address, validJson, user: null),
                 "'POST {0}' should return 401 Unauthorized when trying to create user with no token in a header!", CREATE_PATH);
 
@@ -409,7 +394,7 @@ namespace OpenAPITests
             var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, project);
 
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.OpenApi.CreateUsers(authorUser, validUserToCreate),
-                "'CREATE {0}' should return '403 Forbidden' when user has missing property!", CREATE_PATH);
+                "'CREATE {0}' should return '403 Forbidden' when user doesn't have permission to create users!", CREATE_PATH);
 
             TestHelper.ValidateServiceError(ex.RestResponse, ApiBusinessErrorCodes.Forbidden, 
                 "The user does not have the privileges required to perform the action.");
@@ -501,7 +486,6 @@ namespace OpenAPITests
         [TestCase("email@domain.com (Joe Smith)")]
         [TestCase("email@domain")]
         [TestCase("email@-domain.com")]
-        [TestCase("email@domain.web")]
         [TestCase("email@111.222.333.44444")]
         [TestCase("email@domain..com")]
         [TestRail(266467)]
@@ -509,15 +493,13 @@ namespace OpenAPITests
         public void CreateUsers_InvalidEmail_409Conflict(string wrongEmailAddress)
         {
             // Setup:
-            const int CONFLICT = 409;
-
             var usersWithWrongEmailAddress = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             usersWithWrongEmailAddress[0].Email = wrongEmailAddress;
 
             // Execute:
             UserCallResultCollection result = null;
             Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, usersWithWrongEmailAddress,
-                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
                 "'CREATE {0}' should return '409 Conflict' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
@@ -614,7 +596,7 @@ namespace OpenAPITests
         /// <param name="requestBody">The request body (i.e. user to be created).</param>
         /// <param name="user">The user creating another user.</param>
         /// <returns>The call response returned.</returns>
-        public static RestResponse UpdateUserInListWithInvalidParameters(string address, string requestBody, IUser user)
+        public static RestResponse CreateUserInListWithInvalidParameters(string address, string requestBody, IUser user)
         {
             var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             const string contentType = "application/json";

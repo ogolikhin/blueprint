@@ -254,7 +254,7 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Asserts two group serializable properties
+        /// Asserts that the serializable properties of two groups are equal.
         /// </summary>
         /// <param name="expectedGroupData">Expected group data</param>
         /// <param name="actualGroupData">Actual group data</param>

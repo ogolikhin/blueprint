@@ -512,6 +512,7 @@ namespace ServiceLibrary.Repositories
                     var children = await GetProjectOrArtifactChildrenAsync(projectId, root.Id, userId);
                     if (await AddChildrenToAncestors(children, setAncestorsAndSelfIds, projectId, expandedToArtifactId, userId))
                     {
+                        root.HasChildren = true;
                         root.Children = children.Cast<IArtifact>().ToList();
                         isFetched = true;
                         break;
@@ -540,7 +541,11 @@ namespace ServiceLibrary.Repositories
                     return isArtifactToExpandToFetched;
                 }
                 siblings = await GetProjectOrArtifactChildrenAsync(projectId, ancestor.Id, userId);
-                ancestor.Children = siblings.Cast<IArtifact>().ToList();
+                if (siblings.Any())
+                {
+                    ancestor.HasChildren = true;
+                    ancestor.Children = siblings.Cast<IArtifact>().ToList();
+                }
             }
         }
 

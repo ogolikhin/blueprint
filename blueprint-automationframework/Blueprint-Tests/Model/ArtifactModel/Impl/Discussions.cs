@@ -1,10 +1,12 @@
 ﻿using Model.ArtifactModel.Adaptors;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl
 {
-    //This representation is used for Discussion in ArtifactStore (NOVA)
+    // This representation is used for Discussion in ArtifactStore (NOVA)
+    // See:  blueprint/svc/ArtifactStore/Models/DiscussionResultSet.cs
     public class DiscussionResultSet
     {
         #region Serialized JSON properties
@@ -14,12 +16,16 @@ namespace Model.ArtifactModel.Impl
         public bool EmailDiscussionsEnabled { get; set; }
         public List<Discussion> Discussions { get; } = new List<Discussion>();
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
+        public List<ThreadStatus> ThreadStatuses { get; set; }
+
         #endregion Serialized JSON properties
 
         public DiscussionResultSet()
         { }
     }
 
+    // See:  blueprint/svc/ArtifactStore/Models/DiscussionResultSet.cs
     public class Discussion : IDiscussionAdaptor
     {
         #region Serialized JSON properties
@@ -44,6 +50,7 @@ namespace Model.ArtifactModel.Impl
         { }
     }
 
+    // See:  blueprint/svc/ArtifactStore/Models/DiscussionResultSet.cs
     public class Reply : IReplyAdapter
     {
         public int ReplyId { get; set; }
@@ -57,5 +64,14 @@ namespace Model.ArtifactModel.Impl
         public string Comment { get; set; }
         public bool CanEdit { get; set; }
         public bool CanDelete { get; set; }
+    }
+
+    // See:  blueprint/svc/ArtifactStore/Models/DiscussionResultSet.cs
+    public class ThreadStatus
+    {
+        public int StatusId { get; set; }
+        public bool ReadOnly { get; set; }
+        public bool IsClosed { get; set; }
+        public string Name { get; set; }
     }
 }

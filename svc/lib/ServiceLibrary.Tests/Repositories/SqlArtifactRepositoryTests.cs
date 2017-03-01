@@ -1319,9 +1319,11 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual(children1[0].Id, result[0].Id);
             Assert.AreEqual(children1[1].Id, result[1].Id);
 
+            Assert.AreEqual(true, result[0].HasChildren);
             Assert.AreEqual(children2.Count, result[0].Children.Count);
             Assert.AreEqual(children2[0].Id, result[0].Children[0].Id);
 
+            Assert.AreEqual(true, result[0].Children[0].HasChildren);
             Assert.AreEqual(children4.Count, result[0].Children[0].Children.Count);
             Assert.AreEqual(artifactId, result[0].Children[0].Children[0].Id);
 
@@ -1382,9 +1384,11 @@ namespace ServiceLibrary.Repositories
 
             Assert.IsNull(result[0].Children);
 
+            Assert.AreEqual(true, result[1].HasChildren);
             Assert.AreEqual(children3.Count, result[1].Children.Count);
             Assert.AreEqual(children3[0].Id, result[1].Children[0].Id);
 
+            Assert.AreEqual(true, result[1].Children[0].HasChildren);
             Assert.AreEqual(children4.Count, result[1].Children[0].Children.Count);
             Assert.AreEqual(artifactId, result[1].Children[0].Children[0].Id);
         }

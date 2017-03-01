@@ -227,7 +227,7 @@ namespace OpenAPITests
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.DeleteUsers(_adminUser, usernamesToDelete),
-                "'DELETE {0}' should return '409 Conflict' when passed a username that doesn't exist!", DELETE_PATH);
+                "'DELETE {0}' should return '409 Conflict' when passed a username that was deleted!", DELETE_PATH);
 
             // Verify:
             var expectedFailedDeletedUsers = new Dictionary<IUser, int> { { userToDelete, BusinessLayerErrorCodes.LoginDoesNotExist } };

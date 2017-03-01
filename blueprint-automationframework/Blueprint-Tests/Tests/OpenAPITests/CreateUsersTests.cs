@@ -19,7 +19,6 @@ using System.Text.RegularExpressions;
 
 namespace OpenAPITests
 {
-    [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/CxyAoVo1  Groups not returned in get user call
     [TestFixture]
     [Category(Categories.OpenApi)]
     public class CreateUsersTests : TestBase
@@ -149,7 +148,8 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
@@ -158,7 +158,6 @@ namespace OpenAPITests
             VerifyCreateUserResultSet(userWithEmptyProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/xUsPpY3J 500 error code instead of 409
         [TestCase]
         [TestRail(246645)]
         [Description("Create couple of users (one user with all required values and second one with non-existing instance admin role). " +
@@ -179,7 +178,8 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
@@ -209,7 +209,8 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
 
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
@@ -243,7 +244,8 @@ namespace OpenAPITests
 
             // Execute:
             UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
@@ -255,8 +257,8 @@ namespace OpenAPITests
         [TestCase("Username", "User")]
         [TestCase("DisplayName", "Display")]
         [TestRail(261315)]
-        [Description("Create couple of users (one user with all required values and second one with the password that the same as Username or DiplayName). " +
-            "Verify 207 Partial Success HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with the password that the same as Username " +
+            "or DiplayName). Verify 207 Partial Success HTTP status was returned")]
         public void CreateUsers_PasswordEqualToUserNameOrDisplayName_207PartialSuccess(string propertyName, string message)
         {
             // Setup:
@@ -271,7 +273,8 @@ namespace OpenAPITests
             allUsersToCreate.AddRange(userWithInvalidPassword);
 
             UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
@@ -283,7 +286,8 @@ namespace OpenAPITests
 
         [TestCase]
         [TestRail(246700)]
-        [Description("Create couple of users (one user with all required values and second one with missing property). Verify 207 PartialSuccess HTTP status was returned")]
+        [Description("Create couple of users (one user with all required values and second one with missing property). " + 
+            "Verify 207 PartialSuccess HTTP status was returned")]
         public void CreateUsers_MissingProperty_207PartialSuccess()
         {
             // Setup:
@@ -299,7 +303,8 @@ namespace OpenAPITests
 
             // Execute:
             UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate, new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, allUsersToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)PARTIAL }),
                 "'CREATE {0}' should return '207 Partial Success' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
@@ -330,11 +335,13 @@ namespace OpenAPITests
             var corruptedJson = Regex.Replace(validJson, @toReplace, "$1");
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, corruptedJson, _adminUser),
+            var ex = Assert.Throws<Http400BadRequestException>(() => UpdateUserInListWithInvalidParameters(
+                Helper.ArtifactStore.Address,corruptedJson, _adminUser),
                 "'POST {0}' should return 400 Bad Request when trying to create user with invalid parameter!", CREATE_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ApiBusinessErrorCodes.BadRequestDueToIncorrectQueryParameterValue, "The request parameter is missing or invalid");
+            TestHelper.ValidateServiceError(ex.RestResponse, ApiBusinessErrorCodes.BadRequestDueToIncorrectQueryParameterValue,
+                "The request parameter is missing or invalid");
         }
 
         #endregion 400 Bad Request
@@ -356,7 +363,8 @@ namespace OpenAPITests
             var validJson = JsonConvert.SerializeObject(allUsersToCreate);
 
             // Execute:
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => UpdateUserInListWithInvalidParameters(Helper.ArtifactStore.Address, validJson, user: null),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => UpdateUserInListWithInvalidParameters(
+                Helper.ArtifactStore.Address, validJson, user: null),
                 "'POST {0}' should return 401 Unauthorized when trying to create user with no token in a header!", CREATE_PATH);
 
             // Verify:
@@ -406,14 +414,14 @@ namespace OpenAPITests
 
             // Execute:
             UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithMissingProperty, new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithMissingProperty,
+                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
                 "'CREATE {0}' should return '409 Conflict' when user has missing property!", CREATE_PATH);
 
             // Verify:
             VerifyCreateUserResultSet(userWithMissingProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // BUG https://trello.com/c/xUsPpY3J 500 error code instead of 409
         [TestCase]
         [TestRail(266436)]
         [Description("Create a user with non-existing admin role. Verify 409 Conflict HTTP status was returned")]
@@ -428,12 +436,38 @@ namespace OpenAPITests
 
             // Execute:
             UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userToCreate, new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userToCreate,
+                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
                 "'CREATE {0}' should return '409 Conflict' when instance administrator role does not exists!", CREATE_PATH);
 
             // Verify:
             Assert.AreEqual(userToCreate.Count, result.Count, "Wrong number of User results were returned!");
-            VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.UserAddInstanceAdminRoleFailed, "Specified Instance admin role doesn't exist");
+            VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.UserAddInstanceAdminRoleFailed, 
+                "Specified Instance admin role doesn't exist");
+        }
+
+        [TestCase]
+        [TestRail(266450)]
+        [Description("Create a user with non-existing group id. Verify 409 Conflict HTTP status was returned")]
+        public void CreateUser_NonExistingGroup_409Conflict()
+        {
+            // Setup:
+            const int CONFLICT = 409;
+
+            var userWithNonExistingGroup = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+
+            userWithNonExistingGroup[0].GroupIds[0] = int.MaxValue;
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithNonExistingGroup,
+                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                "'CREATE {0}' should return '409 Conflict' when one of users has invalid data!", CREATE_PATH);
+
+            // Verify:
+            Assert.AreEqual(userWithNonExistingGroup.Count, result.Count, "Wrong number of User results were returned!");
+            VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed,
+                "User is created, but cannot be added to a group");
         }
 
         #endregion 409 Conflict
@@ -469,7 +503,8 @@ namespace OpenAPITests
                 userToCreate.LastName = RandomGenerator.RandomAlphaNumeric(10);
                 userToCreate.Password = "Password" + RandomGenerator.RandomSpecialChars(3) + RandomGenerator.RandomNumber(3);
 
-                userToCreate.Email = I18NHelper.FormatInvariant("{0}@{1}.com", RandomGenerator.RandomAlphaNumeric(5), RandomGenerator.RandomAlphaNumeric(5));
+                userToCreate.Email = I18NHelper.FormatInvariant("{0}@{1}.com", RandomGenerator.RandomAlphaNumeric(5),
+                    RandomGenerator.RandomAlphaNumeric(5));
                 userToCreate.Title = RandomGenerator.RandomAlphaNumeric(10);
                 userToCreate.Department = RandomGenerator.RandomAlphaNumeric(10);
                 userToCreate.Groups = groupList.ConvertAll(o => (Model.Impl.Group)o);
@@ -490,7 +525,8 @@ namespace OpenAPITests
         /// <param name="resultSet">Result of create users call</param>
         /// <param name="expectedHttpCode">Expected HTTP code for this user</param>
         /// <param name="expectedMessage">Expected message for this user</param>
-        private void VerifyCreateUserResultSet(List<UserDataModel> userList, UserCallResultCollection resultSet, int expectedHttpCode, string expectedMessage)
+        private void VerifyCreateUserResultSet(
+            List<UserDataModel> userList, UserCallResultCollection resultSet, int expectedHttpCode, string expectedMessage)
         {
             Assert.IsNotNull(userList, "The list of expected users is not created!");
             Assert.IsNotNull(resultSet, "Result set from create users call is not created!");

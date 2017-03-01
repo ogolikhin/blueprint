@@ -27,7 +27,7 @@ namespace OpenAPITests
 
         private const string CREATE_PATH = RestPaths.OpenApi.USERS;
         private const string USER_CREATED_SUCCESSFULLY_MESSAGE = "User has been created successfully";
-        const int PARTIAL = 207;
+        private const int PARTIAL = 207;
 
         [SetUp]
         public void SetUp()

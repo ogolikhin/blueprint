@@ -83,7 +83,30 @@ namespace OpenAPITests
 
             // Execute:
             UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, usersToCreate),
+                "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
 
+            // Verify:
+            Assert.AreEqual(usersToCreate.Count, result.Count, "Wrong number of User results were returned!");
+
+            VerifyCreateUserResultSet(usersToCreate, result, BusinessLayerErrorCodes.Created, USER_CREATED_SUCCESSFULLY_MESSAGE);
+        }
+
+        [TestCase]
+        [TestRail(266466)]
+        [Description("Create a user with the username of removed user and verify the user created successfully")]
+        public void CreateUser_UserWithThisUsernameWasPreviouslyDeleted_VerifyUserCreated()
+        {
+            // Setup:
+            var project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
+            var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, project);
+            authorUser.DeleteUser();
+
+            var usersToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            usersToCreate[0].Username = authorUser.Username;
+
+            // Execute:
+            UserCallResultCollection result = null;
             Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, usersToCreate),
                 "'CREATE {0}' should return '201 Created' when valid data is passed to it!", CREATE_PATH);
 
@@ -468,6 +491,46 @@ namespace OpenAPITests
             Assert.AreEqual(userWithNonExistingGroup.Count, result.Count, "Wrong number of User results were returned!");
             VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed,
                 "User is created, but cannot be added to a group");
+        }
+
+        [Explicit(IgnoreReasons.UnderDevelopment)]
+        [TestCase("plainaddress")]
+        [TestCase("A#@%^%#$@#$@#.com")]
+        [TestCase("@domain.com ")]
+        [TestCase("Joe Smith <email@domain.com>")]
+        [TestCase("email.domain.com")]
+        [TestCase("email@domain@domain.com")]
+        [TestCase(".email@domain.com")]
+        [TestCase("email.@domain.com")]
+        [TestCase("email..email@domain.com")]
+        [TestCase("あいうえお@domain.com")]
+        [TestCase("email@domain.com (Joe Smith)")]
+        [TestCase("email@domain")]
+        [TestCase("email@-domain.com")]
+        [TestCase("email@domain.web")]
+        [TestCase("email@111.222.333.44444")]
+        [TestCase("email@domain..com")]
+        [TestRail(266467)]
+        [Description("Create user with invalid email. Verify 409 Conflict HTTP status was returned")]
+        public void CreateUsers_InvalidEmail_409Conflict(string wrongEmailAddress)
+        {
+            // Setup:
+            const int CONFLICT = 409;
+
+            var usersWithWrongEmailAddress = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            usersWithWrongEmailAddress[0].Email = wrongEmailAddress;
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, usersWithWrongEmailAddress,
+                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                "'CREATE {0}' should return '409 Conflict' when one of users has invalid data!", CREATE_PATH);
+
+            // Verify:
+            Assert.AreEqual(usersWithWrongEmailAddress.Count, result.Count, "Wrong number of User results were returned!");
+
+            // TODO: Proper error message
+            VerifyCreateUserResultSet(usersWithWrongEmailAddress, result, BusinessLayerErrorCodes.UserValidationFailed, "Email is invalid");
         }
 
         #endregion 409 Conflict

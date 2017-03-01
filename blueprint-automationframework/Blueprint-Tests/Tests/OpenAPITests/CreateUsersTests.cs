@@ -429,8 +429,6 @@ namespace OpenAPITests
         public void CreateUser_MissingProperty_409Conflict(string propertyName, string errorMessage)
         {
             // Setup:
-            const int CONFLICT = 409;
-
             var userWithMissingProperty = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
             CSharpUtilities.SetProperty<string>(propertyName, null, userWithMissingProperty[0]);
@@ -438,7 +436,7 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
             Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithMissingProperty,
-                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
                 "'CREATE {0}' should return '409 Conflict' when user has missing property!", CREATE_PATH);
 
             // Verify:
@@ -451,8 +449,6 @@ namespace OpenAPITests
         public void CreateUser_NonExistingAdminRole_409Conflict()
         {
             // Setup:
-            const int CONFLICT = 409;
-
             var userToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
             userToCreate[0].InstanceAdminRole = RandomGenerator.RandomAlphaNumeric(10);
@@ -460,7 +456,7 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
             Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userToCreate,
-                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
                 "'CREATE {0}' should return '409 Conflict' when instance administrator role does not exists!", CREATE_PATH);
 
             // Verify:
@@ -475,8 +471,6 @@ namespace OpenAPITests
         public void CreateUser_NonExistingGroup_409Conflict()
         {
             // Setup:
-            const int CONFLICT = 409;
-
             var userWithNonExistingGroup = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
             userWithNonExistingGroup[0].GroupIds[0] = int.MaxValue;
@@ -484,7 +478,7 @@ namespace OpenAPITests
             // Execute:
             UserCallResultCollection result = null;
             Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithNonExistingGroup,
-                new List<HttpStatusCode> { (HttpStatusCode)CONFLICT }),
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
                 "'CREATE {0}' should return '409 Conflict' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:

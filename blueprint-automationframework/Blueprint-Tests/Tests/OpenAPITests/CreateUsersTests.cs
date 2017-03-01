@@ -331,18 +331,14 @@ namespace OpenAPITests
 
         [TestCase]
         [TestRail(246665)]
-        [Description("Create couple of users (one user with all required values and second one with parameter in invalid format). " +
-            "Verify 400 Bad request HTTP status was returned")]
-        public void CreateUsers_InvalidParameterFormat_400BadRequest()
+        [Description("Create a user with parameter in invalid format). Verify 400 Bad request HTTP status was returned")]
+        public void CreateUser_InvalidParameterFormat_400BadRequest()
         {
             // Setup:
-            var validUserToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
             var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
-            var allUsersToCreate = new List<UserDataModel>(validUserToCreate);
-            allUsersToCreate.AddRange(userWithInvalidData);
-
-            var validJson = JsonConvert.SerializeObject(allUsersToCreate);
+            // Serializes user model and replaces generated user lastname value with value of invalid format
+            var validJson = JsonConvert.SerializeObject(userWithInvalidData);
             var toReplace = "\"" + userWithInvalidData[0].LastName + "\"";
             var corruptedJson = Regex.Replace(validJson, @toReplace, "$1");
 
@@ -366,9 +362,9 @@ namespace OpenAPITests
         public void CreateUsers_MissingOpenApiToken_401Unauthorized()
         {
             // Setup:
-            var userWithInvalidData = GenerateListOfUserModels(numberOfUsersToCreate: 1);
+            var userToCreate = GenerateListOfUserModels(numberOfUsersToCreate: 1);
 
-            var validJson = JsonConvert.SerializeObject(userWithInvalidData);
+            var validJson = JsonConvert.SerializeObject(userToCreate);
 
             // Execute:
             var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateUserInListWithInvalidParameters(

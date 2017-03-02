@@ -23,7 +23,7 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(expectedProperty, nameof(expectedProperty));
             ThrowIf.ArgumentNull(actualProperty, nameof(actualProperty));
 
-            Assert.AreEqual(expectedProperty.Name, actualProperty.Name, "The Name properties don't match!");
+            Assert.AreEqual(expectedProperty.Name, actualProperty.Name, "The {0} properties don't match!", nameof(expectedProperty.Name));
             Assert.AreEqual(expectedProperty.PropertyTypeId, actualProperty.PropertyTypeId, "The PropertyTypeId properties don't match for property: {0}!", actualProperty.Name);
             Assert.AreEqual(expectedProperty.PropertyType, actualProperty.PropertyType, "The PropertyType properties don't match for property: {0}!", actualProperty.Name);
 

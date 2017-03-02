@@ -2,6 +2,8 @@ namespace Model.Common.Enums
 {
     /// <summary>
     /// Enumeration of Predefinded Property Types
+    /// 
+    /// Found in: blueprint-current\Source\BluePrintSys.RC.CrossCutting.Portable\Enums\PropertyTypePredefined.cs
     /// </summary>
     public enum PropertyTypePredefined
     {

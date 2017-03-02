@@ -2,6 +2,8 @@
 {
     /// <summary>
     /// Enumeration of Process Shape Types
+    /// 
+    /// Found in: blueprint-current\Source\BluePrintSys.RC.CrossCutting.Portable\Enums\ProcessShapeType.cs
     /// </summary>
     public enum ProcessShapeType
     {

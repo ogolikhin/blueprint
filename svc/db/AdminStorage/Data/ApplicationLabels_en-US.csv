@@ -20,6 +20,7 @@ App_Button_ConfirmCloseProject,"Close Project"
 App_Button_Proceed,"Proceed"
 App_Button_Download, "Download"
 App_Button_Refresh, "Refresh"
+App_Button_Save, "Save"
 
 App_DialogTitle_Alert,"Warning"
 App_DialogTitle_Confirmation,"Confirmation"
@@ -634,6 +635,7 @@ Jobs_Button_Label_GetJobs, "Get Jobs"
 Walkthrough_Button_Label, "Walkthrough"
 Process_Walkthrough_Mode_Tooltip, "Walkthrough Mode"
 Process_Diagram_Mode_Tooltip, "Diagram Mode"
+Walkthrough_Save_Before_Start, "Before starting a walkthrough, your changes will be saved."
 
 
 

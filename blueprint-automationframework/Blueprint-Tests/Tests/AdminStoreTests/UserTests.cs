@@ -97,9 +97,8 @@ namespace AdminStoreTests
 
         [TestCase(MaxPasswordLength, "3")]
         [TestRail(266426)]
-        [Description("Reset the user's password with the previously used password which is qualified to be reused " +
-            "(outside of CannotUseLastPasswords boundary). Verify that password reset works and that the user can " +
-            "login with the updated password.")]
+        [Description("Reset the user's password with the password which was used before but not in the password history. " +
+            "Verify that password reset works and that the user can login with the updated password.")]
         public void ResetUserPassword_UsingPreviousPasswordGreaterThanPasswordHistoryLimit_PasswordIsChanged(uint length, string cannotUseLastPasswords)
         {
             // Setup: Reset the password with valid new password.
@@ -128,9 +127,9 @@ namespace AdminStoreTests
                     SimulateTimeSpentAfterLastPasswordUpdate(_adminUser);
                 }
 
-                // Execute: Change the password using the very first used password value which qualifiess to be reused
+                // Execute: Change the password using the very first used password which was used before but not in the password history.
                 Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
-                    "POST {0} failed when user tried to reset password with the used password which is qualified to be reused.",
+                    "POST {0} failed when user tried to reset password with the password which used before but not in the password history.",
                     USERSRESET_PATH);
 
                 // Verify: Make sure the user can still login with the updated password.
@@ -338,9 +337,8 @@ namespace AdminStoreTests
 
         [TestCase(MinPasswordLength, "2")]
         [TestRail(266428)]
-        [Description("Reset the user's password with the previously used password which is not qualified to be reused " +
-            "(within CannotUseLastPasswords boundary). Verify that 400 BadRequest response and that the user still can " +
-            "login with its current password.")]
+        [Description("Reset the user's password with the previously used password which is in password history." +
+            "Verify that 400 BadRequest response and that the user still can login with its current password.")]
         public void ResetUserPassword_UsingPreviousPasswordLessThanPasswordHistoryLimit_400BadRequest(uint length, string cannotUseLastPasswords)
         {
             // Setup: Reset the password with valid new password
@@ -366,10 +364,10 @@ namespace AdminStoreTests
                     ResetPassword(_adminUser, password);
                 }
 
-                // Execute: Attempt to change the password using the used password value not qualified to be reused
+                // Execute: Attempt to change the password using the used password which is in password history
                 var ex = Assert.Throws<Http400BadRequestException>(
                     () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
-                    "POST {0} should get a 400 Bad Request when passing the used password which is not qualified to be reused.",
+                    "POST {0} should get a 400 Bad Request when passing the used password which is in password history.",
                     USERSRESET_PATH);
 
                 // Verify: Make sure the user can still login with their old password.

@@ -252,6 +252,23 @@ namespace Model.Impl
                 }
             }
         }
+
+        /// <summary>
+        /// Asserts that the serializable properties of two groups are equal.
+        /// </summary>
+        /// <param name="expectedGroupData">Expected group data</param>
+        /// <param name="actualGroupData">Actual group data</param>
+        public static void AssertAreEqual(Group expectedGroupData, Group actualGroupData)
+        {
+            ThrowIf.ArgumentNull(expectedGroupData, nameof(expectedGroupData));
+            ThrowIf.ArgumentNull(actualGroupData, nameof(actualGroupData));
+
+            Assert.AreEqual(expectedGroupData.Email, actualGroupData.Email, "'{0}' has a different value than expected!", nameof(Email));
+            Assert.AreEqual(expectedGroupData.GroupId, actualGroupData.GroupId, "'{0}' has a different value than expected!", nameof(GroupId));
+            Assert.AreEqual(expectedGroupData.Name, actualGroupData.Name, "'{0}' has a different value than expected!", nameof(Name));
+            Assert.AreEqual(expectedGroupData.GroupType, actualGroupData.GroupType, "'{0}' has a different value than expected!", nameof(Email));
+        }
+
         #endregion Methods
     }
 }

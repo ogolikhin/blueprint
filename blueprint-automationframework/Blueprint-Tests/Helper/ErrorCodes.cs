@@ -28,6 +28,7 @@ namespace Helper
         public const int IncorrectSearchCriteria = 4004;
         public const int PasswordSameAsLogin = 4005;
         public const int PasswordSameAsDisplayName = 4006;
+        public const int PasswordAlreadyUsedPreviously = 4007;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;

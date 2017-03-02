@@ -40,7 +40,6 @@ namespace OpenAPITests
 
         #region Positive tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu  GetUser doesn't return all user properties.
         [TestCase(1, nameof(UserDataModel.Department))]
         [TestCase(5, nameof(UserDataModel.DisplayName))]
         [TestRail(246613)]
@@ -74,7 +73,6 @@ namespace OpenAPITests
             VerifyUpdateUserResultSet(result, usersToUpdate, expectedSuccessfullyUpdatedUsers: userDataToUpdate);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu  GetUser doesn't return all user properties.
         [TestCase]
         [TestRail(266425)]
         [Description("Update a list of users and change the Type of some users to 'Group' and verify a 200 OK status was returned and that the users " +
@@ -122,7 +120,7 @@ namespace OpenAPITests
                 skipPropertiesNotReturnedByOpenApi: true);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu  GetUser doesn't return all user properties.
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu & Trello: https://trello.com/c/xH6nHeG4  GetUser & UpdateUser don't return all user properties.
         [TestCase]
         [TestRail(246614)]
         [Description("Update a list of users (some users are active and others are deleted) and verify a 207 HTTP status was returned and " +
@@ -484,9 +482,10 @@ namespace OpenAPITests
         /// <param name="expectedUserData">The expected user data values after an update.</param>
         private void VerifyUserIsUpdated(UserDataModel expectedUserData)
         {
+            Assert.NotNull(expectedUserData?.Id, "The Id property shouldn't be null!");
             var actualUserData = Helper.OpenApi.GetUser(_adminUser, expectedUserData.Id.Value);
 
-            UserDataModel.AssertAreEqual(expectedUserData, actualUserData);
+            UserDataModel.AssertAreEqual(expectedUserData, actualUserData, skipPropertiesNotReturnedByOpenApi: true);
         }
 
         /// <summary>

@@ -103,12 +103,12 @@ namespace AdminStoreTests
         {
             // Setup: Reset the password with valid new password.
             // Update the CannotUseLastPasswords value by setting new value and generate list of valid passwords one 
-            // extra more than the password history limit value
+            // more than the password history limit value
             SetUserWithValidPassword(_adminUser, length);
 
-            int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 2;
+            int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 1;
 
-            List<string> usedValidPasswords = new List<string>();
+            List<string> usedValidPasswords = new List<string> { _adminUser.Password };
             for (int i = 0; i < resetExecutionCount; i++)
             {
                 usedValidPasswords.Add(CreateValidPassword(length));
@@ -118,9 +118,9 @@ namespace AdminStoreTests
 
             try
             {
-                // Reset password cannotUseLastPasswords + 2 times so that the first used password from
+                // Reset password cannotUseLastPasswords + 1 times so that the first used password from
                 // usedValidPasswords can be reused
-                for (int i = 0; i < resetExecutionCount; i++)
+                for (int i = 1; i < resetExecutionCount + 1; i++)
                 {
                     Helper.AdminStore.ResetPassword(_adminUser, usedValidPasswords[i]);
                     _adminUser.Password = usedValidPasswords[i];

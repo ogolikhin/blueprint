@@ -612,7 +612,7 @@ namespace ServiceLibrary.Repositories
 
         #region GetArtifactsNavigationPathsAsync
 
-        public async Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPathsAsync(
+        public async Task<IDictionary<int, IEnumerable<ArtifactShortInfo>>> GetArtifactsNavigationPathsAsync(
             int userId,
             IEnumerable<int> artifactIds,
             bool includeArtifactItself = true,
@@ -632,36 +632,101 @@ namespace ServiceLibrary.Repositories
 
             var itemPaths = (await _connectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetArtifactsNavigationPaths", param, commandType: CommandType.StoredProcedure)).ToList();
 
-            var artifactNavigationPaths = new Dictionary<int, IDictionary<int, string>>();
+            var artifactNavigationPaths = new Dictionary<int, IDictionary<int, ArtifactShortInfo>>();
 
             foreach (var artifactsNavigationPath in itemPaths)
-            {
-                if(!includeArtifactItself && artifactsNavigationPath.Level == 0)
-                    continue;
-
-                IDictionary<int, string> pathArray;
+            {                
+                IDictionary<int, ArtifactShortInfo> pathArray;
                 if (!artifactNavigationPaths.TryGetValue(artifactsNavigationPath.ArtifactId, out pathArray))
-                {
-                    pathArray = new Dictionary<int, string>
-                    {
-                        {artifactsNavigationPath.Level, artifactsNavigationPath.Name}
-                    };
-                    artifactNavigationPaths.Add(artifactsNavigationPath.ArtifactId, pathArray);
+                {                    
+                    var addedRecord = AddNavigationPathRecord(
+                                 artifactsNavigationPath.ParentId.Value,
+                                 null,
+                                 artifactsNavigationPath.Level + 1,
+                                 artifactsNavigationPath.ArtifactId,
+                                 artifactNavigationPaths);
+
+                    if (includeArtifactItself || artifactsNavigationPath.Level > 0)
+                    {                        
+                        AddArtifactShortInfo(
+                            artifactsNavigationPath.ArtifactId,
+                            artifactsNavigationPath.Name,
+                            artifactsNavigationPath.Level,
+                            addedRecord);
+                    }
                 }
                 else
                 {
-                    pathArray.Add(artifactsNavigationPath.Level, artifactsNavigationPath.Name);
+                    ArtifactShortInfo artifactShortInfoForCurrentLevel;
+                    if (pathArray.TryGetValue(artifactsNavigationPath.Level, out artifactShortInfoForCurrentLevel))
+                    {
+                        artifactShortInfoForCurrentLevel.Name = artifactsNavigationPath.Name;
+                    }
+                    else
+                    {
+                        if (includeArtifactItself || artifactsNavigationPath.Level > 0)
+                        {
+                            int id = -1;
+                            if (artifactsNavigationPath.Level == 0)
+                            {
+                                id = artifactsNavigationPath.ArtifactId;
+                            }
+                            AddArtifactShortInfo(id, artifactsNavigationPath.Name, artifactsNavigationPath.Level,
+                                pathArray);
+                        }
+                    }
+
+                    if (artifactsNavigationPath.ParentId.HasValue)
+                    {
+                        ArtifactShortInfo artifactShortInfoForNextLevel;
+                        if (pathArray.TryGetValue(artifactsNavigationPath.Level + 1, out artifactShortInfoForNextLevel))
+                        {
+                            artifactShortInfoForNextLevel.Id = artifactsNavigationPath.ParentId.Value;
+                        }
+                        else
+                        {
+                            AddArtifactShortInfo(artifactsNavigationPath.ParentId.Value, null,
+                                artifactsNavigationPath.Level + 1, pathArray);
+                        }
+                    }
                 }
             }
 
-            var result = new Dictionary<int, IEnumerable<string>>(artifactNavigationPaths.Count);
+            var result = new Dictionary<int, IEnumerable<ArtifactShortInfo>>(artifactNavigationPaths.Count);
 
             foreach (var entry in artifactNavigationPaths)
-            {
+            {                
                 result.Add(entry.Key, entry.Value.OrderByDescending(i => i.Key).Select(j => j.Value));
             }
 
             return result;
+        }
+
+        private static void AddArtifactShortInfo(int id, string name, int level, IDictionary<int, ArtifactShortInfo> pathArray)
+        {
+            var artifactInfo = new ArtifactShortInfo
+            {
+                Id = id,
+                Name = name
+            };
+            pathArray.Add(level, artifactInfo);
+        }
+
+        private static Dictionary<int, ArtifactShortInfo> AddNavigationPathRecord(int id, string name, int level, int artifactId,
+            Dictionary<int, IDictionary<int, ArtifactShortInfo>> artifactNavigationPaths)
+        {            
+            var info = new ArtifactShortInfo
+            {
+                Id = id,
+                Name = name
+            };
+            var pathArray = new Dictionary<int, ArtifactShortInfo>
+            {
+                {level, info}
+            };
+
+            artifactNavigationPaths.Add(artifactId, pathArray);
+            return pathArray;
         }
 
         #endregion GetArtifactsNavigationPathsAsync

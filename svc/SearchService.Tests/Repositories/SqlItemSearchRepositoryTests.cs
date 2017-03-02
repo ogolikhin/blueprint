@@ -161,7 +161,14 @@ namespace SearchService.Repositories
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(r => r.GetArtifactPermissionsInChunks(new List<int> { 0 }, UserId, false, int.MaxValue, true)).ReturnsAsync(permissionsDictionary);
 
-            var navigationPaths = new Dictionary<int, IEnumerable<string>> { { 0, new List<string> { "ArtifactPath" } } };
+            var artifactInfo = new ArtifactShortInfo()
+            {
+                Id = 1,
+                Name = "ArtifactPath"
+            };
+            var infoCollection = new List<ArtifactShortInfo>();
+            infoCollection.Add(artifactInfo);            
+            var navigationPaths = new Dictionary<int, IEnumerable<ArtifactShortInfo>> { { 0, infoCollection } };
             var mockSqlArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockSqlArtifactRepository.Setup(r => r.GetArtifactsNavigationPathsAsync(1, new List<int> { 0 }, false, null, true)).ReturnsAsync(navigationPaths);
 

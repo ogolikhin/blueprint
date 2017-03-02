@@ -125,6 +125,7 @@
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />
+    <Compile Include="Models\ArtifactShortInfo.cs" />
     <Compile Include="Models\ItemInfo.cs" />
     <Compile Include="Models\Jobs\AddJobResult.cs" />
     <Compile Include="Models\Jobs\DJobMessage.cs" />

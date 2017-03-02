@@ -386,6 +386,7 @@
 
         public const int UserAddInstanceAdminRoleFailed = 1194;
 
-        // last used = 1194
+        public const int UserGroupsUpdateFailed = 1195;
+        // last used = 1195
     }
 }

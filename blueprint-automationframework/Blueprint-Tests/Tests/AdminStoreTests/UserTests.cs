@@ -95,7 +95,7 @@ namespace AdminStoreTests
             VerifyLogin(Helper, _adminUser.Username, newPassword);
         }
 
-        [TestCase(MaxPasswordLength, "1")]
+        [TestCase(MaxPasswordLength, "3")]
         [TestRail(266426)]
         [Description("Reset the user's password with the previously used password which is qualified to be reused " +
             "(outside of CannotUseLastPasswords boundary). Verify that password reset works and that the user can " +

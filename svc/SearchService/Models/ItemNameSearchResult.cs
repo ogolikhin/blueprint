@@ -59,5 +59,8 @@ namespace SearchService.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<string> Path { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<int> IdPath { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace ServiceLibrary.Repositories
 
         Task<List<Artifact>> GetArtifactNavigationPathAsync(int artifactId, int userId);
 
-        Task<IDictionary<int, IEnumerable<string>>> GetArtifactsNavigationPathsAsync(
+        Task<IDictionary<int, IEnumerable<ArtifactShortInfo>>> GetArtifactsNavigationPathsAsync(
             int userId,
             IEnumerable<int> artifactIds,
             bool includeArtifactItself = true,

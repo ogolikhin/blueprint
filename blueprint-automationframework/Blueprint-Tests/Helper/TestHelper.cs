@@ -1209,7 +1209,7 @@ namespace Helper
         /// <param name="column">The Instances column name.</param>
         /// <returns>The value for the specified column.</returns>
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
-        public static string GetInstances(string column)
+        public static string GetValueFromInstancesTable(string column)
         {
             string selectQuery = I18NHelper.FormatInvariant("SELECT {0} FROM [dbo].[Instances]", column);
 
@@ -1222,7 +1222,7 @@ namespace Helper
         /// <param name="column">The Instances column name.</param>
         /// <param name="value">The new value to set.</param>
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
-        public static void UpdateInstances(string column, string value)
+        public static void UpdateValueFromInstancesTable(string column, string value)
         {
             string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[Instances] SET {0} = {1}", column, value);
 

@@ -83,7 +83,7 @@ namespace AdminStoreTests
         public void ResetUserPassword_ChangingPasswordAfter24HoursCooldown_VerifyResetUserPasswordWorks(uint length)
         {
             // Setup: Reset the password with valid new password
-            SetUserWithValidPassword(Helper, _adminUser, length);
+            SetUserWithValidPassword(_adminUser, length);
 
             // Execute: Attempt to change the password again after the 24-hours password reset cooldown period.
             string newPassword = CreateValidPassword(length);
@@ -95,32 +95,31 @@ namespace AdminStoreTests
             VerifyLogin(Helper, _adminUser.Username, newPassword);
         }
 
-        [TestCase(MinPasswordLength, "2")]
-        [TestCase(MaxPasswordLength, "3")]
+        [TestCase(MaxPasswordLength, "1")]
         [TestRail(266426)]
         [Description("Reset the user's password with the previously used password which is qualified to be reused " +
-            "(outside of CannotUseLastPasswords boundary). Verify that password rest works and that the user can " +
+            "(outside of CannotUseLastPasswords boundary). Verify that password reset works and that the user can " +
             "login with the updated password.")]
         public void ResetUserPassword_UsingPreviousPasswordGreaterThanPasswordHistoryLimit_PasswordIsChanged(uint length, string cannotUseLastPasswords)
         {
-            // Setup: Reset the password with valid new password
-            SetUserWithValidPassword(Helper, _adminUser, length);
+            // Setup: Reset the password with valid new password.
+            // Update the CannotUseLastPasswords value by setting new value and generate list of valid passwords one 
+            // extra more than the password history limit value
+            SetUserWithValidPassword(_adminUser, length);
 
             int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 2;
 
-            // Setup: Update the CannotUseLastPasswords value by setting new value and generate list of valid passwords,
-            // one extra more than the password history limit value
             List<string> usedValidPasswords = new List<string>();
             for (int i = 0; i < resetExecutionCount; i++)
             {
                 usedValidPasswords.Add(CreateValidPassword(length));
             }
-            var originalCannotUseLastPassword = TestHelper.GetInstances(CANNOTUSELASTPASSWORDS);
-            TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
+            var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
 
             try
             {
-                // Setup: Reset password multiple times (one more than the current CannotUseLastPasswords value)
+                // Reset password multiple times (one more than the current CannotUseLastPasswords value)
                 for (int i = 0; i < resetExecutionCount; i++)
                 {
                     Helper.AdminStore.ResetPassword(_adminUser, usedValidPasswords[i]);
@@ -130,7 +129,7 @@ namespace AdminStoreTests
 
                 // Execute: Change the password using the very first used password value which qualifiess to be reused
                 Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
-                    "POST {0} failed when user tried to reset the password after 24-hours password reset cooldown period.",
+                    "POST {0} failed when user tried to reset password with the used password which is qualified to be reused.",
                     USERSRESET_PATH);
 
                 // Verify: Make sure the user can still login with the updated password.
@@ -139,33 +138,32 @@ namespace AdminStoreTests
             finally
             {
                 // Restore CannotUserLastPasswords back to original value.
-                TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
             }
         }
 
         [TestCase(MinPasswordLength)]
-        [TestCase(MaxPasswordLength)]
         [TestRail(266427)]
         [Description("Disable CannotUseLastPassword by setting its value to '0' and Verify that CannotUseLastPasswords " +
             "feature is disabled by resetting user's password with the same password twice.")]
         public void ResetUserPassword_UsingPreviousPasswordWhenPasswordHistoryLimitDisabled_PasswordIsChanged(uint length)
         {
             // Setup: Reset the password with valid new password
-            SetUserWithValidPassword(Helper, _adminUser, length);
+            SetUserWithValidPassword(_adminUser, length);
 
             // Setup: Disable the CannotUseLastPasswords feature by setting the value to '0' 
-            var originalCannotUseLastPassword = TestHelper.GetInstances(CANNOTUSELASTPASSWORDS);
-            TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, 0.ToStringInvariant());
+            var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, "0");
 
             try
             {
                 // Setup: Reset the password with first updated password
                 string firstUpdatedPassword = CreateValidPassword(length);
-                ResetPassword(Helper, _adminUser, firstUpdatedPassword);
+                ResetPassword(_adminUser, firstUpdatedPassword);
 
                 // Setup: Reset the password with second updated password
                 string secondUpdatedPassword = CreateValidPassword(length);
-                ResetPassword(Helper, _adminUser, secondUpdatedPassword);
+                ResetPassword(_adminUser, secondUpdatedPassword);
 
                 // Execute: Attempt to change the password with the first updated password
                 Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: firstUpdatedPassword),
@@ -178,7 +176,7 @@ namespace AdminStoreTests
             finally
             {
                 // Restore CannotUserLastPasswords back to original value.
-                TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
             }
         }
 
@@ -338,7 +336,6 @@ namespace AdminStoreTests
         }
 
         [TestCase(MinPasswordLength, "2")]
-        [TestCase(MaxPasswordLength, "3")]
         [TestRail(266428)]
         [Description("Reset the user's password with the previously used password which is not qualified to be reused " +
             "(within CannotUseLastPasswords boundary). Verify that 400 BadRequest response and that the user still can " +
@@ -346,7 +343,7 @@ namespace AdminStoreTests
         public void ResetUserPassword_UsingPreviousPasswordLessThanPasswordHistoryLimit_400BadRequest(uint length, string cannotUseLastPasswords)
         {
             // Setup: Reset the password with valid new password
-            SetUserWithValidPassword(Helper, _adminUser, length);
+            SetUserWithValidPassword(_adminUser, length);
 
             int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 1;
 
@@ -357,15 +354,15 @@ namespace AdminStoreTests
                 usedValidPasswords.Add(CreateValidPassword(length));
             }
 
-            var originalCannotUseLastPassword = TestHelper.GetInstances(CANNOTUSELASTPASSWORDS);
-            TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
+            var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
 
             try
             {
                 // Setup: Reset password multiple times which equals current CannotUseLastPasswords value
                 foreach (string password in usedValidPasswords)
                 {
-                    ResetPassword(Helper, _adminUser, password);
+                    ResetPassword(_adminUser, password);
                 }
 
                 // Execute: Attempt to change the password using the used password value not qualified to be reused
@@ -383,7 +380,7 @@ namespace AdminStoreTests
             finally
             {
                 // Restore CannotUserLastPasswords back to original value.
-                TestHelper.UpdateInstances(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
             }
         }
 
@@ -551,30 +548,26 @@ namespace AdminStoreTests
         /// <summary>
         /// Prepares a user with valid password
         /// </summary>
-        /// <param name="helper">TestHelper instance.</param>
         /// <param name="user">user that will have the valid password</param>
         /// <param name="length">length of the password</param>
-        private static void SetUserWithValidPassword(TestHelper helper, IUser user, uint length)
+        private void SetUserWithValidPassword(IUser user, uint length)
         {
-            ThrowIf.ArgumentNull(helper, nameof(helper));
             ThrowIf.ArgumentNull(user, nameof(user));
 
             string successfullyChangedPassword = CreateValidPassword(length);
-            ResetPassword(helper, user, successfullyChangedPassword);
+            ResetPassword(user, successfullyChangedPassword);
         }
 
         /// <summary>
         /// Resets password for the user
         /// </summary>
-        /// <param name="helper">TestHelper instance.</param>
         /// <param name="user">user that will have the password</param>
         /// <param name="password">password</param>
-        private static void ResetPassword(TestHelper helper, IUser user, string password)
+        private void ResetPassword(IUser user, string password)
         {
-            ThrowIf.ArgumentNull(helper, nameof(helper));
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            helper.AdminStore.ResetPassword(user, password);
+            Helper.AdminStore.ResetPassword(user, password);
             user.Password = password;
             SimulateTimeSpentAfterLastPasswordUpdate(user);
         }

@@ -1,6 +1,6 @@
 ﻿using Model.ArtifactModel.Impl.PredefinedProperties;
-using System;
 using System.Collections.Generic;
+using Model.Common.Enums;
 using Utilities;
 
 

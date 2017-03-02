@@ -206,6 +206,8 @@ App_UP_Relationships_Delete_Traces,"Delete Traces"
 App_UP_Relationships_Change_Trace,"Change Direction"
 App_UP_Relationships_Add_Trace,"Add Trace"
 App_UP_Relationships_Selected_Artifact,"Selected Artifact"
+App_UP_Reviews_No_Relationships,"This Baseline has not been used for any Reviews"
+
 Confirmation_Delete_Trace,"Please confirm the deletion of the trace."
 Confirmation_Delete_Traces,"Please confirm the deletion of the selected traces ({0})."
 App_UP_Relationships_Introduction_Message,"A trace is one type of relationship that can exist between artifacts. Traces define the direction of the relationship."

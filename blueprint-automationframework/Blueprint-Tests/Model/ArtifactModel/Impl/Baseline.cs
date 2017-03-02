@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
+using Model.Common.Enums;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl

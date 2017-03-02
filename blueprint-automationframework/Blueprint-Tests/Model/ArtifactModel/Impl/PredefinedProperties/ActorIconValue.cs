@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Model.Common.Enums;
 using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl.PredefinedProperties
@@ -49,7 +50,7 @@ namespace Model.ArtifactModel.Impl.PredefinedProperties
             // TODO: add code which adds imageSource key with base64 encoded image (?!) to mock fron-end behaviour
         }
 
-        static public readonly PropertyTypePredefined PropertyType = PropertyTypePredefined.ActorIcon;
+        public static readonly PropertyTypePredefined PropertyType = PropertyTypePredefined.Image;
 
         private const string outIconKey = "url";
         private const string inIconKey = "guid";

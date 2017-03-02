@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Net;
+using Model.Common.Enums;
 using Model.StorytellerModel.Impl;
 
 namespace Model.StorytellerModel
@@ -67,28 +68,5 @@ namespace Model.StorytellerModel
         /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>Result of updating nonfunctional requrements</returns>
         UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address, IUser user, string value, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
-    }
-
-    public interface IStorytellerProperty
-    {
-        /// <summary>
-        /// Name of the Storyteller Property
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
-        /// Type Id of the Storyteller Property
-        /// </summary>
-        int PropertyTypeId { get; set; }
-
-        /// <summary>
-        /// PropertyType of the Storyteller Property
-        /// </summary>
-        int? PropertyType { get; set; }
-
-        /// <summary>
-        /// Value of the Storyteller Property
-        /// </summary>
-        string Value { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model.StorytellerModel.Enums;
 using Utilities;
 using Utilities.Factories;
 

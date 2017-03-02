@@ -99,6 +99,7 @@
     <Compile Include="Common\Constants\ApiBusinessErrorCodes.cs" />
     <Compile Include="Common\Enums\InstanceAdminRole.cs" />
     <Compile Include="Common\Enums\InstanceAdminRoleExtension.cs" />
+    <Compile Include="Common\Enums\PropertyTypePredefined.cs" />
     <Compile Include="Factories\OpenApiFactory.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
     <Compile Include="Factories\SearchServiceFactory.cs" />
@@ -168,9 +169,21 @@
     <Compile Include="SearchServiceModel\Impl\SearchService.cs" />
     <Compile Include="SearchServiceModel\Impl\FullTextSearchCriteria.cs" />
     <Compile Include="SearchServiceModel\ISearchService.cs" />
+    <Compile Include="StorytellerModel\Enums\ProcessShapeType.cs" />
+    <Compile Include="StorytellerModel\Enums\ProcessStatusState.cs" />
+    <Compile Include="StorytellerModel\Enums\ProcessType.cs" />
+    <Compile Include="StorytellerModel\Enums\PropertyTypeName.cs" />
+    <Compile Include="StorytellerModel\Impl\DecisionBranchDestinationLink.cs" />
+    <Compile Include="StorytellerModel\Impl\ProcessLink.cs" />
+    <Compile Include="StorytellerModel\Impl\ProcessShape.cs" />
+    <Compile Include="StorytellerModel\Impl\ProcessStatus.cs" />
+    <Compile Include="StorytellerModel\Impl\PropertyValueInformation.cs" />
+    <Compile Include="StorytellerModel\Impl\StoryLink.cs" />
+    <Compile Include="StorytellerModel\Impl\StorytellerProperty.cs" />
     <Compile Include="StorytellerModel\Impl\StorytellerUserStory.cs" />
     <Compile Include="StorytellerModel\Impl\Storyteller.cs" />
     <Compile Include="StorytellerModel\Impl\Process.cs" />
+    <Compile Include="StorytellerModel\Impl\VersionInfo.cs" />
     <Compile Include="StorytellerModel\IProcessLink.cs" />
     <Compile Include="StorytellerModel\IProcessShape.cs" />
     <Compile Include="StorytellerModel\IProcess.cs" />
@@ -240,6 +253,7 @@
     <Compile Include="ISession.cs" />
     <Compile Include="Archive\IStandardPack.cs" />
     <Compile Include="Archive\ArtifactModel\IStoryboard.cs" />
+    <Compile Include="StorytellerModel\IStorytellerProperty.cs" />
     <Compile Include="StorytellerModel\IStorytellerUserStory.cs" />
     <Compile Include="Archive\ArtifactModel\ITextualRequirement.cs" />
     <Compile Include="Archive\ITheme.cs" />

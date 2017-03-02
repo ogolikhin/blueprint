@@ -4,6 +4,7 @@ using Model.Factories;
 using NUnit.Framework;
 using Model.StorytellerModel;
 using Helper;
+using Model.StorytellerModel.Enums;
 using TestCommon;
 
 namespace StorytellerTests

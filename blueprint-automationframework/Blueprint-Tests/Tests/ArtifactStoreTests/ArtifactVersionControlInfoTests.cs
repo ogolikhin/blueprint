@@ -6,7 +6,7 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Common.Enums;
 using Model.Factories;
-using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using TestCommon;

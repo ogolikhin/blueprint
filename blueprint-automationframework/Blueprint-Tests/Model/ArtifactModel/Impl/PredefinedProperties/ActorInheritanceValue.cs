@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Model.Common.Enums;
 
 namespace Model.ArtifactModel.Impl.PredefinedProperties
 {
@@ -17,6 +18,6 @@ namespace Model.ArtifactModel.Impl.PredefinedProperties
 
         public bool HasAccess { get; set; }
 
-        static public readonly PropertyTypePredefined PropertyType = PropertyTypePredefined.ActorInheritance;
+        public static readonly PropertyTypePredefined PropertyType = PropertyTypePredefined.ActorInheritance;
     }
 }

@@ -11,9 +11,11 @@ using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using Model.StorytellerModel.Enums;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
+using Model.Common.Enums;
 
 namespace StorytellerTests
 {
@@ -665,7 +667,7 @@ namespace StorytellerTests
         private static void AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(string taskName, IProcess savedProcess)
         {
             var task = savedProcess.GetProcessShapeByShapeName(taskName);
-            var personaPropertyValue = task.PropertyValues[Model.StorytellerModel.PropertyTypePredefined.Persona.ToString().LowerCaseFirstCharacter()].Value.ToString();
+            var personaPropertyValue = task.PropertyValues[PropertyTypePredefined.Persona.ToString().LowerCaseFirstCharacter()].Value.ToString();
 
             Assert.AreEqual(task.PersonaReference.Name, personaPropertyValue,
                 "The persona reference name and persona property value should be the same " +

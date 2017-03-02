@@ -1249,28 +1249,9 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifact.Id, newParentId);
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var movedArtifact = MoveArtifact(address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
 
-            Dictionary<string, string> queryParams = null;
-
-            if (orderIndex != null)
-            {
-                queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
-            }
-
-            var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
-                path,
-                RestRequestMethod.POST,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            if (restApi.StatusCode == HttpStatusCode.OK)
-            {
-                // Set the IsSaved flag for the artifact so the Dispose() works properly.
-                artifact.IsSaved = true;
-            }
+            artifact.IsSaved = true;
 
             return movedArtifact;
         }
@@ -1460,6 +1441,36 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return traceDetails;
+        }
+
+        public static INovaArtifactDetails MoveArtifact(string address,
+            int artifactId,
+            int newParentId,
+            IUser user,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifactId,
+                newParentId);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (orderIndex != null)
+            {
+                queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
+            }
+
+            var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+                path,
+                RestRequestMethod.POST,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return movedArtifact;
         }
 
         #region Process methods

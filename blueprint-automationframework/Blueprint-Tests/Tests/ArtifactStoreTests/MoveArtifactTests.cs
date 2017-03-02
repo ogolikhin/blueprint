@@ -11,11 +11,13 @@ using System.Linq;
 using Model.ArtifactModel.Impl;
 using TestCommon;
 using Utilities;
+using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // TODO: create separate class for tests with Baselines & Collections.
     public class MoveArtifactTests : TestBase
     {
         private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_;
@@ -434,6 +436,43 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertArtifactsEqual(copyResult.Artifact, movedArtifactDetails, skipParentId: true);
 
             Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as folder2 Id!");
+        }
+
+        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestRail(1)]
+        [Description("Create aftifact of baseline/baseline folder type. Move this artifact to be a child of the baseline folder. " +
+            "Verify the moved artifact is returned with the updated Parent ID.")]
+        public void MoveArtifact_BaselineOrBaselineFolder_MovedTobaselineFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
+                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var newBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author,
+                ItemTypePredefined.BaselineFolder, artifactName, _project, defaultBaselineFolder.Id);
+
+            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType,
+                artifactName, _project, defaultBaselineFolder.Id);
+
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
+                    newBaselineFolder.Id, author);
+            }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
+
+            // Verify:
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
+            Assert.AreEqual(newBaselineFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
 
         #endregion 200 OK tests

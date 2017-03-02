@@ -119,7 +119,8 @@ namespace AdminStoreTests
 
             try
             {
-                // Reset password multiple times (one more than the current CannotUseLastPasswords value)
+                // Reset password cannotUseLastPasswords + 2 times so that the first used password from
+                // usedValidPasswords can be reused
                 for (int i = 0; i < resetExecutionCount; i++)
                 {
                     Helper.AdminStore.ResetPassword(_adminUser, usedValidPasswords[i]);

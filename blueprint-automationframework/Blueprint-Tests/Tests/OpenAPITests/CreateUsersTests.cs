@@ -468,13 +468,12 @@ namespace OpenAPITests
                 "User is created, but cannot be added to a group");
         }
 
-        //  Bug http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5486
+        //  Bug http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5486 Allowed in BP emails at the moment
         //  [TestCase(".email@domain.com")]
         //  [TestCase("email.@domain.com")]
         //  [TestCase("email..email@domain.com")]
         //  [TestCase("あいうえお@domain.com")]
         //  [TestCase("email@-domain.com")]
-
         [TestCase("plainaddress")]
         [TestCase("A#@%^%#$@#$@#.com")]
         [TestCase("@domain.com ")]
@@ -502,7 +501,8 @@ namespace OpenAPITests
             // Verify:
             Assert.AreEqual(usersWithWrongEmailAddress.Count, result.Count, "Wrong number of User results were returned!");
 
-            VerifyCreateUserResultSet(usersWithWrongEmailAddress, result, BusinessLayerErrorCodes.UserValidationFailed, "Invalid email address. Use following format: user@company.com");
+            VerifyCreateUserResultSet(usersWithWrongEmailAddress, result, BusinessLayerErrorCodes.UserValidationFailed, 
+                "Invalid email address. Use following format: user@company.com");
         }
 
         #endregion 409 Conflict

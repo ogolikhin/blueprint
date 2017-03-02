@@ -440,7 +440,7 @@ namespace ArtifactStoreTests
 
         [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
         [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
-        [TestRail(1)]
+        [TestRail(266500)]
         [Description("Create aftifact of baseline/baseline folder type. Move this artifact to be a child of the baseline folder. " +
             "Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_BaselineOrBaselineFolder_MovedTobaselineFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)

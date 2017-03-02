@@ -643,13 +643,19 @@ namespace ServiceLibrary.Repositories
             {                
                 IDictionary<int, ArtifactShortInfo> pathArray;
                 if (!artifactNavigationPaths.TryGetValue(artifactsNavigationPath.ArtifactId, out pathArray))
-                {                    
-                    var addedRecord = AddNavigationPathRecord(
-                                 artifactsNavigationPath.ParentId.Value,
-                                 null,
-                                 artifactsNavigationPath.Level + 1,
-                                 artifactsNavigationPath.ArtifactId,
-                                 artifactNavigationPaths);
+                {
+                    var addedRecord = AddNavigationPathRecord(                           
+                            artifactsNavigationPath.ArtifactId,
+                            artifactNavigationPaths);
+
+                    if (artifactsNavigationPath.ParentId.HasValue)
+                    {                        
+                        AddArtifactShortInfo(
+                            artifactsNavigationPath.ParentId.Value,
+                            null,
+                            artifactsNavigationPath.Level + 1,
+                            addedRecord);
+                    }
 
                     if (includeArtifactItself || artifactsNavigationPath.Level > 0)
                     {                        
@@ -717,18 +723,10 @@ namespace ServiceLibrary.Repositories
             pathArray.Add(level, artifactInfo);
         }
 
-        private static Dictionary<int, ArtifactShortInfo> AddNavigationPathRecord(int id, string name, int level, int artifactId,
+        private static Dictionary<int, ArtifactShortInfo> AddNavigationPathRecord(int artifactId,
             Dictionary<int, IDictionary<int, ArtifactShortInfo>> artifactNavigationPaths)
-        {            
-            var info = new ArtifactShortInfo
-            {
-                Id = id,
-                Name = name
-            };
-            var pathArray = new Dictionary<int, ArtifactShortInfo>
-            {
-                {level, info}
-            };
+        {                        
+            var pathArray = new Dictionary<int, ArtifactShortInfo>();            
 
             artifactNavigationPaths.Add(artifactId, pathArray);
             return pathArray;

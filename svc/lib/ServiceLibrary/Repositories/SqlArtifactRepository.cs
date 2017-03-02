@@ -617,7 +617,7 @@ namespace ServiceLibrary.Repositories
 
         #region GetArtifactsNavigationPathsAsync
 
-        public async Task<IDictionary<int, IEnumerable<ArtifactShortInfo>>> GetArtifactsNavigationPathsAsync(
+        public async Task<IDictionary<int, IEnumerable<Artifact>>> GetArtifactsNavigationPathsAsync(
             int userId,
             IEnumerable<int> artifactIds,
             bool includeArtifactItself = true,
@@ -631,17 +631,17 @@ namespace ServiceLibrary.Repositories
 
             var param = new DynamicParameters();
             param.Add("@userId", userId);
-            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value"));
+            param.Add("@artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds));
             param.Add("@revisionId", revisionId ?? int.MaxValue);
             param.Add("@addDrafts", addDraft);
 
             var itemPaths = (await _connectionWrapper.QueryAsync<ArtifactsNavigationPath>("GetArtifactsNavigationPaths", param, commandType: CommandType.StoredProcedure)).ToList();
 
-            var artifactNavigationPaths = new Dictionary<int, IDictionary<int, ArtifactShortInfo>>();
+            var artifactNavigationPaths = new Dictionary<int, IDictionary<int, Artifact>>();
 
             foreach (var artifactsNavigationPath in itemPaths)
             {                
-                IDictionary<int, ArtifactShortInfo> pathArray;
+                IDictionary<int, Artifact> pathArray;
                 if (!artifactNavigationPaths.TryGetValue(artifactsNavigationPath.ArtifactId, out pathArray))
                 {
                     var addedRecord = AddNavigationPathRecord(                           
@@ -668,7 +668,7 @@ namespace ServiceLibrary.Repositories
                 }
                 else
                 {
-                    ArtifactShortInfo artifactShortInfoForCurrentLevel;
+                    Artifact artifactShortInfoForCurrentLevel;
                     if (pathArray.TryGetValue(artifactsNavigationPath.Level, out artifactShortInfoForCurrentLevel))
                     {
                         artifactShortInfoForCurrentLevel.Name = artifactsNavigationPath.Name;
@@ -689,7 +689,7 @@ namespace ServiceLibrary.Repositories
 
                     if (artifactsNavigationPath.ParentId.HasValue)
                     {
-                        ArtifactShortInfo artifactShortInfoForNextLevel;
+                        Artifact artifactShortInfoForNextLevel;
                         if (pathArray.TryGetValue(artifactsNavigationPath.Level + 1, out artifactShortInfoForNextLevel))
                         {
                             artifactShortInfoForNextLevel.Id = artifactsNavigationPath.ParentId.Value;
@@ -703,7 +703,7 @@ namespace ServiceLibrary.Repositories
                 }
             }
 
-            var result = new Dictionary<int, IEnumerable<ArtifactShortInfo>>(artifactNavigationPaths.Count);
+            var result = new Dictionary<int, IEnumerable<Artifact>>(artifactNavigationPaths.Count);
 
             foreach (var entry in artifactNavigationPaths)
             {                
@@ -713,9 +713,9 @@ namespace ServiceLibrary.Repositories
             return result;
         }
 
-        private static void AddArtifactShortInfo(int id, string name, int level, IDictionary<int, ArtifactShortInfo> pathArray)
+        private static void AddArtifactShortInfo(int id, string name, int level, IDictionary<int, Artifact> pathArray)
         {
-            var artifactInfo = new ArtifactShortInfo
+            var artifactInfo = new Artifact
             {
                 Id = id,
                 Name = name
@@ -723,10 +723,10 @@ namespace ServiceLibrary.Repositories
             pathArray.Add(level, artifactInfo);
         }
 
-        private static Dictionary<int, ArtifactShortInfo> AddNavigationPathRecord(int artifactId,
-            Dictionary<int, IDictionary<int, ArtifactShortInfo>> artifactNavigationPaths)
+        private static Dictionary<int, Artifact> AddNavigationPathRecord(int artifactId,
+            Dictionary<int, IDictionary<int, Artifact>> artifactNavigationPaths)
         {                        
-            var pathArray = new Dictionary<int, ArtifactShortInfo>();            
+            var pathArray = new Dictionary<int, Artifact>();            
 
             artifactNavigationPaths.Add(artifactId, pathArray);
             return pathArray;

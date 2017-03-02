@@ -1722,7 +1722,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }
@@ -1784,7 +1784,7 @@ namespace ServiceLibrary.Repositories
             cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
                 new Dictionary<string, object>
                 {
-                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds, "Int32Collection", "Int32Value")},
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
                     { "userId", userId },
                     { "revisionId", int.MaxValue },
                     { "addDrafts", true }

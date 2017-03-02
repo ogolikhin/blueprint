@@ -970,7 +970,7 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
 
-            var newUser = CreateUserAndAddToDatabase();
+            var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null);
 
             foreach (var project in projects)
             {

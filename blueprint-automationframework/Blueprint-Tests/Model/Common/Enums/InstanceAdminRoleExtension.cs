@@ -29,7 +29,12 @@ namespace Model.Common.Enums
         /// <returns>The string version of this InstanceAdminRole.</returns>
         public static string ToInstanceAdminRoleString(this InstanceAdminRole? instanceAdminRole)
         {
-            return InstanceAdminRoleStringMap[instanceAdminRole];
+            if (instanceAdminRole != null)
+            {
+                return InstanceAdminRoleStringMap[instanceAdminRole];
+            }
+
+            return null;
         }
 
         /// <summary>

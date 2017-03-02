@@ -1443,6 +1443,18 @@ namespace Model.Impl
             return traceDetails;
         }
 
+        /// <summary>
+        /// Moves an artifact to a different parent.
+        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactId">The Id of artifact to move.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The details of the artifact that we moved.</returns>
         public static INovaArtifactDetails MoveArtifact(string address,
             int artifactId,
             int newParentId,

@@ -4,8 +4,8 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Model.Common.Enums;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -413,16 +413,6 @@ namespace Model.ArtifactModel.Impl
         public RapidReviewUseCasePostCondition PostCondition { get; set; }
 
         #endregion Serialized JSON Properties
-    }
-
-    [SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
-    public enum PropertyTypePredefined
-    {
-        ActorInheritance = 4128,
-        BaselineContent = 4136,
-        DocumentFile = 4129,
-        CollectionContent = 4135,
-        ActorIcon = 8202
     }
 
     public class CustomProperty

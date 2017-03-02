@@ -9,7 +9,7 @@ using Model.ArtifactModel;
 using System.Linq;
 using Helper;
 using Model.ArtifactModel.Impl;
-using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using TestCommon;
 using Utilities;

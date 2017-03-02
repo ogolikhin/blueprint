@@ -2,10 +2,10 @@
 using Helper;
 using Model;
 using Model.Factories;
-using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Linq;
+using Model.StorytellerModel.Enums;
 using TestCommon;
 
 namespace StorytellerTests

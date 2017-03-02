@@ -5,10 +5,10 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
-using Model.StorytellerModel;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Model.OpenApiModel.Services;
+using Model.StorytellerModel.Enums;
 using TestCommon;
 using Utilities;
 

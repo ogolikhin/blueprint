@@ -3,7 +3,7 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using Helper;
-using Model.StorytellerModel;
+using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using Utilities.Factories;
 using TestCommon;

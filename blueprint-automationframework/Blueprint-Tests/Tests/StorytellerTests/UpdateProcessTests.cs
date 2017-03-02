@@ -9,7 +9,7 @@ using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
+using Model.StorytellerModel.Enums;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;

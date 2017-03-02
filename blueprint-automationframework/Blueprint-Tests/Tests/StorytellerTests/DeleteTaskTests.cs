@@ -3,9 +3,9 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using Helper;
-using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using System.Linq;
+using Model.StorytellerModel.Enums;
 using TestCommon;
 
 namespace StorytellerTests

@@ -78,7 +78,23 @@ namespace ArtifactStore.Controllers
 
             //Assert
             Assert.IsNotNull(result);
+            Assert.IsNotNull(result.ThreadStatuses);
             Assert.AreEqual(artifactId, result.Discussions.ElementAt(0).ItemId);
+        }
+
+        [TestMethod]
+        [Ignore]
+        public async Task GetThreadStatusCollection()
+        {
+            //Arrange
+            const int projectId = 4;
+
+            var repo = new SqlDiscussionsRepository();
+            var result = await repo.GetThreadStatusCollection(projectId);
+
+           
+            //Assert
+            Assert.IsNotNull(result);
         }
 
         [TestMethod]

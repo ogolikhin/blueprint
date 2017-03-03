@@ -24,9 +24,20 @@ namespace ArtifactStore.Models
 
     public class ThreadStatus
     {
-        private string Setting { get; set; }
+        private string _setting;
+        private string Setting
+        {
+            get
+            {
+                return _setting ?? ";";
+            }
+            set
+            {
+                _setting = value ?? ";";
+            }
+        }
         public int StatusId { get; set; }
-        public bool ReadOnly { get; set; }
+
         public bool IsClosed
         {
             get
@@ -45,6 +56,9 @@ namespace ArtifactStore.Models
             {
                 string[] parts = Setting.Split(';');
                 return parts.Length == 2 ? parts[1] : "";
+
+                // Wouldn't work if table data is just a Space but not NULL
+                //return Setting.Split(';')[1];    
             }
             set
             {

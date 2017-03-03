@@ -392,13 +392,13 @@ namespace ArtifactStoreTests
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
 
-            var commentWithStatus = new RaptorComment();
-            commentWithStatus.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var comment = new RaptorComment();
+            comment.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.UpdateRaptorDiscussion(commentWithStatus, _adminUser, raptorComment);             
+                artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment);             
             }, "UpdateDiscussion should throw 403 error, but it doesn't.");
 
             // Verify:

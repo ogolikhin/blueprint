@@ -1251,7 +1251,10 @@ namespace Model.Impl
 
             var movedArtifact = MoveArtifact(address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
 
-            artifact.IsSaved = true;
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
+            {
+                artifact.IsSaved = true;
+            }
 
             return movedArtifact;
         }

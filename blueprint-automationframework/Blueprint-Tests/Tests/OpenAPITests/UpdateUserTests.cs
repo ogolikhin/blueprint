@@ -6,6 +6,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Common.Constants;
+using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
 using Model.OpenApiModel.UserModel.Results;
@@ -13,6 +14,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 using Utilities.Factories;
 
 namespace OpenAPITests
@@ -72,6 +74,71 @@ namespace OpenAPITests
 
             // Verify:
             VerifyUpdateUserResultSet(result, usersToUpdate, expectedSuccessfullyUpdatedUsers: userDataToUpdate);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        [TestRail(266523)]
+        [Description("Update all user updatable properties for a user and verify that the user was updated.")]
+        public void UpdateUser_ChangeAllValidUserParameters_VerifyUserUpdated(bool userEnabled)
+        {
+            // Setup:
+            var groups = CreateGroupsInDatabase(3);
+            var userToUpdate = Helper.CreateUserAndAddToDatabase();
+            var usersToUpdate = new List<IUser> { userToUpdate };
+
+            // Update all string properties.
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.DisplayName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.FirstName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.LastName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.Title), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
+                { nameof(UserDataModel.Password), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) + "Ab1$" },
+                { nameof(UserDataModel.InstanceAdminRole), InstanceAdminRole.BlueprintAnalytics.ToInstanceAdminRoleString() },
+                { nameof(UserDataModel.Email), "user@domain.com" },
+            };
+
+            var singleUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
+
+            // Now update non-string properties.
+            singleUserDataToUpdate.Groups.AddRange(groups);
+            singleUserDataToUpdate.GroupIds.AddRange(groups.Select(g => g.GroupId));
+            singleUserDataToUpdate.ExpirePassword = true;
+            singleUserDataToUpdate.Enabled = userEnabled;
+            singleUserDataToUpdate.FallBack = false;
+
+            var userDataToUpdate = new List<UserDataModel> { singleUserDataToUpdate };
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
+                "'PATCH {0}' should return '200 OK' when valid data is passed to it!", UPDATE_PATH);
+
+            // Verify:
+            VerifyUpdateUserResultSet(result, usersToUpdate, expectedSuccessfullyUpdatedUsers: userDataToUpdate);
+
+            // Try to login with the old password.
+            Assert.Throws<Http401UnauthorizedException>(
+                () => { Helper.BlueprintServer.LoginUsingBasicAuthorization(userToUpdate); },
+                "Login should fail when using the old password!");
+
+            // Now login with the new password.
+            userToUpdate.Password = singleUserDataToUpdate.Password;
+
+            if (userEnabled)
+            {
+                Assert.DoesNotThrow(() => { Helper.BlueprintServer.LoginUsingBasicAuthorization(userToUpdate); },
+                    "Login should succeed when using the new password and user is enabled!");
+            }
+            else
+            {
+                Assert.Throws<Http401UnauthorizedException>(
+                    () => { Helper.BlueprintServer.LoginUsingBasicAuthorization(userToUpdate); },
+                    "Login should fail when using the new password and user is disabled!");
+            }
         }
 
         [TestCase]
@@ -169,6 +236,10 @@ namespace OpenAPITests
                 expectedSuccessfullyUpdatedUsers: activeUserDataToUpdate,
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser });
         }
+
+        // TODO: Add 207 tests setting a required property of 1 user to blank.
+        // TODO: Add 207 test setting 1 user's group to an invalid group.
+        // TODO: Add 207 test setting 1 user to an invalid InstanceAdminRole.
 
         #endregion Positive tests
 
@@ -343,7 +414,6 @@ namespace OpenAPITests
                 checkIfUserExists: false);
         }
         
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/BcLoVMgY  Gets 500 error instead of 409.
         [TestCase]
         [TestRail(266484)]
         [Description("Update a user with non-existing admin role.  Verify 409 Conflict is returned.")]
@@ -472,7 +542,24 @@ namespace OpenAPITests
             public int ErrorCode { get; set; }
             public string ErrorMessage { get; set; }
         }
-        
+
+        /// <summary>
+        /// Creates a specified number of Groups and adds them to the database.
+        /// </summary>
+        /// <param name="numberOfGroups">The number of groups to create.</param>
+        /// <returns>The list of groups that were created.</returns>
+        private List<IGroup> CreateGroupsInDatabase(uint numberOfGroups)
+        {
+            var groupList = new List<IGroup>();
+
+            for (uint i = 0; i < numberOfGroups; ++i)
+            {
+                groupList.Add(Helper.CreateGroupAndAddToDatabase());
+            }
+
+            return groupList;
+        }
+
         /// <summary>
         /// Creates a list of new UserDataModels with only one property updated.
         /// </summary>

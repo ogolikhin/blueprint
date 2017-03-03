@@ -445,7 +445,7 @@ namespace Model.ArtifactModel.Impl
         /// <returns>updated RaptorDiscussion</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToUpdate,
-            JsonDiscussionCallBody commentAndStatus, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            RaptorComment comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
@@ -454,9 +454,9 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, itemId, discussionToUpdate.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            return restApi.SendRequestAndDeserializeObject<RaptorDiscussion, JsonDiscussionCallBody>(path,
+            return restApi.SendRequestAndDeserializeObject<RaptorDiscussion, RaptorComment>(path,
                 RestRequestMethod.PATCH,
-                commentAndStatus,
+                comment,
                 expectedStatusCodes: expectedStatusCodes);
         }
 

@@ -229,14 +229,14 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
 
-            var commentWithStatus = new JsonDiscussionCallBody();
-            commentWithStatus.Comment = "updated text";
+            var comment = new RaptorComment();
+            comment.Comment = "updated text";
 
             // Execute:
             IDiscussionAdaptor updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion(commentWithStatus, _authorUser, postedRaptorComment);
+                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, postedRaptorComment);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -258,21 +258,21 @@ namespace ArtifactStoreTests
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             IDiscussionAdaptor updatedDiscussion = null;
 
-            var commentWithStatus = new JsonDiscussionCallBody();
-            commentWithStatus.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var comment = new RaptorComment();
+            comment.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address,
-                    userTask.Id, postedRaptorComment, commentWithStatus, _authorUser);
+                    userTask.Id, postedRaptorComment, comment, _authorUser);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentWithStatus.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
         }
 
         [TestCase]
@@ -368,17 +368,17 @@ namespace ArtifactStoreTests
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
             IDiscussionAdaptor updatedRaptorReply = null;
 
-            var commentWithStatus = new JsonDiscussionCallBody();
-            commentWithStatus.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var comment = new RaptorComment();
+            comment.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedRaptorReply = artifact.UpdateRaptorDiscussion(commentWithStatus, _authorUser, raptorComment);
+                updatedRaptorReply = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentWithStatus.Comment), updatedRaptorReply.Comment, "Updated comment must have proper text.");
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedRaptorReply.Comment, "Updated comment must have proper text.");
         }
 
         [TestCase]
@@ -392,7 +392,7 @@ namespace ArtifactStoreTests
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
 
-            var commentWithStatus = new JsonDiscussionCallBody();
+            var commentWithStatus = new RaptorComment();
             commentWithStatus.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             // Execute:

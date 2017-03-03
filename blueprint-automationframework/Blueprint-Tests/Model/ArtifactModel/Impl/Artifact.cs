@@ -327,14 +327,14 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <seealso cref="IArtifact.UpdateRaptorDiscussion(string, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
-        public IRaptorDiscussion UpdateRaptorDiscussion(JsonDiscussionCallBody commentAndStatus,
+        public IRaptorDiscussion UpdateRaptorDiscussion(RaptorComment comment,
             IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
 
-            return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, commentAndStatus, user, expectedStatusCodes);
+            return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
         public string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion discussionToDelete,
@@ -804,7 +804,7 @@ namespace Model.ArtifactModel.Impl
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address,
             int itemId, IDiscussionAdaptor discussionToUpdate,
-            JsonDiscussionCallBody commentAndStatus,
+            RaptorComment commentAndStatus,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {

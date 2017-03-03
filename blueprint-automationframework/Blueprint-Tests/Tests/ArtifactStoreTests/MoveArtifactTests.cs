@@ -61,7 +61,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _authorUser);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, parentArtifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -87,7 +87,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _authorUser);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, parentArtifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -185,7 +185,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _authorUser);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -255,7 +255,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _authorUser);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -291,7 +291,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, collectionFolder.Id, author);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, collectionFolder.Id, author);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
@@ -325,7 +325,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, defaultCollectionFolder.Id, author);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, defaultCollectionFolder.Id, author);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
@@ -712,7 +712,7 @@ namespace ArtifactStoreTests
             artifact.Lock(author);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, parentArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, parentArtifact.Id, author),
                "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
@@ -741,7 +741,7 @@ namespace ArtifactStoreTests
             childArtifact.Lock(author);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, childArtifact, parentArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, parentArtifact.Id, author),
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -770,7 +770,7 @@ namespace ArtifactStoreTests
             collection.Lock(author);
              
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, collection, collectionArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, collection, collectionArtifact.Id, author),
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:
@@ -952,7 +952,7 @@ namespace ArtifactStoreTests
             artifact.Lock();
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
+            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
             // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
@@ -968,7 +968,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
+            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
             // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
@@ -985,7 +985,7 @@ namespace ArtifactStoreTests
             artifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, artifactId, _authorUser),
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, artifactId, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -1002,7 +1002,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, artifactId, _authorUser),
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, artifactId, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:

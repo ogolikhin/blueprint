@@ -37,9 +37,10 @@ namespace Model.Impl
         [JsonIgnore]
         public GroupSource Source { get; set; }//for now Database groups only
 
-        #region Serialized Properties
-
+        [JsonIgnore]
         public string Email { get; set; }
+
+        #region Serialized Properties
 
         [JsonProperty("Id")]
         public int GroupId { get; set; }
@@ -47,7 +48,7 @@ namespace Model.Impl
         public string Name { get; set; }
 
         [JsonProperty("Type")]
-        public string GroupType { get; set; }
+        public string GroupType { get; set; } = "Group";
 
         #endregion Serialized Properties
 
@@ -258,15 +259,14 @@ namespace Model.Impl
         /// </summary>
         /// <param name="expectedGroupData">Expected group data</param>
         /// <param name="actualGroupData">Actual group data</param>
-        public static void AssertAreEqual(Group expectedGroupData, Group actualGroupData)
+        public static void AssertAreEqual(IGroup expectedGroupData, IGroup actualGroupData)
         {
             ThrowIf.ArgumentNull(expectedGroupData, nameof(expectedGroupData));
             ThrowIf.ArgumentNull(actualGroupData, nameof(actualGroupData));
 
-            Assert.AreEqual(expectedGroupData.Email, actualGroupData.Email, "'{0}' has a different value than expected!", nameof(Email));
             Assert.AreEqual(expectedGroupData.GroupId, actualGroupData.GroupId, "'{0}' has a different value than expected!", nameof(GroupId));
             Assert.AreEqual(expectedGroupData.Name, actualGroupData.Name, "'{0}' has a different value than expected!", nameof(Name));
-            Assert.AreEqual(expectedGroupData.GroupType, actualGroupData.GroupType, "'{0}' has a different value than expected!", nameof(Email));
+            Assert.AreEqual(expectedGroupData.GroupType, actualGroupData.GroupType, "'{0}' has a different value than expected!", nameof(GroupType));
         }
 
         #endregion Methods

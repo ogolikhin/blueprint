@@ -83,21 +83,6 @@ namespace ArtifactStore.Controllers
         }
 
         [TestMethod]
-        [Ignore]
-        public async Task GetThreadStatusCollection()
-        {
-            //Arrange
-            const int projectId = 4;
-
-            var repo = new SqlDiscussionsRepository();
-            var result = await repo.GetThreadStatusCollection(projectId);
-
-           
-            //Assert
-            Assert.IsNotNull(result);
-        }
-
-        [TestMethod]
         public async Task GetDiscussions_Forbidden()
         {
             //Arrange

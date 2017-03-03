@@ -272,6 +272,21 @@ CREATE TABLE [dbo].[Logs](
 	[id] ASC
 )) ON [PRIMARY]
 GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PasswordRecoveryTokens]') AND type in (N'U'))
+DROP TABLE [dbo].[PasswordRecoveryTokens]
+GO
+
+CREATE TABLE [dbo].[PasswordRecoveryTokens](
+    [UserName] [nvarchar](max),
+    [CreationTime] [datetime] NOT NULL,
+    [RecoveryToken] [uniqueidentifier] NOT NULL,
+
+	 CONSTRAINT [PK_PasswordRecoveryTokens] PRIMARY KEY CLUSTERED 
+(
+	[RecoveryToken] ASC
+)) ON [PRIMARY]
+GO
+
 
 /******************************************************************************************************************************
 Name:			LogsType

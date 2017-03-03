@@ -1693,6 +1693,132 @@ namespace ServiceLibrary.Repositories
             Assert.AreEqual(queryResult.Length, actual.Count);
         }
 
+        /**
+         * P (99)
+         *       \
+         *        A (100) 
+         *               \
+         *                B (101)         
+         */
+        [TestMethod]
+        public async Task GetArtifactsNavigationPathsAsync_TwoArtifactsNotIncludeItself_Success()
+        {
+            var artifact1Id = 100;
+            var artifact2Id = 101;
+            int projectId = 99;
+            // Arrange
+            int[] artifactIds = { artifact1Id, artifact2Id };            
+            const int userId = 1;
+
+            ArtifactsNavigationPath[] queryResult = {
+                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
+                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
+                new Dictionary<string, object>
+                {
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
+                    { "userId", userId },
+                    { "revisionId", int.MaxValue },
+                    { "addDrafts", true }
+                },
+                queryResult);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
+
+            // Act
+            var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds, false);
+
+            // Assert
+            Assert.AreEqual(artifactIds.Length, actual.Count);
+            // for Artifact Id = 100
+            var firstArtifactResult = actual[artifact1Id];
+            Assert.AreEqual(1, firstArtifactResult.Count());
+            var firstItem = firstArtifactResult.First();
+            Assert.AreEqual(projectId, firstItem.Id);
+            Assert.AreEqual("P", firstItem.Name);
+
+            // for Artifact Id = 101
+            var secondArtifactResult = actual[artifact2Id];
+            Assert.AreEqual(2, secondArtifactResult.Count());
+            firstItem = secondArtifactResult.First();
+            Assert.AreEqual(projectId, firstItem.Id);
+            Assert.AreEqual("P", firstItem.Name);
+            var secondItem = secondArtifactResult.Last();
+            Assert.AreEqual(artifact1Id, secondItem.Id);
+            Assert.AreEqual("A", secondItem.Name);
+        }
+
+
+        /**
+         * P (99)
+         *       \
+         *        A (100) 
+         *               \
+         *                B (101)         
+         */
+        [TestMethod]
+        public async Task GetArtifactsNavigationPathsAsync_TwoArtifactsIncludeItself_Success()
+        {
+            var artifact1Id = 100;
+            var artifact2Id = 101;
+            int projectId = 99;
+            // Arrange
+            int[] artifactIds = { artifact1Id, artifact2Id };
+            const int userId = 1;
+
+            ArtifactsNavigationPath[] queryResult = {
+                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 0, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 0, Name = "B", ParentId = artifact1Id},
+                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 1, Name = "A", ParentId = projectId},
+                new ArtifactsNavigationPath {ArtifactId = artifact1Id, Level = 1, Name = "P", ParentId = null},
+                new ArtifactsNavigationPath {ArtifactId = artifact2Id, Level = 2, Name = "P", ParentId = null},
+            };
+
+            var cxn = new SqlConnectionWrapperMock();
+            cxn.SetupQueryAsync("GetArtifactsNavigationPaths",
+                new Dictionary<string, object>
+                {
+                    { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds)},
+                    { "userId", userId },
+                    { "revisionId", int.MaxValue },
+                    { "addDrafts", true }
+                },
+                queryResult);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, null);
+
+            // Act
+            var actual = await repository.GetArtifactsNavigationPathsAsync(userId, artifactIds);
+
+            // Assert
+            Assert.AreEqual(artifactIds.Length, actual.Count);
+            // for Artifact Id = 100
+            var firstArtifactResult = actual[artifact1Id];
+            Assert.AreEqual(2, firstArtifactResult.Count());
+            var firstItem = firstArtifactResult.First();
+            Assert.AreEqual(projectId, firstItem.Id);
+            Assert.AreEqual("P", firstItem.Name);
+            var secondItem = firstArtifactResult.Last();
+            Assert.AreEqual(artifact1Id, secondItem.Id);
+            Assert.AreEqual("A", secondItem.Name);
+
+            // for Artifact Id = 101
+            var secondArtifactResult = actual[artifact2Id];
+            Assert.AreEqual(3, secondArtifactResult.Count());
+            firstItem = secondArtifactResult.First();
+            Assert.AreEqual(projectId, firstItem.Id);
+            Assert.AreEqual("P", firstItem.Name);
+            var lastItem = secondArtifactResult.Last();
+            Assert.AreEqual(artifact2Id, lastItem.Id);
+            Assert.AreEqual("B", lastItem.Name);
+        }
+
         [TestMethod]
         public async Task GetArtifactsNavigationPathsAsync_ReturnsMultipleLevels_Success()
         {

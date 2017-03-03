@@ -1249,26 +1249,10 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifact.Id, newParentId);
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            var movedArtifact = MoveArtifact(address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
 
-            Dictionary<string, string> queryParams = null;
-
-            if (orderIndex != null)
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
-                queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
-            }
-
-            var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
-                path,
-                RestRequestMethod.POST,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            if (restApi.StatusCode == HttpStatusCode.OK)
-            {
-                // Set the IsSaved flag for the artifact so the Dispose() works properly.
                 artifact.IsSaved = true;
             }
 
@@ -1460,6 +1444,48 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return traceDetails;
+        }
+
+        /// <summary>
+        /// Moves an artifact to a different parent.
+        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactId">The Id of artifact to move.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The details of the artifact that we moved.</returns>
+        public static INovaArtifactDetails MoveArtifact(string address,
+            int artifactId,
+            int newParentId,
+            IUser user,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(address, nameof(address));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_, artifactId,
+                newParentId);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+
+            if (orderIndex != null)
+            {
+                queryParams = new Dictionary<string, string> { { "orderIndex", orderIndex.Value.ToStringInvariant() } };
+            }
+
+            var movedArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails>(
+                path,
+                RestRequestMethod.POST,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return movedArtifact;
         }
 
         #region Process methods

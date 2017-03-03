@@ -5,6 +5,8 @@ using Model;
 using Model.Factories;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
@@ -16,7 +18,9 @@ namespace AdminStoreTests
         private const uint MinPasswordLength = 8;
         private const uint MaxPasswordLength = 128;
 
-        private const string PATH_USERRESET = RestPaths.Svc.AdminStore.Users.RESET;
+        private const string USERSRESET_PATH = RestPaths.Svc.AdminStore.Users.RESET;
+        private const string CANNOTUSELASTPASSWORDS = "CannotUseLastPasswords";
+
         private IUser _adminUser = null;
 
         #region Setup and Cleanup
@@ -74,27 +78,106 @@ namespace AdminStoreTests
         [TestCase(MinPasswordLength)]
         [TestCase(MaxPasswordLength)]
         [TestRail(234571)]
-        [Description("Try to reset the user's password which was changed within 24-hours password reset cooldown period." +
-            "Verify that 400 BadRequest response and that the user still can login with its password.")]
+        [Description("Reset the user's password after 24-hours password reset cooldown period." +
+            "Verify that password reset works and that the user can login with the changed password.")]
         public void ResetUserPassword_ChangingPasswordAfter24HoursCooldown_VerifyResetUserPasswordWorks(uint length)
         {
             // Setup: Reset the password with valid new password
-            string successfullyChangedPassword = CreateValidPassword(length);
-            Helper.AdminStore.ResetPassword(_adminUser, successfullyChangedPassword);
-            _adminUser.Password = successfullyChangedPassword;
+            SetUserWithValidPassword(_adminUser, length);
 
             // Execute: Attempt to change the password again after the 24-hours password reset cooldown period.
-            DateTime alteredLastPasswordChangeTimestamp = DateTime.Now.AddHours(-25);
-            _adminUser.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
-
             string newPassword = CreateValidPassword(length);
-
             Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: newPassword),
                 "POST {0} failed when user tried to reset the password after 24-hours password reset cooldown period.",
-                PATH_USERRESET);
+                USERSRESET_PATH);
 
             // Verify: Make sure the user can login with the new password.
             VerifyLogin(Helper, _adminUser.Username, newPassword);
+        }
+
+        [TestCase(MaxPasswordLength, "3")]
+        [TestRail(266426)]
+        [Description("Reset the user's password with the password which was used before but not in the password history. " +
+            "Verify that password reset works and that the user can login with the updated password.")]
+        public void ResetUserPassword_UsingPreviousPasswordGreaterThanPasswordHistoryLimit_PasswordIsChanged(uint length, string cannotUseLastPasswords)
+        {
+            // Setup: Reset the password with valid new password.
+            // Update the CannotUseLastPasswords value by setting new value and generate list of valid passwords one 
+            // more than the password history limit value
+            SetUserWithValidPassword(_adminUser, length);
+
+            int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 1;
+
+            List<string> usedValidPasswords = new List<string> { _adminUser.Password };
+            for (int i = 0; i < resetExecutionCount; i++)
+            {
+                usedValidPasswords.Add(CreateValidPassword(length));
+            }
+            var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
+
+            try
+            {
+                // Reset password cannotUseLastPasswords + 1 times so that the first used password from
+                // usedValidPasswords can be reused
+                for (int i = 1; i < resetExecutionCount + 1; i++)
+                {
+                    Helper.AdminStore.ResetPassword(_adminUser, usedValidPasswords[i]);
+                    _adminUser.Password = usedValidPasswords[i];
+                    SimulateTimeSpentAfterLastPasswordUpdate(_adminUser);
+                }
+
+                // Execute: Change the password using the very first used password which was used before but not in the password history.
+                Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
+                    "POST {0} failed when user tried to reset password with the password which used before but not in the password history.",
+                    USERSRESET_PATH);
+
+                // Verify: Make sure the user can still login with the updated password.
+                VerifyLogin(Helper, _adminUser.Username, usedValidPasswords.First());
+            }
+            finally
+            {
+                // Restore CannotUserLastPasswords back to original value.
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
+            }
+        }
+
+        [TestCase(MinPasswordLength)]
+        [TestRail(266427)]
+        [Description("Disable CannotUseLastPassword by setting its value to '0' and Verify that CannotUseLastPasswords " +
+            "feature is disabled by resetting user's password with the same password twice.")]
+        public void ResetUserPassword_UsingPreviousPasswordWhenPasswordHistoryLimitDisabled_PasswordIsChanged(uint length)
+        {
+            // Setup: Reset the password with valid new password
+            SetUserWithValidPassword(_adminUser, length);
+
+            // Setup: Disable the CannotUseLastPasswords feature by setting the value to '0' 
+            var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, "0");
+
+            try
+            {
+                // Setup: Reset the password with first updated password
+                string firstUpdatedPassword = CreateValidPassword(length);
+                ResetPassword(_adminUser, firstUpdatedPassword);
+
+                // Setup: Reset the password with second updated password
+                string secondUpdatedPassword = CreateValidPassword(length);
+                ResetPassword(_adminUser, secondUpdatedPassword);
+
+                // Execute: Attempt to change the password with the first updated password
+                Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: firstUpdatedPassword),
+                    "POST {0} failed when user tried to reset the password with previously used password when PasswordHistoryLimit is disabled.",
+                    USERSRESET_PATH);
+
+                // Verify: Make sure the user can login with the new password, which is same as the first changed value.
+                VerifyLogin(Helper, _adminUser.Username, firstUpdatedPassword);
+            }
+            finally
+            {
+                // Restore CannotUserLastPasswords back to original value.
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
+            }
         }
 
         #endregion 200 OK Tests
@@ -114,14 +197,13 @@ namespace AdminStoreTests
             _adminUser.Password = changedPassword;
 
             // Execute: Attempt to change the password again after resetting the password.
-            DateTime alteredLastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-hoursPassedAfterPasswordReset);
-            _adminUser.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
+            SimulateTimeSpentAfterLastPasswordUpdate(_adminUser, timespent: hoursPassedAfterPasswordReset);
 
             string newPassword = CreateValidPassword(length); 
             var ex = Assert.Throws<Http400BadRequestException>(
                 () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: newPassword),
                 "POST {0} should get a 400 Bad Request if the password was updated within 24-hours password reset cooldown period!",
-                PATH_USERRESET);
+                USERSRESET_PATH);
 
             // Verify: Make sure the user can login with their last successfully changed password.
             VerifyLogin(Helper, _adminUser.Username, changedPassword);
@@ -225,7 +307,7 @@ namespace AdminStoreTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: _adminUser.Username),
                 "POST {0} should get a 400 Bad Request when passing its user name as a new password!",
-                PATH_USERRESET);
+                USERSRESET_PATH);
 
             // Verify: Make sure the user can still login with their old password.
             VerifyLogin(Helper, _adminUser.Username, _adminUser.Password);
@@ -244,13 +326,61 @@ namespace AdminStoreTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: _adminUser.DisplayName),
                 "POST {0} should get a 400 Bad Request when passing its display name as a new password!",
-                PATH_USERRESET);
+                USERSRESET_PATH);
 
             // Verify: Make sure the user can still login with their old password.
             VerifyLogin(Helper, _adminUser.Username, _adminUser.Password);
 
             const string expectedExceptionMessage = "Password reset failed, new password cannot be equal to display name";
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsDisplayName, expectedExceptionMessage);
+        }
+
+        [TestCase(MinPasswordLength, "2")]
+        [TestRail(266428)]
+        [Description("Reset the user's password with the previously used password which is in password history." +
+            "Verify that 400 BadRequest response and that the user still can login with its current password.")]
+        public void ResetUserPassword_UsingPreviousPasswordLessThanPasswordHistoryLimit_400BadRequest(uint length, string cannotUseLastPasswords)
+        {
+            // Setup: Reset the password with valid new password
+            SetUserWithValidPassword(_adminUser, length);
+
+            int resetExecutionCount = cannotUseLastPasswords.ToInt32Invariant() + 1;
+
+            // Setup: Update the CannotUseLastPasswords by setting new value and generate list of valid passwords
+            List<string> usedValidPasswords = new List<string>();
+            for (int i = 0; i < resetExecutionCount; i++)
+            {
+                usedValidPasswords.Add(CreateValidPassword(length));
+            }
+
+            var originalCannotUseLastPassword = TestHelper.GetValueFromInstancesTable(CANNOTUSELASTPASSWORDS);
+            TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, cannotUseLastPasswords);
+
+            try
+            {
+                // Setup: Reset password multiple times which equals current CannotUseLastPasswords value
+                foreach (string password in usedValidPasswords)
+                {
+                    ResetPassword(_adminUser, password);
+                }
+
+                // Execute: Attempt to change the password using the used password which is in password history
+                var ex = Assert.Throws<Http400BadRequestException>(
+                    () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
+                    "POST {0} should get a 400 Bad Request when passing the used password which is in password history.",
+                    USERSRESET_PATH);
+
+                // Verify: Make sure the user can still login with their old password.
+                VerifyLogin(Helper, _adminUser.Username, _adminUser.Password);
+
+                const string expectedExceptionMessage = "The new password matches a previously used password.";
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordAlreadyUsedPreviously, expectedExceptionMessage);
+            }
+            finally
+            {
+                // Restore CannotUserLastPasswords back to original value.
+                TestHelper.UpdateValueFromInstancesTable(CANNOTUSELASTPASSWORDS, originalCannotUseLastPassword);
+            }
         }
 
         #endregion 400 Bad Request Tests
@@ -412,6 +542,46 @@ namespace AdminStoreTests
             {
                 helper.AdminStore.AddSession(username, password);
             }, "User {0} couldn't login with the password {1}!", username, password);
+        }
+
+        /// <summary>
+        /// Prepares a user with valid password
+        /// </summary>
+        /// <param name="user">user that will have the valid password</param>
+        /// <param name="length">length of the password</param>
+        private void SetUserWithValidPassword(IUser user, uint length)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string successfullyChangedPassword = CreateValidPassword(length);
+            ResetPassword(user, successfullyChangedPassword);
+        }
+
+        /// <summary>
+        /// Resets password for the user
+        /// </summary>
+        /// <param name="user">user that will have the password</param>
+        /// <param name="password">password</param>
+        private void ResetPassword(IUser user, string password)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            Helper.AdminStore.ResetPassword(user, password);
+            user.Password = password;
+            SimulateTimeSpentAfterLastPasswordUpdate(user);
+        }
+
+        /// <summary>
+        /// Simulates the time spent after user changed his/her password
+        /// </summary>
+        /// <param name="user">user that changed the password.</param>
+        /// <param name="timespent">hour that spent after tha last password update.</param>
+        private static void SimulateTimeSpentAfterLastPasswordUpdate(IUser user, int timespent = 25)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            DateTime alteredLastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-timespent);
+            user.ChangeLastPasswordChangeTimestamp(alteredLastPasswordChangeTimestamp);
         }
 
         #endregion Private functions

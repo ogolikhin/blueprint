@@ -22,6 +22,7 @@ namespace OpenAPITests
     public class UpdateUserTests : TestBase
     {
         private const string UPDATE_PATH = RestPaths.OpenApi.USERS;
+        private const string USERNAME_DOES_NOT_EXIST = "User with User Name={0} does not exist";
 
         private IUser _adminUser = null;
 
@@ -120,7 +121,7 @@ namespace OpenAPITests
                 skipPropertiesNotReturnedByOpenApi: true);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello: https://trello.com/c/XvPTyExu & Trello: https://trello.com/c/xH6nHeG4  GetUser & UpdateUser don't return all user properties.
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/eym3P3pE  Returns 500 error instead of 409.
         [TestCase]
         [TestRail(246614)]
         [Description("Update a list of users (some users are active and others are deleted) and verify a 207 HTTP status was returned and " +
@@ -154,13 +155,19 @@ namespace OpenAPITests
                 "'PATCH {0}' should return '207 Partial Success' when some users were updated and others weren't!", UPDATE_PATH);
 
             // Verify:
-            var deletedUserDataAndErrorCode = new Dictionary<IUser, int> { { deletedUsersToUpdate[0], BusinessLayerErrorCodes.LoginDoesNotExist } };
             var allUsersToUpdate = new List<IUser>(activeUsersToUpdate);
             allUsersToUpdate.AddRange(deletedUsersToUpdate);
 
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = deletedUsersToUpdate[0],
+                ErrorCode = BusinessLayerErrorCodes.LoginDoesNotExist,
+                ErrorMessage = I18NHelper.FormatInvariant(USERNAME_DOES_NOT_EXIST, deletedUsersToUpdate[0].Username)
+            };
+
             VerifyUpdateUserResultSet(result, allUsersToUpdate,
                 expectedSuccessfullyUpdatedUsers: activeUserDataToUpdate,
-                expectedFailedUpdatedUsers: deletedUserDataAndErrorCode);
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser });
         }
 
         #endregion Positive tests
@@ -250,22 +257,27 @@ namespace OpenAPITests
         public void UpdateUsers_DeletedUser_409Conflict()
         {
             // Setup:
-            var userToUpdate = Helper.CreateUserAndAddToDatabase();
-            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty(userToUpdate);
+            var deletedUserToUpdate = Helper.CreateUserAndAddToDatabase();
+            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty(deletedUserToUpdate);
 
-            userToUpdate.DeleteUser(useSqlUpdate: true);
+            deletedUserToUpdate.DeleteUser(useSqlUpdate: true);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
                 "'PATCH {0}' should return '409 Conflict' when passed a username that was deleted!", UPDATE_PATH);
 
             // Verify:
-            var expectedFailedUpdatedUsers = new Dictionary<IUser, int> { { userToUpdate, BusinessLayerErrorCodes.LoginDoesNotExist } };
-
             var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
-            var usersBeforeUpdate = new List<IUser> { userToUpdate };
+            var usersBeforeUpdate = new List<IUser> { deletedUserToUpdate };
 
-            VerifyUpdateUserResultSet(result, usersBeforeUpdate, expectedFailedUpdatedUsers: expectedFailedUpdatedUsers);
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = deletedUserToUpdate,
+                ErrorCode = BusinessLayerErrorCodes.LoginDoesNotExist,
+                ErrorMessage = I18NHelper.FormatInvariant(USERNAME_DOES_NOT_EXIST, deletedUserToUpdate.Username)
+            };
+
+            VerifyUpdateUserResultSet(result, usersBeforeUpdate, expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser });
         }
 
         [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/eym3P3pE  Returns 500 error instead of 409.
@@ -275,26 +287,192 @@ namespace OpenAPITests
         public void UpdateUsers_NonExistingUsername_409Conflict()
         {
             // Setup:
-            var userToUpdate = UserFactory.CreateUserOnly();
-            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty(userToUpdate);
+            var nonExistingUserToUpdate = UserFactory.CreateUserOnly();
+            var userDataToUpdate = CreateUserDataModelsWithOneUpdatedProperty(nonExistingUserToUpdate);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, userDataToUpdate),
                 "'PATCH {0}' should return '409 Conflict' when passed a username that doesn't exist!", UPDATE_PATH);
 
             // Verify:
-            var expectedFailedUpdatedUsers = new Dictionary<IUser, int> { { userToUpdate, BusinessLayerErrorCodes.LoginDoesNotExist } };
-
             var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
-            var usersBeforeUpdate = new List<IUser> { userToUpdate };
+            var usersBeforeUpdate = new List<IUser> { nonExistingUserToUpdate };
 
-            VerifyUpdateUserResultSet(result, usersBeforeUpdate, expectedFailedUpdatedUsers: expectedFailedUpdatedUsers, checkIfUserExists: false);
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = nonExistingUserToUpdate,
+                ErrorCode = BusinessLayerErrorCodes.LoginDoesNotExist,
+                ErrorMessage = I18NHelper.FormatInvariant(USERNAME_DOES_NOT_EXIST, nonExistingUserToUpdate.Username)
+            };
+
+            VerifyUpdateUserResultSet(result, usersBeforeUpdate,
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
         }
 
+        [TestCase(nameof(UserDataModel.DisplayName), "Display name is required")]
+        [TestCase(nameof(UserDataModel.FirstName), "First name is required")]
+        [TestCase(nameof(UserDataModel.LastName), "Last name is required")]
+        [TestCase(nameof(UserDataModel.Password), "Password is required")]
+        [TestRail(266481)]
+        [Description("Update a user with a blank required property.  Verify 409 Conflict is returned.")]
+        public void UpdateUser_BlankRequiredProperty_409Conflict(string propertyName, string errorMessage)
+        {
+            // Setup:
+            var userToUpdate = Helper.CreateUserAndAddToDatabase();
+
+            var propertiesToUpdate = new Dictionary<string, string> { { propertyName, string.Empty } };
+            var userWithBlankRequiredProperty = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithBlankRequiredProperty},
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+                "'PATCH {0}' should return '409 Conflict' when user has missing property!", UPDATE_PATH);
+
+            // Verify:
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdate,
+                ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
+                ErrorMessage = errorMessage
+            };
+
+            VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+        }
+        
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/BcLoVMgY  Gets 500 error instead of 409.
+        [TestCase]
+        [TestRail(266484)]
+        [Description("Update a user with non-existing admin role.  Verify 409 Conflict is returned.")]
+        public void UpdateUser_NonExistingAdminRole_409Conflict()
+        {
+            // Setup:
+            var userToUpdate = Helper.CreateUserAndAddToDatabase();
+            var propertiesToUpdate = new Dictionary<string, string> { { nameof(UserDataModel.InstanceAdminRole), "!Invalid Admin Role!" } };
+
+            var userWithInvalidAdminRole = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithInvalidAdminRole },
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+                "'PATCH {0}' should return '409 Conflict' when passed an Instance Administrator Role that doesn't exist!", UPDATE_PATH);
+
+            // Verify:
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdate,
+                ErrorCode = BusinessLayerErrorCodes.UserAddInstanceAdminRoleFailed,
+                ErrorMessage = "Specified Instance admin role doesn't exist"
+            };
+
+            VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+        }
+
+        [TestCase]
+        [TestRail(266485)]
+        [Description("Update a user with non-existing group id.  Verify 409 Conflict is returned.")]
+        public void UpdateUser_NonExistingGroup_409Conflict()
+        {
+            // Setup:
+            var userToUpdate = Helper.CreateUserAndAddToDatabase();
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+            var userWithNonExistingGroup = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
+
+            userWithNonExistingGroup.GroupIds.Add(int.MaxValue);
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithNonExistingGroup },
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+                "'PATCH {0}' should return '409 Conflict' when an invalid Group Id was passed!", UPDATE_PATH);
+
+            // Verify:
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdate,
+                ErrorCode = BusinessLayerErrorCodes.UserGroupsUpdateFailed,
+                ErrorMessage = "User's group cannot be updated"
+            };
+
+            VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+
+            // Verify user was updated.
+            var updatedUserDataModel = new UserDataModel(userWithNonExistingGroup);
+            updatedUserDataModel.GroupIds.Clear();
+            var expectedUserData = MergeNewAndOldUserData(userToUpdate.UserData, updatedUserDataModel);
+
+            VerifyUserIsUpdated(expectedUserData);
+        }
+
+        //  TFS Bug 5486:  User allowed to be created with invalid email.
+        [TestCase(".email@domain.com", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
+        [TestCase("email.@domain.com", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
+        [TestCase("email..email@domain.com", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
+        [TestCase("あいうえお@domain.com", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
+        [TestCase("email@-domain.com", Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)]
+        [TestCase("plainaddress")]
+        [TestCase("A#@%^%#$@#$@#.com")]
+        [TestCase("@domain.com ")]
+        [TestCase("Joe Smith <email@domain.com>")]
+        [TestCase("email.domain.com")]
+        [TestCase("email@domain@domain.com")]
+        [TestCase("email@domain.com (Joe Smith)")]
+        [TestCase("email@domain")]
+        [TestCase("email@111.222.333.44444")]
+        [TestCase("email@domain..com")]
+        [TestRail(266486)]
+        [Description("Update a user with invalid email.  Verify 409 Conflict is returned.")]
+        public void UpdateUsers_InvalidEmail_409Conflict(string wrongEmailAddress)
+        {
+            // Setup:
+            var userToUpdate = Helper.CreateUserAndAddToDatabase();
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.Email), wrongEmailAddress }
+            };
+            var usersWithWrongEmailAddress = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { usersWithWrongEmailAddress },
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+                "'PATCH {0}' should return '409 Conflict' when a user has an invalid Email address!", UPDATE_PATH);
+
+            // Verify:
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdate,
+                ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
+                ErrorMessage = "Invalid email address. Use following format: user@company.com"
+            };
+
+            VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+        }
+        
         #endregion 409 tests
 
         #region Private functions
 
+        private class UserErrorCodeAndMessage
+        {
+            public IUser User { get; set; }
+            public int ErrorCode { get; set; }
+            public string ErrorMessage { get; set; }
+        }
+        
         /// <summary>
         /// Creates a list of new UserDataModels with only one property updated.
         /// </summary>
@@ -383,19 +561,19 @@ namespace OpenAPITests
         /// <param name="resultSet">Result set from update users call.</param>
         /// <param name="usersBeforeUpdate">The original users before they were updated.</param>
         /// <param name="expectedSuccessfullyUpdatedUsers">(optional) A list of users that we expect to be successfully updated.</param>
-        /// <param name="expectedFailedUpdatedUsers">(optional) A map of Users and InternalApiErrorCodes that we expect got errors when we tried to update them.</param>
+        /// <param name="expectedFailedUpdatedUsers">(optional) A list of Users, Error Codes and Error Messages that we expect got errors when we tried to update them.</param>
         /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
         private void VerifyUpdateUserResultSet(
             UserCallResultCollection resultSet,
             List<IUser> usersBeforeUpdate,
             List<UserDataModel> expectedSuccessfullyUpdatedUsers = null,
-            Dictionary<IUser, int> expectedFailedUpdatedUsers = null,
+            List<UserErrorCodeAndMessage> expectedFailedUpdatedUsers = null,
             bool checkIfUserExists = true)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
             expectedSuccessfullyUpdatedUsers = expectedSuccessfullyUpdatedUsers ?? new List<UserDataModel>();
-            expectedFailedUpdatedUsers = expectedFailedUpdatedUsers ?? new Dictionary<IUser, int>();
+            expectedFailedUpdatedUsers = expectedFailedUpdatedUsers ?? new List<UserErrorCodeAndMessage>();
 
             int expectedUpdateCount = expectedSuccessfullyUpdatedUsers.Count + expectedFailedUpdatedUsers.Count;
 
@@ -435,44 +613,48 @@ namespace OpenAPITests
         }
 
         /// <summary>
-        /// A map of InternalApiErrorCodes to error message for the DeleteUserResultSet.
-        /// </summary>
-        private Dictionary<int, string> ErrorCodeToErrorMessageMap { get; } = new Dictionary<int, string>
-        {
-            { InternalApiErrorCodes.Ok, "User has been successfully deleted." },
-            { BusinessLayerErrorCodes.LoginDoesNotExist, "User with User Name={0} does not exist" }
-        };
-
-        /// <summary>
         /// Verifies that the users that were NOT successfully updated have the expected status codes.
         /// </summary>
         /// <param name="resultSet">Result set from update users call.</param>
-        /// <param name="expectedFailedDeletedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to update them.</param>
+        /// <param name="expectedFailedUpdatedUsers">(optional) A map of Users to InternalApiErrorCodes that we expect got errors when we tried to update them.</param>
         /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
         private void VerifyUnsuccessfullyUpdatedUsers(
             UserCallResultCollection resultSet,
-            Dictionary<IUser, int> expectedFailedDeletedUsers = null,
+            List<UserErrorCodeAndMessage> expectedFailedUpdatedUsers = null,
             bool checkIfUserExists = true)
         {
             ThrowIf.ArgumentNull(resultSet, nameof(resultSet));
 
-            expectedFailedDeletedUsers = expectedFailedDeletedUsers ?? new Dictionary<IUser, int>();
+            expectedFailedUpdatedUsers = expectedFailedUpdatedUsers ?? new List<UserErrorCodeAndMessage>();
 
-            foreach (var deletedUserAndStatus in expectedFailedDeletedUsers)
+            foreach (var updatedUserAndStatus in expectedFailedUpdatedUsers)
             {
-                var deletedUser = deletedUserAndStatus.Key;
-                var returnCode = deletedUserAndStatus.Value;
-                var result = resultSet.Find(a => a.User.Username == deletedUser.Username);
-                string expectedErrorMessage = I18NHelper.FormatInvariant(ErrorCodeToErrorMessageMap[returnCode],
-                    deletedUser.Username);
+                VerifyUnsuccessfullyUpdatedUser(resultSet, updatedUserAndStatus, checkIfUserExists);
+            }
+        }
 
-                Assert.AreEqual(expectedErrorMessage, result.Message, "'{0}' is incorrect!", nameof(result.Message));
-                Assert.AreEqual(returnCode, result.ResultCode, "'{0}' should be '{1}'!", nameof(result.ResultCode), returnCode);
+        /// <summary>
+        /// Verifies that the user that was NOT successfully updated has the expected status code and verifies the user doesn't exist.
+        /// </summary>
+        /// <param name="resultSet">Result set from update users call.</param>
+        /// <param name="expectedFailedUpdatedUser">The user that should've failed to update along with the expected Error Code and Error Message.</param>
+        /// <param name="checkIfUserExists">(optional) Pass false if you don't want to check if the user exists.</param>
+        private void VerifyUnsuccessfullyUpdatedUser(
+            UserCallResultCollection resultSet,
+            UserErrorCodeAndMessage expectedFailedUpdatedUser,
+            bool checkIfUserExists = true)
+        {
+            var result = resultSet.Find(a => a.User.Username == expectedFailedUpdatedUser.User.Username);
 
-                if (checkIfUserExists)
-                {
-                    VerifyUserIsDeleted(deletedUser);
-                }
+            string expectedErrorMessage = expectedFailedUpdatedUser.ErrorMessage;
+            int expectedErrorCode = expectedFailedUpdatedUser.ErrorCode;
+
+            Assert.AreEqual(expectedErrorMessage, result.Message, "'{0}' is incorrect!", nameof(result.Message));
+            Assert.AreEqual(expectedErrorCode, result.ResultCode, "'{0}' should be '{1}'!", nameof(result.ResultCode), expectedErrorCode);
+
+            if (checkIfUserExists)
+            {
+                VerifyUserIsDeleted(expectedFailedUpdatedUser.User);
             }
         }
 

@@ -59,7 +59,15 @@ namespace Model.SearchServiceModel.Impl
         }
 
         public List<string> Path { get; } = new List<string>();
+
         public bool ShouldSerializePath()
+        {
+            return Path.Count > 0;
+        }
+
+        public List<int> IdPath { get; } = new List<int>();
+
+        public bool ShouldSerializeIdPath()
         {
             return Path.Count > 0;
         }

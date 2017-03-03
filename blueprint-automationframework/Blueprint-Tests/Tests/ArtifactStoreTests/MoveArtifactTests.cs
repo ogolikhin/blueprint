@@ -105,20 +105,18 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
             var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            artifact.Lock(author);
+            artifact.Lock(_authorUser);
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Execute:
 
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, author);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
@@ -274,28 +272,26 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
                 BaselineAndCollectionTypePredefined.CollectionFolder);
-            var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
+            var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
 
-            IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
+            IArtifact childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, defaultCollectionFolder.Id, baseType: fakeBaseType);
 
-            childArtifact.Lock(author);
+            childArtifact.Lock(_authorUser);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, collectionFolder.Id, author);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, collectionFolder.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, childArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(collectionFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
@@ -310,26 +306,25 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
                 BaselineAndCollectionTypePredefined.CollectionFolder);
-            var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, author);
+            var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            var childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
-            childArtifact.Lock(author);
+            childArtifact.Lock(_authorUser);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, defaultCollectionFolder.Id, author);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, defaultCollectionFolder.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, childArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(defaultCollectionFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
@@ -450,16 +445,14 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
             var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var newBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author,
+            var newBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser,
                 ItemTypePredefined.BaselineFolder, artifactName, _project, defaultBaselineFolder.Id);
 
-            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType,
+            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser, artifactType,
                 artifactName, _project, defaultBaselineFolder.Id);
 
             INovaArtifactDetails movedArtifactDetails = null;
@@ -468,11 +461,11 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    newBaselineFolder.Id, author);
+                    newBaselineFolder.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, childArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, childArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newBaselineFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
@@ -660,11 +653,9 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
             var folder = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            folder.Lock(author);
+            folder.Lock(_authorUser);
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, _authorUser),
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
@@ -677,13 +668,11 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SaveFolderAndMoveToBeAChildOfArtifact_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
-            var folder = Helper.CreateAndSaveArtifact(_project, author, BaseArtifactType.PrimitiveFolder);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var folder = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(folder, artifact, _authorUser),
                 "'POST {0}' should return 403 Forbidden when folder moved to regular artifact", SVC_PATH);
 
             // Verify:
@@ -699,9 +688,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
                 BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
@@ -709,10 +696,10 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Process);
 
-            artifact.Lock(author);
+            artifact.Lock(_authorUser);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, parentArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, parentArtifact.Id, _authorUser),
                "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
@@ -728,20 +715,18 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
                 BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            var childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Process);
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Process);
 
-            childArtifact.Lock(author);
+            childArtifact.Lock(_authorUser);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, parentArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, parentArtifact.Id, _authorUser),
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -757,20 +742,18 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
                 BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            var collection = Helper.CreateWrapAndPublishNovaArtifact(_project, author, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var collection = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
-            var collectionArtifact = Helper.CreateAndPublishCollection(_project, author);
+            var collectionArtifact = Helper.CreateAndPublishCollection(_project, _authorUser);
 
-            collection.Lock(author);
+            collection.Lock(_authorUser);
              
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, collection, collectionArtifact.Id, author),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, collection, collectionArtifact.Id, _authorUser),
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:
@@ -787,22 +770,20 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
             var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType,
+            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser, artifactType,
                 artifactName, _project, defaultBaselineFolder.Id);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    _project.Id, author);
-            }, "Attempt to move Baseline or Baseline folder to Project root should return 409 Conflict.");
+                    _project.Id, _authorUser);
+            }, "Attempt to move Baseline or Baseline folder to Project root should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
@@ -818,18 +799,17 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Actor);
-            artifact.Lock(author);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            artifact.Lock(_authorUser);
 
             var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, defaultBaselineFolder.Id, author);
-            }, "Attempt to move Baseline or Baseline folder to Project root should return 409 Conflict.");
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, defaultBaselineFolder.Id, _authorUser);
+            }, "Attempt to move Baseline or Baseline folder to Project root should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
@@ -846,21 +826,20 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Actor);
-            artifact.Lock(author);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
+            artifact.Lock(_authorUser);
 
             var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
             string baselineArtifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var baselineArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType,
+            var baselineArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser, artifactType,
                 baselineArtifactName, _project, defaultBaselineFolder.Id);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, baselineArtifact.Id, author);
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, baselineArtifact.Id, _authorUser);
             }, "Attempt to move artifact to Baseline or Baseline folder should return 409 Conflict.");
 
             // Verify:
@@ -878,23 +857,21 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
             var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
             var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.CollectionFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType,
+            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser, artifactType,
                 artifactName, _project, defaultBaselineFolder.Id);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    defaultCollectionFolder.Id, author);
+                    defaultCollectionFolder.Id, _authorUser);
             }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 409 Conflict.");
 
             // Verify:
@@ -912,23 +889,21 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-
             var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
             var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                author, BaselineAndCollectionTypePredefined.CollectionFolder);
+                _authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType,
+            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser, artifactType,
                 artifactName, _project, defaultCollectionFolder.Id);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    defaultBaselineFolder.Id, author);
+                    defaultBaselineFolder.Id, _authorUser);
             }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 409 Conflict.");
 
             // Verify:

@@ -635,7 +635,6 @@ Jobs_Button_Label_GetJobs, "Get Jobs"
 Walkthrough_Button_Label, "Walkthrough"
 Process_Walkthrough_Mode_Tooltip, "Walkthrough Mode"
 Process_Diagram_Mode_Tooltip, "Diagram Mode"
-Walkthrough_Save_Before_Start, "Before starting a walkthrough, your changes will be saved."
 
 
 

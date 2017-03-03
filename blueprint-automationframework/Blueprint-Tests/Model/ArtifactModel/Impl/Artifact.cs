@@ -804,11 +804,11 @@ namespace Model.ArtifactModel.Impl
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address,
             int itemId, IDiscussionAdaptor discussionToUpdate,
-            RaptorComment commentAndStatus,
+            RaptorComment comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.UpdateRaptorDiscussion(address, itemId, discussionToUpdate, commentAndStatus,
+            return OpenApiArtifact.UpdateRaptorDiscussion(address, itemId, discussionToUpdate, comment,
                 user, expectedStatusCodes);
         }
 

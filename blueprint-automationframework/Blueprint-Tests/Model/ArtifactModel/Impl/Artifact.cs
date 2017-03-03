@@ -326,7 +326,7 @@ namespace Model.ArtifactModel.Impl
             return PostRaptorDiscussion(Address, Id, comment, user, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifact.UpdateRaptorDiscussion(string, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifact.UpdateRaptorDiscussion(RaptorComment, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
         public IRaptorDiscussion UpdateRaptorDiscussion(RaptorComment comment,
             IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -798,7 +798,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
         /// <param name="discussionToUpdate">Discussion to update.</param>
-        /// <param name="comment">The new comment for the discussion.</param>
+        /// <param name="comment with status">The new comment with status for the discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>

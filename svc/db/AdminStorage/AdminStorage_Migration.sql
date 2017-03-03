@@ -1519,7 +1519,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Jobs_Button_Label_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_Button_Label', 'en-US', N'Walkthrough')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Walkthrough_Mode_Tooltip', 'en-US', N'Walkthrough Mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Diagram_Mode_Tooltip', 'en-US', N'Diagram Mode')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_Save_Before_Start', 'en-US', N'Before starting a walkthrough, your changes will be saved.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

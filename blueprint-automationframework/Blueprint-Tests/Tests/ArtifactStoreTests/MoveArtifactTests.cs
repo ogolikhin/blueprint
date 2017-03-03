@@ -775,6 +775,67 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, "Cannot move a collection artifact to non folder parent.");
         }
 
+        [TestCase(BaselineAndCollectionTypePredefined.BaselineFolder)]
+        [TestCase(BaselineAndCollectionTypePredefined.ArtifactBaseline)]
+        [TestRail(266503)]
+        [Description("Create artifact of baseline/baseline folder type. Move this artifact to the project root. " +
+            "Verify 403 and error message.")]
+        public void MoveArtifact_BaselineOrBaselineFolder_MovedToProjectRoot_403Conflict(ItemTypePredefined artifactType)
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
+                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            var childArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, author, artifactType,
+                artifactName, _project, defaultBaselineFolder.Id);
+
+            INovaArtifactDetails movedArtifactDetails = null;
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
+                    _project.Id, author);
+            }, "Attempt to move Baseline or Baseline folder to Project root should return 409 Conflict.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+                "Cannot move a baseline artifact to non baseline section.");
+        }
+
+        [TestCase]
+        [TestRail(266504)]
+        [Description("Create and publish artifact. try to move this artifact to the default Baseline folder. " +
+            "Verify 403 and error message.")]
+        public void MoveArtifact_PublishedArtifact_MovedTodefaultBaselineFolder_403Conflict()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Actor);
+            artifact.Lock(author);
+
+            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
+                author, BaselineAndCollectionTypePredefined.BaselineFolder);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, defaultBaselineFolder.Id, author);
+            }, "Attempt to move Baseline or Baseline folder to Project root should return 409 Conflict.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+                "Cannot move an artifact to non project section.");
+        }
+
         #endregion 403 Forbidden tests
 
         #region 404 Not Found tests

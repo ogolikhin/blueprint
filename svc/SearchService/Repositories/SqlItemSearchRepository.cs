@@ -222,7 +222,7 @@ namespace SearchService.Repositories
                 // Always getting permissions for the Head version of an artifact.
                 await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(items.Select(i => i.ItemId).ToList(), userId);
 
-            IDictionary<int, IEnumerable<ArtifactShortInfo>> itemsNavigationPaths;
+            IDictionary<int, IEnumerable<Artifact>> itemsNavigationPaths;
             if (searchCriteria.IncludeArtifactPath)
             {
                 itemsNavigationPaths =
@@ -232,7 +232,7 @@ namespace SearchService.Repositories
             }
             else
             {
-                itemsNavigationPaths = new Dictionary<int, IEnumerable<ArtifactShortInfo>>();
+                itemsNavigationPaths = new Dictionary<int, IEnumerable<Artifact>>();
             }
 
             //items without permission should be removed

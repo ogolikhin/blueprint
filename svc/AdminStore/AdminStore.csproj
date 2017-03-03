@@ -49,6 +49,10 @@
       <HintPath>..\..\packages\Dapper.StrongName.1.50.0-beta1\lib\net45\Dapper.StrongName.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="MailBee.NET.4, Version=8.0.4.428, Culture=neutral, PublicKeyToken=cd85b70fb26f9fc1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\MailBee\MailBee.NET.4.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.0\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
       <Private>True</Private>
@@ -109,11 +113,14 @@
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
+    <Compile Include="Helpers\BaseEmailServerConfiguration.cs" />
+    <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\JobsValidationHelper.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
+    <Compile Include="Helpers\SmtpClientConfiguration.cs" />
     <Compile Include="Models\ApplicationSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\ResetPostContent.cs" />

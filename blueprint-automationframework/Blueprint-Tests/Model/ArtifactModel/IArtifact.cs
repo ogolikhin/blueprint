@@ -144,7 +144,7 @@ namespace Model.ArtifactModel
         /// <param name="discussionToUpdate">The discussion to update.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        IRaptorDiscussion UpdateRaptorDiscussion(string comment,
+        IRaptorDiscussion UpdateRaptorDiscussion(JsonDiscussionCallBody commentAndStatus,
             IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null);
 

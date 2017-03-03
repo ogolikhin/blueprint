@@ -445,7 +445,7 @@ namespace Model.ArtifactModel.Impl
         /// <returns>updated RaptorDiscussion</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToUpdate,
-            string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            JsonDiscussionCallBody commentAndStatus, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
@@ -454,13 +454,10 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, itemId, discussionToUpdate.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.PATCH,
-                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
-
-            return result;
+            return restApi.SendRequestAndDeserializeObject<RaptorDiscussion, JsonDiscussionCallBody>(path,
+                RestRequestMethod.PATCH,
+                commentAndStatus,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>
@@ -547,8 +544,11 @@ namespace Model.ArtifactModel.Impl
                 itemId, discussion.DiscussionId, replyToUpdate.ReplyId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.PATCH,
-                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
+            var response = restApi.SendRequestAndGetResponse<string>(
+                path,
+                RestRequestMethod.PATCH,
+                bodyObject: comment,
+                expectedStatusCodes: expectedStatusCodes);
 
             // Derialization
             var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);

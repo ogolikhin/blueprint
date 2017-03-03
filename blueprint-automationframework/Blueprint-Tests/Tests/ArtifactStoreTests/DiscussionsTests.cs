@@ -229,12 +229,14 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
 
-            IDiscussionAdaptor updatedDiscussion = null;
+            var commentWithStatus = new JsonDiscussionCallBody();
+            commentWithStatus.Comment = "updated text";
 
             // Execute:
+            IDiscussionAdaptor updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion("updated text", _authorUser, postedRaptorComment);
+                updatedDiscussion = artifact.UpdateRaptorDiscussion(commentWithStatus, _authorUser, postedRaptorComment);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -254,21 +256,23 @@ namespace ArtifactStoreTests
 
             var process = Helper.Storyteller.GetProcess(_authorUser, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            string newText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             IDiscussionAdaptor updatedDiscussion = null;
-            
+
+            var commentWithStatus = new JsonDiscussionCallBody();
+            commentWithStatus.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+
             // Execute:
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address,
-                    userTask.Id, postedRaptorComment, newText, _authorUser);
+                    userTask.Id, postedRaptorComment, commentWithStatus, _authorUser);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion);
-            Assert.AreEqual(StringUtilities.WrapInDiv(newText), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentWithStatus.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
         }
 
         [TestCase]
@@ -362,17 +366,19 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
-            string newText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             IDiscussionAdaptor updatedRaptorReply = null;
+
+            var commentWithStatus = new JsonDiscussionCallBody();
+            commentWithStatus.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedRaptorReply = artifact.UpdateRaptorDiscussion(newText, _authorUser, raptorComment);
+                updatedRaptorReply = artifact.UpdateRaptorDiscussion(commentWithStatus, _authorUser, raptorComment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
-            Assert.AreEqual(StringUtilities.WrapInDiv(newText), updatedRaptorReply.Comment, "Updated comment must have proper text.");
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentWithStatus.Comment), updatedRaptorReply.Comment, "Updated comment must have proper text.");
         }
 
         [TestCase]
@@ -385,12 +391,14 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
-            string newText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+
+            var commentWithStatus = new JsonDiscussionCallBody();
+            commentWithStatus.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.UpdateRaptorDiscussion(newText, _adminUser, raptorComment);             
+                artifact.UpdateRaptorDiscussion(commentWithStatus, _adminUser, raptorComment);             
             }, "UpdateDiscussion should throw 403 error, but it doesn't.");
 
             // Verify:

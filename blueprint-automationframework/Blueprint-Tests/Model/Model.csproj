@@ -67,6 +67,7 @@
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
     <Compile Include="ArtifactModel\Impl\Baseline.cs" />
     <Compile Include="ArtifactModel\Impl\Collection.cs" />
+    <Compile Include="ArtifactModel\Impl\JsonDiscussionCallBody.cs" />
     <Compile Include="ArtifactModel\Impl\NovaCollectionBase.cs" />
     <Compile Include="ArtifactModel\Impl\CollectionItem.cs" />
     <Compile Include="ArtifactModel\Impl\CopyNovaArtifactResultSet.cs" />

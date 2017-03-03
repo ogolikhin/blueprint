@@ -22,15 +22,17 @@ namespace ArtifactStoreTests
     {
         private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.MOVE_TO_id_;
 
-        private IUser _user = null;
+        private IUser _adminUser = null;
+        private IUser _authorUser = null;
         private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_user);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_adminUser);
+            _authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
         }
 
         [TearDown]
@@ -48,9 +50,9 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup: 
-            var grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, grandParentArtifact);
-            Helper.CreateAndPublishArtifact(_project, _user, artifactType, parentArtifact);
+            var grandParentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType, grandParentArtifact);
+            Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType, parentArtifact);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
@@ -59,11 +61,11 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _user);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, parentArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
 
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
@@ -76,20 +78,20 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SavedArtifactWithDependentChildBecomesChildOfProject_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup: 
-            var grandParentArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType, grandParentArtifact);
-            Helper.CreateAndSaveArtifact(_project, _user, artifactType, parentArtifact);
+            var grandParentArtifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
+            var parentArtifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType, grandParentArtifact);
+            Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType, parentArtifact);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _user);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, parentArtifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, parentArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, parentArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
@@ -100,8 +102,8 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -127,8 +129,8 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SavedArtifactBecomesChildOfPublishedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
+            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
@@ -136,11 +138,11 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
@@ -151,19 +153,19 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SavedArtifactBecomesChildOfSavedArtifact_ReturnsArtifactDetails_200OK(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var newParentArtifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
+            var newParentArtifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _user);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, newParentArtifact, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(newParentArtifact.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as parent artifact Id");
         }
@@ -176,18 +178,18 @@ namespace ArtifactStoreTests
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             artifact.Lock();
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _user);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
@@ -198,8 +200,8 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishFolderAndMoveToBeAChildOfAnotherFolder_200OK()
         {
             // Setup:
-            var folder1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
-            var folder2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var folder1 = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
+            var folder2 = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
 
             folder1.Lock();
 
@@ -208,11 +210,11 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(folder1, folder2, _user);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(folder1, folder2, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, folder1.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
         }
@@ -225,17 +227,17 @@ namespace ArtifactStoreTests
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Setup:
-            var folder1 = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
-            var folder2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var folder1 = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
+            var folder2 = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(folder1, folder2, _user);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(folder1, folder2, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, folder1.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, folder1.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(folder2.Id, movedArtifactDetails.ParentId, "Parent Id of moved folder is not the same as parent folder Id");
         }
@@ -248,16 +250,16 @@ namespace ArtifactStoreTests
             INovaArtifactDetails movedArtifactDetails = null;
 
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _user);
+                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(_project.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact is not the same as project Id");
         }
@@ -270,7 +272,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_CollectionOrCollectionFolder_MovedToCollectionFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -306,7 +308,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_CollectionOrCollectionFolder_MovedToDefaultCollectionsFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, author,
@@ -347,19 +349,19 @@ namespace ArtifactStoreTests
             // Setup:
             INovaArtifactDetails movedArtifactDetails = null;
 
-            var parentFolder = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var artifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, artifactType, numberOfArtifacts, parentFolder);
+            var parentFolder = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var artifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _authorUser, artifactType, numberOfArtifacts, parentFolder);
 
-            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _user);
+            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _authorUser);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _user, orderIndex);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _authorUser, orderIndex);
             }, "'POST {0}?orderIndex={1}' should return 200 OK when called with a valid token!", SVC_PATH, orderIndex);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifacts[whichArtifact].Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifacts[whichArtifact].Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(parentFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact should not be changed!");
             Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
@@ -381,26 +383,26 @@ namespace ArtifactStoreTests
             INovaArtifactDetails movedArtifactDetails = null;
             var artifacts = new List<IArtifactBase>();
 
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var parentFolder = Helper.CreateAndPublishCollectionFolder(_project, _user);
+            var parentFolder = Helper.CreateAndPublishCollectionFolder(_project, _authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
 
             for (int i = 0; i < numberOfArtifacts; ++i)
             {
-                artifacts.Add(Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, parentFolder.Id, baseType: fakeBaseType));
+                artifacts.Add(Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, parentFolder.Id, baseType: fakeBaseType));
             }
 
-            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _user);
+            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _authorUser);
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _user, orderIndex);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifacts[whichArtifact], parentFolder, _authorUser, orderIndex);
             }, "'POST {0}?orderIndex={1}' should return 200 OK when called with a valid token!", SVC_PATH, orderIndex);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifacts[whichArtifact].Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, artifacts[whichArtifact].Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             Assert.AreEqual(parentFolder.Id, movedArtifactDetails.ParentId, "Parent Id of moved artifact should not be changed!");
             Assert.AreEqual(orderIndex, artifactDetails.OrderIndex, "The OrderIndex of the moved artifact is not the correct value!");
@@ -413,12 +415,12 @@ namespace ArtifactStoreTests
         public void MoveArtifact_CopiedArtifact_ToNewFolder_ReturnsArtifactDetails(BaseArtifactType artifactType)
         {
             // Setup:
-            var folder1 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
-            var folder2 = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var folder1 = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
+            var folder2 = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
-            var copyResult = Helper.ArtifactStore.CopyArtifact(artifact, folder1, _user);
-            var copiedArtifact = Helper.WrapNovaArtifact(copyResult.Artifact, _project, _user);
+            var copyResult = Helper.ArtifactStore.CopyArtifact(artifact, folder1, _authorUser);
+            var copiedArtifact = Helper.WrapNovaArtifact(copyResult.Artifact, _project, _authorUser);
 
             INovaArtifactDetails movedArtifactDetails = null;
 
@@ -427,11 +429,11 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(copiedArtifact, folder2, _user);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(copiedArtifact, folder2, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
-            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, copiedArtifact.Id);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_authorUser, copiedArtifact.Id);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, movedArtifactDetails);
             ArtifactStoreHelper.AssertArtifactsEqual(copyResult.Artifact, movedArtifactDetails, skipParentId: true);
 
@@ -446,7 +448,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_BaselineOrBaselineFolder_MovedToBaselineFolder_ReturnsMovedArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -485,12 +487,12 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishArtifactsAndMoveToItself_400BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             artifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifact, _user),
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifact, _authorUser),
                 "'POST {0}' should return 400 Bad Request when artifact moved to itself", SVC_PATH);
 
             // Verify:
@@ -504,12 +506,12 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SaveArtifactsAndMoveToItself_400BadRequest(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
 
             artifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifact, _user),
+            var ex = Assert.Throws<Http400BadRequestException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifact, _authorUser),
                 "'POST {0}' should return 400 Bad Request when artifact moved to itself", SVC_PATH);
 
             // Verify:
@@ -524,13 +526,13 @@ namespace ArtifactStoreTests
         public void MoveArtifactWithOrderIndex_SavedArtifact_NotPositiveOrderIndex_400BadRequest(double orderIndex)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, BaseArtifactType.Process);
 
             artifact.Lock();
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() => 
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _user, orderIndex),
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _authorUser, orderIndex),
                 "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
 
             // Verify:
@@ -547,18 +549,18 @@ namespace ArtifactStoreTests
             ItemTypePredefined artifactType, double orderIndex)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _user,
+            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
                 BaselineAndCollectionTypePredefined.CollectionFolder);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
             artifact.Lock();
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, collectionFolder.Id, _user, orderIndex),
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, collectionFolder.Id, _authorUser, orderIndex),
                 "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
 
             // Verify:
@@ -576,8 +578,8 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactMoveToParentArtifactWithInvalidToken_401Unauthorized(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var newParentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             var userWithBadToken = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
@@ -606,19 +608,19 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactMoveToBeAChildOfAnotherArtifactInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            var projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
             var firstProject = projects[0];
             var secondProject = projects[1];
 
-            var artifact1 = Helper.CreateAndPublishArtifact(firstProject, _user, artifactType);
-            var artifact2 = Helper.CreateAndPublishArtifact(secondProject, _user, artifactType);
+            var artifact1 = Helper.CreateAndPublishArtifact(firstProject, _adminUser, artifactType);
+            var artifact2 = Helper.CreateAndPublishArtifact(secondProject, _adminUser, artifactType);
 
             artifact1.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _adminUser),
                 "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
@@ -632,17 +634,17 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SavedArtifactMoveToBeAChildOfAnotherArtifactInDifferentProject_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
+            var projects = ProjectFactory.GetProjects(_adminUser, numberOfProjects: 2);
             Assert.GreaterOrEqual(projects.Count, 2, "This test requires at least 2 projects to exist!");
 
             var firstProject = projects[0];
             var secondProject = projects[1];
 
-            var artifact1 = Helper.CreateAndSaveArtifact(firstProject, _user, artifactType);
-            var artifact2 = Helper.CreateAndPublishArtifact(secondProject, _user, artifactType);
+            var artifact1 = Helper.CreateAndSaveArtifact(firstProject, _adminUser, artifactType);
+            var artifact2 = Helper.CreateAndPublishArtifact(secondProject, _adminUser, artifactType);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _adminUser),
                 "'POST {0}' should return 403 Forbidden when user tries to move artifact to different project", SVC_PATH);
 
             // Verify:
@@ -655,8 +657,8 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishFolderAndMoveToBeAChildOfArtifact_403Forbidden(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var folder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var folder = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.PrimitiveFolder);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -695,7 +697,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifact_MoveToCollectionOrCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -703,9 +705,9 @@ namespace ArtifactStoreTests
                 BaselineAndCollectionTypePredefined.CollectionFolder);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
-            var parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
+            var parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Process);
 
             artifact.Lock(author);
 
@@ -724,7 +726,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_CollectionOrCollectionFolder_MoveToRegularArtifact_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -753,7 +755,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_CollectionOrCollectionFolder_MoveToCollectionArtifact_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -783,7 +785,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_BaselineOrBaselineFolder_MovedToProjectRoot_403Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -814,7 +816,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifact_MovedToDefaultBaselineFolder_403Conflict()
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Actor);
@@ -842,7 +844,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifact_MovedToBaseline_403Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             var artifact = Helper.CreateAndPublishArtifact(_project, author, BaseArtifactType.Actor);
@@ -874,7 +876,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_BaselineOrBaselineFolder_MovedToDefaultCollectionFolder_403Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -908,7 +910,7 @@ namespace ArtifactStoreTests
         public void MoveArtifact_CollectionOrCollectionFolder_MovedToDefaultBaselineFolder_403Conflict(ItemTypePredefined artifactType)
         {
             // Setup:
-            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -945,12 +947,12 @@ namespace ArtifactStoreTests
         {
             const int ARTIFACT_WITH_ID_0 = 0;
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             artifact.Lock();
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
+            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
             // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
@@ -963,10 +965,10 @@ namespace ArtifactStoreTests
         {
             const int ARTIFACT_WITH_ID_0 = 0;
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _user),
+            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
             // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
@@ -978,12 +980,12 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactCannotBeMovedToNonExistingArtifact_404NotFound(BaseArtifactType artifactType, int artifactId)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             artifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, artifactId, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, artifactId, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -997,10 +999,10 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SavedArtifactCannotBeMovedToNonExistingArtifact_404NotFound(BaseArtifactType artifactType, int artifactId)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, artifactId, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.BlueprintServer.Address, artifact, artifactId, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -1014,15 +1016,15 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactCannotBeMovedToDeletedArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact1 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var artifact2 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             artifact2.Delete();
             artifact2.Publish();
             artifact1.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -1036,14 +1038,14 @@ namespace ArtifactStoreTests
         public void MoveArtifact_SavedArtifactCannotBeMovedToDeletedArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact1 = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-            var artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact1 = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
+            var artifact2 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             artifact2.Delete();
             artifact2.Publish();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -1057,13 +1059,13 @@ namespace ArtifactStoreTests
         public void MoveArtifact_DeletedArtifactCannotBeMovedToAnotherArtifact_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact1 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var artifact2 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             artifact1.Delete();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _user),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact1, artifact2, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -1078,8 +1080,8 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactCannotBeMovedForUserWithoutProperPermissions_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact1 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var artifact2 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
@@ -1126,8 +1128,8 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishedArtifactCannotBeMovedToArtifactWhichUserDoesNotHaveProperPermissions_404NotFound(BaseArtifactType artifactType)
         {
             // Setup:
-            var artifact1 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var artifact2 = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact1 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var artifact2 = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             // Create a user without permission to the artifact.
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
@@ -1156,11 +1158,11 @@ namespace ArtifactStoreTests
         public void MoveArtifact_PublishArtifactAndMoveToBeAChildOfAnotherArtifact_DoNotSetLock_409Conflict(BaseArtifactType artifactType)
         {
             // Setup:
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            var childArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
+            var childArtifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(childArtifact, parentArtifact, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(childArtifact, parentArtifact, _authorUser),
                 "'POST {0}' should return 409 Conflict when user moves an unlocked artifact to be a child of another artifact.", SVC_PATH);
 
             // Verify:
@@ -1178,7 +1180,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
-            var artifactList = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var artifactList = Helper.CreatePublishedArtifactChain(_project, _authorUser, artifactTypes.ToArray());
 
             Assert.IsNotNull(artifactList, "Artifact List is not created");
 
@@ -1188,7 +1190,7 @@ namespace ArtifactStoreTests
             firstArtifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _authorUser),
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
@@ -1206,17 +1208,17 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
 
-            var artifactList = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypes.ToArray());
+            var artifactList = Helper.CreatePublishedArtifactChain(_project, _authorUser, artifactTypes.ToArray());
 
             Assert.IsNotNull(artifactList, "Artifact List is not created");
 
             var firstArtifact = artifactList.First();
             var lastArtifact = artifactList.Last();
 
-            firstArtifact.Save(_user);
+            firstArtifact.Save(_authorUser);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _authorUser),
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:

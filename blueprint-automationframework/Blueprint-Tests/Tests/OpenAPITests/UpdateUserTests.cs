@@ -25,6 +25,8 @@ namespace OpenAPITests
     {
         private const string UPDATE_PATH = RestPaths.OpenApi.USERS;
         private const string USERNAME_DOES_NOT_EXIST = "User with User Name={0} does not exist";
+        private const string PASSWORD_VALIDATION_ERROR =
+            "Password must be between 8 and 128 characters\r\nPassword must contain a non-alphanumeric character\r\nPassword must contain a number";
 
         private IUser _adminUser = null;
 
@@ -381,7 +383,50 @@ namespace OpenAPITests
                 skipPropertiesNotReturnedByOpenApi: true);
         }
 
-        // TODO: Add negative tests that set password to non-complex value.
+        [TestCase(nameof(UserDataModel.Password))]
+        [TestRail(266540)]
+        [Description("Update a list of users and change required properties of some users to blank and verify that the users with blank " +
+                     "required properties failed to be updated.")]
+        public void UpdateUsers_ListOfUsersAndSetUncomplexPasswordForSomeUsers_207PartialSuccess(string propertyName)
+        {
+            // Setup:
+            var userToUpdateWithValidPassword = Helper.CreateUserAndAddToDatabase();
+            var userToUpdateWithBadPassword = Helper.CreateUserAndAddToDatabase();
+
+            var invalidPropertiesToUpdate = new Dictionary<string, string> { { propertyName, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(3) } };
+            var validPropertiesToUpdate = new Dictionary<string, string> { { propertyName, GenerateValidPassword() } };
+
+            var validUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithValidPassword.Username, validPropertiesToUpdate);
+            var invalidUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithBadPassword.Username, invalidPropertiesToUpdate);
+
+            var allUserDataToUpdate = new List<UserDataModel> { validUserDataToUpdate, invalidUserDataToUpdate };
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+                "'PATCH {0}' should return '207 Partial Success' when some users updated Password doesn't meet complexity rules!", UPDATE_PATH);
+
+            // Verify:
+            var allUsersToUpdate = new List<IUser> { userToUpdateWithValidPassword, userToUpdateWithBadPassword };
+
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdateWithBadPassword,
+                ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
+                ErrorMessage = PASSWORD_VALIDATION_ERROR
+            };
+
+            VerifyUpdateUserResultSet(result, allUsersToUpdate,
+                expectedSuccessfullyUpdatedUsers: new List<UserDataModel> { validUserDataToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+
+            var invalidUserAfterUpdate = Helper.OpenApi.GetUser(_adminUser, userToUpdateWithBadPassword.Id);
+
+            UserDataModel.AssertAreEqual(userToUpdateWithBadPassword.UserData, invalidUserAfterUpdate,
+                skipPropertiesNotReturnedByOpenApi: true);
+        }
 
         #endregion Positive tests
 
@@ -673,7 +718,40 @@ namespace OpenAPITests
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
                 checkIfUserExists: false);
         }
-        
+
+        [TestCase]
+        [TestRail(266541)]
+        [Description("Update a user with a Password that doesn't meet the Password complexity rules.  Verify 409 Conflict is returned.")]
+        public void UpdateUser_UncomplexPassword_409Conflict()
+        {
+            // Setup:
+            var userToUpdate = Helper.CreateUserAndAddToDatabase();
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.Password), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(3) }
+            };
+            var userWithBlankRequiredProperty = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
+
+            // Execute:
+            UserCallResultCollection result = null;
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithBlankRequiredProperty },
+                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+                "'PATCH {0}' should return '409 Conflict' when user has missing property!", UPDATE_PATH);
+
+            // Verify:
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdate,
+                ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
+                ErrorMessage = PASSWORD_VALIDATION_ERROR
+            };
+
+            VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+        }
+
         #endregion 409 tests
 
         #region Private functions

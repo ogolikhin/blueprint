@@ -576,10 +576,13 @@ namespace Model.Impl
         public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.COLLECTION_id_ADD, collectionId, artifactId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.COLLECTION_id_ADD, collectionId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
-            string requestBody = includeDescendants.ToString().ToLowerInvariant();
-            var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.POST, requestBody,
+            var collectionContentToAdd = new Dictionary<string, object>();
+            collectionContentToAdd.Add("addChildren", includeDescendants);
+            collectionContentToAdd.Add("artifactId", artifactId);
+            string requestBody = JsonConvert.SerializeObject(collectionContentToAdd);
+            var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.PUT, requestBody,
                 contentType: "application/json", expectedStatusCodes: expectedStatusCodes);
             return I18NHelper.ToInt32Invariant(response.Content);
         }

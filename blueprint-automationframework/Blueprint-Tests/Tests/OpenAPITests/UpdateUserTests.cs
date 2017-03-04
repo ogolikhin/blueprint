@@ -14,7 +14,6 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
-using Utilities.Facades;
 using Utilities.Factories;
 
 namespace OpenAPITests
@@ -49,7 +48,7 @@ namespace OpenAPITests
         [TestCase(5, nameof(UserDataModel.DisplayName))]
         [TestRail(246613)]
         [Description("Update some properties of one or more users and verify that the users were updated.")]
-        public void UpdateUser_ValidUserParameters_VerifyUserUpdated(int numberOfUsersToUpdate, string propertyToUpdate)
+        public void UpdateUsers_ValidUserParameters_VerifyUserUpdated(int numberOfUsersToUpdate, string propertyToUpdate)
         {
             // Setup:
             var usersToUpdate = new List<IUser>();
@@ -82,7 +81,7 @@ namespace OpenAPITests
         [TestCase(true)]
         [TestRail(266523)]
         [Description("Update all user updatable properties for a user and verify that the user was updated.")]
-        public void UpdateUser_ChangeAllValidUserParameters_VerifyUserUpdated(bool userEnabled)
+        public void UpdateUsers_ChangeAllValidUserParameters_VerifyUserUpdated(bool userEnabled)
         {
             // Setup:
             var groups = CreateGroupsInDatabase(3);
@@ -190,7 +189,6 @@ namespace OpenAPITests
                 skipPropertiesNotReturnedByOpenApi: true);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/eym3P3pE  Returns 500 error instead of 409.
         [TestCase]
         [TestRail(246614)]
         [Description("Update a list of users (some users are active and others are deleted) and verify a 207 HTTP status was returned and " +
@@ -508,7 +506,6 @@ namespace OpenAPITests
 
         #region 409 tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/eym3P3pE  Returns 500 error instead of 409.
         [TestCase]
         [TestRail(266447)]
         [Description("Update a user that was deleted.  Verify it returns 409 Conflict.")]
@@ -538,7 +535,6 @@ namespace OpenAPITests
             VerifyUpdateUserResultSet(result, usersBeforeUpdate, expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser });
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/eym3P3pE  Returns 500 error instead of 409.
         [TestCase]
         [TestRail(266448)]
         [Description("Update a user that doesn't exist.  Verify it returns 409 Conflict.")]
@@ -574,7 +570,7 @@ namespace OpenAPITests
         [TestCase(nameof(UserDataModel.Password), "Password is required")]
         [TestRail(266481)]
         [Description("Update a user with a blank required property.  Verify 409 Conflict is returned.")]
-        public void UpdateUser_BlankRequiredProperty_409Conflict(string propertyName, string errorMessage)
+        public void UpdateUsers_BlankRequiredProperty_409Conflict(string propertyName, string errorMessage)
         {
             // Setup:
             var userToUpdate = Helper.CreateUserAndAddToDatabase();
@@ -604,7 +600,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(266484)]
         [Description("Update a user with non-existing admin role.  Verify 409 Conflict is returned.")]
-        public void UpdateUser_NonExistingAdminRole_409Conflict()
+        public void UpdateUsers_NonExistingAdminRole_409Conflict()
         {
             // Setup:
             var userToUpdate = Helper.CreateUserAndAddToDatabase();
@@ -634,7 +630,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(266485)]
         [Description("Update a user with non-existing group id.  Verify 409 Conflict is returned.")]
-        public void UpdateUser_NonExistingGroup_409Conflict()
+        public void UpdateUsers_NonExistingGroup_409Conflict()
         {
             // Setup:
             var userToUpdate = Helper.CreateUserAndAddToDatabase();
@@ -722,7 +718,7 @@ namespace OpenAPITests
         [TestCase]
         [TestRail(266541)]
         [Description("Update a user with a Password that doesn't meet the Password complexity rules.  Verify 409 Conflict is returned.")]
-        public void UpdateUser_UncomplexPassword_409Conflict()
+        public void UpdateUsers_UncomplexPassword_409Conflict()
         {
             // Setup:
             var userToUpdate = Helper.CreateUserAndAddToDatabase();

@@ -178,9 +178,9 @@ namespace Model
                 public const string ACTORICON_id_                   = "svc/bpartifactstore/diagram/actoricon/{0}";
                 public const string ARTIFACTS                       = "svc/bpartifactstore/artifacts";      // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
-                public const string BASELINE_id_                    = "svc/bpartifactstore/baseline/{0}"; // Baseline
-                public const string COLLECTION_id_                  = "svc/bpartifactstore/collection/{0}"; // Collection
-                public const string COLLECTION_id_ADD               = "svc/bpartifactstore/collection/{0}/add/{1}"; // Add artifact to Collection
+                public const string BASELINE_id_                    = "svc/bpartifactstore/baselines/{0}"; // Baseline
+                public const string COLLECTION_id_                  = "svc/bpartifactstore/collections/{0}"; // Collection
+                public const string COLLECTION_id_ADD               = "svc/bpartifactstore/collections/{0}/content"; // Add artifact to Collection
                 public const string DIAGRAM_id_                     = "svc/bpartifactstore/diagram/{0}";    // NovaDiagramController.GetDiagram
                 public const string GLOSSARY_id_                    = "svc/bpartifactstore/glossary/{0}";   // NovaGlossaryController.GetGlossary
                 public const string IMAGES                          = "svc/bpartifactstore/images";

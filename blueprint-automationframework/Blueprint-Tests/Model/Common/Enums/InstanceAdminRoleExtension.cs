@@ -23,10 +23,10 @@ namespace Model.Common.Enums
         };
 
         /// <summary>
-        /// Converts this InstanceAdminRole enum value to its InstanceAdminRole string equivalent.
+        /// Converts this nullable InstanceAdminRole enum value to its InstanceAdminRole string equivalent.
         /// </summary>
         /// <param name="instanceAdminRole">The InstanceAdminRole to convert.</param>
-        /// <returns>The string version of this InstanceAdminRole.</returns>
+        /// <returns>The string version of this InstanceAdminRole, or null if a null was passed in.</returns>
         public static string ToInstanceAdminRoleString(this InstanceAdminRole? instanceAdminRole)
         {
             if (instanceAdminRole != null)
@@ -35,6 +35,16 @@ namespace Model.Common.Enums
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Converts this InstanceAdminRole enum value to its InstanceAdminRole string equivalent.
+        /// </summary>
+        /// <param name="instanceAdminRole">The InstanceAdminRole to convert.</param>
+        /// <returns>The string version of this InstanceAdminRole.</returns>
+        public static string ToInstanceAdminRoleString(this InstanceAdminRole instanceAdminRole)
+        {
+            return InstanceAdminRoleStringMap[instanceAdminRole];
         }
 
         /// <summary>

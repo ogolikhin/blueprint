@@ -18,6 +18,7 @@ namespace Model
     public interface IGroup
     {
         #region Properties
+
         int GroupId { get; set; }
 
         string Name { get; set; }
@@ -35,6 +36,9 @@ namespace Model
         IGroup Parent { get; set; }
 
         bool? IsLicenseGroup { get; set; }
+
+        string GroupType { get; set; }
+
         #endregion Properties
 
         #region Methods

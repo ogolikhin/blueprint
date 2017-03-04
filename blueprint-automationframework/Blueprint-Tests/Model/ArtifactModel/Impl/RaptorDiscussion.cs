@@ -74,7 +74,9 @@ namespace Model.ArtifactModel.Impl
     {
         #region Serialized JSON properties
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public List<IReplyAdapter> Replies { get; set; }
+
         public bool IsClosed { get; set; }
         public int ItemId { get; set; }
         public int DiscussionId { get; set; }

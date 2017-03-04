@@ -297,6 +297,8 @@ Artifact_Glossary_Definition,"Definition"
 Artifact_Glossary_Empty,"No terms have been defined."
 
 Artifact_Baseline_Content_Header,"Baseline Contents"
+Artifact_Baseline_Items,"Items"
+Artifact_Baseline_Permissions_Warning, "Some items are hidden due to permission level"
 Artifact_Baseline_No_Artifacts_In_Baseline,"No artifacts available in this baseline"
 Artifact_Baseline_Add_Artifacts_To_Baseline, "Click here to add Artifacts to this Baseline"
 Artifact_Baseline_Seal_Baseline, "Seal this Baseline"
@@ -639,7 +641,6 @@ Jobs_Button_Label_GetJobs, "Get Jobs"
 Walkthrough_Button_Label, "Walkthrough"
 Process_Walkthrough_Mode_Tooltip, "Walkthrough Mode"
 Process_Diagram_Mode_Tooltip, "Diagram Mode"
-Walkthrough_Save_Before_Start, "Before starting a walkthrough, your changes will be saved."
 
 
 

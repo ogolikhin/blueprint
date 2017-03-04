@@ -493,13 +493,15 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ProjectNotFound, "Project not found.");
         }
 
-        [TestCase(ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.Actor, BaselineAndCollectionTypePredefined.CollectionFolder)]
+        [TestCase(ItemTypePredefined.Document, BaselineAndCollectionTypePredefined.BaselineFolder)]
         [TestRail(183543)]
         [Description("Create a regular artifact under the default Collections folder.  Verify the create fails with a 409 Conflict error.")]
-        public void CreateArtifact_AddArtifactUnderCollectionsFolder_409Conflict(ItemTypePredefined artifactType)
+        public void CreateArtifact_AddArtifactUnderBaselinesOrCollectionsFolder_409Conflict(ItemTypePredefined artifactType,
+            BaselineAndCollectionTypePredefined specialFoldertype)
         {
             // Setup:
-            var collectionFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = GetDefaultBaselineOrCollectionFolder(_project, _user, specialFoldertype);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(artifactType, _user, _project, collectionFolder.Id),

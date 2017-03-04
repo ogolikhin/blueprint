@@ -95,7 +95,7 @@ namespace OpenAPITests
                 { nameof(UserDataModel.LastName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
                 { nameof(UserDataModel.Title), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
                 { nameof(UserDataModel.Department), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) },
-                { nameof(UserDataModel.Password), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) + "Ab1$" },
+                { nameof(UserDataModel.Password), GenerateValidPassword() },
                 { nameof(UserDataModel.InstanceAdminRole), InstanceAdminRole.BlueprintAnalytics.ToInstanceAdminRoleString() },
                 { nameof(UserDataModel.Email), "user@domain.com" },
             };
@@ -237,9 +237,151 @@ namespace OpenAPITests
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser });
         }
 
-        // TODO: Add 207 tests setting a required property of 1 user to blank.
-        // TODO: Add 207 test setting 1 user's group to an invalid group.
-        // TODO: Add 207 test setting 1 user to an invalid InstanceAdminRole.
+        [TestCase(nameof(UserDataModel.DisplayName), "Display name is required")]
+        [TestCase(nameof(UserDataModel.FirstName), "First name is required")]
+        [TestCase(nameof(UserDataModel.LastName), "Last name is required")]
+        [TestCase(nameof(UserDataModel.Password), "Password is required")]
+        [TestRail(266537)]
+        [Description("Update a list of users and change required properties of some users to blank and verify that the users with blank " +
+                     "required properties failed to be updated.")]
+        public void UpdateUsers_ListOfUsersAndSetRequiredPropertyToBlankForSomeUsers_207PartialSuccess(string propertyName, string errorMessage)
+        {
+            // Setup:
+            var userToUpdateWithValidProperty = Helper.CreateUserAndAddToDatabase();
+            var userToUpdateWithBlankProperty = Helper.CreateUserAndAddToDatabase();
+
+            var propertiesToUpdateToBlank = new Dictionary<string, string> { { propertyName, string.Empty } };
+            var propertiesToUpdateToValue = new Dictionary<string, string> { { propertyName, GenerateValidPassword() } };
+
+            var validUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithValidProperty.Username, propertiesToUpdateToValue);
+            var invalidUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithBlankProperty.Username, propertiesToUpdateToBlank);
+
+            var allUserDataToUpdate = new List<UserDataModel> { validUserDataToUpdate, invalidUserDataToUpdate };
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+                "'PATCH {0}' should return '207 Partial Success' when some users updated a required property to blank!", UPDATE_PATH);
+
+            // Verify:
+            var allUsersToUpdate = new List<IUser> { userToUpdateWithValidProperty, userToUpdateWithBlankProperty };
+
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdateWithBlankProperty,
+                ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
+                ErrorMessage = errorMessage
+            };
+
+            VerifyUpdateUserResultSet(result, allUsersToUpdate,
+                expectedSuccessfullyUpdatedUsers: new List<UserDataModel> { validUserDataToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+
+            var invalidUserAfterUpdate = Helper.OpenApi.GetUser(_adminUser, userToUpdateWithBlankProperty.Id);
+
+            UserDataModel.AssertAreEqual(userToUpdateWithBlankProperty.UserData, invalidUserAfterUpdate,
+                skipPropertiesNotReturnedByOpenApi: true);
+        }
+
+        [TestCase]
+        [TestRail(266538)]
+        [Description("Update a list of users and change the Group of some users to a non-existing Group ID and verify that the users with " +
+                     "invalid Groups failed to be updated.")]
+        public void UpdateUsers_ListOfUsersAndSetNonExistingGroupForSomeUsers_207PartialSuccess()
+        {
+            // Setup:
+            var userToUpdateWithValidProperty = Helper.CreateUserAndAddToDatabase();
+            var userToUpdateWithInvalidGroup = Helper.CreateUserAndAddToDatabase();
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.DisplayName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+
+            var validUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithValidProperty.Username, propertiesToUpdate);
+            var invalidUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithInvalidGroup.Username, new Dictionary<string, string>());
+            invalidUserDataToUpdate.GroupIds.Add(int.MaxValue);
+
+            var allUserDataToUpdate = new List<UserDataModel> { validUserDataToUpdate, invalidUserDataToUpdate };
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+                "'PATCH {0}' should return '207 Partial Success' when some users updated to an invalid Group ID!", UPDATE_PATH);
+
+            // Verify:
+            var allUsersToUpdate = new List<IUser> { userToUpdateWithValidProperty, userToUpdateWithInvalidGroup };
+
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdateWithInvalidGroup,
+                ErrorCode = BusinessLayerErrorCodes.UserGroupsUpdateFailed,
+                ErrorMessage = "User's group cannot be updated"
+            };
+
+            VerifyUpdateUserResultSet(result, allUsersToUpdate,
+                expectedSuccessfullyUpdatedUsers: new List<UserDataModel> { validUserDataToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+
+            var invalidUserAfterUpdate = Helper.OpenApi.GetUser(_adminUser, userToUpdateWithInvalidGroup.Id);
+
+            UserDataModel.AssertAreEqual(userToUpdateWithInvalidGroup.UserData, invalidUserAfterUpdate,
+                skipPropertiesNotReturnedByOpenApi: true);
+        }
+
+        [TestCase]
+        [TestRail(266539)]
+        [Description("Update a list of users and change the InstanceAdminRole of some users to a role that doesn't exist and verify that the users with " +
+                     "an invalid InstanceAdminRole failed to be updated.")]
+        public void UpdateUsers_ListOfUsersAndSetNonExistingInstanceAdminRoleForSomeUsers_207PartialSuccess()
+        {
+            // Setup:
+            var userToUpdateWithValidProperty = Helper.CreateUserAndAddToDatabase();
+            var userToUpdateWithInvalidGroup = Helper.CreateUserAndAddToDatabase();
+
+            var propertiesToUpdate = new Dictionary<string, string>
+            {
+                { nameof(UserDataModel.DisplayName), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) }
+            };
+
+            var validUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithValidProperty.Username, propertiesToUpdate);
+            var invalidUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithInvalidGroup.Username, new Dictionary<string, string>());
+            invalidUserDataToUpdate.InstanceAdminRole = "!!Invalid Value!!";
+
+            var allUserDataToUpdate = new List<UserDataModel> { validUserDataToUpdate, invalidUserDataToUpdate };
+
+            // Execute:
+            UserCallResultCollection result = null;
+
+            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, allUserDataToUpdate, new List<HttpStatusCode> { (HttpStatusCode)207 }),
+                "'PATCH {0}' should return '207 Partial Success' when some users updated to an invalid InstanceAdminRole!", UPDATE_PATH);
+
+            // Verify:
+            var allUsersToUpdate = new List<IUser> { userToUpdateWithValidProperty, userToUpdateWithInvalidGroup };
+
+            var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
+            {
+                User = userToUpdateWithInvalidGroup,
+                ErrorCode = BusinessLayerErrorCodes.UserAddInstanceAdminRoleFailed,
+                ErrorMessage = "Specified Instance admin role doesn't exist"
+            };
+
+            VerifyUpdateUserResultSet(result, allUsersToUpdate,
+                expectedSuccessfullyUpdatedUsers: new List<UserDataModel> { validUserDataToUpdate },
+                expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
+                checkIfUserExists: false);
+
+            var invalidUserAfterUpdate = Helper.OpenApi.GetUser(_adminUser, userToUpdateWithInvalidGroup.Id);
+
+            UserDataModel.AssertAreEqual(userToUpdateWithInvalidGroup.UserData, invalidUserAfterUpdate,
+                skipPropertiesNotReturnedByOpenApi: true);
+        }
+
+        // TODO: Add negative tests that set password to non-complex value.
 
         #endregion Positive tests
 
@@ -558,6 +700,15 @@ namespace OpenAPITests
             }
 
             return groupList;
+        }
+
+        /// <summary>
+        /// Generates a random password that meets the password complexity rules.
+        /// </summary>
+        /// <returns>A new valid random password.</returns>
+        private static string GenerateValidPassword()
+        {
+            return RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) + "Ab1$";
         }
 
         /// <summary>

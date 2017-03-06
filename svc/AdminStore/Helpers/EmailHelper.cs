@@ -20,16 +20,23 @@ namespace AdminStore.Helpers
         /// <summary>
         /// Synchronous e-mail sending
         /// </summary>
-        public void SendEmail()
+        public void SendEmail(string userEmail)
         {
-            SendMailBeeMessage();
+            SendMailBeeMessage(userEmail);
         }
 
-        private void SendMailBeeMessage()
+        private void SendMailBeeMessage(string userEmail)
         {
             var smtpServer = SmtpServer;
 
             var mailMessage = new MailMessage();
+            mailMessage.To.Add(userEmail);
+            mailMessage.Subject = "password reset";
+            mailMessage.BodyHtmlText = @"
+<html>
+    <div>We received a request to reset your Storyteller password. Please click <a href='javascript:void()'>here</a> to continue.</div>
+</html>
+";
             /*if (!string.IsNullOrWhiteSpace(message.FromDisplayName))
             {
                 mailMessage.From.DisplayName = String.Format("\"{0}\" <{1}>", message.FromDisplayName, message.From);

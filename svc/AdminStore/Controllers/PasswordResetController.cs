@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Helpers;
 using AdminStore.Repositories;
 using ServiceLibrary.Attributes;
-using ServiceLibrary.Helpers;
 using sl = ServiceLibrary.Repositories.ConfigControl;
 
 namespace AdminStore.Controllers
@@ -16,23 +15,18 @@ namespace AdminStore.Controllers
     [RoutePrefix("passwordreset")]
     public class PasswordResetController : ApiController
     {
-        const string defaultLocale = "en-US";
-        internal readonly IConfigRepository _configRepo;
-        internal readonly IApplicationSettingsRepository _appSettingsRepo;
-        internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly ISqlUserRepository _sqlUserRepository;
-        internal readonly sl.IServiceLogRepository _log;
+        private readonly ISqlUserRepository _sqlUserRepository;
+        private readonly sl.IServiceLogRepository _log;
+        private readonly ISqlSettingsRepository _settingsRepository;
 
-        public PasswordResetController() : this(new SqlConfigRepository(), new ApplicationSettingsRepository(),  new HttpClientProvider(), new SqlUserRepository(), new sl.ServiceLogRepository())
+        public PasswordResetController() : this(new SqlUserRepository(), new sl.ServiceLogRepository(), new SqlSettingsRepository())
         {
 
         }
 
-        internal PasswordResetController(IConfigRepository configRepo, IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, ISqlUserRepository sqlUserRepository, sl.IServiceLogRepository log)
+        internal PasswordResetController(ISqlUserRepository sqlUserRepository, sl.IServiceLogRepository log, ISqlSettingsRepository settingsRepository)
         {
-            _configRepo = configRepo;
-            _appSettingsRepo = settingsRepo;
-            _httpClientProvider = httpClientProvider;
+            _settingsRepository = settingsRepository;
             _sqlUserRepository = sqlUserRepository;
             _log = log;
         }
@@ -50,14 +44,32 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> PostRequestPasswordReset([FromBody]string login)
         {
+            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+            
             bool passwordResetAllowed = await _sqlUserRepository.CanUserResetPassword(login);
+
+            var user = await _sqlUserRepository.GetUserByLoginAsync(login);
 
             try
             {
                 var response = Request.CreateResponse(HttpStatusCode.OK);
 
+                if (instanceSettings.EmailSettingsDeserialized.HostName == null)
+                {
+                    response.Content = new StringContent("no");
+                    return ResponseMessage(response);
+                }
+                if (user == null)
+                {
+                    response.Content = new StringContent("no");
+                    return ResponseMessage(response);
+                }
+
+                EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
+
                 if (passwordResetAllowed)
                 {
+                    emailHelper.SendEmail(user.Email);
                     response.Content = new StringContent("ok");
                 } else {
                     response.Content = new StringContent("no");

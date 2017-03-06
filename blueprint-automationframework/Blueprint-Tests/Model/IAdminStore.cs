@@ -5,6 +5,7 @@ using Model.JobModel.Impl;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using Utilities.Facades;
 
 namespace Model
 {
@@ -204,6 +205,17 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>List of LicenseActivity.</returns>
         IList<LicenseActivity> GetLicenseTransactions(IUser user, int? numberOfDays, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Request the specified user's password to be reset.  This will cause an E-mail to be sent to the user with a HTTP link containing a password reset token.
+        /// No authentication is required, since the user is resetting their password because they forgot what it was...
+        /// You can find the token that gets sent in the E-mail in the following table: Adminstore.dbo.PasswordRecoveryTokens
+        /// DB Columns:  "Login" (i.e. the username), "CreationTime" (DateTime), and "RecoveryToken" (GUID string).
+        /// </summary>
+        /// <param name="username">The username whose password you want to reset.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The RestResponse.</returns>
+        RestResponse RequestPasswordReset(string username, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Reset the user's password with a new one.

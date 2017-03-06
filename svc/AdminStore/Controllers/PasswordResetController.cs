@@ -51,12 +51,13 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> PostRequestPasswordReset([FromBody]string login)
         {
             bool passwordResetAllowed = await _sqlUserRepository.CanUserResetPassword(login);
+            bool passwordRequestLimitExceeded = await _sqlUserRepository.HasUserExceededPasswordRequestLimit(login);
 
             try
             {
                 var response = Request.CreateResponse(HttpStatusCode.OK);
 
-                if (passwordResetAllowed)
+                if (passwordResetAllowed && !passwordRequestLimitExceeded)
                 {
                     await _sqlUserRepository.UpdatePasswordRecoveryTokens(login);
 

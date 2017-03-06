@@ -140,15 +140,17 @@ VALUES (@login, CURRENT_TIMESTAMP, NEWID())
             string query = @"
 SELECT COUNT([UserName])
 FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
-WHERE [UserName] = 'zz'
-AND [CreationTime] < DATEADD(d,-1,CURRENT_TIMESTAMP)
+WHERE [UserName] = @login
+AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
 ";
+
+            const int passwordRequestLimit = 3;
 
             var prm = new DynamicParameters();
             prm.Add("@login", login);
             var result = (await _connectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text));
 
-            return result.FirstOrDefault() > 0;
+            return result.FirstOrDefault() > passwordRequestLimit;
         }
 
         internal class HashedPassword

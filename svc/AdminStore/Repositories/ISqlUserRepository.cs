@@ -25,5 +25,7 @@ namespace AdminStore.Repositories
         Task<bool> CanUserResetPassword(string login);
 
         Task UpdatePasswordRecoveryTokens(string login);
+
+        Task<bool> HasUserExceededPasswordRequestLimit(string login);
     }
 }

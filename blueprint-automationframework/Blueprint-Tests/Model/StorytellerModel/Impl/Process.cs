@@ -747,47 +747,14 @@ namespace Model.StorytellerModel.Impl
             }
             else
             {
+                // Process Ids for non-copied processes must be the same
                 Assert.AreEqual(expectedProcess.Id, actualProcess.Id, "The ids of the processes don't match");
 
                 // A copied process does not necessarily have the same Project Id as it's source
                 Assert.AreEqual(expectedProcess.ProjectId, actualProcess.ProjectId, "The project ids of the processes don't match");
-            }
 
-            Assert.AreEqual(expectedProcess.Name, actualProcess.Name, "The names of the processes don't match");
-            Assert.AreEqual(expectedProcess.BaseItemTypePredefined, actualProcess.BaseItemTypePredefined,
-                "The base item types of the processes don't match");
-
-            Assert.AreEqual(expectedProcess.TypePrefix, actualProcess.TypePrefix, "The type prefixes of the processes don't match");
-
-            // Assert that Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
-            Assert.AreEqual(expectedProcess.PropertyValues.Count, actualProcess.PropertyValues.Count,
-                "The processes have different property counts");
-            Assert.AreEqual(expectedProcess.Links.Count, actualProcess.Links.Count, "The processes have different link counts");
-            Assert.AreEqual(expectedProcess.Shapes.Count, actualProcess.Shapes.Count,
-                "The processes have different process shape counts");
-
-            // TODO This is a quick fix for tests deleting only decision from the process model
-            var process1DecisionBranchDestinationLinkCount = expectedProcess.DecisionBranchDestinationLinks?.Count ?? 0;
-            var process2DecisionBranchDestinationLinkCount = actualProcess.DecisionBranchDestinationLinks?.Count ?? 0;
-
-            Assert.AreEqual(process1DecisionBranchDestinationLinkCount, process2DecisionBranchDestinationLinkCount,
-                "The processes have different decision branch destination link counts");
-
-            // Assert that Process properties are equal
-            foreach (var process1Property in expectedProcess.PropertyValues)
-            {
-                var process2Property = PropertyValueInformation.FindPropertyValue(process1Property.Key, actualProcess.PropertyValues);
-
-                PropertyValueInformation.AssertAreEqual(process1Property.Value, process2Property.Value);
-            }
-
-            // TODO: Develop a method to see if the links are equivalent
-            // Copied processes do not have the same process links
-            if (!isCopiedProcess)
-            {
-                // Assert that process links are the same
+                // Assert that process links are the same (Copied processes do not have the same process links)
                 // This involves finding the new id of shapes that had negative ids in the source process
-
                 foreach (var link1 in expectedProcess.Links)
                 {
                     var link2 = new ProcessLink();
@@ -836,7 +803,35 @@ namespace Model.StorytellerModel.Impl
                     }
 
                     ProcessLink.AssertAreEqual(link1, link2);
-                }  
+                }
+            }
+
+            Assert.AreEqual(expectedProcess.Name, actualProcess.Name, "The names of the processes don't match");
+            Assert.AreEqual(expectedProcess.BaseItemTypePredefined, actualProcess.BaseItemTypePredefined,
+                "The base item types of the processes don't match");
+
+            Assert.AreEqual(expectedProcess.TypePrefix, actualProcess.TypePrefix, "The type prefixes of the processes don't match");
+
+            // Assert that Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
+            Assert.AreEqual(expectedProcess.PropertyValues.Count, actualProcess.PropertyValues.Count,
+                "The processes have different property counts");
+            Assert.AreEqual(expectedProcess.Links.Count, actualProcess.Links.Count, "The processes have different link counts");
+            Assert.AreEqual(expectedProcess.Shapes.Count, actualProcess.Shapes.Count,
+                "The processes have different process shape counts");
+
+            // TODO This is a quick fix for tests deleting only decision from the process model
+            var process1DecisionBranchDestinationLinkCount = expectedProcess.DecisionBranchDestinationLinks?.Count ?? 0;
+            var process2DecisionBranchDestinationLinkCount = actualProcess.DecisionBranchDestinationLinks?.Count ?? 0;
+
+            Assert.AreEqual(process1DecisionBranchDestinationLinkCount, process2DecisionBranchDestinationLinkCount,
+                "The processes have different decision branch destination link counts");
+
+            // Assert that Process properties are equal
+            foreach (var process1Property in expectedProcess.PropertyValues)
+            {
+                var process2Property = PropertyValueInformation.FindPropertyValue(process1Property.Key, actualProcess.PropertyValues);
+
+                PropertyValueInformation.AssertAreEqual(process1Property.Value, process2Property.Value);
             }
 
             //Assert that Process shapes are equal

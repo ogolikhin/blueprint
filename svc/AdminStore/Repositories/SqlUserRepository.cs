@@ -14,15 +14,17 @@ namespace AdminStore.Repositories
     public class SqlUserRepository : ISqlUserRepository
     {
         internal readonly ISqlConnectionWrapper _connectionWrapper;
+        internal readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;
 
         public SqlUserRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlConnectionWrapper(ServiceConstants.RaptorMain))
         {
         }
 
-        internal SqlUserRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlUserRepository(ISqlConnectionWrapper connectionWrapper, ISqlConnectionWrapper adminStorageConnectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
+            _adminStorageConnectionWrapper = adminStorageConnectionWrapper;
         }
 
         public async Task<AuthenticationUser> GetUserByLoginAsync(string login)
@@ -118,6 +120,37 @@ and [Enabled] = 1
             var result = (await _connectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text));
 
             return result.FirstOrDefault() > 0;
+        }
+
+        public async Task UpdatePasswordRecoveryTokens(string login)
+        {
+            string query = @"
+INSERT INTO [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
+([UserName],[CreationTime],[RecoveryToken])
+VALUES (@login, CURRENT_TIMESTAMP, NEWID())
+";
+
+            var prm = new DynamicParameters();
+            prm.Add("@login", login);
+            await _adminStorageConnectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text);
+        }
+
+        public async Task<bool> HasUserExceededPasswordRequestLimit(string login)
+        {
+            string query = @"
+SELECT COUNT([UserName])
+FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
+WHERE [UserName] = @login
+AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
+";
+
+            const int passwordRequestLimit = 3;
+
+            var prm = new DynamicParameters();
+            prm.Add("@login", login);
+            var result = (await _connectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text));
+
+            return result.FirstOrDefault() > passwordRequestLimit;
         }
 
         internal class HashedPassword

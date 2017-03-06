@@ -47,6 +47,7 @@ namespace AdminStore.Controllers
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
             
             bool passwordResetAllowed = await _sqlUserRepository.CanUserResetPassword(login);
+            bool passwordRequestLimitExceeded = await _sqlUserRepository.HasUserExceededPasswordRequestLimit(login);
 
             var user = await _sqlUserRepository.GetUserByLoginAsync(login);
 
@@ -67,8 +68,10 @@ namespace AdminStore.Controllers
 
                 EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
 
-                if (passwordResetAllowed)
+                if (passwordResetAllowed && !passwordRequestLimitExceeded)
                 {
+                    await _sqlUserRepository.UpdatePasswordRecoveryTokens(login);
+
                     emailHelper.SendEmail(user.Email);
                     response.Content = new StringContent("ok");
                 } else {

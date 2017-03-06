@@ -804,7 +804,7 @@ namespace ArtifactStoreTests
 
             var copiedProcess = Helper.Storyteller.GetProcess(_user, copyResult.Artifact.Id);
 
-            StorytellerTestHelper.AssertProcessesAreEqual(sourceProcess, copiedProcess, isCopiedProcess: true);
+            Process.AssertAreEqual(sourceProcess, copiedProcess, isCopiedProcess: true);
 
             // Compare the Process Links.
             for (int i = 0; i < sourceProcess.Links.Count; ++i)

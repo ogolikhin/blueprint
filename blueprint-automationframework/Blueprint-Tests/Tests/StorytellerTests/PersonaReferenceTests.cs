@@ -77,7 +77,7 @@ namespace StorytellerTests
             var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
 
             // Validation: Verify that there is no change in personaReference before and after the Move
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, savedPersonaReference);
+            ArtifactReference.AssertAreEqual(addedPersonaReference, savedPersonaReference);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
@@ -103,7 +103,7 @@ namespace StorytellerTests
             var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
 
             // Validation: Verify that there is no change in personaReference before and after the process update
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReferenceFromDifferentProject, savedPersonaReference);
+            ArtifactReference.AssertAreEqual(addedPersonaReferenceFromDifferentProject, savedPersonaReference);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
@@ -134,7 +134,7 @@ namespace StorytellerTests
 
             // Validation: Verify that persona reference from updated process is default persona
             var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(defaultPersonaReference, savedPersonaReference);
+            ArtifactReference.AssertAreEqual(defaultPersonaReference, savedPersonaReference);
 
             Assert.AreEqual(defaultPersonaReference.Name, savedPersonaReference.Name,
                 "The persona reference name from savedProcess {0} should be the same as default persona reference {1}!",
@@ -187,8 +187,8 @@ namespace StorytellerTests
             var inaccessiblePersonaReference = CreateInaccessiblePersonaReference(personaReferenceArtifact);
 
             // Validation: Verify that persona reference from the updated process using the users with and without permission to the persona reference
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(inaccessiblePersonaReference, personaReferenceWithoutPermission);
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(personaReferencBeforeUpdate, personaReferenceWithPermission);
+            ArtifactReference.AssertAreEqual(inaccessiblePersonaReference, personaReferenceWithoutPermission);
+            ArtifactReference.AssertAreEqual(personaReferencBeforeUpdate, personaReferenceWithPermission);
         }
 
         #endregion 200 OK Tests
@@ -241,7 +241,7 @@ namespace StorytellerTests
 
             var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
 
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, savedPersonaReference);
+            ArtifactReference.AssertAreEqual(addedPersonaReference, savedPersonaReference);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
@@ -263,7 +263,7 @@ namespace StorytellerTests
 
             var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedProcess);
 
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, publishedPersonaReference);
+            ArtifactReference.AssertAreEqual(addedPersonaReference, publishedPersonaReference);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
 
@@ -274,7 +274,7 @@ namespace StorytellerTests
 
             var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
 
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(defaultPersonaReference, savedPersonaReference);
+            ArtifactReference.AssertAreEqual(defaultPersonaReference, savedPersonaReference);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }
@@ -296,7 +296,7 @@ namespace StorytellerTests
 
             var publishedPersonaReference = GetPersonaReferenceFromTask(taskName, publishedProcess);
 
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(addedPersonaReference, publishedPersonaReference);
+            ArtifactReference.AssertAreEqual(addedPersonaReference, publishedPersonaReference);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, publishedProcess);
 
@@ -308,7 +308,7 @@ namespace StorytellerTests
 
             var savedPersonaReference = GetPersonaReferenceFromTask(taskName, savedProcess);
 
-            StorytellerTestHelper.AssertArtifactReferencesAreEqual(changedPersonaReference, savedPersonaReference);
+            ArtifactReference.AssertAreEqual(changedPersonaReference, savedPersonaReference);
 
             AssertPersonaReferenceEqualsPersonaPropertyForTaskWithinProcess(taskName, savedProcess);
         }

@@ -934,7 +934,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
-                "Cannot move baselines, reviews or root folders for collection...");
+                "Cannot move baselines, reviews or root folders for collections, baselines, reviews.");
         }
 
         #endregion 403 Forbidden tests

@@ -54,22 +54,17 @@ namespace AdminStore.Controllers
             try
             {
                 var response = Request.CreateResponse(HttpStatusCode.OK);
-
-                if (instanceSettings.EmailSettingsDeserialized.HostName == null)
-                {
-                    response.Content = new StringContent("no");
-                    return ResponseMessage(response);
-                }
-                if (user == null)
-                {
-                    response.Content = new StringContent("no");
-                    return ResponseMessage(response);
-                }
-
-                EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
-
                 if (passwordResetAllowed && !passwordRequestLimitExceeded)
                 {
+                    if (instanceSettings?.EmailSettingsDeserialized?.HostName == null || user == null)
+                    {
+                        response.Content = new StringContent("no");
+                        return ResponseMessage(response);
+                    }
+
+                    EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
+
+
                     await _sqlUserRepository.UpdatePasswordRecoveryTokens(login);
 
                     emailHelper.SendEmail(user.Email);

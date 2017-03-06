@@ -21,5 +21,7 @@ namespace AdminStore.Repositories
         Task UpdateUserOnPasswordResetAsync(AuthenticationUser user);
 
         Task<bool> ValidateUserPasswordForHistoryAsync(int userId, string newPassword);
+
+        Task<bool> CanUserResetPassword(string login);
     }
 }

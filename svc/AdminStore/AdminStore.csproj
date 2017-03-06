@@ -114,15 +114,14 @@
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
-    <Compile Include="Helpers\BaseEmailServerConfiguration.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\JobsValidationHelper.cs" />
     <Compile Include="Helpers\LdapHelper.cs" />
     <Compile Include="Helpers\LoginInfo.cs" />
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
-    <Compile Include="Helpers\SmtpClientConfiguration.cs" />
     <Compile Include="Models\ApplicationSettings.cs" />
+    <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
     <Compile Include="Models\UserIcon.cs" />
@@ -204,7 +203,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>45032</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

@@ -1,4 +1,5 @@
 ﻿using System;
+using AdminStore.Models;
 using MailBee.Mime;
 using MailBee.Security;
 using MailBee.SmtpMail;
@@ -7,8 +8,8 @@ namespace AdminStore.Helpers
 {
     public class EmailHelper
     {
-        public SmtpClientConfiguration Configuration { get; set; }
-        public EmailHelper(SmtpClientConfiguration configuration)
+        public EmailConfigInstanceSettings Configuration { get; set; }
+        public EmailHelper(EmailConfigInstanceSettings configuration)
         {
             if (configuration == null)
                 throw new ArgumentNullException("configuration");

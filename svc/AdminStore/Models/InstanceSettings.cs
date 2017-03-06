@@ -11,5 +11,9 @@
         public bool? IsSamlEnabled { get; set; }
 
         public int MaximumInvalidLogonAttempts { get; set; }
+
+        public EmailConfigInstanceSettings EmailSettingsDeserialized {get; set; }
+
+        public string EmailSettings { get; set; }
     }
 }

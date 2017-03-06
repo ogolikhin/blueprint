@@ -126,7 +126,7 @@ and [Enabled] = 1
         {
             string query = @"
 INSERT INTO [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
-([UserName],[CreationTime],[RecoveryToken])
+([Login],[CreationTime],[RecoveryToken])
 VALUES (@login, CURRENT_TIMESTAMP, NEWID())
 ";
 
@@ -138,9 +138,9 @@ VALUES (@login, CURRENT_TIMESTAMP, NEWID())
         public async Task<bool> HasUserExceededPasswordRequestLimit(string login)
         {
             string query = @"
-SELECT COUNT([UserName])
+SELECT COUNT([Login])
 FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
-WHERE [UserName] = @login
+WHERE [Login] = @login
 AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
 ";
 

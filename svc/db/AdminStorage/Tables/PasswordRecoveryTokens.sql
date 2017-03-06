@@ -3,7 +3,7 @@ DROP TABLE [dbo].[PasswordRecoveryTokens]
 GO
 
 CREATE TABLE [dbo].[PasswordRecoveryTokens](
-    [UserName] [nvarchar](max),
+    [Login] [nvarchar](max),
     [CreationTime] [datetime] NOT NULL,
     [RecoveryToken] [uniqueidentifier] NOT NULL,
 

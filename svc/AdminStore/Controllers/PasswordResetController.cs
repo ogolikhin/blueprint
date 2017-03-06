@@ -54,14 +54,8 @@ namespace AdminStore.Controllers
             try
             {
                 var response = Request.CreateResponse(HttpStatusCode.OK);
-                if (passwordResetAllowed && !passwordRequestLimitExceeded)
+                if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null && user != null)
                 {
-                    if (instanceSettings?.EmailSettingsDeserialized?.HostName == null || user == null)
-                    {
-                        response.Content = new StringContent("no");
-                        return ResponseMessage(response);
-                    }
-
                     EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
 
                     emailHelper.SendEmail(user.Email);

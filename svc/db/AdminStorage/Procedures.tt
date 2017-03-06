@@ -18,3 +18,5 @@
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetLogs.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetLicenseUserActivity.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetLicenseUsage.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetUserPasswordRecoveryRequestCount.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SetUserPasswordRecoveryToken.sql" ) ) #>

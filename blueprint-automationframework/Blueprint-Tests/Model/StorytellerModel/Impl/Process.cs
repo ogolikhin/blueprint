@@ -303,7 +303,6 @@ namespace Model.StorytellerModel.Impl
             AddDecisionBranchDestinationLink(destinationId, orderIndex, decisionPoint.Id);
         }
 
-
         public IProcessShape AddBranchWithUserAndSystemTaskToUserDecisionPoint(
             IProcessShape decisionPoint, 
             double orderIndex, 
@@ -724,6 +723,84 @@ namespace Model.StorytellerModel.Impl
             // Update the system task outgoing link destination Id to be the Id of the original
             // previous shape destination Id
             systemTaskOutgoingLink.DestinationId = sourceShapeNextShapeBeforeMove.Id;
+        }
+
+        /// <summary>
+        /// Asserts that the two Processes are equal.
+        /// </summary>
+        /// <param name="expectedProcess">The expected process</param>
+        /// <param name="actualProcess">The actual process being compared to the expected process</param>
+        /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
+        /// <param name="isCopiedProcess">(optional) Flag indicating if the process being compared is a copied process</param>
+        /// <exception cref="AssertionException">If expectedProcess is not equal to actualProcess</exception>
+        /// <remarks>If 1 of the 2 processes being compared has negative Ids, that process must be the first parameter</remarks>
+        public static void AssertAreEqual(IProcess expectedProcess, IProcess actualProcess, bool allowNegativeShapeIds = false, bool isCopiedProcess = false)
+        {
+            ThrowIf.ArgumentNull(expectedProcess, nameof(expectedProcess));
+            ThrowIf.ArgumentNull(actualProcess, nameof(actualProcess));
+
+            // Assert basic Process properties
+
+            // Artifact ids of copied processes must be different
+            if (isCopiedProcess)
+            {
+                Assert.AreNotEqual(expectedProcess.Id, actualProcess.Id, "The ids of copied processes must not match");
+            }
+            else
+            {
+                Assert.AreEqual(expectedProcess.Id, actualProcess.Id, "The ids of the processes don't match");
+            }
+
+            Assert.AreEqual(expectedProcess.Name, actualProcess.Name, "The names of the processes don't match");
+            Assert.AreEqual(expectedProcess.BaseItemTypePredefined, actualProcess.BaseItemTypePredefined,
+                "The base item types of the processes don't match");
+
+            // A copied process does not necessarily have the same Project Id as it's source
+            if (!isCopiedProcess)
+            {
+                Assert.AreEqual(expectedProcess.ProjectId, actualProcess.ProjectId, "The project ids of the processes don't match");
+            }
+
+            Assert.AreEqual(expectedProcess.TypePrefix, actualProcess.TypePrefix, "The type prefixes of the processes don't match");
+
+            // Assert that Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
+            Assert.AreEqual(expectedProcess.PropertyValues.Count, actualProcess.PropertyValues.Count,
+                "The processes have different property counts");
+            Assert.AreEqual(expectedProcess.Links.Count, actualProcess.Links.Count, "The processes have different link counts");
+            Assert.AreEqual(expectedProcess.Shapes.Count, actualProcess.Shapes.Count,
+                "The processes have different process shape counts");
+
+            // TODO This is a quick fix for tests deleting only decision from the process model
+            var process1DecisionBranchDestinationLinkCount = expectedProcess.DecisionBranchDestinationLinks?.Count ?? 0;
+            var process2DecisionBranchDestinationLinkCount = actualProcess.DecisionBranchDestinationLinks?.Count ?? 0;
+
+            Assert.AreEqual(process1DecisionBranchDestinationLinkCount, process2DecisionBranchDestinationLinkCount,
+                "The processes have different decision branch destination link counts");
+
+            // Assert that Process properties are equal
+            foreach (var process1Property in expectedProcess.PropertyValues)
+            {
+                var process2Property = PropertyValueInformation.FindPropertyValue(process1Property.Key, actualProcess.PropertyValues);
+
+                PropertyValueInformation.AssertAreEqual(process1Property.Value, process2Property.Value);
+            }
+
+            // TODO: Develop a method to see if the links are equivalent
+            // Copied processes do not have the same process links
+            if (!isCopiedProcess)
+            {
+                // Assert that process links are the same
+                // This involves finding the new id of shapes that had negative ids in the source process
+                ProcessLink.AssertAreEqual(expectedProcess, actualProcess);
+            }
+
+            //Assert that Process shapes are equal
+            foreach (var process1Shape in expectedProcess.Shapes)
+            {
+                var process2Shape = ProcessShape.FindProcessShapeByName(process1Shape.Name, actualProcess.Shapes);
+
+                ProcessShape.AssertAreEqual(process1Shape, process2Shape, allowNegativeShapeIds, isCopiedProcess);
+            }
         }
 
         #endregion Public Methods
@@ -1387,7 +1464,6 @@ namespace Model.StorytellerModel.Impl
 
             return processShapes;
         }
-
 
         /// <summary>
         /// Delete a Single System Decision and Update the Process Link

@@ -461,7 +461,7 @@ namespace Model
 
         /// <summary>
         /// Adds artifact to the collection
-        /// Runs POST svc/bpartifactstore/collection/{0}/add/{1}
+        /// Runs PUT svc/bpartifactstore/collections/{0}/content
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of Artifact to add.</param>
@@ -490,5 +490,17 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Baseline object</returns>
         Baseline GetBaseline(IUser user, int baselineId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Adds artifact to the baseline
+        /// Runs PUT svc/bpartifactstore/baselines/{0}/content
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of Artifact to add.</param>
+        /// <param name="collectionId">Id of Baseline.</param>
+        /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Number of artifacts added to Baseline</returns>
+        int AddArtifactToBaseline(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

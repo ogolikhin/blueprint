@@ -911,6 +911,32 @@ namespace ArtifactStoreTests
                 "Cannot move a collection artifact to non collection section.");
         }
 
+        [TestCase]
+        [TestRail(266597)]
+        [Description("Try to move default Baseline folder to the default Collection folder. " +
+            "Verify 403 and error message.")]
+        public void MoveArtifact_DefaultBaselineFolder_MovedToDefaultCollectionFolder_403Conflict()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
+
+            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
+                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
+            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
+                _authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, defaultBaselineFolder.Id,
+                    defaultCollectionFolder.Id, _authorUser);
+            }, "Attempt to move Default Baseline folder to the Default Collection folder should return 409 Conflict.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+                "Cannot move baselines, reviews or root folders for collection...");
+        }
+
         #endregion 403 Forbidden tests
 
         #region 404 Not Found tests

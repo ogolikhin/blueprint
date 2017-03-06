@@ -1906,6 +1906,50 @@ namespace Helper
         }
 
         /// <summary>
+        /// Gets the default BaselineReviews folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
+        /// </summary>
+        /// <param name="project">The project whose BaselineReviews folder you want to get.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>The default BaselineReviews folder for the project.</returns>
+        public static INovaArtifactBase GetDefaultBaselineFolder(IArtifactStore artifactStore, IProject project, IUser user)
+        {
+            return GetDefaultBaselineOrCollectionFolder(artifactStore, project, user, BaselineAndCollectionTypePredefined.BaselineFolder);
+        }
+
+        /// <summary>
+        /// Gets the default Collections folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
+        /// </summary>
+        /// <param name="project">The project whose Collections folder you want to get.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <returns>The default Collections folder for the project.</returns>
+        public static INovaArtifactBase GetDefaultCollectionFolder(IArtifactStore artifactStore, IProject project, IUser user)
+        {
+            return GetDefaultBaselineOrCollectionFolder(artifactStore, project, user, BaselineAndCollectionTypePredefined.CollectionFolder);
+        }
+
+        /// <summary>
+        /// Gets the default Collections or Baselines folder for the project and returns only the Id, PredefinedType, ProjectId and ItemTypeId.
+        /// </summary>
+        /// <param name="project">The project whose Collections or Baselines folder you want to get.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name ="folderType" >BaselineReview or Collection</param>
+        /// <returns>The default Collections folder for the project.</returns>
+        private static INovaArtifactBase GetDefaultBaselineOrCollectionFolder(IArtifactStore artifactStore, IProject project, IUser user,
+            BaselineAndCollectionTypePredefined folderType)
+        {
+            var folder = project.GetDefaultCollectionOrBaselineReviewFolder(artifactStore.Address,
+                user, folderType);
+
+            return new NovaArtifactDetails
+            {
+                Id = folder.Id,
+                PredefinedType = folder.PredefinedType,
+                ProjectId = project.Id,
+                ItemTypeId = folder.ItemTypeId
+            };
+        }
+
+        /// <summary>
         /// Updates text property of the specified artifact. Artifact should be locked by the user. It will be saved.
         /// NOTE: This function will first search for a top-level property with the specified name, then if not found it will
         /// look in the CustomPropertyValues.

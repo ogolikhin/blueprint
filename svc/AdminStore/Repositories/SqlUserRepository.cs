@@ -105,19 +105,9 @@ namespace AdminStore.Repositories
 
         public async Task<bool> CanUserResetPassword(string login)
         {
-            string query = @"
-SELECT COUNT([UserId])
-FROM [Raptor].[dbo].[Users]
-where [Login] = @Login
-and [Source] = 0 --User is a DB user
-and [Email] is not null
-and ([AllowFallback] is NULL or [AllowFallback] = 1) --Fallback is enabled
-and [Enabled] = 1
-";
-
             var prm = new DynamicParameters();
             prm.Add("@login", login);
-            var result = (await _connectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text));
+            var result = (await _connectionWrapper.QueryAsync<int>("GetCanUserResetPassword", prm, commandType: CommandType.StoredProcedure));
 
             return result.FirstOrDefault() > 0;
         }

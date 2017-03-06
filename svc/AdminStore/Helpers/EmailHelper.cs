@@ -33,7 +33,7 @@ namespace AdminStore.Helpers
 
             var mailMessage = new MailMessage();
             mailMessage.To.Add(userEmail);
-            mailMessage.From = new EmailAddress(Configuration.HostName);
+            mailMessage.From.Email = Configuration.UserName;
             mailMessage.Subject = "password reset";
             mailMessage.BodyHtmlText = @"
 <html>

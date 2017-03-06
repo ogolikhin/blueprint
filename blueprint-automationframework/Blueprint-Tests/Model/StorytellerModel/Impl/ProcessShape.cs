@@ -118,7 +118,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         /// <summary>
-        /// Find a Process Shape by name in an enumeration of Process Shapes
+        /// Find a Process Shape by name in an list of Process Shapes
         /// </summary>
         /// <param name="shapeName">The name of the process shape to find</param>
         /// <param name="shapesToSearchThrough">The process shapes to search</param>
@@ -136,7 +136,7 @@ namespace Model.StorytellerModel.Impl
         }
 
         /// <summary>
-        /// Find a Process Shape by id in an enumeration of Process Shapes
+        /// Find a Process Shape by id in an list of Process Shapes
         /// </summary>
         /// <param name="shapeId">The id of the process shape to find</param>
         /// <param name="shapesToSearchThrough">The process shapes to search</param>

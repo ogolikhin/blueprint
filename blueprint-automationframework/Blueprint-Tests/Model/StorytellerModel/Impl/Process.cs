@@ -733,33 +733,29 @@ namespace Model.StorytellerModel.Impl
         /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
         /// <param name="isCopiedProcess">(optional) Flag indicating if the process being compared is a copied process</param>
         /// <exception cref="AssertionException">If expectedProcess is not equal to actualProcess</exception>
-        /// <remarks>If 1 of the 2 processes being compared has negative Ids, that process must be the first parameter</remarks>
+        /// <remarks>If 1 of the 2 processes being compared has negative shape Ids, that process must be the first parameter</remarks>
         public static void AssertAreEqual(IProcess expectedProcess, IProcess actualProcess, bool allowNegativeShapeIds = false, bool isCopiedProcess = false)
         {
             ThrowIf.ArgumentNull(expectedProcess, nameof(expectedProcess));
             ThrowIf.ArgumentNull(actualProcess, nameof(actualProcess));
 
             // Assert basic Process properties
-
-            // Artifact ids of copied processes must be different
             if (isCopiedProcess)
             {
+                // Artifact ids of copied processes must be different
                 Assert.AreNotEqual(expectedProcess.Id, actualProcess.Id, "The ids of copied processes must not match");
             }
             else
             {
                 Assert.AreEqual(expectedProcess.Id, actualProcess.Id, "The ids of the processes don't match");
+
+                // A copied process does not necessarily have the same Project Id as it's source
+                Assert.AreEqual(expectedProcess.ProjectId, actualProcess.ProjectId, "The project ids of the processes don't match");
             }
 
             Assert.AreEqual(expectedProcess.Name, actualProcess.Name, "The names of the processes don't match");
             Assert.AreEqual(expectedProcess.BaseItemTypePredefined, actualProcess.BaseItemTypePredefined,
                 "The base item types of the processes don't match");
-
-            // A copied process does not necessarily have the same Project Id as it's source
-            if (!isCopiedProcess)
-            {
-                Assert.AreEqual(expectedProcess.ProjectId, actualProcess.ProjectId, "The project ids of the processes don't match");
-            }
 
             Assert.AreEqual(expectedProcess.TypePrefix, actualProcess.TypePrefix, "The type prefixes of the processes don't match");
 
@@ -791,7 +787,56 @@ namespace Model.StorytellerModel.Impl
             {
                 // Assert that process links are the same
                 // This involves finding the new id of shapes that had negative ids in the source process
-                ProcessLink.AssertAreEqual(expectedProcess, actualProcess);
+
+                foreach (var link1 in expectedProcess.Links)
+                {
+                    var link2 = new ProcessLink();
+
+                    if (link1.SourceId > 0 && link1.DestinationId > 0)
+                    {
+                        link2 = ProcessLink.FindProcessLink(link1, actualProcess.Links);
+                    }
+                    // If the destination id is < 0, we find the name of the destination shape and 
+                    // then locate this shape in the second process. We then replace the destination id
+                    // of the first link with the id of that shape.  This allows us to compare links.
+                    else if (link1.SourceId > 0 && link1.DestinationId < 0)
+                    {
+                        var link1DestinationShape = ProcessShape.FindProcessShapeById(link1.DestinationId, expectedProcess.Shapes);
+                        var link2Shape = ProcessShape.FindProcessShapeByName(link1DestinationShape.Name, actualProcess.Shapes);
+
+                        link1.DestinationId = link2Shape.Id;
+
+                        link2 = ProcessLink.FindProcessLink(link1, actualProcess.Links);
+                    }
+                    // If the source id is < 0, we find the name of the source shape and 
+                    // then locate this shape in the second process. We then replace the source id
+                    // of the first link with the id of that shape.  This allows us to compare links.
+                    else if (link1.SourceId < 0 && link1.DestinationId > 0)
+                    {
+                        var link1SourceShape = ProcessShape.FindProcessShapeById(link1.SourceId, expectedProcess.Shapes);
+                        var link2Shape = ProcessShape.FindProcessShapeByName(link1SourceShape.Name, actualProcess.Shapes);
+
+                        link1.SourceId = link2Shape.Id;
+
+                        link2 = ProcessLink.FindProcessLink(link1, actualProcess.Links);
+                    }
+                    else if (link1.SourceId < 0 && link1.DestinationId < 0)
+                    {
+                        var link1SourceShape = ProcessShape.FindProcessShapeById(link1.SourceId, expectedProcess.Shapes);
+                        var link2Shape = ProcessShape.FindProcessShapeByName(link1SourceShape.Name, actualProcess.Shapes);
+
+                        link1.SourceId = link2Shape.Id;
+
+                        var link1DestinationShape = ProcessShape.FindProcessShapeById(link1.DestinationId, expectedProcess.Shapes);
+                        link2Shape = ProcessShape.FindProcessShapeByName(link1DestinationShape.Name, actualProcess.Shapes);
+
+                        link1.DestinationId = link2Shape.Id;
+
+                        link2 = ProcessLink.FindProcessLink(link1, actualProcess.Links);
+                    }
+
+                    ProcessLink.AssertAreEqual(link1, link2);
+                }  
             }
 
             //Assert that Process shapes are equal

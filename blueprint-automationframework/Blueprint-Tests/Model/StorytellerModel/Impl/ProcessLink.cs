@@ -49,65 +49,17 @@ namespace Model.StorytellerModel.Impl
         /// <summary>
         /// Assert that Process Links are equal
         /// </summary>
-        /// <param name="process1">The first process containing the links to compare</param>
-        /// <param name="process2">The process containing the links being compared to the first</param>
-        public static void AssertAreEqual(IProcess process1, IProcess process2)
+        /// <param name="link1">The first process link</param>
+        /// <param name="link2">The process linkc being compared to the first</param>
+        public static void AssertAreEqual(ProcessLink link1, ProcessLink link2)
         {
-            ThrowIf.ArgumentNull(process1, nameof(process1));
-            ThrowIf.ArgumentNull(process2, nameof(process2));
+            ThrowIf.ArgumentNull(link1, nameof(link1));
+            ThrowIf.ArgumentNull(link2, nameof(link2));
 
-            foreach (var link1 in process1.Links)
-            {
-                var link2 = new ProcessLink();
-
-                if (link1.SourceId > 0 && link1.DestinationId > 0)
-                {
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-                // If the destination id is < 0, we find the name of the destination shape and 
-                // then locate this shape in the second process. We then replace the destination id
-                // of the first link with the id of that shape.  This allows us to compare links.
-                else if (link1.SourceId > 0 && link1.DestinationId < 0)
-                {
-                    var link1DestinationShape = ProcessShape.FindProcessShapeById(link1.DestinationId, process1.Shapes);
-                    var link2Shape = ProcessShape.FindProcessShapeByName(link1DestinationShape.Name, process2.Shapes);
-
-                    link1.DestinationId = link2Shape.Id;
-
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-                // If the source id is < 0, we find the name of the source shape and 
-                // then locate this shape in the second process. We then replace the source id
-                // of the first link with the id of that shape.  This allows us to compare links.
-                else if (link1.SourceId < 0 && link1.DestinationId > 0)
-                {
-                    var link1SourceShape = ProcessShape.FindProcessShapeById(link1.SourceId, process1.Shapes);
-                    var link2Shape = ProcessShape.FindProcessShapeByName(link1SourceShape.Name, process2.Shapes);
-
-                    link1.SourceId = link2Shape.Id;
-
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-                else if (link1.SourceId < 0 && link1.DestinationId < 0)
-                {
-                    var link1SourceShape = ProcessShape.FindProcessShapeById(link1.SourceId, process1.Shapes);
-                    var link2Shape = ProcessShape.FindProcessShapeByName(link1SourceShape.Name, process2.Shapes);
-
-                    link1.SourceId = link2Shape.Id;
-
-                    var link1DestinationShape = ProcessShape.FindProcessShapeById(link1.DestinationId, process1.Shapes);
-                    link2Shape = ProcessShape.FindProcessShapeByName(link1DestinationShape.Name, process2.Shapes);
-
-                    link1.DestinationId = link2Shape.Id;
-
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-
-                Assert.AreEqual(link1.SourceId, link2.SourceId, "Link sources do not match");
-                Assert.AreEqual(link1.DestinationId, link2.DestinationId, "Link destinations do not match");
-                Assert.AreEqual(link1.Label, link2.Label, "Link labels do not match");
-                Assert.AreEqual(link1.Orderindex, link2.Orderindex, "Link order indexes do not match");
-            }
+            Assert.AreEqual(link1.SourceId, link2.SourceId, "Link sources do not match");
+            Assert.AreEqual(link1.DestinationId, link2.DestinationId, "Link destinations do not match");
+            Assert.AreEqual(link1.Label, link2.Label, "Link labels do not match");
+            Assert.AreEqual(link1.Orderindex, link2.Orderindex, "Link order indexes do not match");
         }
     }
 }

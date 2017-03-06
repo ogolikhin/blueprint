@@ -24,8 +24,13 @@ namespace OpenAPITests
     {
         private const string UPDATE_PATH = RestPaths.OpenApi.USERS;
         private const string USERNAME_DOES_NOT_EXIST = "User with User Name={0} does not exist";
-        private const string PASSWORD_VALIDATION_ERROR =
-            "Password must be between 8 and 128 characters\r\nPassword must contain a non-alphanumeric character\r\nPassword must contain a number";
+        private const string PASSWORD_WRONG_LENGTH_ERROR = "Password must be between 8 and 128 characters";
+        private const string PASSWORD_MISSING_NON_ALPHANUMERIC_ERROR = "Password must contain a non-alphanumeric character";
+        private const string PASSWORD_MISSING_NUMBER_ERROR = "Password must contain a number";
+        private const string PASSWORD_MISSING_UPPER_CASE_ERROR = "Password must contain an upper-case letter";
+
+        private readonly string PASSWORD_VALIDATION_ERROR_ALL = I18NHelper.FormatInvariant("{0}\r\n{1}\r\n{2}\r\n{3}",
+            PASSWORD_WRONG_LENGTH_ERROR, PASSWORD_MISSING_NON_ALPHANUMERIC_ERROR, PASSWORD_MISSING_NUMBER_ERROR, PASSWORD_MISSING_UPPER_CASE_ERROR);
 
         private IUser _adminUser = null;
 
@@ -350,7 +355,7 @@ namespace OpenAPITests
 
             var validUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithValidProperty.Username, propertiesToUpdate);
             var invalidUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithInvalidGroup.Username, new Dictionary<string, string>());
-            invalidUserDataToUpdate.InstanceAdminRole = "!!Invalid Value!!";
+            invalidUserDataToUpdate.InstanceAdminRole = "!!Invalid Admin Role!!";
 
             var allUserDataToUpdate = new List<UserDataModel> { validUserDataToUpdate, invalidUserDataToUpdate };
 
@@ -383,19 +388,19 @@ namespace OpenAPITests
 
         [TestCase(nameof(UserDataModel.Password))]
         [TestRail(266540)]
-        [Description("Update a list of users and change required properties of some users to blank and verify that the users with blank " +
-                     "required properties failed to be updated.")]
+        [Description("Update a list of users and change the password of some users to valid complex passwords and others to non-complex passwords.  " +
+                     "Verify it returns 207 Partial Success and the users without complex passwords didn't get updated.")]
         public void UpdateUsers_ListOfUsersAndSetUncomplexPasswordForSomeUsers_207PartialSuccess(string propertyName)
         {
             // Setup:
             var userToUpdateWithValidPassword = Helper.CreateUserAndAddToDatabase();
             var userToUpdateWithBadPassword = Helper.CreateUserAndAddToDatabase();
 
-            var invalidPropertiesToUpdate = new Dictionary<string, string> { { propertyName, RandomGenerator.RandomAlphaNumericUpperAndLowerCase(3) } };
-            var validPropertiesToUpdate = new Dictionary<string, string> { { propertyName, GenerateValidPassword() } };
+            var propertiesWithInvalidPassword = new Dictionary<string, string> { { propertyName, GenerateInvalidPassword() } };
+            var propertiesWithValidPassword = new Dictionary<string, string> { { propertyName, GenerateValidPassword() } };
 
-            var validUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithValidPassword.Username, validPropertiesToUpdate);
-            var invalidUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithBadPassword.Username, invalidPropertiesToUpdate);
+            var validUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithValidPassword.Username, propertiesWithValidPassword);
+            var invalidUserDataToUpdate = CreateUserDataModelForUpdate(userToUpdateWithBadPassword.Username, propertiesWithInvalidPassword);
 
             var allUserDataToUpdate = new List<UserDataModel> { validUserDataToUpdate, invalidUserDataToUpdate };
 
@@ -412,7 +417,7 @@ namespace OpenAPITests
             {
                 User = userToUpdateWithBadPassword,
                 ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
-                ErrorMessage = PASSWORD_VALIDATION_ERROR
+                ErrorMessage = PASSWORD_VALIDATION_ERROR_ALL
             };
 
             VerifyUpdateUserResultSet(result, allUsersToUpdate,
@@ -424,6 +429,10 @@ namespace OpenAPITests
 
             UserDataModel.AssertAreEqual(userToUpdateWithBadPassword.UserData, invalidUserAfterUpdate,
                 skipPropertiesNotReturnedByOpenApi: true);
+
+            // Verify user with bad password can still login with their old password.
+            Assert.DoesNotThrow(() => { Helper.BlueprintServer.LoginUsingBasicAuthorization(userToUpdateWithBadPassword); },
+                    "Login should succeed when using the old password!");
         }
 
         #endregion Positive tests
@@ -715,17 +724,21 @@ namespace OpenAPITests
                 checkIfUserExists: false);
         }
 
-        [TestCase]
+        // NOTE: We don't have a testcase for missing lower-case letter because we don't require any lower-case letters currently.
+        [TestCase("aaaa$111", PASSWORD_MISSING_UPPER_CASE_ERROR)]
+        [TestCase("aaaa$AAA", PASSWORD_MISSING_NUMBER_ERROR)]
+        [TestCase("aaaAA111", PASSWORD_MISSING_NON_ALPHANUMERIC_ERROR)]
+        [TestCase("aa$AA11", PASSWORD_WRONG_LENGTH_ERROR)]
         [TestRail(266541)]
         [Description("Update a user with a Password that doesn't meet the Password complexity rules.  Verify 409 Conflict is returned.")]
-        public void UpdateUsers_UncomplexPassword_409Conflict()
+        public void UpdateUsers_UncomplexPassword_409Conflict(string badPassword, string expectedErrorMessage)
         {
             // Setup:
             var userToUpdate = Helper.CreateUserAndAddToDatabase();
 
             var propertiesToUpdate = new Dictionary<string, string>
             {
-                { nameof(UserDataModel.Password), RandomGenerator.RandomAlphaNumericUpperAndLowerCase(3) }
+                { nameof(UserDataModel.Password), badPassword }
             };
             var userWithBlankRequiredProperty = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
 
@@ -733,19 +746,23 @@ namespace OpenAPITests
             UserCallResultCollection result = null;
             Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithBlankRequiredProperty },
                 new List<HttpStatusCode> { HttpStatusCode.Conflict }),
-                "'PATCH {0}' should return '409 Conflict' when user has missing property!", UPDATE_PATH);
+                "'PATCH {0}' should return '409 Conflict' when user has a non-complex password!", UPDATE_PATH);
 
             // Verify:
             var expectedFailedUpdatedUser = new UserErrorCodeAndMessage
             {
                 User = userToUpdate,
                 ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
-                ErrorMessage = PASSWORD_VALIDATION_ERROR
+                ErrorMessage = expectedErrorMessage
             };
 
             VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
                 checkIfUserExists: false);
+
+            // Verify user with bad password can still login with their old password.
+            Assert.DoesNotThrow(() => { Helper.BlueprintServer.LoginUsingBasicAuthorization(userToUpdate); },
+                    "Login should succeed when using the old password!");
         }
 
         #endregion 409 tests
@@ -783,6 +800,15 @@ namespace OpenAPITests
         private static string GenerateValidPassword()
         {
             return RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10) + "Ab1$";
+        }
+
+        /// <summary>
+        /// Generates a random password that is too short and only contains lower-case letters.
+        /// </summary>
+        /// <returns>A new invalid random password.</returns>
+        private static string GenerateInvalidPassword()
+        {
+            return RandomGenerator.RandomLowerCase(7);
         }
 
         /// <summary>

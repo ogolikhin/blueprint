@@ -40,37 +40,6 @@ namespace AdminStore.Helpers
     <div>We received a request to reset your Storyteller password. Please click <a href='javascript:void()'>here</a> to continue.</div>
 </html>
 ";
-            /*if (!string.IsNullOrWhiteSpace(message.FromDisplayName))
-            {
-                mailMessage.From.DisplayName = String.Format("\"{0}\" <{1}>", message.FromDisplayName, message.From);
-            }
-            mailMessage.From.Email = message.From;
-            message.To.ForEach(email => mailMessage.To.Add(email));
-            mailMessage.Subject = message.Subject;
-            if (message.IsBodyHTML)
-            {
-                mailMessage.BodyHtmlText = message.Body;
-            }
-            else
-            {
-                mailMessage.BodyPlainText = message.Body;
-            }
-
-            if (message.DiscussionEmail != null)
-            {
-                if (message.DiscussionEmail.LogoImageAttachmentArray != null)
-                {
-                    mailMessage.Attachments.Add(message.DiscussionEmail.LogoImageAttachmentArray,
-                        DDiscussionEmail.LogoImageAttachmentContentId, DDiscussionEmail.LogoImageAttachmentContentId,
-                        null, null, NewAttachmentOptions.Inline | NewAttachmentOptions.ReplaceIfExists, MailTransferEncoding.Base64);
-                }
-                if (message.DiscussionEmail.ArtifactImageAttachmentArray != null)
-                {
-                    mailMessage.Attachments.Add(message.DiscussionEmail.ArtifactImageAttachmentArray,
-                        DDiscussionEmail.ArtifactImageAttachmentContentId, DDiscussionEmail.ArtifactImageAttachmentContentId,
-                        null, null, NewAttachmentOptions.Inline | NewAttachmentOptions.ReplaceIfExists, MailTransferEncoding.Base64);
-                }
-            }*/
 
             var smtp = new Smtp();
             smtp.SmtpServers.Add(smtpServer);

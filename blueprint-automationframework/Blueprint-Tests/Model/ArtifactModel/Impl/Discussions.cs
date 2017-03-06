@@ -70,7 +70,7 @@ namespace Model.ArtifactModel.Impl
     public class ThreadStatus
     {
         public int StatusId { get; set; }
-        public bool ReadOnly { get; set; }
+        public bool? ReadOnly { get; set; }
         public bool IsClosed { get; set; }
         public string Name { get; set; }
     }

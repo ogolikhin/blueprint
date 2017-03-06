@@ -208,6 +208,7 @@ namespace Model
 
         /// <summary>
         /// Request the specified user's password to be reset.  This will cause an E-mail to be sent to the user with a HTTP link containing a password reset token.
+        /// (Runs: POST /svc/adminstore/passwordreset/request)
         /// No authentication is required, since the user is resetting their password because they forgot what it was...
         /// You can find the token that gets sent in the E-mail in the following table: Adminstore.dbo.PasswordRecoveryTokens
         /// DB Columns:  "Login" (i.e. the username), "CreationTime" (DateTime), and "RecoveryToken" (GUID string).
@@ -219,7 +220,7 @@ namespace Model
 
         /// <summary>
         /// Reset the user's password with a new one.
-        /// (Runs: POST /users/reset?login={username})
+        /// (Runs: POST /svc/adminstore/users/reset?login={username})
         /// </summary>
         /// <param name="user">The user whose password you are resetting (should contain the old password).</param>
         /// <param name="newPassword">The new password to set.</param>

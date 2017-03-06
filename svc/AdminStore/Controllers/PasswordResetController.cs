@@ -64,10 +64,9 @@ namespace AdminStore.Controllers
 
                     EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
 
+                    emailHelper.SendEmail(user.Email);
 
                     await _sqlUserRepository.UpdatePasswordRecoveryTokens(login);
-
-                    emailHelper.SendEmail(user.Email);
                     response.Content = new StringContent("ok");
                 } else {
                     response.Content = new StringContent("no");

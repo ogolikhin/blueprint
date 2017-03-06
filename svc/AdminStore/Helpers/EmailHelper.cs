@@ -15,6 +15,8 @@ namespace AdminStore.Helpers
                 throw new ArgumentNullException("configuration");
 
             Configuration = configuration;
+            MailBee.Global.AutodetectPortAndSslMode = false;
+            MailBee.Global.LicenseKey = "MN800-02CA3564CA2ACAAECAB17D4ADEC9-145F";
         }
 
         /// <summary>
@@ -31,6 +33,7 @@ namespace AdminStore.Helpers
 
             var mailMessage = new MailMessage();
             mailMessage.To.Add(userEmail);
+            mailMessage.From = new EmailAddress(Configuration.HostName);
             mailMessage.Subject = "password reset";
             mailMessage.BodyHtmlText = @"
 <html>
@@ -86,7 +89,7 @@ namespace AdminStore.Helpers
                 if (Configuration.Authenticated)
                 {
                     smtpServer.AccountName = Configuration.UserName;
-                    smtpServer.Password = Configuration.Password;
+                    smtpServer.Password = SystemEncryptions.DecryptFromSilverlight(Configuration.Password);
                     //MailBee.AuthenticationMethods.None by default
                     smtpServer.AuthMethods = MailBee.AuthenticationMethods.Auto;
                 }

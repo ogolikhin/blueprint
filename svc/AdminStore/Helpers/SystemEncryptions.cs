@@ -12,6 +12,7 @@ namespace AdminStore.Helpers
     public static class SystemEncryptions
     {
         private const string Utf8EncodingSaltString = "UTF8EncodingSalt-RaptorRocks-Backend";
+        private const string Utf8EncodingSaltStringSilverlight = "UTF8EncodingSalt-RaptorRocks";
 
         public static string Encrypt(string input)
         {
@@ -59,13 +60,23 @@ namespace AdminStore.Helpers
 
         public static string Decrypt(string base64Input)
         {
+            return DecryptInternal(base64Input, Utf8EncodingSaltString);
+        }
+
+        public static string DecryptFromSilverlight(string base64Input)
+        {
+            return DecryptInternal(base64Input, Utf8EncodingSaltStringSilverlight);
+        }
+
+        private static string DecryptInternal(string base64Input, string salt)
+        {
             if (string.IsNullOrEmpty(base64Input))
             {
                 return base64Input;
             }
 
             var encryptBytes = Convert.FromBase64String(base64Input);
-            var saltBytes = Encoding.UTF8.GetBytes(Utf8EncodingSaltString);
+            var saltBytes = Encoding.UTF8.GetBytes(salt);
 
             // Our symmetric encryption algorithm
             var aes = new AesManaged();

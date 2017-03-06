@@ -20,20 +20,20 @@ namespace AdminStore.Controllers
         internal readonly IConfigRepository _configRepo;
         internal readonly IApplicationSettingsRepository _appSettingsRepo;
         internal readonly IHttpClientProvider _httpClientProvider;
-        internal readonly IAuthenticationRepository _authenticationRepository;
+        internal readonly ISqlUserRepository _sqlUserRepository;
         internal readonly sl.IServiceLogRepository _log;
 
-        public PasswordResetController() : this(new SqlConfigRepository(), new ApplicationSettingsRepository(),  new HttpClientProvider(), new AuthenticationRepository(), new sl.ServiceLogRepository())
+        public PasswordResetController() : this(new SqlConfigRepository(), new ApplicationSettingsRepository(),  new HttpClientProvider(), new SqlUserRepository(), new sl.ServiceLogRepository())
         {
 
         }
 
-        internal PasswordResetController(IConfigRepository configRepo, IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, IAuthenticationRepository authenticationRepository, sl.IServiceLogRepository log)
+        internal PasswordResetController(IConfigRepository configRepo, IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, ISqlUserRepository sqlUserRepository, sl.IServiceLogRepository log)
         {
             _configRepo = configRepo;
             _appSettingsRepo = settingsRepo;
             _httpClientProvider = httpClientProvider;
-            _authenticationRepository = authenticationRepository;
+            _sqlUserRepository = sqlUserRepository;
             _log = log;
         }
 
@@ -50,10 +50,19 @@ namespace AdminStore.Controllers
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> PostRequestPasswordReset([FromBody]string login)
         {
+            bool passwordResetAllowed = await _sqlUserRepository.CanUserResetPassword(login);
+
             try
             {
                 var response = Request.CreateResponse(HttpStatusCode.OK);
-                //response.Content = new StringContent(login);
+
+                if (passwordResetAllowed)
+                {
+                    response.Content = new StringContent("ok");
+                } else {
+                    response.Content = new StringContent("no");
+                }
+
                 return ResponseMessage(response);
             }
             catch (Exception ex)

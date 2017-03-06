@@ -58,6 +58,8 @@ namespace AdminStore.Controllers
 
                 if (passwordResetAllowed)
                 {
+                    await _sqlUserRepository.UpdatePasswordRecoveryTokens(login);
+
                     response.Content = new StringContent("ok");
                 } else {
                     response.Content = new StringContent("no");

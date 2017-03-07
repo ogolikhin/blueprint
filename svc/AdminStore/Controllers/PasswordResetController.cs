@@ -39,7 +39,7 @@ namespace AdminStore.Controllers
         /// </remarks>
         /// <response code="200">OK. See body for result.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPost, NoCache]
+        [HttpPost]
         [Route("request"), NoSessionRequired]
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> PostRequestPasswordReset([FromBody]string login)

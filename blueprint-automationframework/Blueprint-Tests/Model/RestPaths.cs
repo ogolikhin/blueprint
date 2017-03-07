@@ -105,22 +105,6 @@ namespace Model
                 public const string JOBS                            = "svc/adminstore/jobs";
                 public const string JOBS_id_                        = "svc/adminstore/jobs/{0}";
 
-                public static class Jobs
-                {
-                    public static class Process
-                    {
-                        public const string TESTGEN                 = "svc/adminstore/jobs/process/testgen";
-                    }
-                }
-
-                public static class Jobs_id_
-                {
-                    public static class Result
-                    {
-                        public const string FILE                    = "svc/adminstore/jobs/{0}/result/file";
-                    }
-                }
-
                 public static class Config
                 {
                     public const string SETTINGS                    = "svc/adminstore/config/settings";
@@ -144,9 +128,30 @@ namespace Model
                     }
                 }
 
+                public static class Jobs
+                {
+                    public static class Process
+                    {
+                        public const string TESTGEN                 = "svc/adminstore/jobs/process/testgen";
+                    }
+                }
+
+                public static class Jobs_id_
+                {
+                    public static class Result
+                    {
+                        public const string FILE                    = "svc/adminstore/jobs/{0}/result/file";
+                    }
+                }
+
                 public static class Licenses
                 {
                     public const string TRANSACTIONS                = "svc/adminstore/licenses/transactions";
+                }
+
+                public static class PasswordReset
+                {
+                    public const string REQUEST                     = "svc/adminstore/passwordreset/request";
                 }
 
                 public static class Sessions
@@ -179,6 +184,7 @@ namespace Model
                 public const string ARTIFACTS                       = "svc/bpartifactstore/artifacts";      // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string BASELINE_id_                    = "svc/bpartifactstore/baselines/{0}"; // Baseline
+                public const string BASELINE_id_ADD                 = "svc/bpartifactstore/baselines/{0}/content"; //  Add artifact to Baseline
                 public const string COLLECTION_id_                  = "svc/bpartifactstore/collections/{0}"; // Collection
                 public const string COLLECTION_id_ADD               = "svc/bpartifactstore/collections/{0}/content"; // Add artifact to Collection
                 public const string DIAGRAM_id_                     = "svc/bpartifactstore/diagram/{0}";    // NovaDiagramController.GetDiagram

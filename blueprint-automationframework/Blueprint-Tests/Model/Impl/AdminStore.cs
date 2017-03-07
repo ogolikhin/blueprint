@@ -517,6 +517,22 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IAdminStore.RequestPasswordReset(string, List{HttpStatusCode})"/>
+        public RestResponse RequestPasswordReset(string username, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var path = RestPaths.Svc.AdminStore.PasswordReset.REQUEST;
+            string bodyObject = username;
+
+            Logger.WriteInfo("Requesting password reset for user '{0}'.", username ?? "null");
+
+            var restApi = new RestApiFacade(Address);
+            return restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                bodyObject: bodyObject,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
         /// <seealso cref="IAdminStore.ResetPassword(IUser, string, List{HttpStatusCode})"/>
         public void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null)
         {

@@ -7,6 +7,7 @@ using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities.Factories;
 
@@ -61,6 +62,40 @@ namespace ArtifactStoreTests
 
             // Verify:
             var updatedBaseline = Helper.ArtifactStore.GetBaseline(_user, baseline.Id);
+            Assert.AreEqual(1, updatedBaseline.Artifacts.Count, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(1, numberOfAddedArtifacts, "After update baseline should have expected number of artifacts.");
+        }
+        
+        [TestCase()]
+        [TestRail(2)]
+        [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
+        public void AddArtifactToBaseline_CollectionAddToBaseline_ValidateReturnedBaseline()
+        {
+            // Setup:
+            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _user);
+            var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
+
+            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
+            collectionArtifact.Lock(_user);
+            Artifact.UpdateArtifact(collectionArtifact, _user, collection);
+            Helper.ArtifactStore.PublishArtifact(collectionArtifact, _user);
+            collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
+
+            var defaultBaselineFolder = ArtifactStoreHelper.GetDefaultBaselineFolder(Helper.ArtifactStore, _project, _user);
+            string baselineName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var baseline = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, ItemTypePredefined.ArtifactBaseline,
+                baselineName, _project, defaultBaselineFolder.Id);
+
+            int numberOfAddedArtifacts = 0;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            var updatedBaseline = Helper.ArtifactStore.GetBaseline(_user, collection.Id);
             Assert.AreEqual(1, updatedBaseline.Artifacts.Count, "AddArtifactToBaseline should return excpected number of added artifacts.");
             Assert.AreEqual(1, numberOfAddedArtifacts, "After update baseline should have expected number of artifacts.");
         }

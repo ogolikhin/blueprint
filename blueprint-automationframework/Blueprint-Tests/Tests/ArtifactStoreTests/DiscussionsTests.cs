@@ -178,10 +178,11 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
 
+            var statusId = GetStatusId(discussions, "Closed");
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
-                StatusId = discussions.ThreadStatuses[1].StatusId
+                StatusId = statusId
             };
 
             // Execute:
@@ -213,10 +214,11 @@ namespace ArtifactStoreTests
             IDiscussionAdaptor updatedDiscussion = null;
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
+            var statusId = GetStatusId(discussions, "Closed");
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
-                StatusId = discussions.ThreadStatuses[1].StatusId
+                StatusId = statusId
             };
 
             // Execute:
@@ -279,10 +281,11 @@ namespace ArtifactStoreTests
             IDiscussionAdaptor updatedDiscussion = null;
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            var statusId = GetStatusId(discussions, "Closed");
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
-                StatusId = discussions.ThreadStatuses[1].StatusId
+                StatusId = statusId
             };
 
             // Execute:
@@ -576,6 +579,21 @@ namespace ArtifactStoreTests
             var postedRaptorComment = Artifact.PostRaptorDiscussion(Helper.BlueprintServer.Address, userTask.Id, "text for UT", user);
 
             return postedRaptorComment;
+        }
+
+        /// <summary>
+        /// Gets status id of ThreadStatus by its name
+        /// </summary>
+        /// <param name="result">DiscussionResultSet after get discussion call</param>
+        /// <param name="statusName">Status name</param>
+        /// <returns>Status Id</returns>
+        private static int GetStatusId(DiscussionResultSet result, string statusName)
+        {
+            ThrowIf.ArgumentNull(statusName, nameof(statusName));
+
+            var threadStatus = result.ThreadStatuses.Find(a => a.Name == statusName);
+
+            return threadStatus.StatusId;
         }
 
         #endregion Private functions

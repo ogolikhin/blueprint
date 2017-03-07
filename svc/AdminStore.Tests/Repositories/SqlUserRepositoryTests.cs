@@ -36,7 +36,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             string login = "User";
             AuthenticationUser[] result = { new AuthenticationUser { Login = login } };
             cxn.SetupQueryAsync("GetUserByLogin", new Dictionary<string, object> { { "Login", login } }, result);
@@ -54,7 +54,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             string login = "User";
             AuthenticationUser[] result = { };
             cxn.SetupQueryAsync("GetUserByLogin", new Dictionary<string, object> { { "Login", login } }, result);
@@ -75,7 +75,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
             int[] result = { 3 };
             cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
@@ -93,7 +93,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var userId = 1;
             int[] result = { };
             cxn.SetupQueryAsync("GetEffectiveUserLicense", new Dictionary<string, object> { { "UserId", userId } }, result);
@@ -114,7 +114,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int userId = 1;
             LoginUser[] result = { new LoginUser { Id = userId } };
             cxn.SetupQueryAsync("GetLoginUserById", new Dictionary<string, object> { { "UserId", userId } }, result);
@@ -132,7 +132,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int userId = 5;
             LoginUser[] result = { };
             cxn.SetupQueryAsync("GetLoginUserById", new Dictionary<string, object> { { "UserId", userId } }, result);
@@ -154,7 +154,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             int[] userIds = { 1, 2, 3 };
             var userIdTable = SqlConnectionWrapper.ToDataTable(userIds, "Int32Collection", "Int32Value");
             LicenseTransactionUser[] result =
@@ -182,7 +182,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             AuthenticationUser user = new AuthenticationUser
             {
                 Login = "User",
@@ -217,7 +217,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             var user = new AuthenticationUser
             {
                 Login = "User",
@@ -259,7 +259,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             const int userId = 99;
             const string newPassword = "NewPassword";
             var passwordHystory = new List<SqlUserRepository.HashedPassword>
@@ -287,7 +287,7 @@ namespace AdminStore.Repositories
         {
             // Arrange
             var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object);
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
             const int userId = 99;
             var userSalt = new Guid();
             const string newPassword = "NewPassword";

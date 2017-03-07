@@ -211,7 +211,6 @@ namespace ArtifactStoreTests
 
             var process = Helper.Storyteller.GetProcess(_authorUser, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            IDiscussionAdaptor updatedDiscussion = null;
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
             var statusId = GetStatusId(discussions, "Closed");
@@ -222,6 +221,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
+            IDiscussionAdaptor updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address,
@@ -278,7 +278,6 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
-            IDiscussionAdaptor updatedDiscussion = null;
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, "Closed");
@@ -289,6 +288,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
+            IDiscussionAdaptor updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
@@ -312,7 +312,6 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
-            IDiscussionAdaptor updatedDiscussion = null;
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, "Closed");
@@ -321,6 +320,7 @@ namespace ArtifactStoreTests
                 StatusId = statusId
             };
 
+            IDiscussionAdaptor updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
@@ -342,6 +342,46 @@ namespace ArtifactStoreTests
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
             RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion);
+        }
+
+        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
+        [TestCase("Custom Status Open", false)]
+        [TestCase("Custom Status Close", true)]
+        [TestRail(266915)]
+        [Description("Update discussion created by user to custom discussion status. Check that comment was updated and discussion status applied.")]
+        public void UpdateComment_CustomDiscussionStatuses_SuccessfullyUpdated(string customStatus, bool isClosed)
+        {
+            // Setup:
+            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
+
+            var artifact = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.UseCase);
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var raptorComment = artifact.PostRaptorDiscussion(commentText, author);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
+            var statusId = GetStatusId(discussions, customStatus);
+            var comment = new RaptorComment()
+            {
+                Comment = "Custom status applied",
+                StatusId = statusId
+            };
+
+            // Execute:
+            IDiscussionAdaptor updatedDiscussion = null;
+            Assert.DoesNotThrow(() =>
+            {
+                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, author, raptorComment);
+            }, "UpdateDiscussion shouldn't throw any error, but it did.");
+
+            // Verify:
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
+            Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
+            Assert.AreEqual(discussions.Discussions[0].IsClosed, isClosed, "IsClosed flag should be set to {0}!", isClosed);
+            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: isClosed);
         }
 
         [TestCase]
@@ -458,6 +498,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(2, discussions.Discussions[0].Version, "Version should be 2, but it is {0}", discussions.Discussions[0].Version);
             Assert.AreEqual(2, postedRaptorComment.Version, "Version should be 2, but it is {0}", postedRaptorComment.Version);
         }
+
+
+
 
         #endregion Positive tests
 
@@ -635,7 +678,10 @@ namespace ArtifactStoreTests
 
             var threadStatus = result.ThreadStatuses.Find(a => a.Name == statusName);
 
-            return threadStatus.StatusId;
+            if (threadStatus == null)
+                return 0;
+            else
+                return threadStatus.StatusId;
         }
 
         #endregion Private functions

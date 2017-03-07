@@ -439,13 +439,13 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
         /// <param name="discussionToUpdate">Discussion to update.</param>
-        /// <param name="comment">The new comment to add to the discussion.</param>
+        /// <param name="comment">The new comment with status to add to the discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToUpdate,
-            string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            RaptorComment comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
@@ -454,13 +454,10 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, itemId, discussionToUpdate.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.PATCH,
-                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
-
-            return result;
+            return restApi.SendRequestAndDeserializeObject<RaptorDiscussion, RaptorComment>(path,
+                RestRequestMethod.PATCH,
+                comment,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>
@@ -547,8 +544,11 @@ namespace Model.ArtifactModel.Impl
                 itemId, discussion.DiscussionId, replyToUpdate.ReplyId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.PATCH,
-                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
+            var response = restApi.SendRequestAndGetResponse<string>(
+                path,
+                RestRequestMethod.PATCH,
+                bodyObject: comment,
+                expectedStatusCodes: expectedStatusCodes);
 
             // Derialization
             var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);

@@ -576,12 +576,8 @@ namespace Model.Impl
         public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.COLLECTION_id_ADD, collectionId, artifactId);
-            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
-            string requestBody = includeDescendants.ToString().ToLowerInvariant();
-            var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.POST, requestBody,
-                contentType: "application/json", expectedStatusCodes: expectedStatusCodes);
-            return I18NHelper.ToInt32Invariant(response.Content);
+            return AddArtifactToBaselineOrCollection(user, artifactId, collectionId, ItemTypePredefined.ArtifactCollection,
+                includeDescendants, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
@@ -626,7 +622,59 @@ namespace Model.Impl
             return baseline;
         }
 
+        /// <seealso cref="IArtifactStore.AddArtifactToBaseline(IUser, int, int, bool, List{HttpStatusCode})"/>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
+        public int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return AddArtifactToBaselineOrCollection(user, artifactId, baselineId, ItemTypePredefined.ArtifactBaseline,
+                includeDescendants, expectedStatusCodes);
+        }
+
         #endregion Members inherited from IArtifactStore
+
+        #region Private Methods
+
+        /// <summary>
+        /// Adds artifact to the baseline or collection
+        /// Runs PUT svc/bpartifactstore/baselines/{0}/content or PUT svc/bpartifactstore/collections/{0}/content
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of Artifact to add.</param>
+        /// <param name="collectionOrBaselineId">Id of Baseline or Collection.</param>
+        /// <param name="itemType">ItemTypePredefined.ArtifactBaseline for adding to Baseline, ItemTypePredefined.ArtifactCollection for adding to Collection.</param>
+        /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Number of artifacts added to Baseline or Collection</returns>
+        /// <exception cref="AssertionException">Throws for unexpected itemType</exception>
+        private int AddArtifactToBaselineOrCollection(IUser user, int artifactId, int collectionOrBaselineId, ItemTypePredefined itemType,
+            bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path_template = string.Empty;
+            switch (itemType)
+            {
+                case ItemTypePredefined.ArtifactBaseline:
+                    path_template = RestPaths.Svc.ArtifactStore.BASELINE_id_ADD;
+                    break;
+                case ItemTypePredefined.ArtifactCollection:
+                    path_template = RestPaths.Svc.ArtifactStore.COLLECTION_id_ADD;
+                    break;
+                default:
+                    Assert.Fail("AddArtifactToBaselineOrCollection works with ArtifactBaseline or ArtifactCollection only.");
+                    break;
+            }
+            string path = I18NHelper.FormatInvariant(path_template, collectionOrBaselineId);
+
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var collectionContentToAdd = new Dictionary<string, object>();
+            collectionContentToAdd.Add("addChildren", includeDescendants);
+            collectionContentToAdd.Add("artifactId", artifactId);
+            var response = restApi.SendRequestAndGetResponse<object>(path, RestRequestMethod.PUT, bodyObject: collectionContentToAdd,
+                expectedStatusCodes: expectedStatusCodes);
+            return I18NHelper.ToInt32Invariant(response.Content);
+        }
+
+        #endregion Private Methods
 
         #region Members inherited from IDisposable
 

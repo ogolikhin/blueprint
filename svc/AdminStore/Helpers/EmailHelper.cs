@@ -8,9 +8,8 @@ namespace AdminStore.Helpers
 {
     public class EmailHelper
     {
-        public EmailConfigInstanceSettings Configuration { get; set; }
-
-        public EmailHelper(EmailConfigInstanceSettings configuration)
+        public IEmailConfigInstanceSettings Configuration { get; set; }
+        public EmailHelper(IEmailConfigInstanceSettings configuration)
         {
             if (configuration == null)
                 throw new ArgumentNullException("configuration");

@@ -139,9 +139,9 @@ namespace Model.ArtifactModel.Impl
             return Lock(this, Address, user, expectedLockResult, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.GetArtifactInfo(IUser, List{HttpStatusCode})"/>
         public ArtifactInfo GetArtifactInfo(IUser user = null,
-           List<HttpStatusCode> expectedStatusCodes = null,
-           bool sendAuthorizationAsCookie = false)
+           List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -149,25 +149,9 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(Address, tokenValue);
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO_id_, Id);
-
-            var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return returnedArtifactInfo;
+            return service.GetArtifactInfo(Id, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.GetRapidReviewDiagramContent(IUser, List{HttpStatusCode})"/>
@@ -326,8 +310,8 @@ namespace Model.ArtifactModel.Impl
             return PostRaptorDiscussion(Address, Id, comment, user, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifact.UpdateRaptorDiscussion(string, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
-        public IRaptorDiscussion UpdateRaptorDiscussion(string comment,
+        /// <seealso cref="IArtifact.UpdateRaptorDiscussion(RaptorComment, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
+        public IRaptorDiscussion UpdateRaptorDiscussion(RaptorComment comment,
             IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -798,13 +782,13 @@ namespace Model.ArtifactModel.Impl
         /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
         /// <param name="discussionToUpdate">Discussion to update.</param>
-        /// <param name="comment">The new comment for the discussion.</param>
+        /// <param name="comment">The new comment with status for the discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address,
             int itemId, IDiscussionAdaptor discussionToUpdate,
-            string comment,
+            RaptorComment comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {

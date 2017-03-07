@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Model.StorytellerModel;
 using Helper;
 using Model.StorytellerModel.Enums;
+using Model.StorytellerModel.Impl;
 using TestCommon;
 
 namespace StorytellerTests
@@ -106,7 +107,7 @@ namespace StorytellerTests
 
             // Verifies that the historical process matches the original version of the published process
             // before a change was made.
-            StorytellerTestHelper.AssertProcessesAreEqual(publishedProcess, historicalProcess);
+            Process.AssertAreEqual(publishedProcess, historicalProcess);
         }
 
         /// <summary>

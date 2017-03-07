@@ -86,9 +86,8 @@ namespace Model.ArtifactModel
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         /// of the user that created the artifact. </param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>Artifact info is used by other metod to determine type of artifact</returns>
-        ArtifactInfo GetArtifactInfo(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        ArtifactInfo GetArtifactInfo(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets properties for RapidReview (Storyteller).
@@ -144,7 +143,7 @@ namespace Model.ArtifactModel
         /// <param name="discussionToUpdate">The discussion to update.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        IRaptorDiscussion UpdateRaptorDiscussion(string comment,
+        IRaptorDiscussion UpdateRaptorDiscussion(RaptorComment comment,
             IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null);
 

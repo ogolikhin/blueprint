@@ -24,9 +24,20 @@ namespace ArtifactStore.Models
 
     public class ThreadStatus
     {
-        private string Setting { get; set; }
+        private string _setting;
+        private string Setting
+        {
+            get
+            {
+                return _setting ?? ";";
+            }
+            set
+            {
+                _setting = value ?? ";";
+            }
+        }
         public int StatusId { get; set; }
-        public bool ReadOnly { get; set; }
+
         public bool IsClosed
         {
             get

@@ -99,7 +99,7 @@ namespace Model.Impl
             get { return UserData.Password; }
             set { UserData.Password = value; }
         }
-        public List<Group> GroupMembership
+        public List<IGroup> GroupMembership
         {
             get { return UserData.Groups; }
             set { UserData.Groups = value; }

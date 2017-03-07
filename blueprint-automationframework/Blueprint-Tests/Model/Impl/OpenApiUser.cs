@@ -69,7 +69,7 @@ namespace Model.Impl
             get { return UserData.Department; }
             set { UserData.Department = value; }
         }
-        public List<Group> Groups
+        public List<IGroup> Groups
         {
             get { return UserData.Groups; }
             set { UserData.Groups = value; }

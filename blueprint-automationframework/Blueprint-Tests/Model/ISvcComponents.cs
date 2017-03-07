@@ -41,5 +41,22 @@ namespace Model
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion RapidReview methods
+
+        #region  Storyteller methods
+
+        /// <summary>
+        /// Gets artifact info.
+        /// (Runs: 'GET svc/components/storyteller/artifactInfo/{artifactId}')
+        /// </summary>
+        /// <param name="artifactId">The artifact id</param>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Artifact info is used by other metod to determine type of artifact</returns>
+        ArtifactInfo GetArtifactInfo(
+            int artifactId,
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        #endregion Storyteller methods
     }
 }

@@ -17,7 +17,7 @@ namespace AdminStore.Repositories
         internal readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;
 
         public SqlUserRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlConnectionWrapper(WebApiConfig.AdminStorage))
         {
         }
 
@@ -103,52 +103,29 @@ namespace AdminStore.Repositories
             return true;
         }
 
-        public async Task<bool> CanUserResetPassword(string login)
+        public async Task<bool> CanUserResetPasswordAsync(string login)
         {
-            string query = @"
-SELECT COUNT([UserId])
-FROM [Raptor].[dbo].[Users]
-where [Login] = @Login
-and [Source] = 0 --User is a DB user
-and [Email] is not null
-and ([AllowFallback] is NULL or [AllowFallback] = 1) --Fallback is enabled
-and [Enabled] = 1
-";
-
             var prm = new DynamicParameters();
             prm.Add("@login", login);
-            var result = (await _connectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text));
+            var result = (await _connectionWrapper.QueryAsync<int>("GetCanUserResetPassword", prm, commandType: CommandType.StoredProcedure));
 
             return result.FirstOrDefault() > 0;
         }
 
-        public async Task UpdatePasswordRecoveryTokens(string login)
+        public async Task UpdatePasswordRecoveryTokensAsync(string login)
         {
-            string query = @"
-INSERT INTO [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
-([Login],[CreationTime],[RecoveryToken])
-VALUES (@login, CURRENT_TIMESTAMP, NEWID())
-";
-
             var prm = new DynamicParameters();
             prm.Add("@login", login);
-            await _adminStorageConnectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text);
+            await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<bool> HasUserExceededPasswordRequestLimit(string login)
+        public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
         {
-            string query = @"
-SELECT COUNT([Login])
-FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
-WHERE [Login] = @login
-AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
-";
-
             const int passwordRequestLimit = 3;
 
             var prm = new DynamicParameters();
             prm.Add("@login", login);
-            var result = (await _connectionWrapper.QueryAsync<int>(query, prm, commandType: CommandType.Text));
+            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
 
             return result.FirstOrDefault() > passwordRequestLimit;
         }

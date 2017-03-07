@@ -23,7 +23,7 @@ namespace Model
         string Email { get; set; }                          // (NULLABLE)
         bool? Enabled { get; set; }
         string FirstName { get; set; }
-        List<Group> GroupMembership { get; }
+        List<IGroup> GroupMembership { get; }
         InstanceAdminRole? InstanceAdminRole { get; set; }  // (NULLABLE) From "InstanceAdminRoleId" field in database.
         string LastName { get; set; }
         LicenseType License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.

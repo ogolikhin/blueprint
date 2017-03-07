@@ -23,7 +23,8 @@ namespace Model.Impl
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        public List<Group> Groups { get; set; } = new List<Group>();
+        [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<IGroup, Group>))]
+        public List<IGroup> Groups { get; set; } = new List<IGroup>();
         public List<int> GroupIds { get; set; } = new List<int>();
 
         public string Title { get; set; }
@@ -70,7 +71,7 @@ namespace Model.Impl
             DisplayName = userDataToCopy.DisplayName;
             FirstName = userDataToCopy.FirstName;
             LastName = userDataToCopy.LastName;
-            Groups = new List<Group>(userDataToCopy.Groups);
+            Groups = new List<IGroup>(userDataToCopy.Groups);
             GroupIds = new List<int>(userDataToCopy.GroupIds);
             Title = userDataToCopy.Title;
             Department = userDataToCopy.Department;
@@ -113,18 +114,20 @@ namespace Model.Impl
                 Assert.AreEqual(expectedUserData.ExpirePassword, actualUserData.ExpirePassword, "'{0}' has a different value than expected!", nameof(ExpirePassword));
                 Assert.AreEqual(expectedUserData.Enabled, actualUserData.Enabled, "'{0}' has a different value than expected!", nameof(Enabled));
                 Assert.AreEqual(expectedUserData.FallBack, actualUserData.FallBack, "'{0}' has a different value than expected!", nameof(FallBack));
+
+                Assert.AreEqual(expectedUserData.GroupIds.Count, actualUserData.GroupIds.Count, "'{0}' list has a different number of items than expected!", nameof(GroupIds));
+
+                for (int i = 0; i < expectedUserData.GroupIds.Count; ++i)
+                {
+                    Assert.AreEqual(expectedUserData.GroupIds[i], actualUserData.GroupIds[i], "'{0}[{1}]' has a different value than expected!", nameof(GroupIds), i);
+                }
             }
 
-            Assert.AreEqual(expectedUserData.Groups.Count, actualUserData.Groups.Count, "'{0}' has a different number of Groups than expected!", nameof(Groups));
+            Assert.AreEqual(expectedUserData.Groups.Count, actualUserData.Groups.Count, "'{0}' list has a different number of items than expected!", nameof(Groups));
+
             for (int i = 0; i < expectedUserData.Groups.Count; ++i)
             {
                 Group.AssertAreEqual(expectedUserData.Groups[i], actualUserData.Groups[i]);
-            }
-
-            Assert.AreEqual(expectedUserData.GroupIds.Count, actualUserData.GroupIds.Count, "'{0}' has a different number of GroupIds than expected!", nameof(Groups));
-            for (int i = 0; i < expectedUserData.GroupIds.Count; ++i)
-            {
-                Assert.AreEqual(expectedUserData.GroupIds[i], actualUserData.GroupIds[i], "'{0}[{1}]' has a different value than expected!", nameof(GroupIds), i);
             }
         }
     }

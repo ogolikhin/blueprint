@@ -542,7 +542,7 @@ namespace OpenAPITests
                     RandomGenerator.RandomAlphaNumeric(5));
                 userToCreate.Title = RandomGenerator.RandomAlphaNumeric(10);
                 userToCreate.Department = RandomGenerator.RandomAlphaNumeric(10);
-                userToCreate.Groups = groupList.ConvertAll(o => (Model.Impl.Group)o);
+                userToCreate.Groups = groupList;
                 userToCreate.GroupIds = groupIds;
                 userToCreate.InstanceAdminRole = "Default Instance Administrator";
                 userToCreate.ExpirePassword = true;

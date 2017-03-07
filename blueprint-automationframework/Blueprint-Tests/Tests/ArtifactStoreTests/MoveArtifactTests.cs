@@ -272,8 +272,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
-                BaselineAndCollectionTypePredefined.CollectionFolder);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
             var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
@@ -306,8 +305,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
-                BaselineAndCollectionTypePredefined.CollectionFolder);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
             var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
@@ -445,8 +443,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var newBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser,
@@ -544,8 +541,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
-                BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
@@ -688,8 +684,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
-                BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -715,8 +710,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
-                BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -742,8 +736,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address, _authorUser,
-                BaselineAndCollectionTypePredefined.CollectionFolder);
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var collection = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -765,13 +758,12 @@ namespace ArtifactStoreTests
         [TestRail(266503)]
         [Description("Create artifact of baseline/baseline folder type. Move this artifact to the project root. " +
             "Verify 403 and error message.")]
-        public void MoveArtifact_BaselineOrBaselineFolder_MovedToProjectRoot_403Conflict(ItemTypePredefined artifactType)
+        public void MoveArtifact_BaselineOrBaselineFolder_MovedToProjectRoot_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -794,7 +786,7 @@ namespace ArtifactStoreTests
         [TestRail(266504)]
         [Description("Create and publish artifact. try to move this artifact to the default Baseline folder. " +
             "Verify 403 and error message.")]
-        public void MoveArtifact_PublishedArtifact_MovedToDefaultBaselineFolder_403Conflict()
+        public void MoveArtifact_PublishedArtifact_MovedToDefaultBaselineFolder_403Forbidden()
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
@@ -802,8 +794,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             artifact.Lock(_authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -821,7 +812,7 @@ namespace ArtifactStoreTests
         [TestRail(266505)]
         [Description("Create and publish artifact. Try to move this artifact to the Baseline. " +
             "Verify 403 and error message.")]
-        public void MoveArtifact_PublishedArtifact_MovedToBaseline_403Conflict(ItemTypePredefined artifactType)
+        public void MoveArtifact_PublishedArtifact_MovedToBaseline_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
@@ -829,8 +820,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             artifact.Lock(_authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
             string baselineArtifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             var baselineArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser, artifactType,
@@ -840,7 +830,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, baselineArtifact.Id, _authorUser);
-            }, "Attempt to move artifact to Baseline or Baseline folder should return 409 Conflict.");
+            }, "Attempt to move artifact to Baseline or Baseline folder should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
@@ -852,15 +842,13 @@ namespace ArtifactStoreTests
         [TestRail(266507)]
         [Description("Create artifact of baseline/baseline folder type. Move this artifact to the default Collection folder. " +
             "Verify 403 and error message.")]
-        public void MoveArtifact_BaselineOrBaselineFolder_MovedToDefaultCollectionFolder_403Conflict(ItemTypePredefined artifactType)
+        public void MoveArtifact_BaselineOrBaselineFolder_MovedToDefaultCollectionFolder_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
-            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -872,7 +860,7 @@ namespace ArtifactStoreTests
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
                     defaultCollectionFolder.Id, _authorUser);
-            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 409 Conflict.");
+            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
@@ -884,15 +872,13 @@ namespace ArtifactStoreTests
         [TestRail(266508)]
         [Description("Create artifact of baseline/baseline folder type. Move this artifact to the default Collection folder. " +
             "Verify 403 and error message.")]
-        public void MoveArtifact_CollectionOrCollectionFolder_MovedToDefaultBaselineFolder_403Conflict(ItemTypePredefined artifactType)
+        public void MoveArtifact_CollectionOrCollectionFolder_MovedToDefaultBaselineFolder_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.BaselineFolder);
-            var defaultCollectionFolder = _project.GetDefaultCollectionOrBaselineReviewFolder(Helper.ArtifactStore.Address,
-                _authorUser, BaselineAndCollectionTypePredefined.CollectionFolder);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -904,11 +890,35 @@ namespace ArtifactStoreTests
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
                     defaultBaselineFolder.Id, _authorUser);
-            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 409 Conflict.");
+            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
                 "Cannot move a collection artifact to non collection section.");
+        }
+
+        [TestCase]
+        [TestRail(266597)]
+        [Description("Try to move default Baseline folder to the default Collection folder. " +
+            "Verify 403 and error message.")]
+        public void MoveArtifact_DefaultBaselineFolder_MovedToDefaultCollectionFolder_403Forbidden()
+        {
+            // Setup:
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
+
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
+            {
+                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, defaultBaselineFolder.Id,
+                    defaultCollectionFolder.Id, _authorUser);
+            }, "Attempt to move Default Baseline folder to the Default Collection folder should return 403 Forbidden.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
+                "Cannot move baselines, reviews or root folders for collections, baselines, reviews.");
         }
 
         #endregion 403 Forbidden tests

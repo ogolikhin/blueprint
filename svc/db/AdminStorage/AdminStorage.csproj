@@ -153,6 +153,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>8.0.0.0.sql</LastGenOutput>
     </Content>
+    <Content Include="Migration\8.1.0.0\CreatePasswordRecoveryTokens.sql" />
     <Content Include="Procedures.sql">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -165,6 +166,8 @@
     <Content Include="Procedures\DeleteLogs.sql" />
     <Content Include="Procedures\ExtendSession.sql" />
     <Content Include="Procedures\GetActiveLicenses.sql" />
+    <Content Include="Procedures\SetUserPasswordRecoveryToken.sql" />
+    <Content Include="Procedures\GetUserPasswordRecoveryRequestCount.sql" />
     <Content Include="Procedures\GetLicenseTransactions.sql" />
     <Content Include="Procedures\GetLicenseUserActivity.sql" />
     <Content Include="Procedures\GetLicenseUsage.sql" />
@@ -184,6 +187,7 @@
     <Content Include="Scripts\DatabaseRoles.sql" />
     <Content Include="Scripts\IsolationLevel.sql" />
     <Content Include="Tables\LicenseActivityDetails.sql" />
+    <Content Include="Tables\PasswordRecoveryTokens.sql" />
     <Content Include="Tables\Logs.sql" />
     <Content Include="Tables\Sessions.sql" />
     <Content Include="Tables\ConfigSettings.sql" />

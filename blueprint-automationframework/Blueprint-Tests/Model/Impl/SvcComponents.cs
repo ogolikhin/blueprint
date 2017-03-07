@@ -95,6 +95,28 @@ namespace Model.Impl
 
         #endregion RapidReview methods
 
+        #region  Storyteller methods
+
+        /// <seealso cref="ISvcComponents.GetArtifactInfo(int, IUser, List{HttpStatusCode})"/>
+        public ArtifactInfo GetArtifactInfo(int artifactId, IUser user = null, 
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetArtifactInfo));
+
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO_id_, artifactId);
+
+            var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return returnedArtifactInfo;
+        }
+
+        #endregion Storyteller methods
+
         #endregion Members inherited from ISvcComponents
     }
 }

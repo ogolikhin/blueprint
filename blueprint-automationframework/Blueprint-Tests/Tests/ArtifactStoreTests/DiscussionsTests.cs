@@ -178,10 +178,11 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
 
+            var statusId = GetStatusId(discussions, "Closed");
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
-                StatusId = discussions.ThreadStatuses[1].StatusId
+                StatusId = statusId
             };
 
             // Execute:
@@ -213,10 +214,11 @@ namespace ArtifactStoreTests
             IDiscussionAdaptor updatedDiscussion = null;
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
+            var statusId = GetStatusId(discussions, "Closed");
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
-                StatusId = discussions.ThreadStatuses[1].StatusId
+                StatusId = statusId
             };
 
             // Execute:
@@ -279,10 +281,11 @@ namespace ArtifactStoreTests
             IDiscussionAdaptor updatedDiscussion = null;
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            var statusId = GetStatusId(discussions, "Closed");
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
-                StatusId = discussions.ThreadStatuses[1].StatusId
+                StatusId = statusId
             };
 
             // Execute:
@@ -297,6 +300,48 @@ namespace ArtifactStoreTests
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: true);
+        }
+
+        [TestCase]
+        [TestRail(266910)]
+        [Description("Close discussion created by user, reopen discussion. Check that comment was updated and discussion reopened.")]
+        public void UpdateComment_CloseAndReopenDiscussion_SuccessfullyUpdated()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            IDiscussionAdaptor updatedDiscussion = null;
+
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            var statusId = GetStatusId(discussions, "Closed");
+            var comment = new RaptorComment()
+            {
+                StatusId = statusId
+            };
+
+            Assert.DoesNotThrow(() =>
+            {
+                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
+            }, "UpdateDiscussion shouldn't throw any error, but it did.");
+
+            statusId = GetStatusId(discussions, "Open");
+            comment.Comment = "Reopened text";
+            comment.StatusId = statusId;
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
+            }, "UpdateDiscussion shouldn't throw any error, but it did.");
+
+            // Verify:
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
+            Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
+            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion);
         }
 
         [TestCase]
@@ -576,6 +621,21 @@ namespace ArtifactStoreTests
             var postedRaptorComment = Artifact.PostRaptorDiscussion(Helper.BlueprintServer.Address, userTask.Id, "text for UT", user);
 
             return postedRaptorComment;
+        }
+
+        /// <summary>
+        /// Gets status id of ThreadStatus by its name
+        /// </summary>
+        /// <param name="result">DiscussionResultSet after get discussion call</param>
+        /// <param name="statusName">Status name</param>
+        /// <returns>Status Id</returns>
+        private static int GetStatusId(DiscussionResultSet result, string statusName)
+        {
+            ThrowIf.ArgumentNull(statusName, nameof(statusName));
+
+            var threadStatus = result.ThreadStatuses.Find(a => a.Name == statusName);
+
+            return threadStatus.StatusId;
         }
 
         #endregion Private functions

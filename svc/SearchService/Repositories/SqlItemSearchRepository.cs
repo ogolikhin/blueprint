@@ -23,8 +23,8 @@ namespace SearchService.Repositories
             4099,
             4115,
             16384
-        }, "Int32Collection", "Int32Value");
-        internal static readonly DataTable PrimitiveItemTypePredefineds = SqlConnectionWrapper.ToDataTable(new[]
+        });
+        private static readonly DataTable PrimitiveItemTypePredefineds = SqlConnectionWrapper.ToDataTable(new[]
         {
             4097, // Project
             4098, // Baseline
@@ -34,7 +34,7 @@ namespace SearchService.Repositories
             4609, // Collection Folder
             4610, // Artifact Collection
             32769 // Data Object
-        }, "Int32Collection", "Int32Value");
+        });
 
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly ISearchConfigurationProvider _searchConfigurationProvider;
@@ -76,7 +76,7 @@ namespace SearchService.Repositories
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@query", GetQuery(searchCriteria.Query));
-            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value"));
+            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds));
             param.Add("@predefineds", Predefineds);
             param.Add("@primitiveItemTypePredefineds", PrimitiveItemTypePredefineds);
             param.Add("@page", page);
@@ -85,7 +85,7 @@ namespace SearchService.Repositories
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
-                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value"));
+                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds));
                 sql = "SearchFullTextByItemTypes";
             }
             else
@@ -129,14 +129,14 @@ namespace SearchService.Repositories
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@query", GetQuery(searchCriteria.Query));
-            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value"));
+            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds));
             param.Add("@predefineds", Predefineds);
             param.Add("@primitiveItemTypePredefineds", PrimitiveItemTypePredefineds);
             param.Add("@maxItems", _searchConfigurationProvider.MaxItems);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
             if (searchCriteria.ItemTypeIds?.ToArray().Length > 0)
             {
-                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value"));
+                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds));
                 sql = "SearchFullTextByItemTypesMetaData";
             }
             else
@@ -186,18 +186,17 @@ namespace SearchService.Repositories
             var param = new DynamicParameters();
             param.Add("@userId", userId);
             param.Add("@query", searchCriteria.Query);
-            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value"));
+            param.Add("@projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds));
             if (searchCriteria.PredefinedTypeIds != null && searchCriteria.PredefinedTypeIds.Any())
-                param.Add("@predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds, "Int32Collection", "Int32Value"));
+                param.Add("@predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds));
             if (searchCriteria.ItemTypeIds != null && searchCriteria.ItemTypeIds.Any())
-                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value"));
-            if (searchCriteria.PredefinedTypeIds == null || !searchCriteria.PredefinedTypeIds.Any())
-                param.Add("@excludedPredefineds", PrimitiveItemTypePredefineds);
+                param.Add("@itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds));
+            param.Add("@excludedPredefineds", SqlConnectionWrapper.ToDataTable(GetExcludedPredefineds(searchCriteria)));
             param.Add("@startOffset", startOffset);
             param.Add("@pageSize", pageSize);
             param.Add("@maxSearchableValueStringSize", _searchConfigurationProvider.MaxSearchableValueStringSize);
 
-            List<ItemNameSearchResult> items = null;
+            List<ItemNameSearchResult> items;
 
             try
             {
@@ -241,7 +240,7 @@ namespace SearchService.Repositories
             var joinedResult = from item in items
                                join permission in itemIdsPermissions.AsEnumerable()
                                    on item.ItemId equals permission.Key
-                               join path in itemsNavigationPaths 
+                               join path in itemsNavigationPaths
                                    on item.Id equals path.Key into paths
                                from lpath in paths.DefaultIfEmpty()
                                select new { item, permission, lpath };
@@ -261,6 +260,27 @@ namespace SearchService.Repositories
                 PageItemCount = items.Count
             };
         }
+
+        internal static IEnumerable<int> GetExcludedPredefineds(ItemNameSearchCriteria searchCriteria)
+        {
+            return ((ItemTypePredefined[])Enum.GetValues(typeof(ItemTypePredefined))).Where(p =>
+            {
+                if (p.IsRegularArtifactType())
+                {
+                    return !searchCriteria.ShowArtifacts;
+                }
+                if (p.IsBaselinesAndReviewsGroupType() && p != ItemTypePredefined.BaselineArtifactGroup)
+                {
+                    return !searchCriteria.ShowBaselinesAndReviews;
+                }
+                if (p.IsCollectionsGroupType() && p != ItemTypePredefined.CollectionArtifactGroup)
+                {
+                    return !searchCriteria.ShowCollections;
+                }
+                return false;
+            }).Cast<int>();
+        }
+
         internal static string GetQuery(string input)
         {
             //Unfortunately, double-quotes have special meaning inside FTI, so even if you parameterize it, the FTI engine treats it as a phrase delimiter. 

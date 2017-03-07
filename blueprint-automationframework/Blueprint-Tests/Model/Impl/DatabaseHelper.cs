@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System.Collections.Generic;
+using Common;
 using Model.Factories;
 using Utilities;
 
@@ -14,6 +15,7 @@ namespace Model.Impl
         /// <param name="columnName">The column name whose value you want to retrieve.</param>
         /// <param name="databaseName">(optional) The database name (as specified in TestConfiguration.xml).  Defaults to 'Blueprint' (i.e. Raptor).</param>
         /// <returns>The value returned by the query.</returns>
+        /// <exception cref="SqlQueryFailedException">If no rows were found during the query.</exception>
         public static T ExecuteSingleValueSqlQuery<T>(string query, string columnName, string databaseName = "Blueprint")
         {
             using (var database = DatabaseFactory.CreateDatabase(databaseName))
@@ -34,6 +36,50 @@ namespace Model.Impl
 
                     throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", query));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Executes the specified SQL query and gets the values for the specified column names for the first row returned.
+        /// </summary>
+        /// <param name="query">The SQL query to run.</param>
+        /// <param name="columnNames">The column names whose values you want to retrieve.</param>
+        /// <param name="databaseName">(optional) The database name (as specified in TestConfiguration.xml).  Defaults to 'Blueprint' (i.e. Raptor).</param>
+        /// <returns>A map of column names and values returned by the query.</returns>
+        /// <exception cref="SqlQueryFailedException">If no rows were found during the query.</exception>
+        public static Dictionary<string, string> ExecuteMultipleValueSqlQuery(
+            string query,
+            List<string> columnNames,
+            string databaseName = "Blueprint")
+        {
+            ThrowIf.ArgumentNull(columnNames, nameof(columnNames));
+
+            using (var database = DatabaseFactory.CreateDatabase(databaseName))
+            {
+                database.Open();
+
+                Logger.WriteDebug("Running: {0}", query);
+                var queryValues = new Dictionary<string, string>();
+
+                using (var cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
+                {
+                    if (sqlDataReader.Read())
+                    {
+                        foreach (string columnName in columnNames)
+                        {
+                            string columnvalue = DatabaseUtilities.GetValueAsString(sqlDataReader, columnName);
+                            Logger.WriteInfo("SQL Query returned '{0}'='{1}'", columnName, columnvalue);
+                            queryValues.Add(columnName, columnvalue);
+                        }
+                    }
+                    else
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", query));
+                    }
+                }
+
+                return queryValues;
             }
         }
 

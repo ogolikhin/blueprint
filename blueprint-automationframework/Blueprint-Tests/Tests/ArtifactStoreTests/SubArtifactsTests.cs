@@ -158,7 +158,7 @@ namespace ArtifactStoreTests
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
+            var updatedDescriptionProperty = PropertyValueInformation.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
             Assert.AreEqual(expectedDescriptionProperty, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
@@ -205,7 +205,7 @@ namespace ArtifactStoreTests
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
+            var updatedDescriptionProperty = PropertyValueInformation.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
             Assert.AreEqual(expectedDescriptionProperty, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
@@ -247,7 +247,7 @@ namespace ArtifactStoreTests
             // Get the process with the updated inline trace and verify that the trace was added
             var updatedProcess = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
             var updatedDefaultUserTask = updatedProcess.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var updatedDescriptionProperty = StorytellerTestHelper.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
+            var updatedDescriptionProperty = PropertyValueInformation.FindPropertyValue("description", updatedDefaultUserTask.PropertyValues).Value;
 
             Assert.AreEqual(expectedDescriptionProperty, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 

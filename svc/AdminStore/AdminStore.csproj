@@ -110,7 +110,6 @@
       <Link>Properties\SolutionAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\PasswordResetController.cs" />
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />

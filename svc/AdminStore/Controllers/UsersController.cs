@@ -22,16 +22,18 @@ namespace AdminStore.Controllers
     {
         internal readonly IAuthenticationRepository _authenticationRepository;
         internal readonly ISqlUserRepository _userRepository;
+        internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IServiceLogRepository _log;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new ServiceLogRepository())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, IServiceLogRepository log)
+        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, IServiceLogRepository log)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
+            _settingsRepository = settingsRepository;
             _log = log;
         }
 
@@ -133,6 +135,51 @@ namespace AdminStore.Controllers
             var user = await _authenticationRepository.AuthenticateUserForResetAsync(decodedLogin, decodedOldPassword);
             await _authenticationRepository.ResetPassword(user, decodedOldPassword, decodedNewPassword);
             return Ok();
+        }
+
+        /// <summary>
+        /// PostRequestPasswordReset
+        /// </summary>
+        /// <remarks>
+        /// Initiates a password reset
+        /// </remarks>
+        /// <response code="200">OK. See body for result.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("passwordrecovery/request"), NoSessionRequired]
+        [ResponseType(typeof(int))]
+        public async Task<IHttpActionResult> PostRequestPasswordReset([FromBody]string login)
+        {
+            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+
+            bool passwordResetAllowed = await _userRepository.CanUserResetPassword(login);
+            bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimit(login);
+
+            var user = await _userRepository.GetUserByLoginAsync(login);
+
+            try
+            {
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null && user != null)
+                {
+                    EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
+
+                    emailHelper.SendEmail(user.Email);
+
+                    await _userRepository.UpdatePasswordRecoveryTokens(login);
+                    response.Content = new StringContent("ok");
+                }
+                else {
+                    response.Content = new StringContent("no");
+                }
+
+                return ResponseMessage(response);
+            }
+            catch (Exception ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
+                return InternalServerError();
+            }
         }
     }
 }

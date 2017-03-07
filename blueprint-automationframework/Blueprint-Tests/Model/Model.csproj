@@ -259,6 +259,7 @@
     <Compile Include="Archive\ArtifactModel\ITextualRequirement.cs" />
     <Compile Include="Archive\ITheme.cs" />
     <Compile Include="Archive\ArtifactModel\IUIMockup.cs" />
+    <Compile Include="StorytellerModel\ProcessUpdateResult.cs" />
     <Compile Include="StorytellerModel\UploadResult.cs" />
     <Compile Include="UpdateResult.cs" />
     <Compile Include="Archive\ArtifactModel\IUseCase.cs" />

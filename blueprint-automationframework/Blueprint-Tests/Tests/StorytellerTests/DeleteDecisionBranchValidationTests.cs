@@ -84,7 +84,7 @@ namespace StorytellerTests
 
             // Get and deserialize response 
             var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.Storyteller.UpdateProcessReturnResponseOnly( _user, returnedProcess)
+                () => Helper.Storyteller.UpdateProcess( _user, returnedProcess)
                 );
 
             var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);
@@ -141,7 +141,7 @@ namespace StorytellerTests
 
             // Get and deserialize response 
             var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.Storyteller.UpdateProcessReturnResponseOnly(_user, returnedProcess)
+                () => Helper.Storyteller.UpdateProcess(_user, returnedProcess)
                 );
 
             var deserializedResponse = SerializationUtilities.DeserializeObject<ProcessValidationResponse>(ex.RestResponse.Content);

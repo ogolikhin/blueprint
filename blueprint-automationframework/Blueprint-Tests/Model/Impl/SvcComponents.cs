@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using Common;
 using Model.ArtifactModel.Impl;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
 using Utilities;
 using Utilities.Facades;
 
@@ -97,8 +99,10 @@ namespace Model.Impl
 
         #region  Storyteller methods
 
-        /// <seealso cref="ISvcComponents.GetArtifactInfo(int, IUser, List{HttpStatusCode})"/>
-        public ArtifactInfo GetArtifactInfo(int artifactId, IUser user, 
+        /// <seealso cref="ISvcComponents.GetArtifactInfo(IUser, int, List{HttpStatusCode})"/>
+        public ArtifactInfo GetArtifactInfo(
+            IUser user,
+            int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetArtifactInfo));
@@ -113,6 +117,62 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return returnedArtifactInfo;
+        }
+
+        /// <seealso cref="ISvcComponents.GetProcess(IUser, int, int?, List{HttpStatusCode})"/>
+        public IProcess GetProcess(
+            IUser user, 
+            int artifactId, 
+            int? versionIndex = null, 
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetProcess));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, artifactId);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (versionIndex.HasValue)
+            {
+                queryParameters.Add("versionId", versionIndex.ToString());
+            }
+
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(SvcComponents), artifactId);
+
+            var response = restApi.SendRequestAndDeserializeObject<Process>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response;
+        }
+
+        /// <seealso cref="ISvcComponents.UpdateProcess(IUser, IProcess, List{HttpStatusCode})"/>
+        public ProcessUpdateResult UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(UpdateProcess));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, process.Id);
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(SvcComponents), process.Id, process.Name);
+
+            var processBodyObject = (Process)process;
+
+            return restApi.SendRequestAndDeserializeObject<ProcessUpdateResult, Process>(
+                path,
+                RestRequestMethod.PATCH,
+                jsonObject: processBodyObject,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         #endregion Storyteller methods

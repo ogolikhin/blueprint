@@ -151,7 +151,7 @@ namespace Model.ArtifactModel.Impl
 
             var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            return service.GetArtifactInfo(Id, user, expectedStatusCodes);
+            return service.GetArtifactInfo(user, Id, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.GetRapidReviewDiagramContent(IUser, List{HttpStatusCode})"/>

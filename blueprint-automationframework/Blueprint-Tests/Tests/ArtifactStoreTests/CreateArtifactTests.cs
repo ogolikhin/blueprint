@@ -100,7 +100,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-            var collectionFolder = ArtifactStoreHelper.GetDefaultCollectionFolder(Helper.ArtifactStore, _project, authorUser);
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, authorUser);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;
@@ -124,7 +124,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             BaseArtifactType dummyType = BaseArtifactType.PrimitiveFolder;  // Need to pass something that OpenApi recognizes for the WrapNovaArtifact() call.
-            var collectionFolder = ArtifactStoreHelper.GetDefaultCollectionFolder(Helper.ArtifactStore, _project, _user);
+            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
             var parentCollectionsFolder = CreateArtifactWithRandomName(
                 ItemTypePredefined.CollectionFolder, _user, _project, collectionFolder.Id, baseType: dummyType);
 
@@ -183,7 +183,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidBaselineOrBaselineFolderUnderBaselineFolder_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var defaultBaselineFolder = ArtifactStoreHelper.GetDefaultBaselineFolder(Helper.ArtifactStore, _project, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
             string folderName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var parentBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user,
                 ItemTypePredefined.BaselineFolder, folderName, _project, defaultBaselineFolder.Id);
@@ -224,7 +224,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidBaselineInDefaultBaselineFolder_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var defaultBaselineFolder = ArtifactStoreHelper.GetDefaultBaselineFolder(Helper.ArtifactStore, _project, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
             
             // Execute:
             INovaArtifactDetails newArtifact = null;
@@ -249,7 +249,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidBaselineInNewBaseline_CanGetArtifact(ItemTypePredefined artifactType)
         {
             // Setup:
-            var defaultBaselineFolder = ArtifactStoreHelper.GetDefaultBaselineFolder(Helper.ArtifactStore, _project, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
             string parentArtifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var parentBaseline = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, artifactType,
                 parentArtifactName, _project, defaultBaselineFolder.Id);
@@ -498,7 +498,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddArtifactUnderCollectionsFolder_409Conflict()
         {
             // Setup:
-            var defaultCollectionFolder = ArtifactStoreHelper.GetDefaultCollectionFolder(Helper.ArtifactStore, _project, _user);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Actor, _user, _project,
@@ -513,7 +513,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddArtifactUnderBaselinesFolder_409Conflict()
         {
             // Setup:
-            var defaultBaselineFolder = ArtifactStoreHelper.GetDefaultBaselineFolder(Helper.ArtifactStore, _project, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(ItemTypePredefined.Process, _user,
@@ -717,7 +717,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidBaselineInDefaultCollectionFolder_Check409(ItemTypePredefined artifactType)
         {
             // Setup:
-            var defaultCollectionFolder = ArtifactStoreHelper.GetDefaultCollectionFolder(Helper.ArtifactStore, _project, _user);
+            var defaultCollectionFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;

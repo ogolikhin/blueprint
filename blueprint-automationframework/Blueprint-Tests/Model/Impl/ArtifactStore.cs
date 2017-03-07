@@ -624,10 +624,10 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.AddArtifactToBaseline(IUser, int, int, bool, List{HttpStatusCode})"/>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public int AddArtifactToBaseline(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
+        public int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return AddArtifactToBaselineOrCollection(user, artifactId, collectionId, ItemTypePredefined.ArtifactBaseline,
+            return AddArtifactToBaselineOrCollection(user, artifactId, baselineId, ItemTypePredefined.ArtifactBaseline,
                 includeDescendants, expectedStatusCodes);
         }
 
@@ -635,6 +635,18 @@ namespace Model.Impl
 
         #region Private Methods
 
+        /// <summary>
+        /// Adds artifact to the baseline or collection
+        /// Runs PUT svc/bpartifactstore/baselines/{0}/content or PUT svc/bpartifactstore/collections/{0}/content
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of Artifact to add.</param>
+        /// <param name="collectionOrBaselineId">Id of Baseline or Collection.</param>
+        /// <param name="itemType">ItemTypePredefined.ArtifactBaseline for adding to Baseline, ItemTypePredefined.ArtifactCollection for adding to Collection.</param>
+        /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Number of artifacts added to Baseline or Collection</returns>
+        /// <exception cref="AssertionException">Throws for unexpected itemType</exception>
         private int AddArtifactToBaselineOrCollection(IUser user, int artifactId, int collectionOrBaselineId, ItemTypePredefined itemType,
             bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -657,9 +669,8 @@ namespace Model.Impl
             var collectionContentToAdd = new Dictionary<string, object>();
             collectionContentToAdd.Add("addChildren", includeDescendants);
             collectionContentToAdd.Add("artifactId", artifactId);
-            string requestBody = JsonConvert.SerializeObject(collectionContentToAdd);
-            var response = restApi.SendRequestBodyAndGetResponse(path, RestRequestMethod.PUT, requestBody,
-                contentType: "application/json", expectedStatusCodes: expectedStatusCodes);
+            var response = restApi.SendRequestAndGetResponse<object>(path, RestRequestMethod.PUT, bodyObject: collectionContentToAdd,
+                expectedStatusCodes: expectedStatusCodes);
             return I18NHelper.ToInt32Invariant(response.Content);
         }
 

@@ -64,6 +64,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
 
             RaptorDiscussion.AssertAreEqual(postedRaptorDiscussion, discussions.Discussions[0], skipCanDelete: true, skipCanEdit: true);
+            Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
         }
 
         [TestCase]
@@ -75,17 +76,18 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
             var postedRaptorComment = artifact.PostRaptorDiscussion("draft", _adminUser);
             artifact.Delete(_adminUser);
-            DiscussionResultSet discussionSet = null;
+            DiscussionResultSet discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussionSet = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             }, "GetArtifactDiscussions shouldn't throw any error, but it doesn't.");
 
             // Verify:
-            Assert.AreEqual(1, discussionSet.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussionSet.Discussions.Count);
-            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussionSet.Discussions[0]);
+            Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
+            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
+            Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
         }
 
         [TestCase]
@@ -108,6 +110,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
+            Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
         }
 
         [TestCase]
@@ -134,6 +137,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, replies.Count, "Subartifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             RaptorReply.AssertAreEqual(postedReply, replies[0], skipCanEdit: true);
+            Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
         }
 
         [TestCase]
@@ -146,22 +150,23 @@ namespace ArtifactStoreTests
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             artifact.Delete(_adminUser);
-            DiscussionResultSet discussionSet = null;
+            DiscussionResultSet discussions = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                discussionSet = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions shouldn't throw any exception, but it does.");
 
             // Verify:
-            Assert.AreEqual(1, discussionSet.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussionSet.Discussions.Count);
-            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussionSet.Discussions[0]);
+            Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
+            RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
+            Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
         }
 
         [TestCase]
         [TestRail(155659)]
-        [Description("Update discussion for the published artifact. Verify that text was updated.")]
+        [Description("Update discussion for the published artifact. Verify that text & IsClosed flag were updated.")]
         public void UpdateDiscussion_PublishedArtifact_ReturnsUpdatedDiscussion()
         {
             // Setup:
@@ -173,8 +178,11 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
 
-            var comment = new RaptorComment();
-            comment.Comment = "updated text";
+            var comment = new RaptorComment()
+            {
+                Comment = "Updated text",
+                StatusId = discussions.ThreadStatuses[1].StatusId
+            };
 
             // Execute:
             IDiscussionAdaptor updatedDiscussion = null;
@@ -186,12 +194,14 @@ namespace ArtifactStoreTests
             // Verify:
             discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
-            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion);
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
+            Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
+            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: true);
         }
 
         [TestCase]
         [TestRail(155675)]
-        [Description("Update comment of published subartifact, get discussion for this subartifact, check that it has expected values.")]
+        [Description("Update comment and IsClosed flag of published subartifact, get discussion for this subartifact, check that it has expected values.")]
         public void UpdateDiscussion_PublishedSubArtifact_ReturnsUpdatedDiscussion()
         {
             // Setup:
@@ -202,8 +212,12 @@ namespace ArtifactStoreTests
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
             IDiscussionAdaptor updatedDiscussion = null;
 
-            var comment = new RaptorComment();
-            comment.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
+            var comment = new RaptorComment()
+            {
+                Comment = "Updated text",
+                StatusId = discussions.ThreadStatuses[1].StatusId
+            };
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -213,10 +227,11 @@ namespace ArtifactStoreTests
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
-            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
+            Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
+            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: true);
         }
 
         [TestCase]
@@ -261,19 +276,27 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
-            IDiscussionAdaptor updatedRaptorReply = null;
+            IDiscussionAdaptor updatedDiscussion = null;
 
-            var comment = new RaptorComment();
-            comment.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            var comment = new RaptorComment()
+            {
+                Comment = "Updated text",
+                StatusId = discussions.ThreadStatuses[1].StatusId
+            };
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedRaptorReply = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
+                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
-            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedRaptorReply.Comment, "Updated comment must have proper text.");
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
+            Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
+            Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
+            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: true);
         }
 
         [TestCase]

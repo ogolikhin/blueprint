@@ -193,6 +193,8 @@ namespace AdminStoreTests
                     nameof(PasswordRecoveryToken.CreationTime));
                 Assert.AreNotEqual(recoveryTokens[i].RecoveryToken, recoveryToken.RecoveryToken, "The {0} of the tokens should be different!",
                     nameof(PasswordRecoveryToken.RecoveryToken));
+
+                // TODO: Verify the RecoveryTokens aren't sequential.
             }
 
             // No new recovery tokens should be added after the recovery limit was exceeded.
@@ -285,7 +287,7 @@ namespace AdminStoreTests
 
             Assert.NotNull(recoveryToken, "No password recovery token was found in the database for user: {0}", username);
             Assert.AreEqual(username, recoveryToken.Login,
-                "The recovery token Login should equal the username of the user whose password is being reset!");
+                "The recovery token Login should be equal to the username of the user whose password is being reset!");
             Assert.That(recoveryToken.CreationTime.CompareTimePlusOrMinusMilliseconds(DateTime.UtcNow, 60000),
                 "The CreationTime of the recovery token should be equal to the current time (+/- 60s)!");
             Assert.IsFalse(string.IsNullOrWhiteSpace(recoveryToken.RecoveryToken), "The recovery token shouldn't be blank!");

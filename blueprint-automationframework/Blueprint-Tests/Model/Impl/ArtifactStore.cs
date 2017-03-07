@@ -1016,23 +1016,16 @@ namespace Model.Impl
             ThrowIf.ArgumentNull(address, nameof(address));
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifact.Id);
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-
-            var deletedArtifacts = restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
-                path,
-                RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
+            var deletedArtifacts = DeleteArtifact(address, artifact.Id, user, expectedStatusCodes);
 
             var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
 
-            if (restApi.StatusCode == HttpStatusCode.OK)
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
                 // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
                 foreach (var deletedArtifact in deletedArtifacts)
                 {
-                    Logger.WriteDebug("'DELETE {0}' returned following artifact Id: {1}",
-                        path, deletedArtifact.Id);
+                    Logger.WriteDebug("'DELETE artifact' returned following artifact Id: {0}", deletedArtifact.Id);
 
                     var artifaceBaseToDelete = artifact as ArtifactBase;
 
@@ -1060,6 +1053,26 @@ namespace Model.Impl
             }
 
             return deletedArtifactsToReturn;
+        }
+
+        /// <summary>
+        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
+        /// Runs DELETE svc/bpartifactstore/artifacts/{0}
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactId">The Id of artifact to delete.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A list of artifacts that were deleted.</returns>
+        public static List<NovaArtifactResponse> DeleteArtifact(string address, int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>
@@ -1329,34 +1342,19 @@ namespace Model.Impl
                 artifacts = new List<IArtifactBase>();
             }
 
-            const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-            Dictionary<string, string> queryParams = null;
 
-            if (all != null)
-            {
-                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
-            }
+            var publishedArtifacts = PublishArtifacts(address, artifactIds, user, all, expectedStatusCodes);
 
-            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
-                path,
-                RestRequestMethod.POST,
-                artifactIds,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            if (restApi.StatusCode == HttpStatusCode.OK)
-            {
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
+                {
                 var deletedArtifactsList = new List<IArtifactBase>();
                 var otherPublishedArtifactsList = new List<INovaArtifactResponse>();
 
                 // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
                 foreach (var publishedArtifactDetails in publishedArtifacts.Artifacts)
                 {
-                    Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
-                        path, publishedArtifactDetails.Id);
+                    Logger.WriteDebug("'Publish Artifacts' returned following artifact Id: {0}", publishedArtifactDetails.Id);
 
                     var publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
 
@@ -1399,6 +1397,38 @@ namespace Model.Impl
                         "An artifact that wasn't explicitly passed was published but the 'all=true' parameter wasn't passed!");
                 }
             }
+
+            return publishedArtifacts;
+        }
+
+        /// <summary>
+        /// Publishes a list of artifacts.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        public static NovaArtifactsAndProjectsResponse PublishArtifacts(string address, List<int> artifactsIds, IUser user, bool? all = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+            Dictionary<string, string> queryParams = null;
+
+            if (all != null)
+            {
+                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
+            }
+
+            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactsIds,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
 
             return publishedArtifacts;
         }

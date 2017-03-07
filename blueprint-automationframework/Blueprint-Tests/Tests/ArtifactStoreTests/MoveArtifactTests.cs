@@ -830,7 +830,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, baselineArtifact.Id, _authorUser);
-            }, "Attempt to move artifact to Baseline or Baseline folder should return 409 Conflict.");
+            }, "Attempt to move artifact to Baseline or Baseline folder should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
@@ -860,7 +860,7 @@ namespace ArtifactStoreTests
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
                     defaultCollectionFolder.Id, _authorUser);
-            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 409 Conflict.");
+            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
@@ -890,7 +890,7 @@ namespace ArtifactStoreTests
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
                     defaultBaselineFolder.Id, _authorUser);
-            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 409 Conflict.");
+            }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,
@@ -914,7 +914,7 @@ namespace ArtifactStoreTests
             {
                 ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, defaultBaselineFolder.Id,
                     defaultCollectionFolder.Id, _authorUser);
-            }, "Attempt to move Default Baseline folder to the Default Collection folder should return 409 Conflict.");
+            }, "Attempt to move Default Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden,

@@ -1,3 +1,6 @@
+using NUnit.Framework;
+using Utilities;
+
 namespace Model.StorytellerModel.Impl
 {
     public class StoryLink
@@ -35,6 +38,22 @@ namespace Model.StorytellerModel.Impl
             DestinationId = destinationId;
             Orderindex = orderIndex;
             SourceId = sourceId;
+        }
+
+        /// <summary>
+        /// Assert that Story Links are equal
+        /// </summary>
+        /// <param name="link1">The first Story Link</param>
+        /// <param name="link2">The Story Link being compared to the first</param>
+        public static void AssertAreEqual(StoryLink link1, StoryLink link2)
+        {
+            ThrowIf.ArgumentNull(link1, nameof(link1));
+            ThrowIf.ArgumentNull(link2, nameof(link2));
+
+            Assert.AreEqual(link1.AssociatedReferenceArtifactId, link2.AssociatedReferenceArtifactId, "Link associated reference artifact ids do not match");
+            Assert.AreEqual(link1.DestinationId, link2.DestinationId, "Link destinations do not match");
+            Assert.AreEqual(link1.SourceId, link2.SourceId, "Link sources do not match");
+            Assert.AreEqual(link1.Orderindex, link2.Orderindex, "Link order indexes do not match");
         }
     }
 }

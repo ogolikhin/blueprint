@@ -5,8 +5,7 @@ using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Model.StorytellerModel.Enums;
 using Utilities;
@@ -51,85 +50,6 @@ namespace Helper
             }
 
             return process;
-        }
-
-        /// <summary>
-        /// Asserts that the two Processes are equal.
-        /// </summary>
-        /// <param name="expectedProcess">The expected process</param>
-        /// <param name="actualProcess">The actual process being compared to the expected process</param>
-        /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
-        /// <param name="isCopiedProcess">(optional) Flag indicating if the process being compared is a copied process</param>
-        /// <exception cref="AssertionException">If expectedProcess is not equal to actualProcess</exception>
-        /// <remarks>If 1 of the 2 processes being compared has negative Ids, that process must be the first parameter</remarks>
-        public static void AssertProcessesAreEqual(IProcess expectedProcess, IProcess actualProcess, bool allowNegativeShapeIds = false, bool isCopiedProcess = false)
-        {
-            ThrowIf.ArgumentNull(expectedProcess, nameof(expectedProcess));
-            ThrowIf.ArgumentNull(actualProcess, nameof(actualProcess));
-
-            // Assert basic Process properties
-
-            // Artifact ids of copied processes must be different
-            if (isCopiedProcess)
-            {
-                Assert.AreNotEqual(expectedProcess.Id, actualProcess.Id, "The ids of copied processes must not match");
-            }
-            else
-            {
-                Assert.AreEqual(expectedProcess.Id, actualProcess.Id, "The ids of the processes don't match");
-            }
-            
-            Assert.AreEqual(expectedProcess.Name, actualProcess.Name, "The names of the processes don't match");
-            Assert.AreEqual(expectedProcess.BaseItemTypePredefined, actualProcess.BaseItemTypePredefined,
-                "The base item types of the processes don't match");
-
-            // A copied process does not necessarily have the same Project Id as it's source
-            if (!isCopiedProcess)
-            {
-                Assert.AreEqual(expectedProcess.ProjectId, actualProcess.ProjectId, "The project ids of the processes don't match");
-            }
-
-            Assert.AreEqual(expectedProcess.TypePrefix, actualProcess.TypePrefix, "The type prefixes of the processes don't match");
-
-            // Assert that Link counts, Shape counts, Property counts, and DecisionBranchDestinationLinks counts are equal
-            Assert.AreEqual(expectedProcess.PropertyValues.Count, actualProcess.PropertyValues.Count,
-                "The processes have different property counts");
-            Assert.AreEqual(expectedProcess.Links.Count, actualProcess.Links.Count, "The processes have different link counts");
-            Assert.AreEqual(expectedProcess.Shapes.Count, actualProcess.Shapes.Count,
-                "The processes have different process shape counts");
- 
-            // TODO This is a quick fix for tests deleting only decision from the process model
-            var process1DecisionBranchDestinationLinkCount = expectedProcess.DecisionBranchDestinationLinks?.Count ?? 0;
-            var process2DecisionBranchDestinationLinkCount = actualProcess.DecisionBranchDestinationLinks?.Count ?? 0;
-
-            Assert.AreEqual(process1DecisionBranchDestinationLinkCount, process2DecisionBranchDestinationLinkCount,
-                "The processes have different decision branch destination link counts");
-
-            // Assert that Process properties are equal
-            foreach (var process1Property in expectedProcess.PropertyValues)
-            {
-                var process2Property = FindPropertyValue(process1Property.Key, actualProcess.PropertyValues);
-
-                AssertPropertyValuesAreEqual(process1Property.Value, process2Property.Value);
-            }
-
-
-            // TODO: Develop a method to see if the links are equivalent
-            // Copied processes do not have the same process links
-            if (!isCopiedProcess)
-            {
-                // Assert that process links are the same
-                // This involves finding the new id of shapes that had negative ids in the source process
-                AssertLinksAreEqual(expectedProcess, actualProcess);
-            }
-
-            //Assert that Process shapes are equal
-            foreach (var process1Shape in expectedProcess.Shapes)
-            {
-                var process2Shape = FindProcessShapeByName(process1Shape.Name, actualProcess.Shapes);
-
-                AssertShapesAreEqual(process1Shape, process2Shape, allowNegativeShapeIds, isCopiedProcess);
-            }
         }
 
         /// <summary>
@@ -219,7 +139,7 @@ namespace Helper
 
             // Assert that the process returned from the GetProcess method is identical to the process sent with the UpdateProcess method
             // Allow negative shape ids in the process being verified
-            AssertProcessesAreEqual(processToVerify, processReturnedFromGet, allowNegativeShapeIds: true);
+            Process.AssertAreEqual(processToVerify, processReturnedFromGet, allowNegativeShapeIds: true);
 
             // Assert that the decision branch destination links are in sync during the get opertations
             AssertDecisionBranchDestinationLinksAreInsync(processReturnedFromGet);
@@ -250,7 +170,7 @@ namespace Helper
 
             // Assert that the process returned from the GetNovaProcess method is identical to the process sent with the UpdateNovaProcess method
             // Allow negative shape ids in the process being verified
-            AssertProcessesAreEqual(novaProcessToVerify.Process, novaProcessReturnedFromGet.Process, allowNegativeShapeIds: true);
+            Process.AssertAreEqual(novaProcessToVerify.Process, novaProcessReturnedFromGet.Process, allowNegativeShapeIds: true);
 
             // Assert that the decision branch destination links are in sync during the get operations
             AssertDecisionBranchDestinationLinksAreInsync(novaProcessReturnedFromGet.Process);
@@ -314,7 +234,7 @@ namespace Helper
                         hasEverBeenPublished: true);
                     break;
                 default:
-                    throw new System.ComponentModel.InvalidEnumArgumentException(
+                    throw new InvalidEnumArgumentException(
                         "ProcessStatus contains invalid enum argument.");
             }
 
@@ -580,7 +500,6 @@ namespace Helper
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
-
         /// <summary>
         /// Create and Get the Default Process With a System Decision which contains another System Decision on the Second Branch
         /// </summary>
@@ -728,7 +647,6 @@ namespace Helper
             // If updateProcess is true, returns the updated process after the save process. If updatedProcess is false, returns the current process.
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
-
 
         /// <summary>
         /// Create and Get the Default Process With a User Decision that contains Multiple Condition Branches
@@ -1117,204 +1035,9 @@ namespace Helper
             return updateProcess ? storyteller.UpdateProcess(user, process) : process;
         }
 
-        /// <summary>
-        /// Find a Property in an enumeration of Properties
-        /// </summary>
-        /// <param name="keyToFind">The property to find</param>
-        /// <param name="propertiesToSearchThrough">The properties to search though</param>
-        /// <returns>The found Property</returns>
-        public static KeyValuePair<string, PropertyValueInformation> FindPropertyValue(string keyToFind,
-        Dictionary<string, PropertyValueInformation> propertiesToSearchThrough)
-        {
-            var propertyFound = propertiesToSearchThrough.ToList().Find(p => string.Equals(p.Key, keyToFind, StringComparison.CurrentCultureIgnoreCase));
-
-            Assert.IsNotNull(propertyFound, "Could not find a Property with Name: {0}", keyToFind);
-
-            return propertyFound;
-        }
-
-        /// <summary>
-        /// Assert that Artifact References are equal
-        /// </summary>
-        /// <param name="artifactReference1">The first artifact reference</param>
-        /// <param name="artifactReference2">The artifact reference being compared to the first</param>
-        /// <param name="doDeepCompare">If false, only compare Ids, else compare all properties</param>
-        public static void AssertArtifactReferencesAreEqual(ArtifactReference artifactReference1, ArtifactReference artifactReference2, bool doDeepCompare = true)
-        {
-            if ((artifactReference1 == null) || (artifactReference2 == null))
-            {
-                Assert.That((artifactReference1 == null) && (artifactReference2 == null), "One of the artifact references is null while the other is not null");
-            }
-            else
-            {
-                Assert.AreEqual(artifactReference1.Id, artifactReference2.Id, "Artifact references ids do not match");
-
-                if (doDeepCompare)
-                {
-                    Assert.AreEqual(artifactReference1.BaseItemTypePredefined, artifactReference2.BaseItemTypePredefined,
-                        "Artifact reference base item types do not match");
-                    Assert.AreEqual(artifactReference1.Link, artifactReference2.Link, "Artifact reference links do not match");
-                    Assert.AreEqual(artifactReference1.Name, artifactReference2.Name, "Artifact reference names do not match");
-                    Assert.AreEqual(artifactReference1.ProjectId, artifactReference2.ProjectId, "Artifact reference project ids do not match");
-                    Assert.AreEqual(artifactReference1.TypePrefix, artifactReference2.TypePrefix, "Artifact reference type prefixes do not match");
-                }
-            }
-        }
-
         #endregion Public Methods
 
         #region Private Methods
-
-        /// <summary>
-        /// Assert that Property values are equal
-        /// </summary>
-        /// <param name="propertyValue1">The first Property value</param>
-        /// <param name="propertyValue2">The Property value being compared to the first</param>
-        private static void AssertPropertyValuesAreEqual(PropertyValueInformation propertyValue1,
-            PropertyValueInformation propertyValue2)
-        {
-            Assert.AreEqual(propertyValue1.PropertyName, propertyValue2.PropertyName, "Property names do not match: {0} != {1}", propertyValue1.PropertyName, propertyValue2.PropertyName);
-            Assert.AreEqual(propertyValue1.TypePredefined, propertyValue2.TypePredefined, "Property types do not match");
-            Assert.AreEqual(propertyValue1.TypeId, propertyValue2.TypeId, "Property type ids do not match");
-
-            // Asserts story links only if not null
-            if (propertyValue1.PropertyName == "StoryLinks" && propertyValue1.Value != null)
-            {
-                AssertStoryLinksAreEqual((StoryLink)propertyValue1.Value, (StoryLink)propertyValue2.Value);
-            }
-        }
-
-        /// <summary>
-        /// Assert that Process Links are equal
-        /// </summary>
-        /// <param name="process1">The first process containing the links to compare</param>
-        /// <param name="process2">The process containing the links being compared to the first</param>
-        private static void AssertLinksAreEqual(IProcess process1, IProcess process2)
-        {
-            foreach (var link1 in process1.Links)
-            {
-                var link2 = new ProcessLink();
-
-                if (link1.SourceId > 0 && link1.DestinationId > 0)
-                {
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-                // If the destination id is < 0, we find the name of the destination shape and 
-                // then locate this shape in the second process. We then replace the destination id
-                // of the first link with the id of that shape.  This allows us to compare links.
-                else if (link1.SourceId > 0 && link1.DestinationId < 0)
-                {
-                    var link1DestinationShape = FindProcessShapeById(link1.DestinationId, process1.Shapes);
-                    var link2Shape = FindProcessShapeByName(link1DestinationShape.Name, process2.Shapes);
-
-                    link1.DestinationId = link2Shape.Id;
-
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-                // If the source id is < 0, we find the name of the source shape and 
-                // then locate this shape in the second process. We then replace the source id
-                // of the first link with the id of that shape.  This allows us to compare links.
-                else if (link1.SourceId < 0 && link1.DestinationId > 0)
-                {
-                    var link1SourceShape = FindProcessShapeById(link1.SourceId, process1.Shapes);
-                    var link2Shape = FindProcessShapeByName(link1SourceShape.Name, process2.Shapes);
-
-                    link1.SourceId = link2Shape.Id;
-
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-                else if (link1.SourceId < 0 && link1.DestinationId < 0)
-                {
-                    var link1SourceShape = FindProcessShapeById(link1.SourceId, process1.Shapes);
-                    var link2Shape = FindProcessShapeByName(link1SourceShape.Name, process2.Shapes);
-
-                    link1.SourceId = link2Shape.Id;
-
-                    var link1DestinationShape = FindProcessShapeById(link1.DestinationId, process1.Shapes);
-                    link2Shape = FindProcessShapeByName(link1DestinationShape.Name, process2.Shapes);
-
-                    link1.DestinationId = link2Shape.Id;
-
-                    link2 = FindProcessLink(link1, process2.Links);
-                }
-
-                Assert.AreEqual(link1.SourceId, link2.SourceId, "Link sources do not match");
-                Assert.AreEqual(link1.DestinationId, link2.DestinationId, "Link destinations do not match");
-                Assert.AreEqual(link1.Label, link2.Label, "Link labels do not match");
-                Assert.AreEqual(link1.Orderindex, link2.Orderindex, "Link order indexes do not match");
-            }
-        }
-
-        /// <summary>
-        /// Assert that Process Shapes are equal
-        /// </summary>
-        /// <param name="shape1">The first Shape</param>
-        /// <param name="shape2">The Shape being compared to the first</param>
-        /// <param name="allowNegativeShapeIds">Allows for inequality of shape ids where a newly added shape has a negative id</param>
-        /// <param name="isCopiedProcess">(optional) Flag indicating if the process being compared is a copied process</param>
-        private static void AssertShapesAreEqual(IProcessShape shape1, IProcessShape shape2, bool allowNegativeShapeIds, bool isCopiedProcess)
-        {
-            // Do not perform Id comparisons for copied processes
-            if (!isCopiedProcess)
-            {
-                // Note that if a shape id of the first Process being compared is less than 0, then the first Process 
-                // is a process that will be updated with proper id values at the back end.  If the shape id of
-                // the first process being compared is greater than 0, then the shape ids should match.
-                if (allowNegativeShapeIds && shape1.Id < 0)
-                {
-                    Assert.That(shape2.Id > 0, "Returned shape id was negative");
-                }
-                else if (allowNegativeShapeIds && shape2.Id < 0)
-                {
-                    Assert.That(shape1.Id > 0, "Returned shape id was negative");
-                }
-                else
-                {
-                    Assert.AreEqual(shape1.Id, shape2.Id, "Shape ids do not match");
-                }
-            }
-
-            Assert.AreEqual(shape1.Name, shape2.Name, "Shape names do not match");
-            Assert.AreEqual(shape1.BaseItemTypePredefined, shape2.BaseItemTypePredefined,
-                "Shape base item types do not match");
-
-            // Project and parent ids are not necessarily the same for copied processes
-            if (!isCopiedProcess)
-            {
-                Assert.AreEqual(shape1.ProjectId, shape2.ProjectId, "Shape project ids do not match");
-                Assert.AreEqual(shape1.ParentId, shape2.ParentId, "Shape parent ids do not match");
-            }
-
-            Assert.AreEqual(shape1.TypePrefix, shape2.TypePrefix, "Shape type prefixes do not match");
-
-            // Assert associated artifacts are equal by checking artifact Id only
-            AssertArtifactReferencesAreEqual(shape1.AssociatedArtifact, shape2.AssociatedArtifact, doDeepCompare: false);
-
-            // Assert persona references are equal by checking artifact Id only
-            AssertArtifactReferencesAreEqual(shape1.PersonaReference, shape2.PersonaReference, doDeepCompare: false);
-
-            // Assert that Shape properties are equal
-            foreach (var shape1Property in shape1.PropertyValues)
-            {
-                var shape2Property = FindPropertyValue(shape1Property.Key, shape2.PropertyValues);
-
-                AssertPropertyValuesAreEqual(shape1Property.Value, shape2Property.Value);
-            }
-        }
-
-        /// <summary>
-        /// Assert that Story Links are equal
-        /// </summary>
-        /// <param name="link1">The first Story Link</param>
-        /// <param name="link2">The Story Link being compared to the first</param>
-        private static void AssertStoryLinksAreEqual(StoryLink link1, StoryLink link2)
-        {
-            Assert.AreEqual(link1.AssociatedReferenceArtifactId, link2.AssociatedReferenceArtifactId, "Link associated reference artifact ids do not match");
-            Assert.AreEqual(link1.DestinationId, link2.DestinationId, "Link destinations do not match");
-            Assert.AreEqual(link1.SourceId, link2.SourceId, "Link sources do not match");
-            Assert.AreEqual(link1.Orderindex, link2.Orderindex, "Link order indexes do not match");
-        }
-
 
         /// <summary>
         /// Assert that DecisionBranchDestinationLinks information are up-to-dated with number of branches from the process model
@@ -1341,56 +1064,6 @@ namespace Helper
             Assert.That(decisionBranchDesinationLinkCount.Equals(totalNumberOfBranches),
                 "The total number of branches from the process is {0} but The DecisionBranchDestinationLink contains {1} links.",
                 totalNumberOfBranches, decisionBranchDesinationLinkCount);
-        }
-
-        /// <summary>
-        /// Find a Process Link in an enumeration of Process Links
-        /// </summary>
-        /// <param name="linkToFind">The process link to find</param>
-        /// <param name="linksToSearchThrough">The process links to search</param>
-        /// <returns>The found process link</returns>
-        private static ProcessLink FindProcessLink(ProcessLink linkToFind,
-            List<ProcessLink> linksToSearchThrough)
-        {
-            var linkFound = linksToSearchThrough.Find(l => l.SourceId == linkToFind.SourceId && l.DestinationId == linkToFind.DestinationId);
- 
-            Assert.IsNotNull(linkFound, "Could not find and ProcessLink with Source Id {0} and Destination Id {1}", linkToFind.SourceId, linkToFind.DestinationId);
-
-            return linkFound;
-        }
-
-        /// <summary>
-        /// Find a Process Shape by name in an enumeration of Process Shapes
-        /// </summary>
-        /// <param name="shapeName">The name of the process shape to find</param>
-        /// <param name="shapesToSearchThrough">The process shapes to search</param>
-        /// <returns>The found process shape</returns>
-        private static IProcessShape FindProcessShapeByName(string shapeName,
-            List<ProcessShape> shapesToSearchThrough)
-        {
-            ThrowIf.ArgumentNull(shapesToSearchThrough, nameof(shapesToSearchThrough));
-
-            var shapeFound = shapesToSearchThrough.Find(s => s.Name == shapeName);
-
-            Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Name {0}", shapeName);
-
-            return shapeFound;
-        }
-
-        /// <summary>
-        /// Find a Process Shape by id in an enumeration of Process Shapes
-        /// </summary>
-        /// <param name="shapeId">The id of the process shape to find</param>
-        /// <param name="shapesToSearchThrough">The process shapes to search</param>
-        /// <returns>The found process shape</returns>
-        private static IProcessShape FindProcessShapeById(int shapeId,
-            List<ProcessShape> shapesToSearchThrough)
-        {
-            var shapeFound = shapesToSearchThrough.Find(s => s.Id == shapeId);
-
-            Assert.IsNotNull(shapeFound, "Could not find a Process Shape with Id {0}", shapeId);
-
-            return shapeFound;
         }
 
         #endregion Private Methods

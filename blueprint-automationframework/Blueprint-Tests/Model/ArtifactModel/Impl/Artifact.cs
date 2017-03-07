@@ -139,9 +139,9 @@ namespace Model.ArtifactModel.Impl
             return Lock(this, Address, user, expectedLockResult, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.GetArtifactInfo(IUser, List{HttpStatusCode})"/>
         public ArtifactInfo GetArtifactInfo(IUser user = null,
-           List<HttpStatusCode> expectedStatusCodes = null,
-           bool sendAuthorizationAsCookie = false)
+           List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
@@ -149,25 +149,9 @@ namespace Model.ArtifactModel.Impl
                 user = CreatedBy;
             }
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var restApi = new RestApiFacade(Address, tokenValue);
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.ARTIFACT_INFO_id_, Id);
-
-            var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return returnedArtifactInfo;
+            return service.GetArtifactInfo(Id, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.GetRapidReviewDiagramContent(IUser, List{HttpStatusCode})"/>

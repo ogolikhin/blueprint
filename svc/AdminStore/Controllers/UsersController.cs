@@ -152,8 +152,8 @@ namespace AdminStore.Controllers
         {
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
 
-            bool passwordResetAllowed = await _userRepository.CanUserResetPassword(login);
-            bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimit(login);
+            bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
+            bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
 
             var user = await _userRepository.GetUserByLoginAsync(login);
 
@@ -166,7 +166,7 @@ namespace AdminStore.Controllers
 
                     emailHelper.SendEmail(user.Email);
 
-                    await _userRepository.UpdatePasswordRecoveryTokens(login);
+                    await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
                     response.Content = new StringContent("ok");
                 }
                 else {

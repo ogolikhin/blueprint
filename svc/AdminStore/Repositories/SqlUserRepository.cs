@@ -103,7 +103,7 @@ namespace AdminStore.Repositories
             return true;
         }
 
-        public async Task<bool> CanUserResetPassword(string login)
+        public async Task<bool> CanUserResetPasswordAsync(string login)
         {
             var prm = new DynamicParameters();
             prm.Add("@login", login);
@@ -112,14 +112,14 @@ namespace AdminStore.Repositories
             return result.FirstOrDefault() > 0;
         }
 
-        public async Task UpdatePasswordRecoveryTokens(string login)
+        public async Task UpdatePasswordRecoveryTokensAsync(string login)
         {
             var prm = new DynamicParameters();
             prm.Add("@login", login);
             await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<bool> HasUserExceededPasswordRequestLimit(string login)
+        public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
         {
             const int passwordRequestLimit = 3;
 

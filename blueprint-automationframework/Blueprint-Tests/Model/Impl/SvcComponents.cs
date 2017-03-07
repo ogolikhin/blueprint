@@ -98,7 +98,7 @@ namespace Model.Impl
         #region  Storyteller methods
 
         /// <seealso cref="ISvcComponents.GetArtifactInfo(int, IUser, List{HttpStatusCode})"/>
-        public ArtifactInfo GetArtifactInfo(int artifactId, IUser user = null, 
+        public ArtifactInfo GetArtifactInfo(int artifactId, IUser user, 
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetArtifactInfo));
@@ -110,7 +110,7 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
+                shouldControlJsonChanges: true);
 
             return returnedArtifactInfo;
         }

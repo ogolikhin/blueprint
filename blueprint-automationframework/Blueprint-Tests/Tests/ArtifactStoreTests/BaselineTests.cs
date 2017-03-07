@@ -45,7 +45,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_PublishedArtifact_ValidateReturnedBaseline()
         {
             // Setup:
-            var defaultBaselineFolder = ArtifactStoreHelper.GetDefaultBaselineFolder(Helper.ArtifactStore, _project, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
             string baselineName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var baseline = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, ItemTypePredefined.ArtifactBaseline,
                 baselineName, _project, defaultBaselineFolder.Id);

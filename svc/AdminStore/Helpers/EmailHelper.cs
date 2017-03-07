@@ -9,6 +9,7 @@ namespace AdminStore.Helpers
     public class EmailHelper
     {
         public EmailConfigInstanceSettings Configuration { get; set; }
+
         public EmailHelper(EmailConfigInstanceSettings configuration)
         {
             if (configuration == null)
@@ -19,32 +20,27 @@ namespace AdminStore.Helpers
             MailBee.Global.LicenseKey = "MN800-02CA3564CA2ACAAECAB17D4ADEC9-145F";
         }
 
-        /// <summary>
-        /// Synchronous e-mail sending
-        /// </summary>
         public void SendEmail(string userEmail)
         {
-            SendMailBeeMessage(userEmail);
+            var smtpServer = SmtpServer;
+            var smtp = new Smtp();
+            smtp.SmtpServers.Add(smtpServer);
+            smtp.Message = PreparePasswordResetMessage(userEmail, Configuration.UserName);
+            smtp.Send();
         }
 
-        private void SendMailBeeMessage(string userEmail)
+        internal static MailMessage PreparePasswordResetMessage(string toEmail, string fromEmail)
         {
-            var smtpServer = SmtpServer;
-
             var mailMessage = new MailMessage();
-            mailMessage.To.Add(userEmail);
-            mailMessage.From.Email = Configuration.UserName;
+            mailMessage.To.Add(toEmail);
+            mailMessage.From.Email = fromEmail;
             mailMessage.Subject = "password reset";
             mailMessage.BodyHtmlText = @"
 <html>
     <div>We received a request to reset your Storyteller password. Please click <a href='javascript:void()'>here</a> to continue.</div>
 </html>
 ";
-
-            var smtp = new Smtp();
-            smtp.SmtpServers.Add(smtpServer);
-            smtp.Message = mailMessage;
-            smtp.Send();
+            return mailMessage;
         }
 
         private SmtpServer SmtpServer

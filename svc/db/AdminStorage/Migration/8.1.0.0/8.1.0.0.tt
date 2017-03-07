@@ -9,6 +9,7 @@ IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'8.1.0') <> 0)
 Print 'Migrating 8.1.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"CreatePasswordRecoveryTokens.sql" ) ) #>
 
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block

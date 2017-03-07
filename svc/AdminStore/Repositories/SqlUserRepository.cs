@@ -14,15 +14,17 @@ namespace AdminStore.Repositories
     public class SqlUserRepository : ISqlUserRepository
     {
         internal readonly ISqlConnectionWrapper _connectionWrapper;
+        internal readonly ISqlConnectionWrapper _adminStorageConnectionWrapper;
 
         public SqlUserRepository()
-            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
+            : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlConnectionWrapper(WebApiConfig.AdminStorage))
         {
         }
 
-        internal SqlUserRepository(ISqlConnectionWrapper connectionWrapper)
+        internal SqlUserRepository(ISqlConnectionWrapper connectionWrapper, ISqlConnectionWrapper adminStorageConnectionWrapper)
         {
             _connectionWrapper = connectionWrapper;
+            _adminStorageConnectionWrapper = adminStorageConnectionWrapper;
         }
 
         public async Task<AuthenticationUser> GetUserByLoginAsync(string login)
@@ -99,6 +101,33 @@ namespace AdminStore.Repositories
             }
 
             return true;
+        }
+
+        public async Task<bool> CanUserResetPasswordAsync(string login)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@login", login);
+            var result = (await _connectionWrapper.QueryAsync<int>("GetCanUserResetPassword", prm, commandType: CommandType.StoredProcedure));
+
+            return result.FirstOrDefault() > 0;
+        }
+
+        public async Task UpdatePasswordRecoveryTokensAsync(string login)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@login", login);
+            await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
+        {
+            const int passwordRequestLimit = 3;
+
+            var prm = new DynamicParameters();
+            prm.Add("@login", login);
+            var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
+
+            return result.FirstOrDefault() > passwordRequestLimit;
         }
 
         internal class HashedPassword

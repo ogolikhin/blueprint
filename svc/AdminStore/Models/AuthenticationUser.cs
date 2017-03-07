@@ -17,5 +17,6 @@ namespace AdminStore.Models
         public DateTime? LastPasswordChangeTimestamp { get; set; }
         public bool? ExpirePassword { get; set; }
         public int LicenseType { get; set; }
+        public string Email { get; set; }
     }
 }

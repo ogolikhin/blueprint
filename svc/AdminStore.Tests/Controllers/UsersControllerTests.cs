@@ -251,5 +251,57 @@ namespace AdminStore.Controllers
         }
 
         #endregion PostReset
+
+        #region PasswordRecovery
+
+        [TestMethod]
+        [Ignore]
+        public async Task PostRequestPasswordReset_RepositoryReturnsSuccessfully()
+        {
+            // Arrange
+            Exception exception = null;
+
+            var emailConfigSettings = new Mock<IEmailConfigInstanceSettings>();
+            emailConfigSettings
+                .SetupGet(s => s.HostName)
+                .Returns("http://myhostname");
+
+            var instanceSettings = new Mock<InstanceSettings>();
+            instanceSettings
+                .SetupGet(s => s.EmailSettingsDeserialized)
+                .Returns(emailConfigSettings.Object);
+
+            _settingsRepoMock
+                .Setup(repo => repo.GetInstanceSettingsAsync())
+                .ReturnsAsync(instanceSettings.Object);
+
+            _usersRepoMock
+                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
+                .ReturnsAsync(new AuthenticationUser() { Email = "a@b.com" });
+
+            _usersRepoMock
+                .Setup(repo => repo.CanUserResetPasswordAsync(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            _usersRepoMock
+                .Setup(repo => repo.HasUserExceededPasswordRequestLimitAsync(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
+            // Act
+            try
+            {
+                var result = await _controller.PostRequestPasswordResetAsync("login");
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(exception);
+        }
+
+        #endregion PasswordRecovery
+
     }
 }

@@ -46,7 +46,7 @@ namespace AdminStore
             config.AssertAction<LogController>("Log", HttpMethod.Post, "log");
             config.AssertAction<JobsController>("QueueGenerateProcessTestsJob", HttpMethod.Post, "jobs/process/testgen");
             config.AssertAction<SessionsController>("IsSessionAlive", HttpMethod.Get, "sessions/alive");
-            config.AssertAction<UsersController>("PostRequestPasswordReset", HttpMethod.Post, "users/passwordrecovery/request");
+            config.AssertAction<UsersController>("PostRequestPasswordResetAsync", HttpMethod.Post, "users/passwordrecovery/request");
         }
 
         [TestMethod]

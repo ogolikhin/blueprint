@@ -148,7 +148,7 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("passwordrecovery/request"), NoSessionRequired]
         [ResponseType(typeof(int))]
-        public async Task<IHttpActionResult> PostRequestPasswordReset([FromBody]string login)
+        public async Task<IHttpActionResult> PostRequestPasswordResetAsync([FromBody]string login)
         {
             var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
 
@@ -159,7 +159,6 @@ namespace AdminStore.Controllers
 
             try
             {
-                var response = Request.CreateResponse(HttpStatusCode.OK);
                 if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null && user != null)
                 {
                     EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
@@ -167,13 +166,11 @@ namespace AdminStore.Controllers
                     emailHelper.SendEmail(user.Email);
 
                     await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
-                    response.Content = new StringContent("ok");
+                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK));
                 }
                 else {
-                    response.Content = new StringContent("no");
+                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
                 }
-
-                return ResponseMessage(response);
             }
             catch (Exception ex)
             {

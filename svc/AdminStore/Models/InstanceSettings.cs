@@ -12,7 +12,7 @@
 
         public int MaximumInvalidLogonAttempts { get; set; }
 
-        public EmailConfigInstanceSettings EmailSettingsDeserialized {get; set; }
+        public IEmailConfigInstanceSettings EmailSettingsDeserialized {get; set; }
 
         public string EmailSettings { get; set; }
     }

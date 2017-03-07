@@ -201,7 +201,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(155675)]
-        [Description("Update comment and IsClosed flag of published subartifact, get discussion for this subartifact, check that it has expected values.")]
+        [Description("Update discussion of published subartifact, get discussion for this subartifact, check that it has expected values.")]
         public void UpdateDiscussion_PublishedSubArtifact_ReturnsUpdatedDiscussion()
         {
             // Setup:
@@ -268,7 +268,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(156532)]
-        [Description("Update comment created by the current user, check that comment was updated.")]
+        [Description("Update discussion created by the current user, check that comment was updated.")]
         public void UpdateOwnComment_NonAdminUser_SuccessfullyUpdated()
         {
             // Setup:

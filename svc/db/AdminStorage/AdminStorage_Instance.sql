@@ -272,6 +272,21 @@ CREATE TABLE [dbo].[Logs](
 	[id] ASC
 )) ON [PRIMARY]
 GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[PasswordRecoveryTokens]') AND type in (N'U'))
+DROP TABLE [dbo].[PasswordRecoveryTokens]
+GO
+
+CREATE TABLE [dbo].[PasswordRecoveryTokens](
+    [Login] [nvarchar](max),
+    [CreationTime] [datetime] NOT NULL,
+    [RecoveryToken] [uniqueidentifier] NOT NULL,
+
+	 CONSTRAINT [PK_PasswordRecoveryTokens] PRIMARY KEY CLUSTERED 
+(
+	[RecoveryToken] ASC
+)) ON [PRIMARY]
+GO
+
 
 /******************************************************************************************************************************
 Name:			LogsType
@@ -950,6 +965,37 @@ GO
 
 
 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetUserPasswordRecoveryRequestCount]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
+GO
+
+CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount 
+AS
+BEGIN
+    SELECT COUNT([Login])
+    FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
+    WHERE [Login] = @login
+    AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
+END
+GO 
+
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SetUserPasswordRecoveryToken]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].SetUserPasswordRecoveryToken
+GO
+
+CREATE PROCEDURE [dbo].SetUserPasswordRecoveryToken 
+AS
+BEGIN
+    INSERT INTO [dbo].[PasswordRecoveryTokens]
+    ([Login],[CreationTime],[RecoveryToken])
+    VALUES (@login, CURRENT_TIMESTAMP, NEWID())
+END
+GO 
+
+
+
 
 DECLARE @blueprintDB SYSNAME, @jobname SYSNAME, @schedulename SYSNAME
 DECLARE @jobId BINARY(16), @cmd varchar(2000)
@@ -1327,6 +1373,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container_Delete_Selected', 'en-US', N'Delete selected')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container_Confirmation_Delete_Item', 'en-US', N'Please confirm the deletion of the item.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container_Confirmation_Delete_Items', 'en-US', N'Please confirm the deletion of the selected items ({0}).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_Contents_To_Baseline', 'en-US', N'Add Contents to Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline', 'en-US', N'Add to Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline_Picker_Header', 'en-US', N'Add Artifact to Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline_Success', 'en-US', N'The artifact has been added to the baseline.')

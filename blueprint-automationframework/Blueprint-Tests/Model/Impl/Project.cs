@@ -78,8 +78,7 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IProject.GetDefaultCollectionOrBaselineReviewFolder(string, IUser, BaselineAndCollectionTypePredefined)"/>
-        public INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(string address, IUser user,
+        private INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(string address, IUser user,
             BaselineAndCollectionTypePredefined folderType)
         {
             var expectedTypesPredefined = new List<BaselineAndCollectionTypePredefined> { BaselineAndCollectionTypePredefined.BaselineFolder,
@@ -92,6 +91,18 @@ namespace Model.Impl
                 "No artifacts were found in Project ID: {0}.", Id);
 
             return novaArtifacts.Find(a => a.PredefinedType.Value == (int)folderType);
+        }
+
+        /// <seealso cref="IProject.GetDefaultBaselineFolder(IArtifactStore, IUser)"/>
+        public INovaArtifactBase GetDefaultBaselineFolder(string artifactStoreAddress, IUser user)
+        {
+            return GetDefaultCollectionOrBaselineReviewFolder(artifactStoreAddress, user, BaselineAndCollectionTypePredefined.BaselineFolder);
+        }
+
+        /// <seealso cref="IProject.GetDefaultCollectionFolder(IArtifactStore, IUser)"/>
+        public INovaArtifactBase GetDefaultCollectionFolder(string artifactStoreAddress, IUser user)
+        {
+            return GetDefaultCollectionOrBaselineReviewFolder(artifactStoreAddress, user, BaselineAndCollectionTypePredefined.CollectionFolder);
         }
 
         /// <seealso cref="IProject.GetItemTypeIdForPredefinedType(ItemTypePredefined)"/>

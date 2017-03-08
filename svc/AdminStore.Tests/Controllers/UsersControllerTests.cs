@@ -260,22 +260,13 @@ namespace AdminStore.Controllers
         public async Task PostRequestPasswordReset_RepositoriesReturnsSuccessfully()
         {
             // Arrange
-            Exception exception = null;
             SetupMocksForRequestPasswordReset();
 
             // Act
             IHttpActionResult result = null;
-            try
-            {
-                result = await _controller.PostRequestPasswordResetAsync("login");
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
-            Assert.IsNull(exception);
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
             Assert.AreEqual(HttpStatusCode.OK, ((ResponseMessageResult)result).Response.StatusCode);
@@ -285,7 +276,6 @@ namespace AdminStore.Controllers
         public async Task PostRequestPasswordReset_UserCannotResetPassword()
         {
             // Arrange
-            Exception exception = null;
             SetupMocksForRequestPasswordReset();
 
             _usersRepoMock
@@ -294,17 +284,9 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            try
-            {
-                result = await _controller.PostRequestPasswordResetAsync("login");
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
-            Assert.IsNull(exception);
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
             Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
@@ -314,7 +296,6 @@ namespace AdminStore.Controllers
         public async Task PostRequestPasswordReset_UserHasExceededRequestLimit()
         {
             // Arrange
-            Exception exception = null;
             SetupMocksForRequestPasswordReset();
 
             _usersRepoMock
@@ -323,17 +304,9 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            try
-            {
-                result = await _controller.PostRequestPasswordResetAsync("login");
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
-            Assert.IsNull(exception);
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
             Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
@@ -343,7 +316,6 @@ namespace AdminStore.Controllers
         public async Task PostRequestPasswordReset_InstanceEmailIsNotSetUp()
         {
             // Arrange
-            Exception exception = null;
             SetupMocksForRequestPasswordReset();
 
             var instanceSettings = new InstanceSettings() { EmailSettingsDeserialized = null };
@@ -354,17 +326,9 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            try
-            {
-                result = await _controller.PostRequestPasswordResetAsync("login");
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
-            Assert.IsNull(exception);
             Assert.IsNotNull(result);
             Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
             Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
@@ -372,10 +336,9 @@ namespace AdminStore.Controllers
 
         [TestMethod]
         [Ignore]
-        public async Task PostRequestPasswordReset_CreatingRecoveryTokenThrowsException()
+        public async Task PostRequestPasswordReset_CreatingRecoveryTokenFails()
         {
             // Arrange
-            Exception exception = null;
             SetupMocksForRequestPasswordReset();
 
             _usersRepoMock
@@ -384,17 +347,9 @@ namespace AdminStore.Controllers
 
             // Act
             IHttpActionResult result = null;
-            try
-            {
-                result = await _controller.PostRequestPasswordResetAsync("login");
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            result = await _controller.PostRequestPasswordResetAsync("login");
 
             // Assert
-            Assert.IsNull(exception);
             Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
         }
 

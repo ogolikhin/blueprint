@@ -335,7 +335,6 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        [Ignore]
         public async Task PostRequestPasswordReset_CreatingRecoveryTokenFails()
         {
             // Arrange

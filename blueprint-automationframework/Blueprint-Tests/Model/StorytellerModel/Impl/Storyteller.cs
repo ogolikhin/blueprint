@@ -275,7 +275,7 @@ namespace Model.StorytellerModel.Impl
 
             var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            return service.GetProcess(user, artifactId, versionIndex, expectedStatusCodes);
+            return service.GetProcess(artifactId, user, versionIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
@@ -367,12 +367,12 @@ namespace Model.StorytellerModel.Impl
                 }
             }
             var service = SvcComponentsFactory.CreateSvcComponents(Address);
-            service.UpdateProcess(user, process, expectedStatusCodes);
+            service.UpdateProcess(process, user, expectedStatusCodes);
 
             // Mark artifact in artifact list as saved
             MarkArtifactAsSaved(process.Id);
 
-            return service.GetProcess(user, process.Id, expectedStatusCodes: expectedStatusCodes);
+            return service.GetProcess(process.Id, user, expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>

@@ -49,37 +49,40 @@ namespace Model
         /// Gets artifact info.
         /// (Runs: 'GET svc/components/storyteller/artifactInfo/{artifactId}')
         /// </summary>
-        /// <param name="user">The user to authenticate to Blueprint.</param>
         /// <param name="artifactId">The artifact id</param>
+        /// <param name="user">(optional) The user to authenticate to Blueprint.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Artifact info is used by other metod to determine type of artifact</returns>
         ArtifactInfo GetArtifactInfo(
-            IUser user,
             int artifactId,
+            IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Get a Process
         /// </summary>
-        /// <param name="user">The user credentials for the request to get a process</param>
         /// <param name="artifactId">Id of the process artifact from which the process is obtained</param>
+        /// <param name="user">(optional)The user credentials for the request to get a process</param>
         /// <param name="versionIndex">(optional) The version of the process artifact</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The requested process object</returns>
         IProcess GetProcess(
-            IUser user, 
-            int artifactId, 
+            int artifactId,
+            IUser user = null,
             int? versionIndex = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Update a Process
         /// </summary>
-        /// <param name="user">The user credentials for the request to update a process</param>
         /// <param name="process">The process to update</param>
+        /// <param name="user">(optional) The user credentials for the request to update a process</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
         /// <returns>The returned process result</returns>
-        ProcessUpdateResult UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null);
+        ProcessUpdateResult UpdateProcess(
+            IProcess process,
+            IUser user = null, 
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion Storyteller methods
     }

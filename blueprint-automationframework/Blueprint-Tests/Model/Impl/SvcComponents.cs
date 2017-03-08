@@ -99,10 +99,10 @@ namespace Model.Impl
 
         #region  Storyteller methods
 
-        /// <seealso cref="ISvcComponents.GetArtifactInfo(IUser, int, List{HttpStatusCode})"/>
+        /// <seealso cref="ISvcComponents.GetArtifactInfo(int, IUser, List{HttpStatusCode})"/>
         public ArtifactInfo GetArtifactInfo(
-            IUser user,
             int artifactId,
+            IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetArtifactInfo));
@@ -119,16 +119,14 @@ namespace Model.Impl
             return returnedArtifactInfo;
         }
 
-        /// <seealso cref="ISvcComponents.GetProcess(IUser, int, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="ISvcComponents.GetProcess(int, IUser, int?, List{HttpStatusCode})"/>
         public IProcess GetProcess(
-            IUser user, 
-            int artifactId, 
+            int artifactId,
+            IUser user = null,
             int? versionIndex = null, 
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetProcess));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, artifactId);
 
@@ -139,7 +137,7 @@ namespace Model.Impl
                 queryParameters.Add("versionId", versionIndex.ToString());
             }
 
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(SvcComponents), artifactId);
 
@@ -153,16 +151,18 @@ namespace Model.Impl
             return response;
         }
 
-        /// <seealso cref="ISvcComponents.UpdateProcess(IUser, IProcess, List{HttpStatusCode})"/>
-        public ProcessUpdateResult UpdateProcess(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="ISvcComponents.UpdateProcess(IProcess, IUser, List{HttpStatusCode})"/>
+        public ProcessUpdateResult UpdateProcess(
+            IProcess process,
+            IUser user = null, 
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(UpdateProcess));
 
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, process.Id);
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(SvcComponents), process.Id, process.Name);
 
@@ -172,7 +172,8 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.PATCH,
                 jsonObject: processBodyObject,
-                expectedStatusCodes: expectedStatusCodes);
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
         }
 
         #endregion Storyteller methods

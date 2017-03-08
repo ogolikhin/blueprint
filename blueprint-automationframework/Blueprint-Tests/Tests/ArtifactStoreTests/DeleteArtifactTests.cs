@@ -75,7 +75,7 @@ namespace ArtifactStoreTests
             var authorUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, authorUser);
+            var collectionFolder = _project.GetDefaultCollectionFolder(authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
@@ -326,7 +326,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(grandParentArtifact, _user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
-            Helper.ArtifactStore.PublishArtifacts(artifacts: null, user: _user, all: true);
+            Helper.ArtifactStore.PublishArtifacts(artifacts: null, user: _user, publishAll: true);
 
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(parentArtifact, _user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
@@ -462,7 +462,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
@@ -536,7 +536,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
@@ -561,7 +561,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
@@ -674,7 +674,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_user);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
 
             var userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);

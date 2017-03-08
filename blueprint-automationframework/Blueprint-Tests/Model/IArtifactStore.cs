@@ -421,12 +421,12 @@ namespace Model
         /// <summary>
         /// Publishes a list of artifacts.
         /// </summary>
-        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="publishAll">(optional) Pass true to publish publishAll artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? publishAll = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifact path by using artifact id

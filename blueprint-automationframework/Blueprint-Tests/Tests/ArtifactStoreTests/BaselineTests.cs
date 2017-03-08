@@ -47,7 +47,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_PublishedArtifact_ValidateReturnedBaseline()
         {
             // Setup:
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
             string baselineName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var baseline = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, ItemTypePredefined.ArtifactBaseline,
                 baselineName, _project, defaultBaselineFolder.Id);
@@ -77,7 +77,7 @@ namespace ArtifactStoreTests
             var artifactToAdd = CreateArtifactInSpecificState(Helper, _user, _project, artifactState, ItemTypePredefined.Actor,
                 _project.Id);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
             string baselineName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var baseline = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, ItemTypePredefined.ArtifactBaseline,
                 baselineName, _project, defaultBaselineFolder.Id);
@@ -115,7 +115,7 @@ namespace ArtifactStoreTests
             //Helper.ArtifactStore.PublishArtifact(collectionArtifact, _user);
             collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
             string baselineName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var baseline = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, ItemTypePredefined.ArtifactBaseline,
                 baselineName, _project, defaultBaselineFolder.Id);
@@ -144,7 +144,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
             
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
             string baselineName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var baselineArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _user, ItemTypePredefined.ArtifactBaseline,
                 baselineName, _project, defaultBaselineFolder.Id);

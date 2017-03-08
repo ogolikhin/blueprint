@@ -246,7 +246,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
             string replyText = null;
             IReplyAdapter raptorReply = null;
 
@@ -279,7 +279,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -314,7 +314,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment, 
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -366,7 +366,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, author);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             var statusId = GetStatusId(discussions, customStatus);
@@ -401,7 +401,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, nonExistingStatus);
@@ -442,7 +442,7 @@ namespace ArtifactStoreTests
                 raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             }
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -471,7 +471,7 @@ namespace ArtifactStoreTests
                 raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             }
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -494,7 +494,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
             string replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, replyText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(replyText), raptorReply.Comment,
@@ -516,7 +516,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
             Assert.AreEqual(StringUtilities.WrapInDiv(newReplyText), updatedReply.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
         }
 
         [TestCase]
@@ -560,7 +560,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
@@ -584,7 +584,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
             string replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, replyText, _adminUser);
 
@@ -611,7 +611,7 @@ namespace ArtifactStoreTests
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
-                "Original comments and comment returned after discussion created different!");
+                "Original comment and comment returned after discussion created different!");
 
             var comment = new RaptorComment();
             comment.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
@@ -725,10 +725,7 @@ namespace ArtifactStoreTests
 
             var threadStatus = result.ThreadStatuses.Find(a => a.Name == statusName);
 
-            if (threadStatus == null)
-                return 0;
-            else
-                return threadStatus.StatusId;
+            return threadStatus?.StatusId ?? 0;
         }
 
         #endregion Private functions

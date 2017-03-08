@@ -421,7 +421,7 @@ namespace ArtifactStoreTests
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(artifactsPassedToPublish, author, all: true),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(artifactsPassedToPublish, author, publishAll: true),
                 "'POST {0}?all=true' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -453,7 +453,7 @@ namespace ArtifactStoreTests
             try
             {
                 Assert.DoesNotThrow(
-                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+                    () => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, publishAll: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -491,7 +491,7 @@ namespace ArtifactStoreTests
 
             try
             {
-                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, publishAll: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -577,7 +577,7 @@ namespace ArtifactStoreTests
 
             try
             {
-                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, publishAll: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -632,7 +632,7 @@ namespace ArtifactStoreTests
             try
             {
                 // Execute:
-                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), user, all: true),
+                Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), user, publishAll: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
                 // Verify:
@@ -696,7 +696,7 @@ namespace ArtifactStoreTests
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, all: true),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(new List<IArtifactBase>(), author, publishAll: true),
                     "'POST {0}?all=true' should return 200 OK if an empty list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -978,7 +978,7 @@ namespace ArtifactStoreTests
                 "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, all: true),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, publishAll: true),
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:

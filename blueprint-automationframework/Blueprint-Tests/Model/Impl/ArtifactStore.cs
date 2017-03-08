@@ -491,10 +491,10 @@ namespace Model.Impl
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts,
             IUser user = null,
-            bool? all = null,
+            bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return PublishArtifacts(Address, artifacts, user, all, expectedStatusCodes);
+            return PublishArtifacts(Address, artifacts, user, publishAll, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetNavigationPath(IUser, int, List{HttpStatusCode})"/>
@@ -654,10 +654,10 @@ namespace Model.Impl
             switch (itemType)
             {
                 case ItemTypePredefined.ArtifactBaseline:
-                    path_template = RestPaths.Svc.ArtifactStore.BASELINE_id_ADD;
+                    path_template = RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT;
                     break;
                 case ItemTypePredefined.ArtifactCollection:
-                    path_template = RestPaths.Svc.ArtifactStore.COLLECTION_id_ADD;
+                    path_template = RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT;
                     break;
                 default:
                     Assert.Fail("AddArtifactToBaselineOrCollection works with ArtifactBaseline or ArtifactCollection only.");
@@ -1025,7 +1025,7 @@ namespace Model.Impl
                 // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
                 foreach (var deletedArtifact in deletedArtifacts)
                 {
-                    Logger.WriteDebug("'DELETE artifact' returned following artifact Id: {0}", deletedArtifact.Id);
+                    Logger.WriteDebug("DeleteArtifact() returned following artifact Id: {0}", deletedArtifact.Id);
 
                     var artifaceBaseToDelete = artifact as ArtifactBase;
 
@@ -1324,15 +1324,15 @@ namespace Model.Impl
         /// Publishes a list of artifacts.
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
         public static INovaArtifactsAndProjectsResponse PublishArtifacts(string address,
             List<IArtifactBase> artifacts,
             IUser user = null,
-            bool? all = null,
+            bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -1344,7 +1344,7 @@ namespace Model.Impl
 
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
-            var publishedArtifacts = PublishArtifacts(address, artifactIds, user, all, expectedStatusCodes);
+            var publishedArtifacts = PublishArtifacts(address, artifactIds, user, publishAll, expectedStatusCodes);
 
             if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
                 {
@@ -1393,7 +1393,7 @@ namespace Model.Impl
                         artifacts[0]?.NotifyArtifactPublished(otherPublishedArtifactsList);
                     }
 
-                    Assert.That((all != null) && (all.Value == true),
+                    Assert.That((publishAll != null) && (publishAll.Value == true),
                         "An artifact that wasn't explicitly passed was published but the 'all=true' parameter wasn't passed!");
                 }
             }
@@ -1407,19 +1407,19 @@ namespace Model.Impl
         /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public static NovaArtifactsAndProjectsResponse PublishArtifacts(string address, List<int> artifactsIds, IUser user, bool? all = null,
+        public static NovaArtifactsAndProjectsResponse PublishArtifacts(string address, List<int> artifactsIds, IUser user, bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
             var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             Dictionary<string, string> queryParams = null;
 
-            if (all != null)
+            if (publishAll != null)
             {
-                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
+                queryParams = new Dictionary<string, string> { { "all", publishAll.Value.ToString() } };
             }
 
             var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(

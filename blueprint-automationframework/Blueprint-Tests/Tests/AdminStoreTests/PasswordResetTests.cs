@@ -160,7 +160,7 @@ namespace AdminStoreTests
         public void RequestPasswordReset_ValidUsername_ExceedingMaxNumberOfRecoveryRequests_409Conflict()
         {
             // Setup:
-            const int RESET_REQUEST_LIMIT = 3;
+            const int RESET_REQUEST_LIMIT = 3;  // TODO: If this limit is in the DB, read it from there instead.
 
             var user = Helper.CreateUserAndAddToDatabase();
             var recoveryTokens = new List<PasswordRecoveryToken>();
@@ -193,7 +193,8 @@ namespace AdminStoreTests
                 Assert.AreNotEqual(recoveryTokens[i].RecoveryToken, recoveryToken.RecoveryToken,
                     "The {0} of the tokens should be different!", nameof(PasswordRecoveryToken.RecoveryToken));
 
-                // TODO: Verify the RecoveryTokens aren't sequential.
+                // Verify the RecoveryTokens aren't sequential.
+                AssertGuidsAreNotSimilar(recoveryToken, recoveryTokens[i]);
 
                 recoveryToken = recoveryTokens[i];
             }
@@ -244,6 +245,33 @@ namespace AdminStoreTests
             public string Login { get; set; }
             public DateTime CreationTime { get; set; }
             public string RecoveryToken { get; set; }
+        }
+
+        /// <summary>
+        /// Asserts that the RecoveryToken GUIDs aren't too similar to each other.
+        /// </summary>
+        /// <param name="recoveryToken1">The first token to compare.</param>
+        /// <param name="recoveryToken2">The second token to compare.</param>
+        private static void AssertGuidsAreNotSimilar(PasswordRecoveryToken recoveryToken1, PasswordRecoveryToken recoveryToken2)
+        {
+            var firstGuid = Guid.Parse(recoveryToken1.RecoveryToken);
+            var secondGuid = Guid.Parse(recoveryToken2.RecoveryToken);
+
+            var firstTokenBytes = firstGuid.ToByteArray();
+            var secondTokenBytes = secondGuid.ToByteArray();
+
+            // Compare the GUIDs in 4 byte chunks for similarity.
+            while (firstTokenBytes.Length > 0)
+            {
+                int firstNum = BitConverter.ToInt32(firstTokenBytes.Take(4).ToArray(), 0);
+                int secondNum = BitConverter.ToInt32(secondTokenBytes.Take(4).ToArray(), 0);
+
+                Assert.That(Math.Abs(firstNum - secondNum) > 2, "The GUIDs are too similar!  '{0}' vs '{1}'",
+                    firstGuid.ToStringInvariant(), secondGuid.ToStringInvariant());
+
+                firstTokenBytes = firstTokenBytes.Skip(4).ToArray();
+                secondTokenBytes = secondTokenBytes.Skip(4).ToArray();
+            }
         }
 
         /// <summary>

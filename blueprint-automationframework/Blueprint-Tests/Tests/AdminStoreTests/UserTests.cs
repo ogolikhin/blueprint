@@ -13,6 +13,8 @@ using Utilities.Factories;
 
 namespace AdminStoreTests
 {
+    [TestFixture]
+    [Category(Categories.AdminStore)]
     public class UserTests : TestBase
     {
         private const uint MinPasswordLength = 8;

@@ -166,8 +166,7 @@ namespace SearchService.Repositories
                 Id = 1,
                 Name = "ArtifactPath"
             };
-            var infoCollection = new List<Artifact>();
-            infoCollection.Add(artifactInfo);            
+            var infoCollection = new List<Artifact> {artifactInfo};
             var navigationPaths = new Dictionary<int, IEnumerable<Artifact>> { { 0, infoCollection } };
             var mockSqlArtifactRepository = new Mock<ISqlArtifactRepository>();
             mockSqlArtifactRepository.Setup(r => r.GetArtifactsNavigationPathsAsync(1, new List<int> { 0 }, false, null, true)).ReturnsAsync(navigationPaths);
@@ -237,6 +236,89 @@ namespace SearchService.Repositories
         }
 
         #endregion SearchName
+
+        #region GetExcludedPredefineds
+
+        [TestMethod]
+        public void ExcludedPredefineds_DoNotShowArtifacts_CorrectResult()
+        {
+            // Arrange
+            var searchCriteria = new ItemNameSearchCriteria
+            {
+                ShowArtifacts = false,
+                ShowBaselinesAndReviews = true,
+                ShowCollections = true
+            };
+            ItemTypePredefined[] expected = {
+                ItemTypePredefined.Glossary,
+                ItemTypePredefined.TextualRequirement,
+                ItemTypePredefined.PrimitiveFolder,
+                ItemTypePredefined.BusinessProcess,
+                ItemTypePredefined.Actor,
+                ItemTypePredefined.UseCase,
+                ItemTypePredefined.DataElement,
+                ItemTypePredefined.UIMockup,
+                ItemTypePredefined.GenericDiagram,
+                ItemTypePredefined.Document,
+                ItemTypePredefined.Storyboard,
+                ItemTypePredefined.DomainDiagram,
+                ItemTypePredefined.UseCaseDiagram,
+                ItemTypePredefined.Process
+            };
+
+            // Act
+            var excludedPredefineds = SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria);
+
+            // Assert
+            CollectionAssert.AreEquivalent(expected, excludedPredefineds.Cast<ItemTypePredefined>().ToList());
+        }
+
+        [TestMethod]
+        public void ExcludedPredefineds_DoNotShowBaselinesAndReviews_CorrectResult()
+        {
+            // Arrange
+            ItemTypePredefined[] expected = {
+                ItemTypePredefined.BaselineFolder,
+                ItemTypePredefined.ArtifactBaseline,
+                ItemTypePredefined.ArtifactReviewPackage
+            };
+            var searchCriteria = new ItemNameSearchCriteria
+            {
+                ShowArtifacts = true,
+                ShowBaselinesAndReviews = false,
+                ShowCollections = true
+            };
+
+            // Act
+            var excludedPredefineds = SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria);
+
+            // Assert
+            CollectionAssert.AreEquivalent(expected, excludedPredefineds.Cast<ItemTypePredefined>().ToList());
+        }
+
+        [TestMethod]
+        public void ExcludedPredefineds_DoNotShowCollections_CorrectResult()
+        {
+            // Arrange
+            ItemTypePredefined[] expected = {
+                ItemTypePredefined.CollectionFolder,
+                ItemTypePredefined.ArtifactCollection
+            };
+            var searchCriteria = new ItemNameSearchCriteria
+            {
+                ShowArtifacts = true,
+                ShowBaselinesAndReviews = true,
+                ShowCollections = false
+            };
+
+            // Act
+            var excludedPredefineds = SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria);
+
+            // Assert
+            CollectionAssert.AreEquivalent(expected, excludedPredefineds.Cast<ItemTypePredefined>().ToList());
+        }
+
+        #endregion GetExcludedPredefineds
 
         #region SearchFullText
 
@@ -442,14 +524,14 @@ namespace SearchService.Repositories
                     { "page", Page },
                     { "pageSize", PageSize },
                     { "maxItems", MaxItems },
-                    { "itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value") }
+                    { "itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds) }
                     },
                     queryResult);
                 connectionWrapper.SetupQueryMultipleAsync("SearchFullTextByItemTypesMetaData",
                     new Dictionary<string, object>
                     {
                     { "predefineds", SqlItemSearchRepository.Predefineds },
-                    { "itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds, "Int32Collection", "Int32Value") }
+                    { "itemTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ItemTypeIds) }
                     },
                     new Tuple<IEnumerable<T>, IEnumerable<int?>>(queryResult, queryResult2));
             }
@@ -490,19 +572,16 @@ namespace SearchService.Repositories
             {
                 {"userId", UserId},
                 {"query", searchCriteria.Query},
-                {"projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds, "Int32Collection", "Int32Value")},
+                {"projectIds", SqlConnectionWrapper.ToDataTable(searchCriteria.ProjectIds)},
                 {"maxSearchableValueStringSize", MaxSearchableValueStringSize},
                 {"startOffset", StartOffset},
-                {"pageSize", PageSize}
+                {"pageSize", PageSize},
+                {"excludedPredefineds", SqlConnectionWrapper.ToDataTable(SqlItemSearchRepository.GetExcludedPredefineds(searchCriteria))}
             };
-            if (searchCriteria.PredefinedTypeIds == null || !searchCriteria.PredefinedTypeIds.Any())
-            {
-                parameters.Add("excludedPredefineds", SqlItemSearchRepository.PrimitiveItemTypePredefineds);
-            }
 
             if (searchCriteria.PredefinedTypeIds != null)
             {
-                parameters.Add("predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds, "Int32Collection", "Int32Value"));
+                parameters.Add("predefinedTypeIds", SqlConnectionWrapper.ToDataTable(searchCriteria.PredefinedTypeIds));
             }
 
             connectionWrapper.SetupQueryAsync(

@@ -717,7 +717,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_ValidBaselineInDefaultCollectionFolder_Check409(ItemTypePredefined artifactType)
         {
             // Setup:
-            var defaultCollectionFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _user);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _user);
 
             // Execute:
             INovaArtifactDetails newArtifact = null;

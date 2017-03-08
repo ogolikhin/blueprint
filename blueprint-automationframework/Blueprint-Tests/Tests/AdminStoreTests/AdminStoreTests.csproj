@@ -66,6 +66,7 @@
     <Compile Include="JobResultFileTests.cs" />
     <Compile Include="JobsTests.cs" />
     <Compile Include="LicensesTests.cs" />
+    <Compile Include="PasswordResetTests.cs" />
     <Compile Include="ScheduleJobsTests.cs" />
     <Compile Include="ProjectNavigationPathTests.cs" />
     <Compile Include="SessionsTests.cs" />

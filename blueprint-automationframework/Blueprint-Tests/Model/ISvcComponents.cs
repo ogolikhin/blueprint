@@ -73,6 +73,16 @@ namespace Model
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Get a List of Processes for the specified Project Id
+        /// Runs /projects/id/processes
+        /// </summary>
+        /// <param name="projectId">The Id of the project</param>
+        /// <param name="user">(optional)The user credentials for the request to get the process list</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The list of process objects</returns>
+        IList<IProcess> GetProcesses(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Update a Process
         /// </summary>
         /// <param name="process">The process to update</param>

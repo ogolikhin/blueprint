@@ -171,7 +171,7 @@ namespace AdminStoreTests
                 Assert.DoesNotThrow(() =>
                 {
                     Helper.AdminStore.RequestPasswordReset(user.Username);
-                }, "'POST {0}' should return 200 OK when passed a valid username.", REST_PATH);
+                }, "'POST {0}' should return 200 OK when passed a valid username and the reset limit hasn't been exceeded.", REST_PATH);
 
                 recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
                 recoveryTokens.Add(recoveryToken);
@@ -181,19 +181,21 @@ namespace AdminStoreTests
             Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.RequestPasswordReset(user.Username);
-            }, "'POST {0}' should return 409 Conflict when passed a username for a user that exceeded the maximum password reset request attampts.", REST_PATH);
+            }, "'POST {0}' should return 409 Conflict when passed a username for a user that exceeded the maximum password reset request attempts.", REST_PATH);
 
             // Verify:  The tokens in the list should be unique.
             recoveryToken = recoveryTokens[0];
 
             for (int i = 1; i < recoveryTokens.Count; ++i)
             {
-                Assert.AreNotEqual(recoveryTokens[i].CreationTime, recoveryToken.CreationTime, "The {0} of the tokens should be different!",
-                    nameof(PasswordRecoveryToken.CreationTime));
-                Assert.AreNotEqual(recoveryTokens[i].RecoveryToken, recoveryToken.RecoveryToken, "The {0} of the tokens should be different!",
-                    nameof(PasswordRecoveryToken.RecoveryToken));
+                Assert.AreNotEqual(recoveryTokens[i].CreationTime, recoveryToken.CreationTime,
+                    "The {0} of the tokens should be different!", nameof(PasswordRecoveryToken.CreationTime));
+                Assert.AreNotEqual(recoveryTokens[i].RecoveryToken, recoveryToken.RecoveryToken,
+                    "The {0} of the tokens should be different!", nameof(PasswordRecoveryToken.RecoveryToken));
 
                 // TODO: Verify the RecoveryTokens aren't sequential.
+
+                recoveryToken = recoveryTokens[i];
             }
 
             // No new recovery tokens should be added after the recovery limit was exceeded.

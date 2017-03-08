@@ -431,7 +431,7 @@ namespace AdminStore.Controllers
                 .Setup(helper => helper.Initialize(It.IsAny<IEmailConfigInstanceSettings>()));
 
             _emailHelperMock
-                .Setup(helper => helper.SendEmail(It.IsAny<string>()));
+                .Setup(helper => helper.SendEmail(It.IsAny<AuthenticationUser>()));
         }
 
         #endregion PasswordRecovery

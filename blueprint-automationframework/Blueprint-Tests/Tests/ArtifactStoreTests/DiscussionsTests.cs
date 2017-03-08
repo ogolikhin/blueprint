@@ -178,7 +178,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
 
-            var statusId = GetStatusId(discussions, "Closed");
+            var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
@@ -197,7 +197,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
-            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: true);
+            RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
         }
 
         [TestCase]
@@ -213,7 +213,7 @@ namespace ArtifactStoreTests
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
-            var statusId = GetStatusId(discussions, "Closed");
+            var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
@@ -233,7 +233,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
-            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: true);
+            RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
         }
 
         [TestCase]
@@ -245,7 +245,8 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
             string replyText = null;
             IReplyAdapter raptorReply = null;
 
@@ -277,10 +278,11 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
-            var statusId = GetStatusId(discussions, "Closed");
+            var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
                 Comment = "Updated text",
@@ -299,7 +301,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
-            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: true);
+            RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
         }
 
         [TestCase]
@@ -311,10 +313,12 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment, 
+                "Original comments and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
-            var statusId = GetStatusId(discussions, "Closed");
+            var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
+
             var comment = new RaptorComment()
             {
                 StatusId = statusId
@@ -326,7 +330,9 @@ namespace ArtifactStoreTests
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
-            statusId = GetStatusId(discussions, "Open");
+            Assert.IsTrue(updatedDiscussion.IsClosed, "The discussion should be closed at this point, but it is open!");
+
+            statusId = GetStatusId(discussions, ThreadStatus.OPEN);
             comment.Comment = "Reopened text";
             comment.StatusId = statusId;
 
@@ -341,7 +347,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
-            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion);
+            RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
         }
 
         [Category(Categories.CustomData)]
@@ -359,7 +365,8 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.UseCase);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, author);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             var statusId = GetStatusId(discussions, customStatus);
@@ -380,9 +387,44 @@ namespace ArtifactStoreTests
             discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
-            Assert.AreEqual(discussions.Discussions[0].IsClosed, isClosed, "IsClosed flag should be set to {0}!", isClosed);
-            RaptorDiscussion.AssertAreEqual(discussions.Discussions[0], updatedDiscussion, skipCanEdit: isClosed);
+            Assert.AreEqual(isClosed, discussions.Discussions[0].IsClosed, "IsClosed flag should be set to {0}!", isClosed);
+            RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: isClosed);
         }
+
+        [TestCase("Non-existing status")]
+        [TestRail(266927)]
+        [Description("Update discussion created by user to custom discussion status. Check that comment was updated and discussion status applied.")]
+        public void UpdateComment_NonExistingStatus_SuccessfullyUpdatedOnlyComment(string nonExistingStatus)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
+
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            var statusId = GetStatusId(discussions, nonExistingStatus);
+            var comment = new RaptorComment()
+            {
+                Comment = nonExistingStatus,
+                StatusId = statusId
+            };
+
+            // Execute:
+            IDiscussionAdaptor updatedDiscussion = null;
+            Assert.DoesNotThrow(() =>
+            {
+                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment);
+            }, "UpdateDiscussion shouldn't throw any error, but it did.");
+
+            // Verify:
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
+            RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
+        }
+
 
         [TestCase]
         [TestRail(156534)]
@@ -399,7 +441,8 @@ namespace ArtifactStoreTests
                 commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
                 raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             }
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -427,7 +470,8 @@ namespace ArtifactStoreTests
                 commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
                 raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
             }
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -449,10 +493,12 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
             string replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, replyText, _authorUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(replyText), raptorReply.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(replyText), raptorReply.Comment,
+                "Original reply and reply returned after reply created different!");
 
             string newReplyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             IReplyAdapter updatedReply = null;
@@ -469,7 +515,8 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
-            Assert.AreEqual(StringUtilities.WrapInDiv(newReplyText), updatedReply.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(newReplyText), updatedReply.Comment,
+                "Original comments and comment returned after discussion created different!");
         }
 
         [TestCase]
@@ -499,9 +546,6 @@ namespace ArtifactStoreTests
             Assert.AreEqual(2, postedRaptorComment.Version, "Version should be 2, but it is {0}", postedRaptorComment.Version);
         }
 
-
-
-
         #endregion Positive tests
 
         #region 403 Forbidden
@@ -515,7 +559,8 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
@@ -538,7 +583,8 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
             string replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, replyText, _adminUser);
 
@@ -564,7 +610,8 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _authorUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
+                "Original comments and comment returned after discussion created different!");
 
             var comment = new RaptorComment();
             comment.Comment = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);

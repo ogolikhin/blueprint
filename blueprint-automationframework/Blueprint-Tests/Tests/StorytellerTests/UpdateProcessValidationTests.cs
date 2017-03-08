@@ -58,7 +58,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcess(
                         _user,
                         process)
                 );
@@ -90,7 +90,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcess(
                         _user,
                         process)
                 );
@@ -119,7 +119,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcess(
                         _user,
                         process)
                 );
@@ -166,7 +166,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                    // Get and deserialize response
-                   Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                   Helper.Storyteller.UpdateProcess(
                         _user,
                         process)
                 );
@@ -240,7 +240,7 @@ namespace StorytellerTests
             var ex = Assert.Throws<Http400BadRequestException>(
                 () =>
                     // Get and deserialize response
-                    Helper.Storyteller.UpdateProcessReturnResponseOnly(
+                    Helper.Storyteller.UpdateProcess(
                         _user,
                         process),
                     "Expected the update process to return error due to the number of shapes to update exceeds the limit in the database."

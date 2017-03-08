@@ -969,7 +969,10 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetUs
 DROP PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
 GO
 
-CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount 
+CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
+(
+    @login as nvarchar(max)
+)
 AS
 BEGIN
     SELECT COUNT([Login])
@@ -986,6 +989,9 @@ DROP PROCEDURE [dbo].SetUserPasswordRecoveryToken
 GO
 
 CREATE PROCEDURE [dbo].SetUserPasswordRecoveryToken 
+(
+    @login as nvarchar(max)
+)
 AS
 BEGIN
     INSERT INTO [dbo].[PasswordRecoveryTokens]
@@ -1373,6 +1379,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container_Delete_Selected', 'en-US', N'Delete selected')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container_Confirmation_Delete_Item', 'en-US', N'Please confirm the deletion of the item.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Container_Confirmation_Delete_Items', 'en-US', N'Please confirm the deletion of the selected items ({0}).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_Contents_To_Baseline', 'en-US', N'Add Contents to Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline', 'en-US', N'Add to Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline_Picker_Header', 'en-US', N'Add Artifact to Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline_Success', 'en-US', N'The artifact has been added to the baseline.')

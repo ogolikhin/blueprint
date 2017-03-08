@@ -23,17 +23,19 @@ namespace AdminStore.Controllers
         internal readonly IAuthenticationRepository _authenticationRepository;
         internal readonly ISqlUserRepository _userRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
+        internal readonly IEmailHelper _emailHelper;
         internal readonly IServiceLogRepository _log;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(), new ServiceLogRepository())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(), new EmailHelper(), new ServiceLogRepository())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, IServiceLogRepository log)
+        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, IServiceLogRepository log)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;
+            _emailHelper = emailHelper;
             _log = log;
         }
 
@@ -161,9 +163,8 @@ namespace AdminStore.Controllers
             {
                 if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null && user != null)
                 {
-                    EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
-
-                    emailHelper.SendEmail(user.Email);
+                    _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
+                    _emailHelper.SendEmail(user.Email);
 
                     await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
                     return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK));

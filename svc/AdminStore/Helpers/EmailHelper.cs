@@ -6,15 +6,26 @@ using MailBee.SmtpMail;
 
 namespace AdminStore.Helpers
 {
-    public class EmailHelper
+    public interface IEmailHelper
     {
-        public IEmailConfigInstanceSettings Configuration { get; set; }
-        public EmailHelper(IEmailConfigInstanceSettings configuration)
+        void Initialize(IEmailConfigInstanceSettings configuration);
+        void SendEmail(string userEmail);
+        
+    }
+
+    public class EmailHelper : IEmailHelper
+    {
+        private IEmailConfigInstanceSettings _configuration { get; set; }
+        public EmailHelper()
+        {
+        }
+
+        public void Initialize(IEmailConfigInstanceSettings configuration)
         {
             if (configuration == null)
                 throw new ArgumentNullException("configuration");
 
-            Configuration = configuration;
+            _configuration = configuration;
             MailBee.Global.AutodetectPortAndSslMode = false;
             MailBee.Global.LicenseKey = "MN800-02CA3564CA2ACAAECAB17D4ADEC9-145F";
         }
@@ -24,7 +35,7 @@ namespace AdminStore.Helpers
             var smtpServer = SmtpServer;
             var smtp = new Smtp();
             smtp.SmtpServers.Add(smtpServer);
-            smtp.Message = PreparePasswordResetMessage(userEmail, Configuration.UserName);
+            smtp.Message = PreparePasswordResetMessage(userEmail, _configuration.UserName);
             smtp.Send();
         }
 
@@ -47,13 +58,13 @@ namespace AdminStore.Helpers
             get
             {
                 SmtpServer smtpServer = new SmtpServer();
-                smtpServer.Name = Configuration.HostName;
-                smtpServer.Port = Configuration.Port;
+                smtpServer.Name = _configuration.HostName;
+                smtpServer.Port = _configuration.Port;
                 smtpServer.Timeout = 100000; //default 100 secs
-                if (Configuration.Authenticated)
+                if (_configuration.Authenticated)
                 {
-                    smtpServer.AccountName = Configuration.UserName;
-                    smtpServer.Password = SystemEncryptions.DecryptFromSilverlight(Configuration.Password);
+                    smtpServer.AccountName = _configuration.UserName;
+                    smtpServer.Password = SystemEncryptions.DecryptFromSilverlight(_configuration.Password);
                     //MailBee.AuthenticationMethods.None by default
                     smtpServer.AuthMethods = MailBee.AuthenticationMethods.Auto;
                 }
@@ -66,10 +77,10 @@ namespace AdminStore.Helpers
         {
             get
             {
-                if (Configuration.EnableSSL && Configuration.Port == 465/*Implicit SSL Port*/)
+                if (_configuration.EnableSSL && _configuration.Port == 465/*Implicit SSL Port*/)
                     return SslStartupMode.OnConnect;
 
-                if (!Configuration.EnableSSL)
+                if (!_configuration.EnableSSL)
                     return SslStartupMode.Manual;
 
                 return SslStartupMode.UseStartTls;

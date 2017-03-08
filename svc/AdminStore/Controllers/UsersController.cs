@@ -161,7 +161,7 @@ namespace AdminStore.Controllers
 
             try
             {
-                if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null && user != null)
+                if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
                 {
                     _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
                     _emailHelper.SendEmail(user.Email);

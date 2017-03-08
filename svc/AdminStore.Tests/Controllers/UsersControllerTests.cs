@@ -313,6 +313,26 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        public async Task PostRequestPasswordReset_UserHasHitPasswordChangeLockout()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            _authRepoMock
+                .Setup(repo => repo.IsChangePasswordCooldownInEffect(It.IsAny<AuthenticationUser>()))
+                .ReturnsAsync(true);
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
         public async Task PostRequestPasswordReset_InstanceEmailIsNotSetUp()
         {
             // Arrange
@@ -386,6 +406,10 @@ namespace AdminStore.Controllers
 
             _emailHelperMock
                 .Setup(helper => helper.SendEmail(It.IsAny<AuthenticationUser>()));
+
+            _authRepoMock
+                .Setup(repo => repo.IsChangePasswordCooldownInEffect(It.IsAny<AuthenticationUser>()))
+                .ReturnsAsync(false);
         }
 
         #endregion PasswordRecovery

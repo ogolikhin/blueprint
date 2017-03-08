@@ -199,19 +199,6 @@ namespace Model.StorytellerModel
         /// <returns>The updated Nova process</returns>
         NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
 
-        /// <summary>
-        /// Update a Process but only return the JSON response as a string. (Used only when a response other than a process object
-        /// is expected - i.e. when testing a negative case where an error message is expected rather than a process object)
-        /// </summary>
-        /// <param name="user">The user credentials for the request to update a process</param>
-        /// <param name="process">The process to update</param>
-        /// <param name="lockArtifactBeforeUpdate">(optional) Flag indicating whether or not the process artifact should be locked before update (Default: true)</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <returns>The REST response content of the update process request</returns>
-        string UpdateProcessReturnResponseOnly(IUser user,
-            IProcess process,
-            bool lockArtifactBeforeUpdate = true,
-            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Publish a Process Artifact (Used when publishing a single process artifact)

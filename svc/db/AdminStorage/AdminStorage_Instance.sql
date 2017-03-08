@@ -969,7 +969,10 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetUs
 DROP PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
 GO
 
-CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount 
+CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
+(
+    @login as nvarchar(max)
+)
 AS
 BEGIN
     SELECT COUNT([Login])
@@ -986,6 +989,9 @@ DROP PROCEDURE [dbo].SetUserPasswordRecoveryToken
 GO
 
 CREATE PROCEDURE [dbo].SetUserPasswordRecoveryToken 
+(
+    @login as nvarchar(max)
+)
 AS
 BEGIN
     INSERT INTO [dbo].[PasswordRecoveryTokens]

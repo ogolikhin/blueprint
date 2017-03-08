@@ -3,7 +3,6 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -274,37 +273,9 @@ namespace Model.StorytellerModel.Impl
 
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, artifactId);
-
-            var queryParameters = new Dictionary<string, string>();
-
-            if (versionIndex.HasValue)
-            {
-                queryParameters.Add("versionId", versionIndex.ToString());
-            }
-
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(Storyteller), artifactId);
-
-            var response = restApi.SendRequestAndDeserializeObject<Process>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies,
-                shouldControlJsonChanges: false);
-
-            return response;
+            return service.GetProcess(artifactId, user, versionIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
@@ -395,40 +366,19 @@ namespace Model.StorytellerModel.Impl
                     artifactToLock.Lock(user);
                 }
             }
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
+            service.UpdateProcess(process, user, expectedStatusCodes);
 
-            var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes, sendAuthorizationAsCookie);
-            var updatedProcess = JsonConvert.DeserializeObject<Process>(restResponse.Content);
+            // Mark artifact in artifact list as saved
+            MarkArtifactAsSaved(process.Id);
 
-            return updatedProcess;
+            return service.GetProcess(process.Id, user, expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
             return ArtifactStore.UpdateNovaProcess(Address, user, novaProcess, expectedStatusCodes);
-        }
-
-        /// <seealso cref="IStoryteller.UpdateProcessReturnResponseOnly(IUser, IProcess, bool, List{HttpStatusCode})"/>
-        public string UpdateProcessReturnResponseOnly(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcessReturnResponseOnly));
-
-            ThrowIf.ArgumentNull(process, nameof(process));
-
-            if (lockArtifactBeforeUpdate)
-            {
-                var artifactToLock = Artifacts.Find(a => a.Id == process.Id);
-
-                if (!artifactToLock.Status.IsLocked)
-                {
-                    // Lock process artifact before update
-                    artifactToLock.Lock(user);
-                }
-            }
-
-            var restResponse = UpdateProcessAndGetRestResponse(user, process, expectedStatusCodes);
-
-            return restResponse.Content;
         }
 
         /// <seealso cref="IStoryteller.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>
@@ -627,58 +577,6 @@ namespace Model.StorytellerModel.Impl
             var publishedArtifact = Artifacts.Find(artifact => artifact.Id == artifactId);
             publishedArtifact.IsSaved = true;
             publishedArtifact.Status.IsLocked = true;
-        }
-
-        /// <summary>
-        /// Update a Process but only return the RestResponse object.
-        /// </summary>
-        /// <param name="user">The user credentials for the request to update a process</param>
-        /// <param name="process">The process to update</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>The RestResponse object returned by the update process request</returns>
-        private RestResponse UpdateProcessAndGetRestResponse(IUser user, IProcess process, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
-        {
-            Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(UpdateProcess));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(process, nameof(process));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.PROCESSES_id_, process.Id);
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
-
-            var processBodyObject = (Process)process;
-
-            restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                bodyObject: processBodyObject,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-
-            // Mark artifact in artifact list as saved
-            MarkArtifactAsSaved(process.Id);
-
-            // Get restResponse using get process
-            var restResponse = restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.GET,
-                bodyObject: processBodyObject,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies);
-
-            return restResponse;
         }
         
         /// <summary>

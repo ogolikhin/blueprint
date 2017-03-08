@@ -163,10 +163,8 @@ namespace AdminStore.Controllers
             {
                 if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
                 {
-                    IEmailHelper emailHelper = new EmailHelper();
-
-                    emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
-                    emailHelper.SendEmail(user);
+                    _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
+                    _emailHelper.SendEmail(user);
 
                     await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
                     return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK));

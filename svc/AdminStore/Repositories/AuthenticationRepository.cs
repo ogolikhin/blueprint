@@ -244,7 +244,7 @@ namespace AdminStore.Repositories
             return passwordChangeCooldownInHours;
         }
 
-        private async Task<bool> IsChangePasswordCooldownInEffect(AuthenticationUser user)
+        public async Task<bool> IsChangePasswordCooldownInEffect(AuthenticationUser user)
         {
             if (user.LastPasswordChangeTimestamp.HasValue)
             {

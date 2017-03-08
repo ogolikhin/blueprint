@@ -158,10 +158,11 @@ namespace AdminStore.Controllers
             bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
 
             var user = await _userRepository.GetUserByLoginAsync(login);
+            bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
 
             try
             {
-                if (passwordResetAllowed && !passwordRequestLimitExceeded && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
+                if (passwordResetAllowed && !passwordRequestLimitExceeded && !passwordResetCooldownInEffect && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
                 {
                     _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
                     _emailHelper.SendEmail(user);

@@ -60,6 +60,8 @@ namespace Model
 
         /// <summary>
         /// Get a Process
+        /// 
+        /// (Runs: 'GET svc/components/storyteller/processes/{artifactId})
         /// </summary>
         /// <param name="artifactId">Id of the process artifact from which the process is obtained</param>
         /// <param name="user">(optional)The user credentials for the request to get a process</param>
@@ -74,7 +76,8 @@ namespace Model
 
         /// <summary>
         /// Get a List of Processes for the specified Project Id
-        /// Runs /projects/id/processes
+        /// 
+        /// (Runs: 'GET svc/components/storyteller/projects/{projectId}/processes/)
         /// </summary>
         /// <param name="projectId">The Id of the project</param>
         /// <param name="user">(optional)The user credentials for the request to get the process list</param>
@@ -84,6 +87,8 @@ namespace Model
 
         /// <summary>
         /// Update a Process
+        /// 
+        /// (Runs: 'POST svc/components/storyteller/processes/{artifactId})
         /// </summary>
         /// <param name="process">The process to update</param>
         /// <param name="user">(optional) The user credentials for the request to update a process</param>

@@ -11,6 +11,10 @@ using Model.ArtifactModel.Adaptors;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
+using Newtonsoft.Json;
+using System.Text.RegularExpressions;
+using Common;
+using Utilities.Facades;
 
 namespace ArtifactStoreTests
 {
@@ -18,6 +22,7 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class DiscussionsTests : TestBase
     {
+        private const string UPDATED_TEXT = "Updated text";
         private IUser _authorUser = null;
         private IUser _adminUser = null;
         private IProject _project = null;
@@ -181,7 +186,7 @@ namespace ArtifactStoreTests
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
-                Comment = "Updated text",
+                Comment = UPDATED_TEXT,
                 StatusId = statusId
             };
 
@@ -216,7 +221,7 @@ namespace ArtifactStoreTests
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
-                Comment = "Updated text",
+                Comment = UPDATED_TEXT,
                 StatusId = statusId
             };
 
@@ -285,7 +290,7 @@ namespace ArtifactStoreTests
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
-                Comment = "Updated text",
+                Comment = UPDATED_TEXT,
                 StatusId = statusId
             };
 
@@ -548,6 +553,69 @@ namespace ArtifactStoreTests
 
         #endregion Positive tests
 
+        #region 401 Unauthorized
+
+        [TestCase]
+        [TestRail(266928)]
+        [Description("Get discussion with no token in a header. Verify 401 Unauthorized HTTP status was returned")]
+        public void GetDiscussion_MissingSessionToken_401Unauthorized()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+
+            // Execute:
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id);
+
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateRequestFromJson(
+                Helper.ArtifactStore.Address, user: null, method: RestRequestMethod.GET, path: path, requestBody: ""),
+                "'GET {0}' should return 401 Unauthorized when request is done without token!", path);
+
+            // Verify:
+            const string expectedExceptionMessage = "Token is missing or malformed.";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of get discussions call which has no token in a header.", expectedExceptionMessage);
+        }
+
+        [TestCase]
+        [TestRail(266929)]
+        [Description("Update discussion with no token in the header. Verify 401 Unauthorized HTTP status was returned")]
+        public void UpdateDiscussion_MissingSessionToken_401Unauthorized()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
+            var comment = new RaptorComment()
+            {
+                Comment = UPDATED_TEXT,
+                StatusId = statusId
+            };
+
+            // Execute:
+            string path = I18NHelper.FormatInvariant(
+                RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
+
+            var validJson = JsonConvert.SerializeObject(comment);
+
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateRequestFromJson(
+                Helper.ArtifactStore.Address, user: null, method: RestRequestMethod.PATCH, path: path, requestBody: validJson),
+                "'PATCH {0}' should return 401 Unauthorized when request is done without token!", path);
+
+            // Verify:
+            const string expectedExceptionMessage = "Unauthorized call";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of update discussion call which has no token in a header.", expectedExceptionMessage);
+        }
+
+        #endregion 401 Unauthorized
+
         #region 403 Forbidden
 
         [TestCase]
@@ -599,6 +667,60 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
+        }
+
+        [TestCase]
+        [TestRail(0)]
+        [Description("Get discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
+        public void GetDiscussion_InsufficientPermissionsToProject_403Forbidden()
+        {
+            // Setup:
+            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            var userWithoutPermissionsToProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, customDataProject);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+
+            Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, userWithoutPermissionsToProject),
+                "'GET {0}' should return 403 Forbidden when user tries to get comment from project to which he/she does not have permissions!",
+                I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id));
+
+            // Verify:
+            // TODO: No error message for this case only 403 HTTP Code Bug:
+        }
+
+        [TestCase]
+        [TestRail(0)]
+        [Description("Update discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
+        public void UpdatetDiscussion_InsufficientPermissionsToProject_403Forbidden()
+        {
+            // Setup:
+            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
+            var userWithoutPermissionsToProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, customDataProject);
+
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
+            var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment);
+
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
+            var comment = new RaptorComment()
+            {
+                Comment = UPDATED_TEXT,
+                StatusId = statusId
+            };
+
+            // Execute:
+            var path = I18NHelper.FormatInvariant(
+                    RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
+            Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRaptorDiscussion(comment, userWithoutPermissionsToProject, raptorComment),
+                "'PATCH {0}' should return 403 Forbidden when user tries to update comment for project to which he/she does not have permissions!", path);
+
+            // Verify:
+            // TODO: No error message for this case only 403 HTTP Code Bug:
         }
 
         [TestCase]
@@ -727,6 +849,30 @@ namespace ArtifactStoreTests
 
             return threadStatus?.StatusId ?? 0;
         }
+
+        /// <summary>
+        /// Creates an object with specific json body.  Use this for testing cases where the call is expected to fail.
+        /// </summary>
+        /// <param name="address">The base address used for the REST call.</param>
+        /// <param name="requestBody">The request body (i.e. user to be created).</param>
+        /// <param name="user">The user creating another user.</param>
+        /// <param name="path">URL for call.</param>
+        /// <returns>The call response returned.</returns>
+        private static RestResponse CreateRequestFromJson(string address, IUser user, RestRequestMethod method, string path, string requestBody)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
+
+            const string contentType = "application/json";
+
+            return restApi.SendRequestBodyAndGetResponse(
+                path,
+                method,
+                requestBody,
+                contentType);
+        }
+
+//        CreateArtifactAndAddDiscussion(BaseArtifactType artifactType, comment)
 
         #endregion Private functions
     }

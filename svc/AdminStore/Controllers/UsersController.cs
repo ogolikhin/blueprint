@@ -163,7 +163,7 @@ namespace AdminStore.Controllers
                 {
                     EmailHelper emailHelper = new EmailHelper(instanceSettings.EmailSettingsDeserialized);
 
-                    emailHelper.SendEmail(user.Email);
+                    emailHelper.SendEmail(user);
 
                     await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
                     return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK));

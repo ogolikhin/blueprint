@@ -1,8 +1,5 @@
-﻿using AdminStore.Models;
-using MailBee.Mime;
-using MailBee.SmtpMail;
+﻿using MailBee.Mime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace AdminStore.Helpers
 {
@@ -18,7 +15,7 @@ namespace AdminStore.Helpers
             var fromEmail = "from@test.com";
 
             //Act
-            MailMessage message = EmailHelper.PreparePasswordResetMessage(toEmail, fromEmail);
+            MailMessage message = EmailHelper.PreparePasswordResetMessage(string.Empty, toEmail, fromEmail);
 
             //Assert
             Assert.AreEqual(toEmail, message.To[0].Email);

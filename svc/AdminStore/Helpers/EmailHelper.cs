@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using AdminStore.Models;
 using MailBee.Mime;
 using MailBee.Security;
@@ -8,6 +9,20 @@ namespace AdminStore.Helpers
 {
     public class EmailHelper
     {
+        private static readonly string MessageBody = @"
+<html>
+    <div>Hello {0}.</div>
+    <br>
+    <div>We have received a request to reset your password.</div>
+    <br>
+    <div>To confirm this password reset, visit the following address:</div>
+    <a href='javascript:void()'>&lt;link&gt;</a>
+    <br><br>
+    <div>If you did not make this request, you can ignore this email, and no changes will be made.</div>
+    <br>
+    <div>If you have any questions, please contact your administrator. </div>
+</html>
+";
         public IEmailConfigInstanceSettings Configuration { get; set; }
         public EmailHelper(IEmailConfigInstanceSettings configuration)
         {
@@ -19,26 +34,22 @@ namespace AdminStore.Helpers
             MailBee.Global.LicenseKey = "MN800-02CA3564CA2ACAAECAB17D4ADEC9-145F";
         }
 
-        public void SendEmail(string userEmail)
+        public void SendEmail(AuthenticationUser user)
         {
             var smtpServer = SmtpServer;
             var smtp = new Smtp();
             smtp.SmtpServers.Add(smtpServer);
-            smtp.Message = PreparePasswordResetMessage(userEmail, Configuration.UserName);
+            smtp.Message = PreparePasswordResetMessage(user.DisplayName, user.Email, Configuration.UserName);
             smtp.Send();
         }
 
-        internal static MailMessage PreparePasswordResetMessage(string toEmail, string fromEmail)
+        internal static MailMessage PreparePasswordResetMessage(string displayName, string toEmail, string fromEmail)
         {
             var mailMessage = new MailMessage();
             mailMessage.To.Add(toEmail);
             mailMessage.From.Email = fromEmail;
             mailMessage.Subject = "password reset";
-            mailMessage.BodyHtmlText = @"
-<html>
-    <div>We received a request to reset your Storyteller password. Please click <a href='javascript:void()'>here</a> to continue.</div>
-</html>
-";
+            mailMessage.BodyHtmlText = string.Format(CultureInfo.InvariantCulture, MessageBody, displayName);
             return mailMessage;
         }
 

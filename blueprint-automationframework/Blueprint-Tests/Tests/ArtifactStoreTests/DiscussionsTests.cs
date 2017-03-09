@@ -13,9 +13,11 @@ using Utilities;
 using Newtonsoft.Json;
 using Common;
 using Utilities.Facades;
+using Model.Common.Constants;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class DiscussionsTests : TestBase
@@ -155,9 +157,9 @@ namespace ArtifactStoreTests
             var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             artifact.Delete(_adminUser);
-            DiscussionResultSet discussions = null;
 
             // Execute:
+            DiscussionResultSet discussions = null;
             Assert.DoesNotThrow(() =>
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
@@ -167,6 +169,25 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
+        }
+
+        [TestCase]
+        [TestRail(266961)]
+        [Description("Get discussions from an artifact that does not have any discussion. Verify no discussions were returned")]
+        public void GetDiscussions_NoDiscussionsInArtifact_ValidateDiscussionsNotReturned()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+
+            // Execute:
+            DiscussionResultSet discussions = null;
+            Assert.DoesNotThrow(() =>
+            {
+                discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            }, "GetArtifactDiscussions shouldn't throw any exception, but it does.");
+
+            // Verify:
+            Assert.AreEqual(0, discussions.Discussions.Count, "Artifact should have no comments, but it has {0}", discussions.Discussions.Count);
         }
 
         [TestCase]
@@ -801,15 +822,14 @@ namespace ArtifactStoreTests
             }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
         }
 
-        [TestCase]
-        [TestRail(0)]
+        [Ignore(IgnoreReasons.UnderDevelopment)]  // Bug: https://trello.com/c/LJKgXQnW
+        [TestRail(266962)]
         [Description("Update discussion that does not exist in an artifact. Verify 404 Not Found HTTP status was returned")]
         public void UpdatetDiscussion_NonExistingDiscussion_404NotFound()
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -824,13 +844,11 @@ namespace ArtifactStoreTests
             var path = I18NHelper.FormatInvariant(
                     RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
             var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment),
-                "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist!", path);
+                "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist in artifact!", path);
 
             // Verify:
-/*            const string expectedExceptionMessage = "You do not have permissions to complete this operation";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of update discussion call which user has isufficient permissions to project.",
-                expectedExceptionMessage);*/
+            TestHelper.ValidateServiceError(ex.RestResponse, BusinessLayerErrorCodes.DoesNotExistForRevision,
+                "Does Not Exist For Revision. Invalid Discussion ID.");
         }
 
         #endregion 404 Not Found

@@ -16,6 +16,7 @@ using Utilities.Factories;
 
 namespace AdminStoreTests
 {
+    [Category(Categories.AdminStore)]
     [TestFixture]
     public class PasswordRecoveryTests : TestBase
     {
@@ -245,6 +246,7 @@ namespace AdminStoreTests
             AssertResponseBodyIsEmpty(ex.RestResponse.Content);
         }
 
+        [Category(Categories.CannotRunInParallel)]  // Since it changes a global config setting, it might interfere with other tests, especially in this class.
         [TestCase]
         [Description("Create a user and disable the 'IsPasswordRecoveryEnabled' setting in the database, then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]

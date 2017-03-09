@@ -60,16 +60,27 @@ namespace Model.Factories
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var projects = OpenApi.GetProjects(Address, user);
+            var projectsToReturn = new List<Project> { };
 
-            if (shouldRetrievePropertyTypes)
+            foreach (var project in projects)
             {
-                foreach (var project in projects)
+                var projectToAdd = new Project
                 {
-                    project.GetAllOpenApiArtifactTypes(Address, user);
+                    Name = project.Name,
+                    Description = project.Description,
+                    Id = project.Id,
+                    ArtifactStore = ArtifactStore
+                };
+
+                if (shouldRetrievePropertyTypes)
+                {
+                    projectToAdd.GetAllOpenApiArtifactTypes(Address, user);
                 }
+
+                projectsToReturn.Add(projectToAdd);
             }
 
-            return projects;
+            return projectsToReturn.ConvertAll(p => (IProject)p);
         }
 
         /// <summary>

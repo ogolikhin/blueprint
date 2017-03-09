@@ -122,5 +122,17 @@ namespace AdminStore.Helpers
             System.Convert.ToBase64String(toEncodeAsBytes);
             return returnValue;
         }
+
+        public static Guid CreateCryptographicallySecureGuid()
+        {
+            //http://stackoverflow.com/questions/37170388/create-a-cryptographically-secure-random-guid-in-net/37170593
+            using (var provider = new RNGCryptoServiceProvider())
+            {
+                var bytes = new byte[16];
+                provider.GetBytes(bytes);
+
+                return new Guid(bytes);
+            }
+        }
     }
 }

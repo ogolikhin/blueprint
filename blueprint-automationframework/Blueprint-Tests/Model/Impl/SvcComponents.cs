@@ -4,9 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using Common;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -95,6 +97,44 @@ namespace Model.Impl
             return diagramContent;
         }
 
+        /// <seealso cref="ISvcComponents.GetRapidReviewGlossaryContent(IUser, int, List{HttpStatusCode})"/>
+        public RapidReviewGlossary GetRapidReviewGlossaryContent(
+            IUser user,
+            int artifactId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY_id_, artifactId);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return returnedArtifactContent;
+        }
+
+        /// <seealso cref="ISvcComponents.GetRapidReviewUseCaseContent(IUser, int, List{HttpStatusCode})"/>
+        public RapidReviewUseCase GetRapidReviewUseCaseContent(
+            IUser user,
+            int artifactId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, artifactId);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return returnedArtifactContent;
+        }
+
         #endregion RapidReview methods
 
         #region  Storyteller methods
@@ -113,8 +153,7 @@ namespace Model.Impl
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifactInfo;
         }
@@ -151,6 +190,25 @@ namespace Model.Impl
             return response;
         }
 
+        /// <seealso cref="ISvcComponents.GetProcesses(int, IUser, List{HttpStatusCode})"/>
+        public IList<IProcess> GetProcesses(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetProcesses));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.PROCESSES, projectId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            Logger.WriteInfo("{0} Getting all Processes for project ID: {1}", nameof(SvcComponents), projectId);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response.ConvertAll(o => (IProcess)o);
+        }
+
         /// <seealso cref="ISvcComponents.UpdateProcess(IProcess, IUser, List{HttpStatusCode})"/>
         public ProcessUpdateResult UpdateProcess(
             IProcess process,
@@ -172,8 +230,7 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.PATCH,
                 jsonObject: processBodyObject,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         #endregion Storyteller methods

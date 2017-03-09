@@ -153,9 +153,8 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to get the process list</param>
         /// <param name="projectId">The Id of the project</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The list of process objects</returns>
-        IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        IList<IProcess> GetProcesses(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Get the User Story Artifact Type for the Project
@@ -185,9 +184,8 @@ namespace Model.StorytellerModel
         /// <param name="process">The process to update</param>
         /// <param name="lockArtifactBeforeUpdate">(optional) Flag indicating whether or not the process artifact should be locked before update (Default: true)</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The updated process</returns>
-        IProcess UpdateProcess(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        IProcess UpdateProcess(IUser user, IProcess process, bool lockArtifactBeforeUpdate = true, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Update a Nova Process (Storyteller 2.1+)
@@ -198,7 +196,6 @@ namespace Model.StorytellerModel
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>The updated Nova process</returns>
         NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null);
-
 
         /// <summary>
         /// Publish a Process Artifact (Used when publishing a single process artifact)

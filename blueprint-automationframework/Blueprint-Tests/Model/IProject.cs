@@ -31,6 +31,11 @@ namespace Model
         string Location { get; set; }
 
         /// <summary>
+        /// Instance of ArtifactStore associated with the project
+        /// </summary>
+        IArtifactStore ArtifactStore { get; set; }
+
+        /// <summary>
         /// Artifact type list for the project
         /// </summary>
         List<OpenApiArtifactType> ArtifactTypes { get; }

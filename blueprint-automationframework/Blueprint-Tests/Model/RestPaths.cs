@@ -149,11 +149,6 @@ namespace Model
                     public const string TRANSACTIONS                = "svc/adminstore/licenses/transactions";
                 }
 
-                public static class PasswordReset
-                {
-                    public const string REQUEST                     = "svc/adminstore/passwordreset/request";
-                }
-
                 public static class Sessions
                 {
                     public const string ALIVE                       = "svc/adminstore/sessions/alive";
@@ -169,6 +164,11 @@ namespace Model
                 {
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
+
+                    public static class PasswordRecovery
+                    {
+                        public const string REQUEST                 = "svc/adminstore/users/passwordrecovery/request";
+                    }
                 }
 
                 public static class Users_id_

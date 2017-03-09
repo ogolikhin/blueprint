@@ -128,7 +128,7 @@ namespace AdminStore.Repositories
             prm.Add("@login", login);
             var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
 
-            return result.FirstOrDefault() > passwordRequestLimit;
+            return result.FirstOrDefault() >= passwordRequestLimit;
         }
 
         internal class HashedPassword

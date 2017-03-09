@@ -272,7 +272,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
             var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
@@ -305,7 +305,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
             var collectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
@@ -443,7 +443,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var newBaselineFolder = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser,
@@ -541,7 +541,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var artifact = Helper.CreateWrapAndSaveNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
 
@@ -684,7 +684,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var parentArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -710,7 +710,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var childArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -736,7 +736,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var collectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var collectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
 
             var fakeBaseType = BaseArtifactType.PrimitiveFolder;
             var collection = Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, collectionFolder.Id, baseType: fakeBaseType);
@@ -763,7 +763,7 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -794,7 +794,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             artifact.Lock(_authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_authorUser);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
@@ -820,7 +820,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, BaseArtifactType.Actor);
             artifact.Lock(_authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_authorUser);
             string baselineArtifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             var baselineArtifact = ArtifactStore.CreateArtifact(Helper.ArtifactStore.Address, _authorUser, artifactType,
@@ -847,8 +847,8 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -877,8 +877,8 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
@@ -906,8 +906,8 @@ namespace ArtifactStoreTests
             // Setup:
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _authorUser);
 
-            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(Helper.ArtifactStore.Address, _authorUser);
-            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(Helper.ArtifactStore.Address, _authorUser);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_authorUser);
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_authorUser);
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>

@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MailBee.NET.4, Version=8.0.4.428, Culture=neutral, PublicKeyToken=cd85b70fb26f9fc1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\MailBee\MailBee.NET.4.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
       <Private>False</Private>
@@ -88,6 +92,7 @@
     <Compile Include="Controllers\ConfigControllerTests.cs" />
     <Compile Include="Controllers\InstanceControllerTests.cs" />
     <Compile Include="Controllers\UsersControllerTests.cs" />
+    <Compile Include="Helpers\EmailHelperTests.cs" />
     <Compile Include="Helpers\HashingUtilitiesTests.cs" />
     <Compile Include="Helpers\SystemEncryptionsTests.cs" />
     <Compile Include="Helpers\LoginInfoTests.cs" />

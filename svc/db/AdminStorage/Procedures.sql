@@ -601,13 +601,14 @@ GO
 
 CREATE PROCEDURE [dbo].SetUserPasswordRecoveryToken 
 (
-    @login as nvarchar(max)
+    @login as nvarchar(max),
+    @recoverytoken as uniqueidentifier
 )
 AS
 BEGIN
     INSERT INTO [dbo].[PasswordRecoveryTokens]
     ([Login],[CreationTime],[RecoveryToken])
-    VALUES (@login, CURRENT_TIMESTAMP, NEWID())
+    VALUES (@login, CURRENT_TIMESTAMP, @recoverytoken)
 END
 GO 
 

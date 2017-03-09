@@ -38,5 +38,11 @@ namespace AdminStore.Repositories
         /// <param name="newPassword"></param>
         /// <exception cref="T:System.Security.Authentication.AuthenticationException">Thrown when the system fails to authentificate an user.</exception>
         Task ResetPassword(AuthenticationUser user, string oldPassword, string newPassword);
+
+        /// <summary>
+        /// Verifies whether the user cannot change their password due to change cooldown
+        /// </summary>
+        /// <param name="user"></param>
+        Task<bool> IsChangePasswordCooldownInEffect(AuthenticationUser user);
     }
 }

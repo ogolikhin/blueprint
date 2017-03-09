@@ -273,7 +273,7 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionFolder(user);
                 parentId = collectionFolder.Id;
             }
 
@@ -309,7 +309,7 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionFolder(user);
                 parentId = collectionFolder.Id;
             }
 
@@ -327,7 +327,7 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+            var collectionFolder = project.GetDefaultCollectionFolder(user);
 
             return CreateWrapAndSaveNovaArtifact(project, user, (ItemTypePredefined)artifactType, collectionFolder.Id, baseType: BaseArtifactType.PrimitiveFolder);
         }
@@ -489,7 +489,7 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionFolder(user);
                 parentId = collectionFolder.Id;
             }
 
@@ -515,7 +515,7 @@ namespace Helper
 
             if (parentId == null)
             {
-                var collectionFolder = project.GetDefaultCollectionFolder(ArtifactStore.Address, user);
+                var collectionFolder = project.GetDefaultCollectionFolder(user);
                 parentId = collectionFolder.Id;
             }
 

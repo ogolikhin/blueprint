@@ -112,10 +112,11 @@ namespace AdminStore.Repositories
             return result.FirstOrDefault() > 0;
         }
 
-        public async Task UpdatePasswordRecoveryTokensAsync(string login)
+        public async Task UpdatePasswordRecoveryTokensAsync(string login, Guid recoveryToken)
         {
             var prm = new DynamicParameters();
             prm.Add("@login", login);
+            prm.Add("@recoverytoken", recoveryToken);
             await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
 
@@ -127,7 +128,7 @@ namespace AdminStore.Repositories
             prm.Add("@login", login);
             var result = (await _adminStorageConnectionWrapper.QueryAsync<int>("GetUserPasswordRecoveryRequestCount", prm, commandType: CommandType.StoredProcedure));
 
-            return result.FirstOrDefault() > passwordRequestLimit;
+            return result.FirstOrDefault() >= passwordRequestLimit;
         }
 
         internal class HashedPassword

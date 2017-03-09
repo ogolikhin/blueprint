@@ -268,7 +268,6 @@ namespace ArtifactStoreTests
         public void DeleteReply_DeleteByReplyAuthor_SuccessfullyDeleted()
         {
             // Setup:
-            const string ORIGINAL_COMMENT = "Original comment";
             const string REPLY = "Reply";
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);

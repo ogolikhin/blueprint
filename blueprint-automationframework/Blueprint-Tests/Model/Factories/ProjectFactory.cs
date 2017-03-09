@@ -61,9 +61,11 @@ namespace Model.Factories
 
             var projects = OpenApi.GetProjects(Address, user);
 
-            if (shouldRetrievePropertyTypes)
+            foreach (var project in projects)
             {
-                foreach (var project in projects)
+                project.ArtifactStore = ArtifactStore;
+
+                if (shouldRetrievePropertyTypes)
                 {
                     project.GetAllOpenApiArtifactTypes(Address, user);
                 }

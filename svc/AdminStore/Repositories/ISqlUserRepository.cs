@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdminStore.Models;
+using System;
 
 namespace AdminStore.Repositories
 {
@@ -24,7 +25,7 @@ namespace AdminStore.Repositories
 
         Task<bool> CanUserResetPasswordAsync(string login);
 
-        Task UpdatePasswordRecoveryTokensAsync(string login);
+        Task UpdatePasswordRecoveryTokensAsync(string login, Guid recoveryToken);
 
         Task<bool> HasUserExceededPasswordRequestLimitAsync(string login);
     }

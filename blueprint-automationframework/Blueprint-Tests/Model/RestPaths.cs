@@ -149,11 +149,6 @@ namespace Model
                     public const string TRANSACTIONS                = "svc/adminstore/licenses/transactions";
                 }
 
-                public static class PasswordReset
-                {
-                    public const string REQUEST                     = "svc/adminstore/passwordreset/request";
-                }
-
                 public static class Sessions
                 {
                     public const string ALIVE                       = "svc/adminstore/sessions/alive";
@@ -169,6 +164,11 @@ namespace Model
                 {
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
+
+                    public static class PasswordRecovery
+                    {
+                        public const string REQUEST                 = "svc/adminstore/users/passwordrecovery/request";
+                    }
                 }
 
                 public static class Users_id_
@@ -184,9 +184,7 @@ namespace Model
                 public const string ARTIFACTS                       = "svc/bpartifactstore/artifacts";      // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string ARTIFACTS_id_                   = "svc/bpartifactstore/artifacts/{0}";  // XXX: For some reason they decided to put this call in blueprint-current!
                 public const string BASELINE_id_                    = "svc/bpartifactstore/baselines/{0}"; // Baseline
-                public const string BASELINE_id_ADD                 = "svc/bpartifactstore/baselines/{0}/content"; //  Add artifact to Baseline
                 public const string COLLECTION_id_                  = "svc/bpartifactstore/collections/{0}"; // Collection
-                public const string COLLECTION_id_ADD               = "svc/bpartifactstore/collections/{0}/content"; // Add artifact to Collection
                 public const string DIAGRAM_id_                     = "svc/bpartifactstore/diagram/{0}";    // NovaDiagramController.GetDiagram
                 public const string GLOSSARY_id_                    = "svc/bpartifactstore/glossary/{0}";   // NovaGlossaryController.GetGlossary
                 public const string IMAGES                          = "svc/bpartifactstore/images";
@@ -223,6 +221,16 @@ namespace Model
                     {
                         public const string REPLIES                 = "svc/artifactstore/artifacts/{0}/discussions/{1}/replies";
                     }
+                }
+
+                public static class Baseline_id_
+                {
+                    public const string CONTENT                     = "svc/bpartifactstore/baselines/{0}/content"; //  Add artifact to Baseline
+                }
+
+                public static class Collection_id_
+                {
+                    public const string CONTENT                     = "svc/bpartifactstore/collections/{0}/content"; //  Add artifact to Collection
                 }
 
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.

@@ -285,6 +285,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_To_Baseline', 'en-US', N'Click Here to Add Artifacts to This Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Baseline', 'en-US', N'Seal this Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Available_In_Analytics', 'en-US', N'Baseline Data Available In Analytics')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Save_Warning', 'en-US', N'Baseline is going to be saved. Do you want to continue?')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_TimestampChangeOnSave_WarningMessage', 'en-US', N'Are you sure you want to apply this Timestamp to your Baseline? If you do, you will permanently remove the following artifacts, since they did not exist on the date you have selected:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Content_Header', 'en-US', N'Collection Contents')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Edit_Rapid_Review', 'en-US', N'Edit Rapid Review')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_No_Artifacts_In_Collection', 'en-US', N'No artifacts available in this collection')

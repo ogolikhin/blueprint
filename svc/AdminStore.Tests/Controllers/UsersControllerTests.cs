@@ -14,6 +14,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Exceptions;
+using System.Collections.Generic;
 
 namespace AdminStore.Controllers
 {
@@ -24,6 +25,8 @@ namespace AdminStore.Controllers
         private Mock<IServiceLogRepository> _logMock;
         private Mock<IAuthenticationRepository> _authRepoMock;
         private Mock<ISqlSettingsRepository> _settingsRepoMock;
+        private Mock<IEmailHelper> _emailHelperMock;
+        private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private UsersController _controller;
 
         [TestInitialize]
@@ -34,7 +37,9 @@ namespace AdminStore.Controllers
             _logMock = new Mock<IServiceLogRepository>();
             _authRepoMock = new Mock<IAuthenticationRepository>();
             _settingsRepoMock = new Mock<ISqlSettingsRepository>();
-            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, _logMock.Object)
+            _emailHelperMock = new Mock<IEmailHelper>();
+            _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
+            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -255,25 +260,175 @@ namespace AdminStore.Controllers
         #region PasswordRecovery
 
         [TestMethod]
-        [Ignore]
-        public async Task PostRequestPasswordReset_RepositoryReturnsSuccessfully()
+        public async Task PostRequestPasswordReset_RepositoriesReturnsSuccessfully()
         {
             // Arrange
-            Exception exception = null;
+            SetupMocksForRequestPasswordReset();
 
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.OK, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostRequestPasswordReset_UserCannotResetPassword()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            _usersRepoMock
+                .Setup(repo => repo.CanUserResetPasswordAsync(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostRequestPasswordReset_UserHasExceededRequestLimit()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            _usersRepoMock
+                .Setup(repo => repo.HasUserExceededPasswordRequestLimitAsync(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostRequestPasswordReset_UserHasHitPasswordChangeLockout()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            _authRepoMock
+                .Setup(repo => repo.IsChangePasswordCooldownInEffect(It.IsAny<AuthenticationUser>()))
+                .ReturnsAsync(true);
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostRequestPasswordReset_InstanceEmailIsNotSetUp()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            var instanceSettings = new InstanceSettings() { EmailSettingsDeserialized = null };
+
+            _settingsRepoMock
+                .Setup(repo => repo.GetInstanceSettingsAsync())
+                .ReturnsAsync(instanceSettings);
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostRequestPasswordReset_PasswordRecoveryDisabled()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting>() { new ApplicationSetting() { Key = "IsPasswordRecoveryEnabled", Value = "false" } };
+            _applicationSettingsRepository
+                .Setup(repo => repo.GetSettings())
+                .ReturnsAsync(applicationSettings);
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostRequestPasswordReset_PasswordRecoveryEntryMissingFromDatabase()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting>() { new ApplicationSetting() {Key = "unrelatedKey", Value = "value" } };
+            _applicationSettingsRepository
+                .Setup(repo => repo.GetSettings())
+                .ReturnsAsync(applicationSettings);
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
+            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task PostRequestPasswordReset_CreatingRecoveryTokenFails()
+        {
+            // Arrange
+            SetupMocksForRequestPasswordReset();
+
+            _usersRepoMock
+                .Setup(repo => repo.UpdatePasswordRecoveryTokensAsync(It.IsAny<string>(), It.IsAny<Guid>()))
+                .Throws(new Exception("any"));
+
+            // Act
+            IHttpActionResult result = null;
+            result = await _controller.PostRequestPasswordResetAsync("login");
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
+        }
+
+        private void SetupMocksForRequestPasswordReset()
+        {
             var emailConfigSettings = new Mock<IEmailConfigInstanceSettings>();
             emailConfigSettings
                 .SetupGet(s => s.HostName)
                 .Returns("http://myhostname");
 
-            var instanceSettings = new Mock<InstanceSettings>();
-            instanceSettings
-                .SetupGet(s => s.EmailSettingsDeserialized)
-                .Returns(emailConfigSettings.Object);
+            var instanceSettings = new InstanceSettings() { EmailSettingsDeserialized = emailConfigSettings.Object };
 
             _settingsRepoMock
                 .Setup(repo => repo.GetInstanceSettingsAsync())
-                .ReturnsAsync(instanceSettings.Object);
+                .ReturnsAsync(instanceSettings);
 
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
@@ -287,18 +442,24 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.HasUserExceededPasswordRequestLimitAsync(It.IsAny<string>()))
                 .ReturnsAsync(false);
 
-            // Act
-            try
-            {
-                var result = await _controller.PostRequestPasswordResetAsync("login");
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
+            _usersRepoMock
+                .Setup(repo => repo.UpdatePasswordRecoveryTokensAsync(It.IsAny<string>(), It.IsAny<Guid>()))
+                .Returns(Task.FromResult<object>(null));
 
-            // Assert
-            Assert.IsNull(exception);
+            _emailHelperMock
+                .Setup(helper => helper.Initialize(It.IsAny<IEmailConfigInstanceSettings>()));
+
+            _emailHelperMock
+                .Setup(helper => helper.SendEmail(It.IsAny<AuthenticationUser>()));
+
+            _authRepoMock
+                .Setup(repo => repo.IsChangePasswordCooldownInEffect(It.IsAny<AuthenticationUser>()))
+                .ReturnsAsync(false);
+
+            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting>(){ new ApplicationSetting() { Key = "IsPasswordRecoveryEnabled", Value = "true" } };
+            _applicationSettingsRepository
+                .Setup(repo => repo.GetSettings())
+                .ReturnsAsync(applicationSettings);
         }
 
         #endregion PasswordRecovery

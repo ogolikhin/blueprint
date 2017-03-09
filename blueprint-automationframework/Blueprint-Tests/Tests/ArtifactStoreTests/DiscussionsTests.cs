@@ -250,7 +250,6 @@ namespace ArtifactStoreTests
             const string ORIGINAL_COMMENT = "Original comment";
             const string REPLY = "Reply";
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
@@ -259,7 +258,6 @@ namespace ArtifactStoreTests
 
             for (int i = 0; i < 2; i++)
             {
-                //                replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
                 replyText = REPLY + " " + (i + 1);
                 raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, replyText, _authorUser);
             }
@@ -283,10 +281,7 @@ namespace ArtifactStoreTests
         public void UpdateOwnComment_NonAdminUser_SuccessfullyUpdated()
         {
             // Setup:
-            const string ORIGINAL_COMMENT = "Original comment";
-
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
@@ -320,10 +315,7 @@ namespace ArtifactStoreTests
         public void UpdateComment_CloseAndReopenDiscussion_SuccessfullyUpdated()
         {
             // Setup:
-            const string ORIGINAL_COMMENT = "Original comment";
-
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment, 
                 "Original comment and comment returned after discussion created different!");
@@ -371,13 +363,10 @@ namespace ArtifactStoreTests
         public void UpdateComment_CustomDiscussionStatuses_SuccessfullyUpdated(string customStatus, bool isClosed)
         {
             // Setup:
-            const string ORIGINAL_COMMENT = "Original comment";
-
             var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var artifact = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.UseCase);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, author);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
@@ -405,26 +394,21 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: isClosed);
         }
 
-        [TestCase("Non-existing status")]
+        [TestCase(int.MaxValue)]
         [TestRail(266927)]
         [Description("Update discussion created by user to custom discussion status. Check that comment was updated and discussion status applied.")]
-        public void UpdateComment_NonExistingStatus_SuccessfullyUpdatedOnlyComment(string nonExistingStatus)
+        public void UpdateComment_NonExistingStatus_SuccessfullyUpdatedOnlyComment(int nonExistingStatusId)
         {
             // Setup:
-            const string ORIGINAL_COMMENT = "Original comment";
-
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
-            var statusId = GetStatusId(discussions, nonExistingStatus);
             var comment = new RaptorComment()
             {
-                Comment = nonExistingStatus,
-                StatusId = statusId
+                Comment = UPDATED_TEXT,
+                StatusId = nonExistingStatusId
             };
 
             // Execute:
@@ -435,7 +419,7 @@ namespace ArtifactStoreTests
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
@@ -448,12 +432,10 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-//            string commentText = null;
             IRaptorDiscussion raptorComment = null;
 
             for (int i = 0; i < 2; i++)
             {
-//                commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
                 raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
             }
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
@@ -477,12 +459,10 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-//            string commentText = null;
             IRaptorDiscussion raptorComment = null;
 
             for (int i = 0; i < 2; i++)
             {
-//                commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
                 raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
             }
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
@@ -508,18 +488,15 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
-//            string replyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, REPLY, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(REPLY), raptorReply.Comment,
                 "Original reply and reply returned after reply created different!");
 
-            //            string newReplyText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             string newReplyText = "New " + REPLY;
-                        IReplyAdapter updatedReply = null;
+            IReplyAdapter updatedReply = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -544,8 +521,6 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2); //artifact version is 2
-
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
             IDiscussionAdaptor postedRaptorComment = null;
             DiscussionResultSet discussions = null;
@@ -576,7 +551,6 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
 
@@ -600,7 +574,6 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
 
@@ -684,7 +657,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(0)]
+        [TestRail(266958)]
         [Description("Get discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
         public void GetDiscussion_InsufficientPermissionsToProject_403Forbidden()
         {
@@ -693,7 +666,6 @@ namespace ArtifactStoreTests
             var userWithoutPermissionsToProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, customDataProject);
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-//            string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
 
@@ -702,11 +674,11 @@ namespace ArtifactStoreTests
                 I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id));
 
             // Verify:
-            // TODO: No error message for this case only 403 HTTP Code Bug:
+            // TODO: No internal error & message for this case only 403 HTTP Code Bug: https://trello.com/c/XQwBZ2zk
         }
 
         [TestCase]
-        [TestRail(0)]
+        [TestRail(266959)]
         [Description("Update discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
         public void UpdatetDiscussion_InsufficientPermissionsToProject_403Forbidden()
         {
@@ -829,6 +801,38 @@ namespace ArtifactStoreTests
             }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
         }
 
+        [TestCase]
+        [TestRail(0)]
+        [Description("Update discussion that does not exist in an artifact. Verify 404 Not Found HTTP status was returned")]
+        public void UpdatetDiscussion_NonExistingDiscussion_404NotFound()
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
+            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
+
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
+            var comment = new RaptorComment()
+            {
+                Comment = UPDATED_TEXT,
+                StatusId = statusId
+            };
+
+            // Execute:
+            raptorComment.DiscussionId = int.MaxValue;
+            var path = I18NHelper.FormatInvariant(
+                    RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
+            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment),
+                "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist!", path);
+
+            // Verify:
+/*            const string expectedExceptionMessage = "You do not have permissions to complete this operation";
+            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
+                "{0} was not found in returned message of update discussion call which user has isufficient permissions to project.",
+                expectedExceptionMessage);*/
+        }
+
         #endregion 404 Not Found
 
         #region Private functions
@@ -864,7 +868,9 @@ namespace ArtifactStoreTests
 
             var threadStatus = result.ThreadStatuses.Find(a => a.Name == statusName);
 
-            return threadStatus?.StatusId ?? 0;
+            Assert.IsNotNull(threadStatus, "Discussion status is not found among project statuses!");
+
+            return threadStatus.StatusId;
         }
 
         /// <summary>
@@ -888,8 +894,6 @@ namespace ArtifactStoreTests
                 requestBody,
                 contentType);
         }
-
-//        CreateArtifactAndAddDiscussion(BaseArtifactType artifactType, comment)
 
         #endregion Private functions
     }

@@ -32,6 +32,11 @@ namespace Model
         string Location { get; set; }
 
         /// <summary>
+        /// Instance of ArtifactStore associated with the project
+        /// </summary>
+        IArtifactStore ArtifactStore { get; set; }
+
+        /// <summary>
         /// Artifact type list for the project
         /// </summary>
         List<OpenApiArtifactType> ArtifactTypes { get; }
@@ -71,7 +76,7 @@ namespace Model
         /// <param name="address">The base Uri address of the ArtifactStore server.</param>
         /// <param name="user">The user to authenticate to the server with.</param>
         /// <returns>The default Baseline and Review for this project.</returns>
-        INovaArtifactBase GetDefaultBaselineFolder(string artifactStoreAddress, IUser user);
+        INovaArtifactBase GetDefaultBaselineFolder(IUser user);
 
         /// <summary>
         /// Gets the default Collection folder for this project.
@@ -79,7 +84,7 @@ namespace Model
         /// <param name="address">The base Uri address of the ArtifactStore server.</param>
         /// <param name="user">The user to authenticate to the server with.</param>
         /// <returns>The default Collection folder for this project.</returns>
-        INovaArtifactBase GetDefaultCollectionFolder(string artifactStoreAddress, IUser user);
+        INovaArtifactBase GetDefaultCollectionFolder(IUser user);
 
         /// <summary>
         /// Converts the specified Predefined (Base) Type into the specific Item Type ID for this project.

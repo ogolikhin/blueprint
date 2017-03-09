@@ -113,8 +113,7 @@ namespace Model.Impl
             var returnedArtifactInfo = restApi.SendRequestAndDeserializeObject<ArtifactInfo>(
                 path,
                 RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes);
 
             return returnedArtifactInfo;
         }
@@ -151,6 +150,25 @@ namespace Model.Impl
             return response;
         }
 
+        /// <seealso cref="ISvcComponents.GetProcesses(int, IUser, List{HttpStatusCode})"/>
+        public IList<IProcess> GetProcesses(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetProcesses));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.PROCESSES, projectId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            Logger.WriteInfo("{0} Getting all Processes for project ID: {1}", nameof(SvcComponents), projectId);
+
+            var response = restApi.SendRequestAndDeserializeObject<List<Process>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response.ConvertAll(o => (IProcess)o);
+        }
+
         /// <seealso cref="ISvcComponents.UpdateProcess(IProcess, IUser, List{HttpStatusCode})"/>
         public ProcessUpdateResult UpdateProcess(
             IProcess process,
@@ -172,8 +190,7 @@ namespace Model.Impl
                 path,
                 RestRequestMethod.PATCH,
                 jsonObject: processBodyObject,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         #endregion Storyteller methods

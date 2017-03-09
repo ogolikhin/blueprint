@@ -681,7 +681,7 @@ namespace Model.ArtifactModel.Impl
                     }
 
                     Logger.WriteDebug("*** Publishing all deleted artifacts that were created by user: '{0}'...", user.Username);
-                    artifactStore.PublishArtifacts(artifacts, adminUser, all: true);
+                    artifactStore.PublishArtifacts(artifacts, adminUser, publishAll: true);
                 }
             }
             finally

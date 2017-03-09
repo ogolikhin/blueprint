@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -143,7 +144,7 @@ namespace AdminStore.Controllers
         /// PostRequestPasswordReset
         /// </summary>
         /// <remarks>
-        /// Initiates a password reset
+        /// Initiates a request for a password reset
         /// </remarks>
         /// <response code="200">OK. See body for result.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -169,6 +170,61 @@ namespace AdminStore.Controllers
 
                     await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
                     return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK));
+                }
+                else {
+                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
+                }
+            }
+            catch (Exception ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
+                return InternalServerError();
+            }
+        }
+
+        /// <summary>
+        /// PostPasswordReset
+        /// </summary>
+        /// <remarks>
+        /// Initiates a password reset
+        /// </remarks>
+        /// <response code="200">OK. See body for result.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("passwordrecovery/reset"), NoSessionRequired]
+        [ResponseType(typeof(int))]
+        public async Task<IHttpActionResult> PostPasswordResetAsync([FromBody]ResetPasswordContent content)
+        {
+            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+
+            bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(content.Login);
+            bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(content.Login);
+
+            var user = await _userRepository.GetUserByLoginAsync(content.Login);
+            bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
+
+            var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+
+            try
+            {
+                if (passwordResetAllowed && !passwordRequestLimitExceeded && !passwordResetCooldownInEffect && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
+                {
+                    var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Login)).ToList();
+                    if (!tokens.Any())
+                    {
+                        //user did not request password reset
+                    }
+                    if (tokens.First().RecoveryToken != content.Token)
+                    {
+                        //provided token doesn't match last requested
+                    }
+                    if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
+                    {
+                        //token expired
+                    }
+                    await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
+
+                    return Ok();
                 }
                 else {
                     return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));

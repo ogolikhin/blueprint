@@ -20,3 +20,5 @@
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetLicenseUsage.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetUserPasswordRecoveryRequestCount.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\SetUserPasswordRecoveryToken.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Procedures\GetUserPasswordRecoveryTokens.sql" ) ) #>
+

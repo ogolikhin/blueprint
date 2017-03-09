@@ -27,5 +27,7 @@ namespace AdminStore.Repositories
         Task UpdatePasswordRecoveryTokensAsync(string login);
 
         Task<bool> HasUserExceededPasswordRequestLimitAsync(string login);
+
+        Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(string login);
     }
 }

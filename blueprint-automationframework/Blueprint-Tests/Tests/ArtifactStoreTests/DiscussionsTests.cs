@@ -391,24 +391,24 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: isClosed);
         }
 
-        [TestCase("Non-existing status")]
+        [TestCase(int.MaxValue)]
         [TestRail(266927)]
         [Description("Update discussion created by user to custom discussion status. Check that comment was updated and discussion status applied.")]
-        public void UpdateComment_NonExistingStatus_SuccessfullyUpdatedOnlyComment(string nonExistingStatus)
+        public void UpdateComment_NonExistingStatus_SuccessfullyUpdatedOnlyComment(int nonExistingStatusId)
         {
             // Setup:
+            const string NON_EXISTING_STATUS = "Non-existing status";
+
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
             var raptorComment = artifact.PostRaptorDiscussion(commentText, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(commentText), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
-            var statusId = GetStatusId(discussions, nonExistingStatus);
             var comment = new RaptorComment()
             {
-                Comment = nonExistingStatus,
-                StatusId = statusId
+                Comment = NON_EXISTING_STATUS,
+                StatusId = nonExistingStatusId
             };
 
             // Execute:
@@ -419,7 +419,7 @@ namespace ArtifactStoreTests
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
@@ -725,7 +725,9 @@ namespace ArtifactStoreTests
 
             var threadStatus = result.ThreadStatuses.Find(a => a.Name == statusName);
 
-            return threadStatus?.StatusId ?? 0;
+            Assert.IsNotNull(threadStatus, "Discussion status is not found among project statuses!");
+
+            return threadStatus.StatusId;
         }
 
         #endregion Private functions

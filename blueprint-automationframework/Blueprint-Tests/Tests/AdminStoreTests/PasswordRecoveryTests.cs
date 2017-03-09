@@ -60,13 +60,14 @@ namespace AdminStoreTests
 
             // Verify:
             ValidateRecoveryToken(user.Username);
-            AssertResponseBodyIsEmpty(response.Content);
+            TestHelper.AssertResponseBodyIsEmpty(response);
         }
 
         #endregion Positive tests
 
         #region Negative tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/ifyXsRc6  Gets a 500 error.
         [TestCase]
         [Description("Create and delete a user and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
@@ -87,7 +88,7 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a deleted user!");
-            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
         [TestCase]
@@ -111,7 +112,7 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a disabled user!");
-            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
         [TestCase]
@@ -135,9 +136,10 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a user with no E-mail address!");
-            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/ifyXsRc6  Gets a 500 error.
         [TestCase]
         [Description("Request a password reset for that username that doesn't exist.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
@@ -157,10 +159,9 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(nonExistingUsername);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a non-existing user!");
-            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/sn2RLjpR  You can reset 4 times before error.
         [TestCase]
         [Description("Create a user and then request a password reset for that user several times in a row up to the maximum reset request limit.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
@@ -192,7 +193,7 @@ namespace AdminStoreTests
             }, "'POST {0}' should return 409 Conflict when passed a username for a user that exceeded the maximum password reset request attempts.", REST_PATH);
 
             // Verify:
-            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
 
             // The tokens in the list should be unique.
             recoveryToken = recoveryTokens[0];
@@ -243,7 +244,7 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a user who changed their password within the past 24-hours!");
-            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
         [Category(Categories.CannotRunInParallel)]  // Since it changes a global config setting, it might interfere with other tests, especially in this class.
@@ -273,7 +274,7 @@ namespace AdminStoreTests
                 var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
                 Assert.IsNull(recoveryToken, "No password recovery token should be created for a user who changed their password within the past 24-hours!");
-                AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+                TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
             }
             finally
             {
@@ -321,15 +322,6 @@ namespace AdminStoreTests
                 firstTokenBytes = firstTokenBytes.Skip(4).ToArray();
                 secondTokenBytes = secondTokenBytes.Skip(4).ToArray();
             }
-        }
-
-        /// <summary>
-        /// Asserts that the response body is empty.
-        /// </summary>
-        /// <param name="bodyContent">The body content.</param>
-        private static void AssertResponseBodyIsEmpty(string bodyContent)
-        {
-            Assert.IsEmpty(bodyContent, "The body should be empty, but it contains: '{0}'", bodyContent);
         }
 
         /// <summary>

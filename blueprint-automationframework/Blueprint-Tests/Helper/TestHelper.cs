@@ -1303,6 +1303,17 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that the REST response body is empty.
+        /// </summary>
+        /// <param name="response">The REST response.</param>
+        public static void AssertResponseBodyIsEmpty(RestResponse response)
+        {
+            ThrowIf.ArgumentNull(response, nameof(response));
+
+            Assert.IsEmpty(response.Content, "The REST response body should be empty, but it contains: '{0}'", response.Content);
+        }
+
+        /// <summary>
         /// Asserts that the two dates are equal.  Before comparing, this function will convert the dates to UTC time.
         /// </summary>
         /// <param name="firstDate">The first date to compare.</param>

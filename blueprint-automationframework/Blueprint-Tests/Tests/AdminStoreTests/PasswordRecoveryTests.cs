@@ -11,6 +11,7 @@ using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
+using Utilities.Facades;
 using Utilities.Factories;
 
 namespace AdminStoreTests
@@ -48,15 +49,17 @@ namespace AdminStoreTests
         {
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(role, _project);
+            RestResponse response = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Helper.AdminStore.RequestPasswordRecovery(user.Username);
+                response = Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 200 OK when passed a valid username.", REST_PATH);
 
             // Verify:
             ValidateRecoveryToken(user.Username);
+            AssertResponseBodyIsEmpty(response.Content);
         }
 
         #endregion Positive tests
@@ -74,7 +77,7 @@ namespace AdminStoreTests
             user.DeleteUser();
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() =>
+            var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a deleted user.", REST_PATH);
@@ -83,6 +86,7 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a deleted user!");
+            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
         }
 
         [TestCase]
@@ -97,7 +101,7 @@ namespace AdminStoreTests
             user.CreateUser();
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() =>
+            var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a disabled user.", REST_PATH);
@@ -106,6 +110,7 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a disabled user!");
+            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
         }
 
         [TestCase]
@@ -120,7 +125,7 @@ namespace AdminStoreTests
             user.CreateUser();
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() =>
+            var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a user with no E-mail address.", REST_PATH);
@@ -129,6 +134,7 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a user with no E-mail address!");
+            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
         }
 
         [TestCase]
@@ -141,7 +147,7 @@ namespace AdminStoreTests
             string nonExistingUsername = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() =>
+            var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.RequestPasswordRecovery(nonExistingUsername);
             }, "'POST {0}' should return 409 Conflict when passed a non-existing username.", REST_PATH);
@@ -150,6 +156,7 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(nonExistingUsername);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a non-existing user!");
+            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
         }
 
         [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/sn2RLjpR  You can reset 4 times before error.
@@ -178,12 +185,15 @@ namespace AdminStoreTests
             }
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() =>
+            var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a user that exceeded the maximum password reset request attempts.", REST_PATH);
 
-            // Verify:  The tokens in the list should be unique.
+            // Verify:
+            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+
+            // The tokens in the list should be unique.
             recoveryToken = recoveryTokens[0];
 
             for (int i = 1; i < recoveryTokens.Count; ++i)
@@ -223,7 +233,7 @@ namespace AdminStoreTests
             user.Password = newPassword;
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() =>
+            var ex = Assert.Throws<Http409ConflictException>(() =>
             {
                 Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a user that changed their password within the past 24-hours.", REST_PATH);
@@ -232,6 +242,42 @@ namespace AdminStoreTests
             var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
 
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a user who changed their password within the past 24-hours!");
+            AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+        }
+
+        [TestCase]
+        [Description("Create a user and disable the 'IsPasswordRecoveryEnabled' setting in the database, then request a password reset for that user.  " +
+                     "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
+        [TestRail(266954)]
+        public void RequestPasswordRecovery_ValidUsername_PasswordRecoveryIsDisabled_409Conflict()
+        {
+            // Setup:
+            const string IsPasswordRecoveryEnabled = "IsPasswordRecoveryEnabled";
+            var user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+
+            try
+            {
+                // Disable IsPasswordRecoveryEnabled in the database.
+                TestHelper.UpdateApplicationSettings(IsPasswordRecoveryEnabled, "false");
+
+                // Execute:
+                var ex = Assert.Throws<Http409ConflictException>(() =>
+                {
+                    Helper.AdminStore.RequestPasswordRecovery(user.Username);
+                }, "'POST {0}' should return 409 Conflict when the {1} Application Setting is disabled.",
+                    REST_PATH, IsPasswordRecoveryEnabled);
+
+                // Verify:
+                var recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
+
+                Assert.IsNull(recoveryToken, "No password recovery token should be created for a user who changed their password within the past 24-hours!");
+                AssertResponseBodyIsEmpty(ex.RestResponse.Content);
+            }
+            finally
+            {
+                // Re-enable IsPasswordRecoveryEnabled in the database.
+                TestHelper.UpdateApplicationSettings(IsPasswordRecoveryEnabled, "true");
+            }
         }
 
         #endregion Negative tests
@@ -273,6 +319,15 @@ namespace AdminStoreTests
                 firstTokenBytes = firstTokenBytes.Skip(4).ToArray();
                 secondTokenBytes = secondTokenBytes.Skip(4).ToArray();
             }
+        }
+
+        /// <summary>
+        /// Asserts that the response body is empty.
+        /// </summary>
+        /// <param name="bodyContent">The body content.</param>
+        private static void AssertResponseBodyIsEmpty(string bodyContent)
+        {
+            Assert.IsEmpty(bodyContent, "The body should be empty, but it contains: '{0}'", bodyContent);
         }
 
         /// <summary>

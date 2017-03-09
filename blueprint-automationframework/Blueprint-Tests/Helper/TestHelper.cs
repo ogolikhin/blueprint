@@ -1178,7 +1178,7 @@ namespace Helper
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
         public static void UpdateApplicationSettings(string key, string value)
         {
-            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
+            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = '{0}' WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
 
             using (var database = DatabaseFactory.CreateDatabase())
             {

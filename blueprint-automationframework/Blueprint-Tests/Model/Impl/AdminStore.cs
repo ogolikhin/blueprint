@@ -517,10 +517,10 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.RequestPasswordReset(string, List{HttpStatusCode})"/>
-        public RestResponse RequestPasswordReset(string username, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.RequestPasswordRecovery(string, List{HttpStatusCode})"/>
+        public RestResponse RequestPasswordRecovery(string username, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var path = RestPaths.Svc.AdminStore.PasswordReset.REQUEST;
+            var path = RestPaths.Svc.AdminStore.Users.PasswordRecovery.REQUEST;
             string bodyObject = username;
 
             Logger.WriteInfo("Requesting password reset for user '{0}'.", username ?? "null");

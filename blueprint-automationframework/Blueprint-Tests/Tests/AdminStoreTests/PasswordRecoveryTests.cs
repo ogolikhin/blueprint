@@ -15,11 +15,10 @@ using Utilities.Factories;
 
 namespace AdminStoreTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // US 5412 still in development
     [TestFixture]
-    public class PasswordResetTests : TestBase
+    public class PasswordRecoveryTests : TestBase
     {
-        private const string REST_PATH = RestPaths.Svc.AdminStore.Users.RESET;
+        private const string REST_PATH = RestPaths.Svc.AdminStore.Users.PasswordRecovery.REQUEST;
 
         private IUser _adminUser = null;
         private IProject _project = null;
@@ -28,7 +27,7 @@ namespace AdminStoreTests
         public void SetUp()
         {
             Helper = new TestHelper();
-            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_adminUser);
         }
 
@@ -45,7 +44,7 @@ namespace AdminStoreTests
         [Description("Create a user and then request a password reset for that user.  Verify 200 OK is returned and a RecoveryToken for that user " +
                      "was added to the AdminStore database.")]
         [TestRail(266880)]
-        public void RequestPasswordReset_ValidUsername_RecoveryTokenIsCreated(TestHelper.ProjectRole role)
+        public void RequestPasswordRecovery_ValidUsername_RecoveryTokenIsCreated(TestHelper.ProjectRole role)
         {
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(role, _project);
@@ -53,7 +52,7 @@ namespace AdminStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Helper.AdminStore.RequestPasswordReset(user.Username);
+                Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 200 OK when passed a valid username.", REST_PATH);
 
             // Verify:
@@ -68,7 +67,7 @@ namespace AdminStoreTests
         [Description("Create and delete a user and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266892)]
-        public void RequestPasswordReset_UsernameForDeletedUser_409Conflict()
+        public void RequestPasswordRecovery_UsernameForDeletedUser_409Conflict()
         {
             // Setup:
             var user = Helper.CreateUserAndAddToDatabase();
@@ -77,7 +76,7 @@ namespace AdminStoreTests
             // Execute:
             Assert.Throws<Http409ConflictException>(() =>
             {
-                Helper.AdminStore.RequestPasswordReset(user.Username);
+                Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a deleted user.", REST_PATH);
 
             // Verify:
@@ -90,7 +89,7 @@ namespace AdminStoreTests
         [Description("Create and disable a user and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266893)]
-        public void RequestPasswordReset_UsernameForDisabledUser_409Conflict()
+        public void RequestPasswordRecovery_UsernameForDisabledUser_409Conflict()
         {
             // Setup:
             var user = UserFactory.CreateUserOnly();
@@ -100,7 +99,7 @@ namespace AdminStoreTests
             // Execute:
             Assert.Throws<Http409ConflictException>(() =>
             {
-                Helper.AdminStore.RequestPasswordReset(user.Username);
+                Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a disabled user.", REST_PATH);
 
             // Verify:
@@ -113,7 +112,7 @@ namespace AdminStoreTests
         [Description("Create a user with no E-mail address and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266902)]
-        public void RequestPasswordReset_UsernameForUserWithNoEmail_409Conflict()
+        public void RequestPasswordRecovery_UsernameForUserWithNoEmail_409Conflict()
         {
             // Setup:
             var user = UserFactory.CreateUserOnly();
@@ -123,7 +122,7 @@ namespace AdminStoreTests
             // Execute:
             Assert.Throws<Http409ConflictException>(() =>
             {
-                Helper.AdminStore.RequestPasswordReset(user.Username);
+                Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a user with no E-mail address.", REST_PATH);
 
             // Verify:
@@ -136,7 +135,7 @@ namespace AdminStoreTests
         [Description("Request a password reset for that username that doesn't exist.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266894)]
-        public void RequestPasswordReset_NonExistingUsername_409Conflict()
+        public void RequestPasswordRecovery_NonExistingUsername_409Conflict()
         {
             // Setup:
             string nonExistingUsername = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
@@ -144,7 +143,7 @@ namespace AdminStoreTests
             // Execute:
             Assert.Throws<Http409ConflictException>(() =>
             {
-                Helper.AdminStore.RequestPasswordReset(nonExistingUsername);
+                Helper.AdminStore.RequestPasswordRecovery(nonExistingUsername);
             }, "'POST {0}' should return 409 Conflict when passed a non-existing username.", REST_PATH);
 
             // Verify:
@@ -153,14 +152,15 @@ namespace AdminStoreTests
             Assert.IsNull(recoveryToken, "No password recovery token should be created for a non-existing user!");
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/sn2RLjpR  You can reset 4 times before error.
         [TestCase]
         [Description("Create a user and then request a password reset for that user several times in a row up to the maximum reset request limit.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266905)]
-        public void RequestPasswordReset_ValidUsername_ExceedingMaxNumberOfRecoveryRequests_409Conflict()
+        public void RequestPasswordRecovery_ValidUsername_ExceedingMaxNumberOfRecoveryRequests_409Conflict()
         {
             // Setup:
-            const int RESET_REQUEST_LIMIT = 3;  // TODO: If this limit is in the DB, read it from there instead.
+            const int RESET_REQUEST_LIMIT = 3;
 
             var user = Helper.CreateUserAndAddToDatabase();
             var recoveryTokens = new List<PasswordRecoveryToken>();
@@ -170,7 +170,7 @@ namespace AdminStoreTests
             {
                 Assert.DoesNotThrow(() =>
                 {
-                    Helper.AdminStore.RequestPasswordReset(user.Username);
+                    Helper.AdminStore.RequestPasswordRecovery(user.Username);
                 }, "'POST {0}' should return 200 OK when passed a valid username and the reset limit hasn't been exceeded.", REST_PATH);
 
                 recoveryToken = GetRecoveryTokenFromDatabase(user.Username);
@@ -180,7 +180,7 @@ namespace AdminStoreTests
             // Execute:
             Assert.Throws<Http409ConflictException>(() =>
             {
-                Helper.AdminStore.RequestPasswordReset(user.Username);
+                Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a user that exceeded the maximum password reset request attempts.", REST_PATH);
 
             // Verify:  The tokens in the list should be unique.
@@ -208,11 +208,12 @@ namespace AdminStoreTests
                 nameof(PasswordRecoveryToken.RecoveryToken));
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/ClOrV8mu  User can request reset within 24-hours of changing their password.
         [TestCase]
         [Description("Create a user and change their password, then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266903)]
-        public void RequestPasswordReset_ValidUsername_UserRecentlyChangedTheirPassword_409Conflict()
+        public void RequestPasswordRecovery_ValidUsername_UserRecentlyChangedTheirPassword_409Conflict()
         {
             // Setup:
             var user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
@@ -224,7 +225,7 @@ namespace AdminStoreTests
             // Execute:
             Assert.Throws<Http409ConflictException>(() =>
             {
-                Helper.AdminStore.RequestPasswordReset(user.Username);
+                Helper.AdminStore.RequestPasswordRecovery(user.Username);
             }, "'POST {0}' should return 409 Conflict when passed a username for a user that changed their password within the past 24-hours.", REST_PATH);
 
             // Verify:
@@ -317,7 +318,7 @@ namespace AdminStoreTests
             Assert.NotNull(recoveryToken, "No password recovery token was found in the database for user: {0}", username);
             Assert.AreEqual(username, recoveryToken.Login,
                 "The recovery token Login should be equal to the username of the user whose password is being reset!");
-            Assert.That(recoveryToken.CreationTime.CompareTimePlusOrMinusMilliseconds(DateTime.UtcNow, 60000),
+            Assert.That(recoveryToken.CreationTime.CompareTimePlusOrMinusMilliseconds(DateTime.Now, 60000),
                 "The CreationTime of the recovery token should be equal to the current time (+/- 60s)!");
             Assert.IsFalse(string.IsNullOrWhiteSpace(recoveryToken.RecoveryToken), "The recovery token shouldn't be blank!");
         }

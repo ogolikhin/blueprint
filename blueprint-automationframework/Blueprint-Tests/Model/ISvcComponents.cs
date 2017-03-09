@@ -29,14 +29,40 @@ namespace Model
         #region RapidReview methods
 
         /// <summary>
-        /// Gets diagram content for RapidReview (Storyteller).
+        /// Gets Diagram content for RapidReview (Storyteller).
         /// (Runs:  'GET /svc/components/RapidReview/diagram/{artifactId}')
         /// </summary>
         /// <param name="user">The user to authenticate to Blueprint.</param>
-        /// <param name="artifactId">The ID of the diagram artifact whose contents you want to get.</param>
+        /// <param name="artifactId">The ID of the Diagram artifact whose contents you want to get.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        /// <returns>Properties and (for graphical artifacts) Diagram content.</returns>
         RapidReviewDiagram GetRapidReviewDiagramContent(
+            IUser user,
+            int artifactId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets Glossary content for RapidReview (Storyteller).
+        /// (Runs:  'GET /svc/components/RapidReview/glossary/{artifactId}')
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactId">The ID of the Glossary artifact whose contents you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Properties and Glossary content.</returns>
+        RapidReviewGlossary GetRapidReviewGlossaryContent(
+            IUser user,
+            int artifactId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets Use Case content for RapidReview (Storyteller).
+        /// (Runs:  'GET /svc/components/RapidReview/glossary/{artifactId}')
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactId">The ID of the Use Case artifact whose contents you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Properties and Use Case content.</returns>
+        RapidReviewUseCase GetRapidReviewUseCaseContent(
             IUser user,
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null);

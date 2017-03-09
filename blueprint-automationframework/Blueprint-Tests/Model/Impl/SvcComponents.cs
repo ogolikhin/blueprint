@@ -4,9 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using Common;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -93,6 +95,44 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             return diagramContent;
+        }
+
+        /// <seealso cref="ISvcComponents.GetRapidReviewGlossaryContent(IUser, int, List{HttpStatusCode})"/>
+        public RapidReviewGlossary GetRapidReviewGlossaryContent(
+            IUser user,
+            int artifactId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY_id_, artifactId);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return returnedArtifactContent;
+        }
+
+        /// <seealso cref="ISvcComponents.GetRapidReviewUseCaseContent(IUser, int, List{HttpStatusCode})"/>
+        public RapidReviewUseCase GetRapidReviewUseCaseContent(
+            IUser user,
+            int artifactId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, artifactId);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return returnedArtifactContent;
         }
 
         #endregion RapidReview methods

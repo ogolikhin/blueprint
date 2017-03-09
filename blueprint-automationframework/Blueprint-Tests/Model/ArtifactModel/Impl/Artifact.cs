@@ -315,7 +315,6 @@ namespace Model.ArtifactModel.Impl
             IUser user, IRaptorDiscussion discussionToUpdate,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
 
             return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);

@@ -10,14 +10,11 @@ using System.Collections.Generic;
 using Model.ArtifactModel.Adaptors;
 using TestCommon;
 using Utilities;
-using Newtonsoft.Json;
 using Common;
-using Utilities.Facades;
 using Model.Common.Constants;
 
 namespace ArtifactStoreTests
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class DiscussionsTests : TestBase
@@ -454,11 +451,13 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             IRaptorDiscussion raptorComment = null;
 
+            string comment = "";
             for (int i = 0; i < 2; i++)
             {
-                raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
+                comment = ORIGINAL_COMMENT + " " + (i + 1);
+                raptorComment = artifact.PostRaptorDiscussion(comment, _authorUser);
             }
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
             // Execute:
@@ -481,11 +480,13 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             IRaptorDiscussion raptorComment = null;
 
+            string comment = "";
             for (int i = 0; i < 2; i++)
             {
-                raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
+                comment = ORIGINAL_COMMENT + " " + (i + 1);
+                raptorComment = artifact.PostRaptorDiscussion(comment, _authorUser);
             }
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
+            Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
             // Execute:
@@ -577,8 +578,7 @@ namespace ArtifactStoreTests
             // Execute:
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id);
 
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateRequestFromJson(
-                Helper.ArtifactStore.Address, user: null, method: RestRequestMethod.GET, path: path, requestBody: ""),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, user: null),
                 "'GET {0}' should return 401 Unauthorized when request is done without token!", path);
 
             // Verify:
@@ -595,7 +595,8 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
+                "Original comment and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -609,12 +610,8 @@ namespace ArtifactStoreTests
             string path = I18NHelper.FormatInvariant(
                 RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
 
-            var validJson = JsonConvert.SerializeObject(comment);
-
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => CreateRequestFromJson(
-                Helper.ArtifactStore.Address, user: null, method: RestRequestMethod.PATCH, path: path, requestBody: validJson),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.UpdateRaptorDiscussion(comment, user: null, discussionToUpdate: raptorComment),
                 "'PATCH {0}' should return 401 Unauthorized when request is done without token!", path);
-
             // Verify:
             const string expectedExceptionMessage = "Unauthorized call";
             Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
@@ -676,6 +673,7 @@ namespace ArtifactStoreTests
                 discussions.Discussions[0].RepliesCount);
         }
 
+        [Category(Categories.CustomData)]
         [TestCase]
         [TestRail(266958)]
         [Description("Get discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
@@ -687,7 +685,8 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
+                "Original comment and comment returned after discussion created different!");
 
             Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, userWithoutPermissionsToProject),
                 "'GET {0}' should return 403 Forbidden when user tries to get comment from project to which he/she does not have permissions!",
@@ -697,6 +696,7 @@ namespace ArtifactStoreTests
             // TODO: No internal error & message for this case only 403 HTTP Code Bug: https://trello.com/c/XQwBZ2zk
         }
 
+        [Category(Categories.CustomData)]
         [TestCase]
         [TestRail(266959)]
         [Description("Update discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
@@ -708,7 +708,8 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
+            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
+                "Original comment and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -810,25 +811,27 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Process);
             artifact.Save(_adminUser);
-            var postedRaptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
+            var raptorComment = AddCommentToSubArtifactOfStorytellerProcess(artifact);
 
             var user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             // Execute & Verify:
             Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, user2);
+                Helper.ArtifactStore.GetArtifactDiscussions(raptorComment.ItemId, user2);
             }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
         }
 
         [Ignore(IgnoreReasons.UnderDevelopment)]  // Bug: https://trello.com/c/LJKgXQnW
         [TestRail(266962)]
         [Description("Update discussion that does not exist in an artifact. Verify 404 Not Found HTTP status was returned")]
-        public void UpdatetDiscussion_NonExistingDiscussion_404NotFound()
+        public void UpdateDiscussion_NonExistingDiscussion_404NotFound()
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
             var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
+                "Original comment and comment returned after discussion created different!");
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
@@ -888,28 +891,6 @@ namespace ArtifactStoreTests
             Assert.IsNotNull(threadStatus, "Discussion status is not found among project statuses!");
 
             return threadStatus.StatusId;
-        }
-
-        /// <summary>
-        /// Creates an object with specific json body.  Use this for testing cases where the call is expected to fail.
-        /// </summary>
-        /// <param name="address">The base address used for the REST call.</param>
-        /// <param name="requestBody">The request body (i.e. user to be created).</param>
-        /// <param name="user">The user creating another user.</param>
-        /// <param name="path">URL for call.</param>
-        /// <returns>The call response returned.</returns>
-        private static RestResponse CreateRequestFromJson(string address, IUser user, RestRequestMethod method, string path, string requestBody)
-        {
-            string tokenValue = user?.Token?.AccessControlToken;
-            RestApiFacade restApi = new RestApiFacade(address, tokenValue);
-
-            const string contentType = "application/json";
-
-            return restApi.SendRequestBodyAndGetResponse(
-                path,
-                method,
-                requestBody,
-                contentType);
         }
 
         #endregion Private functions

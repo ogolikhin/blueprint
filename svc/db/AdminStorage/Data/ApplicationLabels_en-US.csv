@@ -176,7 +176,7 @@ App_UP_Discussions_Reply_Tooltip,"Reply to the comment"
 App_UP_Discussions_Delete_Reply_Tooltip,"Delete reply"
 App_UP_Discussions_Edit_Reply_Tooltip,"Edit reply"
 App_UP_Discussions_Reply_Link, "Reply"
-App_UP_Discussions_StateTooltip, "DiscussionState"
+App_UP_Discussions_StateTooltip, "Discussion State"
 
 App_UP_Relationships_All,"All"
 App_UP_Relationships_Traces,"Traces"

@@ -41,6 +41,19 @@ namespace Model
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Gets glossary content for RapidReview (Storyteller).
+        /// (Runs:  'GET /svc/components/RapidReview/glossary/{artifactId}')
+        /// </summary>
+        /// <param name="user">The user to authenticate to Blueprint.</param>
+        /// <param name="artifactId">The ID of the glossary artifact whose contents you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>Properties and glossary content.</returns>
+        RapidReviewGlossary GetRapidReviewGlossaryContent(
+            IUser user,
+            int artifactId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

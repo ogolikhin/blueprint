@@ -72,12 +72,11 @@ namespace Model.ArtifactModel
         /// (Runs: svc/components/RapidReview/glossary/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        /// of the user that created the artifact. </param>
+        ///     of the user that created the artifact. </param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        /// <returns>Properties and glossary content.</returns>
         /// <exception cref="ArgumentException">If method called for Artifact different than Glossary.</exception>
-        RapidReviewGlossary GetGlossaryContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        RapidReviewGlossary GetRapidReviewGlossaryContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifact info.

@@ -223,43 +223,26 @@ namespace Model.ArtifactModel.Impl
             }
         }
 
-        public RapidReviewGlossary GetGlossaryContentForRapidReview(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IArtifact.GetRapidReviewGlossaryContent(IUser, List{HttpStatusCode})"/>
+        public RapidReviewGlossary GetRapidReviewGlossaryContent(
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             if (user == null)
             {
-                Assert.NotNull(CreatedBy, "No user is available to perform GetGlossaryContentForRapidReview.");
+                Assert.NotNull(CreatedBy, "No user is available to perform {0}.", nameof(GetRapidReviewGlossaryContent));
                 user = CreatedBy;
-            }
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
             }
 
             var artifactInfo = GetArtifactInfo(user);
 
             if (artifactInfo.BaseTypePredefined == ItemTypePredefined.Glossary)
             {
-                string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.GLOSSARY_id_, Id);
-                var restApi = new RestApiFacade(Address, tokenValue);
-
-                var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewGlossary>(
-                    path,
-                    RestRequestMethod.GET,
-                    expectedStatusCodes: expectedStatusCodes);
-
-                return returnedArtifactContent;
+                var service = SvcComponentsFactory.CreateSvcComponents(Address);
+                return service.GetRapidReviewGlossaryContent(user, Id, expectedStatusCodes);
             }
-            else
-            {
-                throw new ArgumentException("Method works for Glossary artifacts only.");
-            }
+
+            throw new ArgumentException("Method works for Glossary artifacts only.");
         }
 
         public RapidReviewProperties GetPropertiesForRapidReview(IUser user = null,

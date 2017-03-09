@@ -13,6 +13,7 @@ namespace CommonServiceTests
     {
         private const string DIAGRAM_PATH = RestPaths.Svc.Components.RapidReview.DIAGRAM_id_;
         private const string GLOSSARY_PATH = RestPaths.Svc.Components.RapidReview.GLOSSARY_id_;
+        private const string USECASE_PATH = RestPaths.Svc.Components.RapidReview.USECASE_id_;
 
         private IUser _user;
         private IProject _project;
@@ -90,8 +91,8 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactContent = artifact.GetUseCaseContentForRapidReview(_user);
-            }, "GetUseCaseContentForRapidReview must not throw errors.");
+                artifactContent = artifact.GetRapidReviewUseCaseContent(_user);
+            }, "'GET {0}' should return 200 OK when a valid token is passed.", USECASE_PATH);
 
             // Verify:
             Assert.AreEqual(artifact.Id, artifactContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, artifactContent.Id);

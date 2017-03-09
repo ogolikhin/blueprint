@@ -45,13 +45,13 @@ namespace Model.ArtifactModel
         int GetVersion(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets diagram content for RapidReview (Storyteller).
+        /// Gets Diagram content for RapidReview (Storyteller).
         /// (Runs:  'GET /svc/components/RapidReview/diagram/{artifactId}')
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint.  If null, attempts to get the version using the credentials
         ///     of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
-        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        /// <returns>Properties and (for graphical artifacts) Diagram content.</returns>
         /// <exception cref="ArgumentException">If method called for Artifact different than diagram.</exception>
         RapidReviewDiagram GetRapidReviewDiagramContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -60,21 +60,20 @@ namespace Model.ArtifactModel
         /// (Runs: svc/components/RapidReview/usecase/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        /// of the user that created the artifact. </param>
+        ///     of the user that created the artifact. </param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
+        /// <returns>Properties and UseCase content.</returns>
         ///<exception cref="ArgumentException">If method called for Artifact different than Usecase.</exception>
-        RapidReviewUseCase GetUseCaseContentForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        RapidReviewUseCase GetRapidReviewUseCaseContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets glossary content for RapidReview (Storyteller).
+        /// Gets Glossary content for RapidReview (Storyteller).
         /// (Runs: svc/components/RapidReview/glossary/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
         ///     of the user that created the artifact. </param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Properties and glossary content.</returns>
+        /// <returns>Properties and Glossary content.</returns>
         /// <exception cref="ArgumentException">If method called for Artifact different than Glossary.</exception>
         RapidReviewGlossary GetRapidReviewGlossaryContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -83,9 +82,9 @@ namespace Model.ArtifactModel
         /// (Runs: svc/components/storyteller/artifactInfo/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        /// of the user that created the artifact. </param>
+        ///     of the user that created the artifact. </param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Artifact info is used by other metod to determine type of artifact</returns>
+        /// <returns>Artifact info is used by other method to determine type of artifact</returns>
         ArtifactInfo GetArtifactInfo(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

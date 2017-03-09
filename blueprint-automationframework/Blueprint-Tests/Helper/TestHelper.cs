@@ -1178,7 +1178,7 @@ namespace Helper
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
         public static void UpdateApplicationSettings(string key, string value)
         {
-            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
+            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = '{0}' WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
 
             using (var database = DatabaseFactory.CreateDatabase())
             {
@@ -1300,6 +1300,17 @@ namespace Helper
                     "First artifact Version: '{0}' doesn't match second artifact Version: '{1}'",
                     firstArtifact.Version, secondArtifact.Version);
             }
+        }
+
+        /// <summary>
+        /// Asserts that the REST response body is empty.
+        /// </summary>
+        /// <param name="response">The REST response.</param>
+        public static void AssertResponseBodyIsEmpty(RestResponse response)
+        {
+            ThrowIf.ArgumentNull(response, nameof(response));
+
+            Assert.IsEmpty(response.Content, "The REST response body should be empty, but it contains: '{0}'", response.Content);
         }
 
         /// <summary>

@@ -80,11 +80,20 @@ namespace Model.SearchServiceModel.Impl
         /// </summary>
         public bool? IncludeArtifactPath { get; set; }
 
-        public bool ShowArtifacts { get; set; }
+        /// <summary>
+        /// Should include artifacts into the results.
+        /// </summary>
+        public bool? ShowArtifacts { get; set; }
 
-        public bool ShowBaselinesAndReviews { get; set; }
+        /// <summary>
+        /// Should include baselines into the results.
+        /// </summary>
+        public bool? ShowBaselinesAndReviews { get; set; }
 
-        public bool ShowCollections { get; set; }
+        /// <summary>
+        /// Should include collections into the results.
+        /// </summary>
+        public bool? ShowCollections { get; set; }
 
         #endregion JSON serialized properties
 

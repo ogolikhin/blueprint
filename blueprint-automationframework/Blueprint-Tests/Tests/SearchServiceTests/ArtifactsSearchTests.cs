@@ -318,6 +318,7 @@ namespace SearchServiceTests
             ItemNameSearchResultSet results = null;
 
             var expectedPath = new List<string> { _firstProject.Name, parentFolder.Name, parentArtifact.Name };
+            var expectedIdPath = new List<int> { _firstProject.Id, parentFolder.Id, parentArtifact.Id };
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -329,6 +330,7 @@ namespace SearchServiceTests
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
             Assert.AreEqual(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
+            Assert.AreEqual(expectedIdPath, results.Items[0].IdPath, "Returned IdPath should have expected value");
         }
 
         [TestCase]

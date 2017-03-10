@@ -11,7 +11,6 @@ using Model.ArtifactModel.Adaptors;
 using TestCommon;
 using Utilities;
 using Common;
-using Model.Common.Constants;
 
 namespace ArtifactStoreTests
 {
@@ -701,7 +700,7 @@ namespace ArtifactStoreTests
         [TestRail(266959)]
         [Description("Update discussion with user that created discussion and lost permissions for the artifact. " + 
             "Verify 403 Forbidden HTTP status was returned")]
-        public void UpdatetDiscussion_InsufficientPermissionsToArtifact_403Forbidden()
+        public void UpdateDiscussion_InsufficientPermissionsToArtifact_403Forbidden()
         {
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);

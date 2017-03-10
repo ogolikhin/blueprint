@@ -67,6 +67,19 @@ namespace Model
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Gets properties of specified artifacts for RapidReview (Storyteller).
+        /// (Runs: 'GET svc/components/RapidReview/artifacts/properties')
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint.</param>
+        /// <param name="artifactIds">The IDs of the artifacts whose properties you want to get.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only OK: '200' is expected.</param>
+        /// <returns>Properties of the specified artifacts.</returns>
+        RapidReviewProperties GetRapidReviewArtifactsProperties(
+            IUser user,
+            List<int> artifactIds,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

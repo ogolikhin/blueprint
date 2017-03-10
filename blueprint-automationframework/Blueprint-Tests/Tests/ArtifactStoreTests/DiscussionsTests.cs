@@ -718,7 +718,7 @@ namespace ArtifactStoreTests
                 StatusId = statusId
             };
 
-            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, _project, artifact);
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.Viewer, _project, artifact);
 
             // Execute:
             var path = I18NHelper.FormatInvariant(

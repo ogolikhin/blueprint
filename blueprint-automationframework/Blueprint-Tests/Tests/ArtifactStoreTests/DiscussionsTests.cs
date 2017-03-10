@@ -674,7 +674,8 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(266958)]
-        [Description("Get discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
+        [Description("Get discussion with user that dcreated discussion and lost permissions for the artifact. " + 
+            "Verify 403 Forbidden HTTP status was returned")]
         public void GetDiscussion_InsufficientPermissionsToArtifact_403Forbidden()
         {
             // Setup:

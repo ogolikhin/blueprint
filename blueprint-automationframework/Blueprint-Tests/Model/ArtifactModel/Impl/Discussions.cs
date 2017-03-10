@@ -69,8 +69,14 @@ namespace Model.ArtifactModel.Impl
     // See:  blueprint/svc/ArtifactStore/Models/DiscussionResultSet.cs
     public class ThreadStatus
     {
+        [JsonIgnore]
+        public const string CLOSED = "Closed";
+
+        [JsonIgnore]
+        public const string OPEN = "Open";
+
         public int StatusId { get; set; }
-        public bool ReadOnly { get; set; }
+        public bool? ReadOnly { get; set; }
         public bool IsClosed { get; set; }
         public string Name { get; set; }
     }

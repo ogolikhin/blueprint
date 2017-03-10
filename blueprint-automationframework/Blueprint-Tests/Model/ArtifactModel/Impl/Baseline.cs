@@ -29,10 +29,10 @@ namespace Model.ArtifactModel.Impl
         #endregion
 
         /// <summary>
-        /// Updates Collection's artifacts.
+        /// Updates Baseline's artifacts.
         /// </summary>
-        /// <param name="artifactsIdsToAdd">(optional) List of artifact's Id to add to Collection.</param>
-        /// <param name="artifactsIdsToRemove">(optional) List of artifact's Id to remove from Collection.</param>
+        /// <param name="artifactsIdsToAdd">(optional) List of artifact's Id to add to Baseline.</param>
+        /// <param name="artifactsIdsToRemove">(optional) List of artifact's Id to remove from Baseline.</param>
         public void UpdateArtifacts(List<int> artifactsIdsToAdd = null, List<int> artifactsIdsToRemove = null)
         {
             UpdateArtifacts(PropertyTypePredefined.BaselineContent, artifactsIdsToAdd, artifactsIdsToRemove);

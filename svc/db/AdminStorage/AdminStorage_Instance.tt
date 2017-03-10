@@ -24,6 +24,7 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\LicenseActivityDetails.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\LicenseActivities.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Logs.sql" ) ) #>
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\PasswordRecoveryTokens.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Types\LogsType.sql" ) ) #>
 

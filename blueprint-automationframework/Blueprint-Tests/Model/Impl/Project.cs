@@ -46,6 +46,9 @@ namespace Model.Impl
         /// </summary>
         public string Location { get; set; }
 
+        [JsonIgnore]
+        public IArtifactStore ArtifactStore { get; set; }
+
         [JsonConverter(typeof(SerializationUtilities.ConcreteConverter<List<OpenApiArtifactType>>))]
         public List<OpenApiArtifactType> ArtifactTypes { get; } = new List<OpenApiArtifactType>();
 
@@ -78,20 +81,31 @@ namespace Model.Impl
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IProject.GetDefaultCollectionOrBaselineReviewFolder(string, IUser, BaselineAndCollectionTypePredefined)"/>
-        public INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(string address, IUser user,
+        private INovaArtifact GetDefaultCollectionOrBaselineReviewFolder(IUser user,
             BaselineAndCollectionTypePredefined folderType)
         {
             var expectedTypesPredefined = new List<BaselineAndCollectionTypePredefined> { BaselineAndCollectionTypePredefined.BaselineFolder,
             BaselineAndCollectionTypePredefined.CollectionFolder};
             Assert.IsTrue(expectedTypesPredefined.Contains(folderType), "Method works for BaselineFolder or CollectionFolder only.");
 
-            var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(address, Id, user);
+            var novaArtifacts = ArtifactStore.GetProjectChildrenByProjectId(Id, user);
 
             Assert.That((novaArtifacts != null) && novaArtifacts.Any(),
                 "No artifacts were found in Project ID: {0}.", Id);
 
             return novaArtifacts.Find(a => a.PredefinedType.Value == (int)folderType);
+        }
+
+        /// <seealso cref="IProject.GetDefaultBaselineFolder(IUser)"/>
+        public INovaArtifactBase GetDefaultBaselineFolder(IUser user)
+        {
+            return GetDefaultCollectionOrBaselineReviewFolder(user, BaselineAndCollectionTypePredefined.BaselineFolder);
+        }
+
+        /// <seealso cref="IProject.GetDefaultCollectionFolder(IUser)"/>
+        public INovaArtifactBase GetDefaultCollectionFolder(IUser user)
+        {
+            return GetDefaultCollectionOrBaselineReviewFolder(user, BaselineAndCollectionTypePredefined.CollectionFolder);
         }
 
         /// <seealso cref="IProject.GetItemTypeIdForPredefinedType(ItemTypePredefined)"/>

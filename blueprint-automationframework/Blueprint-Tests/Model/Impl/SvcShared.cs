@@ -96,6 +96,23 @@ namespace Model.Impl
                 from IArtifactBase artifact in artifactsToLock
                 select artifact.Id).ToList();
 
+            return LockArtifacts(address, user, artifactIds, expectedStatusCodes);
+        }
+
+        /// <summary>
+        /// Lock Artifact(s).
+        /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="address">The base URL of the Blueprint server.</param>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactIds">The Ids of artifacts to lock.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        public static List<LockResultInfo> LockArtifacts(string address, IUser user, List<int> artifactIds,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
             var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
 
             var lockResults = restApi.SendRequestAndDeserializeObject<List<LockResultInfo>, List<int>>(

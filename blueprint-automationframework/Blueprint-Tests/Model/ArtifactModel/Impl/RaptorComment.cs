@@ -6,6 +6,6 @@
     public class RaptorComment
     {
         public string Comment { get; set; }
-        public int Status { get; set; }
+        public int StatusId { get; set; }
     }
 }

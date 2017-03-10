@@ -22,6 +22,15 @@ namespace Model.Factories
             return testConfig.BlueprintServerAddress;
         }
 
+        public static IArtifactStore ArtifactStore { get; } = GetArtifactStore();
+
+        private static IArtifactStore GetArtifactStore()
+        {
+            return ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
+        }
+
+
+
         /// <summary>
         /// Creates a new project object with the values specified, or with random values for any unspecified parameters.
         /// </summary>
@@ -52,9 +61,11 @@ namespace Model.Factories
 
             var projects = OpenApi.GetProjects(Address, user);
 
-            if (shouldRetrievePropertyTypes)
+            foreach (var project in projects)
             {
-                foreach (var project in projects)
+                project.ArtifactStore = ArtifactStore;
+
+                if (shouldRetrievePropertyTypes)
                 {
                     project.GetAllOpenApiArtifactTypes(Address, user);
                 }
@@ -87,7 +98,7 @@ namespace Model.Factories
             var prj = projectName == null ? projects.First() : projects.First(t => (t.Name == projectName));
 
             // Create a project object in memeory using the constructor
-            var project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id};  // TODO: Do we need to make a copy of it?
+            var project = new Project { Name = prj.Name, Description = prj.Description, Id = prj.Id, ArtifactStore = ArtifactStore};  // TODO: Do we need to make a copy of it?
 
             if (shouldRetrieveArtifactTypes)
             {

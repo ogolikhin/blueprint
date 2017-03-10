@@ -421,12 +421,12 @@ namespace Model
         /// <summary>
         /// Publishes a list of artifacts.
         /// </summary>
-        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="all">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="publishAll">(optional) Pass true to publish publishAll artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? all = null, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null, bool? publishAll = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifact path by using artifact id
@@ -461,7 +461,7 @@ namespace Model
 
         /// <summary>
         /// Adds artifact to the collection
-        /// Runs POST svc/bpartifactstore/collection/{0}/add/{1}
+        /// Runs PUT svc/bpartifactstore/collections/{0}/content
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of Artifact to add.</param>
@@ -490,5 +490,17 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Baseline object</returns>
         Baseline GetBaseline(IUser user, int baselineId, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Adds artifact to the baseline
+        /// Runs PUT svc/bpartifactstore/baselines/{0}/content
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Id of Artifact to add.</param>
+        /// <param name="baselineId">Id of Baseline.</param>
+        /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>Number of artifacts added to Baseline</returns>
+        int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

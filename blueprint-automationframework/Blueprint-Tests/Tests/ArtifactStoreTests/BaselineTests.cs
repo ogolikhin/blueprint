@@ -169,15 +169,11 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_CollectionAddToBaseline_ValidateReturnedBaseline(TestArtifactState artifactState)
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _user);
             var artifactToAdd = CreateArtifactInSpecificState(Helper, _user, _project, artifactState, ItemTypePredefined.Actor,
                 _project.Id);
-            var collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
+            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _user, _project, TestArtifactState.Created,
+                new List<int> { artifactToAdd.Id });
 
-            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
-            collectionArtifact.Lock(_user);
-            Artifact.UpdateArtifact(collectionArtifact, _user, collection);
-            
             var baseline = Helper.CreateBaseline(_user, _project);
 
             int numberOfAddedArtifacts = 0;
@@ -204,13 +200,8 @@ namespace ArtifactStoreTests
             
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _adminUser);
-            var collection = Helper.ArtifactStore.GetCollection(_adminUser, collectionArtifact.Id);
-
-            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id, artifactWithNoAccess.Id });
-            collectionArtifact.Lock(_adminUser);
-            Artifact.UpdateArtifact(collectionArtifact, _adminUser, collection);
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { collection.Id }, _adminUser);
+            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _adminUser, _project, TestArtifactState.Published,
+                new List<int> { artifactToAdd.Id, artifactWithNoAccess.Id });
 
 
             var baseline = Helper.CreateBaseline(_user, _project);
@@ -222,16 +213,15 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => {
                 numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id,
                     baseline.Id, includeDescendants: true);}, "Adding artifact to Baseline shouldn't throw an error.");
-
+            
             // Verify:
             Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
 
             ValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] // https://trello.com/c/S1ZXRPST
         [TestCase]
-        [TestRail(2)]
+        [TestRail(266978)]
         [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
         public void AddArtifactToBaseline_EmptyCollectionAddToBaseline_ValidateReturnedBaseline()
         {
@@ -254,22 +244,17 @@ namespace ArtifactStoreTests
             ValidateBaseline(_user, baseline.Id, new List<int>());
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] // https://trello.com/c/S1ZXRPST
         [TestCase]
         [TestRail(266971)]
         [Description("Add published Artifact to Collection, user has no access to Artifact, add Collection to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_EmptyCollectionWhereUserHasNoAccessToArtifact_AddToBaseline_ValidateReturnedBaseline()
+        public void AddArtifactToBaseline_CollectionWithArtifactToWhichUserHasNoAccess_AddToBaseline_BaselineShouldBeEmpty()
         {
             // Setup:
             var artifactWithNoAccess = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _adminUser);
-            var collection = Helper.ArtifactStore.GetCollection(_adminUser, collectionArtifact.Id);
-            collection.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactWithNoAccess.Id });
-            collectionArtifact.Lock(_adminUser);
-            Artifact.UpdateArtifact(collectionArtifact, _adminUser, collection);
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { collection.Id }, _adminUser);
+            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _adminUser, _project, TestArtifactState.Published,
+                new List<int> { artifactWithNoAccess.Id });
 
 
             var baseline = Helper.CreateBaseline(_user, _project);
@@ -419,6 +404,39 @@ namespace ArtifactStoreTests
                 default:
                     Assert.Fail("Unexpected value of Artifact state");
                     return artifact;
+            }
+        }
+
+        /// <summary>
+        /// Creates collection in the specified state with artifacts
+        /// </summary>
+        /// <param name="helper">TestHelper</param>
+        /// <param name="user">User to perform operation</param>
+        /// <param name="project">Project in which artifact will be created</param>
+        /// <param name="collectionState">State of the collection(Created, Published)</param>
+        /// <param name="artifactsIdsToAdd">List of artifact's id to be added</param>
+        /// <returns>Collection in the required state</returns>
+        private static Collection CreateCollectionWithArtifactsInSpecificState(TestHelper helper, IUser user, IProject project,
+            TestArtifactState collectionState, List<int> artifactsIdsToAdd)
+        {
+            var collectionArtifact = helper.CreateAndSaveCollection(project, user);
+            var collection = helper.ArtifactStore.GetCollection(user, collectionArtifact.Id);
+
+            collection.UpdateArtifacts(artifactsIdsToAdd: artifactsIdsToAdd);
+            collectionArtifact.Lock(user);
+            Artifact.UpdateArtifact(collectionArtifact, user, collection);
+            collection = helper.ArtifactStore.GetCollection(user, collectionArtifact.Id);
+
+            switch (collectionState)
+            {
+                case TestArtifactState.Created:
+                    return collection;
+                case TestArtifactState.Published:
+                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { collection.Id }, user);
+                    return helper.ArtifactStore.GetCollection(user, collectionArtifact.Id);
+                default:
+                    Assert.Fail("Unexpected value of Collection state");
+                    return collection;
             }
         }
 

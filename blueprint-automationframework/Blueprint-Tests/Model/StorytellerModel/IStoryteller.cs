@@ -162,10 +162,9 @@ namespace Model.StorytellerModel
         /// <param name="user">The user credentials for the request to get the user story artifact type</param>
         /// <param name="projectId">The Id of the Project from which the user story artifact type is retrieved</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>The user story artifact type</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
-        OpenApiArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
+        OpenApiArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Upload a File

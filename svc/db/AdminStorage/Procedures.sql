@@ -618,12 +618,14 @@ GO
 
 CREATE PROCEDURE [dbo].[GetUserPasswordRecoveryTokens]
 (
-    @login as nvarchar(max)
+    @token as nvarchar(max)
 )
 AS
 BEGIN
-	SELECT [Login],[CreationTime],[RecoveryToken] FROM [dbo].[PasswordRecoveryTokens]
-	WHERE [Login] = @login
+	SELECT b.[Login],b.[CreationTime],b.[RecoveryToken] FROM [dbo].[PasswordRecoveryTokens] a
+	INNER JOIN [dbo].[PasswordRecoveryTokens] b
+	ON a.[Login] = [b.Login]
+	WHERE a.[PasswordRecoveryTokens] = @token
 	ORDER BY [CreationTime] DESC
 END
 GO 

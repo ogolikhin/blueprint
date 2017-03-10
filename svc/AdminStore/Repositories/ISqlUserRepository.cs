@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdminStore.Models;
 
@@ -28,6 +29,6 @@ namespace AdminStore.Repositories
 
         Task<bool> HasUserExceededPasswordRequestLimitAsync(string login);
 
-        Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(string login);
+        Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
     }
 }

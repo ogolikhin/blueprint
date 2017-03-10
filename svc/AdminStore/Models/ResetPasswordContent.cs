@@ -7,8 +7,6 @@ namespace AdminStore.Models
     public class ResetPasswordContent
     {
         [JsonProperty]
-        public string Login { get; set; }
-        [JsonProperty]
         public string Password { get; set; }
         [JsonProperty]
         public Guid Token { get; set; }

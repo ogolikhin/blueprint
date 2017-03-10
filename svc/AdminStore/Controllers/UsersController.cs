@@ -146,34 +146,34 @@ namespace AdminStore.Controllers
         /// <remarks>
         /// Initiates a request for a password reset
         /// </remarks>
-        /// <response code="200">OK. See body for result.</response>
+        /// <response code="200">OK.</response>
+        /// <response code="409">Generic error when recovery not allowed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("passwordrecovery/request"), NoSessionRequired]
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> PostRequestPasswordResetAsync([FromBody]string login)
         {
-            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
-
-            bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
-            bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
-
-            var user = await _userRepository.GetUserByLoginAsync(login);
-            bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
-
             try
             {
+                var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+
+                bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
+                bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
+
+                var user = await _userRepository.GetUserByLoginAsync(login);
+                bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
+
                 if (passwordResetAllowed && !passwordRequestLimitExceeded && !passwordResetCooldownInEffect && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
                 {
                     _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
                     _emailHelper.SendEmail(user);
 
                     await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
-                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK));
+                    return Ok();
                 }
-                else {
-                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
-                }
+
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
             }
             catch (Exception ex)
             {
@@ -193,42 +193,36 @@ namespace AdminStore.Controllers
         [HttpPost]
         [Route("passwordrecovery/reset"), NoSessionRequired]
         [ResponseType(typeof(int))]
+        [BaseExceptionFilter]
         public async Task<IHttpActionResult> PostPasswordResetAsync([FromBody]ResetPasswordContent content)
         {
-            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
-
-            bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(content.Login);
-            bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(content.Login);
-
-            var user = await _userRepository.GetUserByLoginAsync(content.Login);
-            bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
-
-            var decodedNewPassword = SystemEncryptions.Decode(content.Password);
-
             try
             {
-                if (passwordResetAllowed && !passwordRequestLimitExceeded && !passwordResetCooldownInEffect && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
+                var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Token)).ToList();
+                if (!tokens.Any())
                 {
-                    var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Login)).ToList();
-                    if (!tokens.Any())
-                    {
-                        //user did not request password reset
-                    }
-                    if (tokens.First().RecoveryToken != content.Token)
-                    {
-                        //provided token doesn't match last requested
-                    }
-                    if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
-                    {
-                        //token expired
-                    }
-                    await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
+                    //user did not request password reset
+                    throw new ConflictException("Password reset failed, recovery token not found.", ErrorCodes.PasswordResetTokenNotFound);
+                }
+                if (tokens.First().RecoveryToken != content.Token)
+                {
+                    //provided token doesn't match last requested
+                    throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
+                }
+                if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
+                {
+                    //token expired
+                    throw new ConflictException("Password reset failed, recovery token expired.", ErrorCodes.PasswordResetTokenExpired);
+                }
 
-                    return Ok();
-                }
-                else {
-                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
-                }
+                var userLogin = tokens.First().Login;
+                var user = await _userRepository.GetUserByLoginAsync(userLogin);
+
+                var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+                
+                await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
+
+                return Ok();
             }
             catch (Exception ex)
             {

@@ -118,10 +118,10 @@ namespace AdminStore.Repositories
             prm.Add("@login", login);
             await _adminStorageConnectionWrapper.QueryAsync<int>("SetUserPasswordRecoveryToken", prm, commandType: CommandType.StoredProcedure);
         }
-        public async Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(string login)
+        public async Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token)
         {
             var prm = new DynamicParameters();
-            prm.Add("@login", login);
+            prm.Add("@token", token);
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 

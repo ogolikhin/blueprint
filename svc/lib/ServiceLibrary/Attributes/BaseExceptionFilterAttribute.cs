@@ -24,7 +24,8 @@ namespace ServiceLibrary.Attributes
             { typeof(BadRequestException), HttpStatusCode.BadRequest },
             { typeof(ResourceNotFoundException), HttpStatusCode.NotFound },
             { typeof(AuthorizationException), HttpStatusCode.Forbidden },
-            { typeof(SqlTimeoutException), HttpStatusCode.ServiceUnavailable }
+            { typeof(SqlTimeoutException), HttpStatusCode.ServiceUnavailable },
+            { typeof(ConflictException), HttpStatusCode.Conflict }
         };
 
         public override async Task OnExceptionAsync(HttpActionExecutedContext context, CancellationToken cancellationToken)

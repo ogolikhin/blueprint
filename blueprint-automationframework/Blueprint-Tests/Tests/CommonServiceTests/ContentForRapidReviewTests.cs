@@ -11,6 +11,10 @@ namespace CommonServiceTests
 {
     public class ContentForRapidReviewTests : TestBase
     {
+        private const string DIAGRAM_PATH = RestPaths.Svc.Components.RapidReview.DIAGRAM_id_;
+        private const string GLOSSARY_PATH = RestPaths.Svc.Components.RapidReview.GLOSSARY_id_;
+        private const string USECASE_PATH = RestPaths.Svc.Components.RapidReview.USECASE_id_;
+
         private IUser _user;
         private IProject _project;
 
@@ -34,7 +38,7 @@ namespace CommonServiceTests
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllDiagramArtifactTypesForOpenApiRestMethods))]
         [TestRail(107388)]
-        [Description("Run:  svc/components/RapidReview/diagram/{artifactId}  with the ID of a diagram artifact.  Verify proper content for Diagram artifact is returned.")]
+        [Description("Run:  'GET svc/components/RapidReview/diagram/{artifactId}'  with the ID of a diagram artifact.  Verify proper content for Diagram artifact is returned.")]
         public void GetDiagramContentForRapidReview_DiagramArtifacts_ReturnsDefaultDiagramContent(BaseArtifactType artifactType)
         {
             // Setup:
@@ -45,7 +49,7 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 diagramContent = artifact.GetRapidReviewDiagramContent(_user);
-            }, "GetDiagramContentForRapidReview must not throw errors.");
+            }, "'GET {0}' should return 200 OK when a valid token is passed.", DIAGRAM_PATH);
 
             // Verify:
             Assert.That(diagramContent.DiagramType, Is.EqualTo(artifactType.ToString()).IgnoreCase, "Returned diagram type must be {0}, but it is {1}", artifactType, diagramContent.DiagramType);
@@ -57,7 +61,7 @@ namespace CommonServiceTests
 
         [TestCase]
         [TestRail(107389)]
-        [Description("Run:  svc/components/RapidReview/glossary/{artifactId}  with the ID of the glossary artifact.  Verify proper artifact content is returned.")]
+        [Description("Run:  'GET svc/components/RapidReview/glossary/{artifactId}'  with the ID of the glossary artifact.  Verify proper artifact content is returned.")]
         public void GetGlossaryContentForRapidReview_GlossaryArtifact_ReturnsDefaultGlossaryContent()
         {
             // Setup:
@@ -67,8 +71,8 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                glossaryContent = artifact.GetGlossaryContentForRapidReview(_user);
-            }, "GetGlossaryContentForRapidReview must not throw errors.");
+                glossaryContent = artifact.GetRapidReviewGlossaryContent(_user);
+            }, "'GET {0}' should return 200 OK when a valid token is passed.", GLOSSARY_PATH);
 
             // Verify:
             Assert.AreEqual(artifact.Id, glossaryContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, glossaryContent.Id);
@@ -87,8 +91,8 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactContent = artifact.GetUseCaseContentForRapidReview(_user);
-            }, "GetUseCaseContentForRapidReview must not throw errors.");
+                artifactContent = artifact.GetRapidReviewUseCaseContent(_user);
+            }, "'GET {0}' should return 200 OK when a valid token is passed.", USECASE_PATH);
 
             // Verify:
             Assert.AreEqual(artifact.Id, artifactContent.Id, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, artifactContent.Id);

@@ -650,6 +650,25 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new Baseline in the project's default Baselines folder.
+        /// </summary>
+        /// <param name="user">The user to perform the operation.</param>
+        /// <param name="project">The project in which Baseline will be created.</param>
+        /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
+        /// <returns>The Baseline.</returns>
+        public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            var defaultBaselineFolder = project.GetDefaultBaselineFolder(user);
+
+            name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+
+            return ArtifactStore.CreateArtifact(user, ItemTypePredefined.ArtifactBaseline, name, project, defaultBaselineFolder);
+        }
+
+        /// <summary>
         /// Create the property changeset for the target artifact
         /// </summary>
         /// <param name="artifactDetails">The nova artifact details</param>
@@ -1178,7 +1197,7 @@ namespace Helper
         /// <exception cref="SqlQueryFailedException">If the SQL query failed.</exception>
         public static void UpdateApplicationSettings(string key, string value)
         {
-            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = {0} WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
+            string updateQuery = I18NHelper.FormatInvariant("UPDATE [dbo].[ApplicationSettings] SET Value = '{0}' WHERE [ApplicationSettings].[Key] ='{1}'", value, key);
 
             using (var database = DatabaseFactory.CreateDatabase())
             {
@@ -1300,6 +1319,17 @@ namespace Helper
                     "First artifact Version: '{0}' doesn't match second artifact Version: '{1}'",
                     firstArtifact.Version, secondArtifact.Version);
             }
+        }
+
+        /// <summary>
+        /// Asserts that the REST response body is empty.
+        /// </summary>
+        /// <param name="response">The REST response.</param>
+        public static void AssertResponseBodyIsEmpty(RestResponse response)
+        {
+            ThrowIf.ArgumentNull(response, nameof(response));
+
+            Assert.IsEmpty(response.Content, "The REST response body should be empty, but it contains: '{0}'", response.Content);
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Linq;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
@@ -25,18 +26,20 @@ namespace AdminStore.Controllers
         internal readonly ISqlUserRepository _userRepository;
         internal readonly ISqlSettingsRepository _settingsRepository;
         internal readonly IEmailHelper _emailHelper;
+        internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(), new EmailHelper(), new ServiceLogRepository())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, IServiceLogRepository log)
+        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
             _settingsRepository = settingsRepository;
             _emailHelper = emailHelper;
+            _applicationSettingsRepository = applicationSettingsRepository;
             _log = log;
         }
 
@@ -155,8 +158,16 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> PostRequestPasswordResetAsync([FromBody]string login)
         {
             try
-            {
-                var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+			{
+            	const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
+	            var applicationSettings = await _applicationSettingsRepository.GetSettings();
+    	        var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == IsPasswordRecoveryEnabledKey);
+        	    if (matchingSetting == null || matchingSetting.Value != "true")
+	            {
+	                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
+	            }
+	
+	            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
 
                 bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
                 bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
@@ -166,10 +177,12 @@ namespace AdminStore.Controllers
 
                 if (passwordResetAllowed && !passwordRequestLimitExceeded && !passwordResetCooldownInEffect && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
                 {
+                    var recoveryToken = SystemEncryptions.CreateCryptographicallySecureGuid();
+
                     _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
                     _emailHelper.SendEmail(user);
 
-                    await _userRepository.UpdatePasswordRecoveryTokensAsync(login);
+                    await _userRepository.UpdatePasswordRecoveryTokensAsync(login, recoveryToken);
                     return Ok();
                 }
 

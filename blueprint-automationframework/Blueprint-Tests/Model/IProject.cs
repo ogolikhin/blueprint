@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Model.Impl;
 using System.Net;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
@@ -30,6 +29,11 @@ namespace Model
         /// Full path for the project. e.g. /Blueprint/Project
         /// </summary>
         string Location { get; set; }
+
+        /// <summary>
+        /// Instance of ArtifactStore associated with the project
+        /// </summary>
+        IArtifactStore ArtifactStore { get; set; }
 
         /// <summary>
         /// Artifact type list for the project

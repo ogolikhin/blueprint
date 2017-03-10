@@ -21,6 +21,9 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private IProject _projectCustomData = null;
 
+        private const string draftDescription = "description of item in the Draft state";
+        private const string publishedDescription = "description of item in the Published state";
+
         [SetUp]
         public void SetUp()
         {
@@ -46,7 +49,7 @@ namespace ArtifactStoreTests
         [TestCase(TestArtifactState.PublishedWithDraft)]
         [TestRail(266914)]
         [Description("Add published or published with draft Artifact to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_ArtifactAddToBaseline_ValidateReturnedBaseline(TestArtifactState artifactState)
+        public void AddArtifactToBaseline_PublishedOrDraftArtifact_ValidateReturnedBaseline(TestArtifactState artifactState)
         {
             // Setup:
             var artifactToAdd = CreateArtifactInSpecificState(Helper, _user, _project, artifactState, ItemTypePredefined.Actor,
@@ -62,8 +65,19 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
-            ValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+            var updatedBaseline = GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
+            switch (artifactState)
+            {
+                case TestArtifactState.Published:
+                    Assert.AreEqual(publishedDescription, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
+                    break;
+                case TestArtifactState.PublishedWithDraft:
+                    Assert.AreEqual(draftDescription, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
+                    break;
+                default:
+                    break;
+            }
         }
 
         [TestCase(true)]
@@ -91,15 +105,15 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             if (includeDescendants)
             {
-                ValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact.Id, childArtifact1.Id });
+                GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact.Id, childArtifact1.Id });
             }
             else
             {
-                ValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
+                GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
             }
             
         }
@@ -125,13 +139,13 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "After update baseline should have expected number of artifacts.");
-            ValidateBaseline(_user, baseline.Id, new List<int> { artifact.Id });
+            GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifact.Id });
         }
 
         [TestCase]
         [TestRail(266957)]
-        [Description("Add published Artifact with children Artifacts to Baseline, user don't have access to children, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_ArtifactWithDescendants_UserHasAccessToParentArtifactOnly_AddToBaseline_ValidateReturnedBaseline()
+        [Description("Add published Artifact with children Artifacts to Baseline, user don't have access to children, check that only artifacts accessible to user were added to the Baseline.")]
+        public void AddArtifactToBaseline_ArtifactWithDescendants_UserHasAccessToParentArtifactOnly_OnlyAccessibleArtifactsAddedToBaseline()
         {
             // Setup:
             var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
@@ -153,9 +167,11 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
-            ValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id });
+            GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id });
+            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _user);
+            GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
         #endregion Add Artifact to Baseline
@@ -184,14 +200,14 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(1, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
-            ValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
+            GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
         }
 
         [TestCase]
         [TestRail(266960)]
-        [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
+        [Description("Add published Collection with 2 artifacts (user has access to one artifact only) to Baseline, check that Baseline contains expected artifact only.")]
         public void AddArtifactToBaseline_CollectionWithTwoArtifacts_UserHasAccessToOneArtifact_AddToBaseline_ValidateReturnedBaseline()
         {
             // Setup:
@@ -212,18 +228,20 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id,
-                    baseline.Id, includeDescendants: true);}, "Adding artifact to Baseline shouldn't throw an error.");
+                    baseline.Id, includeDescendants: true);}, "Adding Collection to Baseline shouldn't throw an error.");
             
             // Verify:
-            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
-            ValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
+            GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
+            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _user);
+            GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
         [TestCase]
         [TestRail(266978)]
-        [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_EmptyCollectionAddToBaseline_ValidateReturnedBaseline()
+        [Description("Add empty Collection to Baseline shouldn't throw an error, check that Baseline has no items.")]
+        public void AddArtifactToBaseline_EmptyCollection_ValidateReturnedBaseline()
         {
             // Setup:
             var collectionArtifact = Helper.CreateAndSaveCollection(_project, _user);
@@ -239,15 +257,15 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
-            ValidateBaseline(_user, baseline.Id, new List<int>());
+            GetAndValidateBaseline(_user, baseline.Id, new List<int>());
         }
 
         [TestCase]
         [TestRail(266971)]
-        [Description("Add published Artifact to Collection, user has no access to Artifact, add Collection to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_CollectionWithArtifactToWhichUserHasNoAccess_AddToBaseline_BaselineShouldBeEmpty()
+        [Description("Add published Artifact to Collection, user has no access to Artifact, add Collection to Baseline, check that Baseline is empty.")]
+        public void AddArtifactToBaseline_CollectionWhereUserHasNoAccessToArtifact_BaselineShouldBeEmpty()
         {
             // Setup:
             var artifactWithNoAccess = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
@@ -267,7 +285,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
         }
 
         #endregion Add Collection to Baseline
@@ -295,7 +313,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, baseline.Artifacts.Count, "AddArtifactToBaseline should return excpected number of added artifacts.");
+            Assert.AreEqual(1, baseline.Artifacts.Count, "AddArtifactToBaseline should return expected number of added artifacts.");
         }
 
         #endregion Edit Baseline Content
@@ -303,10 +321,10 @@ namespace ArtifactStoreTests
         #endregion Positive Tests
 
         #region Negative Tests
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
+
         [TestCase]
         [TestRail(266968)]
-        [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
+        [Description("Add Baseline to another Baseline, check that it returns 404 with the expected error message.")]
         public void AddArtifactToBaseline_EmptyBaselineAddToBaseline_Validate404()
         {
             // Setup:
@@ -316,16 +334,13 @@ namespace ArtifactStoreTests
             int numberOfAddedArtifacts = 0;
 
             // Execute:
-            Assert.DoesNotThrow(() => {
+            var ex = Assert.Throws<Http404NotFoundException>(() => {
                 numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_user, baseline1.Id, baseline2.Id);
-            }, "Adding artifact to Baseline shouldn't throw an error.");
+            }, "Adding Baseline to another Baseline should throw 404 error.");
 
             // Verify:
-            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return excpected number of added artifacts.");
-
-            var updatedBaseline = Helper.ArtifactStore.GetBaseline(_user, baseline2.Id);
-            Assert.IsNotNull(updatedBaseline.Artifacts, "List of artifacts shouldn't be empty");
-            Assert.AreEqual(0, updatedBaseline.Artifacts.Count, "After update baseline should have expected number of artifacts.");
+            string expectedErrorMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
         #endregion Negative Tests
@@ -339,7 +354,7 @@ namespace ArtifactStoreTests
         public void GetBaseline_ExistingBaseline_ValidateReturnedBaseline()
         {
             // Setup:
-            var _viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
             const int baselineId = 83;
             const int expectedArtifactsNumber = 2;
             var expectedBaseline = new Baseline(isAvailableInAnalytics: false, notAllArtifactsAreShown: false,
@@ -347,7 +362,7 @@ namespace ArtifactStoreTests
 
             // Execute: 
             Baseline baseline = null;
-            Assert.DoesNotThrow(() => baseline = Helper.ArtifactStore.GetBaseline(_viewerUser, baselineId),
+            Assert.DoesNotThrow(() => baseline = Helper.ArtifactStore.GetBaseline(viewerUser, baselineId),
                 "Get Baseline shouldn't return an error.");
 
             // Verify:
@@ -382,14 +397,14 @@ namespace ArtifactStoreTests
                     return artifact;
                 case TestArtifactState.Published:
                     artifactDetails = helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", "published state description", artifactDetails);
+                    CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
                     ArtifactStore.UpdateArtifact(helper.ArtifactStore.Address, user, artifactDetails);
                     ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { artifact.Id }, user);
                     return artifact;
                 case TestArtifactState.PublishedWithDraft:
                     ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { artifact.Id }, user);
                     artifactDetails = helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", "draft state description", artifactDetails);
+                    CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
                     SvcShared.LockArtifacts(helper.ArtifactStore.Address, user, new List<int> { artifact.Id });
                     return ArtifactStore.UpdateArtifact(helper.ArtifactStore.Address, user, artifactDetails);
                 case TestArtifactState.ScheduledToDelete:
@@ -445,20 +460,22 @@ namespace ArtifactStoreTests
         /// </summary>
         /// <param name="user">User to get Baseline</param>
         /// <param name="baselineId">Id of Baseline to validate</param>
-        /// <param name="expectedArtifactIds">List of excpected Artifact's Id</param>
-        void ValidateBaseline(IUser user, int baselineId, List<int> expectedArtifactIds)
+        /// <param name="expectedArtifactIds">List of expected Artifact's Id</param>
+        Baseline GetAndValidateBaseline(IUser user, int baselineId, List<int> expectedArtifactIds)
         {
-            int excpectedArtifactsNumber = expectedArtifactIds.Count;
+            int expectedArtifactsNumber = expectedArtifactIds.Count;
             var baseline = Helper.ArtifactStore.GetBaseline(user, baselineId);
 
-            Assert.IsNotNull(baseline.Artifacts, "List of artifacts in Baseline shouldn't be empty");
-            Assert.AreEqual(excpectedArtifactsNumber, baseline.Artifacts.Count,
+            Assert.IsNotNull(baseline?.Artifacts, "List of artifacts in Baseline shouldn't be empty");
+            Assert.AreEqual(expectedArtifactsNumber, baseline.Artifacts.Count,
                 "After update baseline should have expected number of artifacts.");
             foreach (int id in expectedArtifactIds)
             {
                 Assert.IsTrue(baseline.Artifacts.Exists(artifact => artifact.Id == id),
                     "List of artifacts in Baseline should have expected values.");
             }
+
+            return baseline;
         }
 
         #endregion Private Functions

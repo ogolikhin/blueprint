@@ -80,6 +80,12 @@ namespace Model.SearchServiceModel.Impl
         /// </summary>
         public bool? IncludeArtifactPath { get; set; }
 
+        public bool ShowArtifacts { get; set; }
+
+        public bool ShowBaselinesAndReviews { get; set; }
+
+        public bool ShowCollections { get; set; }
+
         #endregion JSON serialized properties
 
         public ItemNameSearchCriteria()

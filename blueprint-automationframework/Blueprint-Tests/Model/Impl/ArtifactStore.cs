@@ -943,6 +943,10 @@ namespace Model.Impl
             expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
 
             // Get the custom artifact type for the project.
+            if (project.NovaPropertyTypes.Count == 0)
+            {
+                project.GetAllNovaArtifactTypes(project.ArtifactStore, user);
+            }
             NovaArtifactType itemType;
 
             if (artifactTypeName == null)

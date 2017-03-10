@@ -112,6 +112,18 @@ namespace Model
         IList<IProcess> GetProcesses(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Get the User Story Artifact Type for the Project
+        /// 
+        /// (Runs: 'GET svc/components/storyteller/projects/{projectId}/artifacttypes/userstory')
+        /// </summary>
+        /// <param name="projectId">The Id of the Project from which the user story artifact type is retrieved</param>
+        /// <param name="user">The user credentials for the request to get the user story artifact type</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <returns>The user story artifact type</returns>
+        /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
+        OpenApiArtifactType GetUserStoryArtifactType(int projectId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Update a Process
         /// 
         /// (Runs: 'POST svc/components/storyteller/processes/{artifactId})

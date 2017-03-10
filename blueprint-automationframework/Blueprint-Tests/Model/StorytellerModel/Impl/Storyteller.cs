@@ -294,40 +294,16 @@ namespace Model.StorytellerModel.Impl
             return service.GetProcesses(projectId, user, expectedStatusCodes);
         }
 
-        /// <seealso cref="IStoryteller.GetUserStoryArtifactType(IUser, int, List{HttpStatusCode}, bool)"/>
-        public OpenApiArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IStoryteller.GetUserStoryArtifactType(IUser, int, List{HttpStatusCode})"/>
+        public OpenApiArtifactType GetUserStoryArtifactType(IUser user, int projectId, List<HttpStatusCode> expectedStatusCodes = null)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GetUserStoryArtifactType));
 
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.ArtifactTypes.USER_STORY, projectId);
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Getting the User Story Artifact Type for project ID: {1}", nameof(Storyteller), projectId);
-
-            var response = restApi.SendRequestAndDeserializeObject<OpenApiArtifactType>(
-                path,
-                RestRequestMethod.GET,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies,
-                shouldControlJsonChanges: false);
-
-            return response;
+            return service.GetUserStoryArtifactType(projectId, user, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.UpdateProcess(IUser, IProcess, bool, List{HttpStatusCode})"/>

@@ -209,6 +209,25 @@ namespace Model.Impl
             return response.ConvertAll(o => (IProcess)o);
         }
 
+        /// <seealso cref="ISvcComponents.GetUserStoryArtifactType(int, IUser, List{HttpStatusCode})"/>
+        public OpenApiArtifactType GetUserStoryArtifactType(int projectId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GetUserStoryArtifactType));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.ArtifactTypes.USER_STORY, projectId);
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+
+            Logger.WriteInfo("{0} Getting the User Story Artifact Type for project ID: {1}", nameof(SvcComponents), projectId);
+
+            return restApi.SendRequestAndDeserializeObject<OpenApiArtifactType>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+        }
+
         /// <seealso cref="ISvcComponents.UpdateProcess(IProcess, IUser, List{HttpStatusCode})"/>
         public ProcessUpdateResult UpdateProcess(
             IProcess process,

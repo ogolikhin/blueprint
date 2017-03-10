@@ -21,8 +21,12 @@ namespace ArtifactStoreTests
     {
         private const string UPDATED_TEXT = "Updated text";
         private const string ORIGINAL_COMMENT = "Original comment";
+        private const string NO_PERMISSIONS_TO_COMPLETE_OPERATION = "You do not have permissions to complete this operation";
+        private const string TOKEN_MISSING_OR_MALFORMED = "Token is missing or malformed.";
+        private const string UNAUTHORIZED_CALL = "Unauthorized call";
+        private const string NOT_ACCESSIBLE_ITEM = "Item is no longer accessible";
 
-        private IUser _authorUser = null;
+    private IUser _authorUser = null;
         private IUser _adminUser = null;
         private IProject _project = null;
 
@@ -582,9 +586,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 401 Unauthorized when request is done without token!", path);
 
             // Verify:
-            const string expectedExceptionMessage = "Token is missing or malformed.";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of get discussions call which has no token in a header.", expectedExceptionMessage);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, TOKEN_MISSING_OR_MALFORMED);
         }
 
         [TestCase]
@@ -613,9 +615,7 @@ namespace ArtifactStoreTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.UpdateRaptorDiscussion(comment, user: null, discussionToUpdate: raptorComment),
                 "'PATCH {0}' should return 401 Unauthorized when request is done without token!", path);
             // Verify:
-            const string expectedExceptionMessage = "Unauthorized call";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of update discussion call which has no token in a header.", expectedExceptionMessage);
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, UNAUTHORIZED_CALL);
         }
 
         #endregion 401 Unauthorized
@@ -692,26 +692,26 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 403 Forbidden when user tries to get comment from project to which he/she does not have permissions!",
                 I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, artifact.Id));
 
-            // Verify:
-            // TODO: No internal error & message for this case only 403 HTTP Code Bug: https://trello.com/c/XQwBZ2zk
+        // Verify:
+        // TODO: No internal error & message 
+        // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
         }
 
-        [Category(Categories.CustomData)]
         [TestCase]
         [TestRail(266959)]
-        [Description("Update discussion with user that does not have permissions for this project. Verify 403 Forbidden HTTP status was returned")]
-        public void UpdatetDiscussion_InsufficientPermissionsToProject_403Forbidden()
+        [Description("Update discussion with user that created discussion and lost permissions for the artifact. " + 
+            "Verify 403 Forbidden HTTP status was returned")]
+        public void UpdatetDiscussion_InsufficientPermissionsToArtifact_403Forbidden()
         {
             // Setup:
-            var customDataProject = ArtifactStoreHelper.GetCustomDataProject(_adminUser);
-            var userWithoutPermissionsToProject = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, customDataProject);
+            var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var artifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.Glossary);
+            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, user);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, user);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
@@ -719,17 +719,16 @@ namespace ArtifactStoreTests
                 StatusId = statusId
             };
 
+            Helper.AssignProjectRolePermissionsToUser(user, TestHelper.ProjectRole.None, _project, artifact);
+
             // Execute:
             var path = I18NHelper.FormatInvariant(
                     RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
-            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRaptorDiscussion(comment, userWithoutPermissionsToProject, raptorComment),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRaptorDiscussion(comment, user, raptorComment),
                 "'PATCH {0}' should return 403 Forbidden when user tries to update comment for project to which he/she does not have permissions!", path);
 
-            // Verify:
-            const string expectedExceptionMessage = "You do not have permissions to complete this operation";
-            Assert.That(ex.RestResponse.Content.Contains(expectedExceptionMessage),
-                "{0} was not found in returned message of update discussion call which user has isufficient permissions to project.",
-                expectedExceptionMessage);
+            // Verify
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, NO_PERMISSIONS_TO_COMPLETE_OPERATION);
         }
 
         [TestCase]
@@ -749,7 +748,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
-            Assert.Throws<Http403ForbiddenException>(() =>
+            var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
                 artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment);
             }, "UpdateDiscussion should throw 403 error, but it doesn't.");
@@ -758,6 +757,7 @@ namespace ArtifactStoreTests
             var discussion = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             Assert.AreEqual(1, discussion.Discussions.Count, "Discussions must have 1 comment, but it has {0}", discussion.Discussions.Count);
             Assert.AreEqual(raptorComment.Comment, discussion.Discussions[0].Comment, "Comment must remain unmodified.");
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, NO_PERMISSIONS_TO_COMPLETE_OPERATION);
         }
 
         #endregion 403 Forbidden
@@ -784,6 +784,10 @@ namespace ArtifactStoreTests
             {
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             }, "GetArtifactDiscussions should throw 404 error, but it doesn't.");
+
+            // Verify:
+            // TODO: No internal error & message 
+            // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
         }
 
         [TestCase]
@@ -801,6 +805,10 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDiscussions(postedRaptorComment.ItemId, _adminUser);
             }, "GetArtifactDiscussions should throw 404 error, but it doesn't.");
+
+            // Verify:
+            // TODO: No internal error & message 
+            // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
         }
 
         [TestCase]
@@ -820,9 +828,13 @@ namespace ArtifactStoreTests
             {
                 Helper.ArtifactStore.GetArtifactDiscussions(raptorComment.ItemId, user2);
             }, "GetArtifactDiscussions should return 404 error, but it doesn't.");
+
+            // Verify:
+            // TODO: No internal error & message 
+            // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
         }
 
-        [Ignore(IgnoreReasons.UnderDevelopment)]  // Bug: https://trello.com/c/LJKgXQnW
+        [TestCase]
         [TestRail(266962)]
         [Description("Update discussion that does not exist in an artifact. Verify 404 Not Found HTTP status was returned")]
         public void UpdateDiscussion_NonExistingDiscussion_404NotFound()
@@ -845,12 +857,11 @@ namespace ArtifactStoreTests
             raptorComment.DiscussionId = int.MaxValue;
             var path = I18NHelper.FormatInvariant(
                     RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
-            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment),
+            var ex = Assert.Throws<Http404NotFoundException>(() => artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment),
                 "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist in artifact!", path);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, BusinessLayerErrorCodes.DoesNotExistForRevision,
-                "Does Not Exist For Revision. Invalid Discussion ID.");
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, NOT_ACCESSIBLE_ITEM);
         }
 
         #endregion 404 Not Found

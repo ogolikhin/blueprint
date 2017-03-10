@@ -26,7 +26,7 @@ namespace ArtifactStoreTests
         private const string UNAUTHORIZED_CALL = "Unauthorized call";
         private const string NOT_ACCESSIBLE_ITEM = "Item is no longer accessible";
 
-    private IUser _authorUser = null;
+        private IUser _authorUser = null;
         private IUser _adminUser = null;
         private IProject _project = null;
 

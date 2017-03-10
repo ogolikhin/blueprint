@@ -220,7 +220,6 @@ namespace AdminStoreTests
                 nameof(PasswordRecoveryToken.RecoveryToken));
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/ClOrV8mu  User can request reset within 24-hours of changing their password.
         [TestCase]
         [Description("Create a user and change their password, then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]

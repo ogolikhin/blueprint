@@ -369,10 +369,8 @@ namespace Model.Impl
         public DiscussionResultSet GetArtifactDiscussions(int itemId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, itemId);
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var artifactDiscussions = restApi.SendRequestAndDeserializeObject<DiscussionResultSet>(
                 path,

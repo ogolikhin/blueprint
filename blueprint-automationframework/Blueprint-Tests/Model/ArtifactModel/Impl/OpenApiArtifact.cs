@@ -447,10 +447,9 @@ namespace Model.ArtifactModel.Impl
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToUpdate,
             RaptorComment comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
 
-            string tokenValue = user.Token?.AccessControlToken;
+            string tokenValue = user?.Token?.AccessControlToken;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, itemId, discussionToUpdate.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 

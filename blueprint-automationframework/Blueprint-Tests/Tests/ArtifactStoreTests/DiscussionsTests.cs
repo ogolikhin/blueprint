@@ -483,7 +483,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             IRaptorDiscussion raptorComment = null;
 
-            string comment = "";
+            string comment = string.Empty;
             for (int i = 0; i < 2; i++)
             {
                 comment = ORIGINAL_COMMENT + " " + (i + 1);

@@ -517,8 +517,8 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.RequestPasswordRecovery(string, List{HttpStatusCode})"/>
-        public RestResponse RequestPasswordRecovery(string username, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.PasswordRecoveryRequest(string, List{HttpStatusCode})"/>
+        public RestResponse PasswordRecoveryRequest(string username, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var path = RestPaths.Svc.AdminStore.Users.PasswordRecovery.REQUEST;
             string bodyObject = username;
@@ -533,8 +533,30 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IAdminStore.ResetPassword(IUser, string, List{HttpStatusCode})"/>
-        public void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IAdminStore.PasswordRecoveryReset(string, string, List{HttpStatusCode})"/>
+        public RestResponse PasswordRecoveryReset(string recoveryToken,
+            string newPassword,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var path = RestPaths.Svc.AdminStore.Users.PasswordRecovery.RESET;
+            var bodyObject = new Dictionary<string, string>
+            {
+                { "Token", recoveryToken },
+                { "Password", newPassword.EncodeToBase64() }
+            };
+
+            Logger.WriteInfo("Resetting password for token '{0}' to '{1}'.", recoveryToken, newPassword);
+
+            var restApi = new RestApiFacade(Address);
+            return restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                bodyObject: bodyObject,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <seealso cref="IAdminStore.ChangePassword(IUser, string, List{HttpStatusCode})"/>
+        public void ChangePassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -555,7 +577,7 @@ namespace Model.Impl
 
             var queryParameters = new Dictionary<string, string> { { "login", HashingUtilities.EncodeTo64UTF8(user.Username) } };
 
-            Logger.WriteInfo("Resetting user '{0}' password from '{1}' to '{2}'", user.Username, user.Password, newPassword ?? "null");
+            Logger.WriteInfo("Changing user '{0}' password from '{1}' to '{2}'", user.Username, user.Password, newPassword ?? "null");
 
             var restApi = new RestApiFacade(Address);
             restApi.SendRequestAndGetResponse(

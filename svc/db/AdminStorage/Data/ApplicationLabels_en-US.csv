@@ -652,6 +652,6 @@ Walkthrough_Button_Label, "Walkthrough"
 Process_Walkthrough_Mode_Tooltip, "Walkthrough Mode"
 Process_Diagram_Mode_Tooltip, "Diagram Mode"
 
-
-
-
+#Zoom
+Zoom_Component_Reset_Button_Tooltip, "Reset to 100%"
+Zoom_Component_FitWidth_Button_Tooltip, "Fit to width"

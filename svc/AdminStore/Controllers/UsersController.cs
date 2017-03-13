@@ -222,51 +222,43 @@ namespace AdminStore.Controllers
         [BaseExceptionFilter]
         public async Task<IHttpActionResult> PostPasswordResetAsync([FromBody]ResetPasswordContent content)
         {
-            try
+            var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Token)).ToList();
+            if (!tokens.Any())
             {
-                var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Token)).ToList();
-                if (!tokens.Any())
-                {
-                    //user did not request password reset
-                    throw new ConflictException("Password reset failed, recovery token not found.", ErrorCodes.PasswordResetTokenNotFound);
-                }
-                if (tokens.First().RecoveryToken != content.Token)
-                {
-                    //provided token doesn't match last requested
-                    throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
-                }
-                if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
-                {
-                    //token expired
-                    throw new ConflictException("Password reset failed, recovery token expired.", ErrorCodes.PasswordResetTokenExpired);
-                }
+                //user did not request password reset
+                throw new ConflictException("Password reset failed, recovery token not found.", ErrorCodes.PasswordResetTokenNotFound);
+            }
+            if (tokens.First().RecoveryToken != content.Token)
+            {
+                //provided token doesn't match last requested
+                throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
+            }
+            if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
+            {
+                //token expired
+                throw new ConflictException("Password reset failed, recovery token expired.", ErrorCodes.PasswordResetTokenExpired);
+            }
 
-                var userLogin = tokens.First().Login;
-                var user = await _userRepository.GetUserByLoginAsync(userLogin);
-                if (user == null)
-                {
-                    //user does not exist
-                    throw new ConflictException("Password reset failed, the token is invalid.", ErrorCodes.PasswordResetTokenInvalid);
-                }
+            var userLogin = tokens.First().Login;
+            var user = await _userRepository.GetUserByLoginAsync(userLogin);
+            if (user == null)
+            {
+                //user does not exist
+                throw new ConflictException("Password reset failed, the token is invalid.", ErrorCodes.PasswordResetTokenInvalid);
+            }
 
-                var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+            var decodedNewPassword = SystemEncryptions.Decode(content.Password);
                 
-                //reset password
-                await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
+            //reset password
+            await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
 
-                //drop user session
-                var uri = new Uri(WebApiConfig.AccessControl);
-                var http = _httpClientProvider.Create(uri);
-                var request = new HttpRequestMessage { RequestUri = new Uri(uri, $"sessions/{user.Id}"), Method = HttpMethod.Delete };
-                await http.SendAsync(request);
+            //drop user session
+            var uri = new Uri(WebApiConfig.AccessControl);
+            var http = _httpClientProvider.Create(uri);
+            var request = new HttpRequestMessage { RequestUri = new Uri(uri, $"sessions/{user.Id}"), Method = HttpMethod.Delete };
+            await http.SendAsync(request);
 
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
-                return InternalServerError();
-            }
+            return Ok();
         }
     }
 }

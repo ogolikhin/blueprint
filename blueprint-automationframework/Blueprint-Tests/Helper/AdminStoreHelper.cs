@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Utilities;
+using Utilities.Factories;
 
 namespace Helper
 {
@@ -245,6 +246,9 @@ namespace Helper
 
         #region User Management
 
+        public const uint MinPasswordLength = 8;
+        public const uint MaxPasswordLength = 128;
+
         /// <summary>
         /// A class to represent a row in the PasswordRecoveryTokens database table.
         /// </summary>
@@ -253,6 +257,23 @@ namespace Helper
             public string Login { get; set; }
             public DateTime CreationTime { get; set; }
             public string RecoveryToken { get; set; }
+        }
+
+        /// <summary>
+        /// Generates a valid random password of the specified length.  NOTE: Length must be between 8 and 128.
+        /// </summary>
+        /// <param name="length">The length of the password to generate.</param>
+        /// <returns>A new valid random password.</returns>
+        public static string GenerateValidPassword(uint length = MinPasswordLength)
+        {
+            if ((length < MinPasswordLength) || (length > MaxPasswordLength))
+            {
+                throw new ArgumentOutOfRangeException(nameof(length),
+                    I18NHelper.FormatInvariant("The length must be between {0} and {1}!",
+                    MinPasswordLength, MaxPasswordLength));
+            }
+
+            return RandomGenerator.RandomUpperCase(length - 2) + "1$";
         }
 
         /// <summary>

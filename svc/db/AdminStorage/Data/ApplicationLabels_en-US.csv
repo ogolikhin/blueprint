@@ -308,6 +308,8 @@ Artifact_Baseline_Add_Artifacts_Already_Included, "{0} artifacts were already in
 Artifact_Baseline_Seal_Baseline, "Seal this Baseline"
 Artifact_Baseline_Available_In_Analytics, "Baseline Data Available In Analytics"
 Artifact_Baseline_Save_Warning, "Baseline is going to be saved. Do you want to continue?"
+Artifact_Baseline_Seal_Warning, "Are You Sure? If you Seal this Baseline, you can never again make updates to the artifacts you have added to it."
+Artifact_Baseline_Seal_Confirm, "Seal It Permanently"
 Artifact_Baseline_TimestampChangeOnSave_WarningMessage, "Are you sure you want to apply this Timestamp to your Baseline? If you do, you will permanently remove the following artifacts, since they did not exist on the date you have selected: "
 Artifact_Collection_Content_Header,"Collection Contents"
 Artifact_Collection_Edit_Rapid_Review,"Edit Rapid Review"

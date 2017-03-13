@@ -523,14 +523,11 @@ namespace SearchServiceTests
             Assert.AreEqual(_adminUser.Id, results.Items[0].LockedByUser.Id, "User id should have expected value.");
         }
 
-        [TestCase(true, true, true)]
-        [TestCase(true, true, false)]
-        [TestCase(true, false, true)]
-        [TestCase(true, false, false)]
+        [TestCase(false, false, false)]
         [TestCase(false, false, true)]
         [TestCase(false, true, false)]
-        [TestCase(false, false, false)]
-        [TestCase(false, true, true)]
+        [TestCase(true, false, false)]
+        [TestCase(true, true, true)]
         [TestRail(266973)]
         [Description("Search published artifact/baseline/collection by full name within all available projects with , verify search item has Path with null value.")]
         public void SearchArtifactByFullName_BaselineCollectionArtifact_VerifySearchResult(bool showArtifacts, bool showBaselinesAndReviews, bool showCollections)

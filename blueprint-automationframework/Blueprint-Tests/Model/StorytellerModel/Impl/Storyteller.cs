@@ -1,18 +1,17 @@
 ﻿using Common;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using Model.ModelHelpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Model.ArtifactModel.Enums;
-using Model.ModelHelpers;
 using Utilities;
-using Utilities.Facades;
 using Utilities.Factories;
 
 namespace Model.StorytellerModel.Impl
@@ -221,7 +220,6 @@ namespace Model.StorytellerModel.Impl
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
             bool shouldDeleteChildren = true)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GenerateUserStories));
@@ -229,33 +227,9 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id);
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var additionalHeaders = new Dictionary<string, string>();
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
-
-            var userstoryResults =  restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
-                path,
-                RestRequestMethod.POST,
-                additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
+            var userstoryResults = service.GenerateUserStories(user, process, expectedStatusCodes = null);
 
             // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
             if (shouldDeleteChildren)
@@ -264,7 +238,7 @@ namespace Model.StorytellerModel.Impl
                 artifact.ShouldDeleteChildren = true;
             }
 
-            return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
+            return userstoryResults;
         }
 
         public IProcess GetProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)

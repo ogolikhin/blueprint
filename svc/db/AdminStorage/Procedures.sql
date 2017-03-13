@@ -625,8 +625,8 @@ AS
 BEGIN
 	SELECT b.[Login],b.[CreationTime],b.[RecoveryToken] FROM [dbo].[PasswordRecoveryTokens] a
 	INNER JOIN [dbo].[PasswordRecoveryTokens] b
-	ON a.[Login] = [b.Login]
-	WHERE a.[PasswordRecoveryTokens] = @token
+	ON a.[Login] = b.[Login]
+	WHERE a.[RecoveryToken] = @token
 	ORDER BY [CreationTime] DESC
 END
 GO 

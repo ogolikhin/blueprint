@@ -28,6 +28,7 @@ namespace AdminStore.Controllers
         private Mock<IEmailHelper> _emailHelperMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private UsersController _controller;
+        private Mock<IHttpClientProvider> _httpClientProviderMock ;
 
         [TestInitialize]
         public void Initialize()
@@ -38,8 +39,10 @@ namespace AdminStore.Controllers
             _authRepoMock = new Mock<IAuthenticationRepository>();
             _settingsRepoMock = new Mock<ISqlSettingsRepository>();
             _emailHelperMock = new Mock<IEmailHelper>();
+            _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
-            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object)
+            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, 
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()

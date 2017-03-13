@@ -238,6 +238,45 @@ namespace AccessControl.Controllers
             }
         }
 
+        [HttpDelete]
+        [Route("{uid}")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> DeleteSession(int uid)
+        {
+            try
+            {
+                var session = await _repo.GetUserSession(uid);
+                if (session == null || session.IsExpired())
+                {
+                    throw new KeyNotFoundException();
+                }
+
+                if (await _repo.EndSession(session.SessionId) == null)
+                {
+                    throw new KeyNotFoundException();
+                }
+                _sessions.Remove(session.SessionId);
+                return Ok();
+            }
+            catch (ArgumentNullException)
+            {
+                return BadRequest();
+            }
+            catch (FormatException)
+            {
+                return BadRequest();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                await _log.LogError(WebApiConfig.LogSourceSessions, ex);
+                return InternalServerError();
+            }
+        }
+
         private void InsertSession(Session session)
         {
             _sessions.Insert(session.SessionId, session.EndTime, async () =>

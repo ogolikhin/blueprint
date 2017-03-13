@@ -27,12 +27,18 @@ namespace AdminStore.Controllers
         internal readonly IEmailHelper _emailHelper;
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
+        internal readonly IHttpClientProvider _httpClientProvider;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), 
+            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), 
+            new ServiceLogRepository(), new HttpClientProvider())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log)
+        internal UsersController(IAuthenticationRepository authenticationRepository, 
+            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, 
+            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, 
+            IServiceLogRepository log, IHttpClientProvider httpClientProvider)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -40,6 +46,7 @@ namespace AdminStore.Controllers
             _emailHelper = emailHelper;
             _applicationSettingsRepository = applicationSettingsRepository;
             _log = log;
+            _httpClientProvider = httpClientProvider;
         }
 
         /// <summary>
@@ -200,7 +207,9 @@ namespace AdminStore.Controllers
         /// <remarks>
         /// Initiates a password reset
         /// </remarks>
-        /// <response code="200">OK. See body for result.</response>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Error. Password provided is invalid..</response>
+        /// <response code="409">Error. Token is invalid.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("passwordrecovery/reset"), NoSessionRequired]
@@ -229,10 +238,22 @@ namespace AdminStore.Controllers
 
                 var userLogin = tokens.First().Login;
                 var user = await _userRepository.GetUserByLoginAsync(userLogin);
+                if (user == null)
+                {
+                    //user does not exist
+                    throw new ConflictException("Password reset failed, the token is invalid.", ErrorCodes.PasswordResetTokenInvalid);
+                }
 
                 var decodedNewPassword = SystemEncryptions.Decode(content.Password);
                 
+                //reset password
                 await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
+
+                //drop user session
+                var uri = new Uri(WebApiConfig.AccessControl);
+                var http = _httpClientProvider.Create(uri);
+                var request = new HttpRequestMessage { RequestUri = new Uri(uri, $"sessions/{user.Id}"), Method = HttpMethod.Delete };
+                await http.SendAsync(request);
 
                 return Ok();
             }

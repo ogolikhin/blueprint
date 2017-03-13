@@ -15,6 +15,7 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Exceptions;
 using System.Collections.Generic;
+using System.Net.Http.Formatting;
 
 namespace AdminStore.Controllers
 {
@@ -28,6 +29,7 @@ namespace AdminStore.Controllers
         private Mock<IEmailHelper> _emailHelperMock;
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private UsersController _controller;
+        private Mock<IHttpClientProvider> _httpClientProviderMock ;
 
         [TestInitialize]
         public void Initialize()
@@ -38,8 +40,10 @@ namespace AdminStore.Controllers
             _authRepoMock = new Mock<IAuthenticationRepository>();
             _settingsRepoMock = new Mock<ISqlSettingsRepository>();
             _emailHelperMock = new Mock<IEmailHelper>();
+            _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
-            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object)
+            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, 
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -260,6 +264,196 @@ namespace AdminStore.Controllers
         #region PasswordRecovery
 
         [TestMethod]
+        public async Task PostPasswordReset_TokenListEmpty_ReturnsConflict()
+        {
+            // Arrange
+            var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
+            var tokenList = new List<PasswordRecoveryToken>();
+            _usersRepoMock
+                .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(tokenList);
+
+            // Act
+            IHttpActionResult result = null;
+            Exception exception = null;
+            var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
+            try
+            {
+                result = await _controller.PostPasswordResetAsync(resetContent);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsInstanceOfType(exception, typeof(ConflictException));
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenNotFound, ((ConflictException)exception).ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task PostPasswordReset_TokenNotMostRecent_ReturnsConflict()
+        {
+            // Arrange
+            var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
+            var tokenList = new List<PasswordRecoveryToken>
+            {
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-20),
+                    Login = "testUser", RecoveryToken = inputToken},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+            };
+            _usersRepoMock
+                .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(tokenList);
+
+
+            // Act
+            IHttpActionResult result = null;
+            Exception exception = null;
+            var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
+            try
+            {
+                result = await _controller.PostPasswordResetAsync(resetContent);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsInstanceOfType(exception, typeof(ConflictException));
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenNotLatest, ((ConflictException)exception).ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task PostPasswordReset_ExpiredToken_ReturnsConflict()
+        {
+            // Arrange
+            var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
+            var tokenList = new List<PasswordRecoveryToken>
+            {
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-200),
+                    Login = "testUser", RecoveryToken = inputToken},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+            };
+            _usersRepoMock
+                .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(tokenList);
+
+
+            // Act
+            IHttpActionResult result = null;
+            Exception exception = null;
+            var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
+            try
+            {
+                result = await _controller.PostPasswordResetAsync(resetContent);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsInstanceOfType(exception, typeof(ConflictException));
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenExpired, ((ConflictException)exception).ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task PostPasswordReset_NullUser_ReturnsConflict()
+        {
+            // Arrange
+            var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
+            var tokenList = new List<PasswordRecoveryToken>
+            {
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
+                    Login = "testUser", RecoveryToken = inputToken},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+            };
+            _usersRepoMock
+                .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(tokenList);
+            _usersRepoMock
+                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
+                .ReturnsAsync(null);
+            
+
+            // Act
+            IHttpActionResult result = null;
+            Exception exception = null;
+            var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
+            try
+            {
+                result = await _controller.PostPasswordResetAsync(resetContent);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsInstanceOfType(exception, typeof(ConflictException));
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenInvalid, ((ConflictException)exception).ErrorCode);
+        }
+
+        [TestMethod]
+        public async Task PostPasswordReset_RepositoriesReturnsSuccessfully()
+        {
+            // Arrange
+            var uid = 3;
+            var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
+            var tokenList = new List<PasswordRecoveryToken>
+            {
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
+                    Login = "testUser", RecoveryToken = inputToken},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+            };
+            _usersRepoMock
+                .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(tokenList);
+            _usersRepoMock
+                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
+                .ReturnsAsync(new AuthenticationUser {Id = uid});
+            _authRepoMock
+                .Setup(a => a.ResetPassword(It.IsAny<AuthenticationUser>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(true));
+            var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWithOrdinal($"sessions/{uid}") ?
+                     new HttpResponseMessage(HttpStatusCode.OK) : null);
+
+            _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider)
+            {
+                Request = new HttpRequestMessage(),
+                Configuration = new HttpConfiguration()
+            };
+
+            // Act
+            IHttpActionResult result = null;
+            var resetContent = new ResetPasswordContent {Password = "MTIzNFJFV1EhQCMk", Token = inputToken};
+            result = await _controller.PostPasswordResetAsync(resetContent);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        [TestMethod]
         public async Task PostRequestPasswordReset_RepositoriesReturnsSuccessfully()
         {
             // Arrange
@@ -271,8 +465,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
-            Assert.AreEqual(HttpStatusCode.OK, ((ResponseMessageResult)result).Response.StatusCode);
+            Assert.IsInstanceOfType(result, typeof(OkResult));
         }
 
         [TestMethod]

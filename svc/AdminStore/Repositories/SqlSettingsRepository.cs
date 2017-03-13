@@ -30,7 +30,7 @@ namespace AdminStore.Repositories
         public async Task<InstanceSettings> GetInstanceSettingsAsync()
         {
             var settings = (await _connectionWrapper.QueryAsync<InstanceSettings>("GetInstanceSettings", commandType: CommandType.StoredProcedure)).First();
-            if (settings.EmailSettings != null)
+            if (!string.IsNullOrEmpty(settings.EmailSettings))
             {
                 settings.EmailSettingsDeserialized = new EmailConfigInstanceSettings(settings.EmailSettings);
             }

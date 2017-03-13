@@ -166,6 +166,7 @@
     <Content Include="Procedures\DeleteLogs.sql" />
     <Content Include="Procedures\ExtendSession.sql" />
     <Content Include="Procedures\GetActiveLicenses.sql" />
+    <Content Include="Procedures\GetUserPasswordRecoveryTokens.sql" />
     <Content Include="Procedures\SetUserPasswordRecoveryToken.sql" />
     <Content Include="Procedures\GetUserPasswordRecoveryRequestCount.sql" />
     <Content Include="Procedures\GetLicenseTransactions.sql" />

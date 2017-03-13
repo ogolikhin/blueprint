@@ -369,10 +369,8 @@ namespace Model.Impl
         public DiscussionResultSet GetArtifactDiscussions(int itemId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.DISCUSSIONS, itemId);
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             var artifactDiscussions = restApi.SendRequestAndDeserializeObject<DiscussionResultSet>(
                 path,
@@ -943,6 +941,10 @@ namespace Model.Impl
             expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
 
             // Get the custom artifact type for the project.
+            if (project.NovaPropertyTypes.Count == 0)
+            {
+                project.GetAllNovaArtifactTypes(project.ArtifactStore, user);
+            }
             NovaArtifactType itemType;
 
             if (artifactTypeName == null)

@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
-using System.Linq;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
@@ -27,12 +27,18 @@ namespace AdminStore.Controllers
         internal readonly IEmailHelper _emailHelper;
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
+        internal readonly IHttpClientProvider _httpClientProvider;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), new ServiceLogRepository())
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), 
+            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), 
+            new ServiceLogRepository(), new HttpClientProvider())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, IServiceLogRepository log)
+        internal UsersController(IAuthenticationRepository authenticationRepository, 
+            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, 
+            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, 
+            IServiceLogRepository log, IHttpClientProvider httpClientProvider)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -40,6 +46,7 @@ namespace AdminStore.Controllers
             _emailHelper = emailHelper;
             _applicationSettingsRepository = applicationSettingsRepository;
             _log = log;
+            _httpClientProvider = httpClientProvider;
         }
 
         /// <summary>
@@ -146,33 +153,39 @@ namespace AdminStore.Controllers
         /// PostRequestPasswordReset
         /// </summary>
         /// <remarks>
-        /// Initiates a password reset
+        /// Initiates a request for a password reset
         /// </remarks>
-        /// <response code="200">OK. See body for result.</response>
+        /// <response code="200">OK.</response>
+        /// <response code="409">Generic error when recovery not allowed.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("passwordrecovery/request"), NoSessionRequired]
         [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> PostRequestPasswordResetAsync([FromBody]string login)
         {
-            const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
-            var applicationSettings = await _applicationSettingsRepository.GetSettings();
-            var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == IsPasswordRecoveryEnabledKey);
-            if (matchingSetting == null || matchingSetting.Value != "true")
-            {
-                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
-            }
-
-            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
-
-            bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
-            bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
-
-            var user = await _userRepository.GetUserByLoginAsync(login);
-            bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
-
             try
-            {
+			{
+            	const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
+	            var applicationSettings = await _applicationSettingsRepository.GetSettings();
+    	        var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == IsPasswordRecoveryEnabledKey);
+        	    if (matchingSetting == null || matchingSetting.Value != "true")
+	            {
+	                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
+	            }
+	
+	            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+
+                bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
+                bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
+
+                var user = await _userRepository.GetUserByLoginAsync(login);
+                if(user == null)
+                {
+                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
+                }
+
+                bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
+
                 if (passwordResetAllowed && !passwordRequestLimitExceeded && !passwordResetCooldownInEffect && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
                 {
                     var recoveryToken = SystemEncryptions.CreateCryptographicallySecureGuid();
@@ -181,17 +194,71 @@ namespace AdminStore.Controllers
                     _emailHelper.SendEmail(user);
 
                     await _userRepository.UpdatePasswordRecoveryTokensAsync(login, recoveryToken);
-                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.OK));
+                    return Ok();
                 }
-                else {
-                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
-                }
+
+                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
             }
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceConfig, ex);
                 return InternalServerError();
             }
+        }
+
+        /// <summary>
+        /// PostPasswordReset
+        /// </summary>
+        /// <remarks>
+        /// Initiates a password reset
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="400">Error. Password provided is invalid..</response>
+        /// <response code="409">Error. Token is invalid.</response>
+        /// <response code="500">Internal Server Error. An error occurred.</response>
+        [HttpPost]
+        [Route("passwordrecovery/reset"), NoSessionRequired]
+        [ResponseType(typeof(int))]
+        [BaseExceptionFilter]
+        public async Task<IHttpActionResult> PostPasswordResetAsync([FromBody]ResetPasswordContent content)
+        {
+            var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Token)).ToList();
+            if (!tokens.Any())
+            {
+                //user did not request password reset
+                throw new ConflictException("Password reset failed, recovery token not found.", ErrorCodes.PasswordResetTokenNotFound);
+            }
+            if (tokens.First().RecoveryToken != content.Token)
+            {
+                //provided token doesn't match last requested
+                throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
+            }
+            if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
+            {
+                //token expired
+                throw new ConflictException("Password reset failed, recovery token expired.", ErrorCodes.PasswordResetTokenExpired);
+            }
+
+            var userLogin = tokens.First().Login;
+            var user = await _userRepository.GetUserByLoginAsync(userLogin);
+            if (user == null)
+            {
+                //user does not exist
+                throw new ConflictException("Password reset failed, the token is invalid.", ErrorCodes.PasswordResetTokenInvalid);
+            }
+
+            var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+                
+            //reset password
+            await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
+
+            //drop user session
+            var uri = new Uri(WebApiConfig.AccessControl);
+            var http = _httpClientProvider.Create(uri);
+            var request = new HttpRequestMessage { RequestUri = new Uri(uri, $"sessions/{user.Id}"), Method = HttpMethod.Delete };
+            await http.SendAsync(request);
+
+            return Ok();
         }
     }
 }

@@ -12,6 +12,8 @@ namespace ServiceLibrary.Repositories
 
         Task<IEnumerable<AuthorHistory>> GetAuthorHistories(IEnumerable<int> artifactIds);
 
+        Task<IEnumerable<AuthorHistory>> GetAuthorHistoriesWithPermissionsCheck(IEnumerable<int> artifactIds, int userId);    
+
         Task<IEnumerable<SubArtifact>> GetSubArtifactTreeAsync(int artifactId, int userId, int revisionId = int.MaxValue, bool includeDrafts = true);
 
         Task<List<Artifact>> GetArtifactNavigationPathAsync(int artifactId, int userId);

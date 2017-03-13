@@ -164,7 +164,7 @@ namespace ArtifactStore.Controllers
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>              
         /// <response code="500">Internal Server Error. An error occurred.</response>
-        [HttpPost, NoCache]
+        [HttpPost]
         [Route("artifacts/authorHistories"), SessionRequired]        
         public async Task<IEnumerable<AuthorHistory>> GetArtifactsAuthorHistories([FromBody] ISet<int> artifactIds)
         {

@@ -264,13 +264,14 @@ namespace AdminStore.Controllers
         #region PasswordRecovery
 
         [TestMethod]
-        public async Task PostPasswordReset_NoTokens_ReturnsConflict()
+        public async Task PostPasswordReset_TokenListEmpty_ReturnsConflict()
         {
             // Arrange
             var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
+            var tokenList = new List<PasswordRecoveryToken>();
             _usersRepoMock
                 .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
-                .ReturnsAsync(new List<PasswordRecoveryToken>());
+                .ReturnsAsync(tokenList);
 
             // Act
             IHttpActionResult result = null;

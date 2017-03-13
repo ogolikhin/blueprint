@@ -343,6 +343,30 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
+        [TestCase]
+        [TestRail(267021)]
+        [Description("Try to set IsAvailableInAnalytics for unsealed Baseline, check 409 and error message.")]
+        public void EditBaseline_SetAvailableForAnalytics_ValidateReturned409()
+        {
+            // Setup:
+            var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
+
+            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _adminUser);
+            SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
+
+            baseline.SetIsAvailableInAnalytics(true);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _adminUser, baseline);
+            }, "Attempt to set IsAvailableInAnalytics for unsealed Baseline should return 409 error.");
+
+            // Verify:
+            string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies, expectedErrorMessage);
+        }
+
         #endregion Negative Tests
 
         #region Custom Data Tests

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using TestCommon;
 using Utilities.Factories;
 using Model.ArtifactModel.Enums;
+using Model.Impl;
 
 namespace SearchServiceTests
 {
@@ -317,6 +318,7 @@ namespace SearchServiceTests
             ItemNameSearchResultSet results = null;
 
             var expectedPath = new List<string> { _firstProject.Name, parentFolder.Name, parentArtifact.Name };
+            var expectedIdPath = new List<int> { _firstProject.Id, parentFolder.Id, parentArtifact.Id };
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -328,6 +330,7 @@ namespace SearchServiceTests
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
             Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
             Assert.AreEqual(expectedPath, results.Items[0].Path, "Returned Path should have expected value");
+            Assert.AreEqual(expectedIdPath, results.Items[0].IdPath, "Returned IdPath should have expected value");
         }
 
         [TestCase]
@@ -520,6 +523,58 @@ namespace SearchServiceTests
             Assert.AreEqual(_adminUser.Id, results.Items[0].LockedByUser.Id, "User id should have expected value.");
         }
 
+        [TestCase(false, false, false)]
+        [TestCase(false, false, true)]
+        [TestCase(false, true, false)]
+        [TestCase(true, false, false)]
+        [TestCase(true, true, true)]
+        [TestRail(266973)]
+        [Description("Search published artifact/baseline/collection by full name within all available projects with , verify search item has Path with null value.")]
+        public void SearchArtifactByFullName_BaselineCollectionArtifact_VerifySearchResult(bool showArtifacts, bool showBaselinesAndReviews, bool showCollections)
+        {
+            // Setup:
+            string artifactName = RandomGenerator.RandomAlphaNumeric(8);
+
+            var baseline = Helper.CreateBaseline(_adminUser, _firstProject, name: artifactName);
+            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _adminUser);
+            var collection = Helper.CreateAndSaveCollection(_firstProject, _adminUser, name: artifactName);
+            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { collection.Id }, _adminUser);
+            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram,
+                name: artifactName);
+
+            var selectedProjectIds = _projects.ConvertAll(project => project.Id);
+            var searchCriteria = new ItemNameSearchCriteria(artifactName, selectedProjectIds);
+            searchCriteria.IncludeArtifactPath = true;
+            searchCriteria.ShowArtifacts = showArtifacts;
+            searchCriteria.ShowBaselinesAndReviews = showBaselinesAndReviews;
+            searchCriteria.ShowCollections = showCollections;
+            ItemNameSearchResultSet results = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                results = Helper.SearchService.SearchItems(_viewerUser, searchCriteria);
+            }, "SearchItems should throw no errors.");
+
+            // Verify:
+            int expectedSearchResultNumber = 0;
+            if (showArtifacts)
+            {
+                expectedSearchResultNumber++;
+                Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
+            }
+            if (showBaselinesAndReviews)
+            {
+                expectedSearchResultNumber++;
+                Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(baseline, si)), "Published baseline must be in search results.");
+            }
+            if (showCollections)
+            {
+                expectedSearchResultNumber++;
+                Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(collection, si)), "Published collection must be in search results.");
+            }
+            Assert.AreEqual(expectedSearchResultNumber, results.Items.Count, "List of SearchItems should have expected number of items.");
+        }
+
         /// <summary>
         /// Returns true if ItemNameSearchResult contains information about Artifact and false otherwise
         /// </summary>
@@ -531,6 +586,19 @@ namespace SearchServiceTests
                     (searchItem.Name == artifact.Name) &&
                     (searchItem.ProjectId == artifact.ProjectId) &&
                     (searchItem.ItemTypeId == artifact.ArtifactTypeId));
+        }
+
+        /// <summary>
+        /// Returns true if ItemNameSearchResult contains information about Artifact and false otherwise
+        /// </summary>
+        /// <param name="artifact">artifact to compare</param>
+        /// <param name="searchItem">searchItem to compare</param>
+        private static bool DoesSearchItemCorrespondToArtifact(INovaArtifactDetails artifact, ItemNameSearchResult searchItem)
+        {
+            return ((searchItem.Id == artifact.Id) &&
+                    (searchItem.Name == artifact.Name) &&
+                    (searchItem.ProjectId == artifact.ProjectId) &&
+                    (searchItem.ItemTypeId == artifact.ItemTypeId));
         }
     }
 }

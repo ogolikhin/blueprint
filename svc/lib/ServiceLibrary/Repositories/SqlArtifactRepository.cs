@@ -755,7 +755,7 @@ namespace ServiceLibrary.Repositories
             return (await _connectionWrapper.QueryAsync<SqlAuthorHistory>("GetOpenArtifactAuthorHistories", param, commandType: CommandType.StoredProcedure)).Select(a => (AuthorHistory)a);
         }
 
-        public async Task<IEnumerable<AuthorHistory>> GetAuthorHistoriesWithPermissionsCheck(ISet<int> artifactIds, int userId)
+        public async Task<IEnumerable<AuthorHistory>> GetAuthorHistoriesWithPermissionsCheck(IEnumerable<int> artifactIds, int userId)
         {            
             var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds.ToList(), userId);
 

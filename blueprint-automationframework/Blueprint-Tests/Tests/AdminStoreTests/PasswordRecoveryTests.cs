@@ -67,7 +67,6 @@ namespace AdminStoreTests
 
         #region Negative tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/ifyXsRc6  Gets a 500 error.
         [TestCase]
         [Description("Create and delete a user and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
@@ -139,7 +138,6 @@ namespace AdminStoreTests
             TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/ifyXsRc6  Gets a 500 error.
         [TestCase]
         [Description("Request a password reset for that username that doesn't exist.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]

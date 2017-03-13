@@ -357,6 +357,73 @@ namespace AccessControl.Controllers
 
         #endregion DeleteSession
 
+        #region DeleteSession_UserId
+
+        [TestMethod]
+        public async Task DeleteSession_UserId_SessionDoesNotExist_NotFound()
+        {
+            // Arrange
+            int uid = 3;
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(null);
+
+            // Act
+            var result = await _controller.DeleteSession(uid);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_UserId_RepositoryReturnsNull_NotFound()
+        {
+            // Arrange
+            int uid = 3;
+            var guid = Guid.NewGuid();
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session {SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).ReturnsAsync(null);
+
+            // Act
+            var result = await _controller.DeleteSession(uid);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(NotFoundResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_UserId_ThrowsException_InternalServerError()
+        {
+            // Arrange
+            int uid = 3;
+            var guid = Guid.NewGuid();
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session { SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
+            _sessionsRepoMock.Setup(repo => repo.EndSession(guid, null)).Throws<Exception>();
+
+            // Act
+            var result = await _controller.DeleteSession(uid);
+
+            // Assert
+            Assert.IsInstanceOfType(result, typeof(InternalServerErrorResult));
+        }
+
+        [TestMethod]
+        public async Task DeleteSession_UserId_SessionExists_OkResult()
+        {
+            // Arrange
+            int uid = 3;
+            var guid = Guid.NewGuid();
+            _sessionsRepoMock.Setup(repo => repo.GetUserSession(uid)).ReturnsAsync(new Session { SessionId = guid, EndTime = DateTime.UtcNow.AddDays(1) });
+            _sessionsRepoMock.Setup(r => r.EndSession(guid, null)).ReturnsAsync(new Session { SessionId = guid });
+
+            // Act
+            var result = await _controller.DeleteSession(uid);
+
+            // Assert
+            _cacheMock.Verify(c => c.Remove(guid));
+            Assert.IsInstanceOfType(result, typeof(OkResult));
+        }
+
+        #endregion DeleteSession_UserId
+
         #region PutSession
 
         [TestMethod]

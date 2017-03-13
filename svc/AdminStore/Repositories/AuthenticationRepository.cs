@@ -185,7 +185,7 @@ namespace AdminStore.Repositories
                 throw new BadRequestException("Password reset failed, new password cannot be empty", ErrorCodes.EmptyPassword);
             }
 
-            if (oldPassword == newPassword)
+            if (oldPassword != null && oldPassword == newPassword)
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }

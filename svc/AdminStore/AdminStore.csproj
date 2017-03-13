@@ -122,6 +122,8 @@
     <Compile Include="Models\ApplicationSettings.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
+    <Compile Include="Models\PasswordRecoveryToken.cs" />
+    <Compile Include="Models\ResetPasswordContent.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
     <Compile Include="Models\UserIcon.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />

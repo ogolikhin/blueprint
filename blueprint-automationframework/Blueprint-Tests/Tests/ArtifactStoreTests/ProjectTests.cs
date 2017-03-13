@@ -128,6 +128,49 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
+        [Ignore(IgnoreReasons.ProductBug)] // Bug: GetProjectChildren call not returns orphan artifacts http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5726
+        [TestCase]
+        [TestRail(134083)]
+        [Description("Executes Get project children for for project with orphan artifact. Verifies orphan artifact returned among other artifacts")]
+        public void GetArtifactChildrenByProjectId_CreateOrphanArtifact_VerifyOrphanArtifactReturned()
+        {
+            // Setup:
+            const string DELETE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
+            const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+
+            List<IArtifact> grandChildArtifacts = new List<IArtifact>();
+            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
+
+            // Move grandchild artifact to the first parent.
+            grandChildArtifacts[0].Lock();
+            Helper.ArtifactStore.MoveArtifact(grandChildArtifacts[0], parentArtifactList[0], _adminUser);
+
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(parentArtifactList[1], _adminUser),
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
+
+            parentArtifactList[1].Publish(_adminUser);
+
+            var artifacts = new List<IArtifactBase>();
+            artifacts.AddRange(grandChildArtifacts);
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifacts: artifacts, user: _adminUser),
+                "'POST {0}' should return 200 OK if an artifact was deleted!", DISCARD_PATH);
+
+            // Execute:
+            List<NovaArtifact> returnedNovaArtifactList = null;
+            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, _adminUser),
+                "The 'GET {0}' should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, grandChildArtifacts[0].Id);
+            Assert.AreEqual(_project.Id, artifactDetails.ParentId, "Artifact parent Id should be the id of the project! (orphan artifact)");
+
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project, returnedNovaArtifactList);
+
+            // Assert that grandchild artifact is returned from GetProjectChilden call
+            var grandChildNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]);
+
+            ArtifactStoreHelper.AssertArtifactsEqual(grandChildArtifacts[0], grandChildNovaArtifact, skipIdAndVersion: true);
+        }
+
         #endregion GetProjectChildrenByProjectId tests
 
         #region GetArtifactChildrenByProjectAndArtifactId tests
@@ -245,40 +288,6 @@ namespace ArtifactStoreTests
 
             // Verify: validate the list of artifacts returned by the REST call.
             ArtifactStoreHelper.ValidateNovaArtifacts(_project,
-                novaArtifacts: returnedNovaArtifactList,
-                parentArtifact: parentArtifactList[1],
-                expectedNumberOfArtifacts: 1);
-
-            // Assert that grandchild artifact under the second parent artifact is returned from Get ArtifactChilden call
-            var grandChildNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]);
-
-            ArtifactStoreHelper.AssertArtifactsEqual(grandChildArtifacts[0], grandChildNovaArtifact, skipIdAndVersion: true);
-        }
-
-        [TestCase]
-        [TestRail(134083)]
-        [Description("Executes Get publish artifact of second level children call for published artifact, creates orphan artifact and returns 200 OK if successful")]
-        public void GetArtifactChildrenByProjectAndArtifactId_MovedArtifact_OK()
-        {
-            // Setup:
-            List<IArtifact> grandChildArtifacts = new List<IArtifact>();
-            var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
-
-            // Move second parent below the first parent.
-            parentArtifactList[1].Lock();
-            Helper.ArtifactStore.MoveArtifact(parentArtifactList[1], parentArtifactList[0], _adminUser);
-            parentArtifactList[1].Publish();
-
-            // Execute:
-            List<NovaArtifact> returnedNovaArtifactList = null;
-            Assert.DoesNotThrow(() =>
-            {
-                returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifactList[1].Id, _adminUser);
-            }, "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_ARTIFACT_CHILDREN);
-
-            // Verify: validate the list of artifacts returned by the REST call.
-            ArtifactStoreHelper.ValidateNovaArtifacts(
-                _project,
                 novaArtifacts: returnedNovaArtifactList,
                 parentArtifact: parentArtifactList[1],
                 expectedNumberOfArtifacts: 1);
@@ -458,7 +467,8 @@ namespace ArtifactStoreTests
 
             var returnedNovaArtifact = novaArtifacts.Find(a => a.Id.Equals(artifactToFind.Id));
 
-            Assert.IsNotNull(returnedNovaArtifact, "The returned result from GET {0} doesn't contain the published artifact whose Id is {1}.", PATH_PROJECT_CHILDREN, artifactToFind.Id);
+            string path = I18NHelper.FormatInvariant(PATH_PROJECT_CHILDREN, artifactToFind.ProjectId);
+            Assert.IsNotNull(returnedNovaArtifact, "The returned result from GET {0} doesn't contain the published artifact whose Id is {1}.", path, artifactToFind.Id);
 
             return returnedNovaArtifact;
         }

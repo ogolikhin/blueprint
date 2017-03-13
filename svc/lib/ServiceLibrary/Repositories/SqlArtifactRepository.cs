@@ -756,21 +756,12 @@ namespace ServiceLibrary.Repositories
         }
 
         public async Task<IEnumerable<AuthorHistory>> GetAuthorHistoriesWithPermissionsCheck(ISet<int> artifactIds, int userId)
-        {
-            var artifactsPermissions = new List<KeyValuePair<int, RolePermissions>>();
+        {            
+            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds.ToList(), userId);
 
-            int iterations = (int)Math.Ceiling((double)artifactIds.Count() / 50);
-
-            for (int i = 0; i < iterations; i++)
-            {
-                var chunkProjectIds = artifactIds.Skip(i * 50).Take(50);
-                var newDictionary = await _artifactPermissionsRepository.GetArtifactPermissions(chunkProjectIds, userId);
-                artifactsPermissions.AddRange(newDictionary.ToList());
-            }            
-           
             var readPermissions = artifactsPermissions.Where(perm => perm.Value.HasFlag(RolePermissions.Read));
 
-            return await GetAuthorHistories(readPermissions.Select(rp => rp.Key).ToList());            
+            return await GetAuthorHistories(readPermissions.Select(rp => rp.Key).ToList());    
         }
 
     }

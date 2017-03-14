@@ -539,11 +539,17 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             var path = RestPaths.Svc.AdminStore.Users.PasswordRecovery.RESET;
-            var bodyObject = new Dictionary<string, string>
+            var bodyObject = new Dictionary<string, string>();
+
+            if (recoveryToken != null)
             {
-                { "Token", recoveryToken },
-                { "Password", newPassword.EncodeToBase64() }
-            };
+                bodyObject.Add("Token", recoveryToken);
+            }
+
+            if (newPassword != null)
+            {
+                bodyObject.Add("Password", newPassword.EncodeToBase64());
+            }
 
             Logger.WriteInfo("Resetting password for token '{0}' to '{1}'.", recoveryToken, newPassword);
 

@@ -17,8 +17,8 @@ namespace AdminStoreTests
     [Category(Categories.AdminStore)]
     public class UserTests : TestBase
     {
-        private const uint MinPasswordLength = 8;
-        private const uint MaxPasswordLength = 128;
+        private const uint MinPasswordLength = AdminStoreHelper.MinPasswordLength;
+        private const uint MaxPasswordLength = AdminStoreHelper.MaxPasswordLength;
 
         private const string USERSRESET_PATH = RestPaths.Svc.AdminStore.Users.RESET;
         private const string CANNOTUSELASTPASSWORDS = "CannotUseLastPasswords";

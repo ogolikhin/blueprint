@@ -217,6 +217,12 @@ namespace AdminStore.Controllers
         [BaseExceptionFilter]
         public async Task<IHttpActionResult> PostPasswordResetAsync([FromBody]ResetPasswordContent content)
         {
+            //the deserializer creates a zero filled guid when none provided
+            if (content.Token == null || content.Token.GetHashCode() == 0)
+            {
+                throw new BadRequestException("Password reset failed, token not provided", ErrorCodes.PasswordResetTokenInvalid);
+            }
+
             var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Token)).ToList();
             if (!tokens.Any())
             {

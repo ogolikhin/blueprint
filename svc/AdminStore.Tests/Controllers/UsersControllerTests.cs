@@ -264,6 +264,31 @@ namespace AdminStore.Controllers
         #region PasswordRecovery
 
         [TestMethod]
+        public async Task PostPasswordReset_NoToken_ReturnsBadRequest()
+        {
+            // Arrange
+            var inputToken = new Guid("00000000-0000-0000-0000-000000000000");
+          
+            // Act
+            IHttpActionResult result = null;
+            Exception exception = null;
+            var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
+            try
+            {
+                result = await _controller.PostPasswordResetAsync(resetContent);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsInstanceOfType(exception, typeof(BadRequestException));
+            Assert.AreEqual(ErrorCodes.PasswordResetTokenInvalid, ((BadRequestException)exception).ErrorCode);
+        }
+
+        [TestMethod]
         public async Task PostPasswordReset_TokenListEmpty_ReturnsConflict()
         {
             // Arrange

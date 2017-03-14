@@ -65,6 +65,7 @@
     <Compile Include="ArtifactModel\Impl\ArtifactHistory.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactInfo.cs" />
     <Compile Include="ArtifactModel\Impl\ArtifactReference.cs" />
+    <Compile Include="ArtifactModel\Impl\AuthorHistoryItem.cs" />
     <Compile Include="ArtifactModel\Impl\Baseline.cs" />
     <Compile Include="ArtifactModel\Impl\Collection.cs" />
     <Compile Include="ArtifactModel\Impl\RaptorComment.cs" />

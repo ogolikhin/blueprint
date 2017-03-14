@@ -1,0 +1,24 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Model.ArtifactModel.Impl
+{
+    public class AuthorHistoryItem
+    {
+        public int ItemId { get; set; }
+
+        [JsonProperty("createdBy")]
+        public int CreatedByUserId { get; set; }
+
+        public DateTime CreatedOn { get; set; }
+
+        [JsonProperty("lastEditedBy")]
+        public int LastEditedByUserId { get; set; }
+
+        public DateTime LastEditedOn { get; set; }
+    }
+}

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Model.Common.Enums;
 using Utilities;
+using Model.ArtifactModel.Enums;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -106,9 +107,11 @@ namespace Model.ArtifactModel.Impl
         public DateTime? LastEditedOn { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public Identification CreatedBy { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
-        public int IndicatorFlags { get; set; }
-        public Identification LastEditedBy { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ItemIndicatorFlags IndicatorFlags { get; set; } = 0;
+
+//        public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
         public bool? LastSaveInvalid { get; set; }
@@ -234,7 +237,10 @@ namespace Model.ArtifactModel.Impl
         public Identification CreatedBy { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
         public Identification LastEditedBy { get; set; }
-        public int IndicatorFlags { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ItemIndicatorFlags IndicatorFlags { get; set; } = 0;
+
         public override int Id { get; set; }
         public override string Name { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
@@ -259,7 +265,10 @@ namespace Model.ArtifactModel.Impl
         public string Name { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
-        public int IndicatorFlags { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ItemIndicatorFlags IndicatorFlags { get; set; } = 0;
+
         #endregion Serialized JSON Properties
     }
 

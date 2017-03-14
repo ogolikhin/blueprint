@@ -1855,5 +1855,135 @@ namespace ServiceLibrary.Repositories
         }
 
         #endregion GetArtifactsNavigationPathsAsync
+
+        #region GetAuthorHistoriesWithPermissionsCheck
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public async Task GetAuthorHistoriesWithPermissionsCheck_ThrowsError()
+        {
+            // Arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlArtifactRepository(cxn.Object);
+
+            // Act
+            await repository.GetAuthorHistoriesWithPermissionsCheck(null, 1);
+
+            // Assert
+        }
+
+        [TestMethod]
+        public async Task GetAuthorHistoriesWithPermissionsCheck_Success()
+        {
+            // Arrange
+            int[] artifactIds = { 1 };
+            const int userId = 1;
+            
+            var cxn = new SqlConnectionWrapperMock();
+
+            var authorHistory = new SqlAuthorHistory
+            {
+                ItemId = artifactIds.First(),
+                CreationTimestamp = DateTime.Today.AddHours(-2),
+                CreationUserId = 1,
+                ModificationTimestamp = DateTime.Today.AddHours(-1),
+                ModificationUserId = 2
+            };            
+                        
+            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories",
+                                new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
+                                { "revisionId", int.MaxValue } },
+                                Enumerable.Repeat(authorHistory, 1));
+            
+            var permissions = new Dictionary<int, RolePermissions>();
+            permissions.Add(artifactIds[0], RolePermissions.Read);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissions);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);            
+
+            // Act
+            var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
+
+            // Assert            
+            Assert.IsTrue(actual.Count() == 1);
+            var firstActualResult = actual.First();
+            Assert.AreEqual(firstActualResult.CreatedBy, authorHistory.CreationUserId);
+            Assert.AreEqual(firstActualResult.CreatedOn, authorHistory.CreationTimestamp);
+            Assert.AreEqual(firstActualResult.LastEditedBy, authorHistory.ModificationUserId);
+            Assert.AreEqual(firstActualResult.LastEditedOn, authorHistory.ModificationTimestamp);
+        }
+
+
+        [TestMethod]
+        public async Task GetAuthorHistoriesWithPermissionsCheck_NoPermissions()
+        {
+            // Arrange
+            int[] artifactIds = { 1 };
+            const int userId = 1;
+           
+            var cxn = new SqlConnectionWrapperMock();
+
+            var authorHistory = new SqlAuthorHistory
+            {
+                ItemId = artifactIds.First(),
+                CreationTimestamp = DateTime.Today.AddHours(-2),
+                CreationUserId = 1,
+                ModificationTimestamp = DateTime.Today.AddHours(-1),
+                ModificationUserId = 2
+            };
+
+            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories",
+                                new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
+                                { "revisionId", int.MaxValue } },
+                                Enumerable.Repeat(authorHistory, 1));            
+
+            var permissions = new Dictionary<int, RolePermissions>();
+            permissions.Add(artifactIds[0], RolePermissions.Trace);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissions);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
+
+            // Act
+            var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
+
+            // Assert            
+            Assert.IsFalse(actual.Any());
+        }
+
+        [TestMethod]
+        public async Task GetAuthorHistoriesWithPermissionsCheck_ArtifactNotExists()
+        {
+            // Arrange
+            int[] artifactIds = { 1 };
+            const int userId = 1;
+           
+            var cxn = new SqlConnectionWrapperMock();
+          
+            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories",
+                                new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(artifactIds) },
+                                { "revisionId", int.MaxValue } },
+                                new List<SqlAuthorHistory>());
+
+            
+            var permissions = new Dictionary<int, RolePermissions>();
+            permissions.Add(artifactIds[0], RolePermissions.Read);
+            var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
+            mockArtifactPermissionsRepository.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), userId, false, int.MaxValue, true))
+                .ReturnsAsync(permissions);
+
+            var repository = new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);
+
+            // Act
+            var actual = await repository.GetAuthorHistoriesWithPermissionsCheck(artifactIds, userId);
+
+            // Assert            
+            Assert.IsTrue(actual.Count() == 0);            
+        }
+
+        #endregion GetAuthorHistoriesWithPermissionsCheck
     }
 }

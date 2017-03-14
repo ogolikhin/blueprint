@@ -100,6 +100,7 @@
     <Compile Include="Common\Constants\ApiBusinessErrorCodes.cs" />
     <Compile Include="Common\Enums\InstanceAdminRole.cs" />
     <Compile Include="Common\Enums\InstanceAdminRoleExtension.cs" />
+    <Compile Include="Common\Enums\LicenseLevel.cs" />
     <Compile Include="Common\Enums\PropertyTypePredefined.cs" />
     <Compile Include="Factories\OpenApiFactory.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />

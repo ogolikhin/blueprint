@@ -32,7 +32,8 @@ namespace Helper
             None,
             Viewer,
             AuthorFullAccess,
-            Author
+            Author,
+            Collaborator
         }
 
         public static class GoldenDataProject
@@ -975,10 +976,12 @@ namespace Helper
         /// <param name="projects">The list of projects that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
         /// <returns>Created authenticated user with required premissions</returns>
+        /// <param name="licenseType">The type of user license (Author, Collaborator, Viewer).</param>
         public IUser CreateUserWithProjectRolePermissions(
             ProjectRole role, 
             List<IProject> projects, 
-            IArtifactBase artifact = null)
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
 
@@ -988,7 +991,7 @@ namespace Helper
 
             foreach (var project in projects)
             {
-                AssignProjectRolePermissionsToUser(newUser, role, project, artifact);
+                AssignProjectRolePermissionsToUser(newUser, role, project, artifact, licenseType);
             }
 
             AdminStore.AddSession(newUser);//assign premission and after it authenticate, reverse doesn't work - need to investigate!
@@ -1009,10 +1012,12 @@ namespace Helper
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
         /// <returns>Newly created, authenticated user with required premissions</returns>
+        /// <param name="licenseType">The type of user license (Author, Collaborator, Viewer).</param>
         public IUser CreateUserWithProjectRolePermissions( 
             ProjectRole role,
             IProject project, 
-            IArtifactBase artifact = null)
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -1021,7 +1026,7 @@ namespace Helper
                 Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
             }
 
-            return CreateUserWithProjectRolePermissions(role, new List<IProject> { project }, artifact);
+            return CreateUserWithProjectRolePermissions(role, new List<IProject> { project }, artifact, licenseType);
         }
 
         /// <summary>
@@ -1033,8 +1038,15 @@ namespace Helper
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
         /// after adding a new permissions role</param>
-        public void AssignProjectRolePermissionsToUser(IUser user, ProjectRole role, IProject project, IArtifactBase artifact = null)
+        /// <param name="licenseType">The type of user license (Author, Collaborator, Viewer).</param>
+        public void AssignProjectRolePermissionsToUser(
+            IUser user, 
+            ProjectRole role, 
+            IProject project, 
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
+
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
             if (artifact != null)
@@ -1064,6 +1076,11 @@ namespace Helper
                         RolePermissions.Share |
                         RolePermissions.Trace;
             }
+            else if (role == ProjectRole.Collaborator)
+            {
+                rolePermissions = RolePermissions.Read |
+                        RolePermissions.Comment;
+            }
             else if (role == ProjectRole.None)
             {
                 rolePermissions = RolePermissions.None;
@@ -1081,7 +1098,7 @@ namespace Helper
                         RolePermissions.Trace;
             }
 
-            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact);
+            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact, licenseType);
         }
 
         /// <summary>
@@ -1093,7 +1110,13 @@ namespace Helper
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
         /// after adding a new permissions role</param>
-        public void AssignProjectRolePermissionsToUser(IUser user, RolePermissions rolePermissions, IProject project, IArtifactBase artifact = null)
+        /// <param name="licenseType">The type of user license (Author, Collaborator, Viewer).</param>
+        public void AssignProjectRolePermissionsToUser(
+            IUser user, 
+            RolePermissions rolePermissions, 
+            IProject project, 
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1115,7 +1138,6 @@ namespace Helper
                 ProjectRoles.Add(projectRole);
             }
 
-            var licenseType = GroupLicenseType.Author;
             var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
             permissionsGroup.AddUser(user);
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);

@@ -5,8 +5,10 @@ using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
+using Model.Common.Enums;
 
 namespace AccessControlTests
 {
@@ -19,13 +21,34 @@ namespace AccessControlTests
         private const string YEAR_NOT_SPECIFIED = "A year must be specified";
         private const string MONTH_NOT_SPECIFIED = "A month must be specified";
 
+        private const string REST_PATH_ACTIVE = RestPaths.Svc.AccessControl.Licenses.ACTIVE;
+        private const string REST_PATH_LOCKED = RestPaths.Svc.AccessControl.Licenses.LOCKED;
+
+        private Dictionary<LicenseLevel, TestHelper.ProjectRole> _LicenseLevelToProjectRole = new Dictionary<LicenseLevel, TestHelper.ProjectRole>
+        {
+            {LicenseLevel.Author, TestHelper.ProjectRole.Author},
+            {LicenseLevel.Collaborator, TestHelper.ProjectRole.Collaborator},
+            {LicenseLevel.Viewer, TestHelper.ProjectRole.Viewer}
+        };
+
+        private Dictionary<LicenseLevel, GroupLicenseType> _LicenseLevelToGroupLicenseType = new Dictionary<LicenseLevel, GroupLicenseType>
+        {
+            {LicenseLevel.Author, GroupLicenseType.Author},
+            {LicenseLevel.Collaborator, GroupLicenseType.Collaborate},
+            {LicenseLevel.Viewer, GroupLicenseType.None}
+        };
+
+
+
         private IUser _user = null;
+        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAddToDatabase();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_user);
         }
 
         [TearDown]
@@ -71,16 +94,49 @@ namespace AccessControlTests
 
         #region GetLicensesInfo tests
 
-        [TestCase]
+        [Category(Categories.CannotRunInParallel)]
+        [TestCase(LicenseLevel.Author)]
+        [TestCase(LicenseLevel.Collaborator)]
+        [TestCase(LicenseLevel.Viewer)]
         [TestRail(96107)]
-        [Description("Check that GET active licenses info returns 200 OK")]
-        public void GetActiveLicensesInfo_200OK()
+        [Description("Check that GET active licenses info returns 200 OK. Check that changes to number" +
+            "of active licenses are reflected correctly.")]
+        public void GetActiveLicensesInfo_200OK(LicenseLevel level)
         {
-            // TODO: add expected results
+            // Setup:
+            int licBefore = 0;
+            int licAfter = 0;
+            IList<IAccessControlLicensesInfo> licenses = null;
+
+             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Helper.AccessControl.GetLicensesInfo(LicenseState.active);
-            });
+                licenses = Helper.AccessControl.GetLicensesInfo(LicenseState.active);
+            }, "'GET {0}' should return 200 OK when getting active licenses.", REST_PATH_ACTIVE );
+
+            foreach (IAccessControlLicensesInfo element in licenses)
+            {
+                if (element.LicenseLevel == (int) level)
+                {
+                    licBefore = element.Count;
+                }
+            }
+
+            Helper.CreateUserWithProjectRolePermissions(_LicenseLevelToProjectRole[level], _project, licenseType: _LicenseLevelToGroupLicenseType[level]);
+            licenses = Helper.AccessControl.GetLicensesInfo(LicenseState.active);
+
+            foreach (IAccessControlLicensesInfo element in licenses)
+            {
+                if (element.LicenseLevel == (int) level)
+                {
+                    licAfter = element.Count;
+                }
+            }
+
+            // Verify:
+            Assert.AreEqual((licBefore + 1), licAfter, 
+                "Expected the number of active {0} licenses does not match the actual number.", level.ToString());
+
         }
 
         [TestCase]

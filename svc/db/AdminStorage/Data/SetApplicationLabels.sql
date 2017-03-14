@@ -287,6 +287,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_Success', 'en-US', N'Artifacts have been successfully added to the Baseline ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_Already_Included', 'en-US', N'Artifacts have not been added to the Baseline because they have already been included ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Baseline', 'en-US', N'Seal this Baseline')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Sealed', 'en-US', N'Sealed')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Available_In_Analytics', 'en-US', N'Baseline Data Available In Analytics')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Save_Warning', 'en-US', N'Baseline is going to be saved. Do you want to continue?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Warning', 'en-US', N'Are You Sure? If you Seal this Baseline, you can never again make updates to the artifacts you have added to it.')

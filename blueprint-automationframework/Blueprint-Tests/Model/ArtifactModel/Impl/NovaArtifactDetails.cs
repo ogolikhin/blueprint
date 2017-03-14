@@ -107,6 +107,7 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public Identification CreatedBy { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
+        public int IndicatorFlags { get; set; }
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
@@ -234,6 +235,7 @@ namespace Model.ArtifactModel.Impl
         public Identification CreatedBy { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
         public Identification LastEditedBy { get; set; }
+        public int IndicatorFlags { get; set; }
         public override int Id { get; set; }
         public override string Name { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
@@ -260,7 +262,6 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
         public int IndicatorFlags { get; set; }
-
         #endregion Serialized JSON Properties
     }
 

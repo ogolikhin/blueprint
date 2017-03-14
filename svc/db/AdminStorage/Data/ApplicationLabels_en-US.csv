@@ -304,8 +304,16 @@ Artifact_Baseline_No_Artifacts_In_Baseline,"No artifacts available in this basel
 Artifact_Baseline_Add_Artifacts_Picker_Header,"Add Artifacts to Baseline"
 Artifact_Baseline_Add_Artifacts_To_Baseline, "Click Here to Add Artifacts to This Baseline"
 Artifact_Baseline_Add_Artifacts_Success, "Artifacts have been successfully added to the Baseline ({0})."
+Artifact_Baseline_Add_Artifacts_Unbublished, "Artifacts have not been added to the Baseline because they have not been Published yet ({0})."
+Artifact_Baseline_Add_Artifacts_Nonexistent, "Artifacts have not been added to the Baseline because they did not exist at the time of this Baseline's timestamp ({0})."
 Artifact_Baseline_Add_Artifacts_Already_Included, "Artifacts have not been added to the Baseline because they have already been included ({0})."
+Artifact_Baseline_Add_Artifacts_SealedBaseline, "Artifacts have not been added to the Baseline because the Baseline is sealed."
 Artifact_Baseline_Seal_Baseline, "Seal this Baseline"
+Artifact_Baseline_Sealed, "Sealed"
+Artifact_Baseline_Live, "Live"
+Artifact_Baseline_Use_12hour_Format, "Please use format HH:mma"
+Artifact_Baseline_Use_24hour_Format, "Please use format HH:mm"
+Artifact_Baseline_Create_Timestamp, "Create Timestamp"
 Artifact_Baseline_Available_In_Analytics, "Baseline Data Available In Analytics"
 Artifact_Baseline_Save_Warning, "Baseline is going to be saved. Do you want to continue?"
 Artifact_Baseline_Seal_Warning, "Are You Sure? If you Seal this Baseline, you can never again make updates to the artifacts you have added to it."
@@ -650,9 +658,11 @@ Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
 Jobs_Button_Label_GetJobs, "Get Jobs"
 
+#Walkthrough
 Walkthrough_Button_Label, "Walkthrough"
 Process_Walkthrough_Mode_Tooltip, "Walkthrough Mode"
 Process_Diagram_Mode_Tooltip, "Diagram Mode"
+Walkthrough_UserItem_Description, "As a {0}, I want to {1}, so that I can {2}"
 
 #Zoom
 Zoom_Component_Reset_Button_Tooltip, "Reset to 100%"

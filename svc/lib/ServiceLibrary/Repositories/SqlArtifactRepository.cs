@@ -756,12 +756,17 @@ namespace ServiceLibrary.Repositories
         }
 
         public async Task<IEnumerable<AuthorHistory>> GetAuthorHistoriesWithPermissionsCheck(IEnumerable<int> artifactIds, int userId)
-        {            
+        {
+            if (artifactIds == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(artifactIds));
+            }
+
             var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds.ToList(), userId);
 
             var readPermissions = artifactsPermissions.Where(perm => perm.Value.HasFlag(RolePermissions.Read));
 
-            return await GetAuthorHistories(readPermissions.Select(rp => rp.Key).ToList());    
+            return await GetAuthorHistories(readPermissions.Select(rp => rp.Key).ToList());
         }
 
     }

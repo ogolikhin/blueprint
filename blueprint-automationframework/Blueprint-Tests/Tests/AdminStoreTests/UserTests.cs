@@ -17,8 +17,8 @@ namespace AdminStoreTests
     [Category(Categories.AdminStore)]
     public class UserTests : TestBase
     {
-        private const uint MinPasswordLength = 8;
-        private const uint MaxPasswordLength = 128;
+        private const uint MinPasswordLength = AdminStoreHelper.MinPasswordLength;
+        private const uint MaxPasswordLength = AdminStoreHelper.MaxPasswordLength;
 
         private const string USERSRESET_PATH = RestPaths.Svc.AdminStore.Users.RESET;
         private const string CANNOTUSELASTPASSWORDS = "CannotUseLastPasswords";
@@ -70,7 +70,7 @@ namespace AdminStoreTests
             // Execute: change the user's password.
             Assert.DoesNotThrow(() =>
             {
-                Helper.AdminStore.ResetPassword(_adminUser, newPassword);
+                Helper.AdminStore.ChangePassword(_adminUser, newPassword);
             }, "Password reset failed when we passed a valid username & password!");
 
             // Verify: make sure user can login with the new password.
@@ -89,7 +89,7 @@ namespace AdminStoreTests
 
             // Execute: Attempt to change the password again after the 24-hours password reset cooldown period.
             string newPassword = CreateValidPassword(length);
-            Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: newPassword),
+            Assert.DoesNotThrow(() => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: newPassword),
                 "POST {0} failed when user tried to reset the password after 24-hours password reset cooldown period.",
                 USERSRESET_PATH);
 
@@ -124,13 +124,13 @@ namespace AdminStoreTests
                 // usedValidPasswords can be reused
                 for (int i = 1; i < resetExecutionCount + 1; i++)
                 {
-                    Helper.AdminStore.ResetPassword(_adminUser, usedValidPasswords[i]);
+                    Helper.AdminStore.ChangePassword(_adminUser, usedValidPasswords[i]);
                     _adminUser.Password = usedValidPasswords[i];
                     SimulateTimeSpentAfterLastPasswordUpdate(_adminUser);
                 }
 
                 // Execute: Change the password using the very first used password which was used before but not in the password history.
-                Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
+                Assert.DoesNotThrow(() => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: usedValidPasswords.First()),
                     "POST {0} failed when user tried to reset password with the password which used before but not in the password history.",
                     USERSRESET_PATH);
 
@@ -168,7 +168,7 @@ namespace AdminStoreTests
                 ResetPassword(_adminUser, secondUpdatedPassword);
 
                 // Execute: Attempt to change the password with the first updated password
-                Assert.DoesNotThrow(() => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: firstUpdatedPassword),
+                Assert.DoesNotThrow(() => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: firstUpdatedPassword),
                     "POST {0} failed when user tried to reset the password with previously used password when PasswordHistoryLimit is disabled.",
                     USERSRESET_PATH);
 
@@ -195,7 +195,7 @@ namespace AdminStoreTests
         {
             // Setup: Reset the password with valid new password
             string changedPassword = CreateValidPassword(length);
-            Helper.AdminStore.ResetPassword(_adminUser, changedPassword);
+            Helper.AdminStore.ChangePassword(_adminUser, changedPassword);
             _adminUser.Password = changedPassword;
 
             // Execute: Attempt to change the password again after resetting the password.
@@ -203,7 +203,7 @@ namespace AdminStoreTests
 
             string newPassword = CreateValidPassword(length); 
             var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: newPassword),
+                () => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: newPassword),
                 "POST {0} should get a 400 Bad Request if the password was updated within 24-hours password reset cooldown period!",
                 USERSRESET_PATH);
 
@@ -224,7 +224,7 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to an invalid password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.AdminStore.ResetPassword(_adminUser, newPassword);
+                Helper.AdminStore.ChangePassword(_adminUser, newPassword);
             }, "Password reset should get a 400 Bad Request when passing a null or empty new password!");
 
             // Verify: make sure user can still login with their old password.
@@ -243,7 +243,7 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to the same password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.AdminStore.ResetPassword(_adminUser, _adminUser.Password);
+                Helper.AdminStore.ChangePassword(_adminUser, _adminUser.Password);
             }, "Password reset should get a 400 Bad Request when old and new passwords are the same!");
 
             // Verify: make sure user can still login with their old password.
@@ -266,7 +266,7 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to an invalid password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.AdminStore.ResetPassword(_adminUser, newPassword);
+                Helper.AdminStore.ChangePassword(_adminUser, newPassword);
             }, "Password reset should get a 400 Bad Request when the new password doesn't meet the complexity rules!");
 
             // Verify: make sure user can still login with their old password.
@@ -289,7 +289,7 @@ namespace AdminStoreTests
             // Execute: try to change the user's password to an invalid password.
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.AdminStore.ResetPassword(_adminUser, newPassword);
+                Helper.AdminStore.ChangePassword(_adminUser, newPassword);
             }, "Password reset should get a 400 Bad Request when passing new password that is too short or too long!");
 
             // Verify: make sure user can still login with their old password.
@@ -307,7 +307,7 @@ namespace AdminStoreTests
         {
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: _adminUser.Username),
+                () => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: _adminUser.Username),
                 "POST {0} should get a 400 Bad Request when passing its user name as a new password!",
                 USERSRESET_PATH);
 
@@ -326,7 +326,7 @@ namespace AdminStoreTests
         {
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: _adminUser.DisplayName),
+                () => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: _adminUser.DisplayName),
                 "POST {0} should get a 400 Bad Request when passing its display name as a new password!",
                 USERSRESET_PATH);
 
@@ -368,7 +368,7 @@ namespace AdminStoreTests
 
                 // Execute: Attempt to change the password using the used password which is in password history
                 var ex = Assert.Throws<Http400BadRequestException>(
-                    () => Helper.AdminStore.ResetPassword(user: _adminUser, newPassword: usedValidPasswords.First()),
+                    () => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: usedValidPasswords.First()),
                     "POST {0} should get a 400 Bad Request when passing the used password which is in password history.",
                     USERSRESET_PATH);
 
@@ -401,7 +401,7 @@ namespace AdminStoreTests
             // Execute & Verify: try to change the user's password.
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.AdminStore.ResetPassword(missingUser, newPassword);
+                Helper.AdminStore.ChangePassword(missingUser, newPassword);
             }, "Password reset should get a 401 Unauthorized when passing a user that doesn't exist!");
 
             const string expectedExceptionMessage = "Invalid username or password";
@@ -422,7 +422,7 @@ namespace AdminStoreTests
             // Execute & Verify: try to change the user's password.
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.AdminStore.ResetPassword(userWithNullPassword, newPassword);
+                Helper.AdminStore.ChangePassword(userWithNullPassword, newPassword);
             }, "Password reset should get a 401 Unauthorized when passing a user with no Old Password!");
 
             // Verify: make sure user can still login with their old password.
@@ -447,7 +447,7 @@ namespace AdminStoreTests
             // Execute: try to change the user's password.
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
-                Helper.AdminStore.ResetPassword(userWithBadPassword, newPassword);
+                Helper.AdminStore.ChangePassword(userWithBadPassword, newPassword);
             }, "Password reset should get a 401 Unauthorized when passing a user that doesn't exist!");
 
             // Verify: make sure user can still login with their old password.
@@ -568,7 +568,7 @@ namespace AdminStoreTests
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            Helper.AdminStore.ResetPassword(user, password);
+            Helper.AdminStore.ChangePassword(user, password);
             user.Password = password;
             SimulateTimeSpentAfterLastPasswordUpdate(user);
         }

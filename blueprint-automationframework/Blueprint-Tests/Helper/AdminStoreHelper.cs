@@ -7,6 +7,7 @@ using Model.JobModel.Impl;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Utilities;
 
@@ -15,7 +16,6 @@ namespace Helper
 
     public static class AdminStoreHelper
     {
-
         #region Project Management
 
         #endregion Project Management
@@ -113,8 +113,6 @@ namespace Helper
 
             return generateProcessTestsJobParameters;
         }
-
-        #endregion Job Management
 
         #region Custom Asserts
 
@@ -240,8 +238,55 @@ namespace Helper
 
             GetJobsValidation(jobResult: jobResult, pageSize: 1, expectedOpenAPIJobs: new List<IOpenAPIJob>() { expectedOpenAPIJob });
         }
+
+        #endregion Custom Asserts
+
+        #endregion Job Management
+
+        #region User Management
+
+        /// <summary>
+        /// A class to represent a row in the PasswordRecoveryTokens database table.
+        /// </summary>
+        public class PasswordRecoveryToken
+        {
+            public string Login { get; set; }
+            public DateTime CreationTime { get; set; }
+            public string RecoveryToken { get; set; }
+        }
+
+        /// <summary>
+        /// Gets the latest PasswordRecoveryToken from the AdminStore database for the specified username.
+        /// </summary>
+        /// <param name="username">The username whose recovery token you want to get.</param>
+        /// <returns>The latest PasswordRecoveryToken for the specified user, or null if no token was found for that user.</returns>
+        public static PasswordRecoveryToken GetRecoveryTokenFromDatabase(string username)
+        {
+            string query = I18NHelper.FormatInvariant(
+                "SELECT * FROM [dbo].[PasswordRecoveryTokens] WHERE [Login] = '{0}' ORDER BY [CreationTime] DESC", username);
+
+            var columnNames = new List<string> { "Login", "CreationTime", "RecoveryToken" };
+
+            try
+            {
+                var results = DatabaseHelper.ExecuteMultipleValueSqlQuery(query, columnNames, "AdminStore");
+                string createTime = results["CreationTime"];
+
+                return new AdminStoreHelper.PasswordRecoveryToken
+                {
+                    Login = results["Login"],
+                    CreationTime = DateTime.Parse(createTime, CultureInfo.InvariantCulture),
+                    RecoveryToken = results["RecoveryToken"]
+                };
+            }
+            catch (SqlQueryFailedException)
+            {
+                Logger.WriteDebug("No PasswordRecoveryToken was found for user: {0}", username);
+            }
+
+            return null;
+        }
+
+        #endregion User Management
     }
-
-    #endregion Custom Asserts
-
 }

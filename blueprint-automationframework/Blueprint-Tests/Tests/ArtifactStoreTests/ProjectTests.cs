@@ -16,7 +16,7 @@ namespace ArtifactStoreTests
     [Category(Categories.ArtifactStore)]
     public class ProjectTests : TestBase
     {
-        private const int NON_EXISTING_PROJECT_ID = int.MaxValue;
+        private const int NON_EXISTING_ID = int.MaxValue;
         private const string PATH_PROJECT_CHILDREN = RestPaths.Svc.ArtifactStore.Projects_id_.CHILDREN;
         private const string PATH_ARTIFACT_CHILDREN = RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN;
 
@@ -73,11 +73,14 @@ namespace ArtifactStoreTests
             // Setup:
             var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, unauthorizedUser);
             }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", PATH_PROJECT_CHILDREN);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is invalid.");
         }
         
         [TestCase]
@@ -85,11 +88,14 @@ namespace ArtifactStoreTests
         [Description("Executes Get project children call with no Session-Token header.  Verifies 401 Unauthorized is returned.")]
         public void GetProjectChildrenByProjectId_MissingTokenHeader_401Unauthorized()
         {
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, user: null);
             }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", PATH_PROJECT_CHILDREN);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is missing or malformed.");
         }
 
         [TestCase]
@@ -119,12 +125,12 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetProjectChildrenByProjectId(NON_EXISTING_PROJECT_ID, _adminUser);
+                Helper.ArtifactStore.GetProjectChildrenByProjectId(NON_EXISTING_ID, _adminUser);
             }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", PATH_PROJECT_CHILDREN);
 
             // Verify:
-            string expectedMessage = I18NHelper.FormatInvariant("The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", NON_EXISTING_PROJECT_ID);
-
+            string expectedMessage = I18NHelper.FormatInvariant(
+                "The project (Id:{0}) can no longer be accessed. It may have been deleted, or is no longer accessible by you.", NON_EXISTING_ID);
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
@@ -163,6 +169,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, _adminUser),
                 "The 'GET {0}' should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
 
+            // Verify:
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, grandChildArtifacts[0].Id);
             Assert.AreEqual(_project.Id, artifactDetails.ParentId, "Artifact parent Id should be the id of the project! (orphan artifact)");
 
@@ -311,11 +318,14 @@ namespace ArtifactStoreTests
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser, childArtifacts);
             var unauthorizedUser = Helper.CreateUserWithInvalidToken(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, unauthorizedUser);
             }, "The 'GET {0}' endpoint should return 401 Unauthorized if an unauthorized token is passed!", PATH_ARTIFACT_CHILDREN);
+
+            // Verify:
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is invalid.");
         }
 
         [TestCase]
@@ -327,11 +337,13 @@ namespace ArtifactStoreTests
             List<IArtifact> childArtifacts = new List<IArtifact>();
             var parentArtifact = CreateAndPublishParentAndTwoChildArtifacts_GetParentArtifact(_project, _adminUser, childArtifacts);
 
-            // Execute & Verify:
-            Assert.Throws<Http401UnauthorizedException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, user: null);
             }, "The 'GET {0}' endpoint should return 401 Unauthorized if no Session-Token header was passed!", PATH_ARTIFACT_CHILDREN);
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Token is missing or malformed.");
         }
 
         [TestCase]
@@ -351,7 +363,6 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
-
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
@@ -373,7 +384,6 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("User does not have permissions for Artifact (Id:{0}).", artifact.Id);
-
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.UnauthorizedAccess, expectedMessage);
         }
 
@@ -382,11 +392,18 @@ namespace ArtifactStoreTests
         [Description("Executes Get artifact children call for Project that does not exists and returns 404 Not Found if successful")]
         public void GetArtifactChildrenByProjectAndArtifactId_NonExistentProjectId_404NotFound()
         {
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _adminUser);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(NON_EXISTING_ID, artifact.Id, _adminUser);
             }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", PATH_ARTIFACT_CHILDREN);
+
+            // Verify:
+            var expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", artifact.Id, NON_EXISTING_ID);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
         [TestCase]
@@ -394,11 +411,15 @@ namespace ArtifactStoreTests
         [Description("Executes Get artifact children call for artifact that does not exists and returns 404 Not Found if successful")]
         public void GetArtifactChildrenByProjectAndArtifactId_NonExistentArtifactId_404NotFound()
         {
-            // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() =>
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() =>
             {
-                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_PROJECT_ID, _adminUser);
-            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing project ID is passed!", PATH_ARTIFACT_CHILDREN);
+                Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, NON_EXISTING_ID, _adminUser);
+            }, "The 'GET {0}' endpoint should return 404 Not Found if a non-existing artifact ID is passed!", PATH_ARTIFACT_CHILDREN);
+
+            // Verify:
+            var expectedMessage = I18NHelper.FormatInvariant("Artifact (Id:{0}) in Project (Id:{1}) is not found.", NON_EXISTING_ID, _project.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
         #endregion GetArtifactChildrenByProjectAndArtifactId tests

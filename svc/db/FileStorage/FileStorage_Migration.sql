@@ -994,6 +994,7 @@ BEGIN
 	DELETE FROM [FileStore].[Files] WHERE [FileStore].[Files].ExpiredTime <= GETDATE();
 
 END
+GO
 
 /******************************************************************************************************************************
 Name:			DeleteFile

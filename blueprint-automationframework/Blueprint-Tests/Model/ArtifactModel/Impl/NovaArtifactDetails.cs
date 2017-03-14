@@ -107,6 +107,7 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
         public Identification CreatedBy { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
+        public int IndicatorFlags { get; set; }
         public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }

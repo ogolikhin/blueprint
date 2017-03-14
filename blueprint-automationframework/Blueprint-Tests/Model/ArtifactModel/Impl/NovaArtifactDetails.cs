@@ -111,7 +111,7 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ItemIndicatorFlags IndicatorFlags { get; set; } = 0;
 
-//        public Identification LastEditedBy { get; set; }
+        public Identification LastEditedBy { get; set; }
 
         public DateTime? LastSavedOn { get; set; }
         public bool? LastSaveInvalid { get; set; }

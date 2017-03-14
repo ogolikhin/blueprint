@@ -121,6 +121,7 @@ namespace Model.ArtifactModel.Impl
         public string Description { get; set; }
         public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
+        public int IndicatorFlags { get; set; }
         public override int? ItemTypeId { get; set; }
         public string ItemTypeName { get; set; }
         public int ItemTypeVersionId { get; set; }
@@ -243,6 +244,7 @@ namespace Model.ArtifactModel.Impl
         public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public int PredefinedType { get; set; }
+        public int IndicatorFlags { get; set; }
 
         #endregion Serialized JSON Properties
     }
@@ -257,6 +259,7 @@ namespace Model.ArtifactModel.Impl
         public string Name { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
         public string Description { get; set; }
+        public int IndicatorFlags { get; set; }
 
         #endregion Serialized JSON Properties
     }

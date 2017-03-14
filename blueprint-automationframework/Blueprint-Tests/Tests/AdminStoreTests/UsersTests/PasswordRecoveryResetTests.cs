@@ -5,10 +5,10 @@ using Model.Factories;
 using NUnit.Framework;
 using TestCommon;
 using Utilities.Facades;
+using Utilities.Factories;
 
 namespace AdminStoreTests.UsersTests
 {
-    [Explicit(IgnoreReasons.UnderDevelopmentDev)]   // US5414
     [Category(Categories.AdminStore)]
     [TestFixture]
     public class PasswordRecoveryResetTests : TestBase
@@ -46,6 +46,8 @@ namespace AdminStoreTests.UsersTests
 
             Helper.AdminStore.PasswordRecoveryRequest(user.Username);
             var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+
+            user.Password = RandomGenerator.RandomUpperCase(6) + "1$";
 
             RestResponse response = null;
 

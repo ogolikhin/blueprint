@@ -144,7 +144,7 @@ namespace ArtifactStoreTests
 
             // Move grandchild artifact to the first parent.
             grandChildArtifacts[0].Lock();
-            var artifact = Helper.ArtifactStore.MoveArtifact(grandChildArtifacts[0], parentArtifactList[0], _adminUser);
+            Helper.ArtifactStore.MoveArtifact(grandChildArtifacts[0], parentArtifactList[0], _adminUser);
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(parentArtifactList[1], _adminUser),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);

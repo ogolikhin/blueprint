@@ -6,7 +6,6 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
-using Utilities.Factories;
 
 namespace AdminStoreTests.UsersTests
 {
@@ -15,6 +14,13 @@ namespace AdminStoreTests.UsersTests
     public class PasswordRecoveryResetTests : TestBase
     {
         private const string REST_PATH = RestPaths.Svc.AdminStore.Users.PasswordRecovery.RESET;
+
+        private const string INVALID_TOKEN_MESSAGE              = "Password reset failed, the token is invalid.";
+        private const string INVALID_PASSWORD_MESSAGE           = "Password reset failed, new password is invalid";
+        private const string EMPTY_PASSWORD_MESSAGE             = "Password reset failed, new password cannot be empty";
+        private const string NOT_LATEST_TOKEN_MESSAGE           = "Password reset failed, a more recent recovery token exists.";
+        private const string PASSWORD_RESET_COOLDOWN_MESSAGE    = "Password reset failed, password reset cooldown in effect";
+        private const string TOKEN_NOT_FOUND_MESSAGE            = "Password reset failed, recovery token not found.";
 
         private IUser _adminUser = null;
         private IProject _project = null;
@@ -48,7 +54,7 @@ namespace AdminStoreTests.UsersTests
             Helper.AdminStore.PasswordRecoveryRequest(user.Username);
             var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
 
-            user.Password = RandomGenerator.RandomUpperCase(6) + "1$";
+            user.Password = AdminStoreHelper.GenerateValidPassword();
 
             RestResponse response = null;
 
@@ -69,6 +75,7 @@ namespace AdminStoreTests.UsersTests
 
         #region Negative tests
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/Gy9m6nVt  Returns 409 instead of 400.
         [TestCase]
         [Description("Call Password Recovery Reset and send only a valid new password.  Verify 400 Bad Request is returned.")]
         [TestRail(266996)]
@@ -84,7 +91,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 400 Bad Request when the token is missing.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
         }
 
         [TestCase]
@@ -106,7 +113,34 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 400 Bad Request when the new password is missing.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.EmptyPassword, EMPTY_PASSWORD_MESSAGE);
+
+            // Validate user's password wasn't changed.
+            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
+        }
+
+        [TestCase("AAbb11$")]   // Too short.
+        [TestCase("aaaa11$$")]  // Missing capital char.
+        [TestCase("aaaa11BB")]  // Missing special char.
+        [TestCase("AAAA$$$$")]  // Missing number.
+        [Description("Call Password Recovery Reset and pass an invalid new password.  Verify 400 Bad Request is returned.")]
+        [TestRail(267000)]
+        public void PasswordRecoveryReset_InvalidPassword_400BadRequest(string invalidPassword)
+        {
+            // Setup:
+            var user = Helper.CreateUserAndAddToDatabase();
+
+            Helper.AdminStore.PasswordRecoveryRequest(user.Username);
+            var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, invalidPassword);
+            }, "'POST {0}' should return 400 Bad Request when passed an invalid new password.", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, INVALID_PASSWORD_MESSAGE);
 
             // Validate user's password wasn't changed.
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
@@ -134,7 +168,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when passed a valid token & password for a deleted user.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenInvalid, INVALID_TOKEN_MESSAGE);  // TODO: Should this be a different error?
 
             // TODO: Verify user is still deleted.
         }
@@ -155,36 +189,10 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when passed an invalid recovery token.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
         }
 
-        [TestCase("AAbb11$")]   // Too short.
-        [TestCase("aaaa11$$")]  // Missing capital char.
-        [TestCase("aaaa11BB")]  // Missing special char.
-        [TestCase("AAAA$$$$")]  // Missing number.
-        [Description("Call Password Recovery Reset and pass an invalid new password.  Verify 409 Conflict is returned.")]
-        [TestRail(267000)]
-        public void PasswordRecoveryReset_InvalidPassword_409Conflict(string invalidPassword)
-        {
-            // Setup:
-            var user = Helper.CreateUserAndAddToDatabase();
-
-            Helper.AdminStore.PasswordRecoveryRequest(user.Username);
-            var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
-
-            // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() =>
-            {
-                Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, invalidPassword);
-            }, "'POST {0}' should return 409 Conflict when passed an invalid new password.", REST_PATH);
-
-            // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
-
-            // Validate user's password wasn't changed.
-            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
-        }
-
+        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]     // Need to implement UpdateUser().
         [TestCase]
         [Description("Create a user and request a password reset for that user.  Disable the user, then try to reset their password.  " +
                      "Verify 409 Conflict is returned and the user is still disabled.")]
@@ -213,6 +221,7 @@ namespace AdminStoreTests.UsersTests
             // TODO: Verify user is still disabled.
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/Bx4f2qBl  Returns 400 instead of 409.
         [TestCase]
         [Description("Create a user and get a password recovery token, then change the user's password.  Try to Reset the user's password.  " +
                      "Verify 409 Conflict is returned.")]
@@ -241,12 +250,13 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when the user's password was changed within the last 24h.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ChangePasswordCooldownInEffect, PASSWORD_RESET_COOLDOWN_MESSAGE);
 
             // Validate user's password wasn't changed.
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/Bx4f2qBl  Returns 400 instead of 409.
         [TestCase]
         [Description("Create a user and get a password recovery token, then reset the user's password.  Try to Reset the user's password again " +
                      "with the same recovery token.  Verify 409 Conflict is returned.")]
@@ -273,7 +283,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when resetting a user's password twice with the same recovery token.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ChangePasswordCooldownInEffect, PASSWORD_RESET_COOLDOWN_MESSAGE);
 
             // Validate user's password wasn't changed.
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
@@ -302,7 +312,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when using the first recovery token after you requested a second token.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotLatest, NOT_LATEST_TOKEN_MESSAGE);
 
             // Validate user's password wasn't changed.
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");

@@ -208,7 +208,7 @@ namespace AdminStore.Repositories
 
             if (await IsChangePasswordCooldownInEffect(user))
             {
-                throw new BadRequestException("Password reset failed, password reset cooldown in effect", ErrorCodes.ChangePasswordCooldownInEffect);
+                throw new ConflictException("Password reset failed, password reset cooldown in effect", ErrorCodes.ChangePasswordCooldownInEffect);
             }
 
             if (!await _userRepository.ValidateUserPasswordForHistoryAsync(user.Id, newPassword))

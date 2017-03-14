@@ -158,7 +158,6 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] // Bug: GetProjectChildren call not returns orphan artifacts http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5726
         [TestCase]
         [TestRail(134083)]
         [Description("Executes Get project children for for project with orphan artifact. Verifies orphan artifact returned among other artifacts")]
@@ -182,7 +181,7 @@ namespace ArtifactStoreTests
             var artifacts = new List<IArtifactBase>();
             artifacts.AddRange(grandChildArtifacts);
 
-            Assert.DoesNotThrow(() => Helper.ArtifactStore.PublishArtifact(artifacts[0], _adminUser),
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.PublishArtifact(parentArtifactList[1], _adminUser),
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifacts: artifacts, user: _adminUser),
@@ -200,9 +199,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateNovaArtifacts(_project, returnedNovaArtifactList);
 
             // Assert that grandchild artifact is returned from GetProjectChilden call
-            var grandChildNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]);
-
-            ArtifactStoreHelper.AssertArtifactsEqual(grandChildArtifacts[0], grandChildNovaArtifact, skipIdAndVersion: true);
+            Assert.IsNotNull(FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]));
         }
 
         #endregion GetProjectChildrenByProjectId tests

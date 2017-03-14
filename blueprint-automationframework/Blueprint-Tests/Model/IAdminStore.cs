@@ -216,16 +216,29 @@ namespace Model
         /// <param name="username">The username whose password you want to reset.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The RestResponse.</returns>
-        RestResponse RequestPasswordRecovery(string username, List<HttpStatusCode> expectedStatusCodes = null);
+        RestResponse PasswordRecoveryRequest(string username, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Reset the user's password with a new one.
+        /// Reset the specified user's password to a new password.  Use the RequestPasswordRecovery() function first to get a recovery token.
+        /// (Runs: POST /svc/adminstore/users/passwordrecovery/reset)
+        /// No authentication is required, since the user is resetting their password because they forgot what it was...
+        /// You can find the token that gets sent in the E-mail in the following table: Adminstore.dbo.PasswordRecoveryTokens
+        /// DB Columns:  "Login" (i.e. the username), "CreationTime" (DateTime), and "RecoveryToken" (GUID string).
+        /// </summary>
+        /// <param name="recoveryToken">The RecoveryToken GUID string from the Adminstore.dbo.PasswordRecoveryTokens table.</param>
+        /// <param name="newPassword">The new password to set.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The RestResponse.</returns>
+        RestResponse PasswordRecoveryReset(string recoveryToken, string newPassword, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Changes the user's password to a new one.
         /// (Runs: POST /svc/adminstore/users/reset?login={username})
         /// </summary>
         /// <param name="user">The user whose password you are resetting (should contain the old password).</param>
         /// <param name="newPassword">The new password to set.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        void ResetPassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null);
+        void ChangePassword(IUser user, string newPassword, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns HTTP code for REST request to get project.

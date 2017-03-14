@@ -168,6 +168,7 @@ namespace Model
                     public static class PasswordRecovery
                     {
                         public const string REQUEST                 = "svc/adminstore/users/passwordrecovery/request";
+                        public const string RESET                   = "svc/adminstore/users/passwordrecovery/reset";
                     }
                 }
 

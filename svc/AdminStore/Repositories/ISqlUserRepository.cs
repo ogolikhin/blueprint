@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AdminStore.Models;
-using System;
 
 namespace AdminStore.Repositories
 {
@@ -28,5 +28,7 @@ namespace AdminStore.Repositories
         Task UpdatePasswordRecoveryTokensAsync(string login, Guid recoveryToken);
 
         Task<bool> HasUserExceededPasswordRequestLimitAsync(string login);
+
+        Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
     }
 }

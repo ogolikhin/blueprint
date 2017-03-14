@@ -32,6 +32,7 @@ GO
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Jobs\Blueprint_FileStorage_Maintenance.sql" ) ) #>
 
+<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Jobs\FileStorageMaintenanceJob.sql" ) ) #>
 -- --------------------------------------------------
 -- Always add your code just above this comment block
 -- --------------------------------------------------

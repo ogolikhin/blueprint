@@ -128,7 +128,7 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ResourceNotFound, expectedMessage);
         }
 
-        [Ignore(IgnoreReasons.ProductBug)] // Bug: GetProjectChildren call not returns orphan artifacts http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5726
+        [Explicit(IgnoreReasons.ProductBug)] // Bug: GetProjectChildren call not returns orphan artifacts http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5726
         [TestCase]
         [TestRail(134083)]
         [Description("Executes Get project children for for project with orphan artifact. Verifies orphan artifact returned among other artifacts")]
@@ -137,21 +137,24 @@ namespace ArtifactStoreTests
             // Setup:
             const string DELETE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
             const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+            const string PUBLISH_PATH = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
 
             List<IArtifact> grandChildArtifacts = new List<IArtifact>();
             var parentArtifactList = CreateAndPublishParentAndTwoChildArtifactsAndGrandChildOfSecondParentArtifact_GetParents(_project, _adminUser, grandChildArtifacts);
 
             // Move grandchild artifact to the first parent.
             grandChildArtifacts[0].Lock();
-            Helper.ArtifactStore.MoveArtifact(grandChildArtifacts[0], parentArtifactList[0], _adminUser);
+            var artifact = Helper.ArtifactStore.MoveArtifact(grandChildArtifacts[0], parentArtifactList[0], _adminUser);
 
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DeleteArtifact(parentArtifactList[1], _adminUser),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
-            parentArtifactList[1].Publish(_adminUser);
-
             var artifacts = new List<IArtifactBase>();
             artifacts.AddRange(grandChildArtifacts);
+
+            Assert.DoesNotThrow(() => Helper.ArtifactStore.PublishArtifact(artifacts[0], _adminUser),
+                "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
+
             Assert.DoesNotThrow(() => Helper.ArtifactStore.DiscardArtifacts(artifacts: artifacts, user: _adminUser),
                 "'POST {0}' should return 200 OK if an artifact was deleted!", DISCARD_PATH);
 

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Model.ArtifactModel.Enums;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,9 @@ namespace Model.ArtifactModel.Impl
 
         [JsonConverter(typeof(SerializationUtilities.ConcreteListConverter<INovaArtifact, NovaArtifact>))]
         public List<INovaArtifact> Children { get; set; }   // This is optional and can be null depending on the REST call made.
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ItemIndicatorFlags IndicatorFlags { get; set; } = 0;
 
         #endregion Serialized JSON Properties
 

@@ -648,9 +648,11 @@ Jobs_EndDate, "Completed on"
 Jobs_Error_Label, "Error"
 Jobs_Button_Label_GetJobs, "Get Jobs"
 
+#Walkthrough
 Walkthrough_Button_Label, "Walkthrough"
 Process_Walkthrough_Mode_Tooltip, "Walkthrough Mode"
 Process_Diagram_Mode_Tooltip, "Diagram Mode"
+Walkthrough_UserItem_Description, "As a {0}, I want to {1}, so that I can {2}"
 
 #Zoom
 Zoom_Component_Reset_Button_Tooltip, "Reset to 100%"

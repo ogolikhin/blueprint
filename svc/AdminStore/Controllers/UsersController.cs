@@ -220,7 +220,7 @@ namespace AdminStore.Controllers
             //the deserializer creates a zero filled guid when none provided
             if (content.Token == null || content.Token.GetHashCode() == 0)
             {
-                throw new BadRequestException("Password reset failed, token not provided", ErrorCodes.PasswordResetTokenInvalid);
+                throw new BadRequestException("Password reset failed, token not provided", ErrorCodes.PasswordResetEmptyToken);
             }
 
             var tokens = (await _userRepository.GetPasswordRecoveryTokensAsync(content.Token)).ToList();

@@ -2,6 +2,7 @@
 
 namespace Model.ArtifactModel.Enums
 {
+    // Found in: blueprint-current\Source/BluePrintSys.RC.Business.Internal/Components/Nova/Models/NovaItem.cs
     [Flags]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1028:EnumStorageShouldBeInt32")]
     public enum ItemIndicatorFlags : uint

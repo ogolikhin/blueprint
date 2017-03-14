@@ -43,18 +43,18 @@ namespace ArtifactStoreTests
         [TestCase(BaseArtifactType.Actor)]
         [TestCase(BaseArtifactType.Document)]
         [TestRail(125497)]
-        [Description("Executes Get project children call after creating a artifact on the project and Verify that the returned result" +
+        [Description("Executes Get project children call after creating an artifact in the project and Verify that the returned result" +
             "from the successful response contains the artifact.")]
         public void GetProjectChildrenByProjectId_CreateArtifact_VerifyResultContainsTheArtifact(BaseArtifactType artifactType)
         {
             // Setup:
-            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
-            var publishedArtifact = Helper.CreateAndPublishArtifact(_project, author, artifactType);
+            var publishedArtifact = Helper.CreateAndPublishArtifact(_project, viewer, artifactType);
 
             // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;
-            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, author),
+            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, viewer),
                 "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
 
             // Verify: validate the list of artifacts returned by the REST call.
@@ -63,6 +63,30 @@ namespace ArtifactStoreTests
             var returnedNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, publishedArtifact);
 
             ArtifactStoreHelper.AssertArtifactsEqual(publishedArtifact, returnedNovaArtifact, skipIdAndVersion: true);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestCase(BaseArtifactType.PrimitiveFolder)]
+        [TestRail(267023)]
+        [Description("Executes Get project children call after creating an artifact in the project to which user has no read permissions. " +
+            "Verify that the returned result does not include artifact to which user does not have permissions.")]
+        public void GetProjectChildrenByProjectId_CreateArtifact_UserHasNoPermissions_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType);
+
+            var userWithNoPermissionsToArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithNoPermissionsToArtifact, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute:
+            List<NovaArtifact> returnedNovaArtifactList = null;
+            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetProjectChildrenByProjectId(_project.Id, userWithNoPermissionsToArtifact),
+                "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
+
+            // Verify:
+            ArtifactStoreHelper.ValidateNovaArtifacts(_project, novaArtifacts: returnedNovaArtifactList);
+
+            Assert.IsNull(returnedNovaArtifactList.Find(a => a.Id.Equals(artifact.Id)), "Artifact should not be in the list of returned artifacts!");
         }
 
         [TestCase]
@@ -304,8 +328,35 @@ namespace ArtifactStoreTests
 
             // Assert that grandchild artifact under the second parent artifact is returned from Get ArtifactChilden call
             var grandChildNovaArtifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, grandChildArtifacts[0]);
-
             ArtifactStoreHelper.AssertArtifactsEqual(grandChildArtifacts[0], grandChildNovaArtifact, skipIdAndVersion: true);
+        }
+
+        [TestCase(BaseArtifactType.Process)]
+        [TestRail(267024)]
+        [Description("Executes Get artifact children call after creating an artifact in the project to which user has no read permissions. " +
+            "Verify that the returned result does not include artifact to which user does not have permissions.")]
+        public void GetArtifactChildrenByProjectAndArtifactId_CreateArtifact_UserHasNoPermissions_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var folder = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.PrimitiveFolder);
+            var visibleArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType, folder);
+            var invisibleArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType, folder);
+
+            var userWithNoPermissionsToArtifact = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithNoPermissionsToArtifact, TestHelper.ProjectRole.None, _project, invisibleArtifact);
+
+            // Execute:
+            List<NovaArtifact> returnedNovaArtifactList = null;
+            Assert.DoesNotThrow(() => returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(
+                _project.Id, folder.Id, userWithNoPermissionsToArtifact),
+                "The 'GET {0}' endpoint should return 200 OK if valid parameters are passed!", PATH_PROJECT_CHILDREN);
+
+            // Verify:
+            var artifact = FindArtifactFromNovaArtifacts(returnedNovaArtifactList, visibleArtifact);
+            ArtifactStoreHelper.AssertArtifactsEqual(visibleArtifact, artifact, skipIdAndVersion: true);
+            Assert.AreEqual(artifact.ParentId, folder.Id, "Artifact parent id is not correct!");
+
+            Assert.IsNull(returnedNovaArtifactList.Find(a => a.Id.Equals(invisibleArtifact.Id)), "Artifact should not be in the list of returned artifacts!");
         }
 
         [TestCase]

@@ -1458,6 +1458,7 @@ namespace Helper
 
         /// <summary>
         /// Verifies that the error message returned in the rest response contains the expected message.
+        /// Ex. 'message="Expected error message"'
         /// </summary>
         /// <param name="restResponse">The RestResponse that was returned.</param>
         /// <param name="expectedErrorMessage">The expected error message</param>

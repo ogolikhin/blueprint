@@ -1015,12 +1015,10 @@ namespace OpenAPITests
         private void VerifyUserIsDeleted(IUser deletedUser)
         {
             // Try to get the deleted user and verify an error is returned.
-            var ex = Assert.Throws<Http500InternalServerErrorException>(() => Helper.OpenApi.GetUser(_adminUser, deletedUser.Id),
-                "GetUser should return 500 Internal Server Error if the user was deleted!");    // TFS Bug:  5452  Getting a deleted user returns 500 instead of 404.
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.OpenApi.GetUser(_adminUser, deletedUser.Id),
+                "GetUser should return 404 Not Found if the user was deleted!");
 
-            string expectedErrorMessage =
-                I18NHelper.FormatInvariant("DUser with Id: {0} was deleted by some other user. Please refresh.",
-                    deletedUser.Id);
+            const string expectedErrorMessage = "The requested user is not found.";
 
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, expectedErrorMessage);
         }

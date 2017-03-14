@@ -50,7 +50,7 @@ namespace ArtifactStoreTests
             // Setup:
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
-            var publishedArtifact = Helper.CreateAndPublishArtifact(_project, viewer, artifactType);
+            var publishedArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType);
 
             // Execute:
             List<NovaArtifact> returnedNovaArtifactList = null;

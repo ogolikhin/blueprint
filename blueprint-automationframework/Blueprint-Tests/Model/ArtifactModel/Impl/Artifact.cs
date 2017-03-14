@@ -180,10 +180,10 @@ namespace Model.ArtifactModel.Impl
             }
 
             var service = SvcComponentsFactory.CreateSvcComponents(Address);
-
             return service.GetRapidReviewDiagramContent(user, Id, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.GetRapidReviewUseCaseContent(IUser, List{HttpStatusCode})"/>
         public RapidReviewUseCase GetRapidReviewUseCaseContent(
             IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -223,37 +223,17 @@ namespace Model.ArtifactModel.Impl
             throw new ArgumentException("Method works for Glossary artifacts only.");
         }
 
-        public RapidReviewProperties GetPropertiesForRapidReview(IUser user = null,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+        /// <seealso cref="IArtifact.GetRapidReviewArtifactProperties(IUser, List{HttpStatusCode})"/>
+        public RapidReviewProperties GetRapidReviewArtifactProperties(
+            IUser user = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            if (user == null)
-            {
-                Assert.NotNull(CreatedBy, "No user is available to perform GetPropertiesForRapidReview.");
-                user = CreatedBy;
-            }
+            user = user ?? CreatedBy;
 
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            Assert.NotNull(CreatedBy, "No user is available to perform {0}.", nameof(GetRapidReviewArtifactProperties));
 
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            string path = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
-            var artifactIds = new List<int> { Id };
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(
-                path,
-                RestRequestMethod.POST,
-                artifactIds,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return returnedArtifactProperties[0];
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
+            return service.GetRapidReviewArtifactsProperties(user, new List<int> { Id }, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.StorytellerPublish(IUser, List{HttpStatusCode})"/>

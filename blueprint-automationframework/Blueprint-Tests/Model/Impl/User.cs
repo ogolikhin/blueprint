@@ -257,10 +257,7 @@ namespace Model.Impl
         /// <summary>
         /// Updates the user on the Blueprint server with any changes that were made to this object.
         /// </summary>
-        public void UpdateUser()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void UpdateUser();
 
         /// <summary>
         /// Tests whether the specified IUser is equal to this one.
@@ -559,6 +556,38 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IUser.UpdateUser()"/>
+        public override void UpdateUser()
+        {
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+
+                string values = I18NHelper.FormatInvariant(
+                    "[AllowFallback]='{0}',[CurrentVersion]='{1}',[Department]='{2}',[DisplayName]='{3}',[Email]='{4}',[Enabled]='{5}',[EndTimestamp]='{6}'," +
+                    "[EULAccepted]='{7}',[ExpirePassword]='{8}',[FirstName]='{9}',[Guest]='{10}',[InstanceAdminRoleId]='{11}'," +
+                    "[InvalidLogonAttemptsNumber]='{12}',[LastInvalidLogonTimeStamp]='{13}',[LastName]='{14}',[LastPasswordChangeTimestamp]='{15}'," +
+                    "[Login]='{16}',[Password]='{17}',[Source]='{18}',[StartTimestamp]='{19}',[Title]='{20}',[UserSALT]='{21}'",    // ,[Image_ImageId]='{11}'
+                    AllowFallback, CurrentVersion, Department, DisplayName, Email, Enabled, EndTimestamp,
+                    EULAccepted, ExpirePassword, FirstName, Guest, (int?)InstanceAdminRole,
+                    InvalidLogonAttemptsNumber, LastInvalidLogonTimeStamp, LastName, LastPasswordChangeTimestamp,
+                    Username, EncryptedPassword, (int)Source, StartTimestamp, Title, UserSALT);     // , Picture
+
+                string query = I18NHelper.FormatInvariant("UPDATE {0} SET {1} WHERE UserId = {2}", USERS_TABLE, values, Id);
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
+                {
+                    if (sqlDataReader.RecordsAffected <= 0)
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Returns this object as a string.
         /// </summary>
@@ -596,10 +625,7 @@ namespace Model.Impl
             // Intentionally left blank.
         }
 
-        /// <summary>
-        /// Creates a new user on the Blueprint server.
-        /// </summary>
-        /// <param name="source">The source where this user is defined.</param>
+        /// <seealso cref="IUser.CreateUser(UserSource)"/>
         public override void CreateUser(UserSource source = UserSource.Database)
         {
             throw new NotImplementedException();
@@ -607,6 +633,12 @@ namespace Model.Impl
 
         /// <seealso cref="IUser.DeleteUser(bool)"/>
         public override void DeleteUser(bool useSqlUpdate = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IUser.UpdateUser()"/>
+        public override void UpdateUser()
         {
             throw new NotImplementedException();
         }

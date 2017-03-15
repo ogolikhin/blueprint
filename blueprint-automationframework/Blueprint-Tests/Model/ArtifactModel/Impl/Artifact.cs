@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Model.NovaModel.Components.RapidReview;
 using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
@@ -184,7 +185,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <seealso cref="IArtifact.GetRapidReviewUseCaseContent(IUser, List{HttpStatusCode})"/>
-        public RapidReviewUseCase GetRapidReviewUseCaseContent(
+        public UseCase GetRapidReviewUseCaseContent(
             IUser user = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {

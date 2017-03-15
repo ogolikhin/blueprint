@@ -65,7 +65,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 200 OK when passed a valid token and password.", REST_PATH);
 
             // Verify:
-            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user),
+            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user, force: true),
                 "Couldn't login with the newly reset password!");
 
             TestHelper.AssertResponseBodyIsEmpty(response);
@@ -192,7 +192,6 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
         }
 
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]     // Need to implement UpdateUser().
         [TestCase]
         [Description("Create a user and request a password reset for that user.  Disable the user, then try to reset their password.  " +
                      "Verify 409 Conflict is returned and the user is still disabled.")]
@@ -207,7 +206,7 @@ namespace AdminStoreTests.UsersTests
             string newPassword = AdminStoreHelper.GenerateValidPassword();
 
             user.Enabled = false;
-            user.UpdateUser();  // TODO: Implement the UpdateUser() function.
+            user.UpdateUser();
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() =>
@@ -216,9 +215,13 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when passed a valid token & password for a disabled user.", REST_PATH);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenInvalid, INVALID_TOKEN_MESSAGE);  // TODO: Should this be a different error?
 
-            // TODO: Verify user is still disabled.
+            // Verify user is still disabled.
+            var userAfterReset = Helper.OpenApi.GetUser(_adminUser, user.Id);
+
+            Assert.NotNull(userAfterReset?.Enabled, "The user and {0} property shouldn't be null!", nameof(userAfterReset.Enabled));
+            Assert.IsFalse(userAfterReset.Enabled.Value, "The user should still be disabled!");
         }
 
         [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/Bx4f2qBl  Returns 400 instead of 409.

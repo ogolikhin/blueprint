@@ -1052,9 +1052,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete old logs from AdminStorage
-SET @cmd = N'
--- Delete log entries
-EXECUTE [dbo].[DeleteLogs] '
+SET @cmd = N'[dbo].[DeleteLogs]'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete old logs from AdminStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -1511,9 +1509,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_CreatedOn', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditBy', 'en-US', N'Last edited by')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditOn', 'en-US', N'Last edited on')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Description', 'en-US', N'Description')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Project', 'en-US', N'Project')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Collections', 'en-US', N'Collections')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_BaselinesAndReviews', 'en-US', N'Baselines and Reviews')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInheritFrom', 'en-US', N'Inherits from')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Group_Identifier', 'en-US', N'(g)')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Projects', 'en-US', N'Search for projects')

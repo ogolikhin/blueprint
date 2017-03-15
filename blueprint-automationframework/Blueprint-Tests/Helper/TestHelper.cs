@@ -1292,7 +1292,7 @@ namespace Helper
                 {
                     if (sqlDataReader.RecordsAffected <= 0)
                     {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
                     }
                 }
             }
@@ -1333,7 +1333,7 @@ namespace Helper
                 {
                     if (sqlDataReader.RecordsAffected <= 0)
                     {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
                     }
                 }
             }

@@ -62,6 +62,9 @@ namespace Model.ArtifactModel.Impl
 
         public ItemTypePredefined? PredefinedType { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public ItemIndicatorFlags IndicatorFlags { get; set; } = 0;
+
         public List<AttachmentValue> AttachmentValues { get; set; }
 
         public List<NovaDocumentReference> DocRefValues { get; set; }

@@ -91,7 +91,7 @@ namespace Model
         /// </summary>
         /// <param name="user">The user credentials for the request to generate the user stories</param>
         /// <param name="process">The process from which user stories are generated.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The list of user stories that were generated or updated</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<IStorytellerUserStory> GenerateUserStories(
@@ -120,7 +120,7 @@ namespace Model
         /// <param name="artifactId">Id of the process artifact from which the process is obtained</param>
         /// <param name="user">(optional)The user credentials for the request to get a process</param>
         /// <param name="versionIndex">(optional) The version of the process artifact</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. If null, only OK: '200' is expected.</param>
         /// <returns>The requested process object</returns>
         IProcess GetProcess(
             int artifactId,
@@ -135,7 +135,7 @@ namespace Model
         /// </summary>
         /// <param name="projectId">The Id of the project</param>
         /// <param name="user">(optional)The user credentials for the request to get the process list</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. If null, only OK: '200' is expected.</param>
         /// <returns>The list of process objects</returns>
         IList<IProcess> GetProcesses(int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
@@ -146,7 +146,7 @@ namespace Model
         /// </summary>
         /// <param name="projectId">The Id of the Project from which the user story artifact type is retrieved</param>
         /// <param name="user">The user credentials for the request to get the user story artifact type</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. If null, only OK: '200' is expected.</param>
         /// <returns>The user story artifact type</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         OpenApiArtifactType GetUserStoryArtifactType(int projectId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
@@ -158,7 +158,7 @@ namespace Model
         /// </summary>
         /// <param name="process">The process to update</param>
         /// <param name="user">(optional) The user credentials for the request to update a process</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. If null, only OK: '200' is expected.</param>
         /// <returns>The returned process result</returns>
         ProcessUpdateResult UpdateProcess(
             IProcess process,

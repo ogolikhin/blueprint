@@ -165,18 +165,12 @@ namespace Model.Impl
         {
             Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GenerateUserStories));
 
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id);
-
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id); 
 
             var additionalHeaders = new Dictionary<string, string>();
-            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(SvcComponents), process.Id, process.Name);
 

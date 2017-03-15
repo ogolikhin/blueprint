@@ -8,6 +8,7 @@ using System.Linq;
 using Model.Common.Enums;
 using Utilities;
 using Model.ArtifactModel.Enums;
+using Model.NovaModel.Components.RapidReview;
 
 namespace Model.ArtifactModel.Impl
 {
@@ -420,9 +421,9 @@ namespace Model.ArtifactModel.Impl
         public List<CustomProperty> SpecificPropertyValues { get; } = new List<CustomProperty>();
         public int? PredefinedType { get; set; }
 
-        public RapidReviewUseCasePreCondition PreCondition { get; set; }
-        public List<RapidReviewUseCaseStep> Steps { get; set; }
-        public RapidReviewUseCasePostCondition PostCondition { get; set; }
+        public Step PreCondition { get; set; }
+        public List<Step> Steps { get; set; }
+        public Step PostCondition { get; set; }
 
         #endregion Serialized JSON Properties
     }

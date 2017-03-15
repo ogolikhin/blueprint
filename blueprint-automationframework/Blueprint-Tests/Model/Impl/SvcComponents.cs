@@ -1,5 +1,6 @@
 ﻿using Common;
 using Model.ArtifactModel.Impl;
+using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using System;
@@ -115,7 +116,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="ISvcComponents.GetRapidReviewUseCaseContent(IUser, int, List{HttpStatusCode})"/>
-        public RapidReviewUseCase GetRapidReviewUseCaseContent(
+        public UseCase GetRapidReviewUseCaseContent(
             IUser user,
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -125,7 +126,7 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, artifactId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(
+            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<UseCase>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);

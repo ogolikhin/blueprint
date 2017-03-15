@@ -2,6 +2,7 @@ using System;
 using Model.ArtifactModel.Impl;
 using System.Collections.Generic;
 using System.Net;
+using Model.NovaModel.Components.RapidReview;
 
 namespace Model.ArtifactModel
 {
@@ -64,7 +65,7 @@ namespace Model.ArtifactModel
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Properties and UseCase content.</returns>
         ///<exception cref="ArgumentException">If method called for Artifact different than Usecase.</exception>
-        RapidReviewUseCase GetRapidReviewUseCaseContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        UseCase GetRapidReviewUseCaseContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets Glossary content for RapidReview (Storyteller).

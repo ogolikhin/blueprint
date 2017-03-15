@@ -257,6 +257,7 @@ namespace Model
                 }
             }
 
+            [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
             public static class Components
             {
                 public static class FileStore
@@ -267,6 +268,7 @@ namespace Model
                     public const string FILES_filename_             = "svc/components/filestore/files/{0}";
                 }
 
+                [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
                 public static class RapidReview
                 {
                     public const string DIAGRAM_id_                 = "svc/components/RapidReview/diagram/{0}";

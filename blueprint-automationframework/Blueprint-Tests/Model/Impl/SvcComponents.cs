@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Common;
+using Model.ArtifactModel.Impl;
+using Model.NovaModel.Components.RapidReview;
+using Model.StorytellerModel;
+using Model.StorytellerModel.Impl;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Common;
-using Model.ArtifactModel.Enums;
-using Model.ArtifactModel.Impl;
-using Model.StorytellerModel;
-using Model.StorytellerModel.Impl;
-using NUnit.Framework;
 using Utilities;
 using Utilities.Facades;
 
@@ -117,7 +116,7 @@ namespace Model.Impl
         }
 
         /// <seealso cref="ISvcComponents.GetRapidReviewUseCaseContent(IUser, int, List{HttpStatusCode})"/>
-        public RapidReviewUseCase GetRapidReviewUseCaseContent(
+        public UseCase GetRapidReviewUseCaseContent(
             IUser user,
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -127,7 +126,7 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.USECASE_id_, artifactId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<RapidReviewUseCase>(
+            var returnedArtifactContent = restApi.SendRequestAndDeserializeObject<UseCase>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
@@ -135,9 +134,56 @@ namespace Model.Impl
             return returnedArtifactContent;
         }
 
+        /// <seealso cref="ISvcComponents.GetRapidReviewArtifactsProperties(IUser, List{int}, List{HttpStatusCode})"/>
+        public RapidReviewProperties GetRapidReviewArtifactsProperties(
+            IUser user,
+            List<int> artifactIds,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+            string path = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactIds,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return returnedArtifactProperties[0];
+        }
+
         #endregion RapidReview methods
 
         #region  Storyteller methods
+
+        /// <seealso cref="ISvcComponents.GenerateUserStories(IUser, IProcess, List{HttpStatusCode})"/>
+        public List<IStorytellerUserStory> GenerateUserStories(IUser user,
+            IProcess process,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(SvcComponents), nameof(GenerateUserStories));
+
+            ThrowIf.ArgumentNull(process, nameof(process));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id); 
+
+            var additionalHeaders = new Dictionary<string, string>();
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(SvcComponents), process.Id, process.Name);
+
+            var userstoryResults = restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
+                path,
+                RestRequestMethod.POST,
+                additionalHeaders: additionalHeaders,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
+        }
 
         /// <seealso cref="ISvcComponents.GetArtifactInfo(int, IUser, List{HttpStatusCode})"/>
         public ArtifactInfo GetArtifactInfo(

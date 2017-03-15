@@ -90,7 +90,7 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() => { artifact.Publish(user); });
 
             Assert.DoesNotThrow(() => { artifact.GetArtifactInfo(user); });
-            Assert.DoesNotThrow(() => { artifact.GetPropertiesForRapidReview(user); });
+            Assert.DoesNotThrow(() => { artifact.GetRapidReviewArtifactProperties(user); });
             Assert.DoesNotThrow(() => { artifact.GetVersion(user); });
             Assert.DoesNotThrow(() => { artifact.PostRaptorDiscussion("Discussion text", user); });
 

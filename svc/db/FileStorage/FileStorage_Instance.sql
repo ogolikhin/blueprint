@@ -318,6 +318,27 @@ GO
 
 
 /******************************************************************************************************************************
+Name:			DeleteExpiredFiles
+
+Description:    Delete Expired Files.
+			
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[DeleteExpiredFiles]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [FileStore].[DeleteExpiredFiles]
+GO
+
+CREATE PROCEDURE [FileStore].[DeleteExpiredFiles]
+AS
+BEGIN
+	
+	SET NOCOUNT ON;
+	DELETE FROM [FileStore].[Files] WHERE [FileStore].[Files].ExpiredTime <= GETDATE();
+
+END
+GO
+
+/******************************************************************************************************************************
 Name:			DeleteFile
 
 Description: 
@@ -727,9 +748,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete expired files from FileStorage
-SET @cmd = N'
--- Delete files
-DELETE FROM [FileStore].[Files] Where ExpiredTime <= GETDATE()'
+SET @cmd = N'[FileStore].DeleteExpiredFiles'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete expired files from FileStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 

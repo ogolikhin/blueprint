@@ -1211,7 +1211,7 @@ namespace Helper
                 {
                     if (sqlDataReader.RecordsAffected <= 0)
                     {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
                     }
                 }
             }
@@ -1252,7 +1252,7 @@ namespace Helper
                 {
                     if (sqlDataReader.RecordsAffected <= 0)
                     {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
                     }
                 }
             }
@@ -1458,6 +1458,7 @@ namespace Helper
 
         /// <summary>
         /// Verifies that the error message returned in the rest response contains the expected message.
+        /// Ex. 'message="Expected error message"'
         /// </summary>
         /// <param name="restResponse">The RestResponse that was returned.</param>
         /// <param name="expectedErrorMessage">The expected error message</param>

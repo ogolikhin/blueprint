@@ -57,6 +57,7 @@
     <Compile Include="ArtifactModel\Adaptors\IDiscussionAdaptor.cs" />
     <Compile Include="ArtifactModel\Enums\BaseArtifactTypeExtensions.cs" />
     <Compile Include="ArtifactModel\Enums\ChangeTypes.cs" />
+    <Compile Include="ArtifactModel\Enums\ItemIndicatorFlags.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefined.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefinedExtension.cs" />
     <Compile Include="ArtifactModel\IArtifactObserver.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="IAlmTarget.cs" />
     <Compile Include="Impl\AlmTarget.cs" />
     <Compile Include="Impl\DatabaseHelper.cs" />
+    <Compile Include="NovaModel\Components\RapidReview\UseCase.cs" />
     <Compile Include="OpenApiModel\UserModel\Results\UserCallResultCollection.cs" />
     <Compile Include="Impl\LicenseUsage.cs" />
     <Compile Include="OpenApiModel\Services\OpenApi.cs" />

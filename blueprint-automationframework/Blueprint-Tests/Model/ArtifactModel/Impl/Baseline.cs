@@ -69,7 +69,7 @@ namespace Model.ArtifactModel.Impl
         /// Sets IsAvailableInAnalytics flag in SpecificPropertyValues to make it available for ArtifactUpdate
         /// </summary>
         /// <param name="availableInAnalytics">value to set</param>
-        public void SetIsAvailableInAnalytics(bool availableInAnalytics)
+        public void SetIsAvailableInAnalytics(bool availableInAnalytics) // TFS 5761
         {
             var specProperty = SpecificPropertyValues.Find(property => property.PropertyType == PropertyTypePredefined.BaselineIsDataAnalyticsAvailable);
             if (specProperty != null)

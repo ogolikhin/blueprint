@@ -45,14 +45,14 @@ namespace ArtifactStoreTests
 
         #region Add Artifact to Baseline
 
-        [TestCase(TestArtifactState.Published)]
-        [TestCase(TestArtifactState.PublishedWithDraft)]
+        [TestCase(TestHelper.TestArtifactState.Published)]
+        [TestCase(TestHelper.TestArtifactState.PublishedWithDraft)]
         [TestRail(266914)]
         [Description("Add published or published with draft Artifact to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_PublishedOrDraftArtifact_ValidateReturnedBaseline(TestArtifactState artifactState)
+        public void AddArtifactToBaseline_PublishedOrDraftArtifact_ValidateReturnedBaseline(TestHelper.TestArtifactState artifactState)
         {
             // Setup:
-            var artifactToAdd = CreateArtifactInSpecificState(Helper, _user, _project, artifactState, ItemTypePredefined.Actor,
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
                 _project.Id);
 
             var baseline = Helper.CreateBaseline(_user, _project);
@@ -69,10 +69,10 @@ namespace ArtifactStoreTests
             var updatedBaseline = GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
             switch (artifactState)
             {
-                case TestArtifactState.Published:
+                case TestHelper.TestArtifactState.Published:
                     Assert.AreEqual(publishedDescription, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
                     break;
-                case TestArtifactState.PublishedWithDraft:
+                case TestHelper.TestArtifactState.PublishedWithDraft:
                     Assert.AreEqual(draftDescription, updatedBaseline.Artifacts[0].Description, "Artifact in Baseline should have expected description.");
                     break;
                 default:
@@ -87,11 +87,11 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_ArtifactWithDescendantsAddToBaseline_ValidateReturnedBaseline(bool includeDescendants)
         {
             // Setup:
-            var artifactToAdd = CreateArtifactInSpecificState(Helper, _user, _project, TestArtifactState.Published,
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Actor, _project.Id);
-            var childArtifact = CreateArtifactInSpecificState(Helper, _user, _project, TestArtifactState.Published,
+            var childArtifact = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Document, artifactToAdd.Id);
-            var childArtifact1 = CreateArtifactInSpecificState(Helper, _user, _project, TestArtifactState.Published, ItemTypePredefined.TextualRequirement,
+            var childArtifact1 = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.TextualRequirement,
                 childArtifact.Id);
             var baseline = Helper.CreateBaseline(_user, _project);
 
@@ -178,16 +178,16 @@ namespace ArtifactStoreTests
 
         #region Add Collection to Baseline
 
-        [TestCase(TestArtifactState.Published)]
-        [TestCase(TestArtifactState.PublishedWithDraft)]
+        [TestCase(TestHelper.TestArtifactState.Published)]
+        [TestCase(TestHelper.TestArtifactState.PublishedWithDraft)]
         [TestRail(266913)]
         [Description("Add one published or published with draft Artifact to Collection, add Collection to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_CollectionAddToBaseline_ValidateReturnedBaseline(TestArtifactState artifactState)
+        public void AddArtifactToBaseline_CollectionAddToBaseline_ValidateReturnedBaseline(TestHelper.TestArtifactState artifactState)
         {
             // Setup:
-            var artifactToAdd = CreateArtifactInSpecificState(Helper, _user, _project, artifactState, ItemTypePredefined.Actor,
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
                 _project.Id);
-            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _user, _project, TestArtifactState.Created,
+            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _user, _project, TestHelper.TestArtifactState.Created,
                 new List<int> { artifactToAdd.Id });
 
             var baseline = Helper.CreateBaseline(_user, _project);
@@ -216,7 +216,7 @@ namespace ArtifactStoreTests
             
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
-            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _adminUser, _project, TestArtifactState.Published,
+            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _adminUser, _project, TestHelper.TestArtifactState.Published,
                 new List<int> { artifactToAdd.Id, artifactWithNoAccess.Id });
 
 
@@ -271,7 +271,7 @@ namespace ArtifactStoreTests
             var artifactWithNoAccess = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
-            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _adminUser, _project, TestArtifactState.Published,
+            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _adminUser, _project, TestHelper.TestArtifactState.Published,
                 new List<int> { artifactWithNoAccess.Id });
 
 
@@ -360,9 +360,11 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
                 ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _adminUser, baseline);
-            }, "Attempt to set IsAvailableInAnalytics for unsealed Baseline should return 409 error.");
+            }, "Attempt to set IsAvailableInAnalytics for unsealed Baseline should return 409 error." +
+            "This option should be available for sealed Baselines only.");
 
             // Verify:
+            // see TFS 5107
             string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies, expectedErrorMessage);
         }
@@ -399,54 +401,6 @@ namespace ArtifactStoreTests
         #region Private Functions
 
         /// <summary>
-        /// Creates artifact in the specified state
-        /// </summary>
-        /// <param name="helper">TestHelper</param>
-        /// <param name="user">User to perform operation</param>
-        /// <param name="project">Project in which artifact will be created</param>
-        /// <param name="state">State of the artifact(Created, Published, PublishedWithDraft, ScheduledToDelete, Deleted)</param>
-        /// <param name="itemType">itemType of artifact to be created</param>
-        /// <param name="parentId">Parent Id of artifact to be created</param>
-        /// <returns>Artifact in the required state</returns>
-        private static INovaArtifactDetails CreateArtifactInSpecificState(TestHelper helper, IUser user, IProject project, TestArtifactState state,
-            ItemTypePredefined itemType, int parentId)
-        {
-            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var artifact = ArtifactStore.CreateArtifact(helper.ArtifactStore.Address, user, itemType, artifactName, project, parentId);
-            NovaArtifactDetails artifactDetails = null;
-
-            switch (state)
-            {
-                case TestArtifactState.Created:
-                    return artifact;
-                case TestArtifactState.Published:
-                    artifactDetails = helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
-                    ArtifactStore.UpdateArtifact(helper.ArtifactStore.Address, user, artifactDetails);
-                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { artifact.Id }, user);
-                    return artifact;
-                case TestArtifactState.PublishedWithDraft:
-                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { artifact.Id }, user);
-                    artifactDetails = helper.ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
-                    SvcShared.LockArtifacts(helper.ArtifactStore.Address, user, new List<int> { artifact.Id });
-                    return ArtifactStore.UpdateArtifact(helper.ArtifactStore.Address, user, artifactDetails);
-                case TestArtifactState.ScheduledToDelete:
-                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { artifact.Id }, user);
-                    ArtifactStore.DeleteArtifact(helper.ArtifactStore.Address, artifact.Id, user);
-                    return artifact;
-                case TestArtifactState.Deleted:
-                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { artifact.Id }, user);
-                    ArtifactStore.DeleteArtifact(helper.ArtifactStore.Address, artifact.Id, user);
-                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { artifact.Id }, user);
-                    return artifact;
-                default:
-                    Assert.Fail("Unexpected value of Artifact state");
-                    return artifact;
-            }
-        }
-
-        /// <summary>
         /// Creates collection in the specified state with artifacts
         /// </summary>
         /// <param name="helper">TestHelper</param>
@@ -456,7 +410,7 @@ namespace ArtifactStoreTests
         /// <param name="artifactsIdsToAdd">List of artifact's id to be added</param>
         /// <returns>Collection in the required state</returns>
         private static Collection CreateCollectionWithArtifactsInSpecificState(TestHelper helper, IUser user, IProject project,
-            TestArtifactState collectionState, List<int> artifactsIdsToAdd)
+            TestHelper.TestArtifactState collectionState, List<int> artifactsIdsToAdd)
         {
             var collectionArtifact = helper.CreateAndSaveCollection(project, user);
             var collection = helper.ArtifactStore.GetCollection(user, collectionArtifact.Id);
@@ -468,9 +422,9 @@ namespace ArtifactStoreTests
 
             switch (collectionState)
             {
-                case TestArtifactState.Created:
+                case TestHelper.TestArtifactState.Created:
                     return collection;
-                case TestArtifactState.Published:
+                case TestHelper.TestArtifactState.Published:
                     ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { collection.Id }, user);
                     return helper.ArtifactStore.GetCollection(user, collectionArtifact.Id);
                 default:
@@ -503,14 +457,5 @@ namespace ArtifactStoreTests
         }
 
         #endregion Private Functions
-    }
-
-    public enum TestArtifactState
-    {
-        Created = 0,
-        Published = 1,
-        PublishedWithDraft = 2,
-        ScheduledToDelete = 3,
-        Deleted = 4
     }
 }

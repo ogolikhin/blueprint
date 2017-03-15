@@ -365,12 +365,16 @@ namespace Utilities.Facades
                     SerializationUtilities.CheckJson(result, response.Content);
                 }
                 ////
-
                 Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
 
                 Logger.WriteDebug("Deserialized Response Content: {0}", response.Content);
 
-                return result;   // This will deserialize the data for us.
+                return result;
+            }
+            catch (JsonSerializationException)
+            {
+                Logger.WriteError("Error during serialization");
+                return default(T1);
             }
             catch (JsonReaderException)
             {

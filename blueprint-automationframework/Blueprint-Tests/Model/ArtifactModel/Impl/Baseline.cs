@@ -9,11 +9,11 @@ namespace Model.ArtifactModel.Impl
     {
         #region JSON Properties
         public bool IsAvailableInAnalytics {
-            get { return isAvailableInAnalytics; }
-            set { isAvailableInAnalytics = value; }
+            get { return _isAvailableInAnalytics; }
+            set { _isAvailableInAnalytics = value; }
         }
 
-        private bool isAvailableInAnalytics;
+        private bool _isAvailableInAnalytics;
 
         public bool NotAllArtifactsAreShown { get; set; }
 
@@ -69,7 +69,7 @@ namespace Model.ArtifactModel.Impl
         /// Sets IsAvailableInAnalytics flag in SpecificPropertyValues to make it available for ArtifactUpdate
         /// </summary>
         /// <param name="availableInAnalytics">value to set</param>
-        public void SetIsAvailableInAnalytics(bool availableInAnalytics)
+        public void SetIsAvailableInAnalytics(bool availableInAnalytics) // TFS 5761
         {
             var specProperty = SpecificPropertyValues.Find(property => property.PropertyType == PropertyTypePredefined.BaselineIsDataAnalyticsAvailable);
             if (specProperty != null)
@@ -87,7 +87,7 @@ namespace Model.ArtifactModel.Impl
                 SpecificPropertyValues.Add(analyticsProperty);
             }
 
-            isAvailableInAnalytics = availableInAnalytics;
+            _isAvailableInAnalytics = availableInAnalytics;
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using Model.ArtifactModel.Impl;
 using System.Collections.Generic;
 using System.Net;
+using Model.NovaModel.Components.RapidReview;
 
 namespace Model.ArtifactModel
 {
@@ -60,43 +61,42 @@ namespace Model.ArtifactModel
         /// (Runs: svc/components/RapidReview/usecase/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        ///     of the user that created the artifact. </param>
+        ///     of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Properties and UseCase content.</returns>
         ///<exception cref="ArgumentException">If method called for Artifact different than Usecase.</exception>
-        RapidReviewUseCase GetRapidReviewUseCaseContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        UseCase GetRapidReviewUseCaseContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets Glossary content for RapidReview (Storyteller).
         /// (Runs: svc/components/RapidReview/glossary/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        ///     of the user that created the artifact. </param>
+        ///     of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Properties and Glossary content.</returns>
         /// <exception cref="ArgumentException">If method called for Artifact different than Glossary.</exception>
         RapidReviewGlossary GetRapidReviewGlossaryContent(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Gets artifact properties for RapidReview (Storyteller).
+        /// (Runs: 'GET svc/components/RapidReview/artifacts/properties' with the artifactId in the body.)
+        /// </summary>
+        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
+        ///     of the user that created the artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Properties of this artifact.</returns>
+        RapidReviewProperties GetRapidReviewArtifactProperties(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Gets artifact info.
         /// (Runs: svc/components/storyteller/artifactInfo/{artifactId})
         /// </summary>
         /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        ///     of the user that created the artifact. </param>
+        ///     of the user that created the artifact.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Artifact info is used by other method to determine type of artifact</returns>
         ArtifactInfo GetArtifactInfo(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
-
-        /// <summary>
-        /// Gets properties for RapidReview (Storyteller).
-        /// (Runs: svc/components/RapidReview/artifacts/properties)
-        /// </summary>
-        /// <param name="user">(optional) The user to authenticate to Blueprint. If null, attempts to get the version using the credentials
-        /// of the user that created the artifact. </param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>Properties and (for graphical artifacts) diagram content.</returns>
-        RapidReviewProperties GetPropertiesForRapidReview(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false);
 
         /// <summary>
         /// Lock this Artifact.

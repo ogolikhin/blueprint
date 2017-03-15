@@ -193,7 +193,7 @@ namespace ServiceLibrary.Repositories
                 Name = v.Name,
                 ProjectId = v.VersionProjectId,
                 ParentId = v.ParentId,
-                ItemTypeId = GetItemTypeId(v),
+                ItemTypeId = v.ItemTypeId,
                 Prefix = v.Prefix,
                 ItemTypeIconId = v.ItemTypeIconId,
                 PredefinedType = v.ItemTypePredefined.GetValueOrDefault(),
@@ -284,23 +284,6 @@ namespace ServiceLibrary.Repositories
             }
 
             return false;
-        }
-
-        // Returns stub ItemTypeId for Collections and Baselines and Reviews folders under the project.
-        private static int? GetItemTypeId(ArtifactVersion av)
-        {
-            if (av.ParentId != av.VersionProjectId)
-                return av.ItemTypeId;
-
-            switch (av.ItemTypePredefined)
-            {
-                case ItemTypePredefined.CollectionFolder:
-                    return ServiceConstants.StubCollectionsItemTypeId;
-                case ItemTypePredefined.BaselineFolder:
-                    return ServiceConstants.StubBaselinesAndReviewsItemTypeId;
-                default:
-                    return av.ItemTypeId;
-            }
         }
 
         private List<ArtifactVersion> ProcessChildren(Dictionary<int, ArtifactVersion> dicUserArtifactVersions, ArtifactVersion parentUserArtifactVersion)
@@ -756,12 +739,17 @@ namespace ServiceLibrary.Repositories
         }
 
         public async Task<IEnumerable<AuthorHistory>> GetAuthorHistoriesWithPermissionsCheck(IEnumerable<int> artifactIds, int userId)
-        {            
+        {
+            if (artifactIds == null)
+            {
+                throw new ArgumentOutOfRangeException(nameof(artifactIds));
+            }
+
             var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds.ToList(), userId);
 
             var readPermissions = artifactsPermissions.Where(perm => perm.Value.HasFlag(RolePermissions.Read));
 
-            return await GetAuthorHistories(readPermissions.Select(rp => rp.Key).ToList());    
+            return await GetAuthorHistories(readPermissions.Select(rp => rp.Key).ToList());
         }
 
     }

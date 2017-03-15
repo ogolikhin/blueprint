@@ -4,6 +4,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.NovaModel.Components.RapidReview;
 using NUnit.Framework;
 using TestCommon;
 
@@ -14,6 +15,7 @@ namespace CommonServiceTests
         private const string DIAGRAM_PATH = RestPaths.Svc.Components.RapidReview.DIAGRAM_id_;
         private const string GLOSSARY_PATH = RestPaths.Svc.Components.RapidReview.GLOSSARY_id_;
         private const string USECASE_PATH = RestPaths.Svc.Components.RapidReview.USECASE_id_;
+        private const string ARTIFACTS_PROPERTIES_PATH = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
 
         private IUser _user;
         private IProject _project;
@@ -86,7 +88,7 @@ namespace CommonServiceTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            RapidReviewUseCase artifactContent = null;
+            UseCase artifactContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -111,8 +113,8 @@ namespace CommonServiceTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                propertiesContent = artifact.GetPropertiesForRapidReview(_user);
-            }, "GetPropertiesForRapidReview must not throw errors.");
+                propertiesContent = artifact.GetRapidReviewArtifactProperties(_user);
+            }, "'GET {0}' should return 200 OK when a valid token is passed.", ARTIFACTS_PROPERTIES_PATH);
 
             // Verify:
             Assert.AreEqual(artifact.Id, propertiesContent.ArtifactId, "Returned properties must have artifact Id {0}, but it is {1}", artifact.Id, propertiesContent.ArtifactId);

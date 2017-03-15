@@ -637,6 +637,20 @@ namespace Model.Impl
                 includeDescendants, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
+        public List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.AUTHOR_HISTORIES;
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var historyItems = restApi.SendRequestAndDeserializeObject<List<AuthorHistoryItem>, List<int>>(path,
+                RestRequestMethod.POST, artifactIds, expectedStatusCodes: expectedStatusCodes);
+
+            return historyItems;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Private Methods
@@ -677,7 +691,8 @@ namespace Model.Impl
             collectionContentToAdd.Add("artifactId", artifactId);
             var response = restApi.SendRequestAndGetResponse<object>(path, RestRequestMethod.PUT, bodyObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-            return I18NHelper.ToInt32Invariant(response.Content);
+            var responseObject = JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
+            return responseObject["artifactCount"];
         }
 
         #endregion Private Methods

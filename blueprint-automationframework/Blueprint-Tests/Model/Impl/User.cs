@@ -564,14 +564,19 @@ namespace Model.Impl
                 database.Open();
 
                 string values = I18NHelper.FormatInvariant(
-                    "[AllowFallback]='{0}',[CurrentVersion]='{1}',[Department]='{2}',[DisplayName]='{3}',[Email]='{4}',[Enabled]='{5}',[EndTimestamp]='{6}'," +
-                    "[EULAccepted]='{7}',[ExpirePassword]='{8}',[FirstName]='{9}',[Guest]='{10}',[InstanceAdminRoleId]='{11}'," +
-                    "[InvalidLogonAttemptsNumber]='{12}',[LastInvalidLogonTimeStamp]='{13}',[LastName]='{14}',[LastPasswordChangeTimestamp]='{15}'," +
-                    "[Login]='{16}',[Password]='{17}',[Source]='{18}',[StartTimestamp]='{19}',[Title]='{20}',[UserSALT]='{21}'",    // ,[Image_ImageId]='{11}'
-                    AllowFallback, CurrentVersion, Department, DisplayName, Email, Enabled, EndTimestamp,
+                    "[AllowFallback]='{0}',[CurrentVersion]='{1}',[Department]='{2}',[DisplayName]='{3}',[Email]='{4}',[Enabled]='{5}'," +
+                    "[EULAccepted]='{6}',[ExpirePassword]='{7}',[FirstName]='{8}',[Guest]='{9}',[InstanceAdminRoleId]='{10}'," +
+                    "[InvalidLogonAttemptsNumber]='{11}',[LastInvalidLogonTimeStamp]='{12}',[LastName]='{13}',[LastPasswordChangeTimestamp]='{14}'," +
+                    "[Login]='{15}',[Password]='{16}',[Source]='{17}',[StartTimestamp]='{18}',[Title]='{19}',[UserSALT]='{20}'",    // ,[Image_ImageId]='{11}'
+                    AllowFallback, CurrentVersion, Department, DisplayName, Email, Enabled,
                     EULAccepted, ExpirePassword, FirstName, Guest, (int?)InstanceAdminRole,
                     InvalidLogonAttemptsNumber, LastInvalidLogonTimeStamp, LastName, LastPasswordChangeTimestamp,
                     Username, EncryptedPassword, (int)Source, StartTimestamp, Title, UserSALT);     // , Picture
+
+                if (EndTimestamp != null)
+                {
+                    values = I18NHelper.FormatInvariant("{0},[EndTimestamp]='{1}'", values, dateTimeToString(EndTimestamp.Value));
+                }
 
                 string query = I18NHelper.FormatInvariant("UPDATE {0} SET {1} WHERE UserId = {2}", USERS_TABLE, values, Id);
 

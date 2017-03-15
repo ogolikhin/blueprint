@@ -21,6 +21,7 @@ namespace AdminStoreTests.UsersTests
         private const string NOT_LATEST_TOKEN_MESSAGE           = "Password reset failed, a more recent recovery token exists.";
         private const string PASSWORD_RESET_COOLDOWN_MESSAGE    = "Password reset failed, password reset cooldown in effect";
         private const string TOKEN_NOT_FOUND_MESSAGE            = "Password reset failed, recovery token not found.";
+        private const string TOKEN_NOT_PROVIDED_MESSAGE         = "Password reset failed, token not provided";
 
         private IUser _adminUser = null;
         private IProject _project = null;
@@ -75,11 +76,11 @@ namespace AdminStoreTests.UsersTests
 
         #region Negative tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug: https://trello.com/c/Gy9m6nVt  Returns 409 instead of 400.
-        [TestCase]
+        [TestCase(null)]
+        [TestCase("")]
         [Description("Call Password Recovery Reset and send only a valid new password.  Verify 400 Bad Request is returned.")]
         [TestRail(266996)]
-        public void PasswordRecoveryReset_MissingToken_400BadRequest()
+        public void PasswordRecoveryReset_MissingToken_400BadRequest(string recoveryToken)
         {
             // Setup:
             string newPassword = AdminStoreHelper.GenerateValidPassword();
@@ -87,11 +88,11 @@ namespace AdminStoreTests.UsersTests
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
             {
-                Helper.AdminStore.PasswordRecoveryReset(recoveryToken: null, newPassword: newPassword);
+                Helper.AdminStore.PasswordRecoveryReset(recoveryToken, newPassword: newPassword);
             }, "'POST {0}' should return 400 Bad Request when the token is missing.", REST_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetEmptyToken, TOKEN_NOT_PROVIDED_MESSAGE);
         }
 
         [TestCase]
@@ -173,7 +174,6 @@ namespace AdminStoreTests.UsersTests
             // TODO: Verify user is still deleted.
         }
 
-        [TestCase("")]
         [TestCase(CommonConstants.InvalidToken)]
         [Description("Call Password Recovery Reset and pass an invalid recovery token.  Verify 409 Conflict is returned.")]
         [TestRail(266999)]
@@ -192,6 +192,7 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/fmT1xT2t  Returns 200 instead of 409.
         [TestCase]
         [Description("Create a user and request a password reset for that user.  Disable the user, then try to reset their password.  " +
                      "Verify 409 Conflict is returned and the user is still disabled.")]
@@ -224,7 +225,6 @@ namespace AdminStoreTests.UsersTests
             Assert.IsFalse(userAfterReset.Enabled.Value, "The user should still be disabled!");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/Bx4f2qBl  Returns 400 instead of 409.
         [TestCase]
         [Description("Create a user and get a password recovery token, then change the user's password.  Try to Reset the user's password.  " +
                      "Verify 409 Conflict is returned.")]
@@ -259,7 +259,6 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/Bx4f2qBl  Returns 400 instead of 409.
         [TestCase]
         [Description("Create a user and get a password recovery token, then reset the user's password.  Try to Reset the user's password again " +
                      "with the same recovery token.  Verify 409 Conflict is returned.")]

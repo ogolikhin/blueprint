@@ -47,6 +47,7 @@ namespace Model.Common.Enums
         AssociatedArtifact = 4133,
         CollectionContent = 4135,
         BaselineContent = 4136,
+        BaselineIsDataAnalyticsAvailable = 4137,
 
         X = 8193,
         Y = 8194,

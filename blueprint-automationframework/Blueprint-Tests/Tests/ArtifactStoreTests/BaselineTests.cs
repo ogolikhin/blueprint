@@ -360,9 +360,11 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
                 ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _adminUser, baseline);
-            }, "Attempt to set IsAvailableInAnalytics for unsealed Baseline should return 409 error.");
+            }, "Attempt to set IsAvailableInAnalytics for unsealed Baseline should return 409 error." +
+            "This option should be available for sealed Baselines only.");
 
             // Verify:
+            // see TFS 5107
             string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies, expectedErrorMessage);
         }

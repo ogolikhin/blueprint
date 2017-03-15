@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Model.ArtifactModel.Impl
 {
+    // developer's implementation blueprint/svc/lib/ServiceLibrary/Models/AuthorHistory.cs
     public class AuthorHistoryItem
     {
         public int ItemId { get; set; }

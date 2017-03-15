@@ -502,5 +502,15 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Number of artifacts added to Baseline</returns>
         int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Returns the list of history items for the specified artifacts.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactIds">The list of artifacts to get Author History</param>
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of history items for the specified artifacts.</returns>
+        List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
     }
 }

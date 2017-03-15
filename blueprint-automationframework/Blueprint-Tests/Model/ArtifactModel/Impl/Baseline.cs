@@ -9,11 +9,11 @@ namespace Model.ArtifactModel.Impl
     {
         #region JSON Properties
         public bool IsAvailableInAnalytics {
-            get { return isAvailableInAnalytics; }
-            set { isAvailableInAnalytics = value; }
+            get { return _isAvailableInAnalytics; }
+            set { _isAvailableInAnalytics = value; }
         }
 
-        private bool isAvailableInAnalytics;
+        private bool _isAvailableInAnalytics;
 
         public bool NotAllArtifactsAreShown { get; set; }
 
@@ -87,7 +87,7 @@ namespace Model.ArtifactModel.Impl
                 SpecificPropertyValues.Add(analyticsProperty);
             }
 
-            isAvailableInAnalytics = availableInAnalytics;
+            _isAvailableInAnalytics = availableInAnalytics;
         }
     }
 }

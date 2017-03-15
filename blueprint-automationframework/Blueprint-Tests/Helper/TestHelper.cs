@@ -6,6 +6,7 @@ using Model.ArtifactModel.Impl;
 using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
+using static Model.Impl.ArtifactStore;
 using Model.JobModel;
 using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
@@ -649,7 +650,7 @@ namespace Helper
         /// <returns>The new Nova artifact that was created.</returns>
         public INovaArtifactDetails UpdateNovaArtifact(IUser user, NovaArtifactDetails novaArtifactDetails)
         {     
-            return Model.Impl.ArtifactStore.UpdateArtifact(ArtifactStore.Address, user, novaArtifactDetails);
+            return UpdateArtifact(ArtifactStore.Address, user, novaArtifactDetails);
         }
 
         /// <summary>
@@ -853,7 +854,7 @@ namespace Helper
             }
 
             NovaArtifactDetails artifactDetails = null;
-
+            
             switch (state)
             {
                 case TestArtifactState.Created:
@@ -861,23 +862,23 @@ namespace Helper
                 case TestArtifactState.Published:
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
-                    Model.Impl.ArtifactStore.UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
-                    Model.Impl.ArtifactStore.PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
                     return artifact;
                 case TestArtifactState.PublishedWithDraft:
-                    Model.Impl.ArtifactStore.PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
                     Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
-                    return Model.Impl.ArtifactStore.UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                 case TestArtifactState.ScheduledToDelete:
-                    Model.Impl.ArtifactStore.PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
-                    Model.Impl.ArtifactStore.DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
                     return artifact;
                 case TestArtifactState.Deleted:
-                    Model.Impl.ArtifactStore.PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
-                    Model.Impl.ArtifactStore.DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
-                    Model.Impl.ArtifactStore.PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
                     return artifact;
                 default:
                     Assert.Fail("Unexpected value of Artifact state");
@@ -1600,9 +1601,9 @@ namespace Helper
                         {
                             foreach (int id in NovaArtifacts[user])
                             {
-                                Model.Impl.ArtifactStore.DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
+                                DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
                             }
-                            Model.Impl.ArtifactStore.PublishArtifacts(ArtifactStore.Address, NovaArtifacts[user], user);
+                            PublishArtifacts(ArtifactStore.Address, NovaArtifacts[user], user);
                         }
                     }
                 }

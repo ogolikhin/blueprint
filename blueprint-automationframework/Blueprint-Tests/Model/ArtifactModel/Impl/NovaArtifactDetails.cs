@@ -127,7 +127,6 @@ namespace Model.ArtifactModel.Impl
         public string Description { get; set; }
         public override int? ParentId { get; set; }
         public double? OrderIndex { get; set; }
-        public int IndicatorFlags { get; set; }
         public override int? ItemTypeId { get; set; }
         public string ItemTypeName { get; set; }
         public int ItemTypeVersionId { get; set; }

@@ -629,6 +629,20 @@ namespace Model.Impl
                 includeDescendants, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
+        public List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.AUTHOR_HISTORIES;
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var historyItems = restApi.SendRequestAndDeserializeObject<List<AuthorHistoryItem>, List<int>>(path,
+                RestRequestMethod.POST, artifactIds, expectedStatusCodes: expectedStatusCodes);
+
+            return historyItems;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Private Methods
@@ -1567,28 +1581,6 @@ namespace Model.Impl
                 shouldControlJsonChanges: true);
 
             return movedArtifact;
-        }
-
-        /// <summary>
-        /// Returns the list of history items for the specified artifacts.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifactIds">The list of artifacts to get Author History</param>
-        /// <param name="user">User to perform operation.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>List of history items for the specified artifacts.</returns>
-        public static List<AuthorHistoryItem> GetArtifactsAuthorHistory (string address,
-            List<int> artifactIds,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            string path = RestPaths.Svc.ArtifactStore.Artifacts.AUTHOR_HISTORIES;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-
-            var historyItems = restApi.SendRequestAndDeserializeObject<List<AuthorHistoryItem>, List<int>>(path,
-                RestRequestMethod.POST, artifactIds, expectedStatusCodes: expectedStatusCodes);
-
-            return historyItems;
         }
 
         #region Process methods

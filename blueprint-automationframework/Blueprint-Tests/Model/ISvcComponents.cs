@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel.Impl;
+using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
 
 namespace Model
@@ -62,7 +63,7 @@ namespace Model
         /// <param name="artifactId">The ID of the Use Case artifact whose contents you want to get.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>Properties and Use Case content.</returns>
-        RapidReviewUseCase GetRapidReviewUseCaseContent(
+        UseCase GetRapidReviewUseCaseContent(
             IUser user,
             int artifactId,
             List<HttpStatusCode> expectedStatusCodes = null);

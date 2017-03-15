@@ -669,7 +669,8 @@ namespace Model.Impl
             collectionContentToAdd.Add("artifactId", artifactId);
             var response = restApi.SendRequestAndGetResponse<object>(path, RestRequestMethod.PUT, bodyObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-            return I18NHelper.ToInt32Invariant(response.Content);
+            var responseObject = JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
+            return responseObject["artifactCount"];
         }
 
         #endregion Private Methods

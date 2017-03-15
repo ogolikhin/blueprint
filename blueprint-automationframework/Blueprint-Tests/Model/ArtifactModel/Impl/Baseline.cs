@@ -8,7 +8,12 @@ namespace Model.ArtifactModel.Impl
     public class Baseline : NovaCollectionBase
     {
         #region JSON Properties
-        public bool IsAvailableInAnalytics { get; set; }
+        public bool IsAvailableInAnalytics {
+            get { return isAvailableInAnalytics; }
+            set { isAvailableInAnalytics = value; }
+        }
+
+        private bool isAvailableInAnalytics;
 
         public bool NotAllArtifactsAreShown { get; set; }
 
@@ -58,6 +63,31 @@ namespace Model.ArtifactModel.Impl
                     "Baseline should have expected number of Artifacts.");
                 // TODO: add comparison of Artifacts
             }
+        }
+
+        /// <summary>
+        /// Sets IsAvailableInAnalytics flag in SpecificPropertyValues to make it available for ArtifactUpdate
+        /// </summary>
+        /// <param name="availableInAnalytics">value to set</param>
+        public void SetIsAvailableInAnalytics(bool availableInAnalytics) // TFS 5761
+        {
+            var specProperty = SpecificPropertyValues.Find(property => property.PropertyType == PropertyTypePredefined.BaselineIsDataAnalyticsAvailable);
+            if (specProperty != null)
+            {
+                specProperty.CustomPropertyValue = availableInAnalytics;
+            }
+            else
+            {
+                var analyticsProperty = new CustomProperty();
+                analyticsProperty.Name = nameof(PropertyTypePredefined.BaselineIsDataAnalyticsAvailable);
+                analyticsProperty.PropertyTypeId = -1;
+                analyticsProperty.PropertyType = PropertyTypePredefined.BaselineIsDataAnalyticsAvailable;
+                analyticsProperty.CustomPropertyValue = availableInAnalytics;
+                
+                SpecificPropertyValues.Add(analyticsProperty);
+            }
+
+            isAvailableInAnalytics = availableInAnalytics;
         }
     }
 }

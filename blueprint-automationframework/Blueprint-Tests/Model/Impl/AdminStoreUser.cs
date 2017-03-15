@@ -54,5 +54,10 @@ namespace Model.Impl
         {
             throw new NotImplementedException();
         }
+
+        public override void UpdateUser()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

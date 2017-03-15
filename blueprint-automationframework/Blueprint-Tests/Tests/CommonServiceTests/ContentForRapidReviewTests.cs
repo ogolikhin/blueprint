@@ -4,6 +4,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.NovaModel.Components.RapidReview;
 using NUnit.Framework;
 using TestCommon;
 
@@ -87,7 +88,7 @@ namespace CommonServiceTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
-            RapidReviewUseCase artifactContent = null;
+            UseCase artifactContent = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>

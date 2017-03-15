@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Model.ArtifactModel;
+using Model.ArtifactModel.Impl;
+using System;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel;
-using Model.ArtifactModel.Impl;
-using Model.Impl;
 
 namespace Model.StorytellerModel
 {
@@ -110,18 +109,18 @@ namespace Model.StorytellerModel
 
         /// <summary>
         /// Generate or Update User Stories for the Process Artifact.
+        /// 
+        /// Runs: 'POST vc/components/storyteller/projects/{projectId}/processes/{processId}/userstories'
         /// </summary>
         /// <param name="user">The user credentials for the request to generate the user stories</param>
         /// <param name="process">The process from which user stories are generated.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <param name="shouldDeleteChildren">(optional) Flag to skip deleting process children (Default: true)</param>
         /// <returns>The list of user stories that were generated or updated</returns>
         /// <exception cref="WebException">A WebException sub-class if request call triggers an unexpected HTTP status code.</exception>
         List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
             bool shouldDeleteChildren = true);
 
         /// <summary>

@@ -186,34 +186,6 @@ namespace AdminStoreTests
 
         #region 400 Bad Request Tests
 
-        [TestCase(MinPasswordLength, 1)]
-        [TestCase(MaxPasswordLength, 23)]
-        [TestRail(234569)]
-        [Description("Try to reset the user's password which was changed within 24-hours password reset cooldown period." +
-            "Verify that 400 BadRequest response and that the user still can login with its password.")]
-        public void ResetUserPassword_ChangingPasswordWithin24HoursCooldown_400BadRequest(uint length, int hoursPassedAfterPasswordReset)
-        {
-            // Setup: Reset the password with valid new password
-            string changedPassword = CreateValidPassword(length);
-            Helper.AdminStore.ChangePassword(_adminUser, changedPassword);
-            _adminUser.Password = changedPassword;
-
-            // Execute: Attempt to change the password again after resetting the password.
-            SimulateTimeSpentAfterLastPasswordUpdate(_adminUser, timespent: hoursPassedAfterPasswordReset);
-
-            string newPassword = CreateValidPassword(length); 
-            var ex = Assert.Throws<Http400BadRequestException>(
-                () => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: newPassword),
-                "POST {0} should get a 400 Bad Request if the password was updated within 24-hours password reset cooldown period!",
-                USERSRESET_PATH);
-
-            // Verify: Make sure the user can login with their last successfully changed password.
-            VerifyLogin(Helper, _adminUser.Username, changedPassword);
-
-            const string expectedExceptionMessage = "Password reset failed, password reset cooldown in effect";
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ChangePasswordCooldownInEffect, expectedExceptionMessage);
-        }
-
         [TestCase(null)]
         [TestCase("")]
         [TestRail(103490)]
@@ -458,6 +430,38 @@ namespace AdminStoreTests
         }
 
         #endregion 401 Unauthorized Tests
+
+        #region 409 Conflict Tests
+
+        [TestCase(MinPasswordLength, 1)]
+        [TestCase(MaxPasswordLength, 23)]
+        [TestRail(234569)]
+        [Description("Try to reset the user's password which was changed within 24-hours password reset cooldown period.  " +
+                     "Verify that 409 Conflict is returned and that the user still can login with its password.")]
+        public void ResetUserPassword_ChangingPasswordWithin24HoursCooldown_409Conflict(uint length, int hoursPassedAfterPasswordReset)
+        {
+            // Setup: Reset the password with valid new password
+            string changedPassword = CreateValidPassword(length);
+            Helper.AdminStore.ChangePassword(_adminUser, changedPassword);
+            _adminUser.Password = changedPassword;
+
+            // Execute: Attempt to change the password again after resetting the password.
+            SimulateTimeSpentAfterLastPasswordUpdate(_adminUser, timespent: hoursPassedAfterPasswordReset);
+
+            string newPassword = CreateValidPassword(length);
+            var ex = Assert.Throws<Http409ConflictException>(
+                () => Helper.AdminStore.ChangePassword(user: _adminUser, newPassword: newPassword),
+                "POST {0} should get a 409 Conflict if the password was updated within 24-hours password reset cooldown period!",
+                USERSRESET_PATH);
+
+            // Verify: Make sure the user can login with their last successfully changed password.
+            VerifyLogin(Helper, _adminUser.Username, changedPassword);
+
+            const string expectedExceptionMessage = "Password reset failed, password reset cooldown in effect";
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.ChangePasswordCooldownInEffect, expectedExceptionMessage);
+        }
+
+        #endregion 409 Conflict Tests
 
         #endregion /users/reset tests
 

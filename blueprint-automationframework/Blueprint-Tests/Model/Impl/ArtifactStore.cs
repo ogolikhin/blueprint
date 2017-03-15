@@ -629,6 +629,20 @@ namespace Model.Impl
                 includeDescendants, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
+        public List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.AUTHOR_HISTORIES;
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var historyItems = restApi.SendRequestAndDeserializeObject<List<AuthorHistoryItem>, List<int>>(path,
+                RestRequestMethod.POST, artifactIds, expectedStatusCodes: expectedStatusCodes);
+
+            return historyItems;
+        }
+
         #endregion Members inherited from IArtifactStore
 
         #region Private Methods

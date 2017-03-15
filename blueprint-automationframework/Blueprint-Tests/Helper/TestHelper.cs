@@ -6,6 +6,7 @@ using Model.ArtifactModel.Impl;
 using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
+using static Model.Impl.ArtifactStore;
 using Model.JobModel;
 using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
@@ -64,6 +65,9 @@ namespace Helper
         public List<IUser> Users { get; } = new List<IUser>();
         public List<IGroup> Groups { get; } = new List<IGroup>();
         public List<IProjectRole> ProjectRoles { get; } = new List<IProjectRole>();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
+        public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
         #region IArtifactObserver methods
 
@@ -646,7 +650,7 @@ namespace Helper
         /// <returns>The new Nova artifact that was created.</returns>
         public INovaArtifactDetails UpdateNovaArtifact(IUser user, NovaArtifactDetails novaArtifactDetails)
         {     
-            return Model.Impl.ArtifactStore.UpdateArtifact(ArtifactStore.Address, user, novaArtifactDetails);
+            return UpdateArtifact(ArtifactStore.Address, user, novaArtifactDetails);
         }
 
         /// <summary>
@@ -805,6 +809,84 @@ namespace Helper
         }
 
         #endregion Artifact Management
+
+        #region Nova Artifact Management
+        public enum TestArtifactState
+        {
+            Created = 0,
+            Published = 1,
+            PublishedWithDraft = 2,
+            ScheduledToDelete = 3,
+            Deleted = 4
+        }
+
+        /// <summary>
+        /// Creates artifact in the specified state
+        /// </summary>
+        /// <param name="user">User to perform operation</param>
+        /// <param name="project">Project in which artifact will be created</param>
+        /// <param name="state">State of the artifact(Created, Published, PublishedWithDraft, ScheduledToDelete, Deleted)</param>
+        /// <param name="itemType">itemType of artifact to be created</param>
+        /// <param name="parentId">Parent Id of artifact to be created</param>
+        /// <returns>Artifact in the required state</returns>
+        public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
+            ItemTypePredefined itemType, int parentId)
+        {
+            const string draftDescription = "description of item in the Draft state";
+            const string publishedDescription = "description of item in the Published state";
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user, itemType, artifactName, project, parentId);
+
+            if (NovaArtifacts.ContainsKey(user))
+            {
+                if (NovaArtifacts[user] == null)
+                {
+                    NovaArtifacts[user] = new List<int> { artifact.Id };
+                }
+                else
+                {
+                    NovaArtifacts[user].Add(artifact.Id);
+                }
+            }
+            else
+            {
+                NovaArtifacts.Add(user, new List<int> { artifact.Id });
+            }
+
+            NovaArtifactDetails artifactDetails = null;
+            
+            switch (state)
+            {
+                case TestArtifactState.Created:
+                    return artifact;
+                case TestArtifactState.Published:
+                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
+                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    return artifact;
+                case TestArtifactState.PublishedWithDraft:
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
+                    Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
+                    return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                case TestArtifactState.ScheduledToDelete:
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    return artifact;
+                case TestArtifactState.Deleted:
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    return artifact;
+                default:
+                    Assert.Fail("Unexpected value of Artifact state");
+                    return artifact;
+            }
+        }
+
+        #endregion Nova Artifact Management
 
         #region Project Management
 
@@ -1507,6 +1589,23 @@ namespace Helper
                 {
                     Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
                     ArtifactBase.DisposeArtifacts(Artifacts, this);
+                }
+
+                if (NovaArtifacts != null)
+                {
+                    var expectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
+                        System.Net.HttpStatusCode.NotFound};
+                    foreach (var user in NovaArtifacts.Keys)
+                    {
+                        if (NovaArtifacts[user]?.Count > 0)
+                        {
+                            foreach (int id in NovaArtifacts[user])
+                            {
+                                DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
+                            }
+                            PublishArtifacts(ArtifactStore.Address, NovaArtifacts[user], user);
+                        }
+                    }
                 }
 
                 if (Groups != null)

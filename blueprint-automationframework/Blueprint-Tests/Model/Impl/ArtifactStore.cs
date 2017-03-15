@@ -669,7 +669,8 @@ namespace Model.Impl
             collectionContentToAdd.Add("artifactId", artifactId);
             var response = restApi.SendRequestAndGetResponse<object>(path, RestRequestMethod.PUT, bodyObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-            return I18NHelper.ToInt32Invariant(response.Content);
+            var responseObject = JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
+            return responseObject["artifactCount"];
         }
 
         #endregion Private Methods
@@ -941,6 +942,10 @@ namespace Model.Impl
             expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.Created };
 
             // Get the custom artifact type for the project.
+            if (project.NovaPropertyTypes.Count == 0)
+            {
+                project.GetAllNovaArtifactTypes(project.ArtifactStore, user);
+            }
             NovaArtifactType itemType;
 
             if (artifactTypeName == null)

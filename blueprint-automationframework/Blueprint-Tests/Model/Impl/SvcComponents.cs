@@ -133,6 +133,27 @@ namespace Model.Impl
             return returnedArtifactContent;
         }
 
+        /// <seealso cref="ISvcComponents.GetRapidReviewArtifactsProperties(IUser, List{int}, List{HttpStatusCode})"/>
+        public RapidReviewProperties GetRapidReviewArtifactsProperties(
+            IUser user,
+            List<int> artifactIds,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+            string path = RestPaths.Svc.Components.RapidReview.Artifacts.PROPERTIES;
+
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var returnedArtifactProperties = restApi.SendRequestAndDeserializeObject<List<RapidReviewProperties>, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactIds,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return returnedArtifactProperties[0];
+        }
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

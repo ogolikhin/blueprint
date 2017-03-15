@@ -29,6 +29,10 @@ namespace Helper
         public const int PasswordSameAsLogin = 4005;
         public const int PasswordSameAsDisplayName = 4006;
         public const int PasswordAlreadyUsedPreviously = 4007;
+        public const int PasswordResetTokenNotFound = 4008;
+        public const int PasswordResetTokenNotLatest = 4009;
+        public const int PasswordResetTokenExpired = 4010;
+        public const int PasswordResetTokenInvalid = 4011;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;

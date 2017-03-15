@@ -57,6 +57,7 @@
     <Compile Include="ArtifactModel\Adaptors\IDiscussionAdaptor.cs" />
     <Compile Include="ArtifactModel\Enums\BaseArtifactTypeExtensions.cs" />
     <Compile Include="ArtifactModel\Enums\ChangeTypes.cs" />
+    <Compile Include="ArtifactModel\Enums\ItemIndicatorFlags.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefined.cs" />
     <Compile Include="ArtifactModel\Enums\ItemTypePredefinedExtension.cs" />
     <Compile Include="ArtifactModel\IArtifactObserver.cs" />

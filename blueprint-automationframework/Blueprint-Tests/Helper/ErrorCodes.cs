@@ -33,6 +33,7 @@ namespace Helper
         public const int PasswordResetTokenNotLatest = 4009;
         public const int PasswordResetTokenExpired = 4010;
         public const int PasswordResetTokenInvalid = 4011;
+        public const int PasswordResetEmptyToken = 4012;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;

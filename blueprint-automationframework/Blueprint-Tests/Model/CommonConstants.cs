@@ -3,9 +3,9 @@
     public static class CommonConstants
     {
         /// <summary>
-        /// This is a token GUID of all 0's which should be invalid.
+        /// This is a token GUID which should be invalid.
         /// </summary>
-        public const string InvalidToken = "00000000-0000-0000-0000-000000000000";
+        public const string InvalidToken = "11111111-2222-3333-4444-555555555555";
 
         /// <summary>
         /// This key is used when calling the svc/status REST calls.

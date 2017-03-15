@@ -70,7 +70,7 @@ namespace ArtifactStoreTests
         [TestRail(267023)]
         [Description("Executes Get project children call after creating an artifact in the project to which user has no read permissions. " +
             "Verify that the returned result does not include artifact to which user does not have permissions.")]
-        public void GetProjectChildrenByProjectId_CreateArtifact_UserHasNoPermissions_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
+        public void GetProjectChildrenByProjectId_UserHasNoPermissionsToGetArtifact_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, artifactType);
@@ -332,7 +332,7 @@ namespace ArtifactStoreTests
         [TestRail(267024)]
         [Description("Executes Get artifact children call after creating an artifact in the project to which user has no read permissions. " +
             "Verify that the returned result does not include artifact to which user does not have permissions.")]
-        public void GetArtifactChildrenByProjectAndArtifactId_CreateArtifact_UserHasNoPermissions_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
+        public void GetArtifactChildrenByProjectAndArtifactId_UserHasNoPermissionsToGetArtifact_VerifyResultsHaveNoArtifact(BaseArtifactType artifactType)
         {
             // Setup:
             var folder = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.PrimitiveFolder);

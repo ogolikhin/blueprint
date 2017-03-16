@@ -433,7 +433,7 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsNull(result);
             Assert.IsInstanceOfType(exception, typeof(ConflictException));
-            Assert.AreEqual(ErrorCodes.PasswordResetTokenInvalid, ((ConflictException)exception).ErrorCode);
+            Assert.AreEqual(ErrorCodes.PasswordResetUserNotFound, ((ConflictException)exception).ErrorCode);
         }
 
         [TestMethod]

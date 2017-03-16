@@ -79,6 +79,7 @@
     </Content>
     <Content Include="Jobs\AdminStorageMaintenanceJob.sql" />
     <Content Include="Jobs\Blueprint_AdminStorage_Maintenance.sql" />
+    <Content Include="Jobs\PopulateDataAnalyticsJob.sql" />
     <Content Include="Jobs\WeeklyMaintenanceJob.sql" />
     <Content Include="Migration\7.0.1.0\7.0.1.0.sql">
       <DependentUpon>7.0.1.0.tt</DependentUpon>

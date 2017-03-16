@@ -81,6 +81,59 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts if expected and actulal indicator flags are the same 
+        /// </summary>
+        /// <param name="actualIndicatorFlags">Actual indicators flags</param>
+        /// <param name="expectedIndicatorFlags">Expectes</param>
+        public static void AssertIndicatorFlags(ItemIndicatorFlags actualIndicatorFlags, int expectedIndicatorFlags)
+        {
+            if (expectedIndicatorFlags > 0)
+            {
+                Assert.True((int)actualIndicatorFlags % (expectedIndicatorFlags + 1) > 0,
+                    "Artifact have expected flags {0} and actual flags {1} mismatch!", expectedIndicatorFlags, (int)actualIndicatorFlags);
+            }
+            else if (expectedIndicatorFlags == 0)
+            {
+                Assert.AreEqual((int)actualIndicatorFlags, expectedIndicatorFlags, "Artifact has one or more indicators turned on, but it shouldn't!");
+            }
+        }
+
+        /// <summary>
+        /// Asserts that actual and expected indicator flags the same
+        /// </summary>
+        /// <param name="helper">A TestHelper object</param>
+        /// <param name="user">User who extracts artifact information</param>
+        /// <param name="artifactId">Artifact Id</param>
+        /// <param name="subArtifactId">Sub-artifact Id</param>
+        /// <param name="expectedIndicatorFlags">Indicator value to check</param>
+        public static void AssertIndicatorFlags(TestHelper helper, IUser user, int artifactId, int expectedIndicatorFlags, int subArtifactId = 0)
+        {
+            const string ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
+            const string SUB_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_;
+
+            if (subArtifactId == 0)
+            {
+                NovaArtifactDetails artifact = null;
+                Assert.DoesNotThrow(() =>
+                {
+                    artifact = helper.ArtifactStore.GetArtifactDetails(user, artifactId, versionId: 1);
+                }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", ARTIFACT_ID_PATH);
+
+                AssertIndicatorFlags(artifact.IndicatorFlags, expectedIndicatorFlags);
+            }
+            else
+            {
+                NovaSubArtifact subArtifact = null;
+                Assert.DoesNotThrow(() =>
+                {
+                    subArtifact = helper.ArtifactStore.GetSubartifact(user, artifactId, subArtifactId);
+                }, "'GET {0}' should return 200 OK when passed a valid artifact and sub-artifact ID!", SUB_ARTIFACT_ID_PATH);
+
+                AssertIndicatorFlags(subArtifact.IndicatorFlags, expectedIndicatorFlags);
+            }
+        }
+
+        /// <summary>
         /// Asserts that the properties of the NovaArtifactResponse match with the specified artifact.  Some properties are expected to be null.
         /// </summary>
         /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>

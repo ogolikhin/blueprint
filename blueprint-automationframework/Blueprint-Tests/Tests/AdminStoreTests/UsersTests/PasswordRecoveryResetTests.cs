@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
@@ -169,9 +170,9 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when passed a valid token & password for a deleted user.", REST_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenInvalid, INVALID_TOKEN_MESSAGE);  // TODO: Should this be a different error?
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenInvalid, INVALID_TOKEN_MESSAGE);  // Trello bug:  https://trello.com/c/OiM8P9jm  Wrong error message.
 
-            // TODO: Verify user is still deleted.
+            AdminStoreHelper.AssertUserNotFound(Helper, _adminUser, user.Id);
         }
 
         [TestCase(CommonConstants.InvalidToken)]
@@ -242,7 +243,8 @@ namespace AdminStoreTests.UsersTests
             Helper.AdminStore.ChangePassword(user, newPassword);
             user.Password = newPassword;
 
-            // TODO: Update the LastPasswordChangeTimestamp to 23h ago.
+            // Update the LastPasswordChangeTimestamp to 23h ago.
+            user.ChangeLastPasswordChangeTimestamp(DateTime.UtcNow.AddHours(-23));
 
             newPassword = AdminStoreHelper.GenerateValidPassword();
 

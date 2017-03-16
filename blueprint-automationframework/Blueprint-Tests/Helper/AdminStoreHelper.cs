@@ -260,6 +260,20 @@ namespace Helper
         }
 
         /// <summary>
+        /// Verifies that the specified user ID is deleted or doesn't exist.
+        /// </summary>
+        /// <param name="helper">A TestHelper object.</param>
+        /// <param name="adminUser">An admin user with an OpenAPI token to make the OpenAPI call.</param>
+        /// <param name="userId">The ID of the user whose existence is being checked.</param>
+        public static void AssertUserNotFound(TestHelper helper, IUser adminUser, int userId)
+        {
+            var ex = Assert.Throws<Http404NotFoundException>(() => helper.OpenApi.GetUser(adminUser, userId),
+                "GetUser should return 404 Not Found for deleted users.");
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The requested user is not found.");
+        }
+
+        /// <summary>
         /// Generates a valid random password of the specified length.  NOTE: Length must be between 8 and 128.
         /// </summary>
         /// <param name="length">The length of the password to generate.</param>

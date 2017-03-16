@@ -282,7 +282,7 @@ namespace Helper
         public static void AssertUserNotFound(TestHelper helper, IUser adminUser, int userId)
         {
             var ex = Assert.Throws<Http404NotFoundException>(() => helper.OpenApi.GetUser(adminUser, userId),
-                "GetUser should return 404 Not Found for deleted or non-existing users.");
+                "GetUser should return 404 Not Found for a deleted or non-existing user.");
 
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The requested user is not found.");
         }

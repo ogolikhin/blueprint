@@ -437,6 +437,47 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
+        public async Task PostPasswordReset_DisabledUser_ReturnsConflict()
+        {
+            // Arrange
+            var inputToken = new Guid("e6b99f56-f2ff-49e8-85e1-4349a56271b9");
+            var tokenList = new List<PasswordRecoveryToken>
+            {
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-2),
+                    Login = "testUser", RecoveryToken = inputToken},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-3),
+                    Login = "testUser", RecoveryToken = new Guid("b76c7bf9-3a70-409b-b017-92dc056524cf")},
+                new PasswordRecoveryToken {CreationTime = DateTime.Now.AddHours(-40),
+                    Login = "testUser", RecoveryToken = new Guid("fb131adc-2be4-43a9-9d49-0c94313a23a4")}
+            };
+            _usersRepoMock
+                .Setup(repo => repo.GetPasswordRecoveryTokensAsync(It.IsAny<Guid>()))
+                .ReturnsAsync(tokenList);
+            _usersRepoMock
+                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
+                .ReturnsAsync(new AuthenticationUser {IsEnabled = false});
+
+
+            // Act
+            IHttpActionResult result = null;
+            Exception exception = null;
+            var resetContent = new ResetPasswordContent { Password = "MTIzNFJFV1EhQCMk", Token = inputToken };
+            try
+            {
+                result = await _controller.PostPasswordResetAsync(resetContent);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            // Assert
+            Assert.IsNull(result);
+            Assert.IsInstanceOfType(exception, typeof(ConflictException));
+            Assert.AreEqual(ErrorCodes.PasswordResetUserDisabled, ((ConflictException)exception).ErrorCode);
+        }
+
+        [TestMethod]
         public async Task PostPasswordReset_RepositoriesReturnsSuccessfully()
         {
             // Arrange
@@ -456,7 +497,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(tokenList);
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(new AuthenticationUser {Id = uid});
+                .ReturnsAsync(new AuthenticationUser {Id = uid, IsEnabled = true});
             _authRepoMock
                 .Setup(a => a.ResetPassword(It.IsAny<AuthenticationUser>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(true));

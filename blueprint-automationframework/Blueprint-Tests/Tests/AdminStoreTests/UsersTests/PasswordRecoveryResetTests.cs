@@ -16,13 +16,14 @@ namespace AdminStoreTests.UsersTests
     {
         private const string REST_PATH = RestPaths.Svc.AdminStore.Users.PasswordRecovery.RESET;
 
-        private const string INVALID_TOKEN_MESSAGE              = "Password reset failed, the token is invalid.";
         private const string INVALID_PASSWORD_MESSAGE           = "Password reset failed, new password is invalid";
         private const string EMPTY_PASSWORD_MESSAGE             = "Password reset failed, new password cannot be empty";
         private const string NOT_LATEST_TOKEN_MESSAGE           = "Password reset failed, a more recent recovery token exists.";
         private const string PASSWORD_RESET_COOLDOWN_MESSAGE    = "Password reset failed, password reset cooldown in effect";
         private const string TOKEN_NOT_FOUND_MESSAGE            = "Password reset failed, recovery token not found.";
         private const string TOKEN_NOT_PROVIDED_MESSAGE         = "Password reset failed, token not provided";
+        private const string USER_DOES_NOT_EXIST_MESSAGE        = "Password reset failed, the user does not exist.";
+        private const string USER_IS_DISABLED_MESSAGE           = "Password reset failed, the login for this user is disabled.";
 
         private IUser _adminUser = null;
         private IProject _project = null;
@@ -170,7 +171,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when passed a valid token & password for a deleted user.", REST_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenInvalid, INVALID_TOKEN_MESSAGE);  // Trello bug:  https://trello.com/c/OiM8P9jm  Wrong error message.
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenInvalid, USER_DOES_NOT_EXIST_MESSAGE);
 
             AdminStoreHelper.AssertUserNotFound(Helper, _adminUser, user.Id);
         }
@@ -193,7 +194,6 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/fmT1xT2t  Returns 200 instead of 409.
         [TestCase]
         [Description("Create a user and request a password reset for that user.  Disable the user, then try to reset their password.  " +
                      "Verify 409 Conflict is returned and the user is still disabled.")]
@@ -217,13 +217,9 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 409 Conflict when passed a valid token & password for a disabled user.", REST_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenInvalid, INVALID_TOKEN_MESSAGE);  // TODO: Should this be a different error?
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetUserDisabled, USER_IS_DISABLED_MESSAGE);
 
-            // Verify user is still disabled.
-            var userAfterReset = Helper.OpenApi.GetUser(_adminUser, user.Id);
-
-            Assert.NotNull(userAfterReset?.Enabled, "The user and {0} property shouldn't be null!", nameof(userAfterReset.Enabled));
-            Assert.IsFalse(userAfterReset.Enabled.Value, "The user should still be disabled!");
+            AdminStoreHelper.AssertUserIsDisabled(Helper, user);
         }
 
         [TestCase]

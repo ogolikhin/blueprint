@@ -260,6 +260,20 @@ namespace Helper
         }
 
         /// <summary>
+        /// Verifies that the specified user is disabled.
+        /// </summary>
+        /// <param name="helper">A TestHelper object.</param>
+        /// <param name="user">The user who should be disabled.</param>
+        public static void AssertUserIsDisabled(TestHelper helper, IUser user)
+        {
+            var ex = Assert.Throws<Http401UnauthorizedException>(
+                    () => { helper.BlueprintServer.LoginUsingBasicAuthorization(user); },
+                    "Login should fail when the user is disabled!");
+
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Invalid User Name or Password, or your account is disabled.");
+        }
+
+        /// <summary>
         /// Verifies that the specified user ID is deleted or doesn't exist.
         /// </summary>
         /// <param name="helper">A TestHelper object.</param>
@@ -268,7 +282,7 @@ namespace Helper
         public static void AssertUserNotFound(TestHelper helper, IUser adminUser, int userId)
         {
             var ex = Assert.Throws<Http404NotFoundException>(() => helper.OpenApi.GetUser(adminUser, userId),
-                "GetUser should return 404 Not Found for deleted users.");
+                "GetUser should return 404 Not Found for deleted or non-existing users.");
 
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "The requested user is not found.");
         }

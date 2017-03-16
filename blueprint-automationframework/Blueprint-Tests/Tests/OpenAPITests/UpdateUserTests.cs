@@ -141,9 +141,7 @@ namespace OpenAPITests
             }
             else
             {
-                Assert.Throws<Http401UnauthorizedException>(
-                    () => { Helper.BlueprintServer.LoginUsingBasicAuthorization(userToUpdate); },
-                    "Login should fail when using the new password and user is disabled!");
+                AdminStoreHelper.AssertUserIsDisabled(Helper, userToUpdate);
             }
         }
 

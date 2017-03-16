@@ -357,6 +357,33 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
+        [TestRail(267051)]
+        [Description("Gets children artifacts for Published artifact with one child (published with draft), includeAuthorHistory set to true, verify that call returns artifacts with AuthorHistory.")]
+        public void GetArtifactChildrenByProjectAndArtifactId_IncludeAuthorHistory_PublishedParentArtifactWithChildArtifact_ValidateAuthorHistory()
+        {
+            // Setup:
+            var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+
+            var parentArtifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project,
+                TestHelper.TestArtifactState.Published, Model.ArtifactModel.Enums.ItemTypePredefined.Actor, _project.Id);
+            var childArtifact = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project,
+                TestHelper.TestArtifactState.PublishedWithDraft, Model.ArtifactModel.Enums.ItemTypePredefined.Document, parentArtifact.Id);
+
+            // Execute:
+            List<NovaArtifact> returnedNovaArtifactList = null;
+            Assert.DoesNotThrow(() =>
+            {
+                returnedNovaArtifactList = Helper.ArtifactStore.GetArtifactChildrenByProjectAndArtifactId(_project.Id, parentArtifact.Id, viewer,
+                    includeAuthorHistory: true);
+            }, "GetArtifactChildrenByProjectAndArtifactId with includeAuthorHistory true shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(1, returnedNovaArtifactList?.Count, "Returned list of artifacts should have expected number of items.");
+            Assert.AreEqual(childArtifact.Id, returnedNovaArtifactList[0].Id, "Returned list of artifacts should have expected artifacts.");
+            Assert.IsNotNull(returnedNovaArtifactList[0].CreatedOn, "CreatedOn shouldn't be null when includeAuthorHistory is set to true.");
+        }
+
+        [TestCase]
         [TestRail(134072)]
         [Description("Executes Get published artifact children call and returns 401 Unauthorized if successful")]
         public void GetArtifactChildrenByProjectAndArtifactId_InvalidToken_401Unauthorized()

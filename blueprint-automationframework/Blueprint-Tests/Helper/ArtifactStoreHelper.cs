@@ -28,12 +28,12 @@ namespace Helper
     {
         private const string DEFAULT_COLLECTIONS_ROOT_NAME = "Collections";
         private const int DEFAULT_COLLECTIONS_ROOT_ORDERINDEX = -1;
-        private const int DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID = -2;
+        private const int DEFAULT_COLLECTIONS_ROOT_PREDEFINEDTYPE = (int)ItemTypePredefined.CollectionFolder;
         private const string DEFAULT_COLLECTIONS_ROOT_PREFIX = "_CFL";
 
         private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME = "Baselines and Reviews";
         private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX = -1;
-        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID = -3;
+        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREDEFINEDTYPE = (int)ItemTypePredefined.BaselineFolder;
         private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX = "_BFL";
 
         #region Custom Asserts
@@ -893,9 +893,9 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrEmpty(artifact.Name), "name should not be empty but it's {0}", artifact.Name);
 
-            switch (artifact.ItemTypeId)
+            switch (artifact.PredefinedType)
             {
-                case DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID:
+                case DEFAULT_COLLECTIONS_ROOT_PREDEFINEDTYPE:
                     Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
                     DEFAULT_COLLECTIONS_ROOT_NAME);
 
@@ -906,7 +906,7 @@ namespace Helper
                         DEFAULT_COLLECTIONS_ROOT_PREFIX);
                     break;
 
-                case DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID:
+                case DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREDEFINEDTYPE:
                     Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Baselinens default folder.",
                     DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME);
 

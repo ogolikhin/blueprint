@@ -10,7 +10,8 @@ namespace Model.ArtifactModel.Impl
     {
 
         #region Serialized JSON Properties
-            
+
+        public DateTime? CreatedOn { get; set; }
         public bool HasChildren { get; set; }
         public override int Id { get; set; }
         public override int? ItemTypeId { get; set; }

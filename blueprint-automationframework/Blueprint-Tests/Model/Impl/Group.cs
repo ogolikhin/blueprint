@@ -170,18 +170,46 @@ namespace Model.Impl
                 Assert.AreEqual(artifact.ProjectId, project.Id, "Artifact doesn't belong to the project provided.");
             }
 
+            AssignRoleToProjectOrArtifact(project.Id, role.RoleId, artifact == null ? project.Id : artifact.Id);
+        }
+
+        /// <seealso cref="IGroup.AssignRoleToProjectOrArtifact(IProject, IProjectRole, INovaArtifactDetails)"/>
+        public void AssignRoleToProjectOrNovaArtifact(IProject project, IProjectRole role,
+            INovaArtifactDetails artifact = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(role, nameof(role));
+
+            if (artifact != null)
+            {
+                Assert.AreEqual(artifact.ProjectId, project.Id, "Artifact doesn't belong to the project provided.");
+            }
+
+            AssignRoleToProjectOrArtifact(project.Id, role.RoleId, artifact==null ? project.Id : artifact.Id);
+        }
+
+        /// <summary>
+        /// Assigns specified role for the specified project or artifact to the Group.
+        /// </summary>
+        /// <param name="projectId">Id of project for which role assignment will be created.</param>
+        /// <param name="roleId">RoleId of role to assign.</param>
+        /// <param name="artifactId">(optional)Id of artifact for which role assignment will be created.
+        /// By default artifact is null. In this case role will be assigned for the whole project.</param>
+        private void AssignRoleToProjectOrArtifact(int projectId, int roleId,
+            int? artifactId = null)
+        {
+            //TODO: add query to get [RoleId] from [dbo].[Roles] by [ProjectId] and [Name] = 'Author'
+            //or we can determine RoleId by Permissions and ProjectId
+            //also we can use [Permissions] = 4623 - for Author
+            // 4623 comes from: https://github.com/BlueprintSys/blueprint-current/blob/develop/Source/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
+            object[] valueArray = {
+                        projectId, roleId, (artifactId==null ? projectId : artifactId), null, GroupId, 0};
+
             using (var database = DatabaseFactory.CreateDatabase())
             {
                 database.Open();
 
                 var fields = "[ProjectId],[RoleId],[ItemId],[UserId],[GroupId],[Deleted]";
-                //TODO: add query to get [RoleId] from [dbo].[Roles] by [ProjectId] and [Name] = 'Author'
-                //or we can determine RoleId by Permissions and ProjectId
-                //also we can use [Permissions] = 4623 - for Author
-                // 4623 comes from: https://github.com/BlueprintSys/blueprint-current/blob/develop/Source/BluePrintSys.RC.Data.AccessAPI/Model/RolePermissions.cs
-                object[] valueArray = {
-                        project.Id, role.RoleId, (artifact==null ? project.Id : artifact.Id), null, GroupId, 0
-                            };
 
                 string values = string.Join(",", objArraytoStringList(valueArray));
                 string query = I18NHelper.FormatInvariant("INSERT INTO {0} ({1}) VALUES ({2})", ROLEASSIGNMENTS_TABLE, fields, values);

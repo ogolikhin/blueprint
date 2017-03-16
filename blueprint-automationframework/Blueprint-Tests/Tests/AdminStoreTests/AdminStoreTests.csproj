@@ -66,6 +66,7 @@
     <Compile Include="JobResultFileTests.cs" />
     <Compile Include="JobsTests.cs" />
     <Compile Include="LicensesTests.cs" />
+    <Compile Include="UsersTests\LoginUserTests.cs" />
     <Compile Include="UsersTests\PasswordRecoveryRequestTests.cs" />
     <Compile Include="ScheduleJobsTests.cs" />
     <Compile Include="ProjectNavigationPathTests.cs" />
@@ -74,7 +75,7 @@
     <Compile Include="ConfigTests.cs" />
     <Compile Include="StatusTests.cs" />
     <Compile Include="UsersTests\PasswordRecoveryResetTests.cs" />
-    <Compile Include="UserTests.cs" />
+    <Compile Include="UsersTests\ChangePasswordTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\CustomAttributes\CustomAttributes.csproj">

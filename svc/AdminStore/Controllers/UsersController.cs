@@ -256,7 +256,7 @@ namespace AdminStore.Controllers
             var decodedNewPassword = SystemEncryptions.Decode(content.Password);
                 
             //reset password
-            await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
+            await _authenticationRepository.ResetPassword(user, user.Password, decodedNewPassword);
 
             //drop user session
             var uri = new Uri(WebApiConfig.AccessControl);

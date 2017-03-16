@@ -214,6 +214,31 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
+        [TestCase]
+        [TestRail(267117)]
+        [Description("Add published Artifact to Baseline with timestamp before artifact CreatedOn date, check 409 error message.")]
+        public void AddArtifactToBaseline_PublishedArtifact_BaselineWithTimeStampBeforeArtifactCreatedOn_NothingWasAdded()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            baseline.SetUtcTimestamp(DateTime.Now.AddMinutes(-5));
+            ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            int numberOfAddedArtifacts = -1;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(0, numberOfAddedArtifacts, "Nothing should be added to baseline, when its TimeStamp older than Artifact.");
+        }
+
         #endregion Add Artifact to Baseline
 
         #region Add Collection to Baseline
@@ -390,6 +415,102 @@ namespace ArtifactStoreTests
         #endregion Positive Tests
 
         #region Negative Tests
+
+        [TestCase]
+        [TestRail(267115)]
+        [Description("Add published Artifact to sealed Baseline, check 409 error message.")]
+        public void AddArtifactToBaseline_PublishedArtifact_SealedBaseline_Check409()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            baseline.SetUtcTimestamp(DateTime.Now);
+            baseline.SetIsSealed(true);
+            ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            string expectedErrorMessage = "Artifacts have not been added to the Baseline because the Baseline is sealed.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.SealedBaseline, expectedErrorMessage);
+        }
+
+        [TestCase]
+        [TestRail(2)]
+        [Description("Try to add default Collection folder to the Baseline, check 404 error message.")]
+        public void AddArtifactToBaseline_DefaultCollectionFolder_Check404()
+        {
+            // Setup:
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+
+            var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_user);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => {
+                Helper.ArtifactStore.AddArtifactToBaseline(_user, defaultCollectionFolder.Id, baselineArtifact.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            string expectedErrorMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
+        }
+
+        [TestCase(TestHelper.TestArtifactState.ScheduledToDelete)]
+        //[TestCase(TestHelper.TestArtifactState.Deleted)] it gives 404 in TearDown
+        [TestRail(26)]
+        [Description("Add published or published with draft Artifact to Baseline, check that Baseline has expected values.")]
+        public void AddArtifactToBaseline_ScheduledToDeleteOrDeletedArtifact_Check404(TestHelper.TestArtifactState artifactState)
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
+                _project.Id);
+
+            var baseline = Helper.CreateBaseline(_user, _project);
+
+            // Execute:
+            var ex = Assert.Throws<Http404NotFoundException>(() => {
+                Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            string expectedErrorMessage = "You have attempted to access an artifact that does not exist or has been deleted.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
+        }
+
+        [TestCase]
+        [TestRail(266913)]
+        [Description(".")]
+        public void AddArtifactToBaseline_CollectionWithDeletedArtifactAddToBaseline_NothingWasAdded()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+            var collection = CreateCollectionWithArtifactsInSpecificState(Helper, _user, _project, TestHelper.TestArtifactState.Created,
+                new List<int> { artifactToAdd.Id });
+
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, _user);
+
+            ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address, artifactToAdd.Id, _user);
+
+            var baseline = Helper.CreateBaseline(_user, _project);
+
+            int numberOfAddedArtifacts = -1;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_adminUser, collection.Id, baseline.Id);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(0, numberOfAddedArtifacts, ".");
+        }
 
         [TestCase]
         [TestRail(266968)]

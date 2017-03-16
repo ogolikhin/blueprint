@@ -247,6 +247,11 @@ namespace AdminStore.Controllers
                 //user does not exist
                 throw new ConflictException("Password reset failed, the token is invalid.", ErrorCodes.PasswordResetTokenInvalid);
             }
+            if (!user.IsEnabled)
+            {
+                //user is disabled
+                throw new ConflictException("Password reset failed, the login for this user is disabled.", ErrorCodes.PasswordResetUserDisabled);
+            }
 
             var decodedNewPassword = SystemEncryptions.Decode(content.Password);
                 

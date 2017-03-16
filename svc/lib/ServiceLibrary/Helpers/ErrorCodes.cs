@@ -30,6 +30,7 @@
         public const int PasswordResetTokenExpired = 4010;
         public const int PasswordResetTokenInvalid = 4011;
         public const int PasswordResetEmptyToken = 4012;
+        public const int PasswordResetUserDisabled = 4013;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;

@@ -186,7 +186,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 400 Bad Request when the new password is the same as the old password.", REST_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, INVALID_PASSWORD_MESSAGE);
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, INVALID_PASSWORD_MESSAGE);   // TODO: Fix error code & message after: https://trello.com/c/4y9cmboz is fixed.
 
             // Validate user's password wasn't changed.
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
@@ -449,7 +449,8 @@ namespace AdminStoreTests.UsersTests
         {
             ThrowIf.ArgumentNull(recoveryToken, nameof(recoveryToken));
 
-            var newCreationTime = recoveryToken.CreationTime.AddHours(-2);  // TODO: Read this from ApplicationSettings table.
+            int tokenLifespanInHours = TestHelper.GetApplicationSetting("PasswordResetTokenExpirationInHours").ToInt32Invariant();
+            var newCreationTime = recoveryToken.CreationTime.AddHours(0 - tokenLifespanInHours).AddMinutes(-1); // 1 minute past the expiration time.
 
             string query = I18NHelper.FormatInvariant(
                 "UPDATE [dbo].[PasswordRecoveryTokens] SET [CreationTime] = '{0}' WHERE [Login] = '{1}' AND [RecoveryToken] = '{2}'",

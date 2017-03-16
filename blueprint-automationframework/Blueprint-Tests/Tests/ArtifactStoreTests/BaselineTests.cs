@@ -65,7 +65,7 @@ namespace ArtifactStoreTests
 
             numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_adminUser, artifactToAdd.Id,
                     baseline.Id, includeDescendants: true);
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _adminUser);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
 
             Baseline updatedBaseline = null;
 
@@ -210,7 +210,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id });
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _user);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _user);
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
@@ -274,7 +274,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _user);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _user);
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
@@ -368,7 +368,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _adminUser);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
 
             baseline.SetUtcTimestamp(DateTime.Now);
@@ -421,7 +421,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _adminUser);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
 
             baseline.SetIsAvailableInAnalytics(true);
@@ -494,7 +494,7 @@ namespace ArtifactStoreTests
                 case TestHelper.TestArtifactState.Created:
                     return collection;
                 case TestHelper.TestArtifactState.Published:
-                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { collection.Id }, user);
+                    helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, user);
                     return helper.ArtifactStore.GetCollection(user, collectionArtifact.Id);
                 default:
                     Assert.Fail("Unexpected value of Collection state");

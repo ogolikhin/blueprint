@@ -863,22 +863,22 @@ namespace Helper
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
                     UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     return artifact;
                 case TestArtifactState.PublishedWithDraft:
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
                     Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
                     return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                 case TestArtifactState.ScheduledToDelete:
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
                     return artifact;
                 case TestArtifactState.Deleted:
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     return artifact;
                 default:
                     Assert.Fail("Unexpected value of Artifact state");
@@ -1644,7 +1644,7 @@ namespace Helper
                             {
                                 DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
                             }
-                            PublishArtifacts(ArtifactStore.Address, NovaArtifacts[user], user);
+                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user);
                         }
                     }
                 }

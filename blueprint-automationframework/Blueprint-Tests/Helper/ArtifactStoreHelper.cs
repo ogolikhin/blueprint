@@ -104,7 +104,7 @@ namespace Helper
         /// <param name="helper">A TestHelper object</param>
         /// <param name="user">User who access artifact</param>
         /// <param name="artifactId">Artifact Id</param>
-        /// <param name="subArtifactId">Sub-artifact Id</param>
+        /// <param name="subArtifactId">(optional)Sub-artifact Id. By default artifact indicatorFlags is asserted</param>
         /// <param name="expectedIndicatorFlags">Expected indicator value</param>
         public static void AssertIndicatorFlags(TestHelper helper, IUser user, int artifactId, int expectedIndicatorFlags, int subArtifactId = 0)
         {

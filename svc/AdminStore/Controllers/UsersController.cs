@@ -257,9 +257,14 @@ namespace AdminStore.Controllers
             }
 
             var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+
+            if (user.Password == HashingUtilities.GenerateSaltedHash(decodedNewPassword, user.UserSalt))
+            {
+                throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
+            }
                 
             //reset password
-            await _authenticationRepository.ResetPassword(user, user.Password, decodedNewPassword);
+            await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
 
             //drop user session
             var uri = new Uri(WebApiConfig.AccessControl);

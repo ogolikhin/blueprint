@@ -1,24 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
-using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
 
-namespace AdminStoreTests
+namespace AdminStoreTests.UsersTests
 {
     [Category(Categories.AdminStore)]
     [TestFixture]
-    public class PasswordRecoveryTests : TestBase
+    public class PasswordRecoveryRequestTests : TestBase
     {
         private const string REST_PATH = RestPaths.Svc.AdminStore.Users.PasswordRecovery.REQUEST;
 
@@ -46,7 +44,7 @@ namespace AdminStoreTests
         [Description("Create a user and then request a password reset for that user.  Verify 200 OK is returned and a RecoveryToken for that user " +
                      "was added to the AdminStore database.")]
         [TestRail(266880)]
-        public void RequestPasswordRecovery_ValidUsername_RecoveryTokenIsCreated(TestHelper.ProjectRole role)
+        public void PasswordRecoveryRequest_ValidUsername_RecoveryTokenIsCreated(TestHelper.ProjectRole role)
         {
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(role, _project);
@@ -71,7 +69,7 @@ namespace AdminStoreTests
         [Description("Create and delete a user and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266892)]
-        public void RequestPasswordRecovery_UsernameForDeletedUser_409Conflict()
+        public void PasswordRecoveryRequest_UsernameForDeletedUser_409Conflict()
         {
             // Setup:
             var user = Helper.CreateUserAndAddToDatabase();
@@ -94,7 +92,7 @@ namespace AdminStoreTests
         [Description("Create and disable a user and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266893)]
-        public void RequestPasswordRecovery_UsernameForDisabledUser_409Conflict()
+        public void PasswordRecoveryRequest_UsernameForDisabledUser_409Conflict()
         {
             // Setup:
             var user = UserFactory.CreateUserOnly();
@@ -118,7 +116,7 @@ namespace AdminStoreTests
         [Description("Create a user with no E-mail address and then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266902)]
-        public void RequestPasswordRecovery_UsernameForUserWithNoEmail_409Conflict()
+        public void PasswordRecoveryRequest_UsernameForUserWithNoEmail_409Conflict()
         {
             // Setup:
             var user = UserFactory.CreateUserOnly();
@@ -142,7 +140,7 @@ namespace AdminStoreTests
         [Description("Request a password reset for that username that doesn't exist.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266894)]
-        public void RequestPasswordRecovery_NonExistingUsername_409Conflict()
+        public void PasswordRecoveryRequest_NonExistingUsername_409Conflict()
         {
             // Setup:
             string nonExistingUsername = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
@@ -164,7 +162,7 @@ namespace AdminStoreTests
         [Description("Create a user and then request a password reset for that user several times in a row up to the maximum reset request limit.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266905)]
-        public void RequestPasswordRecovery_ValidUsername_ExceedingMaxNumberOfRecoveryRequests_409Conflict()
+        public void PasswordRecoveryRequest_ValidUsername_ExceedingMaxNumberOfRecoveryRequests_409Conflict()
         {
             // Setup:
             const int RESET_REQUEST_LIMIT = 3;
@@ -222,7 +220,7 @@ namespace AdminStoreTests
         [Description("Create a user and change their password, then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266903)]
-        public void RequestPasswordRecovery_ValidUsername_UserRecentlyChangedTheirPassword_409Conflict()
+        public void PasswordRecoveryRequest_ValidUsername_UserRecentlyChangedTheirPassword_409Conflict()
         {
             // Setup:
             var user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
@@ -230,6 +228,9 @@ namespace AdminStoreTests
             string newPassword = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(8) + "Ab1$";
             Helper.AdminStore.ChangePassword(user, newPassword);
             user.Password = newPassword;
+
+            // Update the LastPasswordChangeTimestamp to 23h ago.
+            user.ChangeLastPasswordChangeTimestamp(DateTime.UtcNow.AddHours(-23));
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() =>
@@ -249,7 +250,7 @@ namespace AdminStoreTests
         [Description("Create a user and disable the 'IsPasswordRecoveryEnabled' setting in the database, then request a password reset for that user.  " +
                      "Verify 409 Conflict is returned and no RecoveryToken for that user was added to the AdminStore database.")]
         [TestRail(266954)]
-        public void RequestPasswordRecovery_ValidUsername_PasswordRecoveryIsDisabled_409Conflict()
+        public void PasswordRecoveryRequest_ValidUsername_PasswordRecoveryIsDisabled_409Conflict()
         {
             // Setup:
             const string IsPasswordRecoveryEnabled = "IsPasswordRecoveryEnabled";

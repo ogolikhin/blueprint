@@ -976,7 +976,7 @@ CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
 AS
 BEGIN
     SELECT COUNT([Login])
-    FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
+    FROM [dbo].[PasswordRecoveryTokens]
     WHERE [Login] = @login
     AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
 END
@@ -1030,10 +1030,13 @@ SET @jobname = @blueprintDB+N'_Maintenance'
 SET @schedulename = @blueprintDB+N'_Maintenance_Schedule'
 
 -- drop the job if it exists
-IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
-BEGIN
+-- We can't do the following line, because we don't have access to the table in Amazon RDS:
+--      IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
+BEGIN TRY
 	EXEC msdb.dbo.sp_delete_job @job_name=@jobname, @delete_unused_schedule=1
-END
+END TRY
+BEGIN CATCH
+END CATCH
 
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
@@ -1129,6 +1132,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Open', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Publish', 'en-US', N'Publish Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Discard', 'en-US', N'Discard')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Delete', 'en-US', N'Delete')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Continue', 'en-US', N'Continue')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Publish_All', 'en-US', N'Publish All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Discard_All', 'en-US', N'Discard All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Create', 'en-US', N'Create')

@@ -81,10 +81,10 @@ namespace Helper
         }
 
         /// <summary>
-        /// Asserts if expected and actulal indicator flags are the same 
+        /// Asserts that expected and actulal indicator flags are the same 
         /// </summary>
         /// <param name="actualIndicatorFlags">Actual indicators flags</param>
-        /// <param name="expectedIndicatorFlags">Expectes</param>
+        /// <param name="expectedIndicatorFlags">Expected indicator flags</param>
         public static void AssertIndicatorFlags(ItemIndicatorFlags actualIndicatorFlags, int expectedIndicatorFlags)
         {
             if (expectedIndicatorFlags > 0)
@@ -99,13 +99,13 @@ namespace Helper
         }
 
         /// <summary>
-        /// Asserts that actual and expected indicator flags the same
+        /// Asserts that actual and expected indicator flags are the same
         /// </summary>
         /// <param name="helper">A TestHelper object</param>
-        /// <param name="user">User who extracts artifact information</param>
+        /// <param name="user">User who access artifact</param>
         /// <param name="artifactId">Artifact Id</param>
         /// <param name="subArtifactId">Sub-artifact Id</param>
-        /// <param name="expectedIndicatorFlags">Indicator value to check</param>
+        /// <param name="expectedIndicatorFlags">Expected indicator value</param>
         public static void AssertIndicatorFlags(TestHelper helper, IUser user, int artifactId, int expectedIndicatorFlags, int subArtifactId = 0)
         {
             const string ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;

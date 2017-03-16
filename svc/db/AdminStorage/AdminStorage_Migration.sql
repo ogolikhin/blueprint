@@ -2238,7 +2238,7 @@ CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
 AS
 BEGIN
     SELECT COUNT([Login])
-    FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
+    FROM [dbo].[PasswordRecoveryTokens]
     WHERE [Login] = @login
     AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
 END

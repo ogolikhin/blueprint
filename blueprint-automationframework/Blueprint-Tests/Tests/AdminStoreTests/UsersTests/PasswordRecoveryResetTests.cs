@@ -150,6 +150,30 @@ namespace AdminStoreTests.UsersTests
         }
 
         [TestCase]
+        [Description("Call Password Recovery Reset and pass the same old password as your new password.  Verify 400 Bad Request is returned.")]
+        [TestRail(267112)]
+        public void PasswordRecoveryReset_SamePassword_400BadRequest()
+        {
+            // Setup:
+            var user = Helper.CreateUserAndAddToDatabase();
+
+            Helper.AdminStore.PasswordRecoveryRequest(user.Username);
+            var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, user.Password);
+            }, "'POST {0}' should return 400 Bad Request when the new password is the same as the old password.", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, INVALID_PASSWORD_MESSAGE);
+
+            // Validate user's password wasn't changed.
+            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
+        }
+
+        [TestCase]
         [Description("Create a user and request a password reset for that user.  Delete the user, then try to reset their password.  " +
                      "Verify 409 Conflict is returned and the user is still deleted.")]
         [TestRail(266998)]

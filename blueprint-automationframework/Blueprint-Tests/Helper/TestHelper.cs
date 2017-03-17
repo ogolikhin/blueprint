@@ -1672,7 +1672,7 @@ namespace Helper
                             foreach (int id in NovaArtifacts[user])
                             {
                                 var results = DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
-                                if (results[0].Version == 0)
+                                if ((results != null) && (results[0].Version == 0))
                                 {
                                     neverPublishedArtifacIds.Add(results[0].Id);
                                 }
@@ -1682,19 +1682,15 @@ namespace Helper
                                 NovaArtifacts[user].Remove(id);
                             }
                             if (NovaArtifacts[user].Count > 0)
-                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user);
+                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: expectedStatusCodes);
                         }
                     }
                 }
 
-                if (Groups != null)
+                Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
+                foreach (var group in Groups)
                 {
-                    Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
-
-                    foreach (var group in Groups)
-                    {
-                        group.DeleteGroup();
-                    }
+                    group.DeleteGroup();
                 }
 
                 if (ProjectRoles != null)

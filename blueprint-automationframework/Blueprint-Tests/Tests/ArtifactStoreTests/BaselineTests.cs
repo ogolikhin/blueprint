@@ -438,7 +438,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267068)]
-        [Description(".")]
+        [Description("Update Baseline - set UtcTimestamp to DateTime.Now and IsSealed to true - check that baseline is sealed.")]
         public void EditBaseline_SealBaseline_CheckBaselineIsSealed()
         {
             // Setup:
@@ -454,12 +454,11 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _adminUser, baseline);
-            }, "." +
-            ".");
+            }, "Update Baseline shouldn't throw an error.");
             baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
             // Verify:
-            Assert.IsTrue(baseline.IsSealed, "Should be sealed.");
+            Assert.IsTrue(baseline.IsSealed, "Baseline should be sealed.");
         }
 
         #endregion Edit Baseline Properties
@@ -495,7 +494,7 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(2)]
+        [TestRail(267154)]
         [Description("Try to add default Collection folder to the Baseline, check 404 error message.")]
         public void AddArtifactToBaseline_DefaultCollectionFolder_Check404()
         {
@@ -515,9 +514,8 @@ namespace ArtifactStoreTests
         }
 
         [TestCase(TestHelper.TestArtifactState.ScheduledToDelete)]
-        //[TestCase(TestHelper.TestArtifactState.Deleted)] it gives 404 in TearDown
-        [TestRail(26)]
-        [Description("Add published or published with draft Artifact to Baseline, check that Baseline has expected values.")]
+        [TestRail(267155)]
+        [Description("Add scheduled to delete Artifact to Baseline, check 404 error message.")]
         public void AddArtifactToBaseline_ScheduledToDeleteOrDeletedArtifact_Check404(TestHelper.TestArtifactState artifactState)
         {
             // Setup:
@@ -537,8 +535,9 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
-        [TestRail(2)]
-        [Description(".")]
+        [TestRail(267153)]
+        [Description("Create and publish artifact, add it to collection, delete artifact (don't publish), " +
+            "add collection to Baseline - no artifact should be added.")]
         public void AddArtifactToBaseline_CollectionWithDeletedArtifactAddToBaseline_NothingWasAdded()
         {
             // Setup:
@@ -562,7 +561,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(0, numberOfAddedArtifacts, ".");
+            Assert.AreEqual(0, numberOfAddedArtifacts, "AddArtifactToBaseline should return 0 when nothing was added.");
         }
 
         [TestCase]

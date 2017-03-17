@@ -1,4 +1,5 @@
-﻿using CustomAttributes;
+﻿using System;
+using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
@@ -10,7 +11,6 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using TestCommon;
 using Utilities;
-using Utilities.Factories;
 
 namespace ArtifactStoreTests
 {
@@ -42,6 +42,46 @@ namespace ArtifactStoreTests
         }
 
         #region Positive Tests
+
+        [TestCase]
+        [TestRail(267070)]
+        [Description("Add published Artifact with children Artifacts to Baseline, user don't have access to children, check that only artifacts accessible to user were added to the Baseline.")]
+        public void GetBaseline_ArtifactWithDescendants_UserHasAccessToParentArtifactOnly_OnlyAccessibleArtifactsVisibleInBaseline()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+            var childArtifact1 = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Document, artifactToAdd.Id);
+            var childArtifact2 = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project,
+                TestHelper.TestArtifactState.Published, ItemTypePredefined.TextualRequirement, artifactToAdd.Id);
+            
+            Helper.AssignNovaProjectRolePermissionsToUser(_user, RolePermissions.None, _project, childArtifact2);
+
+            var baseline = Helper.CreateBaseline(_adminUser, _project);
+
+            int numberOfAddedArtifacts = 0;
+            int expectedArtifactsNumber = 3;
+
+            numberOfAddedArtifacts = Helper.ArtifactStore.AddArtifactToBaseline(_adminUser, artifactToAdd.Id,
+                    baseline.Id, includeDescendants: true);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
+
+            Baseline updatedBaseline = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                updatedBaseline = Helper.ArtifactStore.GetBaseline(_user, baseline.Id);
+            }, "Getting Baseline shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+
+            Assert.IsTrue(updatedBaseline.NotAllArtifactsAreShown, "Should be true.");
+            Assert.IsTrue(updatedBaseline.Artifacts.Exists(item => item.Id == artifactToAdd.Id), "Artifact should be visible in Baseline, _user has access to the artifact.");
+            Assert.IsTrue(updatedBaseline.Artifacts.Exists(item => item.Id == childArtifact1.Id), "Artifact should be visible in Baseline, _user has access to the artifact.");
+            Assert.IsFalse(updatedBaseline.Artifacts.Exists(item => item.Id == childArtifact2.Id), "Artifact shouldn't be visible in Baseline, _user has no access to the artifact.");
+        }
 
         #region Add Artifact to Baseline
 
@@ -170,7 +210,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id });
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _user);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _user);
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
@@ -234,7 +274,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
 
             GetAndValidateBaseline(_user, baseline.Id, new List<int> { artifactToAdd.Id });
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _user);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _user);
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
@@ -292,7 +332,6 @@ namespace ArtifactStoreTests
 
         #region Edit Baseline Content
 
-        [Explicit(IgnoreReasons.UnderDevelopmentDev)]
         [TestCase]
         [TestRail(266912)]
         [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
@@ -317,6 +356,36 @@ namespace ArtifactStoreTests
         }
 
         #endregion Edit Baseline Content
+
+        #region Edit Baseline Properties
+
+        [TestCase]
+        [TestRail(267068)]
+        [Description(".")]
+        public void EditBaseline_SealBaseline_CheckBaselineIsSealed()
+        {
+            // Setup:
+            var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
+
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
+            SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
+
+            baseline.SetUtcTimestamp(DateTime.Now);
+            baseline.SetIsSealed(true);
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _adminUser, baseline);
+            }, "." +
+            ".");
+            baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
+
+            // Verify:
+            Assert.IsTrue(baseline.IsSealed, "Should be sealed.");
+        }
+
+        #endregion Edit Baseline Properties
 
         #endregion Positive Tests
 
@@ -352,7 +421,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _adminUser);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
 
             baseline.SetIsAvailableInAnalytics(true);
@@ -425,7 +494,7 @@ namespace ArtifactStoreTests
                 case TestHelper.TestArtifactState.Created:
                     return collection;
                 case TestHelper.TestArtifactState.Published:
-                    ArtifactStore.PublishArtifacts(helper.ArtifactStore.Address, new List<int> { collection.Id }, user);
+                    helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, user);
                     return helper.ArtifactStore.GetCollection(user, collectionArtifact.Id);
                 default:
                     Assert.Fail("Unexpected value of Collection state");

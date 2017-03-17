@@ -26,6 +26,5 @@ namespace Model.Factories
             var testConfig = TestConfig.TestConfiguration.GetInstance();
             return CreateStoryteller(testConfig.BlueprintServerAddress);
         }
-        
     }
 }

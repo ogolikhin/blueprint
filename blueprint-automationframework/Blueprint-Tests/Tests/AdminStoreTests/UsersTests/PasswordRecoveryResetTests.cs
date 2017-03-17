@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Threading;
+using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.Factories;
+using Model.Impl;
 using NUnit.Framework;
 using TestCommon;
 using Utilities;
@@ -33,7 +36,7 @@ namespace AdminStoreTests.UsersTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_adminUser);
+            _project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
         }
 
         [TearDown]
@@ -54,6 +57,9 @@ namespace AdminStoreTests.UsersTests
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(role, _project);
 
+            Assert.DoesNotThrow(() => Helper.AdminStore.CheckSession(user),
+                "User's session should be valid before a password reset!");
+
             Helper.AdminStore.PasswordRecoveryRequest(user.Username);
             var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
 
@@ -68,10 +74,15 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 200 OK when passed a valid token and password.", REST_PATH);
 
             // Verify:
+            TestHelper.AssertResponseBodyIsEmpty(response);
+
+            // Verify that user's Nova session token is no longer valid.
+            Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.CheckSession(user),
+                "User's session should not be valid after a password reset!");
+
+            // Verify the user's password was changed.
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user, force: true),
                 "Couldn't login with the newly reset password!");
-
-            TestHelper.AssertResponseBodyIsEmpty(response);
         }
 
         #endregion Positive tests
@@ -97,6 +108,7 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetEmptyToken, TOKEN_NOT_PROVIDED_MESSAGE);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/Awszf1lr  500 error
         [TestCase]
         [Description("Create a user and get a Password Recovery Token.  Call Password Recovery Reset and send only the recovery token.  " +
                      "Verify 400 Bad Request is returned.")]
@@ -149,6 +161,92 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
         }
 
+        [TestCase(1)]
+        [TestCase(3)]
+        [Description("Call Password Recovery Reset and pass a password that you used previously.  Verify 400 Bad Request is returned.")]
+        [TestRail(267112)]
+        public void PasswordRecoveryReset_PreviouslyUsedPassword_400BadRequest(int numberOfPreviousPasswords)
+        {
+            // Setup:
+            var user = Helper.CreateUserAndAddToDatabase();
+            var firstPassword = user.Password;
+
+            for (int i = 1; i < numberOfPreviousPasswords; ++i)
+            {
+                string newPassword = AdminStoreHelper.GenerateValidPassword();
+
+                Helper.AdminStore.ChangePassword(user, newPassword);
+
+                user.Password = newPassword;
+                user.ChangeLastPasswordChangeTimestamp(DateTime.UtcNow.AddHours(-25));
+            }
+
+            Helper.AdminStore.PasswordRecoveryRequest(user.Username);
+            var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, firstPassword);
+            }, "'POST {0}' should return 400 Bad Request when the new password is the same as the old password.", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, INVALID_PASSWORD_MESSAGE);   // TODO: Fix error code & message after: https://trello.com/c/4y9cmboz is fixed.
+
+            // Validate user's password wasn't changed.
+            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
+        }
+
+        [TestCase]
+        [Description("Call Password Recovery Reset and pass the Display Name as the new password.  Verify 400 Bad Request is returned.")]
+        [TestRail(267113)]
+        public void PasswordRecoveryReset_DisplayNameAsPassword_400BadRequest()
+        {
+            // Setup:
+            var user = Helper.CreateUserAndAddToDatabase();
+
+            Helper.AdminStore.PasswordRecoveryRequest(user.Username);
+            var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, user.DisplayName);
+            }, "'POST {0}' should return 400 Bad Request when the Display Name is passed as the new password.", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsDisplayName,
+                "Password reset failed, new password cannot be equal to display name");
+
+            // Validate user's password wasn't changed.
+            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
+        }
+
+        [TestCase]
+        [Description("Call Password Recovery Reset and pass the Username as the new password.  Verify 400 Bad Request is returned.")]
+        [TestRail(267114)]
+        public void PasswordRecoveryReset_UsernameAsPassword_400BadRequest()
+        {
+            // Setup:
+            var user = Helper.CreateUserAndAddToDatabase();
+
+            Helper.AdminStore.PasswordRecoveryRequest(user.Username);
+            var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+
+            // Execute:
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+            {
+                Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, user.Username);
+            }, "'POST {0}' should return 400 Bad Request when the Username is passed as the new password.", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordSameAsLogin,
+                "Password reset failed, new password cannot be equal to login name");
+
+            // Validate user's password wasn't changed.
+            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
+        }
+
         [TestCase]
         [Description("Create a user and request a password reset for that user.  Delete the user, then try to reset their password.  " +
                      "Verify 409 Conflict is returned and the user is still deleted.")]
@@ -192,6 +290,32 @@ namespace AdminStoreTests.UsersTests
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/O030QXf7  Currently hard-coded to 24h instead of in ApplicationSettings table.
+        [TestCase]
+        [Description("Call Password Recovery Reset and pass an expired recovery token.  Verify 409 Conflict is returned.")]
+        [TestRail(267116)]
+        public void PasswordRecoveryReset_ExpiredToken_409Conflict()
+        {
+            // Setup:
+            var user = Helper.CreateUserAndAddToDatabase();
+
+            Helper.AdminStore.PasswordRecoveryRequest(user.Username);
+            var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+            string newPassword = AdminStoreHelper.GenerateValidPassword();
+
+            ExpireRecoveryTokenInDatabase(recoveryToken);
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() =>
+            {
+                Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, newPassword);
+            }, "'POST {0}' should return 409 Conflict when passed an invalid recovery token.", REST_PATH);
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenExpired,
+                "Password reset failed, recovery token expired.");
         }
 
         [TestCase]
@@ -319,5 +443,35 @@ namespace AdminStoreTests.UsersTests
         }
 
         #endregion Negative tests
+
+        #region Private functions
+
+        /// <summary>
+        /// Expires the specified recovery token.
+        /// </summary>
+        /// <param name="recoveryToken">The recovery token to expire.</param>
+        private static void ExpireRecoveryTokenInDatabase(AdminStoreHelper.PasswordRecoveryToken recoveryToken)
+        {
+            ThrowIf.ArgumentNull(recoveryToken, nameof(recoveryToken));
+
+            int tokenLifespanInHours = TestHelper.GetApplicationSetting("PasswordResetTokenExpirationInHours").ToInt32Invariant();
+            var newCreationTime = recoveryToken.CreationTime.AddHours(0 - tokenLifespanInHours).AddMinutes(-1); // 1 minute past the expiration time.
+
+            string query = I18NHelper.FormatInvariant(
+                "UPDATE [dbo].[PasswordRecoveryTokens] SET [CreationTime] = '{0}' WHERE [Login] = '{1}' AND [RecoveryToken] = '{2}'",
+                newCreationTime, recoveryToken.Login, recoveryToken.RecoveryToken);
+
+            try
+            {
+                int rowsAffected = DatabaseHelper.ExecuteUpdateSqlQuery(query, "AdminStore");
+                Assert.AreEqual(1, rowsAffected, "There should've been 1 row updated when running '{0}'!", query);
+            }
+            catch (SqlQueryFailedException)
+            {
+                Assert.Fail("No rows were updated when running: {0}", query);
+            }
+        }
+
+        #endregion Private functions
     }
 }

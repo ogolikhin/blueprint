@@ -84,6 +84,38 @@ namespace Model.Impl
         }
 
         /// <summary>
+        /// Executes a SQL update query and returns number of rows affected.
+        /// Example: "UPDATE [dbo].[Users] SET [Enabled] = '1' WHERE [UserId] = '1234'"
+        /// </summary>
+        /// <param name="updateQuery">The SQL update query string.</param>
+        /// <param name="databaseName">(optional) The database to run the update against.</param>
+        /// <returns>The number of records affected.</returns>
+        public static int ExecuteUpdateSqlQuery(string updateQuery, string databaseName = "Blueprint")
+        {
+            using (var database = DatabaseFactory.CreateDatabase(databaseName))
+            {
+                database.Open();
+
+                Logger.WriteDebug("Running: {0}", updateQuery);
+
+                using (var cmd = database.CreateSqlCommand(updateQuery))
+                {
+                    cmd.ExecuteNonQuery();
+
+                    using (var sqlDataReader = cmd.ExecuteReader())
+                    {
+                        if (sqlDataReader.RecordsAffected <= 0)
+                        {
+                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
+                        }
+
+                        return sqlDataReader.RecordsAffected;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the FileStore FileId from the EmbeddedImages table that matches the specified EmbeddedImageId.
         /// </summary>
         /// <param name="embeddedImageid">The GUID of the EmbeddedImage that was added to ArtifactStore.</param>
@@ -94,6 +126,5 @@ namespace Model.Impl
 
             return ExecuteSingleValueSqlQuery<string>(selectQuery, "FileId");
         }
-
     }
 }

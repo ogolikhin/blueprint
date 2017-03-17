@@ -724,6 +724,9 @@ namespace AdminStore.Repositories
             // Arrange
             ConflictException exception = null;
             _loginUser.LastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-12);
+            _applicationSettingsRepositoryMock
+                .Setup(repo => repo.GetValue(PasswordChangeCooldownInHoursKey, It.IsAny<int>()))
+                .ReturnsAsync(24);
 
             // Act
             try

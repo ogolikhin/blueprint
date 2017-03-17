@@ -19,10 +19,10 @@ namespace AccessControlDouble.Controllers
         [HttpGet]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Get(int uid)
+        public async Task<IHttpActionResult> GetSession(int uid)
         {
             string thisClassName = nameof(SessionsController);
-            string thisMethodName = nameof(Get);
+            string thisMethodName = nameof(GetSession);
 
             List<string> args = new List<string> { uid.ToString() };
 
@@ -39,10 +39,10 @@ namespace AccessControlDouble.Controllers
         [HttpGet]
         [Route("select")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Get(string ps = "100", string pn = "1")
+        public async Task<IHttpActionResult> SelectSessions(string ps = "100", string pn = "1")
         {
             string thisClassName = nameof(SessionsController);
-            string thisMethodName = nameof(Get);
+            string thisMethodName = nameof(SelectSessions);
 
             List<string> args = null;
 
@@ -77,10 +77,10 @@ namespace AccessControlDouble.Controllers
         [HttpPost]
         [Route("{uid}")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Post(int uid, string userName, int licenseLevel, bool isSso = false)
+        public async Task<IHttpActionResult> PostSession(int uid, string userName, int licenseLevel, bool isSso = false)
         {
             string thisClassName = nameof(SessionsController);
-            string thisMethodName = nameof(Post);
+            string thisMethodName = nameof(PostSession);
 
             var args = new List<string> { uid.ToString(), userName, licenseLevel.ToString(), isSso.ToString() };
 
@@ -98,10 +98,10 @@ namespace AccessControlDouble.Controllers
         [HttpPut]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Put(string op = "", int aid = 0)
+        public async Task<IHttpActionResult> PutSession(string op = "", int aid = 0)
         {
             string thisClassName = nameof(SessionsController);
-            string thisMethodName = nameof(Put);
+            string thisMethodName = nameof(PutSession);
 
             var args = new List<string> { op ?? "null", aid.ToString() };
 
@@ -116,12 +116,31 @@ namespace AccessControlDouble.Controllers
         [HttpDelete]
         [Route("")]
         [ResponseType(typeof(HttpResponseMessage))]
-        public async Task<IHttpActionResult> Delete()
+        public async Task<IHttpActionResult> DeleteSession()
         {
             string thisClassName = nameof(SessionsController);
-            string thisMethodName = nameof(Delete);
+            string thisMethodName = nameof(DeleteSession);
 
             return await ProxyDeleteRequest(thisClassName, thisMethodName);
+        }
+
+        /// <summary>
+        /// Method for removing user session upon explicit sign out.  Method expects to receive session token in header Session-Token to identify user session.
+        /// The session token is returned thru Session-Token header.
+        /// </summary>
+        /// <param name="uid">Parameter to identify user for whom session needs to be created.</param>
+        /// <returns>The session token.</returns>
+        [HttpDelete]
+        [Route("{uid}")]
+        [ResponseType(typeof(HttpResponseMessage))]
+        public async Task<IHttpActionResult> DeleteSession(int uid)
+        {
+            string thisClassName = nameof(SessionsController);
+            string thisMethodName = nameof(DeleteSession);
+
+            List<string> args = new List<string> { uid.ToString() };
+
+            return await ProxyDeleteRequest(thisClassName, thisMethodName, args);
         }
     }
 }

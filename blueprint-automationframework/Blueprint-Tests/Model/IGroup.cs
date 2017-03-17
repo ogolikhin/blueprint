@@ -65,9 +65,19 @@ namespace Model
         /// <param name="project">Project for which role assignment will be created.</param>
         /// <param name="role">Role to assign.</param>
         /// <param name="artifact">(optional)Artifact for which role assignment will be created.
-        /// By defauld artifact is null. In this case role will be assigned for the whole project.</param>
+        /// By default artifact is null. In this case role will be assigned for the whole project.</param>
         void AssignRoleToProjectOrArtifact(IProject project, IProjectRole role,
             IArtifactBase artifact = null);
+
+        /// <summary>
+        /// Assigns specified role for the specified project or artifact to the Group.
+        /// </summary>
+        /// <param name="project">Project for which role assignment will be created.</param>
+        /// <param name="role">Role to assign.</param>
+        /// <param name="artifact">(optional)Artifact for which role assignment will be created.
+        /// By default artifact is null. In this case role will be assigned for the whole project.</param>
+        void AssignRoleToProjectOrNovaArtifact(IProject project, IProjectRole role,
+            INovaArtifactDetails artifact = null);
         #endregion Methods
     }
 }

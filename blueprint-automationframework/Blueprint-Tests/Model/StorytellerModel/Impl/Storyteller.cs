@@ -4,6 +4,7 @@ using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using static Model.Impl.ArtifactStore;
 using Model.ModelHelpers;
 using NUnit.Framework;
 using System;
@@ -25,12 +26,14 @@ namespace Model.StorytellerModel.Impl
 
         public string Address { get; }
 
+        public IArtifactStore ArtifactStore { get; set; }
+
         #region Constructor
 
         public Storyteller(string address)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-
+            ArtifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
             Address = address;
         }
 
@@ -156,7 +159,7 @@ namespace Model.StorytellerModel.Impl
             parentId = parentId ?? project.Id;
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var novaArtifact = ArtifactStore.CreateArtifact(Address, user, ItemTypePredefined.Process, artifactName,
+            var novaArtifact = CreateArtifact(Address, user, ItemTypePredefined.Process, artifactName,
                 project, parentId, orderIndex, expectedStatusCodes);
 
             var novaProcess = GetNovaProcess(user, novaArtifact.Id);
@@ -211,7 +214,8 @@ namespace Model.StorytellerModel.Impl
                 artifacts.Add(artifact);
             }
 
-            ArtifactStore.PublishArtifacts(Address, artifacts, user);
+
+            ArtifactStore.PublishArtifacts(artifacts, user);
 
             return novaProcesses;
         }
@@ -255,7 +259,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
         public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return ArtifactStore.GetNovaProcess(Address, user, artifactId, versionIndex, expectedStatusCodes);
+            return GetNovaProcess(user, artifactId, versionIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.GetProcesses(IUser, int, List{HttpStatusCode})"/>
@@ -309,7 +313,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return ArtifactStore.UpdateNovaProcess(Address, user, novaProcess, expectedStatusCodes);
+            return UpdateNovaProcess(user, novaProcess, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>
@@ -377,7 +381,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
         public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return ArtifactStore.DeleteNovaProcessArtifact(Address, user, novaProcess, expectedStatusCodes);
+            return DeleteNovaProcessArtifact(user, novaProcess, expectedStatusCodes);
         }
         
         public int GetStorytellerShapeLimitFromDb
@@ -418,6 +422,8 @@ namespace Model.StorytellerModel.Impl
                     Logger.WriteDebug("Deleting/Discarding all artifacts created by this Storyteller instance...");
                     ArtifactBase.DisposeArtifacts(Artifacts.ConvertAll(o => (IArtifactBase)o), this);
                 }
+
+                ArtifactStore.Dispose();
             }
 
             _isDisposed = true;

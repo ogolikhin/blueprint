@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using System.Collections.Generic;
 using Model.Common.Enums;
 using Utilities;
@@ -17,7 +18,19 @@ namespace Model.ArtifactModel.Impl
 
         public bool NotAllArtifactsAreShown { get; set; }
 
-        public bool IsSealed { get; set; }
+        public bool IsSealed {
+            get { return _isSealed; }
+            set { _isSealed = value; }
+        }
+        private bool _isSealed;
+
+        // null for 'Live' baseline
+        public DateTime? UtcTimestamp
+        {
+            get { return _utcTimestamp; }
+            set { _utcTimestamp = value; }
+        }
+        private DateTime? _utcTimestamp;
 
         #endregion
 
@@ -71,23 +84,65 @@ namespace Model.ArtifactModel.Impl
         /// <param name="availableInAnalytics">value to set</param>
         public void SetIsAvailableInAnalytics(bool availableInAnalytics) // TFS 5761
         {
-            var specProperty = SpecificPropertyValues.Find(property => property.PropertyType == PropertyTypePredefined.BaselineIsDataAnalyticsAvailable);
+            SetBaselineProperty(PropertyTypePredefined.BaselineIsDataAnalyticsAvailable, availableInAnalytics);
+        }
+
+        /// <summary>
+        /// Sets UtcTimestamp flag in SpecificPropertyValues to make it available for ArtifactUpdate
+        /// </summary>
+        /// <param name="utcTimestamp">value to set</param>
+        public void SetUtcTimestamp(DateTime utcTimestamp) // TFS 5761
+        {
+            SetBaselineProperty(PropertyTypePredefined.BaselineTimestamp, utcTimestamp);
+        }
+
+        /// <summary>
+        /// Sets IsSealed flag in SpecificPropertyValues to make it available for ArtifactUpdate
+        /// </summary>
+        /// <param name="isSealed">value to set</param>
+        public void SetIsSealed(bool isSealed) // TFS 5761
+        {
+            SetBaselineProperty(PropertyTypePredefined.BaselineIsSealed, isSealed);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baselinePropertyType"></param>
+        /// <param name="baselinePropertyValue"></param>
+        private void SetBaselineProperty(PropertyTypePredefined baselinePropertyType, object baselinePropertyValue) // TFS 5761
+        {
+            var specProperty = SpecificPropertyValues.Find(property => property.PropertyType == baselinePropertyType);
             if (specProperty != null)
             {
-                specProperty.CustomPropertyValue = availableInAnalytics;
+                specProperty.CustomPropertyValue = baselinePropertyValue;
             }
             else
             {
                 var analyticsProperty = new CustomProperty();
-                analyticsProperty.Name = nameof(PropertyTypePredefined.BaselineIsDataAnalyticsAvailable);
+                analyticsProperty.Name = nameof(baselinePropertyType);
                 analyticsProperty.PropertyTypeId = -1;
-                analyticsProperty.PropertyType = PropertyTypePredefined.BaselineIsDataAnalyticsAvailable;
-                analyticsProperty.CustomPropertyValue = availableInAnalytics;
+                analyticsProperty.PropertyType = baselinePropertyType;
+                analyticsProperty.CustomPropertyValue = baselinePropertyValue;
                 
                 SpecificPropertyValues.Add(analyticsProperty);
             }
 
-            _isAvailableInAnalytics = availableInAnalytics;
+            if (baselinePropertyType == PropertyTypePredefined.BaselineIsDataAnalyticsAvailable)
+            {
+                _isAvailableInAnalytics = (bool)baselinePropertyValue;
+            }
+
+            if (baselinePropertyType == PropertyTypePredefined.IsSealedPublished)
+            {
+                _isSealed = (bool)baselinePropertyValue;
+            }
+
+            if (baselinePropertyType == PropertyTypePredefined.BaselineTimestamp)
+            {
+                _utcTimestamp = (DateTime)baselinePropertyValue;
+            }
+            
         }
     }
 }

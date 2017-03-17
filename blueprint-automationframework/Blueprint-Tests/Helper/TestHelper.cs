@@ -863,22 +863,22 @@ namespace Helper
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
                     UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     return artifact;
                 case TestArtifactState.PublishedWithDraft:
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
                     Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
                     return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                 case TestArtifactState.ScheduledToDelete:
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
                     return artifact;
                 case TestArtifactState.Deleted:
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
-                    PublishArtifacts(ArtifactStore.Address, new List<int> { artifact.Id }, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     return artifact;
                 default:
                     Assert.Fail("Unexpected value of Artifact state");
@@ -1201,6 +1201,47 @@ namespace Helper
             var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
             permissionsGroup.AddUser(user);
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
+
+            Logger.WriteInfo("User {0} created.", user.Username);
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+        }
+
+        /// <summary>
+        /// Assigns project role permissions to the specified user and gets updated Session-Token.
+        /// Optionally, creates role permissions for a single artifact within a project.
+        /// </summary>
+        /// <param name="user">User to assign role</param>
+        /// <param name="rolePermissions">Role permissions.</param>
+        /// <param name="project">The project that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
+        /// after adding a new permissions role</param>
+        public void AssignNovaProjectRolePermissionsToUser(IUser user, RolePermissions rolePermissions, IProject project, INovaArtifactDetails artifact = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
+            IProjectRole projectRole = null;
+
+            projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, rolePermissions,
+                        rolePermissions.ToString());
+
+            if (projectRole != null)
+            {
+                ProjectRoles.Add(projectRole);
+            }
+
+            var licenseType = GroupLicenseType.Author;
+            var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
+            permissionsGroup.AddUser(user);
+            permissionsGroup.AssignRoleToProjectOrNovaArtifact(project, projectRole, artifact);
 
             Logger.WriteInfo("User {0} created.", user.Username);
 
@@ -1603,7 +1644,7 @@ namespace Helper
                             {
                                 DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
                             }
-                            PublishArtifacts(ArtifactStore.Address, NovaArtifacts[user], user);
+                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user);
                         }
                     }
                 }

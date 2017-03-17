@@ -28,6 +28,8 @@ namespace AdminStore.Controllers
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
+        private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
+        private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), 
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), 
@@ -239,7 +241,8 @@ namespace AdminStore.Controllers
                 //provided token doesn't match last requested
                 throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
             }
-            if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
+            var tokenLifespan = await GetPasswordResetTokenExpirationInHours();
+            if (tokens.First().CreationTime.AddHours(tokenLifespan) < DateTime.Now)
             {
                 //token expired
                 throw new ConflictException("Password reset failed, recovery token expired.", ErrorCodes.PasswordResetTokenExpired);
@@ -259,6 +262,11 @@ namespace AdminStore.Controllers
             }
 
             var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+
+            if (user.Password == HashingUtilities.GenerateSaltedHash(decodedNewPassword, user.UserSalt))
+            {
+                throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
+            }
                 
             //reset password
             await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
@@ -270,6 +278,27 @@ namespace AdminStore.Controllers
             await http.SendAsync(request);
 
             return Ok();
+        }
+
+        private async Task<int> GetPasswordResetTokenExpirationInHours()
+        {
+            var applicationSettings = await _applicationSettingsRepository.GetSettings();
+
+            var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == PasswordResetTokenExpirationInHoursKey);
+            if (matchingSetting == null)
+            {
+                return DefaultPasswordResetTokenExpirationInHours;
+            }
+
+            string passwordResetTokenExpirationInHoursValue = matchingSetting.Value;
+
+            int passwordResetTokenExpirationInHours;
+            if (!int.TryParse(passwordResetTokenExpirationInHoursValue, out passwordResetTokenExpirationInHours))
+            {
+                return DefaultPasswordResetTokenExpirationInHours;
+            }
+
+            return passwordResetTokenExpirationInHours;
         }
     }
 }

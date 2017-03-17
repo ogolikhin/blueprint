@@ -726,7 +726,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address,
-            IDiscussionAdaptor discussionToUpdate,
+            ICommentBaseAdapter discussionToUpdate,
             RaptorComment comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -744,7 +744,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>message</returns>
         public static string DeleteRaptorDiscussion(string address,
-            IDiscussionAdaptor discussionToDelete,
+            ICommentBaseAdapter discussionToDelete,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -761,7 +761,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
         public static IReplyAdapter PostRaptorDiscussionReply(string address,
-            IDiscussionAdaptor discussion,
+            ICommentBaseAdapter discussion,
             string comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
@@ -781,7 +781,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The updated Reply.</returns>
         public static IReplyAdapter UpdateRaptorDiscussionReply(string address,
-            IDiscussionAdaptor discussion, IReplyAdapter replyToUpdate,
+            ICommentBaseAdapter discussion, IReplyAdapter replyToUpdate,
             string comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)

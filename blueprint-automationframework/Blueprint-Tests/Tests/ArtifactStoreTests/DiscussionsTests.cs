@@ -156,7 +156,7 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/D6lBnSMi
+        [Explicit(IgnoreReasons.ProductBug)] //TFS Bug 5793
         [TestCase]
         [TestRail(146063)]
         [Description("Add comment to subartifact of published artifact, delete artifact (don't publish), get discussion for this subartifact.  Verify it returns expected discussion.")]

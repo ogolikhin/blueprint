@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Common;
 using CustomAttributes;
 using Helper;
@@ -35,7 +36,7 @@ namespace AdminStoreTests.UsersTests
         {
             Helper = new TestHelper();
             _adminUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
-            _project = ProjectFactory.GetProject(_adminUser);
+            _project = ProjectFactory.GetProject(_adminUser, shouldRetrieveArtifactTypes: false);
         }
 
         [TearDown]
@@ -46,7 +47,6 @@ namespace AdminStoreTests.UsersTests
 
         #region Positive tests
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/q7VLoVNQ  Existing sessions aren't terminated.
         [TestCase(TestHelper.ProjectRole.AuthorFullAccess)]
         [TestCase(TestHelper.ProjectRole.None)]
         [Description("Create a user and then request a password reset for that user; then reset the user's password with the recovery token.  " +
@@ -56,6 +56,9 @@ namespace AdminStoreTests.UsersTests
         {
             // Setup:
             var user = Helper.CreateUserWithProjectRolePermissions(role, _project);
+
+            Assert.DoesNotThrow(() => Helper.AdminStore.CheckSession(user),
+                "User's session should be valid before a password reset!");
 
             Helper.AdminStore.PasswordRecoveryRequest(user.Username);
             var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
@@ -105,6 +108,7 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetEmptyToken, TOKEN_NOT_PROVIDED_MESSAGE);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/Awszf1lr  500 error
         [TestCase]
         [Description("Create a user and get a Password Recovery Token.  Call Password Recovery Reset and send only the recovery token.  " +
                      "Verify 400 Bad Request is returned.")]

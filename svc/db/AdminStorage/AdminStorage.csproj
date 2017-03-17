@@ -207,6 +207,7 @@
     <None Include="Data\ApplicationLabels_en-US.csv" />
     <None Include="Data\ApplicationLabels_fr-CA.csv" />
     <None Include="ExecTemplates.cmd" />
+    <None Include="Jobs\Job Recovery Testing.docx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -494,14 +494,15 @@ namespace Model.Impl
             return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
         }
 
+        /*
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts,
             IUser user = null,
             bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return PublishArtifacts(Address, artifacts, user, publishAll, expectedStatusCodes);
-        }
+            return PublishArtifacts(artifacts, user, publishAll, expectedStatusCodes);
+        }*/
 
         /// <seealso cref="IArtifactStore.GetNavigationPath(IUser, int, List{HttpStatusCode})"/>
         public List<INovaVersionControlArtifactInfo> GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
@@ -649,6 +650,100 @@ namespace Model.Impl
                 RestRequestMethod.POST, artifactIds, expectedStatusCodes: expectedStatusCodes);
 
             return historyItems;
+        }
+
+        /// <seealso cref="IArtifactStore.PublishArtifacts(List{int}, IUser, bool?, List{HttpStatusCode})"/>
+        public NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            Dictionary<string, string> queryParams = null;
+
+            if (publishAll != null)
+            {
+                queryParams = new Dictionary<string, string> { { "all", publishAll.Value.ToString() } };
+            }
+
+            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactsIds,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return publishedArtifacts;
+        }
+
+
+        /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null,
+            bool? publishAll = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            if (artifacts == null)
+            {
+                artifacts = new List<IArtifactBase>();
+            }
+
+            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+
+            var publishedArtifacts = PublishArtifacts(artifactIds, user, publishAll, expectedStatusCodes);
+
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
+            {
+                var deletedArtifactsList = new List<IArtifactBase>();
+                var otherPublishedArtifactsList = new List<INovaArtifactResponse>();
+
+                // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
+                foreach (var publishedArtifactDetails in publishedArtifacts.Artifacts)
+                {
+                    Logger.WriteDebug("'Publish Artifacts' returned following artifact Id: {0}", publishedArtifactDetails.Id);
+
+                    var publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
+
+                    if (publishedArtifact == null)
+                    {
+                        otherPublishedArtifactsList.Add(publishedArtifactDetails);
+                        continue;
+                    }
+
+                    publishedArtifact.LockOwner = null;
+                    publishedArtifact.IsSaved = false;
+
+                    // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
+                    if (publishedArtifact.IsMarkedForDeletion)
+                    {
+                        deletedArtifactsList.Add(publishedArtifact);
+
+                        publishedArtifact.IsPublished = false;
+                        publishedArtifact.IsDeleted = true;
+                    }
+                    else
+                    {
+                        publishedArtifact.IsPublished = true;
+                    }
+                }
+
+                if (deletedArtifactsList.Any())
+                {
+                    deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
+                }
+
+                if (otherPublishedArtifactsList.Any())
+                {
+                    if (artifacts.Any())
+                    {
+                        artifacts[0]?.NotifyArtifactPublished(otherPublishedArtifactsList);
+                    }
+
+                    Assert.That((publishAll != null) && (publishAll.Value == true),
+                        "An artifact that wasn't explicitly passed was published but the 'all=true' parameter wasn't passed!");
+                }
+            }
+
+            return publishedArtifacts;
         }
 
         #endregion Members inherited from IArtifactStore
@@ -1343,119 +1438,6 @@ namespace Model.Impl
             }
 
             return movedArtifact;
-        }
-
-        /// <summary>
-        /// Publishes a list of artifacts.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public static INovaArtifactsAndProjectsResponse PublishArtifacts(string address,
-            List<IArtifactBase> artifacts,
-            IUser user = null,
-            bool? publishAll = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-
-            if (artifacts == null)
-            {
-                artifacts = new List<IArtifactBase>();
-            }
-
-            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-
-            var publishedArtifacts = PublishArtifacts(address, artifactIds, user, publishAll, expectedStatusCodes);
-
-            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
-                {
-                var deletedArtifactsList = new List<IArtifactBase>();
-                var otherPublishedArtifactsList = new List<INovaArtifactResponse>();
-
-                // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
-                foreach (var publishedArtifactDetails in publishedArtifacts.Artifacts)
-                {
-                    Logger.WriteDebug("'Publish Artifacts' returned following artifact Id: {0}", publishedArtifactDetails.Id);
-
-                    var publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
-
-                    if (publishedArtifact == null)
-                    {
-                        otherPublishedArtifactsList.Add(publishedArtifactDetails);
-                        continue;
-                    }
-
-                    publishedArtifact.LockOwner = null;
-                    publishedArtifact.IsSaved = false;
-
-                    // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
-                    if (publishedArtifact.IsMarkedForDeletion)
-                    {
-                        deletedArtifactsList.Add(publishedArtifact);
-
-                        publishedArtifact.IsPublished = false;
-                        publishedArtifact.IsDeleted = true;
-                    }
-                    else
-                    {
-                        publishedArtifact.IsPublished = true;
-                    }
-                }
-
-                if (deletedArtifactsList.Any())
-                {
-                    deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
-                }
-
-                if (otherPublishedArtifactsList.Any())
-                {
-                    if (artifacts.Any())
-                    {
-                        artifacts[0]?.NotifyArtifactPublished(otherPublishedArtifactsList);
-                    }
-
-                    Assert.That((publishAll != null) && (publishAll.Value == true),
-                        "An artifact that wasn't explicitly passed was published but the 'all=true' parameter wasn't passed!");
-                }
-            }
-
-            return publishedArtifacts;
-        }
-
-        /// <summary>
-        /// Publishes a list of artifacts.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public static NovaArtifactsAndProjectsResponse PublishArtifacts(string address, List<int> artifactsIds, IUser user, bool? publishAll = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-            Dictionary<string, string> queryParams = null;
-
-            if (publishAll != null)
-            {
-                queryParams = new Dictionary<string, string> { { "all", publishAll.Value.ToString() } };
-            }
-
-            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
-                path,
-                RestRequestMethod.POST,
-                artifactsIds,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return publishedArtifacts;
         }
 
         /// <summary>

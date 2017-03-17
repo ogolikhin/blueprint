@@ -536,9 +536,9 @@ namespace SearchServiceTests
             string artifactName = RandomGenerator.RandomAlphaNumeric(8);
 
             var baseline = Helper.CreateBaseline(_adminUser, _firstProject, name: artifactName);
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { baseline.Id }, _adminUser);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             var collection = Helper.CreateAndSaveCollection(_firstProject, _adminUser, name: artifactName);
-            ArtifactStore.PublishArtifacts(Helper.ArtifactStore.Address, new List<int> { collection.Id }, _adminUser);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, _adminUser);
             var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram,
                 name: artifactName);
 

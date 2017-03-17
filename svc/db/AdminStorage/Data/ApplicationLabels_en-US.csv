@@ -664,4 +664,4 @@ Walkthrough_UserItem_Description, "As a {0}, I want to {1}, so that I can {2}"
 
 #Zoom
 Zoom_Component_Reset_Button_Tooltip, "Reset to 100%"
-Zoom_Component_FitWidth_Button_Tooltip, "Fit to width"
+Zoom_Component_FitWidth_Button_Tooltip, "Fit to page"

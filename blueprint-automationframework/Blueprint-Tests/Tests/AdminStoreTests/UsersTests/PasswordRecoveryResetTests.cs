@@ -71,14 +71,15 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 200 OK when passed a valid token and password.", REST_PATH);
 
             // Verify:
-            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user, force: true),
-                "Couldn't login with the newly reset password!");
-
             TestHelper.AssertResponseBodyIsEmpty(response);
 
             // Verify that user's Nova session token is no longer valid.
             Assert.Throws<Http401UnauthorizedException>(() => Helper.AdminStore.CheckSession(user),
                 "User's session should not be valid after a password reset!");
+
+            // Verify the user's password was changed.
+            Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user, force: true),
+                "Couldn't login with the newly reset password!");
         }
 
         #endregion Positive tests

@@ -527,7 +527,6 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Updated RaptorReply.</returns>
-//        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static IReplyAdapter UpdateRaptorDiscussionReply(string address, ICommentBaseAdapter discussion,
             IReplyAdapter replyToUpdate, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {

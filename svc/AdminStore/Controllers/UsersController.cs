@@ -168,9 +168,8 @@ namespace AdminStore.Controllers
             try
 			{
             	const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
-	            var applicationSettings = await _applicationSettingsRepository.GetSettings();
-    	        var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == IsPasswordRecoveryEnabledKey);
-        	    if (matchingSetting == null || matchingSetting.Value != "true")
+			    var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
+        	    if (!matchingSetting)
 	            {
 	                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
 	            }
@@ -236,7 +235,7 @@ namespace AdminStore.Controllers
                 //provided token doesn't match last requested
                 throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
             }
-            var tokenLifespan = await GetPasswordResetTokenExpirationInHours();
+            var tokenLifespan = await _applicationSettingsRepository.GetValue<int>(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
             if (tokens.First().CreationTime.AddHours(tokenLifespan) < DateTime.Now)
             {
                 //token expired
@@ -273,27 +272,6 @@ namespace AdminStore.Controllers
             await http.SendAsync(request);
 
             return Ok();
-        }
-
-        private async Task<int> GetPasswordResetTokenExpirationInHours()
-        {
-            var applicationSettings = await _applicationSettingsRepository.GetSettings();
-
-            var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == PasswordResetTokenExpirationInHoursKey);
-            if (matchingSetting == null)
-            {
-                return DefaultPasswordResetTokenExpirationInHours;
-            }
-
-            string passwordResetTokenExpirationInHoursValue = matchingSetting.Value;
-
-            int passwordResetTokenExpirationInHours;
-            if (!int.TryParse(passwordResetTokenExpirationInHoursValue, out passwordResetTokenExpirationInHours))
-            {
-                return DefaultPasswordResetTokenExpirationInHours;
-            }
-
-            return passwordResetTokenExpirationInHours;
         }
     }
 }

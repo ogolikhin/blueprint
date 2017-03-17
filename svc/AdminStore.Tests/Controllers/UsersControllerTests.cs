@@ -419,7 +419,10 @@ namespace AdminStore.Controllers
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
                 .ReturnsAsync(null);
-            
+            _applicationSettingsRepository
+                .Setup(repo => repo.GetValue(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(24);
+
 
             // Act
             IHttpActionResult result = null;
@@ -460,6 +463,9 @@ namespace AdminStore.Controllers
             _usersRepoMock
                 .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
                 .ReturnsAsync(new AuthenticationUser {IsEnabled = false});
+            _applicationSettingsRepository
+                .Setup(repo => repo.GetValue(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(24);
 
 
             // Act
@@ -505,6 +511,9 @@ namespace AdminStore.Controllers
                     UserSalt = new Guid("1021420F-12D9-4D9F-9B47-F07BD7DE8D2F"),
                     Password = "Dmg+JJ/DtmxEHNi5cpk9+IIYZi4FttQO5YHuddfcuvQ="
                 });
+            _applicationSettingsRepository
+                .Setup(repo => repo.GetValue(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(24);
 
 
             // Act
@@ -552,6 +561,9 @@ namespace AdminStore.Controllers
                 .Returns(Task.FromResult(true));
             var httpClientProvider = new TestHttpClientProvider(request => request.RequestUri.AbsolutePath.EndsWithOrdinal($"sessions/{uid}") ?
                      new HttpResponseMessage(HttpStatusCode.OK) : null);
+            _applicationSettingsRepository
+                .Setup(repo => repo.GetValue(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
                 _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider)
@@ -673,10 +685,9 @@ namespace AdminStore.Controllers
             // Arrange
             SetupMocksForRequestPasswordReset();
 
-            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting>() { new ApplicationSetting() { Key = "IsPasswordRecoveryEnabled", Value = "false" } };
             _applicationSettingsRepository
-                .Setup(repo => repo.GetSettings())
-                .ReturnsAsync(applicationSettings);
+                .Setup(repo => repo.GetValue("IsPasswordRecoveryEnabled", It.IsAny<bool>()))
+                .ReturnsAsync(false);
 
             // Act
             IHttpActionResult result = null;
@@ -694,10 +705,9 @@ namespace AdminStore.Controllers
             // Arrange
             SetupMocksForRequestPasswordReset();
 
-            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting>() { new ApplicationSetting() {Key = "unrelatedKey", Value = "value" } };
             _applicationSettingsRepository
-                .Setup(repo => repo.GetSettings())
-                .ReturnsAsync(applicationSettings);
+                .Setup(repo => repo.GetValue("IsPasswordRecoveryEnabled", It.IsAny<bool>()))
+                .ReturnsAsync(false);
 
             // Act
             IHttpActionResult result = null;
@@ -718,6 +728,7 @@ namespace AdminStore.Controllers
             _usersRepoMock
                 .Setup(repo => repo.UpdatePasswordRecoveryTokensAsync(It.IsAny<string>(), It.IsAny<Guid>()))
                 .Throws(new Exception("any"));
+
 
             // Act
             IHttpActionResult result = null;
@@ -766,10 +777,10 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.IsChangePasswordCooldownInEffect(It.IsAny<AuthenticationUser>()))
                 .ReturnsAsync(false);
 
-            IEnumerable<ApplicationSetting> applicationSettings = new List<ApplicationSetting>(){ new ApplicationSetting() { Key = "IsPasswordRecoveryEnabled", Value = "true" } };
             _applicationSettingsRepository
-                .Setup(repo => repo.GetSettings())
-                .ReturnsAsync(applicationSettings);
+                .Setup(repo => repo.GetValue("IsPasswordRecoveryEnabled", It.IsAny<bool>()))
+                .ReturnsAsync(true);
+           
         }
 
         #endregion PasswordRecovery

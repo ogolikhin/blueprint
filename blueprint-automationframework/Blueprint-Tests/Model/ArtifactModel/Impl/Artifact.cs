@@ -259,7 +259,7 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
 
-            return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);
+            return UpdateRaptorDiscussion(Address, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
         public string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion discussionToDelete,
@@ -728,12 +728,12 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address,
-            int itemId, IDiscussionAdaptor discussionToUpdate,
+            /*int itemId,*/ IDiscussionAdaptor discussionToUpdate,
             RaptorComment comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.UpdateRaptorDiscussion(address, itemId, discussionToUpdate, comment,
+            return OpenApiArtifact.UpdateRaptorDiscussion(address, /*itemId,*/ discussionToUpdate, comment,
                 user, expectedStatusCodes);
         }
 

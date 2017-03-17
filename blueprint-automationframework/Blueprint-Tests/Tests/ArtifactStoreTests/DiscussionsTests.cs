@@ -74,7 +74,7 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedRaptorDiscussion, discussions.Discussions[0], skipCanDelete: true, skipCanEdit: true);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, viewerUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, viewerUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -99,7 +99,7 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -124,7 +124,7 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedComment, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [TestCase]
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
             RaptorReply.AssertAreEqual(postedReply, replies[0], skipCanEdit: true);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/D6lBnSMi
@@ -180,7 +180,7 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedComment, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [TestCase]
@@ -201,7 +201,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, discussions.Discussions.Count, "Artifact should have no comments, but it has {0}", discussions.Discussions.Count);
 
-
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
         }
 
         [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
@@ -240,7 +240,7 @@ namespace ArtifactStoreTests
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
         }
 
         [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
@@ -253,10 +253,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
             var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact, _authorUser);
 
-            var process = Helper.Storyteller.GetProcess(_authorUser, artifact.Id);
-            var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedComment.ItemId, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
             var comment = new RaptorComment()
             {
@@ -269,17 +266,17 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address,
-                    userTask.Id, postedComment, comment, _authorUser);
+                    /*postedComment.ItemId,*/ postedComment, comment, _authorUser);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(userTask.Id, _authorUser);
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedComment.ItemId, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [TestCase]
@@ -314,7 +311,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
@@ -351,7 +348,7 @@ namespace ArtifactStoreTests
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -398,7 +395,7 @@ namespace ArtifactStoreTests
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
@@ -442,7 +439,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(isClosed, discussions.Discussions[0].IsClosed, "IsClosed flag should be set to {0}!", isClosed);
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: isClosed);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
         }
 
         [TestCase(int.MaxValue)]
@@ -475,7 +472,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/D6lBnSMi
@@ -507,7 +504,7 @@ namespace ArtifactStoreTests
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
         }
 
         [TestCase]
@@ -538,7 +535,7 @@ namespace ArtifactStoreTests
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -575,7 +572,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(StringUtilities.WrapInDiv(newReplyText), updatedReply.Comment,
                 "Original comment and comment returned after discussion created different!");
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -603,7 +600,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(2, discussions.Discussions[0].Version, "Version should be 2, but it is {0}", discussions.Discussions[0].Version);
             Assert.AreEqual(2, postedRaptorComment.Version, "Version should be 2, but it is {0}", postedRaptorComment.Version);
 
-            ArtifactStoreHelper.AssertIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
         #endregion Positive tests

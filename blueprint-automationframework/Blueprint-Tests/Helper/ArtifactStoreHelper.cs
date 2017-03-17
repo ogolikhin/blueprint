@@ -87,26 +87,25 @@ namespace Helper
         /// <param name="expectedIndicatorFlags">Expected indicator flags</param>
         public static void AssertIndicatorFlags(ItemIndicatorFlags actualIndicatorFlags, int expectedIndicatorFlags)
         {
-            if (expectedIndicatorFlags > 0)
+            if (expectedIndicatorFlags == 0)
             {
-                Assert.True((int)actualIndicatorFlags % (expectedIndicatorFlags + 1) > 0,
-                    "Artifact have expected flags {0} and actual flags {1} mismatch!", expectedIndicatorFlags, (int)actualIndicatorFlags);
+                Assert.AreEqual(expectedIndicatorFlags, (int)actualIndicatorFlags, "Actual indicatorFlags is not 0!");
             }
-            else if (expectedIndicatorFlags == 0)
+            else
             {
-                Assert.AreEqual((int)actualIndicatorFlags, expectedIndicatorFlags, "Artifact has one or more indicators turned on, but it shouldn't!");
+                Assert.IsTrue((expectedIndicatorFlags & (int)actualIndicatorFlags) != 0, "There is no indicator {0} in indicatorFlags", expectedIndicatorFlags);
             }
         }
 
         /// <summary>
-        /// Asserts that actual and expected indicator flags are the same
+        /// Verifies that actual and expected indicator flags are the same
         /// </summary>
         /// <param name="helper">A TestHelper object</param>
         /// <param name="user">User who access artifact</param>
         /// <param name="artifactId">Artifact Id</param>
         /// <param name="subArtifactId">(optional)Sub-artifact Id. By default artifact indicatorFlags is asserted</param>
         /// <param name="expectedIndicatorFlags">Expected indicator value</param>
-        public static void AssertIndicatorFlags(TestHelper helper, IUser user, int artifactId, int expectedIndicatorFlags, int subArtifactId = 0)
+        public static void VerifyIndicatorFlags(TestHelper helper, IUser user, int artifactId, int expectedIndicatorFlags, int subArtifactId = 0)
         {
             const string ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
             const string SUB_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_;

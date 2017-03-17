@@ -156,7 +156,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //TFS Bug 5793
         [TestCase]
         [TestRail(146063)]
         [Description("Add comment to subartifact of published artifact, delete artifact (don't publish), get discussion for this subartifact.  Verify it returns expected discussion.")]
@@ -180,7 +179,8 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedComment, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, viewerUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [TestCase]
@@ -894,11 +894,11 @@ namespace ArtifactStoreTests
             // Execute:
             var path = I18NHelper.FormatInvariant(
                     RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, discussion.DiscussionId);
-            Assert.Throws<Http404NotFoundException>(() => artifact.UpdateRaptorDiscussion(comment, _adminUser, discussion),
+            var ex = Assert.Throws<Http404NotFoundException>(() => artifact.UpdateRaptorDiscussion(comment, _adminUser, discussion),
                 "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist in artifact!", path);
 
             // Verify:
-            //TestHelper.ValidateServiceErrorMessage(ex.RestResponse, NOT_ACCESSIBLE_ITEM);
+            Assert.IsEmpty(ex.RestResponse.Content, "Response is not empty!");
             // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
         }
 

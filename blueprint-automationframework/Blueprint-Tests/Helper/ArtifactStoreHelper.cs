@@ -85,23 +85,17 @@ namespace Helper
         /// </summary>
         /// <param name="actualIndicatorFlags">Actual indicators flags</param>
         /// <param name="expectedIndicatorFlags">Expected indicator flags</param>
-        public static void AssertIndicatorFlags(ItemIndicatorFlags actualIndicatorFlags, int expectedIndicatorFlags)
+        public static void AssertIndicatorFlagsBitsAreEnabled(ItemIndicatorFlags actualIndicatorFlags, int expectedIndicatorFlags)
         {
-            if (expectedIndicatorFlags == 0)
-            {
-                Assert.AreEqual(expectedIndicatorFlags, (int)actualIndicatorFlags, "Actual indicatorFlags is not 0!");
-            }
-            else
-            {
-                Assert.IsTrue((expectedIndicatorFlags & (int)actualIndicatorFlags) != 0, "There is no indicator {0} in indicatorFlags", expectedIndicatorFlags);
-            }
+            Assert.AreEqual(expectedIndicatorFlags, (expectedIndicatorFlags & (int)actualIndicatorFlags), 
+                "Indicator {0} is not found in indicatorFlags", expectedIndicatorFlags);
         }
 
         /// <summary>
         /// Verifies that actual and expected indicator flags are the same
         /// </summary>
         /// <param name="helper">A TestHelper object</param>
-        /// <param name="user">User who access artifact</param>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Artifact Id</param>
         /// <param name="subArtifactId">(optional)Sub-artifact Id. By default artifact indicatorFlags is asserted</param>
         /// <param name="expectedIndicatorFlags">Expected indicator value</param>
@@ -118,7 +112,7 @@ namespace Helper
                     artifact = helper.ArtifactStore.GetArtifactDetails(user, artifactId, versionId: 1);
                 }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", ARTIFACT_ID_PATH);
 
-                AssertIndicatorFlags(artifact.IndicatorFlags, expectedIndicatorFlags);
+                AssertIndicatorFlagsBitsAreEnabled(artifact.IndicatorFlags, expectedIndicatorFlags);
             }
             else
             {
@@ -128,7 +122,7 @@ namespace Helper
                     subArtifact = helper.ArtifactStore.GetSubartifact(user, artifactId, subArtifactId);
                 }, "'GET {0}' should return 200 OK when passed a valid artifact and sub-artifact ID!", SUB_ARTIFACT_ID_PATH);
 
-                AssertIndicatorFlags(subArtifact.IndicatorFlags, expectedIndicatorFlags);
+                AssertIndicatorFlagsBitsAreEnabled(subArtifact.IndicatorFlags, expectedIndicatorFlags);
             }
         }
 

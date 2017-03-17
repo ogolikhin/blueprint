@@ -559,8 +559,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedReply = OpenApiArtifact.UpdateRaptorDiscussionReply(Helper.BlueprintServer.Address,
-                    artifact.Id, raptorComment, raptorReply, newReplyText, _authorUser);
+                updatedReply = OpenApiArtifact.UpdateRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, raptorReply, newReplyText, _authorUser);
             }, "UpdateReply shouldn't throw any error, but it does.");
 
             // Verify:

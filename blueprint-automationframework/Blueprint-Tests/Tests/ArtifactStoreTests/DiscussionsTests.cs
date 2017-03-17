@@ -265,8 +265,7 @@ namespace ArtifactStoreTests
             IDiscussionAdaptor updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address,
-                    /*postedComment.ItemId,*/ postedComment, comment, _authorUser);
+                updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address, postedComment, comment, _authorUser);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:

@@ -728,7 +728,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
         public static IRaptorDiscussion UpdateRaptorDiscussion(string address,
-            /*int itemId,*/ IDiscussionAdaptor discussionToUpdate,
+            IDiscussionAdaptor discussionToUpdate,
             RaptorComment comment,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)

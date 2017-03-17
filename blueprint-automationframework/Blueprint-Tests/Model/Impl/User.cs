@@ -226,7 +226,7 @@ namespace Model.Impl
             Assert.IsTrue(imageId > 0, "The record was not inserted!");
 
             query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}", imageId, userId);
-            rowsAffected = ExecuteUpdateBinarySqlQuery(query);
+            rowsAffected = DatabaseHelper.ExecuteUpdateSqlQuery(query);
             Assert.IsTrue(rowsAffected == 1, "Updated more than one row in Users table!");
         }
 
@@ -236,7 +236,7 @@ namespace Model.Impl
 
             string query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET LastPasswordChangeTimestamp = '{0}' WHERE UserId = {1}",
                 updatedDateString, Id);
-            int rowsAffected = ExecuteUpdateBinarySqlQuery(query);
+            int rowsAffected = DatabaseHelper.ExecuteUpdateSqlQuery(query);
             Assert.IsTrue(rowsAffected == 1, "Update more than one row in Users table!");
         }
 
@@ -360,37 +360,6 @@ namespace Model.Impl
                         }
 
                         throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", selectQuery));
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Executes update query and returns number of rows affected
-        /// Example: "UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}"
-        /// </summary>
-        /// <param name="updateQuery">SQL update query</param>
-        /// <returns>Amount of records affected</returns>
-        public static int ExecuteUpdateBinarySqlQuery(string updateQuery)
-        {
-            using (var database = DatabaseFactory.CreateDatabase())
-            {
-                database.Open();
-
-                Logger.WriteDebug("Running: {0}", updateQuery);
-
-                using (var cmd = database.CreateSqlCommand(updateQuery))
-                {
-                    cmd.ExecuteNonQuery();
-
-                    using (var sqlDataReader = cmd.ExecuteReader())
-                    {
-                        if (sqlDataReader.RecordsAffected <= 0)
-                        {
-                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
-                        }
-
-                        return sqlDataReader.RecordsAffected;
                     }
                 }
             }

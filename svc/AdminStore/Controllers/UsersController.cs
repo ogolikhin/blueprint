@@ -28,6 +28,8 @@ namespace AdminStore.Controllers
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
+        private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
+        private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), 
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), 
@@ -166,9 +168,8 @@ namespace AdminStore.Controllers
             try
 			{
             	const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
-	            var applicationSettings = await _applicationSettingsRepository.GetSettings();
-    	        var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == IsPasswordRecoveryEnabledKey);
-        	    if (matchingSetting == null || matchingSetting.Value != "true")
+			    var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
+        	    if (!matchingSetting)
 	            {
 	                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
 	            }
@@ -239,7 +240,8 @@ namespace AdminStore.Controllers
                 //provided token doesn't match last requested
                 throw new ConflictException("Password reset failed, a more recent recovery token exists.", ErrorCodes.PasswordResetTokenNotLatest);
             }
-            if (tokens.First().CreationTime.AddHours(24) < DateTime.Now)
+            var tokenLifespan = await _applicationSettingsRepository.GetValue<int>(PasswordResetTokenExpirationInHoursKey, DefaultPasswordResetTokenExpirationInHours);
+            if (tokens.First().CreationTime.AddHours(tokenLifespan) < DateTime.Now)
             {
                 //token expired
                 throw new ConflictException("Password reset failed, recovery token expired.", ErrorCodes.PasswordResetTokenExpired);
@@ -250,10 +252,20 @@ namespace AdminStore.Controllers
             if (user == null)
             {
                 //user does not exist
-                throw new ConflictException("Password reset failed, the token is invalid.", ErrorCodes.PasswordResetTokenInvalid);
+                throw new ConflictException("Password reset failed, the user does not exist.", ErrorCodes.PasswordResetUserNotFound);
+            }
+            if (!user.IsEnabled)
+            {
+                //user is disabled
+                throw new ConflictException("Password reset failed, the login for this user is disabled.", ErrorCodes.PasswordResetUserDisabled);
             }
 
             var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+
+            if (user.Password == HashingUtilities.GenerateSaltedHash(decodedNewPassword, user.UserSalt))
+            {
+                throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
+            }
                 
             //reset password
             await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);

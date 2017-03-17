@@ -51,12 +51,16 @@ namespace Model.OpenApiModel.Services
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="projectId">The ID of the project need to be retrieved.</param>
         /// <param name="user">(optional) The user to authenticate to the server with.  Default to use no authentication.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>A project associated with the projectId provided with the request.</returns>
-        public static IProject GetProject(string address, int projectId, IUser user = null)
+        public static IProject GetProject(string address, int projectId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(address, user?.Token.OpenApiToken);
             string path = I18NHelper.FormatInvariant(RestPaths.OpenApi.PROJECTS_id_, projectId);
-            var project = restApi.SendRequestAndDeserializeObject<Project>(path, RestRequestMethod.GET);
+            var project = restApi.SendRequestAndDeserializeObject<Project>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
 
             return project;
         }
@@ -67,13 +71,20 @@ namespace Model.OpenApiModel.Services
         /// </summary>
         /// <param name="address">The base Uri address of the Blueprint server.</param>
         /// <param name="user">(optional) The user to authenticate to the server with.  Defaults to no authentication.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' or '206 PartialContent' are expected.</param>
         /// <returns>A list of all projects on the Blueprint server.</returns>
-        public static List<IProject> GetProjects(string address, IUser user = null)
+        public static List<IProject> GetProjects(string address, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(address, user?.Token?.OpenApiToken);
             const string path = RestPaths.OpenApi.PROJECTS;
 
-            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(path, RestRequestMethod.GET);
+            // TODO: If PartialContent is returned, make additional calls to get the rest of the contents.  Big sites like Today1 get a 206 PartialContent here.
+            expectedStatusCodes = expectedStatusCodes ?? new List<HttpStatusCode> { HttpStatusCode.OK, HttpStatusCode.PartialContent };
+
+            var projects = restApi.SendRequestAndDeserializeObject<List<Project>>(
+                path,
+                RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes);
 
             // VS Can't automatically convert List<Project> to List<IProject>, so we need to do it manually.
             return projects.ConvertAll(o => (IProject)o);

@@ -9,6 +9,7 @@ App_Button_Open,"Open"
 App_Button_Publish,"Publish Artifact"
 App_Button_Discard,"Discard"
 App_Button_Delete, "Delete"
+App_Button_Continue, "Continue"
 App_Button_Publish_All,"Publish All"
 App_Button_Discard_All,"Discard All"
 App_Button_Create,"Create"
@@ -663,4 +664,4 @@ Walkthrough_UserItem_Description, "As a {0}, I want to {1}, so that I can {2}"
 
 #Zoom
 Zoom_Component_Reset_Button_Tooltip, "Reset to 100%"
-Zoom_Component_FitWidth_Button_Tooltip, "Fit to width"
+Zoom_Component_FitWidth_Button_Tooltip, "Fit to page"

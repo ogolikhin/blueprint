@@ -733,8 +733,7 @@ namespace Model.ArtifactModel.Impl
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.UpdateRaptorDiscussion(address, /*itemId,*/ discussionToUpdate, comment,
-                user, expectedStatusCodes);
+            return OpenApiArtifact.UpdateRaptorDiscussion(address, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
         /// <summary>

@@ -494,14 +494,16 @@ namespace Model
         /// <summary>
         /// Adds artifact to the baseline
         /// Runs PUT svc/bpartifactstore/baselines/{0}/content
+        /// Checks that returned dictionary has artifactCount
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of Artifact to add.</param>
         /// <param name="baselineId">Id of Baseline.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Number of artifacts added to Baseline</returns>
-        int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>Dictionary with numbers added/never published/newer than Baseline sealed date artifacts</returns>
+        Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Returns the list of history items for the specified artifacts.

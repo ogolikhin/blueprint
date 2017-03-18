@@ -583,8 +583,9 @@ namespace Model.Impl
         public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return AddArtifactToBaselineOrCollection(user, artifactId, collectionId, ItemTypePredefined.ArtifactCollection,
-                includeDescendants, expectedStatusCodes);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
+            var responseObject = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
+            return responseObject["artifactCount"];
         }
 
         /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
@@ -631,11 +632,14 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.AddArtifactToBaseline(IUser, int, int, bool, List{HttpStatusCode})"/>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+        public Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return AddArtifactToBaselineOrCollection(user, artifactId, baselineId, ItemTypePredefined.ArtifactBaseline,
-                includeDescendants, expectedStatusCodes);
+            //
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
+            var addArtifactResult = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
+            Assert.IsTrue(addArtifactResult.ContainsKey("artifactCount"));
+            return addArtifactResult;
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -762,32 +766,16 @@ namespace Model.Impl
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Number of artifacts added to Baseline or Collection</returns>
         /// <exception cref="AssertionException">Throws for unexpected itemType</exception>
-        private int AddArtifactToBaselineOrCollection(IUser user, int artifactId, int collectionOrBaselineId, ItemTypePredefined itemType,
-            bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null)
+        private Dictionary<string, int> AddArtifactToBaselineOrCollection(IUser user, int artifactId, string path, bool includeDescendants = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path_template = string.Empty;
-            switch (itemType)
-            {
-                case ItemTypePredefined.ArtifactBaseline:
-                    path_template = RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT;
-                    break;
-                case ItemTypePredefined.ArtifactCollection:
-                    path_template = RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT;
-                    break;
-                default:
-                    Assert.Fail("AddArtifactToBaselineOrCollection works with ArtifactBaseline or ArtifactCollection only.");
-                    break;
-            }
-            string path = I18NHelper.FormatInvariant(path_template, collectionOrBaselineId);
-
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
             var collectionContentToAdd = new Dictionary<string, object>();
             collectionContentToAdd.Add("addChildren", includeDescendants);
             collectionContentToAdd.Add("artifactId", artifactId);
             var response = restApi.SendRequestAndGetResponse<object>(path, RestRequestMethod.PUT, bodyObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-            var responseObject = JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
-            return responseObject["artifactCount"];
+            return JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
         }
 
         #endregion Private Methods

@@ -886,6 +886,38 @@ namespace Helper
             }
         }
 
+        /// <summary>
+        /// Creates collection in the specified state with artifacts
+        /// </summary>
+        /// <param name="user">User to perform operation</param>
+        /// <param name="project">Project in which artifact will be created</param>
+        /// <param name="collectionState">State of the collection(Created, Published)</param>
+        /// <param name="artifactsIdsToAdd">List of artifact's id to be added</param>
+        /// <returns>Collection in the required state</returns>
+        public Collection CreateCollectionWithArtifactsInSpecificState(IUser user, IProject project,
+            TestArtifactState collectionState, List<int> artifactsIdsToAdd)
+        {
+            var collectionArtifact = CreateAndSaveCollection(project, user);
+            var collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
+
+            collection.UpdateArtifacts(artifactsIdsToAdd: artifactsIdsToAdd);
+            collectionArtifact.Lock(user);
+            Artifact.UpdateArtifact(collectionArtifact, user, collection);
+            collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
+
+            switch (collectionState)
+            {
+                case TestArtifactState.Created:
+                    return collection;
+                case TestArtifactState.Published:
+                    ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, user);
+                    return ArtifactStore.GetCollection(user, collectionArtifact.Id);
+                default:
+                    Assert.Fail("Unexpected value of Collection state");
+                    return collection;
+            }
+        }
+
         #endregion Nova Artifact Management
 
         #region Project Management
@@ -1626,37 +1658,39 @@ namespace Helper
                 BlueprintServer?.Dispose();
                 ArtifactStore?.Dispose();
 
-                if (Artifacts != null)
-                {
-                    Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
-                    ArtifactBase.DisposeArtifacts(Artifacts, this);
-                }
+                Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
+                ArtifactBase.DisposeArtifacts(Artifacts, this);
 
-                if (NovaArtifacts != null)
+                if (NovaArtifacts.Count > 0)
                 {
                     var expectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
                         System.Net.HttpStatusCode.NotFound};
                     foreach (var user in NovaArtifacts.Keys)
                     {
-                        if (NovaArtifacts[user]?.Count > 0)
                         {
+                            var neverPublishedArtifacIds = new List<int>();
                             foreach (int id in NovaArtifacts[user])
                             {
-                                DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
+                                var results = DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
+                                if ((results != null) && (results[0].Version == 0))
+                                {
+                                    neverPublishedArtifacIds.Add(results[0].Id);
+                                }
                             }
-                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user);
+                            foreach (int id in neverPublishedArtifacIds)
+                            {
+                                NovaArtifacts[user].Remove(id);
+                            }
+                            if (NovaArtifacts[user].Count > 0)
+                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: expectedStatusCodes);
                         }
                     }
                 }
 
-                if (Groups != null)
+                Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
+                foreach (var group in Groups)
                 {
-                    Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
-
-                    foreach (var group in Groups)
-                    {
-                        group.DeleteGroup();
-                    }
+                    group.DeleteGroup();
                 }
 
                 if (ProjectRoles != null)

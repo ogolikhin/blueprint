@@ -508,7 +508,6 @@ namespace Model
         /// <summary>
         /// Returns the list of history items for the specified artifacts.
         /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
         /// <param name="artifactIds">The list of artifacts to get Author History</param>
         /// <param name="user">User to perform operation.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
@@ -525,5 +524,50 @@ namespace Model
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
         NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        #region Process methods
+
+        /// <summary>
+        /// Delete a Nova process artifact
+        /// (Runs:  'DELETE 'svc/bpartifactstore/artifacts/{0}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request to delete a Nova process.</param>
+        /// <param name="novaProcess">The Nova process artifact to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The list of Nova Artifacts that were deleted.</returns>
+        List<NovaArtifact> DeleteNovaProcessArtifact(
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get a Nova Process (Storyteller 2.1+)
+        /// (Runs:  'GET svc/bpartifactstore/process/{0}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request to get a process.</param>
+        /// <param name="artifactId">Id of the process artifact from which the process is obtained.</param>
+        /// <param name="versionIndex">(optional) The version of the process artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The requested Nova process object.</returns>
+        NovaProcess GetNovaProcess(
+            IUser user,
+            int artifactId,
+            int? versionIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Update a Nova Process (Storyteller 2.1+)
+        /// (Runs:  'PATCH svc/bpartifactstore/processupdate/{0}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request to update a Nova process.</param>
+        /// <param name="novaProcess">The Nova process to update</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The updated Nova process.</returns>
+        NovaProcess UpdateNovaProcess(
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        #endregion Process methods
     }
 }

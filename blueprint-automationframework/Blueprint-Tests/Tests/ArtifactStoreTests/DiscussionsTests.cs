@@ -204,7 +204,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [TestCase]
         [TestRail(155659)]
         [Description("Update discussion for the published artifact. Verify that text & IsClosed flag were updated.")]
@@ -243,7 +242,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [TestCase]
         [TestRail(155675)]
         [Description("Update discussion of published subartifact, get discussion for this subartifact, check that it has expected values.")]
@@ -275,7 +273,7 @@ namespace ArtifactStoreTests
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None, postedComment.ItemId);
         }
 
         [TestCase]
@@ -313,7 +311,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [TestCase]
         [TestRail(156532)]
         [Description("Update discussion created by the current user, check that comment was updated.")]
@@ -347,7 +344,7 @@ namespace ArtifactStoreTests
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
         }
 
         [TestCase]
@@ -397,7 +394,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase("Custom Status Open", false)]
@@ -438,7 +434,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(isClosed, discussions.Discussions[0].IsClosed, "IsClosed flag should be set to {0}!", isClosed);
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: isClosed);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            var indicator = isClosed ? (int)ItemIndicatorFlags.None : (int)ItemIndicatorFlags.HasComments;
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, indicator);
         }
 
         [TestCase(int.MaxValue)]
@@ -474,7 +472,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/D6lBnSMi
         [TestCase]
         [TestRail(156534)]
         [Description("Delete own comment, check that comment was deleted.")]

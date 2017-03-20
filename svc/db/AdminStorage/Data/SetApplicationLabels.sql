@@ -458,6 +458,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Not_Avail
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Max_Images_Error', 'en-US', N'This property exceeds the maximum number of images ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The operation could not be completed because of privilege-related issues.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden_CannotDelete', 'en-US', N'The artifact cannot be deleted because one or more of its descendants cannot currently be deleted (for example, a Baseline has been sealed).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'The artifact could not be found.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Collection_NotFound', 'en-US', N'The Collection has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_InternalServer', 'en-US', N'The operation could not be completed. Please try again later. If the problem continues, contact your administrator for assistance.')

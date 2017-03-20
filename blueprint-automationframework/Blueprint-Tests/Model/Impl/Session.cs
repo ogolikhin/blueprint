@@ -37,8 +37,14 @@ namespace Model.Impl
         /// <param name="sessionId">(optional) This is the session token.</param>
         /// <param name="beginTime">(optional) </param>     // TODO: What is this for?
         /// <param name="endTime">(optional) </param>       // TODO: What is this for?
-        public Session(int userId, string userName, int licenseLevel, bool isSso,
-            string sessionId = null, DateTime? beginTime = null, DateTime? endTime = null)
+        public Session(
+            int userId, 
+            string userName, 
+            bool isSso,
+            int licenseLevel = 3,
+            string sessionId = null, 
+            DateTime? beginTime = null, 
+            DateTime? endTime = null)
         {
             UserId = userId;
             UserName = userName;

@@ -36,6 +36,13 @@ namespace Helper
             Collaborator
         }
 
+        private Dictionary<GroupLicenseType, LicenseType> _GroupLicenseTypeToLicenseType = new Dictionary<GroupLicenseType, LicenseType>
+        {
+            {GroupLicenseType.Author, LicenseType.Author},
+            {GroupLicenseType.Collaborate, LicenseType.Collaborator},
+            {GroupLicenseType.None, LicenseType.View}
+        };
+
         public static class GoldenDataProject
         {
             public const string Default = "test";
@@ -853,11 +860,14 @@ namespace Helper
         /// </summary>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
+        /// <param name="licenseType">The license type of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object that was added to the database.</returns>
-        public IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+        public IUser CreateUserAndAddToDatabase(
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database,
+            LicenseType licenseType = LicenseType.Author)
         {
-            var user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source);
+            var user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source, licenseType);
             Users.Add(user);
             return user;
         }
@@ -975,8 +985,8 @@ namespace Helper
         /// <param name="role">Author, Viewer or No permission role</param>
         /// <param name="projects">The list of projects that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
-        /// <returns>Created authenticated user with required premissions</returns>
         /// <param name="licenseType">The type of user license (Author, Collaborator, Viewer).</param>
+        /// <returns>Created authenticated user with required premissions</returns>
         public IUser CreateUserWithProjectRolePermissions(
             ProjectRole role, 
             List<IProject> projects, 
@@ -987,7 +997,7 @@ namespace Helper
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
 
-            var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null);
+            var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null, licenseType : _GroupLicenseTypeToLicenseType[licenseType]);
 
             foreach (var project in projects)
             {
@@ -1011,8 +1021,8 @@ namespace Helper
         /// <param name="role">Author, Viewer or No permission role</param>
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
-        /// <returns>Newly created, authenticated user with required premissions</returns>
         /// <param name="licenseType">The type of user license (Author, Collaborator, Viewer).</param>
+        /// <returns>Newly created, authenticated user with required premissions</returns>
         public IUser CreateUserWithProjectRolePermissions( 
             ProjectRole role,
             IProject project, 

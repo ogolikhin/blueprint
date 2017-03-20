@@ -7,7 +7,7 @@ namespace Model.Factories
     public static class SessionFactory
     {
         // TODO: Find out what 3 means and give this a better name...
-        private const int LicenseLevel = 3;
+        // TO REMOVE: private const int LicenseLevel = 3;
 
         /// <summary>
         /// Creates a new session with random values.
@@ -15,7 +15,7 @@ namespace Model.Factories
         /// <returns>A new random Session object.</returns>
         public static ISession CreateRandomSession()
         {
-            return new Session(RandomGenerator.RandomNumber(), RandomGenerator.RandomAlphaNumeric(7), LicenseLevel, true);
+            return new Session(RandomGenerator.RandomNumber(), RandomGenerator.RandomAlphaNumeric(7), true);
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return new Session(user.Id, user.Username, LicenseLevel, true);
+            return new Session(user.Id, user.Username, true, (int)user.License);
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return new Session(user.Id, user.Username, LicenseLevel, isSso, user.Token?.AccessControlToken);
+            return new Session(user.Id, user.Username, isSso, (int)user.License, user.Token?.AccessControlToken);
         }
     }
 }

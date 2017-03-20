@@ -100,7 +100,7 @@ namespace Model.Factories
         public static IUser CreateUserOnly(UserSource source = UserSource.Database)
         {
             string username = RandomGenerator.RandomAlphaNumeric(10);
-            string password = RandomGenerator.RandomAlphaNumeric(10);
+            string password = RandomGenerator.RandomAlphaNumeric(10) + "A1$";
 
             return CreateUserOnly(username, password, source);
         }

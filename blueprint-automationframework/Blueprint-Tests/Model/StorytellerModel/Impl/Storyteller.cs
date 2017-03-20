@@ -220,7 +220,7 @@ namespace Model.StorytellerModel.Impl
             return novaProcesses;
         }
 
-        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool, bool)"/>
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
@@ -259,7 +259,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
         public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return GetNovaProcess(user, artifactId, versionIndex, expectedStatusCodes);
+            return ArtifactStore.GetNovaProcess(user, artifactId, versionIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.GetProcesses(IUser, int, List{HttpStatusCode})"/>
@@ -313,7 +313,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return UpdateNovaProcess(user, novaProcess, expectedStatusCodes);
+            return ArtifactStore.UpdateNovaProcess(user, novaProcess, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>
@@ -381,7 +381,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
         public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return DeleteNovaProcessArtifact(user, novaProcess, expectedStatusCodes);
+            return ArtifactStore.DeleteNovaProcessArtifact(user, novaProcess, expectedStatusCodes);
         }
         
         public int GetStorytellerShapeLimitFromDb

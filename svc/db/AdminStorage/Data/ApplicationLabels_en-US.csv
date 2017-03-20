@@ -491,6 +491,7 @@ Property_Max_Images_Error, "This property exceeds the maximum number of images (
 #Messages
 HttpError_ServiceUnavailable, "A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance."
 HttpError_Forbidden, "The operation could not be completed because of privilege-related issues."
+HttpError_Forbidden_CannotDelete, "The artifact cannot be deleted because one or more of its descendants cannot currently be deleted (for example, a Baseline has been sealed)."
 HttpError_NotFound, "The artifact could not be found."
 HttpError_Collection_NotFound, "The Collection has been deleted."
 HttpError_InternalServer, "The operation could not be completed. Please try again later. If the problem continues, contact your administrator for assistance."

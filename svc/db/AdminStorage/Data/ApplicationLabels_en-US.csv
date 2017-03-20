@@ -663,6 +663,8 @@ Walkthrough_Button_Label, "Walkthrough"
 Process_Walkthrough_Mode_Tooltip, "Walkthrough Mode"
 Process_Diagram_Mode_Tooltip, "Diagram Mode"
 Walkthrough_UserItem_Description, "As a {0}, I want to {1}, so that I can {2}"
+Walkthrough_StartPanel_Label, "This is the start of your process."
+Walkthrough_EndPanel_Label, "This is the end of your process."
 
 #Zoom
 Zoom_Component_Reset_Button_Tooltip, "Reset to 100%"

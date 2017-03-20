@@ -98,7 +98,7 @@ namespace AccessControlTests
         [TestCase(LicenseLevel.Collaborator)]
         [TestCase(LicenseLevel.Viewer)]
         [TestRail(96107)]
-        [Description("Check that GET active licenses info returns 200 OK. Check that license count is " +
+        [Description("Check that GET svc/AccessControl/licenses/active returns 200 OK. Check that license count is " +
             "incremented as new sessions are added.")]
         public void GetActiveLicensesInfo_UserAddedAndAuthenticated_LicenseCountIsIncremented(LicenseLevel level)
         {
@@ -110,11 +110,11 @@ namespace AccessControlTests
             Assert.DoesNotThrow(() =>
             {
                 licenses = Helper.AccessControl.GetLicensesInfo(LicenseState.active);
-            }, "'GET {0}' should return 200 OK when getting active licenses.", REST_PATH_ACTIVE );
+            }, "'GET {0}' should return 200 OK when getting active licenses.", REST_PATH_ACTIVE);
 
             foreach (IAccessControlLicensesInfo element in licenses)
             {
-                if (element.LicenseLevel == (int) level)
+                if (element.LicenseLevel == (int)level)
                 {
                     licBefore = element.Count;
                 }
@@ -131,13 +131,13 @@ namespace AccessControlTests
             // Verify:
             foreach (IAccessControlLicensesInfo element in licenses)
             {
-                if (element.LicenseLevel == (int) level)
+                if (element.LicenseLevel == (int)level)
                 {
                     licAfter = element.Count;
                 }
             }
 
-            Assert.AreEqual((licBefore + 1), licAfter, 
+            Assert.AreEqual((licBefore + 1), licAfter,
                 "Expected the number of active {0} licenses does not match the actual number.", level.ToString());
 
         }
@@ -147,7 +147,7 @@ namespace AccessControlTests
         [TestCase(LicenseLevel.Collaborator)]
         [TestCase(LicenseLevel.Viewer)]
         [TestRail(96110)]
-        [Description("Check that GET locked licenses info returns 200 OK. Check that license count is " +
+        [Description("Check that GET svc/AccessControl/licenses/locked returns 200 OK. Check that license count is " +
             "incremented as new sessions are added.")]
         public void GetLockedLicensesInfo_UserAddedAndAuthenticated_LicenseCountIsIncremented(LicenseLevel level)
         {
@@ -177,6 +177,22 @@ namespace AccessControlTests
             // Verify:
             Assert.AreEqual((licBefore + 1), licAfter,
                 "Expected the number of active {0} licenses does not match the actual number", level.ToString());
+        }
+
+        [TestCase(null)]
+        [TestCase(CommonConstants.InvalidToken, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // TFS bug 5823
+        [TestRail(267191)]
+        [Description("Check that GET svc/AccessControl/licenses/locked with an invalid token return 401 Unauthorized.")]
+        public void GetLockedLicensesInfo_InvalidToken_401Unauthorized(string token)
+        {
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AccessControl.GetLicensesInfo(LicenseState.locked, token);
+            }, "'GET {0}' should return 401 Unauthorized the token provided in invalid.", REST_PATH_LOCKED);
+
+            // Verify:
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse); // To be removed after bug 5823 is fixed.
         }
 
         #endregion GetLicensesInfo tests

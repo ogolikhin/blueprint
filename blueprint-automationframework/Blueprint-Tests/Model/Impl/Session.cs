@@ -32,11 +32,11 @@ namespace Model.Impl
         /// </summary>
         /// <param name="userId">The User ID.</param>
         /// <param name="userName">The Username.</param>
-        /// <param name="licenseLevel">The license level</param>  // TODO: Should this be an enum?
-        /// <param name="isSso"></param>  // TODO: What is this for?
+        /// <param name="isSso">Specifies whether the user signed in via single sign-on (SSO).</param>
+        /// <param name="licenseLevel">(optional) The license level</param>  // TODO: Reference LicenseLevel.cs
         /// <param name="sessionId">(optional) This is the session token.</param>
-        /// <param name="beginTime">(optional) </param>     // TODO: What is this for?
-        /// <param name="endTime">(optional) </param>       // TODO: What is this for?
+        /// <param name="beginTime">(optional) Time at which the session was created. Is set to NULL when expires.</param>
+        /// <param name="endTime">(optional) The time at which the sesssion will expire.</param>
         public Session(
             int userId, 
             string userName, 

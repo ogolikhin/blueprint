@@ -6,9 +6,6 @@ namespace Model.Factories
 {
     public static class SessionFactory
     {
-        // TODO: Find out what 3 means and give this a better name...
-        // TO REMOVE: private const int LicenseLevel = 3;
-
         /// <summary>
         /// Creates a new session with random values.
         /// </summary>

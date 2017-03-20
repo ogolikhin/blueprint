@@ -56,46 +56,4 @@ namespace Model.ArtifactModel.Impl
         public List<RapidReviewAuthorHistory> AuthorHistory { get; set; }
         public RapidReviewDescription Description { get; set; }
     }
-
-    //auxilary class for RapidReviewUseCase
-    public class RapidReviewUseCasePreCondition
-    {
-        public string Description { get; set; }
-        public int StepOf { get; set; }
-        public List<object> Flows { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public double OrderIndex { get; set; }
-    }
-
-    //auxilary class for RapidReviewUseCase
-    public class RapidReviewUseCaseStep
-    {
-        public string Description { get; set; }
-        public int StepOf { get; set; }
-        public List<object> Flows { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public double OrderIndex { get; set; }
-    }
-
-    //auxilary class for RapidReviewUseCase
-    public class RapidReviewUseCasePostCondition
-    {
-        public string Description { get; set; }
-        public int StepOf { get; set; }
-        public List<object> Flows { get; set; }
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public double OrderIndex { get; set; }
-    }
-
-    //To test that JSON can be deseriallized as Use Case representation for Rapid Review
-    public class RapidReviewUseCase
-    {
-        public int Id { get; set; }
-        public RapidReviewUseCasePreCondition PreCondition { get; set; }
-        public List<RapidReviewUseCaseStep> Steps { get; set; }
-        public RapidReviewUseCasePostCondition PostCondition { get; set; }
-    }
 }

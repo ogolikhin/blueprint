@@ -6,6 +6,7 @@ using Model.ArtifactModel.Impl;
 using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
+using static Model.Impl.ArtifactStore;
 using Model.JobModel;
 using Model.ModelHelpers;
 using Model.OpenApiModel.Services;
@@ -72,6 +73,9 @@ namespace Helper
         public List<IUser> Users { get; } = new List<IUser>();
         public List<IGroup> Groups { get; } = new List<IGroup>();
         public List<IProjectRole> ProjectRoles { get; } = new List<IProjectRole>();
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
+        public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
         #region IArtifactObserver methods
 
@@ -654,7 +658,7 @@ namespace Helper
         /// <returns>The new Nova artifact that was created.</returns>
         public INovaArtifactDetails UpdateNovaArtifact(IUser user, NovaArtifactDetails novaArtifactDetails)
         {     
-            return Model.Impl.ArtifactStore.UpdateArtifact(ArtifactStore.Address, user, novaArtifactDetails);
+            return UpdateArtifact(ArtifactStore.Address, user, novaArtifactDetails);
         }
 
         /// <summary>
@@ -813,6 +817,116 @@ namespace Helper
         }
 
         #endregion Artifact Management
+
+        #region Nova Artifact Management
+        public enum TestArtifactState
+        {
+            Created = 0,
+            Published = 1,
+            PublishedWithDraft = 2,
+            ScheduledToDelete = 3,
+            Deleted = 4
+        }
+
+        /// <summary>
+        /// Creates artifact in the specified state
+        /// </summary>
+        /// <param name="user">User to perform operation</param>
+        /// <param name="project">Project in which artifact will be created</param>
+        /// <param name="state">State of the artifact(Created, Published, PublishedWithDraft, ScheduledToDelete, Deleted)</param>
+        /// <param name="itemType">itemType of artifact to be created</param>
+        /// <param name="parentId">Parent Id of artifact to be created</param>
+        /// <returns>Artifact in the required state</returns>
+        public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
+            ItemTypePredefined itemType, int parentId)
+        {
+            const string draftDescription = "description of item in the Draft state";
+            const string publishedDescription = "description of item in the Published state";
+            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user, itemType, artifactName, project, parentId);
+
+            if (NovaArtifacts.ContainsKey(user))
+            {
+                if (NovaArtifacts[user] == null)
+                {
+                    NovaArtifacts[user] = new List<int> { artifact.Id };
+                }
+                else
+                {
+                    NovaArtifacts[user].Add(artifact.Id);
+                }
+            }
+            else
+            {
+                NovaArtifacts.Add(user, new List<int> { artifact.Id });
+            }
+
+            NovaArtifactDetails artifactDetails = null;
+            
+            switch (state)
+            {
+                case TestArtifactState.Created:
+                    return artifact;
+                case TestArtifactState.Published:
+                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
+                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
+                    return artifact;
+                case TestArtifactState.PublishedWithDraft:
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
+                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
+                    Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
+                    return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                case TestArtifactState.ScheduledToDelete:
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
+                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    return artifact;
+                case TestArtifactState.Deleted:
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
+                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
+                    return artifact;
+                default:
+                    Assert.Fail("Unexpected value of Artifact state");
+                    return artifact;
+            }
+        }
+
+        /// <summary>
+        /// Creates collection in the specified state with artifacts
+        /// </summary>
+        /// <param name="user">User to perform operation</param>
+        /// <param name="project">Project in which artifact will be created</param>
+        /// <param name="collectionState">State of the collection(Created, Published)</param>
+        /// <param name="artifactsIdsToAdd">List of artifact's id to be added</param>
+        /// <returns>Collection in the required state</returns>
+        public Collection CreateCollectionWithArtifactsInSpecificState(IUser user, IProject project,
+            TestArtifactState collectionState, List<int> artifactsIdsToAdd)
+        {
+            var collectionArtifact = CreateAndSaveCollection(project, user);
+            var collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
+
+            collection.UpdateArtifacts(artifactsIdsToAdd: artifactsIdsToAdd);
+            collectionArtifact.Lock(user);
+            Artifact.UpdateArtifact(collectionArtifact, user, collection);
+            collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
+
+            switch (collectionState)
+            {
+                case TestArtifactState.Created:
+                    return collection;
+                case TestArtifactState.Published:
+                    ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, user);
+                    return ArtifactStore.GetCollection(user, collectionArtifact.Id);
+                default:
+                    Assert.Fail("Unexpected value of Collection state");
+                    return collection;
+            }
+        }
+
+        #endregion Nova Artifact Management
 
         #region Project Management
 
@@ -1157,6 +1271,47 @@ namespace Helper
             Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
         }
 
+        /// <summary>
+        /// Assigns project role permissions to the specified user and gets updated Session-Token.
+        /// Optionally, creates role permissions for a single artifact within a project.
+        /// </summary>
+        /// <param name="user">User to assign role</param>
+        /// <param name="rolePermissions">Role permissions.</param>
+        /// <param name="project">The project that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
+        /// after adding a new permissions role</param>
+        public void AssignNovaProjectRolePermissionsToUser(IUser user, RolePermissions rolePermissions, IProject project, INovaArtifactDetails artifact = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
+            IProjectRole projectRole = null;
+
+            projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, rolePermissions,
+                        rolePermissions.ToString());
+
+            if (projectRole != null)
+            {
+                ProjectRoles.Add(projectRole);
+            }
+
+            var licenseType = GroupLicenseType.Author;
+            var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
+            permissionsGroup.AddUser(user);
+            permissionsGroup.AssignRoleToProjectOrNovaArtifact(project, projectRole, artifact);
+
+            Logger.WriteInfo("User {0} created.", user.Username);
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+        }
+
         #endregion User management
 
         #region Group management
@@ -1243,7 +1398,7 @@ namespace Helper
                 {
                     if (sqlDataReader.RecordsAffected <= 0)
                     {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
                     }
                 }
             }
@@ -1284,7 +1439,7 @@ namespace Helper
                 {
                     if (sqlDataReader.RecordsAffected <= 0)
                     {
-                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", query));
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
                     }
                 }
             }
@@ -1535,20 +1690,39 @@ namespace Helper
                 BlueprintServer?.Dispose();
                 ArtifactStore?.Dispose();
 
-                if (Artifacts != null)
+                Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
+                ArtifactBase.DisposeArtifacts(Artifacts, this);
+
+                if (NovaArtifacts.Count > 0)
                 {
-                    Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
-                    ArtifactBase.DisposeArtifacts(Artifacts, this);
+                    var expectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
+                        System.Net.HttpStatusCode.NotFound};
+                    foreach (var user in NovaArtifacts.Keys)
+                    {
+                        {
+                            var neverPublishedArtifacIds = new List<int>();
+                            foreach (int id in NovaArtifacts[user])
+                            {
+                                var results = DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
+                                if ((results != null) && (results[0].Version == 0))
+                                {
+                                    neverPublishedArtifacIds.Add(results[0].Id);
+                                }
+                            }
+                            foreach (int id in neverPublishedArtifacIds)
+                            {
+                                NovaArtifacts[user].Remove(id);
+                            }
+                            if (NovaArtifacts[user].Count > 0)
+                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: expectedStatusCodes);
+                        }
+                    }
                 }
 
-                if (Groups != null)
+                Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
+                foreach (var group in Groups)
                 {
-                    Logger.WriteDebug("Deleting all groups created by this TestHelper instance...");
-
-                    foreach (var group in Groups)
-                    {
-                        group.DeleteGroup();
-                    }
+                    group.DeleteGroup();
                 }
 
                 if (ProjectRoles != null)

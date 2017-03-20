@@ -485,7 +485,6 @@ namespace ServiceLibrary.Repositories
                 name: "Collections",
                 orderIndex: -1,
                 itemTypePredefined: ItemTypePredefined.CollectionFolder,
-                itemTypeId: ServiceConstants.StubCollectionsItemTypeId,
                 prefix: "CF",
                 lockedByUserId: null,
                 lockedByUserTime: null,

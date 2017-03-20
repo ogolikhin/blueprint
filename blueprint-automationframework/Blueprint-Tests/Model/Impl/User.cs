@@ -226,7 +226,7 @@ namespace Model.Impl
             Assert.IsTrue(imageId > 0, "The record was not inserted!");
 
             query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}", imageId, userId);
-            rowsAffected = ExecuteUpdateBinarySqlQuery(query);
+            rowsAffected = DatabaseHelper.ExecuteUpdateSqlQuery(query);
             Assert.IsTrue(rowsAffected == 1, "Updated more than one row in Users table!");
         }
 
@@ -236,7 +236,7 @@ namespace Model.Impl
 
             string query = I18NHelper.FormatInvariant("UPDATE [dbo].[Users] SET LastPasswordChangeTimestamp = '{0}' WHERE UserId = {1}",
                 updatedDateString, Id);
-            int rowsAffected = ExecuteUpdateBinarySqlQuery(query);
+            int rowsAffected = DatabaseHelper.ExecuteUpdateSqlQuery(query);
             Assert.IsTrue(rowsAffected == 1, "Update more than one row in Users table!");
         }
 
@@ -257,10 +257,7 @@ namespace Model.Impl
         /// <summary>
         /// Updates the user on the Blueprint server with any changes that were made to this object.
         /// </summary>
-        public void UpdateUser()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract void UpdateUser();
 
         /// <summary>
         /// Tests whether the specified IUser is equal to this one.
@@ -363,37 +360,6 @@ namespace Model.Impl
                         }
 
                         throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were found when running: {0}", selectQuery));
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Executes update query and returns number of rows affected
-        /// Example: "UPDATE [dbo].[Users] SET Image_ImageId = {0} WHERE UserId = {1}"
-        /// </summary>
-        /// <param name="updateQuery">SQL update query</param>
-        /// <returns>Amount of records affected</returns>
-        public static int ExecuteUpdateBinarySqlQuery(string updateQuery)
-        {
-            using (var database = DatabaseFactory.CreateDatabase())
-            {
-                database.Open();
-
-                Logger.WriteDebug("Running: {0}", updateQuery);
-
-                using (var cmd = database.CreateSqlCommand(updateQuery))
-                {
-                    cmd.ExecuteNonQuery();
-
-                    using (var sqlDataReader = cmd.ExecuteReader())
-                    {
-                        if (sqlDataReader.RecordsAffected <= 0)
-                        {
-                            throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were inserted when running: {0}", updateQuery));
-                        }
-
-                        return sqlDataReader.RecordsAffected;
                     }
                 }
             }
@@ -559,6 +525,43 @@ namespace Model.Impl
             }
         }
 
+        /// <seealso cref="IUser.UpdateUser()"/>
+        public override void UpdateUser()
+        {
+            using (var database = DatabaseFactory.CreateDatabase())
+            {
+                database.Open();
+
+                string values = I18NHelper.FormatInvariant(
+                    "[AllowFallback]='{0}',[CurrentVersion]='{1}',[Department]='{2}',[DisplayName]='{3}',[Email]='{4}',[Enabled]='{5}'," +
+                    "[EULAccepted]='{6}',[ExpirePassword]='{7}',[FirstName]='{8}',[Guest]='{9}',[InstanceAdminRoleId]='{10}'," +
+                    "[InvalidLogonAttemptsNumber]='{11}',[LastInvalidLogonTimeStamp]='{12}',[LastName]='{13}',[LastPasswordChangeTimestamp]='{14}'," +
+                    "[Login]='{15}',[Password]='{16}',[Source]='{17}',[StartTimestamp]='{18}',[Title]='{19}',[UserSALT]='{20}'",    // ,[Image_ImageId]='{11}'
+                    AllowFallback, CurrentVersion, Department, DisplayName, Email, Enabled,
+                    EULAccepted, ExpirePassword, FirstName, Guest, (int?)InstanceAdminRole,
+                    InvalidLogonAttemptsNumber, LastInvalidLogonTimeStamp, LastName, LastPasswordChangeTimestamp,
+                    Username, EncryptedPassword, (int)Source, StartTimestamp, Title, UserSALT);     // , Picture
+
+                if (EndTimestamp != null)
+                {
+                    values = I18NHelper.FormatInvariant("{0},[EndTimestamp]='{1}'", values, dateTimeToString(EndTimestamp.Value));
+                }
+
+                string query = I18NHelper.FormatInvariant("UPDATE {0} SET {1} WHERE UserId = {2}", USERS_TABLE, values, Id);
+
+                Logger.WriteDebug("Running: {0}", query);
+
+                using (var cmd = database.CreateSqlCommand(query))
+                using (var sqlDataReader = cmd.ExecuteReader())
+                {
+                    if (sqlDataReader.RecordsAffected <= 0)
+                    {
+                        throw new SqlQueryFailedException(I18NHelper.FormatInvariant("No rows were updated when running: {0}", query));
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// Returns this object as a string.
         /// </summary>
@@ -596,10 +599,7 @@ namespace Model.Impl
             // Intentionally left blank.
         }
 
-        /// <summary>
-        /// Creates a new user on the Blueprint server.
-        /// </summary>
-        /// <param name="source">The source where this user is defined.</param>
+        /// <seealso cref="IUser.CreateUser(UserSource)"/>
         public override void CreateUser(UserSource source = UserSource.Database)
         {
             throw new NotImplementedException();
@@ -607,6 +607,12 @@ namespace Model.Impl
 
         /// <seealso cref="IUser.DeleteUser(bool)"/>
         public override void DeleteUser(bool useSqlUpdate = false)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IUser.UpdateUser()"/>
+        public override void UpdateUser()
         {
             throw new NotImplementedException();
         }

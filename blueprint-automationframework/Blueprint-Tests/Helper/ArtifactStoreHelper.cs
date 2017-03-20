@@ -28,12 +28,12 @@ namespace Helper
     {
         private const string DEFAULT_COLLECTIONS_ROOT_NAME = "Collections";
         private const int DEFAULT_COLLECTIONS_ROOT_ORDERINDEX = -1;
-        private const int DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID = -2;
+        private const int DEFAULT_COLLECTIONS_ROOT_PREDEFINEDTYPE = (int)ItemTypePredefined.CollectionFolder;
         private const string DEFAULT_COLLECTIONS_ROOT_PREFIX = "_CFL";
 
         private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME = "Baselines and Reviews";
         private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ORDERINDEX = -1;
-        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID = -3;
+        private const int DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREDEFINEDTYPE = (int)ItemTypePredefined.BaselineFolder;
         private const string DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREFIX = "_BFL";
 
         #region Custom Asserts
@@ -77,6 +77,52 @@ namespace Helper
                 Assert.AreEqual(expectedProject.Name, novaProject.Name,
                     "Returned project ID {0} should have Name: '{1}'!", expectedProject.Id, expectedProject.Name);
                 Assert.IsNull(novaProject.Description, "The returned project Description should always be null!");
+            }
+        }
+
+        /// <summary>
+        /// Asserts that expected and actulal indicator flags are the same 
+        /// </summary>
+        /// <param name="actualIndicatorFlags">Actual indicators flags</param>
+        /// <param name="expectedIndicatorFlags">Expected indicator flags</param>
+        public static void AssertIndicatorFlagsBitsAreEnabled(ItemIndicatorFlags actualIndicatorFlags, int expectedIndicatorFlags)
+        {
+            Assert.AreEqual(expectedIndicatorFlags, (expectedIndicatorFlags & (int)actualIndicatorFlags), 
+                "Indicator {0} is not found in indicatorFlags", expectedIndicatorFlags);
+        }
+
+        /// <summary>
+        /// Verifies that actual and expected indicator flags are the same
+        /// </summary>
+        /// <param name="helper">A TestHelper object</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Artifact Id</param>
+        /// <param name="subArtifactId">(optional)Sub-artifact Id. By default artifact indicatorFlags is asserted</param>
+        /// <param name="expectedIndicatorFlags">Expected indicator value</param>
+        public static void VerifyIndicatorFlags(TestHelper helper, IUser user, int artifactId, int expectedIndicatorFlags, int subArtifactId = 0)
+        {
+            const string ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
+            const string SUB_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_;
+
+            if (subArtifactId == 0)
+            {
+                NovaArtifactDetails artifact = null;
+                Assert.DoesNotThrow(() =>
+                {
+                    artifact = helper.ArtifactStore.GetArtifactDetails(user, artifactId, versionId: 1);
+                }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", ARTIFACT_ID_PATH);
+
+                AssertIndicatorFlagsBitsAreEnabled(artifact.IndicatorFlags, expectedIndicatorFlags);
+            }
+            else
+            {
+                NovaSubArtifact subArtifact = null;
+                Assert.DoesNotThrow(() =>
+                {
+                    subArtifact = helper.ArtifactStore.GetSubartifact(user, artifactId, subArtifactId);
+                }, "'GET {0}' should return 200 OK when passed a valid artifact and sub-artifact ID!", SUB_ARTIFACT_ID_PATH);
+
+                AssertIndicatorFlagsBitsAreEnabled(subArtifact.IndicatorFlags, expectedIndicatorFlags);
             }
         }
 
@@ -893,9 +939,9 @@ namespace Helper
 
             Assert.IsFalse(string.IsNullOrEmpty(artifact.Name), "name should not be empty but it's {0}", artifact.Name);
 
-            switch (artifact.ItemTypeId)
+            switch (artifact.PredefinedType)
             {
-                case DEFAULT_COLLECTIONS_ROOT_ITEMTYPEID:
+                case DEFAULT_COLLECTIONS_ROOT_PREDEFINEDTYPE:
                     Assert.AreEqual(DEFAULT_COLLECTIONS_ROOT_NAME, artifact.Name, "name should be {0} for the Collections default folder.",
                     DEFAULT_COLLECTIONS_ROOT_NAME);
 
@@ -906,7 +952,7 @@ namespace Helper
                         DEFAULT_COLLECTIONS_ROOT_PREFIX);
                     break;
 
-                case DEFAULT_BASELINES_AND_REVIEWS_ROOT_ITEMTYPEID:
+                case DEFAULT_BASELINES_AND_REVIEWS_ROOT_PREDEFINEDTYPE:
                     Assert.AreEqual(DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME, artifact.Name, "name should be {0} for the Baselinens default folder.",
                     DEFAULT_BASELINES_AND_REVIEWS_ROOT_NAME);
 

@@ -976,7 +976,7 @@ CREATE PROCEDURE [dbo].GetUserPasswordRecoveryRequestCount
 AS
 BEGIN
     SELECT COUNT([Login])
-    FROM [Blueprint_AdminStorage].[dbo].[PasswordRecoveryTokens]
+    FROM [dbo].[PasswordRecoveryTokens]
     WHERE [Login] = @login
     AND [CreationTime] > DATEADD(d,-1,CURRENT_TIMESTAMP)
 END
@@ -1030,10 +1030,13 @@ SET @jobname = @blueprintDB+N'_Maintenance'
 SET @schedulename = @blueprintDB+N'_Maintenance_Schedule'
 
 -- drop the job if it exists
-IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
-BEGIN
+-- We can't do the following line, because we don't have access to the table in Amazon RDS:
+--      IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
+BEGIN TRY
 	EXEC msdb.dbo.sp_delete_job @job_name=@jobname, @delete_unused_schedule=1
-END
+END TRY
+BEGIN CATCH
+END CATCH
 
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
@@ -1052,9 +1055,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete old logs from AdminStorage
-SET @cmd = N'
--- Delete log entries
-EXECUTE [dbo].[DeleteLogs] '
+SET @cmd = N'[dbo].[DeleteLogs]'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete old logs from AdminStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -1131,6 +1132,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Open', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Publish', 'en-US', N'Publish Artifact')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Discard', 'en-US', N'Discard')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Delete', 'en-US', N'Delete')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Continue', 'en-US', N'Continue')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Publish_All', 'en-US', N'Publish All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Discard_All', 'en-US', N'Discard All')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Create', 'en-US', N'Create')
@@ -1336,6 +1338,9 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_123', 'en-US', N'The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_124', 'en-US', N'The artifact {0} cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_130', 'en-US', N'The Item name cannot be empty.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_134', 'en-US', N'The baseline could not be saved because it is already sealed.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_135', 'en-US', N'The baseline could not be saved. Baseline timestamp date is from the future.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_136', 'en-US', N'The baseline could not be saved because it not sealed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_Other', 'en-US', N'An error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Auto_Confirm', 'en-US', N'Your changes could not be autosaved.<br/>Try saving manually for more information. If you proceed, your changes will be lost.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Possible_SubArtifact_Validation_Error', 'en-US', N'There may be issues with one or more sub-artifact property values. Please validate the artifact to confirm.')
@@ -1389,9 +1394,16 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_Picker_Header', 'en-US', N'Add Artifacts to Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_To_Baseline', 'en-US', N'Click Here to Add Artifacts to This Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_Success', 'en-US', N'Artifacts have been successfully added to the Baseline ({0}).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_Unbublished', 'en-US', N'Artifacts have not been added to the Baseline because they have not been Published yet ({0}).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_Nonexistent', 'en-US', N'Artifacts have not been added to the Baseline because they did not exist at the time of this Baseline''s timestamp ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_Already_Included', 'en-US', N'Artifacts have not been added to the Baseline because they have already been included ({0}).')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Add_Artifacts_SealedBaseline', 'en-US', N'Artifacts have not been added to the Baseline because the Baseline is sealed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Baseline', 'en-US', N'Seal this Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Sealed', 'en-US', N'Sealed')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Live', 'en-US', N'Live')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Use_12hour_Format', 'en-US', N'Please use format HH:mma')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Use_24hour_Format', 'en-US', N'Please use format HH:mm')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Create_Timestamp', 'en-US', N'Create Timestamp')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Available_In_Analytics', 'en-US', N'Baseline Data Available In Analytics')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Save_Warning', 'en-US', N'Baseline is going to be saved. Do you want to continue?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Warning', 'en-US', N'Are You Sure? If you Seal this Baseline, you can never again make updates to the artifacts you have added to it.')
@@ -1504,9 +1516,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_CreatedOn', 
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditBy', 'en-US', N'Last edited by')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditOn', 'en-US', N'Last edited on')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Description', 'en-US', N'Description')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Project', 'en-US', N'Project')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Collections', 'en-US', N'Collections')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_BaselinesAndReviews', 'en-US', N'Baselines and Reviews')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInheritFrom', 'en-US', N'Inherits from')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Group_Identifier', 'en-US', N'(g)')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Projects', 'en-US', N'Search for projects')
@@ -1705,7 +1714,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Walkthroug
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Diagram_Mode_Tooltip', 'en-US', N'Diagram Mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_UserItem_Description', 'en-US', N'As a {0}, I want to {1}, so that I can {2}')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_Reset_Button_Tooltip', 'en-US', N'Reset to 100%')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_FitWidth_Button_Tooltip', 'en-US', N'Fit to width')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_FitWidth_Button_Tooltip', 'en-US', N'Fit to page')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_No', 'fr-CA', N'Non')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Ok', 'fr-CA', N'D''accord')

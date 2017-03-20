@@ -1,18 +1,18 @@
 ﻿using Common;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
+using static Model.Impl.ArtifactStore;
+using Model.ModelHelpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using Model.ArtifactModel.Enums;
-using Model.ModelHelpers;
 using Utilities;
-using Utilities.Facades;
 using Utilities.Factories;
 
 namespace Model.StorytellerModel.Impl
@@ -26,12 +26,14 @@ namespace Model.StorytellerModel.Impl
 
         public string Address { get; }
 
+        public IArtifactStore ArtifactStore { get; set; }
+
         #region Constructor
 
         public Storyteller(string address)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
-
+            ArtifactStore = ArtifactStoreFactory.GetArtifactStoreFromTestConfig();
             Address = address;
         }
 
@@ -157,7 +159,7 @@ namespace Model.StorytellerModel.Impl
             parentId = parentId ?? project.Id;
 
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var novaArtifact = ArtifactStore.CreateArtifact(Address, user, ItemTypePredefined.Process, artifactName,
+            var novaArtifact = CreateArtifact(Address, user, ItemTypePredefined.Process, artifactName,
                 project, parentId, orderIndex, expectedStatusCodes);
 
             var novaProcess = GetNovaProcess(user, novaArtifact.Id);
@@ -212,16 +214,16 @@ namespace Model.StorytellerModel.Impl
                 artifacts.Add(artifact);
             }
 
-            ArtifactStore.PublishArtifacts(Address, artifacts, user);
+
+            ArtifactStore.PublishArtifacts(artifacts, user);
 
             return novaProcesses;
         }
 
-        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool, bool)"/>
+        /// <seealso cref="IStoryteller.GenerateUserStories(IUser, IProcess, List{HttpStatusCode}, bool)"/>
         public List<IStorytellerUserStory> GenerateUserStories(IUser user,
             IProcess process,
             List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false,
             bool shouldDeleteChildren = true)
         {
             Logger.WriteTrace("{0}.{1}", nameof(Storyteller), nameof(GenerateUserStories));
@@ -229,33 +231,9 @@ namespace Model.StorytellerModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(process, nameof(process));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.Storyteller.Projects_id_.Processes_id_.USERSTORIES, process.ProjectId, process.Id);
+            var service = SvcComponentsFactory.CreateSvcComponents(Address);
 
-            if (expectedStatusCodes == null)
-            {
-                expectedStatusCodes = new List<HttpStatusCode> { HttpStatusCode.OK };
-            }
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var additionalHeaders = new Dictionary<string, string>();
-            var restApi = new RestApiFacade(Address, tokenValue);
-
-            Logger.WriteInfo("{0} Generating user stories for process ID: {1}, Name: {2}", nameof(Storyteller), process.Id, process.Name);
-
-            var userstoryResults =  restApi.SendRequestAndDeserializeObject<List<StorytellerUserStory>>(
-                path,
-                RestRequestMethod.POST,
-                additionalHeaders: additionalHeaders,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
+            var userstoryResults = service.GenerateUserStories(user, process, expectedStatusCodes = null);
 
             // Since Storyteller created the user story artifacts, we aren't tracking them, so we need to tell Delete to also delete children.
             if (shouldDeleteChildren)
@@ -264,7 +242,7 @@ namespace Model.StorytellerModel.Impl
                 artifact.ShouldDeleteChildren = true;
             }
 
-            return userstoryResults.ConvertAll(o => (IStorytellerUserStory)o);
+            return userstoryResults;
         }
 
         public IProcess GetProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null, bool sendAuthorizationAsCookie = false)
@@ -281,7 +259,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
         public NovaProcess GetNovaProcess(IUser user, int artifactId, int? versionIndex = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return ArtifactStore.GetNovaProcess(Address, user, artifactId, versionIndex, expectedStatusCodes);
+            return ArtifactStore.GetNovaProcess(user, artifactId, versionIndex, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.GetProcesses(IUser, int, List{HttpStatusCode})"/>
@@ -335,7 +313,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
         public NovaProcess UpdateNovaProcess(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return ArtifactStore.UpdateNovaProcess(Address, user, novaProcess, expectedStatusCodes);
+            return ArtifactStore.UpdateNovaProcess(user, novaProcess, expectedStatusCodes);
         }
 
         /// <seealso cref="IStoryteller.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>
@@ -403,7 +381,7 @@ namespace Model.StorytellerModel.Impl
         /// <seealso cref="IStoryteller.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
         public List<NovaArtifact> DeleteNovaProcessArtifact(IUser user, NovaProcess novaProcess, List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return ArtifactStore.DeleteNovaProcessArtifact(Address, user, novaProcess, expectedStatusCodes);
+            return ArtifactStore.DeleteNovaProcessArtifact(user, novaProcess, expectedStatusCodes);
         }
         
         public int GetStorytellerShapeLimitFromDb
@@ -444,6 +422,8 @@ namespace Model.StorytellerModel.Impl
                     Logger.WriteDebug("Deleting/Discarding all artifacts created by this Storyteller instance...");
                     ArtifactBase.DisposeArtifacts(Artifacts.ConvertAll(o => (IArtifactBase)o), this);
                 }
+
+                ArtifactStore.Dispose();
             }
 
             _isDisposed = true;

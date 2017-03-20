@@ -197,6 +197,7 @@ namespace Model
 
                 public static class Artifacts
                 {
+                    public const string AUTHOR_HISTORIES            = "/svc/artifactstore/artifacts/authorHistories";
                     public const string CREATE                      = "svc/bpartifactstore/artifacts/create";   // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string DISCARD                     = "svc/bpartifactstore/artifacts/discard";  // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string PUBLISH                     = "svc/bpartifactstore/artifacts/publish";  // XXX: For some reason they decided to put this call in blueprint-current!
@@ -257,6 +258,7 @@ namespace Model
                 }
             }
 
+            [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
             public static class Components
             {
                 public static class FileStore
@@ -267,6 +269,7 @@ namespace Model
                     public const string FILES_filename_             = "svc/components/filestore/files/{0}";
                 }
 
+                [SuppressMessage("Microsoft.Naming", "CA1724:TypeNamesShouldNotMatchNamespaces")]
                 public static class RapidReview
                 {
                     public const string DIAGRAM_id_                 = "svc/components/RapidReview/diagram/{0}";

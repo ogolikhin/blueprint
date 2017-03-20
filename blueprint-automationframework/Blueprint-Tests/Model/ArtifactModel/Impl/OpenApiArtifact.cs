@@ -423,7 +423,7 @@ namespace Model.ArtifactModel.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
+            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST,
                 bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
             
             // Derialization
@@ -437,20 +437,19 @@ namespace Model.ArtifactModel.Impl
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
         /// <param name="discussionToUpdate">Discussion to update.</param>
         /// <param name="comment">The new comment with status to add to the discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public static IRaptorDiscussion UpdateRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToUpdate,
+        public static IRaptorDiscussion UpdateRaptorDiscussion(string address, ICommentBaseAdapter discussionToUpdate,
             RaptorComment comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
 
             string tokenValue = user?.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, itemId, discussionToUpdate.DiscussionId);
+            string path = I18NHelper.FormatInvariant(
+                RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, discussionToUpdate.ItemId, discussionToUpdate.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
             return restApi.SendRequestAndDeserializeObject<RaptorDiscussion, RaptorComment>(path,
@@ -464,20 +463,19 @@ namespace Model.ArtifactModel.Impl
         /// (Runs: POST /svc/components/RapidReview/artifacts/{itemId}/deletethread/{discussionId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
         /// <param name="discussionToDelete">Discussion to delete.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>message</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public static string DeleteRaptorDiscussion(string address, int itemId, IDiscussionAdaptor discussionToDelete,
+        public static string DeleteRaptorDiscussion(string address, ICommentBaseAdapter discussionToDelete,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
 
             string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, itemId, discussionToDelete.DiscussionId);
+            string path = I18NHelper.FormatInvariant(
+                RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, discussionToDelete.ItemId, discussionToDelete.DiscussionId);
             var restApi = new RestApiFacade(address, tokenValue);
 
             var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
@@ -498,9 +496,8 @@ namespace Model.ArtifactModel.Impl
         /// <param name="user">The user to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Newly created RaptorReply for artifact/subartifact discussion.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static IReplyAdapter PostRaptorDiscussionReply(string address,
-            IDiscussionAdaptor discussion, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+            ICommentBaseAdapter discussion, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussion, nameof(discussion));
@@ -523,15 +520,13 @@ namespace Model.ArtifactModel.Impl
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
         /// </summary>
         /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact/subartifact</param>
         /// <param name="discussion">Discussion containing reply to update.</param>
         /// <param name="replyToUpdate">reply to update</param>
         /// <param name="comment">The new comment for reply.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Updated RaptorReply.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public static IReplyAdapter UpdateRaptorDiscussionReply(string address, int itemId, IDiscussionAdaptor discussion,
+        public static IReplyAdapter UpdateRaptorDiscussionReply(string address, ICommentBaseAdapter discussion,
             IReplyAdapter replyToUpdate, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -540,10 +535,10 @@ namespace Model.ArtifactModel.Impl
 
             string tokenValue = user.Token?.AccessControlToken;
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY_ID,
-                itemId, discussion.DiscussionId, replyToUpdate.ReplyId);
+                discussion.ItemId, discussion.DiscussionId, replyToUpdate.ReplyId);
             var restApi = new RestApiFacade(address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(
+            var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.PATCH,
                 bodyObject: comment,

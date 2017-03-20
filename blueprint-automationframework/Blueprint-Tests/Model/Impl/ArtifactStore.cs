@@ -187,15 +187,23 @@ namespace Model.Impl
             return artifactTypes;
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, bool?, List{HttpStatusCode})"/>
+        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, bool? includeAuthorHistory = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
+            Dictionary<string, string> queryParameters = null;
+            if (includeAuthorHistory != null)
+            {
+                queryParameters = new Dictionary<string, string> { { nameof(includeAuthorHistory), I18NHelper.ToStringInvariant(includeAuthorHistory.Value) } };
+            }
+
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
+                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
         }
@@ -486,14 +494,15 @@ namespace Model.Impl
             return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
         }
 
+        /*
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts,
             IUser user = null,
             bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return PublishArtifacts(Address, artifacts, user, publishAll, expectedStatusCodes);
-        }
+            return PublishArtifacts(artifacts, user, publishAll, expectedStatusCodes);
+        }*/
 
         /// <seealso cref="IArtifactStore.GetNavigationPath(IUser, int, List{HttpStatusCode})"/>
         public List<INovaVersionControlArtifactInfo> GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
@@ -574,8 +583,9 @@ namespace Model.Impl
         public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return AddArtifactToBaselineOrCollection(user, artifactId, collectionId, ItemTypePredefined.ArtifactCollection,
-                includeDescendants, expectedStatusCodes);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
+            var responseObject = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
+            return responseObject["artifactCount"];
         }
 
         /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
@@ -622,12 +632,209 @@ namespace Model.Impl
 
         /// <seealso cref="IArtifactStore.AddArtifactToBaseline(IUser, int, int, bool, List{HttpStatusCode})"/>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+        public Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return AddArtifactToBaselineOrCollection(user, artifactId, baselineId, ItemTypePredefined.ArtifactBaseline,
-                includeDescendants, expectedStatusCodes);
+            //
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
+            var addArtifactResult = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
+            Assert.IsTrue(addArtifactResult.ContainsKey("artifactCount"));
+            return addArtifactResult;
         }
+
+        /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
+        public List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = RestPaths.Svc.ArtifactStore.Artifacts.AUTHOR_HISTORIES;
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var historyItems = restApi.SendRequestAndDeserializeObject<List<AuthorHistoryItem>, List<int>>(path,
+                RestRequestMethod.POST, artifactIds, expectedStatusCodes: expectedStatusCodes);
+
+            return historyItems;
+        }
+
+        /// <seealso cref="IArtifactStore.PublishArtifacts(List{int}, IUser, bool?, List{HttpStatusCode})"/>
+        public NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+            Dictionary<string, string> queryParams = null;
+
+            if (publishAll != null)
+            {
+                queryParams = new Dictionary<string, string> { { "all", publishAll.Value.ToString() } };
+            }
+
+            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactsIds,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: true);
+
+            return publishedArtifacts;
+        }
+
+
+        /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null,
+            bool? publishAll = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            if (artifacts == null)
+            {
+                artifacts = new List<IArtifactBase>();
+            }
+
+            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
+
+            var publishedArtifacts = PublishArtifacts(artifactIds, user, publishAll, expectedStatusCodes);
+
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
+            {
+                var deletedArtifactsList = new List<IArtifactBase>();
+                var otherPublishedArtifactsList = new List<INovaArtifactResponse>();
+
+                // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
+                foreach (var publishedArtifactDetails in publishedArtifacts.Artifacts)
+                {
+                    Logger.WriteDebug("'Publish Artifacts' returned following artifact Id: {0}", publishedArtifactDetails.Id);
+
+                    var publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
+
+                    if (publishedArtifact == null)
+                    {
+                        otherPublishedArtifactsList.Add(publishedArtifactDetails);
+                        continue;
+                    }
+
+                    publishedArtifact.LockOwner = null;
+                    publishedArtifact.IsSaved = false;
+
+                    // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
+                    if (publishedArtifact.IsMarkedForDeletion)
+                    {
+                        deletedArtifactsList.Add(publishedArtifact);
+
+                        publishedArtifact.IsPublished = false;
+                        publishedArtifact.IsDeleted = true;
+                    }
+                    else
+                    {
+                        publishedArtifact.IsPublished = true;
+                    }
+                }
+
+                if (deletedArtifactsList.Any())
+                {
+                    deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
+                }
+
+                if (otherPublishedArtifactsList.Any())
+                {
+                    if (artifacts.Any())
+                    {
+                        artifacts[0]?.NotifyArtifactPublished(otherPublishedArtifactsList);
+                    }
+
+                    Assert.That((publishAll != null) && (publishAll.Value == true),
+                        "An artifact that wasn't explicitly passed was published but the 'all=true' parameter wasn't passed!");
+                }
+            }
+
+            return publishedArtifacts;
+        }
+
+        #region Process methods
+
+        /// <seealso cref="IArtifactStore.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+        public List<NovaArtifact> DeleteNovaProcessArtifact(
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(DeleteNovaProcessArtifact));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
+
+            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
+
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+        }
+
+        /// <seealso cref="IArtifactStore.GetNovaProcess(IUser, int, int?, List{HttpStatusCode})"/>
+        public NovaProcess GetNovaProcess(
+            IUser user,
+            int artifactId,
+            int? versionIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(GetNovaProcess));
+
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESS_id_, artifactId);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (versionIndex.HasValue)
+            {
+                queryParameters.Add("versionId", versionIndex.ToString());
+            }
+
+            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(ArtifactStore), artifactId);
+
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var response = restApi.SendRequestAndDeserializeObject<NovaProcess>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response;
+        }
+
+        /// <seealso cref="IArtifactStore.UpdateNovaProcess(IUser, NovaProcess, List{HttpStatusCode})"/>
+        public NovaProcess UpdateNovaProcess(
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(UpdateNovaProcess));
+
+            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESSUPDATE_id_, novaProcess.Id);
+
+            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
+
+            var restApi = new RestApiFacade(Address, user.Token?.AccessControlToken);
+            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, NovaProcess>(
+                path,
+                RestRequestMethod.PATCH,
+                novaProcess,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return restResponse;
+        }
+
+        #endregion Process methods
 
         #endregion Members inherited from IArtifactStore
 
@@ -639,37 +846,27 @@ namespace Model.Impl
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of Artifact to add.</param>
-        /// <param name="collectionOrBaselineId">Id of Baseline or Collection.</param>
-        /// <param name="itemType">ItemTypePredefined.ArtifactBaseline for adding to Baseline, ItemTypePredefined.ArtifactCollection for adding to Collection.</param>
+        /// <param name="path">The REST path to use.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>Number of artifacts added to Baseline or Collection</returns>
         /// <exception cref="AssertionException">Throws for unexpected itemType</exception>
-        private int AddArtifactToBaselineOrCollection(IUser user, int artifactId, int collectionOrBaselineId, ItemTypePredefined itemType,
-            bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null)
+        private Dictionary<string, int> AddArtifactToBaselineOrCollection(IUser user, int artifactId, string path, bool includeDescendants = false,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path_template = string.Empty;
-            switch (itemType)
-            {
-                case ItemTypePredefined.ArtifactBaseline:
-                    path_template = RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT;
-                    break;
-                case ItemTypePredefined.ArtifactCollection:
-                    path_template = RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT;
-                    break;
-                default:
-                    Assert.Fail("AddArtifactToBaselineOrCollection works with ArtifactBaseline or ArtifactCollection only.");
-                    break;
-            }
-            string path = I18NHelper.FormatInvariant(path_template, collectionOrBaselineId);
-
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
             var collectionContentToAdd = new Dictionary<string, object>();
             collectionContentToAdd.Add("addChildren", includeDescendants);
             collectionContentToAdd.Add("artifactId", artifactId);
-            var response = restApi.SendRequestAndGetResponse<object>(path, RestRequestMethod.PUT, bodyObject: collectionContentToAdd,
+
+            var response = restApi.SendRequestAndGetResponse<object>(
+                path,
+                RestRequestMethod.PUT,
+                bodyObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-            return I18NHelper.ToInt32Invariant(response.Content);
+
+            return JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
         }
 
         #endregion Private Methods
@@ -1323,119 +1520,6 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Publishes a list of artifacts.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public static INovaArtifactsAndProjectsResponse PublishArtifacts(string address,
-            List<IArtifactBase> artifacts,
-            IUser user = null,
-            bool? publishAll = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-
-            if (artifacts == null)
-            {
-                artifacts = new List<IArtifactBase>();
-            }
-
-            var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-
-            var publishedArtifacts = PublishArtifacts(address, artifactIds, user, publishAll, expectedStatusCodes);
-
-            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
-                {
-                var deletedArtifactsList = new List<IArtifactBase>();
-                var otherPublishedArtifactsList = new List<INovaArtifactResponse>();
-
-                // Set the IsPublished... flags for the artifact that we deleted so the Dispose() works properly.
-                foreach (var publishedArtifactDetails in publishedArtifacts.Artifacts)
-                {
-                    Logger.WriteDebug("'Publish Artifacts' returned following artifact Id: {0}", publishedArtifactDetails.Id);
-
-                    var publishedArtifact = artifacts.Find(a => a.Id == publishedArtifactDetails.Id);
-
-                    if (publishedArtifact == null)
-                    {
-                        otherPublishedArtifactsList.Add(publishedArtifactDetails);
-                        continue;
-                    }
-
-                    publishedArtifact.LockOwner = null;
-                    publishedArtifact.IsSaved = false;
-
-                    // If the artifact was marked for deletion, then this publish operation actually deleted the artifact.
-                    if (publishedArtifact.IsMarkedForDeletion)
-                    {
-                        deletedArtifactsList.Add(publishedArtifact);
-
-                        publishedArtifact.IsPublished = false;
-                        publishedArtifact.IsDeleted = true;
-                    }
-                    else
-                    {
-                        publishedArtifact.IsPublished = true;
-                    }
-                }
-
-                if (deletedArtifactsList.Any())
-                {
-                    deletedArtifactsList[0]?.NotifyArtifactDeleted(deletedArtifactsList);
-                }
-
-                if (otherPublishedArtifactsList.Any())
-                {
-                    if (artifacts.Any())
-                    {
-                        artifacts[0]?.NotifyArtifactPublished(otherPublishedArtifactsList);
-                    }
-
-                    Assert.That((publishAll != null) && (publishAll.Value == true),
-                        "An artifact that wasn't explicitly passed was published but the 'all=true' parameter wasn't passed!");
-                }
-            }
-
-            return publishedArtifacts;
-        }
-
-        /// <summary>
-        /// Publishes a list of artifacts.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
-        public static NovaArtifactsAndProjectsResponse PublishArtifacts(string address, List<int> artifactsIds, IUser user, bool? publishAll = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            const string path = RestPaths.Svc.ArtifactStore.Artifacts.PUBLISH;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-            Dictionary<string, string> queryParams = null;
-
-            if (publishAll != null)
-            {
-                queryParams = new Dictionary<string, string> { { "all", publishAll.Value.ToString() } };
-            }
-
-            var publishedArtifacts = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
-                path,
-                RestRequestMethod.POST,
-                artifactsIds,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: true);
-
-            return publishedArtifacts;
-        }
-
-        /// <summary>
         /// Discards a list of artifacts.
         /// </summary>
         /// <param name="address">The base address of the ArtifactStore.</param>
@@ -1568,117 +1652,7 @@ namespace Model.Impl
             return movedArtifact;
         }
 
-        #region Process methods
-
-        /// <summary>
-        /// Delete a Nova process artifact
-        /// (Runs:  'DELETE 'svc/bpartifactstore/artifacts/{0}')
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user credentials for the request to delete a Nova process.</param>
-        /// <param name="novaProcess">The Nova process artifact to delete.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The list of Nova Artifacts that were deleted.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public static List<NovaArtifact> DeleteNovaProcessArtifact(string address,
-            IUser user,
-            NovaProcess novaProcess,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(DeleteNovaProcessArtifact));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, novaProcess.Id);
-
-            Logger.WriteInfo("{0} Deleting Nova Process ID: {1}, name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
-
-            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
-                path,
-                RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-        }
-
-        /// <summary>
-        /// Get a Nova Process (Storyteller 2.1+)
-        /// (Runs:  'GET svc/bpartifactstore/process/{0}')
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user credentials for the request to get a process.</param>
-        /// <param name="artifactId">Id of the process artifact from which the process is obtained.</param>
-        /// <param name="versionIndex">(optional) The version of the process artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The requested Nova process object.</returns>
-        public static NovaProcess GetNovaProcess(string address,
-            IUser user,
-            int artifactId,
-            int? versionIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(GetNovaProcess));
-
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESS_id_, artifactId);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (versionIndex.HasValue)
-            {
-                queryParameters.Add("versionId", versionIndex.ToString());
-            }
-
-            Logger.WriteInfo("{0} Getting the Process with artifact ID: {1}", nameof(ArtifactStore), artifactId);
-
-            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
-            var response = restApi.SendRequestAndDeserializeObject<NovaProcess>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return response;
-        }
-
-        /// <summary>
-        /// Update a Nova Process (Storyteller 2.1+)
-        /// (Runs:  'PATCH svc/bpartifactstore/processupdate/{0}')
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user credentials for the request to update a Nova process.</param>
-        /// <param name="novaProcess">The Nova process to update</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>The updated Nova process.</returns>
-        public static NovaProcess UpdateNovaProcess(string address,
-            IUser user,
-            NovaProcess novaProcess,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            Logger.WriteTrace("{0}.{1}", nameof(ArtifactStore), nameof(UpdateNovaProcess));
-
-            ThrowIf.ArgumentNull(novaProcess, nameof(novaProcess));
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.PROCESSUPDATE_id_, novaProcess.Id);
-
-            Logger.WriteInfo("{0} Updating Process ID: {1}, Name: {2}", nameof(ArtifactStore), novaProcess.Id, novaProcess.Name);
-
-            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
-            var restResponse = restApi.SendRequestAndDeserializeObject<NovaProcess, NovaProcess>(
-                path,
-                RestRequestMethod.PATCH,
-                novaProcess,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return restResponse;
-        }
-
-        #endregion Process methods
-
         #endregion Static members
+
     }
 }

@@ -33,6 +33,8 @@ namespace Helper
         public const int PasswordResetTokenNotLatest = 4009;
         public const int PasswordResetTokenExpired = 4010;
         public const int PasswordResetTokenInvalid = 4011;
+        public const int PasswordResetEmptyToken = 4012;
+        public const int PasswordResetUserDisabled = 4013;
 
         //Authorization errors
         public const int UnauthorizedAccess = 5000;
@@ -117,8 +119,9 @@ namespace Helper
 
         public const int UploadFailed = 132;
 
-        // Process shapes validation errors
         public const int ProcessValidationFailed = 133;
+
+        public const int SealedBaseline = 134;
 
         //--------------------------------
 

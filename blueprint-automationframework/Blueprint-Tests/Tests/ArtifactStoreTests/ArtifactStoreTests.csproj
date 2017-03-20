@@ -73,6 +73,7 @@
     <Compile Include="ArtifactVersionControlInfoTests.cs" />
     <Compile Include="AttachmentDownloadTests.cs" />
     <Compile Include="AttachmentTests.cs" />
+    <Compile Include="AuthorHistoriesTests.cs" />
     <Compile Include="BaselineTests.cs" />
     <Compile Include="CollectionTests.cs" />
     <Compile Include="CopyArtifactTests.cs" />

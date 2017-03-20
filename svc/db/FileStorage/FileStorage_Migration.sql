@@ -584,10 +584,13 @@ SET @jobname = @blueprintDB+N'_Maintenance'
 SET @schedulename = @blueprintDB+N'_Maintenance_Schedule'
 
 -- drop the job if it exists
-IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
-BEGIN
+-- We can't do the following line, because we don't have access to the table in Amazon RDS:
+--      IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
+BEGIN TRY
 	EXEC msdb.dbo.sp_delete_job @job_name=@jobname, @delete_unused_schedule=1
-END
+END TRY
+BEGIN CATCH
+END CATCH
 
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
@@ -816,10 +819,13 @@ SET @jobname = @blueprintDB+N'_Maintenance'
 SET @schedulename = @blueprintDB+N'_Maintenance_Schedule'
 
 -- drop the job if it exists
-IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
-BEGIN
+-- We can't do the following line, because we don't have access to the table in Amazon RDS:
+--      IF EXISTS (SELECT job_id FROM msdb.dbo.sysjobs j where j.name=@jobname)
+BEGIN TRY
 	EXEC msdb.dbo.sp_delete_job @job_name=@jobname, @delete_unused_schedule=1
-END
+END TRY
+BEGIN CATCH
+END CATCH
 
 BEGIN TRANSACTION
 DECLARE @ReturnCode INT
@@ -973,6 +979,27 @@ BEGIN
 	return @expiredTime;
 END
 
+GO
+
+/******************************************************************************************************************************
+Name:			DeleteExpiredFiles
+
+Description:    Delete Expired Files.
+			
+******************************************************************************************************************************/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[FileStore].[DeleteExpiredFiles]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [FileStore].[DeleteExpiredFiles]
+GO
+
+CREATE PROCEDURE [FileStore].[DeleteExpiredFiles]
+AS
+BEGIN
+	
+	SET NOCOUNT ON;
+	DELETE FROM [FileStore].[Files] WHERE [FileStore].[Files].ExpiredTime <= GETDATE();
+
+END
 GO
 
 /******************************************************************************************************************************

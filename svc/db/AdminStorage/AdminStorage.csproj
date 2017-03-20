@@ -77,7 +77,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AdminStorage_Migration.sql</LastGenOutput>
     </Content>
+    <Content Include="Jobs\AdminStorageMaintenanceJob.sql" />
     <Content Include="Jobs\Blueprint_AdminStorage_Maintenance.sql" />
+    <Content Include="Jobs\PopulateDataAnalyticsJob.sql" />
+    <Content Include="Jobs\WeeklyMaintenanceJob.sql" />
     <Content Include="Migration\7.0.1.0\7.0.1.0.sql">
       <DependentUpon>7.0.1.0.tt</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -204,6 +207,7 @@
     <None Include="Data\ApplicationLabels_en-US.csv" />
     <None Include="Data\ApplicationLabels_fr-CA.csv" />
     <None Include="ExecTemplates.cmd" />
+    <None Include="Jobs\Job Recovery Testing.docx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

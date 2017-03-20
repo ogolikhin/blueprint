@@ -722,15 +722,18 @@ namespace AdminStore.Repositories
         public async Task ResetPassword_CooldownInEffect_BadRequestException()
         {
             // Arrange
-            BadRequestException exception = null;
+            ConflictException exception = null;
             _loginUser.LastPasswordChangeTimestamp = DateTime.UtcNow.AddHours(-12);
+            _applicationSettingsRepositoryMock
+                .Setup(repo => repo.GetValue(PasswordChangeCooldownInHoursKey, It.IsAny<int>()))
+                .ReturnsAsync(24);
 
             // Act
             try
             {
                 await _authenticationRepository.ResetPassword(_loginUser, Password, NewPassword);
             }
-            catch(BadRequestException ex)
+            catch(ConflictException ex)
             {
                 exception = ex;
             }

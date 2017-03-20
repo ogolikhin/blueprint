@@ -208,7 +208,7 @@ namespace AdminStore.Repositories
 
             if (await IsChangePasswordCooldownInEffect(user))
             {
-                throw new BadRequestException("Password reset failed, password reset cooldown in effect", ErrorCodes.ChangePasswordCooldownInEffect);
+                throw new ConflictException("Password reset failed, password reset cooldown in effect", ErrorCodes.ChangePasswordCooldownInEffect);
             }
 
             if (!await _userRepository.ValidateUserPasswordForHistoryAsync(user.Id, newPassword))
@@ -223,34 +223,13 @@ namespace AdminStore.Repositories
             await _userRepository.UpdateUserOnPasswordResetAsync(user);
         }
 
-        private async Task<int> GetPasswordChangeCooldownInHoursAsync()
-        {
-            var applicationSettings = await _applicationSettingsRepository.GetSettings();
-
-            var matchingSetting = applicationSettings.FirstOrDefault(s => s.Key == PasswordChangeCooldownInHoursKey);
-            if (matchingSetting == null)
-            {
-                return DefaultPasswordChangeCooldownInHours;
-            }
-
-            string passwordChangeCooldownInHoursValue = matchingSetting.Value;
-
-            int passwordChangeCooldownInHours;
-            if (!int.TryParse(passwordChangeCooldownInHoursValue, out passwordChangeCooldownInHours))
-            {
-                return DefaultPasswordChangeCooldownInHours;
-            }
-
-            return passwordChangeCooldownInHours;
-        }
-
         public async Task<bool> IsChangePasswordCooldownInEffect(AuthenticationUser user)
         {
             if (user.LastPasswordChangeTimestamp.HasValue)
             {
                 var lastPasswordChangeTimestamp = user.LastPasswordChangeTimestamp.Value;
                 var hoursElapsedSinceLastPasswordChange = (DateTime.UtcNow - lastPasswordChangeTimestamp).TotalHours;
-                var passwordChangeCooldownInHours = await GetPasswordChangeCooldownInHoursAsync();
+                var passwordChangeCooldownInHours = await _applicationSettingsRepository.GetValue(PasswordChangeCooldownInHoursKey, DefaultPasswordChangeCooldownInHours);
 
                 if (hoursElapsedSinceLastPasswordChange < passwordChangeCooldownInHours)
                 {

@@ -209,10 +209,11 @@ namespace AccessControlDouble.Controllers
         /// </summary>
         /// <param name="thisClassName">The name of the class that called this function.</param>
         /// <param name="thisMethodName">The name of the function that called this function.</param>
+        /// <param name="args">(optional) A list of arguments passed to the REST call.</param>
         /// <returns>The HTTP response returned by AccessControl.</returns>
         [HttpDelete]
         [ResponseType(typeof(HttpResponseMessage))]
-        protected async Task<IHttpActionResult> ProxyDeleteRequest(string thisClassName, string thisMethodName)
+        protected async Task<IHttpActionResult> ProxyDeleteRequest(string thisClassName, string thisMethodName, List<string> args = null)
         {
             string thisNamespace = nameof(AccessControlDouble);
 
@@ -220,7 +221,14 @@ namespace AccessControlDouble.Controllers
             {
                 await Task.Run(() =>
                 {
-                    WriteLine("Called {0}.{1}.{2}()", thisNamespace, thisClassName, thisMethodName);
+                    string allArgs = string.Empty;
+
+                    if ((args != null) && (args.Count > 0))
+                    {
+                        allArgs = string.Join(", ", args);
+                    }
+
+                    WriteLine("Called {0}.{1}.{2}({3})", thisNamespace, thisClassName, thisMethodName, allArgs);
                 });
 
                 // If the test wants to inject a custom status code, return that instead of the real value.

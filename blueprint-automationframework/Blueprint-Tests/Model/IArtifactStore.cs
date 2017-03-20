@@ -208,11 +208,11 @@ namespace Model
         /// <param name="projectId">The id of specific project.</param>
         /// <param name="artifactId">The id of specific artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
+        /// <param name="includeAuthorHistory">Should include Author History into search results.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
-        List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId,
-            int artifactId,
-            IUser user,
+        List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
+            bool? includeAuthorHistory = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -494,13 +494,80 @@ namespace Model
         /// <summary>
         /// Adds artifact to the baseline
         /// Runs PUT svc/bpartifactstore/baselines/{0}/content
+        /// Checks that returned dictionary has artifactCount
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="artifactId">Id of Artifact to add.</param>
         /// <param name="baselineId">Id of Baseline.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Number of artifacts added to Baseline</returns>
-        int AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>Dictionary with numbers added/never published/newer than Baseline sealed date artifacts</returns>
+        Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Returns the list of history items for the specified artifacts.
+        /// </summary>
+        /// <param name="artifactIds">The list of artifacts to get Author History</param>
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>List of history items for the specified artifacts.</returns>
+        List<AuthorHistoryItem> GetArtifactsAuthorHistory(List<int> artifactIds, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Publishes a list of artifacts.
+        /// </summary>
+        /// <param name="artifactsIds">The Ids of artifacts to publish.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="publishAll">(optional) Pass true to publish all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to publish.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        #region Process methods
+
+        /// <summary>
+        /// Delete a Nova process artifact
+        /// (Runs:  'DELETE 'svc/bpartifactstore/artifacts/{0}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request to delete a Nova process.</param>
+        /// <param name="novaProcess">The Nova process artifact to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The list of Nova Artifacts that were deleted.</returns>
+        List<NovaArtifact> DeleteNovaProcessArtifact(
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get a Nova Process (Storyteller 2.1+)
+        /// (Runs:  'GET svc/bpartifactstore/process/{0}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request to get a process.</param>
+        /// <param name="artifactId">Id of the process artifact from which the process is obtained.</param>
+        /// <param name="versionIndex">(optional) The version of the process artifact.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The requested Nova process object.</returns>
+        NovaProcess GetNovaProcess(
+            IUser user,
+            int artifactId,
+            int? versionIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Update a Nova Process (Storyteller 2.1+)
+        /// (Runs:  'PATCH svc/bpartifactstore/processupdate/{0}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request to update a Nova process.</param>
+        /// <param name="novaProcess">The Nova process to update</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>The updated Nova process.</returns>
+        NovaProcess UpdateNovaProcess(
+            IUser user,
+            NovaProcess novaProcess,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        #endregion Process methods
     }
 }

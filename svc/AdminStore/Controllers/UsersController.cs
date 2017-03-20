@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -255,9 +256,17 @@ namespace AdminStore.Controllers
                 throw new ConflictException("Password reset failed, the login for this user is disabled.", ErrorCodes.PasswordResetUserDisabled);
             }
 
-            var decodedNewPassword = SystemEncryptions.Decode(content.Password);
+            string decodedNewPassword;
+            try
+            {
+                decodedNewPassword = SystemEncryptions.Decode(content.Password);
+            }
+            catch (Exception)
+            {
+                throw new BadRequestException("Password reset failed, the provided password was not encoded correctly", ErrorCodes.PasswordDecodingError);
+            }
 
-            if (user.Password == HashingUtilities.GenerateSaltedHash(decodedNewPassword, user.UserSalt))
+            if (decodedNewPassword != null && user.Password == HashingUtilities.GenerateSaltedHash(decodedNewPassword, user.UserSalt))
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }

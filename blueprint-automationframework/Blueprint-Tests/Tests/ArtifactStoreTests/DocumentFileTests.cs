@@ -251,6 +251,10 @@ namespace ArtifactStoreTests
             Assert.IsNull(Helper.FileStore.GetSQLExpiredTime(file.Guid), "After saving ExpiredTime for file should be Null.");
 
             DocumentHasExpectedAttachment(artifactDetails, updatedArtifactDetails);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(
+                Helper, user, updatedArtifactDetails.Id, Model.ArtifactModel.Enums.ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
+
         }
 
         /// <summary>
@@ -273,6 +277,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.IsNull(updatedArtifactDetails.SpecificPropertyValues[0].CustomPropertyValue, "File information should not be existing.  Value should be null!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, updatedArtifactDetails.Id, expectedIndicatorFlags: null);
         }
 
         /// <summary>

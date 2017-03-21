@@ -3,6 +3,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.NovaModel;
 using NUnit.Framework;
@@ -72,6 +73,8 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 1 attachments at this point.");
             Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -94,6 +97,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
             Assert.AreEqual(0, attachment.DocumentReferences.Count, "List of Document References must be empty.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -117,6 +122,8 @@ namespace ArtifactStoreTests
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, author);
             Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 2 attachments at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
         #endregion 200 OK Tests
@@ -141,6 +148,8 @@ namespace ArtifactStoreTests
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);
             Assert.AreEqual(0, attachmentAfterTest.AttachedFiles.Count, "Artifact shouldn't have at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
         #endregion 409 Conflict Tests

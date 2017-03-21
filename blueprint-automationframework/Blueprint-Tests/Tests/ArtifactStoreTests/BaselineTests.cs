@@ -484,7 +484,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
 
-            var sealedDate = DateTime.UtcNow;
+            var sealedDate = DateTime.UtcNow.AddMinutes(-1);
             baseline.SetUtcTimestamp(sealedDate);
             baseline.SetIsSealed(true);
             if (setAvailableForAnalytics)
@@ -547,7 +547,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
-            baseline.SetUtcTimestamp(DateTime.UtcNow);
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
             baseline.SetIsSealed(true);
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 

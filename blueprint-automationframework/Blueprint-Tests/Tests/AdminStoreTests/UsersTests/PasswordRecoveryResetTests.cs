@@ -87,7 +87,6 @@ namespace AdminStoreTests.UsersTests
                 "Couldn't login with the newly reset password!");
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/5yOTlebV  PasswordResetTokenExpirationInHours should be added to DB.
         [TestCase]
         [Description("Create a user and then request a password reset for that user; reset the recovery token's CreationTime to be 1 minute before it should expire; " +
                      "then reset the user's password with the recovery token.  Verify 200 OK is returned and the user's password was reset.")]
@@ -333,7 +332,6 @@ namespace AdminStoreTests.UsersTests
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenNotFound, TOKEN_NOT_FOUND_MESSAGE);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]    // Trello bug:  https://trello.com/c/5yOTlebV  PasswordResetTokenExpirationInHours should be added to DB.
         [TestCase]
         [Description("Call Password Recovery Reset and pass an expired recovery token.  Verify 409 Conflict is returned.")]
         [TestRail(267116)]

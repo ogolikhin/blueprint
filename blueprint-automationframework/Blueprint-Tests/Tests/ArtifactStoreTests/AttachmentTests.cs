@@ -125,9 +125,6 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
             Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
                 "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
-
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasAttachmentsOrDocumentRefs, userTask.Id);
         }
 
         [TestCase]
@@ -162,9 +159,6 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
             Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
                 "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
-
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasAttachmentsOrDocumentRefs, userTask.Id);
         }
 
         [TestCase]
@@ -205,9 +199,6 @@ namespace ArtifactStoreTests
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_adminUser, artifact.Id);
             Assert.AreEqual(attachment.AttachedFiles[0].UploadedDate, artifactDetails.LastEditedOn,
                 "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
-
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasAttachmentsOrDocumentRefs, (int)subArtifact.Id);
         }
 
         [TestCase]

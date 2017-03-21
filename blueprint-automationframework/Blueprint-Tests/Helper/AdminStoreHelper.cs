@@ -273,7 +273,7 @@ namespace Helper
             var returnedUser = helper.OpenApi.GetUser(adminUser, user.Id);
 
             Assert.NotNull(returnedUser, "GetUser returned null for User ID: {0}!", user.Id);
-            Assert.IsFalse(returnedUser.Enabled.Value, "The user is eabled!");
+            Assert.IsFalse(returnedUser.Enabled.Value, "The user is enabled, but should be disabled!");
         }
 
         /// <summary>

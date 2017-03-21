@@ -21,6 +21,8 @@ namespace AdminStoreTests.UsersTests
 
         private const string INVALID_PASSWORD_MESSAGE           = "Password reset failed, new password is invalid";
         private const string EMPTY_PASSWORD_MESSAGE             = "Password reset failed, new password cannot be empty";
+        private const string PREVIOUS_PASSWORD_MESSAGE          = "The new password matches a previously used password.";
+        private const string SAME_PASSWORD_MESSAGE              = "Password reset failed, new password cannot be equal to the old one";
         private const string NOT_LATEST_TOKEN_MESSAGE           = "Password reset failed, a more recent recovery token exists.";
         private const string PASSWORD_RESET_COOLDOWN_MESSAGE    = "Password reset failed, password reset cooldown in effect";
         private const string TOKEN_NOT_FOUND_MESSAGE            = "Password reset failed, recovery token not found.";
@@ -161,11 +163,11 @@ namespace AdminStoreTests.UsersTests
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
         }
 
-        [TestCase(1)]
-        [TestCase(3)]
+        [TestCase(1, ErrorCodes.SamePassword, SAME_PASSWORD_MESSAGE)]
+        [TestCase(3, ErrorCodes.PasswordAlreadyUsedPreviously, PREVIOUS_PASSWORD_MESSAGE)]
         [Description("Call Password Recovery Reset and pass a password that you used previously.  Verify 400 Bad Request is returned.")]
         [TestRail(267112)]
-        public void PasswordRecoveryReset_PreviouslyUsedPassword_400BadRequest(int numberOfPreviousPasswords)
+        public void PasswordRecoveryReset_PreviouslyUsedPassword_400BadRequest(int numberOfPreviousPasswords, int expectedErrorCode, string expectedErrorMessage)
         {
             // Setup:
             var user = Helper.CreateUserAndAddToDatabase();
@@ -191,7 +193,7 @@ namespace AdminStoreTests.UsersTests
             }, "'POST {0}' should return 400 Bad Request when the new password is the same as the old password.", REST_PATH);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.TooSimplePassword, INVALID_PASSWORD_MESSAGE);   // TODO: Fix error code & message after: https://trello.com/c/4y9cmboz is fixed.
+            TestHelper.ValidateServiceError(ex.RestResponse, expectedErrorCode, expectedErrorMessage);
 
             // Validate user's password wasn't changed.
             Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");

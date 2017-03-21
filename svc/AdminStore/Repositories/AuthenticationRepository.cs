@@ -128,7 +128,23 @@ namespace AdminStore.Repositories
             }
 
             var principal = _samlRepository.ProcessEncodedResponse(samlResponse, fedAuthSettings);
-            var user = await _userRepository.GetUserByLoginAsync(principal.Identity.Name);
+            AuthenticationUser user = null;
+
+            if (fedAuthSettings.IsAllowingNoDomain)
+            {
+                foreach (var allowedDomain in fedAuthSettings.DomainList.OrderBy(l => l.Index))
+                {
+                    user = await _userRepository.GetUserByLoginAsync($"{allowedDomain.Name}\\{principal.Identity.Name}");
+                    if (user != null)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                user = await _userRepository.GetUserByLoginAsync(principal.Identity.Name);
+            }
 
             if (user == null) // cannot find user in the DB
             {

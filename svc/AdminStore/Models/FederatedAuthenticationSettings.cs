@@ -1,4 +1,5 @@
-﻿using ServiceLibrary.Helpers;
+﻿using System.Collections.Generic;
+using ServiceLibrary.Helpers;
 using System.Runtime.Serialization;
 using System.Security.Cryptography.X509Certificates;
 
@@ -10,8 +11,17 @@ namespace AdminStore.Models
         string LogoutUrl { get; }
         string ErrorUrl { get; }
         string NameClaimType { get; }
+        bool IsAllowingNoDomain { get; }
+
+        List<AllowedDomain> DomainList { get; }
 
         X509Certificate2 Certificate { get; }
+    }
+
+    public class AllowedDomain
+    {
+        public string Name { get; set; }
+        public int Index { get; set; }
     }
 
     public class FederatedAuthenticationSettings : IFederatedAuthenticationSettings
@@ -23,6 +33,14 @@ namespace AdminStore.Models
             LoginUrl = fedAuthSettings.LoginUrl;
             LogoutUrl = fedAuthSettings.LogoutUrl;
             ErrorUrl = fedAuthSettings.ErrorUrl;
+            IsAllowingNoDomain = fedAuthSettings.IsAllowingNoDomain;
+            DomainList = new List<AllowedDomain>();
+            fedAuthSettings.DomainList?.ForEach(d => DomainList.Add(new AllowedDomain
+            {
+                Index = d.Index,
+                Name = d.Name
+            }));
+            
             NameClaimType = string.IsNullOrEmpty(fedAuthSettings.NameClaimType) ? "Username" : fedAuthSettings.NameClaimType;
         }
 
@@ -33,8 +51,20 @@ namespace AdminStore.Models
         public string ErrorUrl { get; private set; }
 
         public string NameClaimType { get; private set; }
+        public bool IsAllowingNoDomain { get; private set; }
+        public List<AllowedDomain> DomainList { get; private set; }
 
         public X509Certificate2 Certificate { get; private set; }
+
+        [DataContract(Name = "FederationAuthenticationSettingsHelper.FAAllowedDomian", Namespace = "http://schemas.datacontract.org/2004/07/BluePrintSys.RC.Data.AccessAPI.Impl")]
+        internal class FAAllowedDomian
+        {
+            [DataMember]
+            public string Name { get; set; }
+
+            [DataMember]
+            public int Index { get; set; }
+        }
 
         [DataContract(Name = "FederationAuthenticationSettingsHelper.FASettings", Namespace = "http://schemas.datacontract.org/2004/07/BluePrintSys.RC.Data.AccessAPI.Impl")]
         internal class FASettings
@@ -62,6 +92,12 @@ namespace AdminStore.Models
 
             [DataMember]
             public string NameClaimType { get; set; }
+
+            [DataMember]
+            public bool IsAllowingNoDomain { get; set; }
+
+            [DataMember]
+            public List<FAAllowedDomian> DomainList { get; set; }
         }
     }
 }

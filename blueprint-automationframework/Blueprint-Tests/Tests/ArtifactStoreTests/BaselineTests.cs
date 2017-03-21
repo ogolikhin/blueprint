@@ -21,8 +21,8 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private IProject _projectCustomData = null;
 
-        private readonly string draftDescription = TestHelper.draftDescription;
-        private readonly string publishedDescription = TestHelper.publishedDescription;
+        private readonly string draftDescription = TestHelper.DraftDescription;
+        private readonly string publishedDescription = TestHelper.PublishedDescription;
 
         Func<Dictionary<string, int>, int> getNumberOfAddedArtifacts = dict => dict["artifactCount"];
         Func<Dictionary<string, int>, int> getUnpublishedArtifactCount = dict => dict["unpublishedArtifactCount"];
@@ -440,7 +440,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(267192)]
         [Description("Create and publish artifact with the child artifact, add two artifact to baseline and publish changes," + 
-            "remove child artifact from baselin, check that baseline has expected artifact only.")]
+            "remove child artifact from baseline, check that baseline has expected artifact only.")]
         public void EditBaselineArtifacts_RemoveArtifactFromBaseline_CheckBaselineDoesNotHaveRemovedArtifact()
         {
             // Setup:
@@ -506,7 +506,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(267202)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date," +
-            "check that artifact was not added and call returns 1 for Nonnexistent Artifacts.")]
+            "check that artifact was not added and call returns correct number for 'Nonnexistent' Artifacts.")]
         public void EditBaseline_BaselineWithArtifact_SealBaselinetWithTimeStampBeforeArtifactCreatedOn_CheckBaselineIsEmpty()
         {
             // Setup:
@@ -738,6 +738,10 @@ namespace ArtifactStoreTests
         /// <param name="user">User to get Baseline</param>
         /// <param name="baselineId">Id of Baseline to validate</param>
         /// <param name="expectedArtifactIds">List of expected Artifact's Id</param>
+        /// <param name="isAvailableInAnalytics">(optional) Expected value for isAvailableInAnalytics. 'false' by default.</param>
+        /// <param name="notAllArtifactsAreShown">(optional) Expected value for notAllArtifactsAreShown. Should be 'true' when user has no access to some of baseline's artifacts. 'false by default.</param>
+        /// <param name="isSealed">(optional) Expected value for isSealed. 'false' by default.</param>
+        /// <param name="utcTimestamp">(optional) Expected value for utcTimestamp. Null by default.</param>
         Baseline GetAndValidateBaseline(IUser user, int baselineId, List<int> expectedArtifactIds, bool isAvailableInAnalytics = false,
             bool notAllArtifactsAreShown = false, bool isSealed = false, DateTime? utcTimestamp = null)
         {

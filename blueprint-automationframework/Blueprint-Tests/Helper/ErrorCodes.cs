@@ -123,6 +123,10 @@ namespace Helper
 
         public const int SealedBaseline = 134;
 
+        public const int CannotSaveBaselineBecauseOfFutureTimestamp = 135;
+
+        public const int BaselineNotSealed = 136;
+
         //--------------------------------
 
         public const int Ok = 200;

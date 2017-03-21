@@ -221,6 +221,8 @@ namespace ArtifactStoreTests
             var fileFromSource = Helper.ArtifactStore.GetAttachmentFile(author, sourceArtifact.Id, sourceArtifactAttachments.AttachedFiles[0].AttachmentId);
 
             FileStoreTestHelper.AssertFilesAreIdentical(fileFromSource, fileFromCopy);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]
@@ -994,6 +996,8 @@ namespace ArtifactStoreTests
             // Verify the copied artifact has no Discussions.
             var copiedArtifactDiscussions = Helper.ArtifactStore.GetArtifactDiscussions(copyResult.Artifact.Id, author);
             Assert.IsEmpty(copiedArtifactDiscussions.Discussions, "There should be no discussion in the copied artifact!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copiedArtifact.Id, expectedIndicatorFlags: null);
         }
 
         #endregion 201 Created tests

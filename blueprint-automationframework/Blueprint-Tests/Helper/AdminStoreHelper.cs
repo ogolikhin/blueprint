@@ -263,14 +263,17 @@ namespace Helper
         /// Verifies that the specified user is disabled.
         /// </summary>
         /// <param name="helper">A TestHelper object.</param>
+        /// <param name="adminUser">The user to authenticate with.</param>
         /// <param name="user">The user who should be disabled.</param>
-        public static void AssertUserIsDisabled(TestHelper helper, IUser user)
+        public static void AssertUserIsDisabled(TestHelper helper, IUser adminUser, IUser user)
         {
-            var ex = Assert.Throws<Http401UnauthorizedException>(
-                    () => { helper.BlueprintServer.LoginUsingBasicAuthorization(user); },
-                    "Login should fail when the user is disabled!");
+            ThrowIf.ArgumentNull(helper, nameof(helper));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
-            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Invalid User Name or Password, or your account is disabled.");
+            var returnedUser = helper.OpenApi.GetUser(adminUser, user.Id);
+
+            Assert.NotNull(returnedUser, "GetUser returned null for User ID: {0}!", user.Id);
+            Assert.IsFalse(returnedUser.Enabled.Value, "The user is eabled!");
         }
 
         /// <summary>

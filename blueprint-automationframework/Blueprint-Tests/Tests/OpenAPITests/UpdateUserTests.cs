@@ -141,7 +141,7 @@ namespace OpenAPITests
             }
             else
             {
-                AdminStoreHelper.AssertUserIsDisabled(Helper, userToUpdate);
+                AdminStoreHelper.AssertUserIsDisabled(Helper, _adminUser, userToUpdate);
             }
         }
 

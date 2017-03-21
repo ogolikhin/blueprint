@@ -443,7 +443,7 @@ namespace AdminStoreTests.UsersTests
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetUserDisabled, USER_IS_DISABLED_MESSAGE);
 
-            AdminStoreHelper.AssertUserIsDisabled(Helper, user);
+            AdminStoreHelper.AssertUserIsDisabled(Helper, _adminUser, user);
         }
 
         [TestCase]

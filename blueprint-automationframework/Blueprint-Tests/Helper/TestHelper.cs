@@ -45,6 +45,10 @@ namespace Helper
             public const string EmptyProjectWithSubArtifactRequiredProperties = "Empty Project with SubArtifact Required Properties";
         }
 
+        public static readonly string draftDescription = "description of item in the Draft state";
+        public static readonly string publishedDescription = "description of item in the Published state";
+
+
         private bool _isDisposed = false;
 
         // Nova services:
@@ -832,8 +836,6 @@ namespace Helper
         public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
             ItemTypePredefined itemType, int parentId)
         {
-            const string draftDescription = "description of item in the Draft state";
-            const string publishedDescription = "description of item in the Published state";
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user, itemType, artifactName, project, parentId);
 
@@ -901,7 +903,6 @@ namespace Helper
             var collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
 
             collection.UpdateArtifacts(artifactsIdsToAdd: artifactsIdsToAdd);
-            collectionArtifact.Lock(user);
             Artifact.UpdateArtifact(collectionArtifact, user, collection);
             collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
 

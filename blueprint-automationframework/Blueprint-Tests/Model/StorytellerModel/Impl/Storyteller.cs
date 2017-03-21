@@ -26,7 +26,7 @@ namespace Model.StorytellerModel.Impl
 
         public string Address { get; }
 
-        public IArtifactStore ArtifactStore { get; set; }
+        private IArtifactStore _artifactStore { get; set; }
 
         #region Constructor
 

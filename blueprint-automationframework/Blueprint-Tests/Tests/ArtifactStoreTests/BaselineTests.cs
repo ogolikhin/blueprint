@@ -232,7 +232,7 @@ namespace ArtifactStoreTests
         [TestRail(267117)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before or after artifact's CreatedOn date," +
             "check that artifact was not added and call returns 1 for Nonnexistent Artifacts, when  Baseline has timestamp before artifact's CreatedOn date.")]
-        public void AddArtifactToBaseline_PublishedArtifact_BaselineWithTimeStampBeforeArtifactCreatedOn_NothingWasAdded(int utcTimestampMinutesFromNow)
+        public void AddArtifactToBaseline_PublishedArtifact_BaselineWithTimeStampBeforeOrAfterArtifactCreatedOn_CheckWhatWasAdded(int utcTimestampMinutesFromNow)
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
@@ -241,7 +241,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
-            baseline.SetUtcTimestamp(DateTime.Now.AddMinutes(utcTimestampMinutesFromNow));
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(utcTimestampMinutesFromNow));
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
             int numberOfAddedArtifacts = -1;
@@ -484,7 +484,7 @@ namespace ArtifactStoreTests
         [TestCase(true)]
         [TestCase(false)]
         [TestRail(267068)]
-        [Description("Update Baseline - set UtcTimestamp to DateTime.Now and IsSealed to true - check that baseline is sealed.")]
+        [Description("Update Baseline - set UtcTimestamp to DateTime.UtcNow and IsSealed to true - check that baseline is sealed.")]
         public void EditBaseline_SealBaselineSetAvailableForAnalytics_CheckBaseline(bool setAvailableForAnalytics)
         {
             // Setup:
@@ -494,7 +494,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
 
-            var sealedDate = DateTime.Now;
+            var sealedDate = DateTime.UtcNow;
             baseline.SetUtcTimestamp(sealedDate);
             baseline.SetIsSealed(true);
             if (setAvailableForAnalytics)
@@ -527,7 +527,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
             var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
 
-            var timestampDate = DateTime.Now.AddMinutes(-3);
+            var timestampDate = DateTime.UtcNow.AddMinutes(-3);
             baseline.SetUtcTimestamp(timestampDate);
             
             // Execute:
@@ -557,7 +557,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
-            baseline.SetUtcTimestamp(DateTime.Now);
+            baseline.SetUtcTimestamp(DateTime.UtcNow);
             baseline.SetIsSealed(true);
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 

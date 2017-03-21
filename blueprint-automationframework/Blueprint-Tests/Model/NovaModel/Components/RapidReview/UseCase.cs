@@ -31,7 +31,7 @@ namespace Model.NovaModel.Components.RapidReview
             get { return _flows ?? (_flows = new List<Flow>()); }
         }
 
-        public ItemIndicatorFlags IndicatorFlags { get; set; }
+        public ItemIndicatorFlags? IndicatorFlags { get; set; }
     }
 
     public class Flow : UseCaseElement

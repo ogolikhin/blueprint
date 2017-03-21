@@ -313,7 +313,8 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(
+                sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true, skipIndicatorFlags: true);
 
             // Get traces & compare.
             var copyRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
@@ -981,7 +982,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
-                skipCreatedBy: true);
+                skipCreatedBy: true, skipIndicatorFlags: true);
 
             // Verify the Discussions of source artifact didn't change.
             var sourceDiscussionsAfterCopy = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
@@ -994,6 +995,8 @@ namespace ArtifactStoreTests
             // Verify the copied artifact has no Discussions.
             var copiedArtifactDiscussions = Helper.ArtifactStore.GetArtifactDiscussions(copyResult.Artifact.Id, author);
             Assert.IsEmpty(copiedArtifactDiscussions.Discussions, "There should be no discussion in the copied artifact!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copiedArtifact.Id, expectedIndicatorFlags: null);
         }
 
         #endregion 201 Created tests
@@ -1472,7 +1475,8 @@ namespace ArtifactStoreTests
             int expectedVersionOfOriginalArtifact = 1,
             bool skipCreatedBy = false,
             bool skipPermissions = false,
-            bool skipDescription = false)
+            bool skipDescription = false,
+            bool skipIndicatorFlags = false)
         {
             Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
             Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
@@ -1497,6 +1501,9 @@ namespace ArtifactStoreTests
                 skipDescription: skipDescription);
             Assert.AreEqual(expectedVersionOfOriginalArtifact, originalArtifactDetails.Version,
                 "The Version of the original artifact shouldn't have changed after the copy!");
+
+            var indicator = skipIndicatorFlags ? null : originalArtifactDetails.IndicatorFlags;
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copyResult.Artifact.Id, indicator);
         }
 
         /// <summary>
@@ -1532,6 +1539,8 @@ namespace ArtifactStoreTests
                 };
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(sourceSubArtifact, copiedSubArtifact, Helper.ArtifactStore, user,
                      copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions);
+
+                ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copiedArtifact.Id, sourceSubArtifact.IndicatorFlags, (int)copiedSubArtifact.Id);
             }
         }
 

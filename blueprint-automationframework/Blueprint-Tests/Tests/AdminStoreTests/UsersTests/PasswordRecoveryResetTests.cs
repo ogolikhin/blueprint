@@ -585,6 +585,52 @@ namespace AdminStoreTests.UsersTests
             }
         }
 
+        [Category(Categories.CannotRunInParallel)]  // Because it changes an ApplicationSetting in the database.
+        [Category(Execute.Weekly)]  // Low priority test.
+        [TestCase("")]
+        [TestCase("0.5")]
+        [TestCase("three")]
+        [TestCase("999999999999")]
+        [Description("Change the PasswordResetTokenExpirationInHours ApplicationSetting to a non-integer value; reset the recovery token's CreationTime " +
+                     "to be 1 minute after it should expire; then call Password Recovery Reset and pass a valid recovery token & new password.  " +
+                     "Verify 409 Conflict is returned.")]
+        [TestRail(267240)]
+        public void PasswordRecoveryReset_PasswordResetTokenExpirationInHoursSetToNonInteger_ExpiredToken_409Conflict(string badExpirationTime)
+        {
+            // Setup:
+            var user = Helper.CreateUserAndAddToDatabase();
+
+            string oldValue = TestHelper.GetApplicationSetting(PasswordResetTokenExpirationInHours);
+
+            try
+            {
+                TestHelper.UpdateApplicationSettings(PasswordResetTokenExpirationInHours, badExpirationTime);
+
+                Helper.AdminStore.PasswordRecoveryRequest(user.Username);
+                var recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
+
+                ChangeRecoveryTokenCreationTimeInDatabase(recoveryToken, addMinutesToCreationTime: -1, tokenLifespanInHours: 24); // Token is 1 minute after expiration date.
+
+                string newPassword = AdminStoreHelper.GenerateValidPassword();
+
+                // Execute:
+                var ex = Assert.Throws<Http409ConflictException>(() =>
+                {
+                    Helper.AdminStore.PasswordRecoveryReset(recoveryToken.RecoveryToken, newPassword);
+                }, "'POST {0}' should return 409 Conflict when passed an invalid recovery token.", REST_PATH);
+
+                // Verify:
+                TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.PasswordResetTokenExpired, TOKEN_EXPIRED_MESSAGE);
+
+                // Validate user's password wasn't changed.
+                Assert.DoesNotThrow(() => Helper.AdminStore.AddSession(user), "Couldn't login with the user's old password!");
+            }
+            finally
+            {
+                TestHelper.UpdateApplicationSettings(PasswordResetTokenExpirationInHours, oldValue);
+            }
+        }
+
         #endregion Negative tests
 
         #region Private functions

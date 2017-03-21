@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
+using System;
 
 namespace ArtifactStore.Repositories
 {
@@ -32,13 +33,15 @@ namespace ArtifactStore.Repositories
             _itemInfoRepository = itemInfoRepository;
         }
 
-        private async Task<IEnumerable<LinkInfo>> GetLinkInfo(int itemId, int userId, bool addDrafts, int revisionId = int.MaxValue)
+        private async Task<IEnumerable<LinkInfo>> GetLinkInfo(int itemId, int userId, bool addDrafts, int revisionId = int.MaxValue, List<int> linkTypes = null)
         {
+
             var parameters = new DynamicParameters();
             parameters.Add("@itemId", itemId);
             parameters.Add("@userId", userId);
             parameters.Add("@addDrafts", addDrafts);
             parameters.Add("@revisionId", revisionId);
+            parameters.Add("@types", SqlConnectionWrapper.ToDataTable(linkTypes, "Int32Collection", "Int32Value"));
             return await _connectionWrapper.QueryAsync<LinkInfo>("GetRelationshipLinkInfo", parameters, commandType: CommandType.StoredProcedure);
         }
 
@@ -162,8 +165,12 @@ namespace ArtifactStore.Repositories
             }
 
             var itemId = subArtifactId ?? artifactId;
+            var types = new List<int> { (int)LinkType.Manual,
+                                        (int)LinkType.Association,
+                                        (int)LinkType.ActorInheritsFrom,
+                                        (int)LinkType.DocumentReference };
 
-            var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId)).ToList();
+            var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, types)).ToList();
             var manualLinks = results.Where(a => a.LinkType == LinkType.Manual).ToList();
             var otherLinks = results.Where(a => a.LinkType != LinkType.Manual).ToList();
             var manualTraceRelationships = GetManualTraceRelationships(manualLinks, itemId);
@@ -229,6 +236,36 @@ namespace ArtifactStore.Repositories
             var pathToProject = GetPathToProject(artifactId, pathInfoDictionary);
             var description = (await GetItemDescription(itemId, userId, addDrafts, revisionId));
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
+        }
+
+        public class ReferencedReviewArtifact
+        {
+            public int itemId { get; set; }
+            public bool isActive { get; set; }
+            public DateTime createdDate { get; set; }
+        }
+
+        public class ReviewRelationshipsResultSet
+        {
+            public List<ReferencedReviewArtifact> reviewArtifacts { get; }
+        }
+
+        public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int userId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
+        {
+            var revisionId = int.MaxValue;
+            if (versionId.HasValue)
+            {
+                revisionId = await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
+            }
+            if (revisionId <= 0)
+            {
+                throw new ResourceNotFoundException($"Version index (Id:{versionId}) is not found.", ErrorCodes.ResourceNotFound);
+            }
+            var itemId = subArtifactId ?? artifactId;
+            var reviewType = new List<int> { (int)LinkType.ReviewPackageReference };
+            var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, reviewType)).ToList();
+            var reviewLinks = results.ToList();
+            return new ReviewRelationshipsResultSet { };
         }
     }
 }

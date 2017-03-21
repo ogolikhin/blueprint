@@ -142,5 +142,43 @@ namespace ArtifactStore.Controllers
             RolePermissions permission;
             return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
         }
+
+
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/reviews"), SessionRequired]
+        [ActionName("GetReviews")]
+        public async Task<SqlRelationshipsRepository.ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1)
+                || versionId.HasValue && versionId.Value < 1)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+            if (addDrafts && versionId != null)
+            {
+                addDrafts = false;
+            }
+            var itemId = subArtifactId ?? artifactId;
+            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
+            var itemInfo = isDeleted && versionId != null ?
+                await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :
+                await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts);
+            if (itemInfo == null)
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            if (subArtifactId.HasValue && itemInfo.ArtifactId != artifactId)
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+
+            // We do not need drafts for historical artifacts 
+            var effectiveAddDraft = !versionId.HasValue && addDrafts;
+            var result = await _relationshipsRepository.GetReviewRelationships(artifactId, session.UserId, subArtifactId, effectiveAddDraft, versionId);
+            var artifactIds = new List<int> { artifactId };
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
+            if (!HasPermissions(artifactId, permissions, RolePermissions.Read))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            return result;
+        }
     }
 }

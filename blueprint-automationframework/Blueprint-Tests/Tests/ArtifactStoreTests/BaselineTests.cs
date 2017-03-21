@@ -609,7 +609,7 @@ namespace ArtifactStoreTests
             // Verify:
             // see TFS 5107
             string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies, expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedErrorMessage);
         }
 
         #endregion Negative Tests

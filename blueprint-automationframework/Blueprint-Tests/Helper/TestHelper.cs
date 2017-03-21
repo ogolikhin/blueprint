@@ -45,6 +45,10 @@ namespace Helper
             public const string EmptyProjectWithSubArtifactRequiredProperties = "Empty Project with SubArtifact Required Properties";
         }
 
+        public static readonly string DraftDescription = "description of item in the Draft state";
+        public static readonly string PublishedDescription = "description of item in the Published state";
+
+
         private bool _isDisposed = false;
 
         // Nova services:
@@ -832,8 +836,6 @@ namespace Helper
         public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
             ItemTypePredefined itemType, int parentId)
         {
-            const string draftDescription = "description of item in the Draft state";
-            const string publishedDescription = "description of item in the Published state";
             string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user, itemType, artifactName, project, parentId);
 
@@ -861,14 +863,14 @@ namespace Helper
                     return artifact;
                 case TestArtifactState.Published:
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", publishedDescription, artifactDetails);
+                    CSharpUtilities.SetProperty("Description", PublishedDescription, artifactDetails);
                     UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     return artifact;
                 case TestArtifactState.PublishedWithDraft:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", draftDescription, artifactDetails);
+                    CSharpUtilities.SetProperty("Description", DraftDescription, artifactDetails);
                     Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
                     return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                 case TestArtifactState.ScheduledToDelete:
@@ -901,7 +903,6 @@ namespace Helper
             var collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
 
             collection.UpdateArtifacts(artifactsIdsToAdd: artifactsIdsToAdd);
-            collectionArtifact.Lock(user);
             Artifact.UpdateArtifact(collectionArtifact, user, collection);
             collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
 

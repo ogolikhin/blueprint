@@ -494,16 +494,6 @@ namespace Model.Impl
             return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
         }
 
-        /*
-        /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
-        public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts,
-            IUser user = null,
-            bool? publishAll = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return PublishArtifacts(artifacts, user, publishAll, expectedStatusCodes);
-        }*/
-
         /// <seealso cref="IArtifactStore.GetNavigationPath(IUser, int, List{HttpStatusCode})"/>
         public List<INovaVersionControlArtifactInfo> GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -686,10 +676,7 @@ namespace Model.Impl
             bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            if (artifacts == null)
-            {
-                artifacts = new List<IArtifactBase>();
-            }
+            artifacts = artifacts ?? new List<IArtifactBase>();
 
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 

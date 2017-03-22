@@ -132,7 +132,7 @@ namespace AdminStore.Repositories
 
             if (fedAuthSettings.IsAllowingNoDomain)
             {
-                foreach (var allowedDomain in fedAuthSettings.DomainList.OrderBy(l => l.Index))
+                foreach (var allowedDomain in fedAuthSettings.DomainList.OrderBy(l => l.OrderIndex))
                 {
                     user = await _userRepository.GetUserByLoginAsync($"{allowedDomain.Name}\\{principal.Identity.Name}");
                     if (user != null)

@@ -21,7 +21,7 @@ namespace AdminStore.Models
     public class AllowedDomain
     {
         public string Name { get; set; }
-        public int Index { get; set; }
+        public int OrderIndex { get; set; }
     }
 
     public class FederatedAuthenticationSettings : IFederatedAuthenticationSettings
@@ -37,7 +37,7 @@ namespace AdminStore.Models
             DomainList = new List<AllowedDomain>();
             fedAuthSettings.DomainList?.ForEach(d => DomainList.Add(new AllowedDomain
             {
-                Index = d.Index,
+                OrderIndex = d.OrderIndex,
                 Name = d.Name
             }));
             
@@ -63,7 +63,7 @@ namespace AdminStore.Models
             public string Name { get; set; }
 
             [DataMember]
-            public int Index { get; set; }
+            public int OrderIndex { get; set; }
         }
 
         [DataContract(Name = "FederationAuthenticationSettingsHelper.FASettings", Namespace = "http://schemas.datacontract.org/2004/07/BluePrintSys.RC.Data.AccessAPI.Impl")]

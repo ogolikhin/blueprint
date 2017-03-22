@@ -369,7 +369,7 @@ Login_Auth_FederatedAuthFailed,"There is a problem with federated authentication
 Login_Auth_FederatedFallbackDisabled,"Please log in with your corporate credentials."
 Login_Username,"Username"
 Login_Password,"Password"
-Login_ForgotPassword,"Forgot Password?"
+Login_ForgotPassword,"Forgot Password"
 Login_ChangePasswordButton,"Change Password"
 Login_UpdatePasswordButton,"Update Password"
 Login_LoginButton,"Log In"

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Model.ArtifactModel;
 using Utilities;
 using Utilities.Facades;
 
@@ -153,6 +154,32 @@ namespace Model.Impl
                 shouldControlJsonChanges: false);
 
             return returnedArtifactProperties[0];
+        }
+
+        /// <seealso cref="ISvcComponents.GetRapidReviewArtifactDiscussions(IUser, int, bool, List{HttpStatusCode})"/>
+        public IRaptorDiscussionsInfo GetRapidReviewArtifactDiscussions(
+            IUser user,
+            int itemId,
+            bool includeDraft,      // TODO: Should this be a nullable bool?  Is this an optional parameter?
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            string tokenValue = user.Token?.AccessControlToken;
+
+            var queryParameters = new Dictionary<string, string> { { "includeDraft", includeDraft.ToString() } };
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<RaptorDiscussionsInfo>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response;
         }
 
         #endregion RapidReview methods

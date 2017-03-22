@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
@@ -79,6 +80,21 @@ namespace Model
         RapidReviewProperties GetRapidReviewArtifactsProperties(
             IUser user,
             List<int> artifactIds,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get discussions for the specified artifact/subartifact.
+        /// (Runs: 'GET /svc/components/RapidReview/artifacts/{itemId}/discussions')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of artifact/subartifact.</param>
+        /// <param name="includeDraft">False gets discussions for the last published version, true works with draft.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
+        IRaptorDiscussionsInfo GetRapidReviewArtifactDiscussions(
+            IUser user,
+            int itemId,
+            bool includeDraft,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion RapidReview methods

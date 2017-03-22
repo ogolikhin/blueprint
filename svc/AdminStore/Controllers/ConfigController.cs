@@ -97,16 +97,17 @@ namespace AdminStore.Controllers
                 var locale = new StringWithQualityHeaderValue(defaultLocale).Value;
 
                 var settings = await _appSettingsRepo.GetSettings();
-
+                
                 var labels = await _configRepo.GetLabels(locale);
 
                 var config = new
                 {
                     settings = settings.ToDictionary(it => it.Key, it => it.Value),
                     labels = labels.ToDictionary(it => it.Key, it => it.Text),
-                }.ToJSON();
+                };
+                config.settings.Add(ServiceConstants.ForgotPasswordUrlConfigKey, ServiceConstants.ForgotPasswordUrl);
 
-                var script = $"window.config={config};";
+                var script = $"window.config={config.ToJSON()};";
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Content = new StringContent(script, Encoding.UTF8, "application/javascript");

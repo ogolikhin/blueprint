@@ -267,18 +267,10 @@ namespace ArtifactStore.Repositories
                     if (itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate))
                     {
                         var status = ReviewRawDataHelper.ExtractReviewStatus(itemRawDataCreatedDate.RawData);
-                        var statusString = "Draft";
-                        if (status == 1)
-                        {
-                            statusString = "Active";
-                        } else if (status == 2)
-                        {
-                            statusString = "Closed";
-                        }
                         referencedReviewArtifacts.Add(new ReferencedReviewArtifact
                         {
                             ItemId = reviewId,
-                            Status = statusString,
+                            Status = status,
                             CreatedDate = itemRawDataCreatedDate.CreatedDateTime
                         });
                     }

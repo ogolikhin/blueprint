@@ -13,7 +13,7 @@ namespace ArtifactStore.Models
     public class ReferencedReviewArtifact
     {
         public int ItemId { get; set; }
-        public string Status { get; set; }
+        public int Status { get; set; }
         private DateTime _createdDate;
         public DateTime CreatedDate {
             get

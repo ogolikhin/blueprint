@@ -356,20 +356,24 @@ namespace Utilities.Facades
                 _restResponse = ConvertToRestResponse(response);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
-                // Derialization
-                var result = JsonConvert.DeserializeObject<T1>(response.Content);
-
-                ////try to serialize and compare
-                if (shouldControlJsonChanges)
+                if ((_restResponse.StatusCode == HttpStatusCode.OK) || (_restResponse.StatusCode == HttpStatusCode.Created))
                 {
-                    SerializationUtilities.CheckJson(result, response.Content);
+                    // Derialization
+                    var result = JsonConvert.DeserializeObject<T1>(response.Content);
+
+                    ////try to serialize and compare
+                    if (shouldControlJsonChanges)
+                    {
+                        SerializationUtilities.CheckJson(result, response.Content);
+                    }
+                    ////
+                    Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
+
+                    Logger.WriteDebug("Deserialized Response Content: {0}", response.Content);
+
+                    return result;
                 }
-                ////
-                Logger.WriteDebug("SendRequestAndDeserializeObject() got Status Code '{0}' for user '{1}'.", response.StatusCode, _username);
-
-                Logger.WriteDebug("Deserialized Response Content: {0}", response.Content);
-
-                return result;
+                return default(T1);
             }
             catch (JsonSerializationException)
             {

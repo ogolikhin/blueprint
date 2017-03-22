@@ -673,7 +673,8 @@ namespace Helper
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            return ArtifactStore.CreateArtifact(user, ItemTypePredefined.ArtifactBaseline, name, project, defaultBaselineFolder);
+            return CreateNovaArtifactInSpecificState(user, project, TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
+                defaultBaselineFolder.Id);
         }
 
         /// <summary>
@@ -1664,15 +1665,17 @@ namespace Helper
 
                 if (NovaArtifacts.Count > 0)
                 {
-                    var expectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
-                        System.Net.HttpStatusCode.NotFound};
+                    var deleteExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
+                        System.Net.HttpStatusCode.NotFound, System.Net.HttpStatusCode.Forbidden};
+                    var publishExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
+                        System.Net.HttpStatusCode.Conflict};
                     foreach (var user in NovaArtifacts.Keys)
                     {
                         {
                             var neverPublishedArtifacIds = new List<int>();
                             foreach (int id in NovaArtifacts[user])
                             {
-                                var results = DeleteArtifact(ArtifactStore.Address, id, user, expectedStatusCodes);
+                                var results = DeleteArtifact(ArtifactStore.Address, id, user, deleteExpectedStatusCodes);
                                 if ((results != null) && (results[0].Version == 0))
                                 {
                                     neverPublishedArtifacIds.Add(results[0].Id);
@@ -1683,7 +1686,7 @@ namespace Helper
                                 NovaArtifacts[user].Remove(id);
                             }
                             if (NovaArtifacts[user].Count > 0)
-                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: expectedStatusCodes);
+                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: publishExpectedStatusCodes);
                         }
                     }
                 }

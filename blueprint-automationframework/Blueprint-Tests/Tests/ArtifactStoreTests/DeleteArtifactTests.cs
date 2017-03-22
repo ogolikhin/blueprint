@@ -13,11 +13,13 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
+using System;
 
 namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // TODO: Maybe move Baseline and collection test to other file.
     public class DeleteArtifactTests : TestBase
     {
         private const string DELETE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
@@ -61,7 +63,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
             Assert.AreEqual(artifact.Id, deletedArtifacts[0].Id, "The artifact ID doesn't match the one that we deleted!");
 
-            VerifyArtifactIsDeleted(artifact, authorUser);
+            VerifyArtifactIsDeleted(artifact.Id, authorUser);
         }
 
         [TestCase(ItemTypePredefined.ArtifactCollection)]
@@ -90,7 +92,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
             Assert.AreEqual(artifact.Id, deletedArtifacts[0].Id, "The artifact ID doesn't match the one that we deleted!");
 
-            VerifyArtifactIsDeleted(artifact, authorUser);
+            VerifyArtifactIsDeleted(artifact.Id, authorUser);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -113,7 +115,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
             Assert.AreEqual(artifact.Id, deletedArtifacts[0].Id, "The artifact ID doesn't match the one that we deleted!");
 
-            VerifyArtifactIsDeleted(artifact);
+            VerifyArtifactIsDeleted(artifact.Id, authorUser);
         }
 
         [TestCase(BaseArtifactType.Actor)]
@@ -136,7 +138,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, deletedArtifacts.Count, "There should only be 1 deleted artifact returned!");
             Assert.AreEqual(artifact.Id, deletedArtifacts[0].Id, "The artifact ID doesn't match the one that we deleted!");
 
-            VerifyArtifactIsDeleted(artifact);
+            VerifyArtifactIsDeleted(artifact.Id, _user);
         }
 
         [TestCase(0, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
@@ -163,7 +165,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
 
             VerifyDeletedArtifactAndChildrenWereReturned(artifactChain, deletedArtifacts, indexToDelete);
-            VerifyArtifactsAreDeleted(artifactChain, indexToDelete);
+            VerifyArtifactsAreDeleted(artifactChain, _user, indexToDelete);
         }
 
         [TestCase(0, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
@@ -190,7 +192,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
 
             VerifyDeletedArtifactAndChildrenWereReturned(artifactChain, deletedArtifacts, indexToDelete);
-            VerifyArtifactsAreDeleted(artifactChain, indexToDelete);
+            VerifyArtifactsAreDeleted(artifactChain, _user, indexToDelete);
         }
 
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
@@ -216,7 +218,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
 
             VerifyDeletedArtifactAndChildrenWereReturned(artifactChain, deletedArtifacts);
-            VerifyArtifactsAreDeleted(artifactChain);
+            VerifyArtifactsAreDeleted(artifactChain, _user);
         }
 
         [TestCase(BaseArtifactType.Actor, BaseArtifactType.Process)]
@@ -244,7 +246,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
 
             VerifyDeletedArtifactAndChildrenWereReturned(artifactChain, deletedArtifacts);
-            VerifyArtifactsAreDeleted(artifactChain);
+            VerifyArtifactsAreDeleted(artifactChain, _user);
         }
 
         [TestCase]
@@ -269,7 +271,7 @@ namespace ArtifactStoreTests
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
-            VerifyArtifactIsDeleted(targetArtifact);
+            VerifyArtifactIsDeleted(targetArtifact.Id, _user);
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 0, expectedOtherTraces: 0);
         }
 
@@ -295,7 +297,7 @@ namespace ArtifactStoreTests
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
-            VerifyArtifactIsDeleted(targetArtifact);
+            VerifyArtifactIsDeleted(targetArtifact.Id, _user);
             VerifyArtifactHasExpectedNumberOfTraces(sourceArtifact, expectedManualTraces: 0, expectedOtherTraces: 0);
         }
 
@@ -337,13 +339,68 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactCount, deletedArtifacts.Count, "There should be {0} deleted artifact returned!", expectedArtifactCount);
 
             VerifyDeletedArtifactAndChildrenWereReturned(parentAndChild, deletedArtifacts);
-            VerifyArtifactsAreDeleted(parentAndChild);
+            VerifyArtifactsAreDeleted(parentAndChild, _user);
+        }
+
+        [TestCase]
+        [TestRail(267246)]
+        [Description("Delete published Baseline, verify that Baseline was deleted.")]
+        public void DeleteArtifact_PublishedBaseline_BaselineIsDeleted()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
+                _project.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user);
+
+            List<NovaArtifactResponse> deletedArtifacts = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => deletedArtifacts = ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
+                baselineArtifact.Id, _user), "DELETE Baseline shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(1, deletedArtifacts.Count, "One artifact(Baseline) should be deleted.");
+            Assert.AreEqual(baselineArtifact.Id, deletedArtifacts[0].Id, "Deleted artifact should have expected Id.");
+            VerifyArtifactIsDeleted(baselineArtifact.Id, _user);
+        }
+
+        [TestCase]
+        [TestRail(267250)]
+        [Description("Create Baseline folder with non-empty Baseline, publish all, delete Baseline folder - check folder and Baseline were deleted.")]
+        public void DeleteArtifact_PublishedBaselineFolderWithBaseline_BaselineFolderIsDeleted()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor,_project.Id);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
+            var baselineFolder = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.BaselineFolder, defaultBaselineFolder.Id);
+            var baselineArtifact = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
+                baselineFolder.Id);
+            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user, publishAll: true);
+
+            List<NovaArtifactResponse> deletedArtifacts = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => deletedArtifacts = ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
+                baselineFolder.Id, _user), "DELETE Baseline Folder shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(2, deletedArtifacts.Count, "Two artifacts(Baseline and Baseline Folder) should be deleted.");
+            var deletedArtifactIds = deletedArtifacts.ConvertAll(item => item.Id);
+            Assert.IsTrue(deletedArtifactIds.Contains(baselineArtifact.Id), "Baseline should be among deleted artifacts.");
+            Assert.IsTrue(deletedArtifactIds.Contains(baselineFolder.Id), "Baseline Folder should be among deleted artifacts.");
+            VerifyArtifactIsDeleted(baselineArtifact.Id, _user);
+            VerifyArtifactIsDeleted(baselineFolder.Id, _user);
         }
 
         #endregion 200 OK tests
 
         #region 400 Bad Request
-
+        
         [TestRail(246533)]
         [TestCase("9999999999", "The request is invalid.")]
         [TestCase("&amp;", "A potentially dangerous Request.Path value was detected from the client (&).")]
@@ -478,6 +535,60 @@ namespace ArtifactStoreTests
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+        }
+
+        [TestCase]
+        [TestRail(267247)]
+        [Description("Delete published Baseline, verify that Baseline was deleted.")]
+        public void DeleteArtifact_SealedBaseline_Check403Error()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
+                _project.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
+            baseline.SetIsSealed(true);
+            Helper.ArtifactStore.UpdateArtifact(_user, baseline);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
+                baselineArtifact.Id, _user), "DELETE sealed Baseline should return 403 error.");
+
+            // Verify:
+            string errorMessage = "The artifact cannot be deleted because one or more of its descendants cannot currently be deleted (for example, a Baseline has been sealed).";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDelete, errorMessage);
+        }
+
+        [TestCase]
+        [TestRail(267253)]
+        [Description("Create Baseline folder with non-empty Baseline, publish all, delete Baseline folder - check folder and Baseline were deleted.")]
+        public void DeleteArtifact_PublishedBaselineFolderWithSealedBaseline_Check403Error()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+            var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
+            var baselineFolder = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.BaselineFolder, defaultBaselineFolder.Id);
+            var baselineArtifact = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
+                baselineFolder.Id);
+            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
+            baseline.SetIsSealed(true);
+            Helper.ArtifactStore.UpdateArtifact(_user, baseline);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user, publishAll: true);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
+                baselineFolder.Id, _user), "DELETE sealed Baseline should return 403 error.");
+
+            // Verify:
+            string errorMessage = "The artifact cannot be deleted because one or more of its descendants cannot currently be deleted (for example, a Baseline has been sealed).";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDelete, errorMessage);
         }
 
         #endregion 403 Forbidden tests
@@ -728,7 +839,7 @@ namespace ArtifactStoreTests
                 childCollection.Publish(userWithLock);
             }
         }
-        
+
         #endregion 409 Conflict tests
 
         #region Private functions
@@ -737,34 +848,29 @@ namespace ArtifactStoreTests
         /// Try to get each artifact in the list (starting at the specified index) and verify a 404 error is returned.
         /// </summary>
         /// <param name="artifacts">The list of artifacts.</param>
+        /// <param name="user">The user to perform operation.</param>
         /// <param name="startIndex">(optional) To skip artifacts at the beginning of the list, enter the index of the first artifact to check.</param>
-        private void VerifyArtifactsAreDeleted(List<IArtifact> artifacts, int startIndex = 0)
+        private void VerifyArtifactsAreDeleted(List<IArtifact> artifacts, IUser user, int startIndex = 0)
         {
             ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             // Try to get each artifact to verify they're deleted.
             for (int i = startIndex; i < artifacts.Count; ++i)
             {
-                VerifyArtifactIsDeleted(artifacts[i]);
+                VerifyArtifactIsDeleted(artifacts[i].Id, user);
             }
         }
 
         /// <summary>
         /// Try to get the artifact and verify a 404 error is returned.
         /// </summary>
-        /// <param name="artifact">The artifact whose existence is being verified.</param>
-        /// <param name="user">(optional) The user to use to get the artifact details.  Defaults to _user.</param>
-        private void VerifyArtifactIsDeleted(IArtifact artifact, IUser user = null)
+        /// <param name="artifactId">The artifact whose existence is being verified.</param>
+        /// <param name="user">The user to use to get the artifact details.</param>
+        private void VerifyArtifactIsDeleted(int artifactId, IUser user)
         {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            if (user == null)
-            {
-                user = _user;
-            }
-
             // Try to get the artifact to verify it's deleted.
-            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(user, artifact.Id),
+            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.GetArtifactDetails(user, artifactId),
                 "We should get a 404 Not Found when trying to get artifact details of a deleted artifact!");
         }
 

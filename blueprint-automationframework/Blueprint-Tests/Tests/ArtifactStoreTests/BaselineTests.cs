@@ -28,6 +28,8 @@ namespace ArtifactStoreTests
         Func<Dictionary<string, int>, int> getUnpublishedArtifactCount = dict => dict["unpublishedArtifactCount"];
         Func<Dictionary<string, int>, int> getNonexistentArtifactCount = dict => dict["nonexistentArtifactCount"];
 
+        private const string expectedInternalExceptionMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
+
         [SetUp]
         public void SetUp()
         {
@@ -563,7 +565,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267228)]
-        [Description("Add published Artifact to sealed Baseline, check 409 error message.")]
+        [Description("Try to set Baseline timestamp to the future, check 409 error message.")]
         public void EditBaseline_SetBaselinetTimeStampToTheFutureDate_Check409()
         {
             // Setup:
@@ -580,6 +582,34 @@ namespace ArtifactStoreTests
             // Verify:
             string expectedErrorMessage = "Baseline timestamp date is from the future.";
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp, expectedErrorMessage);
+        }
+
+        [TestCase]
+        [TestRail(267245)]
+        [Description("Try to remove artifact from sealed Baseline, check 409 error message.")]
+        public void RemoveArtifactFromBaseline_SealedBaseline_Check409()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            baseline.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
+            baseline.SetIsSealed(true);
+            ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+
+            baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToAdd.Id });
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Attempt to remove artifact from sealed Baseline should throw 409 error.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.SealedBaseline, expectedInternalExceptionMessage);
         }
 
         [TestCase]
@@ -697,8 +727,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             // see TFS 5107
-            string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedInternalExceptionMessage);
         }
 
         #endregion Negative Tests

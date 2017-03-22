@@ -11,6 +11,7 @@ using Model.OpenApiModel.Services;
 using Model.StorytellerModel.Enums;
 using TestCommon;
 using Utilities;
+using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {
@@ -116,6 +117,10 @@ namespace ArtifactStoreTests
             // Validation: Validates trace properties from relationships for each version
             TraceValidation(relationshipsV1, tracesV1, new List<IArtifact> { targetArtifact1 });
             TraceValidation(relationshipsV2, tracesV2, new List<IArtifact> { targetArtifact2 });
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact1.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact2.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase(TraceDirection.To)]
@@ -147,6 +152,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase(true)]
@@ -178,6 +186,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]
@@ -205,6 +216,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships shouldn't have manual traces when the target artifact is deleted.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have other traces.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -244,13 +257,15 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, relationships.ManualTraces.Count, "Relationships should have no manual traces.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be no 'other' traces.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase(true)]
         [TestCase(null)]
         [TestRail(153703)]
         [Description("Create manual trace between 2 Saved (but unpublished) artifacts, get relationships (with and without the 'addDrafts=true' query parameter).  " +
-            "Verify no traces are returned.")]
+            "Verify manual trace is returned.")]
         public void GetRelationships_SavedNeverPublishedArtifactWithAddDraftsTrue_ReturnsCorrectTraces(bool? addDrafts)
         {
             // Setup:
@@ -276,6 +291,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]
@@ -314,6 +332,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
             ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces, targetSubArtifacts[0].Id);
         }
 
         [TestCase]
@@ -354,10 +375,12 @@ namespace ArtifactStoreTests
 
             // VerifY:
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Relationships should have 1 manual trace.");
-
             Assert.AreEqual(0, relationships.OtherTraces.Count, "Relationships shouldn't have any other traces.");
 
             ArtifactStoreHelper.AssertTracesAreEqual(trace, relationships.ManualTraces[0]);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces, sourceSubArtifacts[0].Id);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces, targetSubArtifacts[0].Id);
         }
 
         [TestCase]
@@ -391,6 +414,10 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be 0 other traces!");
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
             ArtifactStoreHelper.AssertTracesAreEqual(traces[1], relationships.ManualTraces[1]);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, thirdArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]
@@ -410,11 +437,13 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(0, relationships.ManualTraces.Count, "There should be 0 manual traces!");
             Assert.AreEqual(0, relationships.OtherTraces.Count, "There should be 0 other traces!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
         [TestRail(153909)]
-        [Description("Try to Get Relationships for an artifact ID that has that are in a dependency loop.  Verify all traces for the artifact are returned.")]
+        [Description("Try to Get Relationships for an artifact ID that is in a dependency loop.  Verify all traces for the artifact are returned.")]
         public void GetRelationships_CyclicTraceDependency_ReturnsAllTraces()
         {
             // Setup:
@@ -448,6 +477,10 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertTracesAreEqual(traces[0], relationships.ManualTraces[0]);
             ArtifactStoreHelper.AssertTracesAreEqual(traces[1], relationships.ManualTraces[1], checkDirection: false);
             Assert.AreEqual(TraceDirection.From, relationships.ManualTraces[1].Direction, "The 2nd manual trace should be 'From' the third artifact!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, firstArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, secondArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, thirdArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]
@@ -489,6 +522,10 @@ namespace ArtifactStoreTests
             Assert.AreEqual(false, trace.IsSuspect, "Returned trace mustn't be suspected.");
             Assert.AreEqual(traces[0].TraceType.ToString(), trace.TraceType.ToString(), "Returned trace must have proper TraceType.");
             Assert.AreEqual(traces[0].Direction, trace.Direction, "Returned trace must have proper Direction.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _viewer, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]
@@ -510,6 +547,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(2, traceDetails.PathToProject.Count, "PathToProject must have 2 items.");
             Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -536,6 +575,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(5, traceDetails.PathToProject.Count, "PathToProject must have 5 items.");
             Assert.AreEqual(artifact.Id, traceDetails.ArtifactId, "Id must be correct.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
         #endregion 200 OK Tests
@@ -594,13 +635,15 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_viewer, TestHelper.ProjectRole.None, _project, sourceArtifact);
 
-            // Execute & Verify:
+            // Execute: 
             Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetRelationships(_viewer, sourceArtifact);
             }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
 
+            // Verify:
             // TODO: Error code and error message verification - Not possible at the moment Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4859
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _viewer, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]
@@ -621,13 +664,15 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_viewer, TestHelper.ProjectRole.None, _project, targetArtifact);
 
-            // Execute & Verify:
+            // Execute: 
             Assert.Throws<Http403ForbiddenException>(() =>
             {
                 Helper.ArtifactStore.GetRelationshipsDetails(_viewer, targetArtifact);
             }, "GetArtifactRelationships should return 403 Forbidden if the user doesn't have permission to access the artifact.");
 
+            // Verify:
             // TODO: Error code and error message verification - Not possible at the moment Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4859
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _viewer, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         #endregion 403 Forbidden Tests
@@ -670,11 +715,14 @@ namespace ArtifactStoreTests
             sourceArtifact.Delete(_user);
             sourceArtifact.Publish(_user);
 
-            // Execute & Verify:
+            // Execute:
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetRelationships(_user, sourceArtifact);
             }, "GetArtifactRelationships should return a 404 Not Found when given a deleted artifact.");
+
+            // Verify:
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -691,11 +739,15 @@ namespace ArtifactStoreTests
 
             OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.From, _user);
 
-            // Execute & Verify:
+            // Execute:
             Assert.Throws<Http404NotFoundException>(() =>
             {
                 Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, addDrafts: false);
             }, "GetArtifactRelationships should return 404 Not Found when given a valid Unpublished Draft artifact and addDrafts=false.");
+
+            // Verify:
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase(0)]
@@ -745,10 +797,8 @@ namespace ArtifactStoreTests
         public void GetRelationships_UnpublishedArtifactByOtherUser_404NotFound(bool addDrafts)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            var targetArtifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.UseCase);
-            sourceArtifact.Save();
-            targetArtifact.Save();
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Actor);
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.UseCase);
 
             var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.To, _user);
 
@@ -766,6 +816,5 @@ namespace ArtifactStoreTests
         #endregion 404 Not Found Tests
 
         // TODO: Test with "Other" traces.
-        // TODO: Test with 2 users; user1 creates artifacts & traces; user2 only has permission to see one of the artifacts and tries to GetRelationships for each artifact.
     }
 }

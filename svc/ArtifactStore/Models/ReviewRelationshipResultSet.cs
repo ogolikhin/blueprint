@@ -7,13 +7,23 @@ namespace ArtifactStore.Models
 {
     public class ReviewRelationshipsResultSet
     {
-        public List<ReferencedReviewArtifact> reviewArtifacts { get; set; }
+        public List<ReferencedReviewArtifact> ReviewArtifacts { get; internal set; }
     }
 
     public class ReferencedReviewArtifact
     {
-        public int itemId { get; set; }
-        public string status { get; set; }
-        public DateTime createdDate { get; set; }
+        public int ItemId { get; set; }
+        public string Status { get; set; }
+        private DateTime _createdDate;
+        public DateTime CreatedDate {
+            get
+            {
+                return _createdDate;
+            }
+            set
+            {
+                _createdDate = DateTime.SpecifyKind(value, DateTimeKind.Utc);
+            }
+        }
     }
 }

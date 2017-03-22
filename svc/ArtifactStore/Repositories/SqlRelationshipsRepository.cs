@@ -277,13 +277,13 @@ namespace ArtifactStore.Repositories
                         }
                         referencedReviewArtifacts.Add(new ReferencedReviewArtifact
                         {
-                            itemId = reviewId,
-                            status = statusString,
-                            createdDate = itemRawDataCreatedDate.CreatedDateTime
+                            ItemId = reviewId,
+                            Status = statusString,
+                            CreatedDate = itemRawDataCreatedDate.CreatedDateTime
                         });
                     }
                 }
-                result.reviewArtifacts = referencedReviewArtifacts;
+                result.ReviewArtifacts = referencedReviewArtifacts;
             }
             return result;
         }

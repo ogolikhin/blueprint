@@ -240,7 +240,7 @@ namespace ArtifactStore.Repositories
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }
 
-        public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int userId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
+        public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int userId, bool addDrafts = true, int? versionId = null)
         {
             var revisionId = int.MaxValue;
             if (versionId.HasValue)
@@ -251,9 +251,8 @@ namespace ArtifactStore.Repositories
             {
                 throw new ResourceNotFoundException($"Version index (Id:{versionId}) is not found.", ErrorCodes.ResourceNotFound);
             }
-            var itemId = subArtifactId ?? artifactId;
             var reviewType = new List<int> { (int)LinkType.ReviewPackageReference };
-            var reviewLinks = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, reviewType)).ToList();
+            var reviewLinks = (await GetLinkInfo(artifactId, userId, addDrafts, revisionId, reviewType)).ToList();
             var result = new ReviewRelationshipsResultSet { };
             if (reviewLinks != null)
             {

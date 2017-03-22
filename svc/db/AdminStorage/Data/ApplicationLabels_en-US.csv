@@ -29,14 +29,12 @@ App_LoadingMsg,"Loading ..."
 App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this application"
 App_GeneralError, "An error ocurred while loading the page.<br/>Please try again.<br/><br/>If the problem persists, contact your Blueprint administrator."
 
-"PasswordRecovery_Title", "Forgot password?"
-"PasswordRecovery_Submit", "Recover Password"
-"PasswordRecovery_ConfirmRequest", "The email has been sent"
-"PasswordRecovery_Disabled", "Password recovery feature is disabled"
-"PasswordRecovery_Error_InvalidUserName", "Invalid user name"
-"PasswordRecovery_Error_General", "Server Error"
-
-
+PasswordRecovery_Title, "Forgot password?"
+PasswordRecovery_Submit, "Recover Password"
+PasswordRecovery_ConfirmRequest, "The email has been sent"
+PasswordRecovery_Disabled, "Password recovery feature is disabled"
+PasswordRecovery_Error_InvalidUserName, "Invalid user name"
+PasswordRecovery_Error_General, "Server Error"
 
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"

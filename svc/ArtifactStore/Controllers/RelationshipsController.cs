@@ -147,7 +147,7 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/reviews"), SessionRequired]
         [ActionName("GetReviews")]
-        public async Task<SqlRelationshipsRepository.ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
+        public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1)

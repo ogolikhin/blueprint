@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using System;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace ArtifactStore.Repositories
 {
@@ -238,18 +240,6 @@ namespace ArtifactStore.Repositories
             return new RelationshipExtendedInfo { ArtifactId = artifactId, PathToProject = pathToProject, Description = description };
         }
 
-        public class ReferencedReviewArtifact
-        {
-            public int itemId { get; set; }
-            public bool isActive { get; set; }
-            public DateTime createdDate { get; set; }
-        }
-
-        public class ReviewRelationshipsResultSet
-        {
-            public List<ReferencedReviewArtifact> reviewArtifacts { get; }
-        }
-
         public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int userId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
         {
             var revisionId = int.MaxValue;
@@ -263,9 +253,102 @@ namespace ArtifactStore.Repositories
             }
             var itemId = subArtifactId ?? artifactId;
             var reviewType = new List<int> { (int)LinkType.ReviewPackageReference };
-            var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, reviewType)).ToList();
-            var reviewLinks = results.ToList();
-            return new ReviewRelationshipsResultSet { };
+            var reviewLinks = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, reviewType)).ToList();
+            var result = new ReviewRelationshipsResultSet { };
+            if (reviewLinks != null)
+            {
+                var distinctReviewIds = reviewLinks.Select(a => a.SourceItemId).Distinct().ToList();
+                var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, distinctReviewIds, true, revisionId))
+                    .ToDictionary(a => a.ItemId);
+
+                var referencedReviewArtifacts = new List<ReferencedReviewArtifact>();
+                ItemRawDataCreatedDate itemRawDataCreatedDate;
+                foreach (var reviewId in distinctReviewIds)
+                {
+                    if (itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate))
+                    {
+                        var status = ReviewRawDataHelper.ExtractReviewStatus(itemRawDataCreatedDate.RawData);
+                        var statusString = "Draft";
+                        if (status == 1)
+                        {
+                            statusString = "Active";
+                        } else if (status == 2)
+                        {
+                            statusString = "Closed";
+                        }
+                        referencedReviewArtifacts.Add(new ReferencedReviewArtifact
+                        {
+                            itemId = reviewId,
+                            status = statusString,
+                            createdDate = itemRawDataCreatedDate.CreatedDateTime
+                        });
+                    }
+                }
+                result.reviewArtifacts = referencedReviewArtifacts;
+            }
+            return result;
+        }
+
+        internal static class ReviewRawDataHelper
+        {
+            public static IEnumerable<int> ExtractReviewReviewers(string rawData)
+            {
+                List<int> reviewers = new List<int>();
+                if (!string.IsNullOrWhiteSpace(rawData))
+                {
+                    var matches = Regex.Matches(rawData, "<UserId[^>]*>(.+?)</UserId\\s*>", RegexOptions.IgnoreCase);
+                    foreach (Match match in matches)
+                    {
+                        if (match.Groups.Count > 1)
+                        {
+                            reviewers.Add(Convert.ToInt32(match.Groups[1].Value, new CultureInfo("en-CA", true)));
+                        }
+                    }
+                }
+                return reviewers;
+            }
+
+            public static int ExtractReviewStatus(string rawData)
+            {
+                int status = 0;
+                if (!string.IsNullOrWhiteSpace(rawData))
+                {
+                    var matches = Regex.Matches(rawData, "<Status[^>]*>(.+?)</Status\\s*>", RegexOptions.IgnoreCase);
+                    if (matches.Count > 0 && matches[0].Groups.Count > 1)
+                    {
+                        if (string.Compare(matches[0].Groups[1].Value, "Active", StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            status = 1;
+                        }
+                        else if (string.Compare(matches[0].Groups[1].Value, "Closed", StringComparison.OrdinalIgnoreCase) == 0)
+                        {
+                            status = 2;
+                        }
+                    }
+                }
+                return status;
+            }
+
+            public static DateTime? ExtractReviewEndDate(string rawData)
+            {
+                DateTime? endDate = null;
+                if (!string.IsNullOrWhiteSpace(rawData))
+                {
+                    var match = Regex.Match(rawData, "<EndDate[^>]*>(.+?)</EndDate\\s*>", RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        string dateStr = match.Groups[1].Value;
+                        DateTime date;
+                        var successfulParse = DateTime.TryParse(dateStr, out date);
+
+                        if (successfulParse)
+                        {
+                            endDate = date;
+                        }
+                    }
+                }
+                return endDate;
+            }
         }
     }
 }

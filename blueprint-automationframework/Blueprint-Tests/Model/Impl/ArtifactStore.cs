@@ -1528,30 +1528,17 @@ namespace Model.Impl
                 artifacts = new List<IArtifactBase>();
             }
 
-            const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-            Dictionary<string, string> queryParams = null;
 
-            if (all != null)
-            {
-                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
-            }
+            var discardedArtifactResponse = DiscardArtifacts(address, artifactIds, user, all, expectedStatusCodes);
 
-            var discardedArtifactResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
-                path,
-                RestRequestMethod.POST,
-                artifactIds,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
-
-            if (restApi.StatusCode == HttpStatusCode.OK)
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
                 // Set the IsSaved flags for the artifact that we discarded so the Dispose() works properly.
                 foreach (var discardedArtifacts in discardedArtifactResponse.Artifacts)
                 {
-                    Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
-                        path, discardedArtifacts.Id);
+                    Logger.WriteDebug("DiscardArtifacts returned following artifact Id: {0}",
+                        discardedArtifacts.Id);
 
                     if (artifacts.Count > 0)
                     {
@@ -1566,6 +1553,29 @@ namespace Model.Impl
             }
 
             return discardedArtifactResponse;
+        }
+
+        public static INovaArtifactsAndProjectsResponse DiscardArtifacts(string address,
+            List<int> artifactIds,
+            IUser user = null,
+            bool? all = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+            if (all != null)
+            {
+                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
+            }
+
+            return restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactIds,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>

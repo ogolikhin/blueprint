@@ -97,6 +97,21 @@ namespace Model
             bool includeDraft,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// POST discussion for the specified artifact.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{artifactId}/discussions')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of artifact.</param>
+        /// <param name="comment">The comment for new discussion.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
+        IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            string comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

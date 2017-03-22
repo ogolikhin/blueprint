@@ -381,28 +381,21 @@ namespace Model.ArtifactModel.Impl
         /// POST discussion for the specified artifact.
         /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
         /// </summary>
-        /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
         /// <param name="comment">The comment for new discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussion PostRaptorDiscussion(string address, int itemId, 
-            string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public static IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            int itemId, 
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST,
-                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
-            
-            // Derialization
-            var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
-
-            return result;
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.PostRapidReviewArtifactDiscussion(user, itemId, comment, expectedStatusCodes);
         }
 
         /// <summary>

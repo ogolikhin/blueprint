@@ -25,5 +25,7 @@ namespace ArtifactStore.Models
                 _createdDate = DateTime.SpecifyKind(value, DateTimeKind.Utc);
             }
         }
+        public string itemName { get; set; }
+        public string itemTypePrefix { get; set; }
     }
 }

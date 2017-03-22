@@ -254,7 +254,6 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.VerifyIndicatorFlags(
                 Helper, user, updatedArtifactDetails.Id, Model.ArtifactModel.Enums.ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
-
         }
 
         /// <summary>

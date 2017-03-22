@@ -74,6 +74,8 @@ namespace ArtifactStoreTests
             Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
 
+            // Trello bug: Does not return indicatorFlags for attachments created with bpartifactstore/artifacts/{Id} call https://trello.com/c/f1gga4iK 
+            // TODO: Change verification of IndicatorFlags to ItemIndicatorFlags.HasAttachmentsOrDocumentRefs instead of null
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
@@ -98,7 +100,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
             Assert.AreEqual(0, attachment.DocumentReferences.Count, "List of Document References must be empty.");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase]
@@ -115,14 +117,17 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
             // Execute:
-            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentsAndSave(author, artifact,
-                new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore), "Exception caught while trying to update an artifact!");
+            Assert.DoesNotThrow(() => ArtifactStoreHelper.AddArtifactAttachmentsAndSave(
+                author, artifact, new List<INovaFile> { _attachmentFile, attachmentFile1 }, Helper.ArtifactStore),
+                "Exception caught while trying to update an artifact!");
 
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, author);
             Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 2 attachments at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
 
+            // Trello bug: Does not return indicatorFlags for attachments created with bpartifactstore/artifacts/{Id} call https://trello.com/c/f1gga4iK 
+            // TODO: Change verification of IndicatorFlags to ItemIndicatorFlags.HasAttachmentsOrDocumentRefs instead of null
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
@@ -132,7 +137,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(182404)]
-        [Description("Add attachment to the published Document, it should throw 409 exception, file shouldn't be added.")]
+        [Description("Add attachment to the published Document, it should throw 409 exception, file shouldn't be added (artifact is not locked).")]
         public void AddAttachment_PublishedDocument_Throw409()
         {
             // Setup:
@@ -141,8 +146,8 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, attachmentBeforeTest.AttachedFiles.Count, "Artifact shouldn't have attachments at this point.");
 
             // Execute:
-            Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(_user, artifact,
-                _attachmentFile, Helper.ArtifactStore), "Unexpected Exception caught while trying to update an artifact!");
+            Assert.Throws<Http409ConflictException>(() => ArtifactStoreHelper.AddArtifactAttachmentAndSave(
+                _user, artifact, _attachmentFile, Helper.ArtifactStore), "Unexpected Exception caught while trying to update an artifact!");
             
             // Verify:
             var attachmentAfterTest = Helper.ArtifactStore.GetAttachments(artifact, _user);

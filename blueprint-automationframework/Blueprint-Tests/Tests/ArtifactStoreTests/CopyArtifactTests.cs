@@ -221,8 +221,6 @@ namespace ArtifactStoreTests
             var fileFromSource = Helper.ArtifactStore.GetAttachmentFile(author, sourceArtifact.Id, sourceArtifactAttachments.AttachedFiles[0].AttachmentId);
 
             FileStoreTestHelper.AssertFilesAreIdentical(fileFromSource, fileFromCopy);
-
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase(BaseArtifactType.Actor, TraceDirection.From, false, false)]

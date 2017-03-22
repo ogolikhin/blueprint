@@ -242,6 +242,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null, subArtifactId: (int)subArtifact.Id);
         }
 
         [TestCase(null)]
@@ -269,6 +270,8 @@ namespace ArtifactStoreTests
             Assert.IsTrue(openApiAttachment.Equals(attachment.AttachedFiles[0]),
                 "The file attachment returned from ArtifactStore doesn't match the file attachment uploaded.");
             Assert.IsNull(attachment.AttachedFiles[0].UploadedDate, "UploadedDate for draft artifact's attachment should be null.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase]
@@ -291,6 +294,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase(2)]
@@ -336,6 +340,8 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(artifactDetails.LastEditedOn, attachedFile.UploadedDate,
                     "UploadedDate for published artifact's attachment should be equal to LastEditedOn date of artifact");
             }
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase]
@@ -356,6 +362,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -385,6 +392,8 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, version1attachment.AttachedFiles.Count, "List of attached files must be empty.");
             Assert.AreEqual(1, version2attachment.AttachedFiles.Count, "List of attached files must have 1 item.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase]
@@ -415,6 +424,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(1, attachment.AttachedFiles.Count, "Artifact should have 1 attached file at this stage.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase]
@@ -437,6 +448,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             Assert.AreEqual(0, attachment.AttachedFiles.Count, "List of attached files must be empty.");
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -472,6 +484,8 @@ namespace ArtifactStoreTests
                 "AttachmentId should be different for different attachments.");
             Assert.IsTrue(version2attachment.AttachedFiles[0].AttachmentId == version1attachment.AttachedFiles[0].AttachmentId,
                 "AttachmentId for the file must be the same across all versions.");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         #endregion Positive tests
@@ -525,7 +539,7 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182503)]
         [Description("Create and publish artifact (admin), add attachment and publish (author), set artifact's permission to none for author, " +
-    "get attachments for version 1 should return 403 for author.")]
+            "get attachments for version 1 should return 403 for author.")]
         public void GetAttachmentSpecifyVersion_UserHaveNoPermissionFromVersion2_Returns403()
         {
             // Setup:
@@ -586,7 +600,7 @@ namespace ArtifactStoreTests
 
         #endregion 403 Forbidden
 
-        #region 404 Not Fond
+        #region 404 Not Found
 
         [TestCase]
         [TestRail(146333)]
@@ -650,6 +664,8 @@ namespace ArtifactStoreTests
                 Helper.ArtifactStore.GetAttachments(artifact, _adminUser, addDrafts: false);
             }, "'GET {0}?addDrafts=false' should return 404 Not Found.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase(0)]
@@ -711,6 +727,8 @@ namespace ArtifactStoreTests
                     expectedServiceErrorMessage: errorMessage);
             }, "'GET {0}?versionId={1}' should return 404 error when passed a non-existing valid versionId.",
                 RestPaths.Svc.ArtifactStore.Artifacts_id_.ATTACHMENT, versionId);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         #endregion 404 Not Found

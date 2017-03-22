@@ -1467,6 +1467,7 @@ namespace ArtifactStoreTests
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
+        /// <param name="skipIndicatorFlags">(optional) Pass true to skip comparison of the IndicatorFlags properties.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
         private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(INovaArtifactDetails originalArtifact,
             CopyNovaArtifactResultSet copyResult,

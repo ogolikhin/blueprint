@@ -1643,6 +1643,7 @@ namespace Helper
         /// Disposes this object and all disposable objects owned by this object.
         /// </summary>
         /// <param name="disposing">Pass true if explicitly called, or false if called from the destructor.</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:ReduceCyclomaticComplexity")]    // TODO: Move Nova artifacts to separate file?
         protected virtual void Dispose(bool disposing)
         {
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(TestHelper.Dispose));
@@ -1665,10 +1666,14 @@ namespace Helper
 
                 if (NovaArtifacts.Count > 0)
                 {
+                    foreach (IUser user in Users)
+                    {
+                        ArtifactStore.DiscardArtifacts(artifacts: null, user: user, all: true);
+                    }
                     var deleteExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
                         System.Net.HttpStatusCode.NotFound, System.Net.HttpStatusCode.Forbidden};
                     var publishExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
-                        System.Net.HttpStatusCode.Conflict};
+                        System.Net.HttpStatusCode.Conflict, System.Net.HttpStatusCode.NotFound};
                     foreach (var user in NovaArtifacts.Keys)
                     {
                         {

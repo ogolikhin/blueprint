@@ -1270,7 +1270,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Ba
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline_Failed_Because_Lock', 'en-US', N'The artifact could not be added to the baseline. The baseline is locked by {userName}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Picker_Header', 'en-US', N'Add Artifact to Collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection', 'en-US', N'Add to Collection')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Success', 'en-US', N'The artifact has been added to the collection.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Failed_Because_Lock', 'en-US', N'The artifact could not be added to the collection. The collection is locked by {userName}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Container_Include_Descendants', 'en-US', N'Include artifact descendants')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Header', 'en-US', N'Change Password')

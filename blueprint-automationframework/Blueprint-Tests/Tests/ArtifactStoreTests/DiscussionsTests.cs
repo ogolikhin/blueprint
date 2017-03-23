@@ -576,7 +576,7 @@ namespace ArtifactStoreTests
         public void PostNewDiscussion_ArtifactHasVersion2_CheckCommentHasVersion2()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2); //artifact version is 2
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2); //artifact version is 2
 
             IDiscussionAdaptor postedRaptorComment = null;
             DiscussionResultSet discussions = null;
@@ -584,7 +584,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                postedRaptorComment = OpenApiArtifact.PostRapidReviewArtifactDiscussion(artifact.Id, ORIGINAL_COMMENT, _authorUser);
+                postedRaptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
                 artifact.Save(_authorUser);
                 artifact.Publish(_authorUser);  //artifact version is 3
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
@@ -918,7 +918,7 @@ namespace ArtifactStoreTests
 
             var process = Helper.Storyteller.GetProcess(user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = OpenApiArtifact.PostRapidReviewArtifactDiscussion(userTask.Id, "text for UT", user);
+            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewArtifactDiscussion(user, userTask.Id, "text for UT");
 
             return postedRaptorComment;
         }

@@ -338,26 +338,6 @@ namespace Model.ArtifactModel.Impl
             return artifactResults;
         }
 
-        //TODO Investigate if we can use IArtifact instead of ItemId
-
-        /// <summary>
-        /// Get discussions for the specified artifact/subartifact
-        /// </summary>
-        /// <param name="itemId">id of artifact/subartifact</param>
-        /// <param name="includeDraft">false gets discussions for the last published version, true works with draft</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussionsInfo GetRapidReviewArtifactDiscussions(
-            int itemId,
-            bool includeDraft,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.GetRapidReviewArtifactDiscussions(user, itemId, includeDraft, expectedStatusCodes);
-        }
-
         /// <summary>
         /// Search artifact by a substring in its name on Blueprint server.  Among published artifacts only.
         /// (Runs:  'GET svc/shared/artifacts/search')
@@ -375,27 +355,6 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return SvcShared.SearchArtifactsByName(address, user, searchSubstring, project, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// POST discussion for the specified artifact.
-        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions')
-        /// </summary>
-        /// <param name="itemId">ID of artifact.</param>
-        /// <param name="comment">The comment for new discussion.</param>
-        /// <param name="user">The user credentials for the request.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
-        public static IRaptorDiscussion PostRapidReviewArtifactDiscussion(
-            int itemId, 
-            string comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.PostRapidReviewArtifactDiscussion(user, itemId, comment, expectedStatusCodes);
         }
 
         /// <summary>

@@ -251,7 +251,8 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return OpenApiArtifact.PostRapidReviewArtifactDiscussion(Id, comment, user, expectedStatusCodes);
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.PostRapidReviewArtifactDiscussion(user, Id, comment, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.UpdateRaptorDiscussion(RaptorComment, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>

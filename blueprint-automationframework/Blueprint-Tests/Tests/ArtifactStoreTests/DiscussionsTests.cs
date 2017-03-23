@@ -493,7 +493,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
+                artifact.DeleteRapidReviewArtifactDiscussion(_authorUser, raptorComment);
             }, "DeleteDiscussions shouldn't throw any error, but it does.");
 
             // Verify:
@@ -524,7 +524,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifact.DeleteRaptorDiscussion(_adminUser, raptorComment);
+                artifact.DeleteRapidReviewArtifactDiscussion(_adminUser, raptorComment);
             }, "DeleteDiscussions shouldn't throw any error, but it does.");
 
             // Verify:
@@ -669,7 +669,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
+                artifact.DeleteRapidReviewArtifactDiscussion(_authorUser, raptorComment);
             }, "DeleteDiscussions should throw 403 error, but it doesn't.");
 
             // Verify:

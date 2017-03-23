@@ -264,13 +264,17 @@ namespace Model.ArtifactModel.Impl
             return UpdateRaptorDiscussion(Address, discussionToUpdate, comment, user, expectedStatusCodes);
         }
 
-        public string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion discussionToDelete,
+        /// <seealso cref="IArtifact.DeleteRapidReviewArtifactDiscussion(IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
+        public string DeleteRapidReviewArtifactDiscussion(
+            IUser user,
+            IRaptorDiscussion discussionToDelete,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
 
-            return DeleteRaptorDiscussion(Address, discussionToDelete, user, expectedStatusCodes);
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+
+            return service.DeleteRapidReviewArtifactDiscussion(user, discussionToDelete.ItemId, discussionToDelete.DiscussionId, expectedStatusCodes);
         }
 
         public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
@@ -689,23 +693,6 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return OpenApiArtifact.UpdateRaptorDiscussion(address, discussionToUpdate, comment, user, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Deletes the specified discussion using Raptor REST API.
-        /// (Runs: DELETE /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToDeleteId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="discussionToDelete">The discussion to delete.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
-        public static string DeleteRaptorDiscussion(string address,
-            ICommentBaseAdapter discussionToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.DeleteRaptorDiscussion(address, discussionToDelete, user, expectedStatusCodes);
         }
 
         /// <summary>

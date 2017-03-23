@@ -379,13 +379,13 @@ namespace Model.ArtifactModel.Impl
 
         /// <summary>
         /// POST discussion for the specified artifact.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions')
         /// </summary>
-        /// <param name="itemId">id of artifact</param>
+        /// <param name="itemId">ID of artifact.</param>
         /// <param name="comment">The comment for new discussion.</param>
-        /// <param name="user">The user credentials for the request</param>
+        /// <param name="user">The user credentials for the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
         public static IRaptorDiscussion PostRapidReviewArtifactDiscussion(
             int itemId, 
             string comment,
@@ -422,35 +422,6 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.PATCH,
                 comment,
                 expectedStatusCodes: expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Deletes the specified discussion.
-        /// (Runs: POST /svc/components/RapidReview/artifacts/{itemId}/deletethread/{discussionId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="discussionToDelete">Discussion to delete.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
-        public static string DeleteRaptorDiscussion(string address, ICommentBaseAdapter discussionToDelete,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(
-                RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, discussionToDelete.ItemId, discussionToDelete.DiscussionId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
-
-            return resultMessage;
         }
 
         /// <summary>

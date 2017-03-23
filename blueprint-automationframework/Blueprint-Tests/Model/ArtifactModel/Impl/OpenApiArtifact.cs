@@ -358,41 +358,6 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Updates the specified reply.
-        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="discussion">Discussion containing reply to update.</param>
-        /// <param name="replyToUpdate">reply to update</param>
-        /// <param name="comment">The new comment for reply.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Updated RaptorReply.</returns>
-        public static IReplyAdapter UpdateRaptorDiscussionReply(string address, ICommentBaseAdapter discussion,
-            IReplyAdapter replyToUpdate, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(discussion, nameof(discussion));
-            ThrowIf.ArgumentNull(replyToUpdate, nameof(replyToUpdate));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY_id_,
-                discussion.ItemId, discussion.DiscussionId, replyToUpdate.ReplyId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse(
-                path,
-                RestRequestMethod.PATCH,
-                bodyObject: comment,
-                expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
-
-            return result;
-        }
-
-        /// <summary>
         /// Add attachment to the specified artifact.
         /// </summary>
         /// <param name="address">The base URL of the Blueprint server.</param>

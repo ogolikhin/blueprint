@@ -252,7 +252,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.PostRapidReviewArtifactDiscussion(user, Id, comment, expectedStatusCodes);
+            return service.PostRapidReviewDiscussion(user, Id, comment, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.PostRapidReviewDiscussionReply(ICommentBaseAdapter, string, IUser, List{HttpStatusCode})"/>
@@ -270,8 +270,8 @@ namespace Model.ArtifactModel.Impl
             return service.PostRapidReviewDiscussionReply(user, Id, discussion.DiscussionId, comment, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifact.UpdateRapidReviewArtifactDiscussion"/>
-        public IRaptorDiscussion UpdateRapidReviewArtifactDiscussion(
+        /// <seealso cref="IArtifact.UpdateRapidReviewDiscussion(IRaptorDiscussion, RaptorComment, IUser, List{HttpStatusCode})"/>
+        public IRaptorDiscussion UpdateRapidReviewDiscussion(
             IRaptorDiscussion discussionToUpdate,
             RaptorComment comment,
             IUser user,
@@ -282,7 +282,23 @@ namespace Model.ArtifactModel.Impl
             Assert.AreEqual(Id, discussionToUpdate.ItemId, "The discussion you want to update doesn't belong to this artifact!");
 
             var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.UpdateRapidReviewArtifactDiscussion(user, Id, discussionToUpdate.DiscussionId, comment, expectedStatusCodes);
+            return service.UpdateRapidReviewDiscussion(user, Id, discussionToUpdate.DiscussionId, comment, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifact.UpdateRapidReviewDiscussionReply(IReplyAdapter, string, IUser, List{HttpStatusCode})"/>
+        public IReplyAdapter UpdateRapidReviewDiscussionReply(
+            IReplyAdapter replyToUpdate,
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(replyToUpdate, nameof(replyToUpdate));
+
+            Assert.AreEqual(Id, replyToUpdate.ItemId, "The discussion reply you want to update doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.UpdateRapidReviewDiscussionReply(
+                user, replyToUpdate.ItemId, replyToUpdate.DiscussionId, replyToUpdate.ReplyId, comment, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.DeleteRapidReviewArtifactDiscussion(IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
@@ -296,7 +312,7 @@ namespace Model.ArtifactModel.Impl
             Assert.AreEqual(Id, discussionToDelete.ItemId, "The discussion you want to delete doesn't belong to this artifact!");
 
             var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.DeleteRapidReviewArtifactDiscussion(user, Id, discussionToDelete.DiscussionId, expectedStatusCodes);
+            return service.DeleteRapidReviewDiscussion(user, Id, discussionToDelete.DiscussionId, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifact.DeleteRapidReviewArtifactReply(IReplyAdapter, IUser, List{HttpStatusCode})"/>
@@ -310,7 +326,7 @@ namespace Model.ArtifactModel.Impl
             Assert.AreEqual(Id, replyToDelete.ItemId, "The discussion reply you want to delete doesn't belong to this artifact!");
 
             var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.DeleteRapidReviewArtifactReply(user, Id, replyToDelete.ReplyId, expectedStatusCodes);
+            return service.DeleteRapidReviewDiscussionReply(user, Id, replyToDelete.ReplyId, expectedStatusCodes);
         }
 
         public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
@@ -710,26 +726,6 @@ namespace Model.ArtifactModel.Impl
             }
 
             return publishResults[0];
-        }
-
-        /// <summary>
-        /// Updates the specified reply.
-        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="discussion">comment containing reply to update</param>
-        /// <param name="replyToUpdate">reply to update</param>
-        /// <param name="comment">The new comment for reply.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>The updated Reply.</returns>
-        public static IReplyAdapter UpdateRaptorDiscussionReply(string address,
-            ICommentBaseAdapter discussion, IReplyAdapter replyToUpdate,
-            string comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.UpdateRaptorDiscussionReply(address, discussion, replyToUpdate, comment, user, expectedStatusCodes);
         }
 
         /// <summary>

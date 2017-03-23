@@ -2,7 +2,7 @@ using System;
 using Model.ArtifactModel.Impl;
 using System.Collections.Generic;
 using System.Net;
-using Model.ArtifactModel.Adaptors;
+using Model.ArtifactModel.Adapters;
 using Model.NovaModel.Components.RapidReview;
 
 namespace Model.ArtifactModel

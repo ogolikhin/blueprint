@@ -7,10 +7,10 @@ using Model.Factories;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
-using Model.ArtifactModel.Adaptors;
 using TestCommon;
 using Utilities;
 using Common;
+using Model.ArtifactModel.Adapters;
 using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
@@ -226,7 +226,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
-            IDiscussionAdaptor updatedDiscussion = null;
+            IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, postedRaptorComment);
@@ -260,7 +260,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
-            IDiscussionAdaptor updatedDiscussion = null;
+            IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address, postedComment, comment, _authorUser);
@@ -331,7 +331,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
-            IDiscussionAdaptor updatedDiscussion = null;
+            IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
@@ -366,7 +366,7 @@ namespace ArtifactStoreTests
                 StatusId = statusId
             };
 
-            IDiscussionAdaptor updatedDiscussion = null;
+            IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, discussion);
@@ -421,7 +421,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
-            IDiscussionAdaptor updatedDiscussion = null;
+            IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, author, raptorComment);
@@ -457,7 +457,7 @@ namespace ArtifactStoreTests
             };
 
             // Execute:
-            IDiscussionAdaptor updatedDiscussion = null;
+            IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
                 updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment);
@@ -578,7 +578,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2); //artifact version is 2
 
-            IDiscussionAdaptor postedRaptorComment = null;
+            IDiscussionAdapter postedRaptorComment = null;
             DiscussionResultSet discussions = null;
 
             // Execute:

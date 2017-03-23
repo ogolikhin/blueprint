@@ -54,7 +54,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArtifactModel\Adaptors\IDiscussionAdaptor.cs" />
+    <Compile Include="ArtifactModel\Adapters\IDiscussionAdapter.cs" />
     <Compile Include="ArtifactModel\Enums\BaseArtifactTypeExtensions.cs" />
     <Compile Include="ArtifactModel\Enums\ChangeTypes.cs" />
     <Compile Include="ArtifactModel\Enums\ItemIndicatorFlags.cs" />

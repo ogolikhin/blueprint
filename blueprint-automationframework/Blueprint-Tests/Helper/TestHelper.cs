@@ -679,7 +679,7 @@ namespace Helper
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
             var baselineArtifact = CreateNovaArtifactInSpecificState(user, project, TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
-                parentId.Value);
+                parentId.Value, artifactName: name);
             if (artifactToAddId != null)
             {
                 ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);
@@ -845,9 +845,9 @@ namespace Helper
         /// <param name="parentId">Parent Id of artifact to be created</param>
         /// <returns>Artifact in the required state</returns>
         public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
-            ItemTypePredefined itemType, int parentId)
+            ItemTypePredefined itemType, int parentId, string artifactName = null)
         {
-            string artifactName = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            artifactName = artifactName ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user, itemType, artifactName, project, parentId);
 
             if (NovaArtifacts.ContainsKey(user))

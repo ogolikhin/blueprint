@@ -658,23 +658,32 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a new Baseline in the project's default Baselines folder.
+        /// Creates a new Baseline. Optionally adds artifact using AddToBaseline function (not artifact update)
         /// </summary>
         /// <param name="user">The user to perform the operation.</param>
         /// <param name="project">The project in which Baseline will be created.</param>
         /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
-        /// <returns>The Baseline.</returns>
-        public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null)
+        /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines&Reviews folder.</param>
+        /// <param name="artifactsToAddIds">(optional)Artifact's id to be added to baseline.
+        /// By default empty baseline will be created.</param>
+        /// <returns>The Baseline artifact.</returns>
+        public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
+            int? artifactToAddId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(project, nameof(project));
 
-            var defaultBaselineFolder = project.GetDefaultBaselineFolder(user);
+            parentId = parentId?? project.GetDefaultBaselineFolder(user).Id;
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            return CreateNovaArtifactInSpecificState(user, project, TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
-                defaultBaselineFolder.Id);
+            var baselineArtifact = CreateNovaArtifactInSpecificState(user, project, TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
+                parentId.Value);
+            if (artifactToAddId != null)
+            {
+                ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);
+            }
+            return baselineArtifact;
         }
 
         /// <summary>
@@ -1666,7 +1675,7 @@ namespace Helper
 
                 if (NovaArtifacts.Count > 0)
                 {
-                    foreach (IUser user in Users)
+                    foreach (var user in Users)
                     {
                         ArtifactStore.DiscardArtifacts(artifacts: null, user: user, all: true);
                     }

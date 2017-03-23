@@ -1555,6 +1555,15 @@ namespace Model.Impl
             return discardedArtifactResponse;
         }
 
+        /// <summary>
+        /// Discards a list of artifacts.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactIds">The ids of artifacts to discard.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="all">(optional) Pass true to discard all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
         public static INovaArtifactsAndProjectsResponse DiscardArtifacts(string address,
             List<int> artifactIds,
             IUser user = null,

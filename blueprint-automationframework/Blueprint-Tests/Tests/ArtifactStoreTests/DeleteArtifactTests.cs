@@ -350,20 +350,21 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
                 _project.Id);
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user);
 
             List<NovaArtifactResponse> deletedArtifacts = null;
 
             // Execute:
             Assert.DoesNotThrow(() => deletedArtifacts = ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
-                baselineArtifact.Id, _user), "DELETE Baseline shouldn't throw any error.");
+                baselineArtifact.Id, _user), "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "One artifact(Baseline) should be deleted.");
             Assert.AreEqual(baselineArtifact.Id, deletedArtifacts[0].Id, "Deleted artifact should have expected Id.");
             VerifyArtifactIsDeleted(baselineArtifact.Id, _user);
+            var versionInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, artifactToAdd.Id);
+            Assert.IsFalse(versionInfo.IsDeleted.Value, "Artifact shouldn't be deleted.");
         }
 
         [TestCase]
@@ -372,21 +373,20 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_PublishedBaselineFolderWithBaseline_BaselineFolderIsDeleted()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
                 ItemTypePredefined.Actor,_project.Id);
             var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
-            var baselineFolder = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+            var baselineFolder = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
                 ItemTypePredefined.BaselineFolder, defaultBaselineFolder.Id);
-            var baselineArtifact = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
-                baselineFolder.Id);
-            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, parentId: baselineFolder.Id,
+                artifactToAddId: artifactToAdd.Id);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user, publishAll: true);
 
             List<NovaArtifactResponse> deletedArtifacts = null;
 
             // Execute:
             Assert.DoesNotThrow(() => deletedArtifacts = ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
-                baselineFolder.Id, _user), "DELETE Baseline Folder shouldn't throw any error.");
+                baselineFolder.Id, _user), "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             Assert.AreEqual(2, deletedArtifacts.Count, "Two artifacts(Baseline and Baseline Folder) should be deleted.");
@@ -539,14 +539,14 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267247)]
-        [Description("Delete published Baseline, verify that Baseline was deleted.")]
+        [Description("Try to delete published sealed Baseline, verify 403 error message.")]
         public void DeleteArtifact_SealedBaseline_Check403Error()
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
                 _project.Id);
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
+
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
             baseline.SetIsSealed(true);
@@ -564,7 +564,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267253)]
-        [Description("Create Baseline folder with non-empty Baseline, publish all, delete Baseline folder - check folder and Baseline were deleted.")]
+        [Description("Create Baseline folder with non-empty sealed Baseline, publish all, try to delete Baseline folder - check 403 error message.")]
         public void DeleteArtifact_PublishedBaselineFolderWithSealedBaseline_Check403Error()
         {
             // Setup:
@@ -573,9 +573,9 @@ namespace ArtifactStoreTests
             var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
             var baselineFolder = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.BaselineFolder, defaultBaselineFolder.Id);
-            var baselineArtifact = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
-                baselineFolder.Id);
-            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, parentId: baselineFolder.Id,
+                artifactToAddId: artifactToAdd.Id);
+
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
             baseline.SetIsSealed(true);

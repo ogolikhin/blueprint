@@ -515,8 +515,7 @@ namespace ArtifactStoreTests
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Actor, _project.Id);
 
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
 
             var timestampDate = DateTime.UtcNow.AddMinutes(-3);
@@ -618,13 +617,11 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_DefaultCollectionFolder_Check404()
         {
             // Setup:
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-
             var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_user);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, defaultCollectionFolder.Id, baselineArtifact.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: defaultCollectionFolder.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -639,13 +636,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
-                _project.Id);
-
-            var baseline = Helper.CreateBaseline(_user, _project);
+                _project.Id); 
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:

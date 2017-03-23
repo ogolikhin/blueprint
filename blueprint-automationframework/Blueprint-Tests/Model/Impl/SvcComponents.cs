@@ -211,7 +211,7 @@ namespace Model.Impl
             int discussionId,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, itemId, discussionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_id_, itemId, discussionId);
 
             string tokenValue = user?.Token?.AccessControlToken;
             var restApi = new RestApiFacade(Address, tokenValue);
@@ -234,7 +234,7 @@ namespace Model.Impl
             int replyId,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_COMMENT_ID, itemId, replyId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_COMMENT_id_, itemId, replyId);
 
             string tokenValue = user?.Token?.AccessControlToken;
             var restApi = new RestApiFacade(Address, tokenValue);

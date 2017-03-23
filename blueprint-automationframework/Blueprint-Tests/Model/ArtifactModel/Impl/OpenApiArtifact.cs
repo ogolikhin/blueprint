@@ -430,7 +430,7 @@ namespace Model.ArtifactModel.Impl
             ThrowIf.ArgumentNull(replyToUpdate, nameof(replyToUpdate));
 
             string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY_ID,
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY_id_,
                 discussion.ItemId, discussion.DiscussionId, replyToUpdate.ReplyId);
             var restApi = new RestApiFacade(address, tokenValue);
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Model.Factories;
 using Model.OpenApiModel.Services;
 using Utilities;
 using Utilities.Facades;
@@ -342,47 +343,19 @@ namespace Model.ArtifactModel.Impl
         /// <summary>
         /// Get discussions for the specified artifact/subartifact
         /// </summary>
-        /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact/subartifact</param>
         /// <param name="includeDraft">false gets discussions for the last published version, true works with draft</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussionsInfo GetRaptorDiscussions(string address,
+        public static IRaptorDiscussionsInfo GetRapidReviewArtifactDiscussions(
             int itemId,
             bool includeDraft,
             IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
-
-            if (sendAuthorizationAsCookie)
-            {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
-
-            var queryParameters = new Dictionary<string, string> {
-                { "includeDraft", includeDraft.ToString() }
-            };
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndDeserializeObject<RaptorDiscussionsInfo>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                cookies: cookies,
-                shouldControlJsonChanges: false);
-
-            return response;
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.GetRapidReviewArtifactDiscussions(user, itemId, includeDraft, expectedStatusCodes);
         }
 
         /// <summary>
@@ -408,28 +381,21 @@ namespace Model.ArtifactModel.Impl
         /// POST discussion for the specified artifact.
         /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
         /// </summary>
-        /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
         /// <param name="comment">The comment for new discussion.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussion PostRaptorDiscussion(string address, int itemId, 
-            string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        public static IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            int itemId, 
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse(path, RestRequestMethod.POST,
-                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
-            
-            // Derialization
-            var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
-
-            return result;
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.PostRapidReviewArtifactDiscussion(user, itemId, comment, expectedStatusCodes);
         }
 
         /// <summary>

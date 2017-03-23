@@ -273,8 +273,8 @@ namespace ArtifactStore.Repositories
                             ItemId = reviewId,
                             Status = status,
                             CreatedDate = itemRawDataCreatedDate.CreatedDateTime,
-                            itemName = itemDetails.Name,
-                            itemTypePrefix = itemDetails.Prefix
+                            ItemName = itemDetails.Name,
+                            ItemTypePrefix = itemDetails.Prefix
                         });
                     }
                 }

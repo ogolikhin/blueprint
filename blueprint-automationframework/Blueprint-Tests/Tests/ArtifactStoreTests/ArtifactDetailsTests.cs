@@ -3,8 +3,10 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
+using Model.Impl;
 using Model.OpenApiModel.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -177,6 +179,7 @@ namespace ArtifactStoreTests
             // Update main artifact to have inline trace to inline trace artifact created
             var artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
+            artifactDetailsToUpdateMainArtifact.Traces = CreateManualTrace(inlineTraceArtifact.Id);
 
             // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
@@ -193,8 +196,7 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() =>
             {
-                inlineTraceArtifactDetails = Artifact.UpdateArtifact(inlineTraceArtifact, _user,
-                    artifactDetailsChanges: artifactDetailsToUpdateInlineTraceArtifact);
+                Artifact.UpdateArtifact(inlineTraceArtifact, _user, artifactDetailsToUpdateInlineTraceArtifact);
             }, "UpdateArtifact call failed when using the following artifact ID: {0}!", inlineTraceArtifact.Id);
 
             inlineTraceArtifact.Publish();
@@ -202,15 +204,18 @@ namespace ArtifactStoreTests
             // Execute: Get ArtifactDetails for main artifact
             var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
 
-            // Validation: Verify that returned ArtifactDeatils contains the updated information for InlineTrace
+            // Verify: Returned ArtifactDeatils contains the updated information for InlineTrace
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
+
+            Assert.AreEqual(mainArtifactDetails.IndicatorFlags, ItemIndicatorFlags.HasManualReuseOrOtherTraces,
+                "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182552)]
-        [Description("Create two artifacts: main and inline trace on different project. Update the inline trace artifact information - " +
+        [Description("Create two artifacts: main and inline trace in different project. Update the inline trace artifact information." +
             "Verify that GetArtifactDetails call returns updated inline trace information.")]
-        public void GetArtifactDetails_UpdateInlineTraceArtifactOnDifferentProject_ReturnsUpdatedInlineTraceLink(
+        public void GetArtifactDetails_UpdateInlineTraceArtifactInDifferentProject_ReturnsUpdatedInlineTraceLink(
             BaseArtifactType baseArtifactType)
         {
             // Setup: Get projects available from testing environment
@@ -225,6 +230,7 @@ namespace ArtifactStoreTests
             // Update main artifact to have inline trace to inline trace artifact created
             var artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
+            artifactDetailsToUpdateMainArtifact.Traces = CreateManualTrace(inlineTraceArtifact.Id);
 
             // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
@@ -255,8 +261,11 @@ namespace ArtifactStoreTests
             // Execute: Get ArtifactDetails for main artifact
             var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
 
-            // Validation: Verify that returned ArtifactDeatils contains valid inline traceLink to the inlineTraceArtifact
+            //Verify: Returned ArtifactDeatils contains valid inline traceLink to the inlineTraceArtifact
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
+
+            Assert.AreEqual(mainArtifactDetails.IndicatorFlags, ItemIndicatorFlags.HasManualReuseOrOtherTraces,
+                "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -273,6 +282,7 @@ namespace ArtifactStoreTests
             // Update main artifact to have inline trace to inline trace artifact created
             var artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
+            artifactDetailsToUpdateMainArtifact.Traces = CreateManualTrace(inlineTraceArtifact.Id);
 
             // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
@@ -287,15 +297,17 @@ namespace ArtifactStoreTests
             // Execute: Get ArtifactDetails using userWithPermissionOnMainProject for the main artifact
             var mainArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, mainArtifact.Id);
 
-            // Validation: Verify that returned ArtifactDeatils contains invalid inline traceLink to the inlineTraceArtifact
+            // Verify: Returned ArtifactDeatils contains invalid inline traceLink to the inlineTraceArtifact
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: false);
+
+            Assert.AreEqual(mainArtifactDetails.IndicatorFlags, null, "IndicatorFlags property should have null value!");
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
         [TestRail(182550)]
-        [Description("Create two artifacts: main and inline trace on different project. - Verify that GetArtifactDetails call returns invalid inline trace link if " +
+        [Description("Create two artifacts: main and inline trace in different project. Verify that GetArtifactDetails call returns invalid inline trace link if " +
             "the user doesn't have the access permission for the inline trace artifact")]
-        public void GetArtifactDetails_GetArtifactDetailsUsingUserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTraceLink(
+        public void GetArtifactDetails_UserWithoutPermissionToInlineTraceArtifact_ReturnsInvalidInlineTraceLink(
             BaseArtifactType baseArtifactType)
         {
             // Setup: Get projects available from testing environment
@@ -310,6 +322,7 @@ namespace ArtifactStoreTests
             // Update main artifact to have inline trace to inline trace artifact created
             var artifactDetailsToUpdateMainArtifact = ArtifactStoreHelper.CreateNovaArtifactDetailsWithArtifact(mainArtifact);
             artifactDetailsToUpdateMainArtifact.Description = ArtifactStoreHelper.CreateArtifactInlineTraceValue(inlineTraceArtifact, inlineTraceArtifactDetails);
+            artifactDetailsToUpdateMainArtifact.Traces = CreateManualTrace(inlineTraceArtifact.Id);
 
             // Update and publish the main artifact with inline trace to target artifact
             mainArtifact.Lock();
@@ -318,13 +331,17 @@ namespace ArtifactStoreTests
             mainArtifact.Publish();
 
             // Create user with a permission only on main project
-            var userWithPermissionOnMainProject = Helper.CreateUserWithProjectRolePermissions(role: TestHelper.ProjectRole.Author, projects: new List<IProject> { mainProject });
+            var userWithPermissionOnMainProjectOnly = Helper.CreateUserWithProjectRolePermissions(role: TestHelper.ProjectRole.Author, projects: new List<IProject> { mainProject });
 
             // Execute: Get ArtifactDetails for the main artifact using the user without permission to inline trace artifact
-            var mainArtifactDetailsWithUserWithPermissionOnMainProject = Helper.ArtifactStore.GetArtifactDetails(userWithPermissionOnMainProject, mainArtifact.Id);
+            var mainArtifactDetailsWithUserWithPermissionOnMainProject = Helper.ArtifactStore.GetArtifactDetails(userWithPermissionOnMainProjectOnly, mainArtifact.Id);
 
-            // Validation: Verify that returned ArtifactDeatils contains invalid inline traceLink to the inlineTraceArtifact
-            ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetailsWithUserWithPermissionOnMainProject, inlineTraceArtifact, validInlineTraceLink: false);
+            // Verify: Returned ArtifactDeatils contains invalid inline traceLink to the inlineTraceArtifact
+            ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(
+                mainArtifactDetailsWithUserWithPermissionOnMainProject, inlineTraceArtifact, validInlineTraceLink: false);
+
+            Assert.AreEqual(mainArtifactDetailsWithUserWithPermissionOnMainProject.IndicatorFlags, ItemIndicatorFlags.HasManualReuseOrOtherTraces,
+                "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
         }
 
         #endregion 200 OK Tests
@@ -561,6 +578,24 @@ namespace ArtifactStoreTests
             var messageResult = JsonConvert.DeserializeObject<MessageResult>(jsonContent, jsonSettings);
 
             Assert.AreEqual(expectedMessage, messageResult.Message, assertMessage, assertMessageParams);
+        }
+
+        /// <summary>
+        /// Creates manual trace
+        /// </summary>
+        /// <param name="artifactId">Artifact Id to which trace need to be created</param>
+        /// <returns>List of traces from one trace</returns>
+        private static List<NovaTrace> CreateManualTrace(int artifactId)
+        {
+            var trace = new NovaTrace
+            {
+                ArtifactId = artifactId,
+                ChangeType = ChangeType.Create,
+                ItemId = artifactId,
+                Direction = TraceDirection.From,
+                TraceType = TraceType.Manual
+            };
+            return new List<NovaTrace>() { trace };
         }
 
         #endregion Private Functions

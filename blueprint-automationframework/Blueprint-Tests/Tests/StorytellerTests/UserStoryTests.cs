@@ -14,6 +14,7 @@ using Model.StorytellerModel.Impl;
 using TestCommon;
 using Utilities;
 using Utilities.Facades;
+using Model.ArtifactModel.Enums;
 
 namespace StorytellerTests
 {
@@ -321,15 +322,14 @@ namespace StorytellerTests
             "field with inline trace to deleted artifact. Response must return error message.")]
         public void UpdateNonfunctionalRequirementsWithInlineTrace_VerifyReturnedMessage()
         {
-            // Create and publish a process artifact
+            // Setup:
             var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             // Create target artifact for inline trace
-            var linkedArtifact = ArtifactFactory.CreateArtifact(_project, _user, BaseArtifactType.Actor);     // TODO:  Change ArtifactFactory to Helper.
-            linkedArtifact.Save();
-            linkedArtifact.Publish();
+            var linkedArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+
             string inlineTraceText;
             int linkedArtifactId = linkedArtifact.Id;
 
@@ -348,8 +348,10 @@ namespace StorytellerTests
             // Generate User Stories from the Process
             var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
-            // update Nonfunctional Requirements field with inline trace
+            // Execute:
             var updatePropertyResult = userStories[0].UpdateNonfunctionalRequirements(Helper.Storyteller.Address, _user, inlineTraceText);
+
+            // Verify:
             Assert.That(updatePropertyResult.Messages.Count() == 1,
                 "Result of create inline trace must return one error message, but returns {0}",
                 updatePropertyResult.Messages.Count());
@@ -359,6 +361,8 @@ namespace StorytellerTests
                 expectedMessage, updatePropertyResult.Messages.ElementAt(0).Message);
             Assert.AreEqual(updatePropertyResult.Messages.ElementAt(0).ItemId, linkedArtifactId, "Returned ID must be {0}, but it is {1}",
                 linkedArtifactId, updatePropertyResult.Messages.ElementAt(0).ItemId);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, processArtifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -366,7 +370,7 @@ namespace StorytellerTests
             "field with inline trace to process artifact. Response must not return an error.")]
         public void UpdateNonfunctionalRequirementsWithInlineTrace_VerifySuccess()
         {
-            // Create and publish a process artifact
+            // Setup:
             var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
 
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
@@ -377,11 +381,14 @@ namespace StorytellerTests
             // Generate User Stories from the Process
             var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
-            // update Nonfunctional Requirements field with inline trace
+            // Execute:
             Assert.DoesNotThrow(() =>
             {
                 userStories[0].UpdateNonfunctionalRequirements(Helper.Storyteller.Address, _user, inlineTraceText);
             }, "Update Nonfunctional Requirements must not return an error.");
+
+            // Verify:
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, processArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase]

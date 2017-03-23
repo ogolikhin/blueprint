@@ -393,8 +393,7 @@ namespace ArtifactStoreTests
             var targetArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
             var thirdArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
 
-            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact,
-                targetArtifact, TraceDirection.To, _user);
+            var traces = OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, TraceDirection.To, _user);
             Assert.AreEqual(1, traces.Count, "No traces were added!");
 
             traces.AddRange(OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, thirdArtifact, TraceDirection.From, _user));

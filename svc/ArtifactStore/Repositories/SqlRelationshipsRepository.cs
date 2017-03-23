@@ -255,21 +255,26 @@ namespace ArtifactStore.Repositories
             if (reviewLinks != null)
             {
                 var distinctReviewIds = reviewLinks.Select(a => a.SourceItemId).Distinct().ToList();
+                var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctReviewIds, true, revisionId))
+                    .ToDictionary(a => a.HolderId);
                 var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, distinctReviewIds, true, revisionId))
                     .ToDictionary(a => a.ItemId);
 
                 var referencedReviewArtifacts = new List<ReferencedReviewArtifact>();
                 ItemRawDataCreatedDate itemRawDataCreatedDate;
+                ItemDetails itemDetails;
                 foreach (var reviewId in distinctReviewIds)
                 {
-                    if (itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate))
+                    if ((itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate)) && (itemDetailsDictionary.TryGetValue(reviewId, out itemDetails)))
                     {
                         var status = ReviewRawDataHelper.ExtractReviewStatus(itemRawDataCreatedDate.RawData);
                         referencedReviewArtifacts.Add(new ReferencedReviewArtifact
                         {
                             ItemId = reviewId,
                             Status = status,
-                            CreatedDate = itemRawDataCreatedDate.CreatedDateTime
+                            CreatedDate = itemRawDataCreatedDate.CreatedDateTime,
+                            ItemName = itemDetails.Name,
+                            ItemTypePrefix = itemDetails.Prefix
                         });
                     }
                 }

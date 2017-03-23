@@ -298,17 +298,7 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <summary>
-        /// Updates the specified reply.
-        /// (Runs: 'PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId}')
-        /// </summary>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="itemId"></param>
-        /// <param name="discussionId">ID of the Discussion whose reply is being updated.</param>
-        /// <param name="replyId">ID of the reply to update.</param>
-        /// <param name="comment">The new comment for reply.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Updated RaptorReply.</returns>
+        /// <seealso cref="ISvcComponents.UpdateRapidReviewDiscussionReply(IUser, int, int, int, string, List{HttpStatusCode})"/>
         public IReplyAdapter UpdateRapidReviewDiscussionReply(
             IUser user,
             int itemId,
@@ -329,7 +319,7 @@ namespace Model.Impl
                 bodyObject: comment,
                 expectedStatusCodes: expectedStatusCodes);
 
-            // Derialization
+            // Deserialization.
             var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
 
             return result;

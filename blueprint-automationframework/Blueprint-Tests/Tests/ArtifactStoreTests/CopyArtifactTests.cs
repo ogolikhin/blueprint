@@ -959,13 +959,13 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
             var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Add the discussion to the artifact.
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
-            OpenApiArtifact.PostRaptorDiscussion(artifact.Address, artifact.Id, commentText, author);
+            artifact.PostRapidReviewArtifactDiscussion(commentText, author);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 discussion!");

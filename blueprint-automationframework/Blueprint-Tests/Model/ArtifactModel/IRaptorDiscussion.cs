@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Model.ArtifactModel.Adaptors;
+using Model.ArtifactModel.Adapters;
 
 namespace Model.ArtifactModel
 {
@@ -23,7 +23,7 @@ namespace Model.ArtifactModel
     //This representation is used for Discussion in RapidReview,
     //Impact Analysis and Storyteller
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
-    public interface IRaptorDiscussion : IDiscussionAdaptor
+    public interface IRaptorDiscussion : IDiscussionAdapter
     {
         #region Serialized JSON properties
 

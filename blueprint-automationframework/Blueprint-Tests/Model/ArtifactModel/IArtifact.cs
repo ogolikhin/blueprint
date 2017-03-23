@@ -2,6 +2,7 @@ using System;
 using Model.ArtifactModel.Impl;
 using System.Collections.Generic;
 using System.Net;
+using Model.ArtifactModel.Adapters;
 using Model.NovaModel.Components.RapidReview;
 
 namespace Model.ArtifactModel
@@ -122,14 +123,14 @@ namespace Model.ArtifactModel
         NovaPublishArtifactResult StorytellerPublish(IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
+        /// POST discussion for the specified artifact.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions')
         /// </summary>
-        /// <param name="comment">The comment for the new discussion.</param>
-        /// <param name="user">The user credentials for the request</param>
+        /// <param name="comment">The comment for new discussion.</param>
+        /// <param name="user">The user credentials for the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        IRaptorDiscussion PostRaptorDiscussion(string comment,
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
+        IRaptorDiscussion PostRapidReviewArtifactDiscussion(string comment,
             IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -146,14 +147,29 @@ namespace Model.ArtifactModel
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Deletes the specified discussion using Raptor REST API.
-        /// (Runs: DELETE /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToDeleteId})
+        /// Deletes the specified discussion using the RapidReview REST API.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletethread/{discussionId}')
         /// </summary>
-        /// <param name="user">The user credentials for the request</param>
+        /// <param name="user">The user credentials for the request.</param>
         /// <param name="discussionToDelete">The discussion to delete.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>A success or failure message.</returns>
-        string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion discussionToDelete,
+        string DeleteRapidReviewArtifactDiscussion(
+            IUser user,
+            IRaptorDiscussion discussionToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified reply using RapidReview REST API.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId}')
+        /// </summary>
+        /// <param name="replyToDelete">The reply to delete.</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewArtifactReply(
+            IReplyAdapter replyToDelete,
+            IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

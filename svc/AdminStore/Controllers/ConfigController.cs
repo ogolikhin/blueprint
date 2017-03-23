@@ -104,10 +104,9 @@ namespace AdminStore.Controllers
                 {
                     settings = settings.ToDictionary(it => it.Key, it => it.Value),
                     labels = labels.ToDictionary(it => it.Key, it => it.Text),
-                };
-                config.settings.Add(ServiceConstants.ForgotPasswordUrlConfigKey, ServiceConstants.ForgotPasswordUrl);
+                }.ToJSON();
 
-                var script = $"window.config={config.ToJSON()};";
+                var script = $"window.config={config};";
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Content = new StringContent(script, Encoding.UTF8, "application/javascript");

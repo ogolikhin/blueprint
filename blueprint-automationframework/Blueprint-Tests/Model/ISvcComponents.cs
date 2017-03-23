@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
@@ -79,6 +80,66 @@ namespace Model
         RapidReviewProperties GetRapidReviewArtifactsProperties(
             IUser user,
             List<int> artifactIds,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get discussions for the specified artifact/subartifact.
+        /// (Runs: 'GET /svc/components/RapidReview/artifacts/{itemId}/discussions')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of artifact/subartifact.</param>
+        /// <param name="includeDraft">False gets discussions for the last published version, true works with draft.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
+        IRaptorDiscussionsInfo GetRapidReviewArtifactDiscussions(
+            IUser user,
+            int itemId,
+            bool includeDraft,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// POST discussion for the specified artifact.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of artifact.</param>
+        /// <param name="comment">The comment for new discussion.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
+        IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            string comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified discussion.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletethread/{discussionId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">The ID of the Artifact to which the discussion belongs.</param>
+        /// <param name="discussionId">The ID of the Discussion to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            int discussionId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified discussion reply.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of artifact whose discussion reply is being deleted.</param>
+        /// <param name="replyId">The ID of the reply to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewArtifactReply(
+            IUser user,
+            int itemId,
+            int replyId,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion RapidReview methods

@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Model.ArtifactModel;
+using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;
 
@@ -153,6 +155,99 @@ namespace Model.Impl
                 shouldControlJsonChanges: false);
 
             return returnedArtifactProperties[0];
+        }
+
+        /// <seealso cref="ISvcComponents.GetRapidReviewArtifactDiscussions(IUser, int, bool, List{HttpStatusCode})"/>
+        public IRaptorDiscussionsInfo GetRapidReviewArtifactDiscussions(
+            IUser user,
+            int itemId,
+            bool includeDraft,      // TODO: Should this be a nullable bool?  Is this an optional parameter?
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+
+            var queryParameters = new Dictionary<string, string> { { "includeDraft", includeDraft.ToString() } };
+
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndDeserializeObject<RaptorDiscussionsInfo>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return response;
+        }
+
+        /// <seealso cref="ISvcComponents.PostRapidReviewArtifactDiscussion(IUser, int, string, List{HttpStatusCode})"/>
+        public IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            string comment,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string tokenValue = user?.Token?.AccessControlToken;
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                bodyObject: comment,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Deserialization.
+            var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
+
+            return result;
+        }
+
+        /// <seealso cref="ISvcComponents.DeleteRapidReviewArtifactDiscussion(IUser, int, int, List{HttpStatusCode})"/>
+        public string DeleteRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            int discussionId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, itemId, discussionId);
+
+            string tokenValue = user?.Token?.AccessControlToken;
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse<string>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Deserialization.
+            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
+
+            return resultMessage;
+        }
+
+        /// <seealso cref="ISvcComponents.DeleteRapidReviewArtifactReply(IUser, int, int, List{HttpStatusCode})"/>
+        public string DeleteRapidReviewArtifactReply(
+            IUser user,
+            int itemId,
+            int replyId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_COMMENT_ID, itemId, replyId);
+
+            string tokenValue = user?.Token?.AccessControlToken;
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse<string>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Deserialization.
+            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
+
+            return resultMessage;
         }
 
         #endregion RapidReview methods

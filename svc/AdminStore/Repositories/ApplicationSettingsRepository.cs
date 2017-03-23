@@ -27,8 +27,14 @@ namespace AdminStore.Repositories
         {
             try
             {
-                return await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", null, commandType: CommandType.StoredProcedure);
-
+                var forgetPassword = new ApplicationSetting
+                {
+                    Key = ServiceConstants.ForgotPasswordUrlConfigKey,
+                    Value = ServiceConstants.ForgotPasswordUrl
+                };
+                var settings = await _connectionWrapper.QueryAsync<ApplicationSetting>("GetApplicationSettings", null, commandType: CommandType.StoredProcedure);
+               
+                return settings.Concat(new[] { forgetPassword });
             }
             catch (Exception ex)
             {

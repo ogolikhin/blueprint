@@ -299,8 +299,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                OpenApiArtifact.DeleteRaptorReply(Helper.BlueprintServer.Address, artifact.Id, raptorReply, _authorUser);
-            }, "DeleteReply shouldn't throw any error, but it did.");
+                artifact.DeleteRapidReviewArtifactReply(raptorReply, _authorUser);
+            }, "{0} shouldn't throw any error, but it did.", nameof(artifact.DeleteRapidReviewArtifactReply));
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
@@ -493,7 +493,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
+                artifact.DeleteRapidReviewArtifactDiscussion(_authorUser, raptorComment);
             }, "DeleteDiscussions shouldn't throw any error, but it does.");
 
             // Verify:
@@ -524,7 +524,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifact.DeleteRaptorDiscussion(_adminUser, raptorComment);
+                artifact.DeleteRapidReviewArtifactDiscussion(_adminUser, raptorComment);
             }, "DeleteDiscussions shouldn't throw any error, but it does.");
 
             // Verify:
@@ -576,7 +576,7 @@ namespace ArtifactStoreTests
         public void PostNewDiscussion_ArtifactHasVersion2_CheckCommentHasVersion2()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2); //artifact version is 2
+            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2); //artifact version is 2
 
             IDiscussionAdaptor postedRaptorComment = null;
             DiscussionResultSet discussions = null;
@@ -584,7 +584,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                postedRaptorComment = OpenApiArtifact.PostRapidReviewArtifactDiscussion(artifact.Id, ORIGINAL_COMMENT, _authorUser);
+                postedRaptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
                 artifact.Save(_authorUser);
                 artifact.Publish(_authorUser);  //artifact version is 3
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
@@ -669,7 +669,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.DeleteRaptorDiscussion(_authorUser, raptorComment);
+                artifact.DeleteRapidReviewArtifactDiscussion(_authorUser, raptorComment);
             }, "DeleteDiscussions should throw 403 error, but it doesn't.");
 
             // Verify:
@@ -696,8 +696,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                OpenApiArtifact.DeleteRaptorReply(Helper.BlueprintServer.Address, artifact.Id, raptorReply, _authorUser);
-            }, "DeleteRaptorReply should throw 403 error, but it doesn't.");
+                artifact.DeleteRapidReviewArtifactReply(raptorReply, _authorUser);
+            }, "{0} should throw 403 error, but it doesn't.", nameof(artifact.DeleteRapidReviewArtifactReply));
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
@@ -918,7 +918,7 @@ namespace ArtifactStoreTests
 
             var process = Helper.Storyteller.GetProcess(user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = OpenApiArtifact.PostRapidReviewArtifactDiscussion(userTask.Id, "text for UT", user);
+            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewArtifactDiscussion(user, userTask.Id, "text for UT");
 
             return postedRaptorComment;
         }

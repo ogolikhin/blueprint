@@ -99,7 +99,7 @@ namespace Model
 
         /// <summary>
         /// POST discussion for the specified artifact.
-        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{artifactId}/discussions')
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions')
         /// </summary>
         /// <param name="user">The user credentials for the request.</param>
         /// <param name="itemId">ID of artifact.</param>
@@ -110,6 +110,36 @@ namespace Model
             IUser user,
             int itemId,
             string comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified discussion.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletethread/{discussionId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">The ID of the Artifact to which the discussion belongs.</param>
+        /// <param name="discussionId">The ID of the Discussion to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            int discussionId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified discussion reply.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of artifact whose discussion reply is being deleted.</param>
+        /// <param name="replyId">The ID of the reply to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewArtifactReply(
+            IUser user,
+            int itemId,
+            int replyId,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion RapidReview methods

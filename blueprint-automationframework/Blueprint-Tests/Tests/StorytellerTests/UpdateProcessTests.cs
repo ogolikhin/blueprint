@@ -881,7 +881,7 @@ namespace StorytellerTests
 
             Assert.DoesNotThrow(() =>
             {
-                var discussions = OpenApiArtifact.GetRapidReviewArtifactDiscussions(itemId: unpublishedUserTask.Id, includeDraft: true, user: _user);
+                var discussions = Helper.SvcComponents.GetRapidReviewArtifactDiscussions(_user, unpublishedUserTask.Id, includeDraft: true);
 
                 Assert.That(discussions.ArtifactId == returnedProcess.Id, "The ArtifactID must be equal to Process id.");
                 Assert.That(discussions.SubArtifactId == unpublishedUserTask.Id, "The SubArtifactID must be equal User Task id.");

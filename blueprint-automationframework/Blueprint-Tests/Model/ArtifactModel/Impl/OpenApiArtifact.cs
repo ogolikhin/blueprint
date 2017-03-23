@@ -338,26 +338,6 @@ namespace Model.ArtifactModel.Impl
             return artifactResults;
         }
 
-        //TODO Investigate if we can use IArtifact instead of ItemId
-
-        /// <summary>
-        /// Get discussions for the specified artifact/subartifact
-        /// </summary>
-        /// <param name="itemId">id of artifact/subartifact</param>
-        /// <param name="includeDraft">false gets discussions for the last published version, true works with draft</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussionsInfo GetRapidReviewArtifactDiscussions(
-            int itemId,
-            bool includeDraft,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.GetRapidReviewArtifactDiscussions(user, itemId, includeDraft, expectedStatusCodes);
-        }
-
         /// <summary>
         /// Search artifact by a substring in its name on Blueprint server.  Among published artifacts only.
         /// (Runs:  'GET svc/shared/artifacts/search')
@@ -375,27 +355,6 @@ namespace Model.ArtifactModel.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return SvcShared.SearchArtifactsByName(address, user, searchSubstring, project, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// POST discussion for the specified artifact.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
-        /// </summary>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="comment">The comment for new discussion.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussion PostRapidReviewArtifactDiscussion(
-            int itemId, 
-            string comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-            return service.PostRapidReviewArtifactDiscussion(user, itemId, comment, expectedStatusCodes);
         }
 
         /// <summary>
@@ -422,35 +381,6 @@ namespace Model.ArtifactModel.Impl
                 RestRequestMethod.PATCH,
                 comment,
                 expectedStatusCodes: expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Deletes the specified discussion.
-        /// (Runs: POST /svc/components/RapidReview/artifacts/{itemId}/deletethread/{discussionId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="discussionToDelete">Discussion to delete.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
-        public static string DeleteRaptorDiscussion(string address, ICommentBaseAdapter discussionToDelete,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(
-                RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, discussionToDelete.ItemId, discussionToDelete.DiscussionId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
-
-            return resultMessage;
         }
 
         /// <summary>
@@ -514,35 +444,6 @@ namespace Model.ArtifactModel.Impl
             var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
 
             return result;
-        }
-
-        /// <summary>
-        /// Deletes the specified reply.
-        /// (Runs: POST /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="replyToDelete">The reply to update.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>A success or failure message.</returns>
-        public static string DeleteRaptorReply(string address, int itemId, IReplyAdapter replyToDelete,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_COMMENT_ID, itemId, replyToDelete.ReplyId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
-
-            return resultMessage;
         }
 
         /// <summary>

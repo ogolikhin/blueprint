@@ -61,6 +61,7 @@ namespace Helper
         public IOpenApi OpenApi { get; } = OpenApiFactory.GetOpenApiFromTestConfig();
         public ISearchService SearchService { get; } = SearchServiceFactory.GetSearchServiceFromTestConfig();
         public IStoryteller Storyteller { get; } = StorytellerFactory.GetStorytellerFromTestConfig();
+        public ISvcComponents SvcComponents { get; } = SvcComponentsFactory.GetSvcSharedFromTestConfig();
         public ISvcShared SvcShared { get; } = SvcSharedFactory.GetSvcSharedFromTestConfig();
 
         // Lists of objects created by this class to be disposed:

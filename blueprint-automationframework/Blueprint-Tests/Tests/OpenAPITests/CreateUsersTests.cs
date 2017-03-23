@@ -415,12 +415,11 @@ namespace OpenAPITests
             CSharpUtilities.SetProperty<string>(propertyName, null, userWithMissingProperty[0]);
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithMissingProperty,
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.CreateUsers(_adminUser, userWithMissingProperty),
                 "'CREATE {0}' should return '409 Conflict' when user has missing property!", CREATE_PATH);
 
             // Verify:
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyCreateUserResultSet(userWithMissingProperty, result, BusinessLayerErrorCodes.UserValidationFailed, errorMessage);
         }
 
@@ -435,12 +434,11 @@ namespace OpenAPITests
             userToCreate[0].InstanceAdminRole = RandomGenerator.RandomAlphaNumeric(10);
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userToCreate,
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.CreateUsers(_adminUser, userToCreate),
                 "'CREATE {0}' should return '409 Conflict' when instance administrator role does not exists!", CREATE_PATH);
 
             // Verify:
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             Assert.AreEqual(userToCreate.Count, result.Count, "Wrong number of User results were returned!");
             VerifyCreateUserResultSet(userToCreate, result, BusinessLayerErrorCodes.UserAddInstanceAdminRoleFailed, 
                 "Specified Instance admin role doesn't exist");
@@ -457,12 +455,11 @@ namespace OpenAPITests
             userWithNonExistingGroup[0].GroupIds[0] = int.MaxValue;
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, userWithNonExistingGroup,
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.CreateUsers(_adminUser, userWithNonExistingGroup),
                 "'CREATE {0}' should return '409 Conflict' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             Assert.AreEqual(userWithNonExistingGroup.Count, result.Count, "Wrong number of User results were returned!");
             VerifyCreateUserResultSet(userWithNonExistingGroup, result, BusinessLayerErrorCodes.UserAddToGroupFailed,
                 "User is created, but cannot be added to a group");
@@ -493,12 +490,11 @@ namespace OpenAPITests
             usersWithWrongEmailAddress[0].Email = wrongEmailAddress;
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.CreateUsers(_adminUser, usersWithWrongEmailAddress,
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.CreateUsers(_adminUser, usersWithWrongEmailAddress),
                 "'CREATE {0}' should return '409 Conflict' when one of users has invalid data!", CREATE_PATH);
 
             // Verify:
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             Assert.AreEqual(usersWithWrongEmailAddress.Count, result.Count, "Wrong number of User results were returned!");
 
             VerifyCreateUserResultSet(usersWithWrongEmailAddress, result, BusinessLayerErrorCodes.UserValidationFailed, 

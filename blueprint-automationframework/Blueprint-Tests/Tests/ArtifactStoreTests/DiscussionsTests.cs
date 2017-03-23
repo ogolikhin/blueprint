@@ -299,8 +299,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                Artifact.DeleteRapidReviewArtifactReply(artifact.Id, raptorReply, _authorUser);
-            }, "{0} shouldn't throw any error, but it did.", nameof(Artifact.DeleteRapidReviewArtifactReply));
+                artifact.DeleteRapidReviewArtifactReply(raptorReply, _authorUser);
+            }, "{0} shouldn't throw any error, but it did.", nameof(artifact.DeleteRapidReviewArtifactReply));
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
@@ -696,8 +696,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
             {
-                Artifact.DeleteRapidReviewArtifactReply(artifact.Id, raptorReply, _authorUser);
-            }, "{0} should throw 403 error, but it doesn't.", nameof(Artifact.DeleteRapidReviewArtifactReply));
+                artifact.DeleteRapidReviewArtifactReply(raptorReply, _authorUser);
+            }, "{0} should throw 403 error, but it doesn't.", nameof(artifact.DeleteRapidReviewArtifactReply));
 
             // Verify:
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);

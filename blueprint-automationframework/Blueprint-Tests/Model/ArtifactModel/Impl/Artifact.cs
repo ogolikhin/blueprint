@@ -273,9 +273,24 @@ namespace Model.ArtifactModel.Impl
         {
             ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
 
-            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            Assert.AreEqual(Id, discussionToDelete.ItemId, "The discussion you want to delete doesn't belong to this artifact!");
 
-            return service.DeleteRapidReviewArtifactDiscussion(user, discussionToDelete.ItemId, discussionToDelete.DiscussionId, expectedStatusCodes);
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.DeleteRapidReviewArtifactDiscussion(user, Id, discussionToDelete.DiscussionId, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifact.DeleteRapidReviewArtifactReply(IReplyAdapter, IUser, List{HttpStatusCode})"/>
+        public string DeleteRapidReviewArtifactReply(
+            IReplyAdapter replyToDelete,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
+
+            Assert.AreEqual(Id, replyToDelete.ItemId, "The discussion reply you want to delete doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.DeleteRapidReviewArtifactReply(user, Id, replyToDelete.ReplyId, expectedStatusCodes);
         }
 
         public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
@@ -734,28 +749,6 @@ namespace Model.ArtifactModel.Impl
             return OpenApiArtifact.UpdateRaptorDiscussionReply(address, discussion, replyToUpdate, comment, user, expectedStatusCodes);
         }
 
-        /// <summary>
-        /// Deletes the specified reply using RapidReview REST API.
-        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId}')
-        /// </summary>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="replyToDelete">The reply to delete.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>A success or failure message.</returns>
-        public static string DeleteRapidReviewArtifactReply(
-            int itemId,
-            IReplyAdapter replyToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
-
-            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
-
-            return service.DeleteRapidReviewArtifactReply(user, itemId, replyToDelete.ReplyId, expectedStatusCodes);
-        }
-        
         /// <summary>
         /// add attachment to the specified artifact
         /// </summary>

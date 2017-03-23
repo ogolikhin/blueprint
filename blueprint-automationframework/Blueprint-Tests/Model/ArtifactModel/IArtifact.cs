@@ -2,6 +2,7 @@ using System;
 using Model.ArtifactModel.Impl;
 using System.Collections.Generic;
 using System.Net;
+using Model.ArtifactModel.Adaptors;
 using Model.NovaModel.Components.RapidReview;
 
 namespace Model.ArtifactModel
@@ -156,6 +157,19 @@ namespace Model.ArtifactModel
         string DeleteRapidReviewArtifactDiscussion(
             IUser user,
             IRaptorDiscussion discussionToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified reply using RapidReview REST API.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId}')
+        /// </summary>
+        /// <param name="replyToDelete">The reply to delete.</param>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewArtifactReply(
+            IReplyAdapter replyToDelete,
+            IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

@@ -284,8 +284,8 @@ namespace Model
                     [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
                     public static class Artifacts_id_
                     {
-                        public const string DELETE_THREAD_id_       = "svc/components/RapidReview/artifacts/{0}/deletethread/{1}";
                         public const string DELETE_COMMENT_id_      = "svc/components/RapidReview/artifacts/{0}/deletecomment/{1}";
+                        public const string DELETE_THREAD_id_       = "svc/components/RapidReview/artifacts/{0}/deletethread/{1}";
                         public const string DISCUSSIONS             = "svc/components/RapidReview/artifacts/{0}/discussions";
 
                         public static class Discussions_id_

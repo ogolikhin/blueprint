@@ -142,6 +142,23 @@ namespace Model
             int replyId,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Updates the specified discussion.
+        /// (Runs: 'PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of Artifact/SubArtifact whose Discussion will be updated.</param>
+        /// <param name="discussionId">ID of Discussion to update.</param>
+        /// <param name="comment">The new comment with status to add to the discussion.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>The updated RaptorDiscussion.</returns>
+        IRaptorDiscussion UpdateRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            int discussionId,
+            RaptorComment comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

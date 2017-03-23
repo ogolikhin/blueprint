@@ -250,6 +250,27 @@ namespace Model.Impl
             return resultMessage;
         }
 
+        /// <seealso cref="ISvcComponents.UpdateRapidReviewArtifactDiscussion(IUser, int, int, RaptorComment, List{HttpStatusCode})"/>
+        public IRaptorDiscussion UpdateRapidReviewArtifactDiscussion(
+            IUser user,
+            int itemId,
+            int discussionId,
+            RaptorComment comment,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(
+                RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, itemId, discussionId);
+
+            string tokenValue = user?.Token?.AccessControlToken;
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            return restApi.SendRequestAndDeserializeObject<RaptorDiscussion, RaptorComment>(
+                path,
+                RestRequestMethod.PATCH,
+                comment,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

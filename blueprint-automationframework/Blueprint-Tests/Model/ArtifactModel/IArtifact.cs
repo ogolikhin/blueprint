@@ -137,13 +137,15 @@ namespace Model.ArtifactModel
         /// Updates the specified discussion.
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
         /// </summary>
+        /// <param name="discussionToUpdate">The discussion to update.</param>
         /// <param name="comment">The new comment for discussion.</param>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="discussionToUpdate">The discussion to update.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        IRaptorDiscussion UpdateRaptorDiscussion(RaptorComment comment,
-            IUser user, IRaptorDiscussion discussionToUpdate,
+        IRaptorDiscussion UpdateRapidReviewArtifactDiscussion(
+            IRaptorDiscussion discussionToUpdate,
+            RaptorComment comment,
+            IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

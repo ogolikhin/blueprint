@@ -734,21 +734,25 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Deletes the specified reply using Raptor REST API.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/deletecomment/{replyToDeleteId})
+        /// Deletes the specified reply using RapidReview REST API.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId}')
         /// </summary>
-        /// <param name="address">The base url of the Open API</param>
         /// <param name="itemId">id of artifact</param>
         /// <param name="replyToDelete">The reply to delete.</param>
         /// <param name="user">The user credentials for the request</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>A success or failure message.</returns>
-        public static string DeleteRaptorReply(string address,
-            int itemId, IReplyAdapter replyToDelete,
+        public static string DeleteRapidReviewArtifactReply(
+            int itemId,
+            IReplyAdapter replyToDelete,
             IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return OpenApiArtifact.DeleteRaptorReply(address, itemId, replyToDelete, user, expectedStatusCodes);
+            ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+
+            return service.DeleteRapidReviewArtifactReply(user, itemId, replyToDelete.ReplyId, expectedStatusCodes);
         }
         
         /// <summary>

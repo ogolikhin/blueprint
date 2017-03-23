@@ -212,13 +212,37 @@ namespace Model.Impl
             int discussionId,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            string path = I18NHelper.FormatInvariant(
-                RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, itemId, discussionId);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_THREAD_ID, itemId, discussionId);
 
             string tokenValue = user?.Token?.AccessControlToken;
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.DELETE,
+            var response = restApi.SendRequestAndGetResponse<string>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Deserialization.
+            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
+
+            return resultMessage;
+        }
+
+        /// <seealso cref="ISvcComponents.DeleteRapidReviewArtifactReply(IUser, int, int, List{HttpStatusCode})"/>
+        public string DeleteRapidReviewArtifactReply(
+            IUser user,
+            int itemId,
+            int replyId,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DELETE_COMMENT_ID, itemId, replyId);
+
+            string tokenValue = user?.Token?.AccessControlToken;
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse<string>(
+                path,
+                RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
 
             // Deserialization.

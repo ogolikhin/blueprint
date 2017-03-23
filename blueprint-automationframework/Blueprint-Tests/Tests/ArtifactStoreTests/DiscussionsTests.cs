@@ -134,11 +134,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
-            var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
+            var postedDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
 
-            DiscussionResultSet discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedComment.ItemId, _adminUser);
-            var postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
-                postedComment, "This is a reply to a comment.", _authorUser);
+            DiscussionResultSet discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedDiscussion.ItemId, _adminUser);
+            var postedReply = Helper.SvcComponents.PostRapidReviewDiscussionReply(
+                _authorUser, postedDiscussion.ItemId, postedDiscussion.DiscussionId, "This is a reply to a comment.");
 
             List<Reply> replies = null;
 
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
             RaptorReply.AssertAreEqual(postedReply, replies[0], skipCanEdit: true);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments, postedDiscussion.ItemId);
         }
 
         [TestCase]
@@ -287,15 +287,17 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
+
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
+
             string replyText = null;
             IReplyAdapter raptorReply = null;
 
             for (int i = 0; i < 2; i++)
             {
                 replyText = REPLY + " " + (i + 1);
-                raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, replyText, _authorUser);
+                raptorReply = artifact.PostRapidReviewDiscussionReply(raptorComment, replyText, _authorUser);
             }
 
             // Execute:
@@ -546,9 +548,12 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
             var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
+
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
-            var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, REPLY, _authorUser);
+
+            var raptorReply = artifact.PostRapidReviewDiscussionReply(raptorComment, REPLY, _authorUser);
+
             Assert.AreEqual(StringUtilities.WrapInDiv(REPLY), raptorReply.Comment,
                 "Original reply and reply returned after reply created different!");
 
@@ -690,10 +695,11 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
+
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
-            var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, REPLY, _adminUser);
+            var raptorReply = artifact.PostRapidReviewDiscussionReply(raptorComment, REPLY, _adminUser);
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>

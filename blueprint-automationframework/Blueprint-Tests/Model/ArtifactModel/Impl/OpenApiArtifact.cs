@@ -358,34 +358,6 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// POST reply for the specified discussion
-        /// </summary>
-        /// <param name="address">The base url of the Blueprint server</param>
-        /// <param name="discussion">Discussion to reply to.</param>
-        /// <param name="comment">Comment for replying.</param>
-        /// <param name="user">The user to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created RaptorReply for artifact/subartifact discussion.</returns>
-        public static IReplyAdapter PostRaptorDiscussionReply(string address,
-            ICommentBaseAdapter discussion, string comment, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(discussion, nameof(discussion));
-
-            string tokenValue = user.Token?.AccessControlToken;
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY, discussion.ItemId, discussion.DiscussionId);
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var response = restApi.SendRequestAndGetResponse<string>(path, RestRequestMethod.POST,
-                bodyObject: comment, expectedStatusCodes: expectedStatusCodes);
-
-            // Derialization
-            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
-
-            return result;
-        }
-
-        /// <summary>
         /// Updates the specified reply.
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
         /// </summary>

@@ -130,8 +130,25 @@ namespace Model.ArtifactModel
         /// <param name="user">The user credentials for the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
-        IRaptorDiscussion PostRapidReviewArtifactDiscussion(string comment,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// POST reply for the specified discussion.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply')
+        /// </summary>
+        /// <param name="discussion">Discussion to which we want to reply.</param>
+        /// <param name="comment">Comment text of the new reply.</param>
+        /// <param name="user">The user credentials to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
+        IReplyAdapter PostRapidReviewDiscussionReply(
+            ICommentBaseAdapter discussion,
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Updates the specified discussion.

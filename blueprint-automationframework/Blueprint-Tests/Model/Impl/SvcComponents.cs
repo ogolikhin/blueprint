@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Adapters;
 using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;
@@ -269,6 +270,32 @@ namespace Model.Impl
                 RestRequestMethod.PATCH,
                 comment,
                 expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <seealso cref="ISvcComponents.PostRapidReviewDiscussionReply(IUser, int, int, string, List{HttpStatusCode})"/>
+        public IReplyAdapter PostRapidReviewDiscussionReply(
+            IUser user,
+            int itemId,
+            int discussionId,
+            string comment,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(
+                RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.REPLY, itemId, discussionId);
+
+            string tokenValue = user?.Token?.AccessControlToken;
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var response = restApi.SendRequestAndGetResponse(
+                path,
+                RestRequestMethod.POST,
+                bodyObject: comment,
+                expectedStatusCodes: expectedStatusCodes);
+
+            // Deserialization.
+            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
+
+            return result;
         }
 
         #endregion RapidReview methods

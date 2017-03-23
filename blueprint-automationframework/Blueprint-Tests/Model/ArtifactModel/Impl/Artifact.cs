@@ -255,6 +255,21 @@ namespace Model.ArtifactModel.Impl
             return service.PostRapidReviewArtifactDiscussion(user, Id, comment, expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifact.PostRapidReviewDiscussionReply(ICommentBaseAdapter, string, IUser, List{HttpStatusCode})"/>
+        public IReplyAdapter PostRapidReviewDiscussionReply(
+            ICommentBaseAdapter discussion,
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(discussion, nameof(discussion));
+
+            Assert.AreEqual(Id, discussion.ItemId, "The discussion you want to reply to doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.PostRapidReviewDiscussionReply(user, Id, discussion.DiscussionId, comment, expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifact.UpdateRapidReviewArtifactDiscussion"/>
         public IRaptorDiscussion UpdateRapidReviewArtifactDiscussion(
             IRaptorDiscussion discussionToUpdate,
@@ -695,24 +710,6 @@ namespace Model.ArtifactModel.Impl
             }
 
             return publishResults[0];
-        }
-
-        /// <summary>
-        /// Creates new reply for the specified Discussion using Raptor REST API.
-        /// </summary>
-        /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="discussion">Discussion to which we want reply.</param>
-        /// <param name="comment">Comment for the new reply.</param>
-        /// <param name="user">The user credentials to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
-        public static IReplyAdapter PostRaptorDiscussionReply(string address,
-            ICommentBaseAdapter discussion,
-            string comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.PostRaptorDiscussionReply(address, discussion, comment, user, expectedStatusCodes);
         }
 
         /// <summary>

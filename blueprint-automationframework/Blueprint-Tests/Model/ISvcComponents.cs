@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Adapters;
 using Model.ArtifactModel.Impl;
 using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
@@ -157,6 +158,23 @@ namespace Model
             int itemId,
             int discussionId,
             RaptorComment comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// POST reply for the specified discussion.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply')
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">ID of the Artifact/SubArtifact whose Discussion you are replying to.</param>
+        /// <param name="discussionId">ID of the Discussion to reply to.</param>
+        /// <param name="comment">Comment text of the reply.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created RaptorReply for artifact/subartifact discussion.</returns>
+        IReplyAdapter PostRapidReviewDiscussionReply(
+            IUser user,
+            int itemId,
+            int discussionId,
+            string comment,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion RapidReview methods

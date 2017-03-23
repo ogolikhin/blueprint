@@ -28,6 +28,8 @@ namespace ArtifactStoreTests
         Func<Dictionary<string, int>, int> getUnpublishedArtifactCount = dict => dict["unpublishedArtifactCount"];
         Func<Dictionary<string, int>, int> getNonexistentArtifactCount = dict => dict["nonexistentArtifactCount"];
 
+        private const string expectedInternalExceptionMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
+
         [SetUp]
         public void SetUp()
         {
@@ -513,8 +515,7 @@ namespace ArtifactStoreTests
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Actor, _project.Id);
 
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
 
             var timestampDate = DateTime.UtcNow.AddMinutes(-3);
@@ -563,7 +564,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267228)]
-        [Description("Add published Artifact to sealed Baseline, check 409 error message.")]
+        [Description("Try to set Baseline timestamp to the future, check 409 error message.")]
         public void EditBaseline_SetBaselinetTimeStampToTheFutureDate_Check409()
         {
             // Setup:
@@ -583,18 +584,44 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
+        [TestRail(267245)]
+        [Description("Try to remove artifact from sealed Baseline, check 409 error message.")]
+        public void RemoveArtifactFromBaseline_SealedBaseline_Check409()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            baseline.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
+            baseline.SetIsSealed(true);
+            ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+
+            baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToAdd.Id });
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Attempt to remove artifact from sealed Baseline should throw 409 error.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.SealedBaseline, expectedInternalExceptionMessage);
+        }
+
+        [TestCase]
         [TestRail(267154)]
         [Description("Try to add default Collection folder to the Baseline, check 404 error message.")]
         public void AddArtifactToBaseline_DefaultCollectionFolder_Check404()
         {
             // Setup:
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-
             var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_user);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, defaultCollectionFolder.Id, baselineArtifact.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: defaultCollectionFolder.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -609,13 +636,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
-                _project.Id);
-
-            var baseline = Helper.CreateBaseline(_user, _project);
+                _project.Id); 
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -697,8 +722,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             // see TFS 5107
-            string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedInternalExceptionMessage);
         }
 
         #endregion Negative Tests

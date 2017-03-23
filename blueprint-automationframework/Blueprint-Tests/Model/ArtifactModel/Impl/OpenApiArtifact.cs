@@ -1,5 +1,4 @@
 using Common;
-using Model.ArtifactModel.Adaptors;
 using Model.Impl;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using Model.ArtifactModel.Adapters;
 using Model.Factories;
 using Model.OpenApiModel.Services;
 using Utilities;

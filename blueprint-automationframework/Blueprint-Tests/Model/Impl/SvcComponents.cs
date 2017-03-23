@@ -9,7 +9,6 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using Model.ArtifactModel;
-using Model.ArtifactModel.Adaptors;
 using Newtonsoft.Json;
 using Utilities;
 using Utilities.Facades;

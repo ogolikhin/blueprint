@@ -1,5 +1,4 @@
 ﻿using Common;
-using Model.ArtifactModel.Adaptors;
 using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Model.ArtifactModel.Adapters;
 using Model.NovaModel.Components.RapidReview;
 using Model.OpenApiModel.Services;
 using Utilities;

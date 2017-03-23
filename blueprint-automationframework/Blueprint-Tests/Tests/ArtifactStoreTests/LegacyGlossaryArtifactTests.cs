@@ -13,7 +13,7 @@ namespace ArtifactStoreTests
 {
     [TestFixture]
     [Category(Categories.ArtifactStore)]
-    public class LegacyGlossaryArtifactHistoryTests : TestBase
+    public class LegacyGlossaryArtifactTests : TestBase
     {
         private IUser _user = null;
         private IProject _project = null;

@@ -667,9 +667,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete old logs from AdminStorage
-SET @cmd = N'
--- Delete log entries
-EXECUTE [dbo].[DeleteLogs] '
+SET @cmd = N'[dbo].[DeleteLogs]'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete old logs from AdminStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -994,6 +992,13 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Al
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_DialogTitle_Confirmation', 'en-US', N'Confirmation')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_LoadingMsg', 'en-US', N'Loading ...')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_PrerequisiteMsg_JavaScript', 'en-US', N'You must enable JavaScript to use this application')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_GeneralError', 'en-US', N'An error ocurred while loading the page.<br/>Please try again.<br/><br/>If the problem persists, contact your Blueprint administrator.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Title', 'en-US', N'Forgot password?')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Submit', 'en-US', N'Recover Password')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_ConfirmRequest', 'en-US', N'The email has been sent')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Disabled', 'en-US', N'Password recovery feature is disabled')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Error_InvalidUserName', 'en-US', N'Invalid user name')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Error_General', 'en-US', N'Server Error')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Name', 'en-US', N'Blueprint')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_SignedInAs', 'en-US', N'Signed in as')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Header_Welcome', 'en-US', N'Welcome')
@@ -1183,7 +1188,9 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_123', 'en-US', N'The artifact could not be saved. You have changed relationship details with an artifact that no longer exists. Please Refresh All.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_124', 'en-US', N'The artifact {0} cannot be saved. It inherits from an actor that already inherits from this artifact. Actor artifacts cannot inherit from each other.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_130', 'en-US', N'The Item name cannot be empty.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_134', 'en-US', N'The baseline could not be saved because it is already sealed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_135', 'en-US', N'The baseline could not be saved. Baseline timestamp date is from the future.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_409_136', 'en-US', N'The baseline could not be saved because it not sealed.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Artifact_Error_Other', 'en-US', N'An error has occurred and the artifact cannot be saved. Please contact an administrator.<br><br>')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Save_Auto_Confirm', 'en-US', N'Your changes could not be autosaved.<br/>Try saving manually for more information. If you proceed, your changes will be lost.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Possible_SubArtifact_Validation_Error', 'en-US', N'There may be issues with one or more sub-artifact property values. Please validate the artifact to confirm.')
@@ -1271,7 +1278,6 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Ba
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Baseline_Failed_Because_Lock', 'en-US', N'The artifact could not be added to the baseline. The baseline is locked by {userName}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Picker_Header', 'en-US', N'Add Artifact to Collection')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection', 'en-US', N'Add to Collection')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Success', 'en-US', N'The artifact has been added to the collection.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Collection_Failed_Because_Lock', 'en-US', N'The artifact could not be added to the collection. The collection is locked by {userName}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Add_To_Container_Include_Descendants', 'en-US', N'Include artifact descendants')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Change_Password_Dialog_Header', 'en-US', N'Change Password')
@@ -1291,7 +1297,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_Federat
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Auth_FederatedFallbackDisabled', 'en-US', N'Please log in with your corporate credentials.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Username', 'en-US', N'Username')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Password', 'en-US', N'Password')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_ForgotPassword', 'en-US', N'Forgot Password?')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_ForgotPassword', 'en-US', N'Forgot Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_ChangePasswordButton', 'en-US', N'Change Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_UpdatePasswordButton', 'en-US', N'Update Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_LoginButton', 'en-US', N'Log In')
@@ -1407,6 +1413,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Not_Avail
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Property_Max_Images_Error', 'en-US', N'This property exceeds the maximum number of images ({0}).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_ServiceUnavailable', 'en-US', N'A service on the Blueprint web server is unavailable. Please try again later. If the problem continues, contact your administrator for assistance.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden', 'en-US', N'The operation could not be completed because of privilege-related issues.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Forbidden_CannotDelete', 'en-US', N'The artifact cannot be deleted because one or more of its descendants cannot currently be deleted (for example, a Baseline has been sealed).')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_NotFound', 'en-US', N'The artifact could not be found.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_Collection_NotFound', 'en-US', N'The Collection has been deleted.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('HttpError_InternalServer', 'en-US', N'The operation could not be completed. Please try again later. If the problem continues, contact your administrator for assistance.')
@@ -1557,6 +1564,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_Button
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Walkthrough_Mode_Tooltip', 'en-US', N'Walkthrough Mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Diagram_Mode_Tooltip', 'en-US', N'Diagram Mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_UserItem_Description', 'en-US', N'As a {0}, I want to {1}, so that I can {2}')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_StartPanel_Label', 'en-US', N'This is the start of your process.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_EndPanel_Label', 'en-US', N'This is the end of your process.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_Reset_Button_Tooltip', 'en-US', N'Reset to 100%')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_FitWidth_Button_Tooltip', 'en-US', N'Fit to page')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')

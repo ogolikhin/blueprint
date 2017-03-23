@@ -57,7 +57,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
 
-            var postedRaptorDiscussion = artifact.PostRaptorDiscussion("draft", _authorUser);
+            var postedRaptorDiscussion = artifact.PostRapidReviewArtifactDiscussion("draft", _authorUser);
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             DiscussionResultSet discussions = null;
@@ -74,7 +74,7 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedRaptorDiscussion, discussions.Discussions[0], skipCanDelete: true, skipCanEdit: true);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, viewerUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, viewerUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -84,7 +84,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Actor);
-            var postedRaptorComment = artifact.PostRaptorDiscussion("draft", _adminUser);
+            var postedRaptorComment = artifact.PostRapidReviewArtifactDiscussion("draft", _adminUser);
             artifact.Delete(_adminUser);
             DiscussionResultSet discussions = null;
 
@@ -99,7 +99,7 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedRaptorComment, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -124,7 +124,7 @@ namespace ArtifactStoreTests
             RaptorDiscussion.AssertAreEqual(postedComment, discussions.Discussions[0]);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [TestCase]
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
             RaptorReply.AssertAreEqual(postedReply, replies[0], skipCanEdit: true);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [TestCase]
@@ -180,7 +180,7 @@ namespace ArtifactStoreTests
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
             var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, viewerUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, viewerUser, artifact.Id, ItemIndicatorFlags.HasComments, postedComment.ItemId);
         }
 
         [TestCase]
@@ -201,10 +201,9 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(0, discussions.Discussions.Count, "Artifact should have no comments, but it has {0}", discussions.Discussions.Count);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [TestCase]
         [TestRail(155659)]
         [Description("Update discussion for the published artifact. Verify that text & IsClosed flag were updated.")]
@@ -213,7 +212,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
 
-            var postedRaptorComment = artifact.PostRaptorDiscussion("original discussion text", _authorUser);
+            var postedRaptorComment = artifact.PostRapidReviewArtifactDiscussion("original discussion text", _authorUser);
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
 
             Assert.AreEqual(1, discussions.Discussions.Count, "There should be 1 comment returned!");
@@ -240,10 +239,9 @@ namespace ArtifactStoreTests
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [TestCase]
         [TestRail(155675)]
         [Description("Update discussion of published subartifact, get discussion for this subartifact, check that it has expected values.")]
@@ -275,7 +273,7 @@ namespace ArtifactStoreTests
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null, subArtifactId: postedComment.ItemId);
         }
 
         [TestCase]
@@ -286,7 +284,7 @@ namespace ArtifactStoreTests
             // Setup:
             const string REPLY = "Reply";
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
             string replyText = null;
@@ -310,10 +308,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discussions.Discussions[0].RepliesCount, "Discussion should have 1 reply, but it has {0} replies",
                 discussions.Discussions[0].RepliesCount);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [TestCase]
         [TestRail(156532)]
         [Description("Update discussion created by the current user, check that comment was updated.")]
@@ -321,7 +318,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -347,7 +344,7 @@ namespace ArtifactStoreTests
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null);
         }
 
         [TestCase]
@@ -357,7 +354,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var discussion = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
+            var discussion = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), discussion.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -394,10 +391,9 @@ namespace ArtifactStoreTests
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/nIZYlZyo
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase("Custom Status Open", false)]
@@ -411,7 +407,7 @@ namespace ArtifactStoreTests
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, customDataProject);
 
             var artifact = Helper.CreateAndPublishArtifact(customDataProject, author, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, author);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, author);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -438,7 +434,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(isClosed, discussions.Discussions[0].IsClosed, "IsClosed flag should be set to {0}!", isClosed);
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: isClosed);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            var indicator = isClosed ? (ItemIndicatorFlags?)null : ItemIndicatorFlags.HasComments;
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, indicator);
         }
 
         [TestCase(int.MaxValue)]
@@ -448,7 +446,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -471,10 +469,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have proper text.");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0]);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)] //Bug https://trello.com/c/D6lBnSMi
         [TestCase]
         [TestRail(156534)]
         [Description("Delete own comment, check that comment was deleted.")]
@@ -488,7 +485,7 @@ namespace ArtifactStoreTests
             for (int i = 0; i < 2; i++)
             {
                 comment = ORIGINAL_COMMENT + " " + (i + 1);
-                raptorComment = artifact.PostRaptorDiscussion(comment, _authorUser);
+                raptorComment = artifact.PostRapidReviewArtifactDiscussion(comment, _authorUser);
             }
             Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
@@ -503,7 +500,7 @@ namespace ArtifactStoreTests
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.None);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -519,7 +516,7 @@ namespace ArtifactStoreTests
             for (int i = 0; i < 2; i++)
             {
                 comment = ORIGINAL_COMMENT + " " + (i + 1);
-                raptorComment = artifact.PostRaptorDiscussion(comment, _authorUser);
+                raptorComment = artifact.PostRapidReviewArtifactDiscussion(comment, _authorUser);
             }
             Assert.AreEqual(StringUtilities.WrapInDiv(comment), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
@@ -534,7 +531,7 @@ namespace ArtifactStoreTests
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0} comments", discussions.Discussions.Count);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -546,7 +543,7 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
             var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, REPLY, _authorUser);
@@ -570,7 +567,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(StringUtilities.WrapInDiv(newReplyText), updatedReply.Comment,
                 "Original comment and comment returned after discussion created different!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
         [TestCase]
@@ -587,7 +584,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                postedRaptorComment = Artifact.PostRaptorDiscussion(artifact.Address, artifact.Id, ORIGINAL_COMMENT, _authorUser);
+                postedRaptorComment = OpenApiArtifact.PostRapidReviewArtifactDiscussion(artifact.Id, ORIGINAL_COMMENT, _authorUser);
                 artifact.Save(_authorUser);
                 artifact.Publish(_authorUser);  //artifact version is 3
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
@@ -598,7 +595,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(2, discussions.Discussions[0].Version, "Version should be 2, but it is {0}", discussions.Discussions[0].Version);
             Assert.AreEqual(2, postedRaptorComment.Version, "Version should be 2, but it is {0}", postedRaptorComment.Version);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, (int)ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments);
         }
 
         #endregion Positive tests
@@ -612,7 +609,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment);
 
             // Execute:
@@ -632,7 +629,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -665,7 +662,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -690,7 +687,7 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _adminUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -719,7 +716,7 @@ namespace ArtifactStoreTests
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
             var artifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, user);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, user);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -746,7 +743,7 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.Glossary);
 
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, user);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, user);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -777,7 +774,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
-            var raptorComment = artifact.PostRaptorDiscussion(ORIGINAL_COMMENT, _authorUser);
+            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
@@ -812,7 +809,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateArtifact(_project, _adminUser, BaseArtifactType.Actor);
             artifact.Save(_adminUser);
 
-            artifact.PostRaptorDiscussion("draft", _adminUser);
+            artifact.PostRapidReviewArtifactDiscussion("draft", _adminUser);
             DiscussionResultSet discussions = null;
 
             // In Nova UI doesn't allow to post discussion for never published artifact, it is possible to do by adding comment in SL and saving it
@@ -918,9 +915,10 @@ namespace ArtifactStoreTests
             {
                 user = _adminUser;
             }
+
             var process = Helper.Storyteller.GetProcess(user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = Artifact.PostRaptorDiscussion(Helper.BlueprintServer.Address, userTask.Id, "text for UT", user);
+            var postedRaptorComment = OpenApiArtifact.PostRapidReviewArtifactDiscussion(userTask.Id, "text for UT", user);
 
             return postedRaptorComment;
         }

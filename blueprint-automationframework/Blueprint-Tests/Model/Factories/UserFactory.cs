@@ -43,12 +43,12 @@ namespace Model.Factories
         /// </summary>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
-        /// <param name="licenseType">The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="licenseType">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object that was added to the database.</returns>
         public static IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database, LicenseType licenseType = LicenseType.Author)
+            UserSource source = UserSource.Database, LicenseLevel licenseLevel = LicenseLevel.Author)
         {
-            var user = CreateUserOnly(source, licenseType);
+            var user = CreateUserOnly(source, licenseLevel);
             user.InstanceAdminRole = instanceAdminRole;
             user.CreateUser();
             return user;
@@ -101,12 +101,12 @@ namespace Model.Factories
         /// <returns>A new unique user object.</returns>
         public static IUser CreateUserOnly(
             UserSource source = UserSource.Database,
-            LicenseType licenseType = LicenseType.Author)
+            LicenseLevel licenseLevel = LicenseLevel.Author)
         {
             string username = RandomGenerator.RandomAlphaNumeric(10);
             string password = RandomGenerator.RandomAlphaNumeric(10) + "A1$";
 
-            return CreateUserOnly(username, password, source, licenseType: licenseType);
+            return CreateUserOnly(username, password, source, licenseLevel: licenseLevel);
         }
 
         /// <summary>
@@ -114,16 +114,16 @@ namespace Model.Factories
         /// </summary>
         /// <param name="username">The username.</param>
         /// <param name="password">The password.</param>
-        /// <param name="displayname">The displayname.</param>
         /// <param name="source">(optional) Where the user exists.</param>
-        /// <param name="licenseType">The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="displayname">(optional) The displayname. FirstName and LastName are used by default.</param>
+        /// <param name="licenseType">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new user object.</returns>
         public static IUser CreateUserOnly(
             string username, 
             string password, 
             UserSource source = UserSource.Database, 
             string displayname = null,
-            LicenseType licenseType = LicenseType.Author)
+            LicenseLevel licenseLevel = LicenseLevel.Author)
         {
             User user;
 
@@ -148,7 +148,7 @@ namespace Model.Factories
             user.InstanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator;
             user.LastName = RandomGenerator.RandomAlphaNumeric(10);
             user.DisplayName = displayname ?? I18NHelper.FormatInvariant("{0} {1}", user.FirstName, user.LastName);
-            user.License = licenseType;
+            user.License = licenseLevel;
             user.Title = RandomGenerator.RandomAlphaNumeric(10);
 
             user.UserSALT = Guid.NewGuid();

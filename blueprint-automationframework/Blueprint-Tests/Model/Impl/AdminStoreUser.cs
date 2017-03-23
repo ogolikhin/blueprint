@@ -25,14 +25,14 @@ namespace Model.Impl
         [JsonProperty("Source")]
         public new UserSource Source { get; }
 
-        [JsonProperty("LicenseType")]
-        public new LicenseType License { get; set; }
+        [JsonProperty("LicenseLevel")]
+        public new LicenseLevel License { get; set; }
 
         [JsonProperty("InstanceAdminRoleId")]
         public new InstanceAdminRole InstanceAdminRole { get; set; }
 
         public AdminStoreUser(string username, string firstName, string lastName, string displayName, string email,
-            LicenseType license, InstanceAdminRole instanceAdminRole)
+            LicenseLevel license, InstanceAdminRole instanceAdminRole)
         {
             Username = username;
             FirstName = firstName;

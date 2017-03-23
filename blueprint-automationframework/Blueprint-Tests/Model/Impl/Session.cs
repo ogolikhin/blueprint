@@ -33,7 +33,7 @@ namespace Model.Impl
         /// <param name="userId">The User ID.</param>
         /// <param name="userName">The Username.</param>
         /// <param name="isSso">Specifies whether the user signed in via single sign-on (SSO).</param>
-        /// <param name="licenseLevel">(optional) The license level</param>  // TODO: Reference LicenseLevel.cs
+        /// <param name="licenseLevel">(optional) The license level</param>
         /// <param name="sessionId">(optional) This is the session token.</param>
         /// <param name="beginTime">(optional) Time at which the session was created. Is set to NULL when expires.</param>
         /// <param name="endTime">(optional) The time at which the sesssion will expire.</param>
@@ -41,7 +41,7 @@ namespace Model.Impl
             int userId, 
             string userName, 
             bool isSso,
-            int licenseLevel = 3,
+            int licenseLevel = (int) Common.Enums.LicenseLevel.Author,
             string sessionId = null, 
             DateTime? beginTime = null, 
             DateTime? endTime = null)

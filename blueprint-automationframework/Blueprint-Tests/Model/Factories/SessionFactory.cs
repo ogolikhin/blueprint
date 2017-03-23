@@ -12,7 +12,7 @@ namespace Model.Factories
         /// <returns>A new random Session object.</returns>
         public static ISession CreateRandomSession()
         {
-            return new Session(RandomGenerator.RandomNumber(), RandomGenerator.RandomAlphaNumeric(7), true);
+            return new Session(RandomGenerator.RandomNumber(), RandomGenerator.RandomAlphaNumeric(7), isSso: true);
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace Model.Factories
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return new Session(user.Id, user.Username, true, (int)user.License);
+            return new Session(user.Id, user.Username, isSso: true, licenseLevel: (int)user.License);
         }
 
         /// <summary>

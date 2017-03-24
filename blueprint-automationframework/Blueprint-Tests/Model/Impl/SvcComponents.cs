@@ -34,7 +34,7 @@ namespace Model.Impl
         #region FileStore methods
 
         /// <seealso cref="ISvcComponents.UploadFile(IUser, IFile, DateTime?, List{HttpStatusCode})"/>
-        public string UploadFile(
+        public UploadResult UploadFile(
             IUser user,
             IFile file,
             DateTime? expireDate = null,
@@ -64,7 +64,7 @@ namespace Model.Impl
 
             Logger.WriteInfo("{0} Uploading a file named: {1}, size: {2}", nameof(SvcComponents), file.FileName, bytes.Length);
 
-            var artifactResult = restApi.SendRequestAndGetResponse(
+            var response = restApi.SendRequestAndGetResponse(
                 path,
                 RestRequestMethod.POST,
                 fileName: file.FileName,
@@ -73,7 +73,10 @@ namespace Model.Impl
                 additionalHeaders: additionalHeaders,
                 expectedStatusCodes: expectedStatusCodes);
 
-            return artifactResult.Content;
+            var result = JsonConvert.DeserializeObject<UploadResult>(response.Content);
+            SerializationUtilities.CheckJson(result, response.Content);
+
+            return result;
         }
 
         #endregion FileStore methods
@@ -193,14 +196,11 @@ namespace Model.Impl
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Artifacts_id_.DISCUSSIONS, itemId);
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse(
+            var result = restApi.SendRequestAndDeserializeObject<RaptorDiscussion, string>(
                 path,
                 RestRequestMethod.POST,
-                bodyObject: comment,
+                jsonObject: comment,
                 expectedStatusCodes: expectedStatusCodes);
-
-            // Deserialization.
-            var result = JsonConvert.DeserializeObject<RaptorDiscussion>(response.Content);
 
             return result;
         }
@@ -219,14 +219,11 @@ namespace Model.Impl
             string tokenValue = user?.Token?.AccessControlToken;
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse(
+            var result = restApi.SendRequestAndDeserializeObject<RaptorReply, string>(
                 path,
                 RestRequestMethod.POST,
-                bodyObject: comment,
+                jsonObject: comment,
                 expectedStatusCodes: expectedStatusCodes);
-
-            // Deserialization.
-            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
 
             return result;
         }
@@ -243,13 +240,10 @@ namespace Model.Impl
             string tokenValue = user?.Token?.AccessControlToken;
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(
+            var resultMessage = restApi.SendRequestAndDeserializeObject<string>(
                 path,
                 RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
-
-            // Deserialization.
-            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
 
             return resultMessage;
         }
@@ -266,13 +260,10 @@ namespace Model.Impl
             string tokenValue = user?.Token?.AccessControlToken;
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse<string>(
+            var resultMessage = restApi.SendRequestAndDeserializeObject<string>(
                 path,
                 RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
-
-            // Deserialization.
-            var resultMessage = JsonConvert.DeserializeObject<string>(response.Content);
 
             return resultMessage;
         }
@@ -313,14 +304,11 @@ namespace Model.Impl
             string tokenValue = user?.Token?.AccessControlToken;
             var restApi = new RestApiFacade(Address, tokenValue);
 
-            var response = restApi.SendRequestAndGetResponse(
+            var result = restApi.SendRequestAndDeserializeObject<RaptorReply, string>(
                 path,
                 RestRequestMethod.PATCH,
-                bodyObject: comment,
+                jsonObject: comment,
                 expectedStatusCodes: expectedStatusCodes);
-
-            // Deserialization.
-            var result = JsonConvert.DeserializeObject<RaptorReply>(response.Content);
 
             return result;
         }

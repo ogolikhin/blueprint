@@ -254,7 +254,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -270,6 +269,9 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
@@ -308,7 +310,6 @@ namespace ArtifactStoreTests
                         _project);
 
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -325,6 +326,9 @@ namespace ArtifactStoreTests
             // Verify that source and target artifacts still have the same traces they had before the copy.
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, copyResult.Artifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [Category(Categories.CustomData)]

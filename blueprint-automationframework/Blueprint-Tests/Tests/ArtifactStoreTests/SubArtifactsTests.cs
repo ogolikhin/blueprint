@@ -262,8 +262,6 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, artifact, validInlineTraceLink: false);
 
             CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
-
-            Assert.AreEqual(subArtifact.IndicatorFlags, null, "IndicatorFlags property should be null!");
         }
 
         [TestCase]

@@ -358,7 +358,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -380,9 +379,14 @@ namespace ArtifactStoreTests
             var copiedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, copyResult.Artifact.Id, name: artifactName);
 
             // Verify preCreatedArtifact is Reused.
-            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author,
-                getTraces: OpenApiTraceTypes.Reuse);
+            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author, getTraces: OpenApiTraceTypes.Reuse);
             Assert.IsEmpty(reuseTracesOfCopy.Traces, "There should be no Reuse traces on the copied artifact!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, preCreatedArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, preCreatedArtifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
+            // TODO: Trello bug: https://trello.com/c/cWLiVWdL IndicatorFlags remais the same after reused artifact was copied and lost its traces
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+
         }
         
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.

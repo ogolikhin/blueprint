@@ -94,7 +94,7 @@ namespace Helper
             else
             {
                 Assert.AreEqual(expectedIndicatorFlags, (expectedIndicatorFlags & actualIndicatorFlags),
-                    "Indicator {0} is not found in indicatorFlags", expectedIndicatorFlags);
+                    "Indicator '{0}' was expected but '{1}' was returned.", expectedIndicatorFlags, actualIndicatorFlags);
             }
         }
 

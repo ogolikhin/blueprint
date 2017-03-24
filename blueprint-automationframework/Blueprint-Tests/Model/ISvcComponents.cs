@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using Model.ArtifactModel;
+using Model.ArtifactModel.Adapters;
 using Model.ArtifactModel.Impl;
 using Model.NovaModel.Components.RapidReview;
 using Model.StorytellerModel;
@@ -18,8 +20,8 @@ namespace Model
         /// <param name="file">The file to upload.</param>
         /// <param name="expireDate">(optional) Expected expire date for the file.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.</param>
-        /// <returns>The REST response content of the upload file request.</returns>
-        string UploadFile(
+        /// <returns>The file GUID and URI.</returns>
+        UploadResult UploadFile(
             IUser user,
             IFile file,
             DateTime? expireDate = null,
@@ -79,6 +81,134 @@ namespace Model
         RapidReviewProperties GetRapidReviewArtifactsProperties(
             IUser user,
             List<int> artifactIds,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Get discussions for the specified artifact/subartifact.
+        /// (Runs: 'GET /svc/components/RapidReview/artifacts/{itemId}/discussions')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of Artifact/SubArtifact whose discussions will be returned.</param>
+        /// <param name="includeDraft">False gets discussions for the last published version, true works with draft.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
+        IRaptorDiscussionsInfo GetRapidReviewDiscussions(
+            IUser user,
+            int itemId,
+            bool includeDraft,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// POST discussion for the specified artifact.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of the Artifact/SubArtifact where the discussion will be added.</param>
+        /// <param name="comment">The comment for new discussion.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
+        IRaptorDiscussion PostRapidReviewDiscussion(
+            IUser user,
+            int itemId,
+            string comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// POST reply for the specified discussion.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply')
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">ID of the Artifact/SubArtifact whose Discussion you are replying to.</param>
+        /// <param name="discussionId">ID of the Discussion to reply to.</param>
+        /// <param name="comment">Comment text of the reply.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created RaptorReply for artifact/subartifact discussion.</returns>
+        IReplyAdapter PostRapidReviewDiscussionReply(
+            IUser user,
+            int itemId,
+            int discussionId,
+            string comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified discussion.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletethread/{discussionId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">The ID of the Artifact/SubArtifact to which the discussion belongs.</param>
+        /// <param name="discussionId">The ID of the Discussion to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewDiscussion(
+            IUser user,
+            int itemId,
+            int discussionId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Deletes the specified discussion reply.
+        /// (Runs: 'DELETE /svc/components/RapidReview/artifacts/{itemId}/deletecomment/{replyId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of the Artifact/SubArtifact whose discussion reply is being deleted.</param>
+        /// <param name="replyId">The ID of the reply to delete.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>A success or failure message.</returns>
+        string DeleteRapidReviewDiscussionReply(
+            IUser user,
+            int itemId,
+            int replyId,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Updates the specified discussion.
+        /// (Runs: 'PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="itemId">ID of Artifact/SubArtifact whose Discussion will be updated.</param>
+        /// <param name="discussionId">ID of Discussion to update.</param>
+        /// <param name="comment">The new comment with status to add to the discussion.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>The updated RaptorDiscussion.</returns>
+        IRaptorDiscussion UpdateRapidReviewDiscussion(
+            IUser user,
+            int itemId,
+            int discussionId,
+            RaptorComment comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Updates the specified reply.
+        /// (Runs: 'PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId}')
+        /// </summary>
+        /// <param name="user">The user credentials for the request</param>
+        /// <param name="itemId">ID of the Artifact/SubArtifact whose discussion reply is being updated.</param>
+        /// <param name="discussionId">ID of the Discussion whose reply is being updated.</param>
+        /// <param name="replyId">ID of the reply to update.</param>
+        /// <param name="comment">The new comment for reply.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Updated RaptorReply.</returns>
+        IReplyAdapter UpdateRapidReviewDiscussionReply(
+            IUser user,
+            int itemId,
+            int discussionId,
+            int replyId,
+            string comment,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Updates an Artifact/SubArtifact with the specified properties.
+        /// (Runs: 'PATCH /svc/components/RapidReview/items/{itemId}/properties')
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">The Artifact/SubArtifact whose properties will be updated.</param>
+        /// <param name="artifactProperties">The properties to update.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>An update result and list of messages.</returns>
+        UpdateResult<ArtifactProperty> UpdateRapidReviewItemProperties(
+            IUser user,
+            int itemId,
+            List<ArtifactProperty> artifactProperties,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         #endregion RapidReview methods

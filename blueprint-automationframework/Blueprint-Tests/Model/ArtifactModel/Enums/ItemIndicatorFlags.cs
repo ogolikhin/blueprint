@@ -13,7 +13,5 @@ namespace Model.ArtifactModel.Enums
         HasManualReuseOrOtherTraces = 0x4,
         HasLast24HoursChanges = 0x8,
         HasUIMockup = 0x10
-        ////None
-        //None = 0x0000
     }
 }

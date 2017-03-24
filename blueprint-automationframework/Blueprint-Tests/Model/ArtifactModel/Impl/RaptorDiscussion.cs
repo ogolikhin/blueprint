@@ -1,8 +1,8 @@
-﻿using Model.ArtifactModel.Adaptors;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using Model.ArtifactModel.Adapters;
 using Utilities;
 
 namespace Model.ArtifactModel.Impl
@@ -104,7 +104,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="actualDiscussion">The actual discussion.</param>
         public static void AssertAreEqual(IRaptorDiscussion expectedDiscussion, IRaptorDiscussion actualDiscussion)
         {
-            AssertAreEqual((IDiscussionAdaptor)expectedDiscussion, (IDiscussionAdaptor)actualDiscussion);
+            AssertAreEqual((IDiscussionAdapter)expectedDiscussion, (IDiscussionAdapter)actualDiscussion);
 
             if ((expectedDiscussion != null) && (actualDiscussion != null))
             {
@@ -140,7 +140,7 @@ namespace Model.ArtifactModel.Impl
         /// <param name="actualDiscussion">The actual discussion.</param>
         /// <param name="skipCanDelete">(optional) Pass true to skip comparison of the CanDelete properties.</param>
         /// <param name="skipCanEdit">(optional) Pass true to skip comparison of the CanEdit properties.</param>
-        public static void AssertAreEqual(IDiscussionAdaptor expectedDiscussion, IDiscussionAdaptor actualDiscussion,
+        public static void AssertAreEqual(IDiscussionAdapter expectedDiscussion, IDiscussionAdapter actualDiscussion,
             bool skipCanDelete = false, bool skipCanEdit = false)
         {
             if ((expectedDiscussion == null) || (actualDiscussion == null))
@@ -153,27 +153,27 @@ namespace Model.ArtifactModel.Impl
 
                 if (!skipCanDelete)
                 {
-                    Assert.AreEqual(expectedDiscussion.CanDelete, actualDiscussion.CanDelete, MESSAGE, nameof(IDiscussionAdaptor.CanDelete));
+                    Assert.AreEqual(expectedDiscussion.CanDelete, actualDiscussion.CanDelete, MESSAGE, nameof(IDiscussionAdapter.CanDelete));
                 }
 
                 if (!skipCanEdit)
                 {
-                    Assert.AreEqual(expectedDiscussion.CanEdit, actualDiscussion.CanEdit, MESSAGE, nameof(IDiscussionAdaptor.CanEdit));
+                    Assert.AreEqual(expectedDiscussion.CanEdit, actualDiscussion.CanEdit, MESSAGE, nameof(IDiscussionAdapter.CanEdit));
                 }
 
                 // TFS Bug: 4706  Milliseconds are different.
                 // When comparing the dates because RapidReview and Nova return different milliseconds for some reason, so just verify that they're less than 1 second apart.
                 Assert.That(expectedDiscussion.LastEditedOn.CompareTimePlusOrMinusMilliseconds(actualDiscussion.LastEditedOn, 1000),
-                    MESSAGE, nameof(IDiscussionAdaptor.LastEditedOn));
+                    MESSAGE, nameof(IDiscussionAdapter.LastEditedOn));
 
-                Assert.AreEqual(expectedDiscussion.Comment, actualDiscussion.Comment, MESSAGE, nameof(IDiscussionAdaptor.Comment));
-                Assert.AreEqual(expectedDiscussion.DiscussionId, actualDiscussion.DiscussionId, MESSAGE, nameof(IDiscussionAdaptor.DiscussionId));
-                Assert.AreEqual(expectedDiscussion.IsClosed, actualDiscussion.IsClosed, MESSAGE, nameof(IDiscussionAdaptor.IsClosed));
-                Assert.AreEqual(expectedDiscussion.IsGuest, actualDiscussion.IsGuest, MESSAGE, nameof(IDiscussionAdaptor.IsGuest));
-                Assert.AreEqual(expectedDiscussion.ItemId, actualDiscussion.ItemId, MESSAGE, nameof(IDiscussionAdaptor.ItemId));
-                Assert.AreEqual(expectedDiscussion.UserId, actualDiscussion.UserId, MESSAGE, nameof(IDiscussionAdaptor.UserId));
-                Assert.AreEqual(expectedDiscussion.Username, actualDiscussion.Username, MESSAGE, nameof(IDiscussionAdaptor.Username));
-                Assert.AreEqual(expectedDiscussion.Version, actualDiscussion.Version, MESSAGE, nameof(IDiscussionAdaptor.Version));
+                Assert.AreEqual(expectedDiscussion.Comment, actualDiscussion.Comment, MESSAGE, nameof(IDiscussionAdapter.Comment));
+                Assert.AreEqual(expectedDiscussion.DiscussionId, actualDiscussion.DiscussionId, MESSAGE, nameof(IDiscussionAdapter.DiscussionId));
+                Assert.AreEqual(expectedDiscussion.IsClosed, actualDiscussion.IsClosed, MESSAGE, nameof(IDiscussionAdapter.IsClosed));
+                Assert.AreEqual(expectedDiscussion.IsGuest, actualDiscussion.IsGuest, MESSAGE, nameof(IDiscussionAdapter.IsGuest));
+                Assert.AreEqual(expectedDiscussion.ItemId, actualDiscussion.ItemId, MESSAGE, nameof(IDiscussionAdapter.ItemId));
+                Assert.AreEqual(expectedDiscussion.UserId, actualDiscussion.UserId, MESSAGE, nameof(IDiscussionAdapter.UserId));
+                Assert.AreEqual(expectedDiscussion.Username, actualDiscussion.Username, MESSAGE, nameof(IDiscussionAdapter.Username));
+                Assert.AreEqual(expectedDiscussion.Version, actualDiscussion.Version, MESSAGE, nameof(IDiscussionAdapter.Version));
             }
         }
     }
@@ -226,7 +226,7 @@ namespace Model.ArtifactModel.Impl
                 // TFS Bug: 4706  Milliseconds are different.
                 // When comparing the dates because RapidReview and Nova return different milliseconds for some reason, so just verify that they're less than 1 second apart.
                 var timeSpan = new TimeSpan(Math.Abs(expectedReply.LastEditedOn.Ticks - actualReply.LastEditedOn.Ticks));
-                Assert.Less(timeSpan.TotalMilliseconds, 1000, MESSAGE, nameof(IDiscussionAdaptor.LastEditedOn));
+                Assert.Less(timeSpan.TotalMilliseconds, 1000, MESSAGE, nameof(IDiscussionAdapter.LastEditedOn));
 
                 Assert.AreEqual(expectedReply.Comment, actualReply.Comment, MESSAGE, nameof(IReplyAdapter.Comment));
                 Assert.AreEqual(expectedReply.DiscussionId, actualReply.DiscussionId, MESSAGE, nameof(IReplyAdapter.DiscussionId));

@@ -1,5 +1,4 @@
 ﻿using Common;
-using Model.ArtifactModel.Adaptors;
 using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.Impl;
@@ -8,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Model.ArtifactModel.Adapters;
 using Model.NovaModel.Components.RapidReview;
 using Model.OpenApiModel.Services;
 using Utilities;
@@ -243,32 +243,90 @@ namespace Model.ArtifactModel.Impl
             return StorytellerPublishArtifact(artifactToPublish: this, user: user, expectedStatusCodes: expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifact.PostRaptorDiscussion(string, IUser, List{HttpStatusCode})"/>
-        public IRaptorDiscussion PostRaptorDiscussion(string comment,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifact.PostRapidReviewArtifactDiscussion(string, IUser, List{HttpStatusCode})"/>
+        public IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return PostRaptorDiscussion(Address, Id, comment, user, expectedStatusCodes);
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.PostRapidReviewDiscussion(user, Id, comment, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifact.UpdateRaptorDiscussion(RaptorComment, IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
-        public IRaptorDiscussion UpdateRaptorDiscussion(RaptorComment comment,
-            IUser user, IRaptorDiscussion discussionToUpdate,
+        /// <seealso cref="IArtifact.PostRapidReviewDiscussionReply(ICommentBaseAdapter, string, IUser, List{HttpStatusCode})"/>
+        public IReplyAdapter PostRapidReviewDiscussionReply(
+            ICommentBaseAdapter discussion,
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(discussion, nameof(discussion));
+
+            Assert.AreEqual(Id, discussion.ItemId, "The discussion you want to reply to doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.PostRapidReviewDiscussionReply(user, Id, discussion.DiscussionId, comment, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifact.UpdateRapidReviewDiscussion(IRaptorDiscussion, RaptorComment, IUser, List{HttpStatusCode})"/>
+        public IRaptorDiscussion UpdateRapidReviewDiscussion(
+            IRaptorDiscussion discussionToUpdate,
+            RaptorComment comment,
+            IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(discussionToUpdate, nameof(discussionToUpdate));
 
-            return UpdateRaptorDiscussion(Address, Id, discussionToUpdate, comment, user, expectedStatusCodes);
+            Assert.AreEqual(Id, discussionToUpdate.ItemId, "The discussion you want to update doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.UpdateRapidReviewDiscussion(user, Id, discussionToUpdate.DiscussionId, comment, expectedStatusCodes);
         }
 
-        public string DeleteRaptorDiscussion(IUser user, IRaptorDiscussion discussionToDelete,
+        /// <seealso cref="IArtifact.UpdateRapidReviewDiscussionReply(IReplyAdapter, string, IUser, List{HttpStatusCode})"/>
+        public IReplyAdapter UpdateRapidReviewDiscussionReply(
+            IReplyAdapter replyToUpdate,
+            string comment,
+            IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(replyToUpdate, nameof(replyToUpdate));
+
+            Assert.AreEqual(Id, replyToUpdate.ItemId, "The discussion reply you want to update doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.UpdateRapidReviewDiscussionReply(
+                user, replyToUpdate.ItemId, replyToUpdate.DiscussionId, replyToUpdate.ReplyId, comment, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifact.DeleteRapidReviewArtifactDiscussion(IUser, IRaptorDiscussion, List{HttpStatusCode})"/>
+        public string DeleteRapidReviewArtifactDiscussion(
+            IUser user,
+            IRaptorDiscussion discussionToDelete,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
             ThrowIf.ArgumentNull(discussionToDelete, nameof(discussionToDelete));
 
-            return DeleteRaptorDiscussion(Address, Id, discussionToDelete, user, expectedStatusCodes);
+            Assert.AreEqual(Id, discussionToDelete.ItemId, "The discussion you want to delete doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.DeleteRapidReviewDiscussion(user, Id, discussionToDelete.DiscussionId, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifact.DeleteRapidReviewArtifactReply(IReplyAdapter, IUser, List{HttpStatusCode})"/>
+        public string DeleteRapidReviewArtifactReply(
+            IReplyAdapter replyToDelete,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            ThrowIf.ArgumentNull(replyToDelete, nameof(replyToDelete));
+
+            Assert.AreEqual(Id, replyToDelete.ItemId, "The discussion reply you want to delete doesn't belong to this artifact!");
+
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.DeleteRapidReviewDiscussionReply(user, Id, replyToDelete.ReplyId, expectedStatusCodes);
         }
 
         public OpenApiAttachment AddArtifactAttachment(IFile file, IUser user,
@@ -512,32 +570,6 @@ namespace Model.ArtifactModel.Impl
             return OpenApi.GetArtifactVersion(artifact.Address, artifact, user, expectedStatusCodes);
         }
 
-        /// <summary>
-        /// Get discussions for the specified artifact/subartifact
-        /// </summary>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="itemId">id of artifact/subartifact</param>
-        /// <param name="includeDraft">false gets discussions for the last published version, true works with draft</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <param name="sendAuthorizationAsCookie">(optional) Flag to send authorization as a cookie rather than an HTTP header (Default: false)</param>
-        /// <returns>RaptorDiscussion for artifact/subartifact</returns>
-        public static IRaptorDiscussionsInfo GetRaptorDiscussions(string address,
-            int itemId,
-            bool includeDraft,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
-        {
-            return OpenApiArtifact.GetRaptorDiscussions(
-                address,
-                itemId,
-                includeDraft,
-                user,
-                expectedStatusCodes,
-                sendAuthorizationAsCookie);
-        }
-
         // TODO Move this to a common area, not in artifact/openapiartifact class
 
         /// <summary>
@@ -696,124 +728,6 @@ namespace Model.ArtifactModel.Impl
             return publishResults[0];
         }
 
-        /// <summary>
-        /// Creates new discussion for the specified artifact/subartifact using Raptor REST API.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/discussions)
-        /// </summary>
-        /// <param name="address">The base url of the API</param>
-        /// <param name="itemId">id of artifact/subartifact</param>
-        /// <param name="comment">The comment for the new discussion.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created RaptorDiscussion for artifact/subartifact.</returns>
-        public static IRaptorDiscussion PostRaptorDiscussion(string address,
-            int itemId,
-            string comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.PostRaptorDiscussion(address, itemId, comment,
-                user, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Updates the specified discussion using Raptor REST API.
-        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{artifactId}/discussions/{discussionToUpdateId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="discussionToUpdate">Discussion to update.</param>
-        /// <param name="comment">The new comment with status for the discussion.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>updated RaptorDiscussion</returns>
-        public static IRaptorDiscussion UpdateRaptorDiscussion(string address,
-            int itemId, IDiscussionAdaptor discussionToUpdate,
-            RaptorComment comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.UpdateRaptorDiscussion(address, itemId, discussionToUpdate, comment,
-                user, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Deletes the specified discussion using Raptor REST API.
-        /// (Runs: DELETE /svc/components/RapidReview/artifacts/{artifactId}/deletethread/{commentToDeleteId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="discussionToDelete">The discussion to delete.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>message</returns>
-        public static string DeleteRaptorDiscussion(string address,
-            int itemId, IDiscussionAdaptor discussionToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.DeleteRaptorDiscussion(address, itemId, discussionToDelete, user, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Creates new reply for the specified Discussion using Raptor REST API.
-        /// </summary>
-        /// <param name="address">The base url of the Blueprint</param>
-        /// <param name="discussion">Discussion to which we want reply.</param>
-        /// <param name="comment">Comment for the new reply.</param>
-        /// <param name="user">The user credentials to authenticate with</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
-        public static IReplyAdapter PostRaptorDiscussionReply(string address,
-            IDiscussionAdaptor discussion,
-            string comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.PostRaptorDiscussionReply(address, discussion, comment,
-                user, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Updates the specified reply.
-        /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="discussion">comment containing reply to update</param>
-        /// <param name="replyToUpdate">reply to update</param>
-        /// <param name="comment">The new comment for reply.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>The updated Reply.</returns>
-        public static IReplyAdapter UpdateRaptorDiscussionReply(string address,
-            int itemId, IDiscussionAdaptor discussion, IReplyAdapter replyToUpdate,
-            string comment,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.UpdateRaptorDiscussionReply(address, itemId, discussion, replyToUpdate,
-                comment, user, expectedStatusCodes);
-        }
-
-        /// <summary>
-        /// Deletes the specified reply using Raptor REST API.
-        /// (Runs: /svc/components/RapidReview/artifacts/{artifactId}/deletecomment/{replyToDeleteId})
-        /// </summary>
-        /// <param name="address">The base url of the Open API</param>
-        /// <param name="itemId">id of artifact</param>
-        /// <param name="replyToDelete">The reply to delete.</param>
-        /// <param name="user">The user credentials for the request</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>A success or failure message.</returns>
-        public static string DeleteRaptorReply(string address,
-            int itemId, IReplyAdapter replyToDelete,
-            IUser user,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return OpenApiArtifact.DeleteRaptorReply(address, itemId, replyToDelete, user, expectedStatusCodes);
-        }
-        
         /// <summary>
         /// add attachment to the specified artifact
         /// </summary>

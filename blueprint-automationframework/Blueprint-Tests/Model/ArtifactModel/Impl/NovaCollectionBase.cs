@@ -34,7 +34,8 @@ namespace Model.ArtifactModel.Impl
             }
 
             var collectionContentProperty = new CustomProperty();
-            collectionContentProperty.Name = nameof(collectionBaseType);
+            collectionContentProperty.Name = collectionBaseType.ToString();
+
             collectionContentProperty.PropertyTypeId = -1;
             collectionContentProperty.PropertyType = collectionBaseType;
             collectionContentProperty.CustomPropertyValue = collectionContentValue;

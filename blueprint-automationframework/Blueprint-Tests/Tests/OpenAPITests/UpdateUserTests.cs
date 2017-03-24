@@ -141,7 +141,7 @@ namespace OpenAPITests
             }
             else
             {
-                AdminStoreHelper.AssertUserIsDisabled(Helper, userToUpdate);
+                AdminStoreHelper.AssertUserIsDisabled(Helper, _adminUser, userToUpdate);
             }
         }
 
@@ -586,9 +586,7 @@ namespace OpenAPITests
             var userWithBlankRequiredProperty = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithBlankRequiredProperty},
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithBlankRequiredProperty}),
                 "'PATCH {0}' should return '409 Conflict' when user has missing property!", UPDATE_PATH);
 
             // Verify:
@@ -599,6 +597,7 @@ namespace OpenAPITests
                 ErrorMessage = errorMessage
             };
 
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
                 checkIfUserExists: false);
@@ -616,9 +615,7 @@ namespace OpenAPITests
             var userWithInvalidAdminRole = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithInvalidAdminRole },
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithInvalidAdminRole }),
                 "'PATCH {0}' should return '409 Conflict' when passed an Instance Administrator Role that doesn't exist!", UPDATE_PATH);
 
             // Verify:
@@ -629,6 +626,7 @@ namespace OpenAPITests
                 ErrorMessage = "Specified Instance admin role doesn't exist"
             };
 
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
                 checkIfUserExists: false);
@@ -650,9 +648,7 @@ namespace OpenAPITests
             userWithNonExistingGroup.GroupIds.Add(int.MaxValue);
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithNonExistingGroup },
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithNonExistingGroup }),
                 "'PATCH {0}' should return '409 Conflict' when an invalid Group Id was passed!", UPDATE_PATH);
 
             // Verify:
@@ -663,6 +659,7 @@ namespace OpenAPITests
                 ErrorMessage = "User's group cannot be updated"
             };
 
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
                 checkIfUserExists: false);
@@ -704,9 +701,7 @@ namespace OpenAPITests
             var usersWithWrongEmailAddress = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { usersWithWrongEmailAddress },
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { usersWithWrongEmailAddress }),
                 "'PATCH {0}' should return '409 Conflict' when a user has an invalid Email address!", UPDATE_PATH);
 
             // Verify:
@@ -716,6 +711,8 @@ namespace OpenAPITests
                 ErrorCode = BusinessLayerErrorCodes.UserValidationFailed,
                 ErrorMessage = "Invalid email address. Use following format: user@company.com"
             };
+
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
 
             VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
@@ -741,9 +738,7 @@ namespace OpenAPITests
             var userWithBlankRequiredProperty = CreateUserDataModelForUpdate(userToUpdate.Username, propertiesToUpdate);
 
             // Execute:
-            UserCallResultCollection result = null;
-            Assert.DoesNotThrow(() => result = Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithBlankRequiredProperty },
-                new List<HttpStatusCode> { HttpStatusCode.Conflict }),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.OpenApi.UpdateUsers(_adminUser, new List<UserDataModel> { userWithBlankRequiredProperty }),
                 "'PATCH {0}' should return '409 Conflict' when user has a non-complex password!", UPDATE_PATH);
 
             // Verify:
@@ -754,6 +749,7 @@ namespace OpenAPITests
                 ErrorMessage = expectedErrorMessage
             };
 
+            var result = JsonConvert.DeserializeObject<UserCallResultCollection>(ex.RestResponse.Content);
             VerifyUpdateUserResultSet(result, new List<IUser> { userToUpdate },
                 expectedFailedUpdatedUsers: new List<UserErrorCodeAndMessage> { expectedFailedUpdatedUser },
                 checkIfUserExists: false);

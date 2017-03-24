@@ -21,12 +21,14 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private IProject _projectCustomData = null;
 
-        private const string draftDescription = "description of item in the Draft state";
-        private const string publishedDescription = "description of item in the Published state";
+        private readonly string draftDescription = TestHelper.DraftDescription;
+        private readonly string publishedDescription = TestHelper.PublishedDescription;
 
         Func<Dictionary<string, int>, int> getNumberOfAddedArtifacts = dict => dict["artifactCount"];
         Func<Dictionary<string, int>, int> getUnpublishedArtifactCount = dict => dict["unpublishedArtifactCount"];
         Func<Dictionary<string, int>, int> getNonexistentArtifactCount = dict => dict["nonexistentArtifactCount"];
+
+        private const string expectedInternalExceptionMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
 
         [SetUp]
         public void SetUp()
@@ -227,11 +229,11 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
-        [TestCase]
+        [TestCase(-5)]
         [TestRail(267117)]
-        [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date," + 
-            "check that artifact was not added and call returns 1 for Nonnexistent Artifacts.")]
-        public void AddArtifactToBaseline_PublishedArtifact_BaselineWithTimeStampBeforeArtifactCreatedOn_NothingWasAdded()
+        [Description("Add published Artifact to Baseline, Baseline has timestamp before or after artifact's CreatedOn date," +
+            "check that artifact was not added and call returns 1 for Nonnexistent Artifacts, when  Baseline has timestamp before artifact's CreatedOn date.")]
+        public void AddArtifactToBaseline_PublishedArtifact_BaselineWithTimeStampBeforeArtifactCreatedOn_CheckWhatWasAdded(int utcTimestampMinutesFromNow)
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
@@ -240,19 +242,25 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
-            baseline.SetUtcTimestamp(DateTime.Now.AddMinutes(-5));
+            var utcTimestamp = DateTime.UtcNow.AddMinutes(utcTimestampMinutesFromNow);
+
+            baseline.SetUtcTimestamp(utcTimestamp);
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+
             int numberOfAddedArtifacts = -1;
             int numberOfNonnexistentArtifacts = -1;
 
+            Dictionary<string, int> addArtifactResult = null;
+
             // Execute:
             Assert.DoesNotThrow(() => {
-                var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
-                numberOfNonnexistentArtifacts = getNonexistentArtifactCount(addArtifactResult);
+                addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
+            numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+            numberOfNonnexistentArtifacts = getNonexistentArtifactCount(addArtifactResult);
+
             Assert.AreEqual(0, numberOfAddedArtifacts, "Nothing should be added to baseline, when its TimeStamp older than Artifact.");
             Assert.AreEqual(1, numberOfNonnexistentArtifacts, "AddArtifactToBaseline should return expected number of Nonnexistent Artifacts.");
         }
@@ -283,7 +291,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, numberOfUnpublishedArtifacts);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             Assert.IsEmpty(baseline.Artifacts, "List of Basline artifacts should be empty");
-            Assert.IsFalse(baseline.NotAllArtifactsAreShown, "...");
+            Assert.IsFalse(baseline.NotAllArtifactsAreShown, "NotAllArtifactsAreShown should be false.");
         }
 
         #endregion Add Artifact to Baseline
@@ -412,34 +420,64 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(266912)]
         [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
-        public void AddArtifactToBaseline_PublishedArtifactToBaseline_ValidateReturnedBaseline()
+        public void EditBaselineArtifacts_AddPublishedArtifactToBaseline_ValidateReturnedBaseline()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.PublishedWithDraft, ItemTypePredefined.Actor,
+                _project.Id);
 
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baseline.UpdateArtifacts(new List<int> { artifactToAdd.Id });
 
-            ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
-
             // Execute:
             Assert.DoesNotThrow(() => {
-                baseline = Helper.ArtifactStore.GetBaseline(_user, baseline.Id);
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(1, baseline.Artifacts.Count, "AddArtifactToBaseline should return expected number of added artifacts.");
+            GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
+        }
+
+        [TestCase]
+        [TestRail(267192)]
+        [Description("Create and publish artifact with the child artifact, add two artifact to baseline and publish changes," + 
+            "remove child artifact from baseline, check that baseline has expected artifact only.")]
+        public void EditBaselineArtifacts_RemoveArtifactFromBaseline_CheckBaselineDoesNotHaveRemovedArtifact()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
+                _project.Id);
+            var artifactToRemove = Helper.CreateNovaArtifactInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.TextualRequirement,
+                artifactToAdd.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
+            Helper.ArtifactStore.AddArtifactToBaseline(_adminUser, artifactToAdd.Id, baselineArtifact.Id, includeDescendants: true);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _adminUser);
+            GetAndValidateBaseline(_adminUser, baselineArtifact.Id, new List<int> { artifactToAdd.Id, artifactToRemove.Id });
+
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove .Id });
+            SvcShared.LockArtifacts(((NovaServiceBase)(Helper.SvcShared)).Address, _user, new List<int> { baseline.Id });
+            
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Removing artifact from Baseline shouldn't throw an error.");
+
+            // Verify:
+            GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
         #endregion Edit Baseline Content
 
         #region Edit Baseline Properties
 
-        [TestCase]
+        [TestCase(true)]
+        [TestCase(false)]
         [TestRail(267068)]
-        [Description("Update Baseline - set UtcTimestamp to DateTime.Now and IsSealed to true - check that baseline is sealed.")]
-        public void EditBaseline_SealBaseline_CheckBaselineIsSealed()
+        [Description("Update Baseline - set UtcTimestamp to DateTime.UtcNow and IsSealed to true - check that baseline is sealed.")]
+        public void EditBaseline_SealBaselineSetAvailableForAnalytics_CheckBaseline(bool setAvailableForAnalytics)
         {
             // Setup:
             var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
@@ -448,8 +486,13 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
 
-            baseline.SetUtcTimestamp(DateTime.Now);
+            var sealedDate = DateTime.UtcNow.AddMinutes(-1);
+            baseline.SetUtcTimestamp(sealedDate);
             baseline.SetIsSealed(true);
+            if (setAvailableForAnalytics)
+            {
+                baseline.SetIsAvailableInAnalytics(true);
+            }
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -458,7 +501,33 @@ namespace ArtifactStoreTests
             baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
             // Verify:
-            Assert.IsTrue(baseline.IsSealed, "Baseline should be sealed.");
+            GetAndValidateBaseline(_adminUser, baselineArtifact.Id, new List<int>(), isSealed: true, utcTimestamp: sealedDate,
+                isAvailableInAnalytics: setAvailableForAnalytics);
+        }
+
+        [TestCase]
+        [TestRail(267202)]
+        [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date," +
+            "check that artifact was not added and call returns correct number for 'Nonnexistent' Artifacts.")]
+        public void EditBaseline_BaselineWithArtifact_SealBaselinetWithTimeStampBeforeArtifactCreatedOn_CheckBaselineIsEmpty()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
+            var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
+
+            var timestampDate = DateTime.UtcNow.AddMinutes(-3);
+            baseline.SetUtcTimestamp(timestampDate);
+            
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int>(), utcTimestamp: timestampDate);
         }
 
         #endregion Edit Baseline Properties
@@ -479,7 +548,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
-            baseline.SetUtcTimestamp(DateTime.Now);
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
             baseline.SetIsSealed(true);
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
@@ -494,18 +563,65 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
+        [TestRail(267228)]
+        [Description("Try to set Baseline timestamp to the future, check 409 error message.")]
+        public void EditBaseline_SetBaselinetTimeStampToTheFutureDate_Check409()
+        {
+            // Setup:
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(1));//one minute from now
+            
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                Helper.ArtifactStore.UpdateArtifact(_user, baseline);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            string expectedErrorMessage = "Baseline timestamp date is from the future.";
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp, expectedErrorMessage);
+        }
+
+        [TestCase]
+        [TestRail(267245)]
+        [Description("Try to remove artifact from sealed Baseline, check 409 error message.")]
+        public void RemoveArtifactFromBaseline_SealedBaseline_Check409()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            baseline.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
+            baseline.SetIsSealed(true);
+            ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+
+            baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToAdd.Id });
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Attempt to remove artifact from sealed Baseline should throw 409 error.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.SealedBaseline, expectedInternalExceptionMessage);
+        }
+
+        [TestCase]
         [TestRail(267154)]
         [Description("Try to add default Collection folder to the Baseline, check 404 error message.")]
         public void AddArtifactToBaseline_DefaultCollectionFolder_Check404()
         {
             // Setup:
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-
             var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_user);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, defaultCollectionFolder.Id, baselineArtifact.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: defaultCollectionFolder.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -520,13 +636,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
-                _project.Id);
-
-            var baseline = Helper.CreateBaseline(_user, _project);
+                _project.Id); 
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -608,8 +722,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             // see TFS 5107
-            string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveOverDependencies, expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedInternalExceptionMessage);
         }
 
         #endregion Negative Tests
@@ -649,7 +762,12 @@ namespace ArtifactStoreTests
         /// <param name="user">User to get Baseline</param>
         /// <param name="baselineId">Id of Baseline to validate</param>
         /// <param name="expectedArtifactIds">List of expected Artifact's Id</param>
-        Baseline GetAndValidateBaseline(IUser user, int baselineId, List<int> expectedArtifactIds)
+        /// <param name="isAvailableInAnalytics">(optional) Expected value for isAvailableInAnalytics. 'false' by default.</param>
+        /// <param name="notAllArtifactsAreShown">(optional) Expected value for notAllArtifactsAreShown. Should be 'true' when user has no access to some of baseline's artifacts. 'false by default.</param>
+        /// <param name="isSealed">(optional) Expected value for isSealed. 'false' by default.</param>
+        /// <param name="utcTimestamp">(optional) Expected value for utcTimestamp. Null by default.</param>
+        Baseline GetAndValidateBaseline(IUser user, int baselineId, List<int> expectedArtifactIds, bool isAvailableInAnalytics = false,
+            bool notAllArtifactsAreShown = false, bool isSealed = false, DateTime? utcTimestamp = null)
         {
             int expectedArtifactsNumber = expectedArtifactIds.Count;
             var baseline = Helper.ArtifactStore.GetBaseline(user, baselineId);
@@ -663,6 +781,14 @@ namespace ArtifactStoreTests
                     "List of artifacts in Baseline should have expected values.");
             }
 
+            Assert.AreEqual(isAvailableInAnalytics, baseline.IsAvailableInAnalytics, "IsAvailableInAnalytics should have expected value.");
+            Assert.AreEqual(notAllArtifactsAreShown, baseline.NotAllArtifactsAreShown, "NotAllArtifactsAreShown should have expected value.");
+            Assert.AreEqual(isSealed, baseline.IsSealed, "IsSealed should have expected value.");
+
+            if (utcTimestamp!=null)
+            {
+                Assert.AreEqual(utcTimestamp, baseline.UtcTimestamp, "UtcTimestamp should have expected value.");
+            }
             return baseline;
         }
 

@@ -81,6 +81,59 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that expected and actulal indicator flags are the same 
+        /// </summary>
+        /// <param name="actualIndicatorFlags">Actual indicators flags</param>
+        /// <param name="expectedIndicatorFlags">Expected indicator flags</param>
+        public static void AssertIndicatorFlagsBitsAreEnabled(ItemIndicatorFlags? actualIndicatorFlags, ItemIndicatorFlags? expectedIndicatorFlags)
+        {
+            if ((actualIndicatorFlags == null) || (expectedIndicatorFlags == null))
+            {
+                Assert.AreEqual(expectedIndicatorFlags, actualIndicatorFlags, "Both indicator flags must be null!");
+            }
+            else
+            {
+                Assert.AreEqual(expectedIndicatorFlags, (expectedIndicatorFlags & actualIndicatorFlags),
+                    "Indicator '{0}' was expected but '{1}' was returned.", expectedIndicatorFlags, actualIndicatorFlags);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that actual and expected indicator flags are the same
+        /// </summary>
+        /// <param name="helper">A TestHelper object</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">Artifact Id</param>
+        /// <param name="subArtifactId">(optional)Sub-artifact Id. By default artifact indicatorFlags is asserted</param>
+        /// <param name="expectedIndicatorFlags">Expected indicator value</param>
+        public static void VerifyIndicatorFlags(TestHelper helper, IUser user, int artifactId, ItemIndicatorFlags? expectedIndicatorFlags, int subArtifactId = 0)
+        {
+            const string ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
+            const string SUB_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_;
+
+            if (subArtifactId == 0)
+            {
+                NovaArtifactDetails artifact = null;
+                Assert.DoesNotThrow(() =>
+                {
+                    artifact = helper.ArtifactStore.GetArtifactDetails(user, artifactId);
+                }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", ARTIFACT_ID_PATH);
+
+                AssertIndicatorFlagsBitsAreEnabled(artifact.IndicatorFlags, expectedIndicatorFlags);
+            }
+            else
+            {
+                NovaSubArtifact subArtifact = null;
+                Assert.DoesNotThrow(() =>
+                {
+                    subArtifact = helper.ArtifactStore.GetSubartifact(user, artifactId, subArtifactId);
+                }, "'GET {0}' should return 200 OK when passed a valid artifact and sub-artifact ID!", SUB_ARTIFACT_ID_PATH);
+
+                AssertIndicatorFlagsBitsAreEnabled(subArtifact.IndicatorFlags, expectedIndicatorFlags);
+            }
+        }
+
+        /// <summary>
         /// Asserts that the properties of the NovaArtifactResponse match with the specified artifact.  Some properties are expected to be null.
         /// </summary>
         /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>

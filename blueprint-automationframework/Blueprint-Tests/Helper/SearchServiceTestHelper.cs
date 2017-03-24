@@ -108,7 +108,8 @@ namespace Helper
             ThrowIf.ArgumentNull(user, nameof(user));
             ThrowIf.ArgumentNull(testHelper, nameof(testHelper));
 
-            var timeout = DateTime.Now.AddMilliseconds(timeoutInMilliseconds);
+            DateTime timeout = DateTime.Now.AddMilliseconds(timeoutInMilliseconds);
+            DateTime startTime = DateTime.Now;
 
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
             do
@@ -127,19 +128,15 @@ namespace Helper
                     (waitForArtifactsToDisappear && fullTextSearchMetaDataResult.TotalCount > artifactCount)
                     ));
 
+            var secondsSpentWaiting = (DateTime.Now - startTime).Seconds;
 
             var errorMessage = I18NHelper.FormatInvariant(
                     "Created artifact count of {0} does not match expected artifact count of {1} after {2} seconds.",
                     fullTextSearchMetaDataResult.TotalCount,
                     artifactCount,
-                    timeoutInMilliseconds / 1000);
+                    secondsSpentWaiting);
 
-            if (!fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount))
-            {
-                Logger.WriteError(errorMessage);
-            }
-
-            Assert.That(fullTextSearchMetaDataResult.TotalCount.Equals(artifactCount), errorMessage);
+            Assert.AreEqual(artifactCount, fullTextSearchMetaDataResult.TotalCount, errorMessage);
         }
 
         /// <summary>

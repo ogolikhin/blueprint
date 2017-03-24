@@ -349,7 +349,7 @@ namespace StorytellerTests
             var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // update Nonfunctional Requirements field with inline trace
-            var updatePropertyResult = userStories[0].UpdateNonfunctionalRequirements(Helper.Storyteller.Address, _user, inlineTraceText);
+            var updatePropertyResult = userStories[0].UpdateNonFunctionalRequirements(_user, inlineTraceText);
             Assert.That(updatePropertyResult.Messages.Count() == 1,
                 "Result of create inline trace must return one error message, but returns {0}",
                 updatePropertyResult.Messages.Count());
@@ -380,7 +380,7 @@ namespace StorytellerTests
             // update Nonfunctional Requirements field with inline trace
             Assert.DoesNotThrow(() =>
             {
-                userStories[0].UpdateNonfunctionalRequirements(Helper.Storyteller.Address, _user, inlineTraceText);
+                userStories[0].UpdateNonFunctionalRequirements(_user, inlineTraceText);
             }, "Update Nonfunctional Requirements must not return an error.");
         }
 

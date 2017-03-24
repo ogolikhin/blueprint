@@ -6,7 +6,6 @@ using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.Impl;
 using Model.OpenApiModel.Services;
 using Newtonsoft.Json;
 using NUnit.Framework;

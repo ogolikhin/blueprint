@@ -253,10 +253,7 @@ namespace ArtifactStoreTests
 
             var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, sourceArtifact, subArtifacts, _user);
 
-            //            sourceArtifact.Lock(_authorUser);
-
             var trace = new NovaTrace(targetArtifact);
-
             novaSubArtifacts[0].Traces = new List<NovaTrace> { trace };
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);

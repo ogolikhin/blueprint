@@ -196,6 +196,21 @@ namespace Model
             string comment,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Updates an Artifact/SubArtifact with the specified properties.
+        /// (Runs: 'PATCH /svc/components/RapidReview/items/{itemId}/properties')
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="itemId">The Artifact/SubArtifact whose properties will be updated.</param>
+        /// <param name="artifactProperties">The properties to update.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>An update result and list of messages.</returns>
+        UpdateResult<ArtifactProperty> UpdateRapidReviewItemProperties(
+            IUser user,
+            int itemId,
+            List<ArtifactProperty> artifactProperties,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

@@ -667,7 +667,9 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete old logs from AdminStorage
-SET @cmd = N'[dbo].[DeleteLogs]'
+SET @cmd = N'
+-- Delete log entries
+EXECUTE [dbo].[DeleteLogs] '
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete old logs from AdminStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 
@@ -1564,6 +1566,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_Button
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Walkthrough_Mode_Tooltip', 'en-US', N'Walkthrough Mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Process_Diagram_Mode_Tooltip', 'en-US', N'Diagram Mode')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_UserItem_Description', 'en-US', N'As a {0}, I want to {1}, so that I can {2}')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_UserItem_Short_Description', 'en-US', N'As a {0}, I want to {1}')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_StartPanel_Label', 'en-US', N'This is the start of your process.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_EndPanel_Label', 'en-US', N'This is the end of your process.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_Reset_Button_Tooltip', 'en-US', N'Reset to 100%')

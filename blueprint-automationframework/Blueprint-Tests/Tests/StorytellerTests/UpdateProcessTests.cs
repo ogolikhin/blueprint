@@ -3,9 +3,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Impl;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
@@ -452,9 +450,7 @@ namespace StorytellerTests
             var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Uploading the file
-            var uploadResult = Helper.Storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
-
-            var deserialzedUploadResult = SerializationUtilities.DeserializeObject<UploadResult>(uploadResult);
+            var deserialzedUploadResult = Helper.Storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
             // Update the default precondition properties in the retrieved process model with Guid and UriToFile
             var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);

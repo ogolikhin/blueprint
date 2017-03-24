@@ -62,7 +62,7 @@ namespace Model.StorytellerModel
         /// <summary>
         /// Updates Nonfunctional requirements property for user story.
         /// </summary>
-        /// <param name="user">The user credentials for the request to delete the artifact.</param>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="value">Text to update Nonfunctional requirements property.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only '200 OK' is expected.</param>
         /// <returns>Result of updating nonfunctional requrements.</returns>

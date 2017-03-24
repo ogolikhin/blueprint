@@ -356,7 +356,8 @@ namespace Utilities.Facades
                 _restResponse = ConvertToRestResponse(response);
                 ThrowIfUnexpectedStatusCode(resourcePath, method, _restResponse.StatusCode, _restResponse.ErrorMessage, _restResponse, expectedStatusCodes);
 
-                if ((_restResponse.StatusCode == HttpStatusCode.OK) || (_restResponse.StatusCode == HttpStatusCode.Created))
+                if ((_restResponse.StatusCode == HttpStatusCode.OK) || (_restResponse.StatusCode == HttpStatusCode.Created) ||
+                    (_restResponse.StatusCode == (HttpStatusCode)207))
                 {
                     // Derialization
                     var result = JsonConvert.DeserializeObject<T1>(response.Content);

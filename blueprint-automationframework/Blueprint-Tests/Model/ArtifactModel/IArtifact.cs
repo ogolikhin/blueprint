@@ -130,20 +130,54 @@ namespace Model.ArtifactModel
         /// <param name="user">The user credentials for the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>RaptorDiscussion for artifact/subartifact.</returns>
-        IRaptorDiscussion PostRapidReviewArtifactDiscussion(string comment,
-            IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        IRaptorDiscussion PostRapidReviewArtifactDiscussion(
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// POST reply for the specified discussion.
+        /// (Runs: 'POST /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply')
+        /// </summary>
+        /// <param name="discussion">Discussion to which we want to reply.</param>
+        /// <param name="comment">Comment text of the new reply.</param>
+        /// <param name="user">The user credentials to authenticate with</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
+        IReplyAdapter PostRapidReviewDiscussionReply(
+            ICommentBaseAdapter discussion,
+            string comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Updates the specified discussion.
         /// (Runs: PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId})
         /// </summary>
+        /// <param name="discussionToUpdate">The discussion to update.</param>
         /// <param name="comment">The new comment for discussion.</param>
         /// <param name="user">The user credentials for the request</param>
-        /// <param name="discussionToUpdate">The discussion to update.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>updated RaptorDiscussion</returns>
-        IRaptorDiscussion UpdateRaptorDiscussion(RaptorComment comment,
-            IUser user, IRaptorDiscussion discussionToUpdate,
+        IRaptorDiscussion UpdateRapidReviewDiscussion(
+            IRaptorDiscussion discussionToUpdate,
+            RaptorComment comment,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Updates the specified discussion reply.
+        /// (Runs: 'PATCH /svc/components/RapidReview/artifacts/{itemId}/discussions/{discussionId}/reply/{replyId}')
+        /// </summary>
+        /// <param name="replyToUpdate">Reply to update.</param>
+        /// <param name="comment">The new comment text for the reply.</param>
+        /// <param name="user">The user credentials for the request.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
+        /// <returns>The updated Reply.</returns>
+        IReplyAdapter UpdateRapidReviewDiscussionReply(
+            IReplyAdapter replyToUpdate,
+            string comment,
+            IUser user,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

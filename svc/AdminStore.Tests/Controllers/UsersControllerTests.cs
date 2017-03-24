@@ -771,7 +771,7 @@ namespace AdminStore.Controllers
                 .Setup(helper => helper.Initialize(It.IsAny<IEmailConfigInstanceSettings>()));
 
             _emailHelperMock
-                .Setup(helper => helper.SendEmail(It.IsAny<AuthenticationUser>()));
+                .Setup(helper => helper.SendEmail(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
 
             _authRepoMock
                 .Setup(repo => repo.IsChangePasswordCooldownInEffect(It.IsAny<AuthenticationUser>()))

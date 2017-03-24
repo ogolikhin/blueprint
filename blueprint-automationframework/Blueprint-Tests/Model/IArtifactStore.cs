@@ -1,4 +1,5 @@
 using Model.Impl;
+using Model.NovaModel.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using System;
@@ -532,7 +533,7 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Reviews associated with the specified Baseline,</returns>
-        ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+        ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         #region Process methods
 

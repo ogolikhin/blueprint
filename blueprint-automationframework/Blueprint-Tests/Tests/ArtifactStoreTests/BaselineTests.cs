@@ -5,6 +5,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.NovaModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
@@ -752,7 +753,9 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactsNumber, baseline.Artifacts.Count, "Baseline should have expected number of Artifacts.");
         }
 
-        [Category(Categories.CustomData)]
+        #endregion
+
+        [Category(Categories.GoldenData)]
         [TestCase]
         [TestRail(267352)]
         [Description("Get list of Reviews associated with baseline from Custom Data project, check that Reviews have expected values.")]
@@ -778,8 +781,6 @@ namespace ArtifactStoreTests
                 Assert.IsTrue((review.Status >= 0) && (review.Status < 3), "Review status should be in the expected range.");
             }
         }
-
-        #endregion
 
         #region Private Functions
 

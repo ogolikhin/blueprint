@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Model.ArtifactModel.Impl
+namespace Model.NovaModel.Impl
 {
     public class ReferencedReviewArtifact
     {

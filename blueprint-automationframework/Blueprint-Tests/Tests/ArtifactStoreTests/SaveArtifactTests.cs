@@ -188,6 +188,40 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
+        [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestRail(0)]
+        [Description("Create & publish.  Add discussion, attachment and trace to the artifact (save or publish).  Verify IndicatorFlags has all indicators.")]
+        public void CopyArtifact_ArtifactWithDiscussionAttachmentAndTraceToFolder_ReturnsNewArtifactWithAttachment(BaseArtifactType artifactType)
+        {
+            // Setup:
+            const string COMMENT = "Comment";
+
+            // Create & add attachment to the source artifact:
+            var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
+            var sourceArtifact = ArtifactStoreHelper.CreateArtifactWithAttachment(Helper, _project, _user, artifactType, attachmentFile, shouldPublishArtifact: true);
+            Assert.IsNotNull(sourceArtifact, "Artifact with attachment is not created!");
+
+            // Add discussion
+            var discussion = sourceArtifact.PostRapidReviewArtifactDiscussion(COMMENT, _user);
+            Assert.IsNotNull(discussion, "Discussion is not created for the artifact!");
+
+            // Add trace
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            var trace = new NovaTrace(targetArtifact);
+            artifactDetails.Traces = new List<NovaTrace> { trace };
+
+            // Execute:
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(sourceArtifact, _user, artifactDetails); }, "Update artifact shouldn't throw any error.");
+
+            // Verify:
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+        }
+
         #endregion Artifact Properties tests
 
         #region Subartifact Properties tests

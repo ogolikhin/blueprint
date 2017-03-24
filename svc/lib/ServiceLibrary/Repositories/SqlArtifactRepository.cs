@@ -40,7 +40,7 @@ namespace ServiceLibrary.Repositories
 
         #region GetProjectOrArtifactChildrenAsync
 
-        public virtual async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId, bool includeAuthorHistory = false)
+        public virtual async Task<List<Artifact>> GetProjectOrArtifactChildrenAsync(int projectId, int? artifactId, int userId)
         {
             if (projectId < 1)
                 throw new ArgumentOutOfRangeException(nameof(projectId));
@@ -179,10 +179,10 @@ namespace ServiceLibrary.Repositories
                 }
             }
 
-            return await ComposeArtifacts(userArtifactVersionChildren, includeAuthorHistory);
+            return ComposeArtifacts(userArtifactVersionChildren);
         }
 
-        private async Task<List<Artifact>> ComposeArtifacts(IEnumerable<ArtifactVersion> userArtifactVersionChildren, bool includeAuthorHistory)
+        private List<Artifact> ComposeArtifacts(IEnumerable<ArtifactVersion> userArtifactVersionChildren)
         {
             var maxIndexOrder = userArtifactVersionChildren.Any() ?
                 userArtifactVersionChildren.Max(a => a.OrderIndex) : 0;
@@ -216,20 +216,6 @@ namespace ServiceLibrary.Repositories
                 Debug.Assert(false, "Illegal Order Index: " + a.OrderIndex);
                 return double.MaxValue;
             }).ToList();
-
-            if (includeAuthorHistory)
-            {
-                var artifactIds = artifacts.Select(a => a.Id);
-                var authorHistories = (await GetAuthorHistories(artifactIds)).ToDictionary(a => a.ItemId);
-                foreach (var artifact in artifacts)
-                {
-                    AuthorHistory authorHistory;
-                    if (authorHistories.TryGetValue(artifact.Id, out authorHistory))
-                    {
-                        artifact.CreatedOn = authorHistory.CreatedOn;
-                    }
-                }
-            }
 
             return artifacts;
         }

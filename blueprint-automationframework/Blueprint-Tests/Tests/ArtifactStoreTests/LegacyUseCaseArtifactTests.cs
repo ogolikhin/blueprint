@@ -23,6 +23,7 @@ namespace ArtifactStoreTests
         private IProject _projectCustomData = null;
 
         private static int USECASE_ID_WITHUIMOCKUP = 147;
+        private const string REST_PATH = RestPaths.Svc.ArtifactStore.USECASE_id_;
 
         #region Setup and Cleanup
 
@@ -49,33 +50,6 @@ namespace ArtifactStoreTests
 
         #endregion Setup and Cleanup
 
-        #region Custom Data Tests
-
-        [Explicit(IgnoreReasons.UnderDevelopmentQaDev)]
-        [Category(Categories.CustomData)]
-        [TestCase]
-        [TestRail(267348)]
-        [Description("Get the use case artifact which contains a UIMockup association on its postcondition subartifact. Verify that the indicator contains the value representing the UIMockup association.")]
-        public void GetUseCaseArtifact_GetUseCaseArtifactWithUIMockupAssociation_VerifyIndicatorFlags()
-        {
-            // getting the latest version of the artifact using open API GetArtifact
-            var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, USECASE_ID_WITHUIMOCKUP);
-
-            // Execution: Get the use case artifact with the UIMockup association on its postcondition subartifact
-            NovaUseCaseArtifact usecaseArtifact = null;
-            Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_authorUser, USECASE_ID_WITHUIMOCKUP); },
-                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
-
-            // Verify: Verifify that the postcondition subartifact's indicatorflag contains value that represents UIMockup association.
-            NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
-
-            // TODO: Use below commened VerifyIndicatorFlags once https://trello.com/c/IzDuRwMW gets addressed: [5084] Legacy UseCase artifact with UIMockup association on step subartifact - indicatorflag shows it as 0x4 instead of 0x10
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasManualReuseOrOtherTraces, usecaseArtifact.PostCondition.Id);
-            // ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasUIMockup, usecaseArtifact.PostCondition.Id);
-        }
-
-        #endregion Custom Data Tests
-
         #region 200 OK Tests
 
         [TestCase(4)]
@@ -91,7 +65,7 @@ namespace ArtifactStoreTests
             // Execute: Get the use case artifact using GetUseCaseArtifact without passing versionId parameter
             NovaUseCaseArtifact usecaseArtifact = null;
             Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id); },
-                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", REST_PATH);
 
             // Validation: Verify that the returned from GetUseCaseArtifact in valid format
             NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
@@ -109,9 +83,32 @@ namespace ArtifactStoreTests
             // Execute: Get the use case artifact using GetUseCaseArtifact with first versionId		
             NovaUseCaseArtifact usecaseArtifact = null;
             Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_viewerUser, publishedUseCaseArtifact.Id, versionId: 1); },
-                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", REST_PATH);
 
             NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion1);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]
+        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(267348)]
+        [Description("Get the use case artifact which contains a UIMockup association on its postcondition subartifact. Verify that the indicator contains the value representing the UIMockup association.")]
+        public void GetUseCaseArtifact_GetUseCaseArtifactWithUIMockupAssociation_VerifyIndicatorFlags()
+        {
+            // getting the latest version of the artifact using open API GetArtifact
+            var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, USECASE_ID_WITHUIMOCKUP);
+
+            // Execution: Get the use case artifact with the UIMockup association on its postcondition subartifact
+            NovaUseCaseArtifact usecaseArtifact = null;
+            Assert.DoesNotThrow(() => { usecaseArtifact = Helper.ArtifactStore.GetUseCaseArtifact(_authorUser, USECASE_ID_WITHUIMOCKUP); },
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", REST_PATH);
+
+            // Verify: Verify that the postcondition subartifact's indicatorflag contains value that represents UIMockup association.
+            NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
+
+            // TODO: Use below commented VerifyIndicatorFlags once https://trello.com/c/IzDuRwMW gets addressed: [5084] Legacy UseCase artifact with UIMockup association on step subartifact - indicatorflag shows it as 0x4 instead of 0x10
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasUIMockup, usecaseArtifact.PostCondition.Id);
         }
 
         #endregion 200 OK Tests
@@ -131,7 +128,7 @@ namespace ArtifactStoreTests
 
             // Execute: Get the use case artifact with invalid token header using GetUseCaseArtifact
             Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithBadOrMissingToken, publishedUseCaseArtifact.Id, versionId: 1),
-                "Calling GET {0} with invalid token should return 401 Unauthorized!", RestPaths.Svc.ArtifactStore.USECASE_id_);
+                "Calling GET {0} with invalid token should return 401 Unauthorized!", REST_PATH);
         }
 
         #endregion 401 Unauthorized Tests
@@ -151,7 +148,7 @@ namespace ArtifactStoreTests
             // Execute: Get the use case artifact with the user with no permission to the artifact
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.GetUseCaseArtifact(userWithNonePermissionForArtifact, publishedUseCaseArtifact.Id),
                 "Calling GET {0} with the user with the user which has no permission to the artifact should return 403 Forbidden!",
-                RestPaths.Svc.ArtifactStore.USECASE_id_);
+                REST_PATH);
 
             // Vaidation: Exception should contain proper errorCode in the response content
             var serviceErrorMessage = SerializationUtilities.DeserializeObject<ServiceErrorMessage>(ex.RestResponse.Content);

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Moq;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
+using System;
 
 namespace ArtifactStore.Repositories
 {
@@ -271,6 +273,56 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(pathToRoot[2].ItemId, actual.PathToProject.ToList()[0].ItemId);
             Assert.AreEqual(pathToRoot[2].ParentId, actual.PathToProject.ToList()[0].ParentId);
             Assert.AreEqual(pathToRoot[2].Name, actual.PathToProject.ToList()[0].Name);
+        }
+
+
+        [TestMethod]
+        public async Task GetReviewRelationships_SingleReviewLink_Success()
+        {
+            // Arrange
+            int itemId = 1;
+            int userId = 1;
+            bool addDrafts = true;
+            int destinationProjectId = 3;
+
+            var mockLinkInfoList = new List<LinkInfo>();
+            mockLinkInfoList.Add(new LinkInfo { DestinationArtifactId = 1,
+                                                DestinationItemId = 1,
+                                                DestinationProjectId = destinationProjectId,
+                                                IsSuspect = false, LinkType = LinkType.ReviewPackageReference,
+                                                SourceArtifactId = 2,
+                                                SourceItemId = 2,
+                                                SourceProjectId = 0 });
+
+            _cxn.SetupQueryAsync("GetRelationshipLinkInfo", 
+                                new Dictionary<string, object> { { "itemId", itemId }, { "userId", userId }, { "addDrafts", addDrafts } }, mockLinkInfoList);
+
+            _itemInfoRepositoryMock.Setup(a => a.GetItemsRawDataCreatedDate(userId, It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()))
+                .ReturnsAsync(new List<ItemRawDataCreatedDate> {
+                    new ItemRawDataCreatedDate {
+                        CreatedDateTime = new DateTime(),
+                        ItemId = 2,
+                        RawData = ""
+                    }
+                });
+
+            _itemInfoRepositoryMock.Setup(a => a.GetItemsDetails(userId, It.IsAny<IEnumerable<int>>(), It.IsAny<bool>(), It.IsAny<int>()))
+                .ReturnsAsync(new List<ItemDetails> {
+                    new ItemDetails {
+                        HolderId = 2,
+                        Name = "Some Review",
+                        Prefix = "ReviewPrefix"
+                    }
+                });
+
+            // Act
+            var result = await _relationshipsRepository.GetReviewRelationships(itemId, userId, addDrafts);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.ReviewArtifacts.Count);
+            Assert.AreEqual(2, result.ReviewArtifacts[0].ItemId);
+            Assert.AreEqual("Some Review", result.ReviewArtifacts[0].ItemName);
+            Assert.AreEqual("ReviewPrefix", result.ReviewArtifacts[0].ItemTypePrefix);
         }
     }
 }

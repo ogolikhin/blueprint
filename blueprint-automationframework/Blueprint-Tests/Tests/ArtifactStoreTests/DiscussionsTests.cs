@@ -134,11 +134,11 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
-            var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
+            var postedDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact);
 
-            DiscussionResultSet discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedComment.ItemId, _adminUser);
-            var postedReply = Artifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address,
-                postedComment, "This is a reply to a comment.", _authorUser);
+            DiscussionResultSet discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedDiscussion.ItemId, _adminUser);
+            var postedReply = Helper.SvcComponents.PostRapidReviewDiscussionReply(
+                _authorUser, postedDiscussion.ItemId, postedDiscussion.DiscussionId, "This is a reply to a comment.");
 
             List<Reply> replies = null;
 
@@ -153,7 +153,7 @@ namespace ArtifactStoreTests
             RaptorReply.AssertAreEqual(postedReply, replies[0], skipCanEdit: true);
             Assert.IsFalse(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to false!");
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments, postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, ItemIndicatorFlags.HasComments, postedDiscussion.ItemId);
         }
 
         [TestCase]
@@ -229,7 +229,7 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, postedRaptorComment);
+                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(postedRaptorComment, comment, _authorUser);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
@@ -249,11 +249,12 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Process);
-            var postedComment = AddDiscussionToSubArtifactOfStorytellerProcess(artifact, _authorUser);
+            var postedDiscussion = AddDiscussionToSubArtifactOfStorytellerProcess(artifact, _authorUser);
 
-            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedComment.ItemId, _authorUser);
+            var discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedDiscussion.ItemId, _authorUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
-            var comment = new RaptorComment()
+
+            var comment = new RaptorComment
             {
                 Comment = UPDATED_TEXT,
                 StatusId = statusId
@@ -263,17 +264,18 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = OpenApiArtifact.UpdateRaptorDiscussion(Helper.BlueprintServer.Address, postedComment, comment, _authorUser);
+                updatedDiscussion = Helper.SvcComponents.UpdateRapidReviewDiscussion(
+                    _authorUser, postedDiscussion.ItemId, postedDiscussion.DiscussionId, comment);
             }, "UpdateDiscussions shouldn't throw any error.");
 
             // Verify:
-            discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedComment.ItemId, _authorUser);
+            discussions = Helper.ArtifactStore.GetArtifactDiscussions(postedDiscussion.ItemId, _authorUser);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 comment, but it has {0}", discussions.Discussions.Count);
             Assert.AreEqual(StringUtilities.WrapInDiv(comment.Comment), updatedDiscussion.Comment, "Updated comment must have updated value, but it didn't.");
             Assert.IsTrue(discussions.Discussions[0].IsClosed, "IsClosed flag should be set to true!");
             RaptorDiscussion.AssertAreEqual(updatedDiscussion, discussions.Discussions[0], skipCanEdit: true);
 
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null, subArtifactId: postedComment.ItemId);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _adminUser, artifact.Id, expectedIndicatorFlags: null, subArtifactId: postedDiscussion.ItemId);
         }
 
         [TestCase]
@@ -285,15 +287,17 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
+
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
+
             string replyText = null;
             IReplyAdapter raptorReply = null;
 
             for (int i = 0; i < 2; i++)
             {
                 replyText = REPLY + " " + (i + 1);
-                raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, replyText, _authorUser);
+                raptorReply = artifact.PostRapidReviewDiscussionReply(raptorComment, replyText, _authorUser);
             }
 
             // Execute:
@@ -334,7 +338,7 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, raptorComment);
+                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(raptorComment, comment, _authorUser);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
@@ -369,7 +373,7 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, discussion);
+                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(discussion, comment, _authorUser);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             Assert.IsTrue(updatedDiscussion.IsClosed, "The discussion should be closed at this point, but it is open!");
@@ -381,7 +385,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _authorUser, discussion);
+                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(discussion, comment, _authorUser);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
@@ -424,7 +428,7 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, author, raptorComment);
+                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(raptorComment, comment, author);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
@@ -460,7 +464,7 @@ namespace ArtifactStoreTests
             IDiscussionAdapter updatedDiscussion = null;
             Assert.DoesNotThrow(() =>
             {
-                updatedDiscussion = artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment);
+                updatedDiscussion = artifact.UpdateRapidReviewDiscussion(raptorComment, comment, _adminUser);
             }, "UpdateDiscussion shouldn't throw any error, but it did.");
 
             // Verify:
@@ -543,10 +547,13 @@ namespace ArtifactStoreTests
             const string REPLY = "Reply";
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-            var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
-            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
+            var raptorDiscussion = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
+
+            Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorDiscussion.Comment,
                 "Original comment and comment returned after discussion created different!");
-            var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, REPLY, _authorUser);
+
+            var raptorReply = artifact.PostRapidReviewDiscussionReply(raptorDiscussion, REPLY, _authorUser);
+
             Assert.AreEqual(StringUtilities.WrapInDiv(REPLY), raptorReply.Comment,
                 "Original reply and reply returned after reply created different!");
 
@@ -556,7 +563,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                updatedReply = OpenApiArtifact.UpdateRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, raptorReply, newReplyText, _authorUser);
+                updatedReply = artifact.UpdateRapidReviewDiscussionReply(raptorReply, newReplyText, _authorUser);
             }, "UpdateReply shouldn't throw any error, but it does.");
 
             // Verify:
@@ -645,7 +652,7 @@ namespace ArtifactStoreTests
             string path = I18NHelper.FormatInvariant(
                 RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
 
-            var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.UpdateRaptorDiscussion(comment, user: null, discussionToUpdate: raptorComment),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => artifact.UpdateRapidReviewDiscussion(discussionToUpdate: raptorComment, comment: comment, user: null),
                 "'PATCH {0}' should return 401 Unauthorized when request is done without token!", path);
             // Verify:
             TestHelper.ValidateServiceErrorMessage(ex.RestResponse, UNAUTHORIZED_CALL);
@@ -688,10 +695,11 @@ namespace ArtifactStoreTests
 
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UIMockup);
             var raptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _adminUser);
+
             Assert.AreEqual(StringUtilities.WrapInDiv(ORIGINAL_COMMENT), raptorComment.Comment,
                 "Original comment and comment returned after discussion created different!");
 
-            var raptorReply = OpenApiArtifact.PostRaptorDiscussionReply(Helper.BlueprintServer.Address, raptorComment, REPLY, _adminUser);
+            var raptorReply = artifact.PostRapidReviewDiscussionReply(raptorComment, REPLY, _adminUser);
 
             // Execute:
             Assert.Throws<Http403ForbiddenException>(() =>
@@ -760,7 +768,7 @@ namespace ArtifactStoreTests
             // Execute:
             var path = I18NHelper.FormatInvariant(
                     RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, raptorComment.DiscussionId);
-            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRaptorDiscussion(comment, user, raptorComment),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.UpdateRapidReviewDiscussion(raptorComment, comment, user),
                 "'PATCH {0}' should return 403 Forbidden when user tries to update comment for artifact to which he/she does not have permissions!", path);
 
             // Verify
@@ -786,7 +794,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                artifact.UpdateRaptorDiscussion(comment, _adminUser, raptorComment);
+                artifact.UpdateRapidReviewDiscussion(raptorComment, comment, _adminUser);
             }, "UpdateDiscussion should throw 403 error, but it doesn't.");
 
             // Verify:
@@ -877,12 +885,13 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.Glossary);
-
-            var discussion = new RaptorDiscussion() { DiscussionId = int.MaxValue };
+            
+            var discussion = new RaptorDiscussion { DiscussionId = int.MaxValue, ItemId = artifact.Id };
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             var statusId = GetStatusId(discussions, ThreadStatus.CLOSED);
-            var comment = new RaptorComment()
+
+            var comment = new RaptorComment
             {
                 Comment = UPDATED_TEXT,
                 StatusId = statusId
@@ -891,12 +900,11 @@ namespace ArtifactStoreTests
             // Execute:
             var path = I18NHelper.FormatInvariant(
                     RestPaths.Svc.Components.RapidReview.Artifacts_id_.Discussions_id_.COMMENT, artifact.Id, discussion.DiscussionId);
-            var ex = Assert.Throws<Http404NotFoundException>(() => artifact.UpdateRaptorDiscussion(comment, _adminUser, discussion),
+            var ex = Assert.Throws<Http404NotFoundException>(() => artifact.UpdateRapidReviewDiscussion(discussion, comment, _adminUser),
                 "'PATCH {0}' should return 404 Not Found when user tries to update comment for discussion that does not exist in artifact!", path);
 
             // Verify:
-            Assert.IsEmpty(ex.RestResponse.Content, "Response is not empty!");
-            // Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/Titan/_workItems?searchText=%5BTechDebt%5D&_a=edit&id=5699&triage=true
+            TestHelper.ValidateServiceErrorMessage(ex.RestResponse, "Item is no longer accessible");    // TFS bug: 5699  No Error Code returned.
         }
 
         #endregion 404 Not Found
@@ -918,7 +926,7 @@ namespace ArtifactStoreTests
 
             var process = Helper.Storyteller.GetProcess(user, artifact.Id);
             var userTask = process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
-            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewArtifactDiscussion(user, userTask.Id, "text for UT");
+            var postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(user, userTask.Id, "text for UT");
 
             return postedRaptorComment;
         }

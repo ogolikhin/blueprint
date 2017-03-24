@@ -752,6 +752,33 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedArtifactsNumber, baseline.Artifacts.Count, "Baseline should have expected number of Artifacts.");
         }
 
+        [Category(Categories.CustomData)]
+        [TestCase]
+        [TestRail(267352)]
+        [Description("Get list of Reviews associated with baseline from Custom Data project, check that Reviews have expected values.")]
+        public void GetReviews_ExistingSealedBaseline_ValidateReviewList()
+        {
+            // Setup:
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
+            const int baselineWithreviewsId = 110; // id of sealed Baseline which is used in 3 reviews
+
+            // Execute: 
+            ReviewRelationshipsResultSet reviews = null;
+            Assert.DoesNotThrow(() => reviews = Helper.ArtifactStore.GetReviews(baselineWithreviewsId, viewerUser),
+                "Get Baseline reviews shouldn't return an error.");
+
+            // Verify:
+            Assert.AreEqual(3, reviews.reviewArtifacts.Count, "List should have expected number of reviews.");
+            foreach (var review in reviews.reviewArtifacts)
+            {
+                var reviewArtifact = Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
+                Assert.AreEqual(reviewArtifact.Name, review.ItemName, "Review name should have expected value.");
+                Assert.AreEqual(reviewArtifact.Prefix, review.ItemTypePrefix, "Review ItemTypePrefix should have expected value.");
+                Assert.AreEqual(reviewArtifact.CreatedOn, review.CreatedDate, "Review CreatedDate should have expected value.");
+                Assert.IsTrue((review.Status >= 0) && (review.Status < 3), "Review status should be in the expected range.");
+            }
+        }
+
         #endregion
 
         #region Private Functions

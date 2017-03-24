@@ -525,6 +525,15 @@ namespace Model
         NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Gets Reviews associated with the Baseline
+        /// </summary>
+        /// <param name="artifactId">Id of Baseline (it works for other types of artifacts also).</param>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Reviews associated with the specified Baseline,</returns>
+        ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
+
         #region Process methods
 
         /// <summary>

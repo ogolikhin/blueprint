@@ -349,7 +349,7 @@ namespace StorytellerTests
             var userStories = Helper.Storyteller.GenerateUserStories(_user, process);
 
             // Execute:
-            var updatePropertyResult = userStories[0].UpdateNonfunctionalRequirements(Helper.Storyteller.Address, _user, inlineTraceText);
+            var updatePropertyResult = userStories[0].UpdateNonFunctionalRequirements(_user, inlineTraceText);
 
             // Verify:
             Assert.That(updatePropertyResult.Messages.Count() == 1,
@@ -384,7 +384,7 @@ namespace StorytellerTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                userStories[0].UpdateNonfunctionalRequirements(Helper.Storyteller.Address, _user, inlineTraceText);
+                userStories[0].UpdateNonFunctionalRequirements(_user, inlineTraceText);
             }, "Update Nonfunctional Requirements must not return an error.");
 
             // Verify:

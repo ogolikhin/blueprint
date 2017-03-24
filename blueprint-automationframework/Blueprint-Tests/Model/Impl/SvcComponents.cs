@@ -325,6 +325,27 @@ namespace Model.Impl
             return result;
         }
 
+        /// <seealso cref="ISvcComponents.UpdateRapidReviewItemProperties(IUser, int, List{ArtifactProperty}, List{HttpStatusCode})"/>
+        public UpdateResult<ArtifactProperty> UpdateRapidReviewItemProperties(
+            IUser user,
+            int itemId,
+            List<ArtifactProperty> artifactProperties,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Items_id_.PROPERTIES, itemId);
+
+            string tokenValue = user?.Token?.AccessControlToken;
+            var restApi = new RestApiFacade(Address, tokenValue);
+
+            var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<UpdateResult<ArtifactProperty>, List<ArtifactProperty>>(
+                path,
+                RestRequestMethod.PATCH,
+                artifactProperties,
+                expectedStatusCodes: expectedStatusCodes);
+
+            return userstoryUpdateResult;
+        }
+
         #endregion RapidReview methods
 
         #region  Storyteller methods

@@ -246,7 +246,7 @@ namespace SearchServiceTests
             Helper.ArtifactStore.PublishArtifact(artifact, _user);
 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
-            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);
 
             // Execute: 
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;
@@ -295,7 +295,7 @@ namespace SearchServiceTests
             Helper.ArtifactStore.PublishArtifact(artifact, _user);
 
             var searchCriteria = new FullTextSearchCriteria(searchTerm, selectedProjectIds);
-            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 5000);
+            SearchServiceTestHelper.WaitForFullTextSearchIndexerToUpdate(_user, Helper, searchCriteria, 1, timeoutInMilliseconds: 30000);
 
             // Execute: 
             FullTextSearchMetaDataResult fullTextSearchMetaDataResult = null;

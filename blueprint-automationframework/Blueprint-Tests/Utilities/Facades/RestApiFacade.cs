@@ -312,8 +312,8 @@ namespace Utilities.Facades
         /// <summary>
         /// Creates the web request and get the response which is then serialized into the specified type.
         /// </summary>
-        /// <typeparam name="T1">The type of object to be returned by this call.</typeparam>
-        /// <typeparam name="T2">The type of object to send for the web request.</typeparam>
+        /// <typeparam name="TReturn">The type of object to be returned by this call.</typeparam>
+        /// <typeparam name="TSend">The type of object to send for the web request.</typeparam>
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="jsonObject">The concrete (non-interface) object to serialize and send in the request body.</param>
@@ -325,17 +325,15 @@ namespace Utilities.Facades
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
-        public T1 SendRequestAndDeserializeObject<T1,T2>(
+        public TReturn SendRequestAndDeserializeObject<TReturn,TSend>(
             string resourcePath, 
             RestRequestMethod method,
-            T2 jsonObject,
+            TSend jsonObject,
             Dictionary<string, string> additionalHeaders = null,
             Dictionary<string, string> queryParameters = null,
             List<HttpStatusCode> expectedStatusCodes = null,
             Dictionary<string, string> cookies = null,
             bool shouldControlJsonChanges = true)
-            where T1 : new()
-            where T2 : new()
         {
             var client = new RestClient(_baseUri);
 
@@ -360,7 +358,7 @@ namespace Utilities.Facades
                     (_restResponse.StatusCode == (HttpStatusCode)207))
                 {
                     // Derialization
-                    var result = JsonConvert.DeserializeObject<T1>(response.Content);
+                    var result = JsonConvert.DeserializeObject<TReturn>(response.Content);
 
                     ////try to serialize and compare
                     if (shouldControlJsonChanges)
@@ -374,12 +372,12 @@ namespace Utilities.Facades
 
                     return result;
                 }
-                return default(T1);
+                return default(TReturn);
             }
             catch (JsonSerializationException)
             {
                 Logger.WriteError("Error during serialization");
-                return default(T1);
+                return default(TReturn);
             }
             catch (JsonReaderException)
             {
@@ -396,7 +394,7 @@ namespace Utilities.Facades
         /// <summary>
         /// Creates the web request and get the response which is then serialized into the specified type.
         /// </summary>
-        /// <typeparam name="T">The type of object to be returned by this call.</typeparam>
+        /// <typeparam name="TReturn">The type of object to be returned by this call.</typeparam>
         /// <param name="resourcePath">The path for the REST request (i.e. not including the base URI).</param>
         /// <param name="method">The method (GET, POST...).</param>
         /// <param name="additionalHeaders">(optional) Additional headers to add to the request.</param>
@@ -407,16 +405,16 @@ namespace Utilities.Facades
         /// <returns>The response object(s).</returns>
         /// <exception cref="WebException">A WebException (or a sub-exception type) if the HTTP status code returned wasn't in the expected list of status codes.</exception>
         /// <exception cref="FormatException">A FormatException if JSON has been changed.</exception>
-        public T SendRequestAndDeserializeObject<T>(
+        public TReturn SendRequestAndDeserializeObject<TReturn>(
            string resourcePath,
            RestRequestMethod method,
            Dictionary<string, string> additionalHeaders = null,
            Dictionary<string, string> queryParameters = null,
            List<HttpStatusCode> expectedStatusCodes = null,
            Dictionary<string, string> cookies = null,
-           bool shouldControlJsonChanges = true) where T : new()
+           bool shouldControlJsonChanges = true)
         {
-            return SendRequestAndDeserializeObject<T, List<string>>(resourcePath,
+            return SendRequestAndDeserializeObject<TReturn, List<string>>(resourcePath,
                 method,
                 null,
                 additionalHeaders,

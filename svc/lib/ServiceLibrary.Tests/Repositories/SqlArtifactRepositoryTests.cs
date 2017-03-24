@@ -278,38 +278,6 @@ namespace ServiceLibrary.Repositories
         }
 
         [TestMethod]
-        public async Task GetProjectOrGetChildrenAsync_IncludeAuthorHistory()
-        {
-            // Arrange
-            var projectId = 1;
-            var artifactId = 10;
-            var userId = 1;
-
-            var input = CreateChildrenArtifactVersions();
-            var childArtifactId = 20;
-
-            var authorHistory = new SqlAuthorHistory
-            {
-                ItemId = childArtifactId,
-                CreationTimestamp = DateTime.Today.AddHours(-2),
-                CreationUserId = 1,
-                ModificationTimestamp = DateTime.Today.AddHours(-1),
-                ModificationUserId = 2
-            };
-
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlArtifactRepository(cxn.Object);
-            cxn.SetupQueryAsync("GetArtifactChildren", new Dictionary<string, object> { { "projectId", projectId }, { "artifactId", artifactId }, { "userId", userId } }, input);
-            cxn.SetupQueryAsync("GetOpenArtifactAuthorHistories", new Dictionary<string, object> { { "artifactIds", SqlConnectionWrapper.ToDataTable(Enumerable.Repeat(childArtifactId, 1)) }, { "revisionId", int.MaxValue } }, Enumerable.Repeat(authorHistory, 1));
-            // Act
-            var actual = await repository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, userId, true);
-
-            // Assert
-            cxn.Verify();
-            Assert.IsNotNull(actual[0].CreatedOn);
-        }
-
-        [TestMethod]
         public async Task GetOpenArtifactAuthorHistories_Successfully()
         {
             // Arrange
@@ -1111,7 +1079,7 @@ namespace ServiceLibrary.Repositories
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Throws(new AuthorizationException());
 
             // Act
@@ -1146,9 +1114,9 @@ namespace ServiceLibrary.Repositories
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId))
                 .Returns(Task.FromResult(children2));
 
             // Act
@@ -1187,9 +1155,9 @@ namespace ServiceLibrary.Repositories
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId))
                 .Returns(Task.FromResult(children2));
 
             // Act
@@ -1242,11 +1210,11 @@ namespace ServiceLibrary.Repositories
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .Returns(Task.FromResult(children1));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[1].ItemId, userId))
                 .Returns(Task.FromResult(children2));
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[2].ItemId, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, ancestorsAndSelf[2].ItemId, userId))
                 .Returns(Task.FromResult(children3));
 
             // Act
@@ -1301,13 +1269,13 @@ namespace ServiceLibrary.Repositories
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .ReturnsAsync(children1);
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[0].Id, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[0].Id, userId))
                 .ReturnsAsync(children2);
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[1].Id, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[1].Id, userId))
                 .ReturnsAsync(children3);
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children2[0].Id, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children2[0].Id, userId))
                 .ReturnsAsync(children4);
 
             // Act
@@ -1364,13 +1332,13 @@ namespace ServiceLibrary.Repositories
 
             var mockRepository = new Mock<SqlArtifactRepository>(cxn.Object) { CallBase = true };
 
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, null, userId))
                 .ReturnsAsync(children1);
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[0].Id, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[0].Id, userId))
                 .ReturnsAsync(children2);
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[1].Id, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children1[1].Id, userId))
                 .ReturnsAsync(children3);
-            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children3[0].Id, userId, false))
+            mockRepository.Setup(r => r.GetProjectOrArtifactChildrenAsync(projectId, children3[0].Id, userId))
                 .ReturnsAsync(children4);
 
             // Act

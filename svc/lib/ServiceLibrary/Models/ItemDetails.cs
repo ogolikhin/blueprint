@@ -1,4 +1,6 @@
-﻿namespace ServiceLibrary.Models
+﻿using System;
+
+namespace ServiceLibrary.Models
 {
     public class ItemDetails
     {
@@ -14,5 +16,10 @@
         public int ItemId { get; set; }
         public string Label { get; set; }
     }
-
+    public class ItemRawDataCreatedDate
+    {
+        public int ItemId { get; set; }
+        public string RawData { get; set; }
+        public DateTime CreatedDateTime { get; set; }
+    }
 }

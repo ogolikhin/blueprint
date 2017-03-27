@@ -84,9 +84,9 @@
     <Compile Include="DocumentFileTests.cs" />
     <Compile Include="ExpandedArtifactTreeTests.cs" />
     <Compile Include="ImageTests.cs" />
-    <Compile Include="LegacyDiagramArtifactHistoryTests.cs" />
-    <Compile Include="LegacyGlossaryArtifactHistoryTests.cs" />
-    <Compile Include="LegacyUseCaseArtifactHistoryTests.cs" />
+    <Compile Include="LegacyDiagramArtifactTests.cs" />
+    <Compile Include="LegacyGlossaryArtifactTests.cs" />
+    <Compile Include="LegacyUseCaseArtifactTests.cs" />
     <Compile Include="MoveArtifactTests.cs" />
     <Compile Include="ProjectMetaTests.cs" />
     <Compile Include="ProjectTests.cs" />

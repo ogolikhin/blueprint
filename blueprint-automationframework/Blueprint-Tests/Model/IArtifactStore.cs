@@ -468,8 +468,8 @@ namespace Model
         /// <param name="collectionId">Id of Collection.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Number of artifacts added to Collection</returns>
-        int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>Result of artifacts adding to Collection</returns>
+        AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets image file for Actor's icon
@@ -501,8 +501,8 @@ namespace Model
         /// <param name="baselineId">Id of Baseline.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Dictionary with numbers added/never published/newer than Baseline sealed date artifacts</returns>
-        Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+        /// <returns>Result of artifact adding to Baseline</returns>
+        AddToBaselineResult AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

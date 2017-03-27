@@ -26,4 +26,9 @@ namespace Model.ArtifactModel.Impl
             UpdateArtifacts(PropertyTypePredefined.CollectionContent, artifactsIdsToAdd, artifactsIdsToRemove);
         }
     }
+
+    public class AddToCollectionResult : AddToBaselineCollectionResult
+    {
+        public int? AlreadyIncludedArtifactCount { get; set; }
+    }
 }

@@ -1,6 +1,6 @@
-﻿using Model.ArtifactModel.Adaptors;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Model.ArtifactModel.Adapters;
 using Newtonsoft.Json;
 
 namespace Model.ArtifactModel.Impl
@@ -26,7 +26,7 @@ namespace Model.ArtifactModel.Impl
     }
 
     // See:  blueprint/svc/ArtifactStore/Models/DiscussionResultSet.cs
-    public class Discussion : IDiscussionAdaptor
+    public class Discussion : IDiscussionAdapter
     {
         #region Serialized JSON properties
 

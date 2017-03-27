@@ -3,9 +3,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.Impl;
-using Model.ArtifactModel.Impl;
 using Model.Factories;
-using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System;
@@ -452,9 +450,7 @@ namespace StorytellerTests
             var file = FileStoreTestHelper.CreateFileWithRandomByteArray(fileSize, fakeFileName, fileType);
 
             // Uploading the file
-            var uploadResult = Helper.Storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
-
-            var deserialzedUploadResult = SerializationUtilities.DeserializeObject<UploadResult>(uploadResult);
+            var deserialzedUploadResult = Helper.Storyteller.UploadFile(_user, file, DateTime.Now.AddDays(1));
 
             // Update the default precondition properties in the retrieved process model with Guid and UriToFile
             var defaultPreconditionShape = returnedProcess.GetProcessShapeByShapeName(Process.DefaultPreconditionName);
@@ -878,10 +874,11 @@ namespace StorytellerTests
 
             // Get newly added User Task
             var unpublishedUserTask = returnedProcess.GetNextShape(preconditionTask);
+
             Assert.DoesNotThrow(() =>
             {
-                var discussions = OpenApiArtifact.GetRaptorDiscussions(address: Helper.Storyteller.Address, itemId: unpublishedUserTask.Id,
-                includeDraft: true, user: _user);
+                var discussions = Helper.SvcComponents.GetRapidReviewDiscussions(_user, unpublishedUserTask.Id, includeDraft: true);
+
                 Assert.That(discussions.ArtifactId == returnedProcess.Id, "The ArtifactID must be equal to Process id.");
                 Assert.That(discussions.SubArtifactId == unpublishedUserTask.Id, "The SubArtifactID must be equal User Task id.");
             }, "Get Discussions for saved/unpublished User Task shouldn't return an error.");

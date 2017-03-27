@@ -13,6 +13,7 @@ using Utilities.Facades;
 using System.Web;
 using System.Net.Mime;
 using Model.Factories;
+using Model.NovaModel.Impl;
 
 namespace Model.Impl
 {
@@ -188,22 +189,15 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, bool?, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, bool? includeAuthorHistory = false,
+        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            Dictionary<string, string> queryParameters = null;
-            if (includeAuthorHistory != null)
-            {
-                queryParameters = new Dictionary<string, string> { { nameof(includeAuthorHistory), I18NHelper.ToStringInvariant(includeAuthorHistory.Value) } };
-            }
-
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
         }
@@ -730,6 +724,16 @@ namespace Model.Impl
             }
 
             return publishedArtifacts;
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviews(int, IUser, List{HttpStatusCode})"/>
+        public ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.REVIEWS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<ReviewRelationshipsResultSet>(path, RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
         #region Process methods
@@ -1523,30 +1527,17 @@ namespace Model.Impl
                 artifacts = new List<IArtifactBase>();
             }
 
-            const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-            Dictionary<string, string> queryParams = null;
 
-            if (all != null)
-            {
-                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
-            }
+            var discardedArtifactResponse = DiscardArtifacts(address, artifactIds, user, all, expectedStatusCodes);
 
-            var discardedArtifactResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
-                path,
-                RestRequestMethod.POST,
-                artifactIds,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
-
-            if (restApi.StatusCode == HttpStatusCode.OK)
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
                 // Set the IsSaved flags for the artifact that we discarded so the Dispose() works properly.
                 foreach (var discardedArtifacts in discardedArtifactResponse.Artifacts)
                 {
-                    Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
-                        path, discardedArtifacts.Id);
+                    Logger.WriteDebug("DiscardArtifacts returned following artifact Id: {0}",
+                        discardedArtifacts.Id);
 
                     if (artifacts.Count > 0)
                     {
@@ -1561,6 +1552,38 @@ namespace Model.Impl
             }
 
             return discardedArtifactResponse;
+        }
+
+        /// <summary>
+        /// Discards a list of artifacts.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactIds">The ids of artifacts to discard.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="all">(optional) Pass true to discard all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
+        public static INovaArtifactsAndProjectsResponse DiscardArtifacts(string address,
+            List<int> artifactIds,
+            IUser user = null,
+            bool? all = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+            if (all != null)
+            {
+                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
+            }
+
+            return restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactIds,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>

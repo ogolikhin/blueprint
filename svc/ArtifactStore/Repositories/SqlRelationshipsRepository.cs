@@ -153,17 +153,7 @@ namespace ArtifactStore.Repositories
 
         public async Task<RelationshipResultSet> GetRelationships(int artifactId, int userId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
         {
-            var revisionId = int.MaxValue;
-            if (versionId.HasValue)
-            {
-                revisionId = await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
-            }
-
-            if (revisionId <= 0)
-            {
-                throw new ResourceNotFoundException($"Version index (Id:{versionId}) is not found.", ErrorCodes.ResourceNotFound);
-            }
-
+            var revisionId = await GetRevisionId(artifactId, versionId);
             var itemId = subArtifactId ?? artifactId;
             var types = new List<int> { (int)LinkType.Manual,
                                         (int)LinkType.Association,
@@ -240,42 +230,48 @@ namespace ArtifactStore.Repositories
 
         public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int userId, bool addDrafts = true, int? versionId = null)
         {
-            var revisionId = int.MaxValue;
-            if (versionId.HasValue)
-            {
-                revisionId = await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
-            }
-            if (revisionId <= 0)
-            {
-                throw new ResourceNotFoundException($"Version index (Id:{versionId}) is not found.", ErrorCodes.ResourceNotFound);
-            }
+            var revisionId = await GetRevisionId(artifactId, versionId);
             var reviewType = new List<int> { (int)LinkType.ReviewPackageReference };
             var reviewLinks = (await GetLinkInfo(artifactId, userId, addDrafts, revisionId, reviewType)).ToList();
             var result = new ReviewRelationshipsResultSet { };
             if (reviewLinks != null)
             {
                 var distinctReviewIds = reviewLinks.Select(a => a.SourceItemId).Distinct().ToList();
+                var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctReviewIds, true, revisionId))
+                    .ToDictionary(a => a.HolderId);
                 var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, distinctReviewIds, true, revisionId))
                     .ToDictionary(a => a.ItemId);
-
                 var referencedReviewArtifacts = new List<ReferencedReviewArtifact>();
                 ItemRawDataCreatedDate itemRawDataCreatedDate;
+                ItemDetails itemDetails;
                 foreach (var reviewId in distinctReviewIds)
                 {
-                    if (itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate))
+                    if ((itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate)) && (itemDetailsDictionary.TryGetValue(reviewId, out itemDetails)))
                     {
                         var status = ReviewRawDataHelper.ExtractReviewStatus(itemRawDataCreatedDate.RawData);
                         referencedReviewArtifacts.Add(new ReferencedReviewArtifact
                         {
                             ItemId = reviewId,
                             Status = status,
-                            CreatedDate = itemRawDataCreatedDate.CreatedDateTime
+                            CreatedDate = itemRawDataCreatedDate.CreatedDateTime,
+                            ItemName = itemDetails.Name,
+                            ItemTypePrefix = itemDetails.Prefix
                         });
                     }
                 }
                 result.ReviewArtifacts = referencedReviewArtifacts;
             }
             return result;
+        }
+
+        private async Task<int> GetRevisionId(int artifactId, int? versionId)
+        {
+            var revisionId = versionId.HasValue ? await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value) : int.MaxValue;
+            if (revisionId <= 0)
+            {
+                throw new ResourceNotFoundException($"Version index (Id:{versionId}) is not found.", ErrorCodes.ResourceNotFound);
+            }
+            return revisionId;
         }
     }
 }

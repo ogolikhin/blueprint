@@ -49,6 +49,7 @@ namespace AdminStore.Controllers
                 Configuration = new HttpConfiguration()
             };
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+            _controller.Request.RequestUri = new Uri("http://localhost");
         }
 
         #region Constuctor
@@ -771,7 +772,7 @@ namespace AdminStore.Controllers
                 .Setup(helper => helper.Initialize(It.IsAny<IEmailConfigInstanceSettings>()));
 
             _emailHelperMock
-                .Setup(helper => helper.SendEmail(It.IsAny<AuthenticationUser>()));
+                .Setup(helper => helper.SendEmail(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
 
             _authRepoMock
                 .Setup(repo => repo.IsChangePasswordCooldownInEffect(It.IsAny<AuthenticationUser>()))
@@ -780,7 +781,7 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository
                 .Setup(repo => repo.GetValue("IsPasswordRecoveryEnabled", It.IsAny<bool>()))
                 .ReturnsAsync(true);
-           
+            
         }
 
         #endregion PasswordRecovery

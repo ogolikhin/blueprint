@@ -188,11 +188,87 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertCustomPropertiesAreEqual(property, returnedProperty);
         }
 
+        [TestCase(BaseArtifactType.TextualRequirement)]
+        [TestRail(2673578)]
+        [Description("Create & publish.  Add discussion, attachment and trace to the artifact (save or publish).  Verify IndicatorFlags has all indicators.")]
+        public void UpdateArtifact_WithDiscussionAttachmentAndTraceToFolder_ReturnsNewArtifactWithAttachment(BaseArtifactType artifactType)
+        {
+            // Setup:
+            const string COMMENT = "Comment";
+
+            // Create & add attachment to the source artifact:
+            var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
+            var sourceArtifact = ArtifactStoreHelper.CreateArtifactWithAttachment(Helper, _project, _user, artifactType, attachmentFile, shouldPublishArtifact: true);
+            Assert.IsNotNull(sourceArtifact, "Artifact with attachment is not created!");
+
+            // Add discussion
+            var discussion = sourceArtifact.PostRapidReviewArtifactDiscussion(COMMENT, _user);
+            Assert.IsNotNull(discussion, "Discussion is not created for the artifact!");
+
+            // Add trace
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            var trace = new NovaTrace(targetArtifact);
+            artifactDetails.Traces = new List<NovaTrace> { trace };
+
+            // Execute:
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(sourceArtifact, _user, artifactDetails); }, "Update artifact shouldn't throw any error.");
+
+            // Verify:
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasComments);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+        }
+
         #endregion Artifact Properties tests
 
         #region Subartifact Properties tests
 
         //TODO: Refactor artifact & subartifact properties tests to use changesets as in the example below
+
+        [TestCase]
+        [TestRail(267358)]
+        [Description("Create & publish.  Add discussion, attachment and trace to the artifact (save or publish).  Verify IndicatorFlags has all indicators.")]
+        public void UpdateSubArtifact_WithDiscussionAttachmentAndTraceToFolder_ReturnsNewArtifactWithAttachment()
+        {
+            // Setup:
+            const string COMMENT = "Comment";
+
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, sourceArtifact.Id);
+
+            // Create & add attachment to sub-artifact:
+            var attachmentFile = FileStoreTestHelper.CreateNovaFileWithRandomByteArray();
+            var attachment = sourceArtifact.AddSubArtifactAttachment(subArtifacts[0].Id, attachmentFile, _user);
+            Assert.IsNotNull(attachment, "Artifact with attachment is not created!");
+
+            // Add discussion
+            var discussion = Helper.SvcComponents.PostRapidReviewDiscussion(_user, subArtifacts[0].Id, COMMENT);
+            Assert.IsNotNull(discussion, "Discussion is not created for the artifact!");
+
+            // Add trace
+            var targetArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+
+            var novaSubArtifacts = ArtifactStoreHelper.GetDetailsForAllSubArtifacts(Helper.ArtifactStore, sourceArtifact, subArtifacts, _user);
+
+            var trace = new NovaTrace(targetArtifact);
+            novaSubArtifacts[0].Traces = new List<NovaTrace> { trace };
+
+            var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
+
+            artifactDetails.SubArtifacts = novaSubArtifacts;
+
+            // Execute:
+            Assert.DoesNotThrow(() => { Artifact.UpdateArtifact(sourceArtifact, _user, artifactDetails); }, "Update artifact shouldn't throw any error.");
+
+            // Verify:
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasComments, subArtifacts[0].Id);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs, subArtifacts[0].Id);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, sourceArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces, subArtifacts[0].Id);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+        }
 
         [Category(Categories.CustomData)]
         [TestCase(ItemTypePredefined.Process, PropertyPrimitiveType.Date, Process.DefaultUserTaskName, "Cust-Date", "2016-12-24T00:00:00")]

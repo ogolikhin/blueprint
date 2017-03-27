@@ -254,7 +254,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -270,6 +269,9 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
@@ -308,7 +310,6 @@ namespace ArtifactStoreTests
                         _project);
 
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -325,6 +326,9 @@ namespace ArtifactStoreTests
             // Verify that source and target artifacts still have the same traces they had before the copy.
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, copyResult.Artifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [Category(Categories.CustomData)]
@@ -354,7 +358,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -376,9 +379,14 @@ namespace ArtifactStoreTests
             var copiedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, copyResult.Artifact.Id, name: artifactName);
 
             // Verify preCreatedArtifact is Reused.
-            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author,
-                getTraces: OpenApiTraceTypes.Reuse);
+            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author, getTraces: OpenApiTraceTypes.Reuse);
             Assert.IsEmpty(reuseTracesOfCopy.Traces, "There should be no Reuse traces on the copied artifact!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, preCreatedArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, preCreatedArtifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
+            // TODO: Trello bug: https://trello.com/c/cWLiVWdL IndicatorFlags remais the same after reused artifact was copied and lost its traces
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+
         }
         
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
@@ -959,13 +967,13 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
             var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Add the discussion to the artifact.
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
-            OpenApiArtifact.PostRaptorDiscussion(artifact.Address, artifact.Id, commentText, author);
+            artifact.PostRapidReviewArtifactDiscussion(commentText, author);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 discussion!");

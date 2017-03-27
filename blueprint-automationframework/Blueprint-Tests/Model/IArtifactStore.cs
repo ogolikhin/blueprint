@@ -1,4 +1,5 @@
 using Model.Impl;
+using Model.NovaModel.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using System;
@@ -208,11 +209,9 @@ namespace Model
         /// <param name="projectId">The id of specific project.</param>
         /// <param name="artifactId">The id of specific artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="includeAuthorHistory">Should include Author History into search results.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
         List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
-            bool? includeAuthorHistory = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -524,6 +523,15 @@ namespace Model
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
         NovaArtifactsAndProjectsResponse PublishArtifacts(List<int> artifactsIds, IUser user, bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets Reviews associated with the Baseline
+        /// </summary>
+        /// <param name="artifactId">Id of Baseline (it works for other types of artifacts also).</param>
+        /// <param name="user">user to perform the operation.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Reviews associated with the specified Baseline,</returns>
+        ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         #region Process methods
 

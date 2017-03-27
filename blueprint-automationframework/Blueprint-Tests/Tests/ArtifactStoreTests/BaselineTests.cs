@@ -5,6 +5,7 @@ using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.NovaModel.Impl;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
@@ -507,8 +508,7 @@ namespace ArtifactStoreTests
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Actor, _project.Id);
 
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
 
             var timestampDate = DateTime.UtcNow.AddMinutes(-3);
@@ -557,7 +557,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267228)]
-        [Description("Add published Artifact to sealed Baseline, check 409 error message.")]
+        [Description("Try to set Baseline timestamp to the future, check 409 error message.")]
         public void EditBaseline_SetBaselinetTimeStampToTheFutureDate_Check409()
         {
             // Setup:
@@ -577,18 +577,44 @@ namespace ArtifactStoreTests
         }
 
         [TestCase]
+        [TestRail(267245)]
+        [Description("Try to remove artifact from sealed Baseline, check 409 error message.")]
+        public void RemoveArtifactFromBaseline_SealedBaseline_Check409()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            baseline.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
+            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
+            baseline.SetIsSealed(true);
+            ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+
+            baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToAdd.Id });
+
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Attempt to remove artifact from sealed Baseline should throw 409 error.");
+
+            // Verify:
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.SealedBaseline, expectedInternalExceptionMessage);
+        }
+
+        [TestCase]
         [TestRail(267154)]
         [Description("Try to add default Collection folder to the Baseline, check 404 error message.")]
         public void AddArtifactToBaseline_DefaultCollectionFolder_Check404()
         {
             // Setup:
-            var baselineArtifact = Helper.CreateBaseline(_user, _project);
-
             var defaultCollectionFolder = _project.GetDefaultCollectionFolder(_user);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, defaultCollectionFolder.Id, baselineArtifact.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: defaultCollectionFolder.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -605,11 +631,9 @@ namespace ArtifactStoreTests
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
                 _project.Id);
 
-            var baseline = Helper.CreateBaseline(_user, _project);
-
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
-                Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
+                Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -691,8 +715,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             // see TFS 5107
-            string expectedErrorMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedErrorMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.BaselineNotSealed, expectedInternalExceptionMessage);
         }
 
         #endregion Negative Tests
@@ -723,6 +746,33 @@ namespace ArtifactStoreTests
         }
 
         #endregion
+
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(267352)]
+        [Description("Get list of Reviews associated with baseline from Custom Data project, check that Reviews have expected values.")]
+        public void GetReviews_ExistingSealedBaseline_ValidateReviewList()
+        {
+            // Setup:
+            var viewerUser = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _projectCustomData);
+            const int baselineWithreviewsId = 110; // id of sealed Baseline which is used in 3 reviews
+
+            // Execute: 
+            ReviewRelationshipsResultSet reviews = null;
+            Assert.DoesNotThrow(() => reviews = Helper.ArtifactStore.GetReviews(baselineWithreviewsId, viewerUser),
+                "Get Baseline reviews shouldn't return an error.");
+
+            // Verify:
+            Assert.AreEqual(3, reviews.reviewArtifacts.Count, "List should have expected number of reviews.");
+            foreach (var review in reviews.reviewArtifacts)
+            {
+                var reviewArtifact = Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
+                Assert.AreEqual(reviewArtifact.Name, review.ItemName, "Review name should have expected value.");
+                Assert.AreEqual(reviewArtifact.Prefix, review.ItemTypePrefix, "Review ItemTypePrefix should have expected value.");
+                Assert.AreEqual(reviewArtifact.CreatedOn, review.CreatedDate, "Review CreatedDate should have expected value.");
+                Assert.IsTrue((review.Status >= 0) && (review.Status < 3), "Review status should be in the expected range.");
+            }
+        }
 
         #region Private Functions
 

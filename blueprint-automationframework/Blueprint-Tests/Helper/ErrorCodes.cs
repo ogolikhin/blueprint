@@ -127,6 +127,7 @@ namespace Helper
 
         public const int BaselineNotSealed = 136;
 
+        public const int CannotDelete = 137;
         //--------------------------------
 
         public const int Ok = 200;

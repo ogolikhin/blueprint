@@ -5,8 +5,11 @@ using Model;
 using Model.Factories;
 using Model.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
+using Model.Common.Enums;
+using System.Linq;
 
 namespace AccessControlTests
 {
@@ -19,13 +22,32 @@ namespace AccessControlTests
         private const string YEAR_NOT_SPECIFIED = "A year must be specified";
         private const string MONTH_NOT_SPECIFIED = "A month must be specified";
 
+        private const string REST_PATH_ACTIVE = RestPaths.Svc.AccessControl.Licenses.ACTIVE;
+        private const string REST_PATH_LOCKED = RestPaths.Svc.AccessControl.Licenses.LOCKED;
+
+        private Dictionary<LicenseLevel, TestHelper.ProjectRole> _licenseLevelToProjectRole = new Dictionary<LicenseLevel, TestHelper.ProjectRole>
+        {
+            {LicenseLevel.Author, TestHelper.ProjectRole.Author},
+            {LicenseLevel.Collaborator, TestHelper.ProjectRole.Collaborator},
+            {LicenseLevel.Viewer, TestHelper.ProjectRole.Viewer}
+        };
+
+        private Dictionary<LicenseLevel, GroupLicenseType> _licenseLevelToGroupLicenseType = new Dictionary<LicenseLevel, GroupLicenseType>
+        {
+            {LicenseLevel.Author, GroupLicenseType.Author},
+            {LicenseLevel.Collaborator, GroupLicenseType.Collaborate},
+            {LicenseLevel.Viewer, GroupLicenseType.None}
+        };
+
         private IUser _user = null;
+        private IProject _project = null;
 
         [SetUp]
         public void SetUp()
         {
             Helper = new TestHelper();
-            _user = Helper.CreateUserAndAddToDatabase();
+            _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            _project = ProjectFactory.GetProject(_user); // TODO: Change tests to not require a project.
         }
 
         [TearDown]
@@ -58,10 +80,12 @@ namespace AccessControlTests
         /// <summary>
         /// Creates a random session and adds (POST's) it to the AccessControl service.
         /// </summary>
+        /// <param name="sessionUser">The user for whom the session is created.</param>
         /// <returns>The session that was added including the session token.</returns>
-        private ISession CreateAndAddSessionToAccessControl()
+        private ISession CreateAndAddSessionToAccessControl(IUser sessionUser = null)
         {
-            var session = SessionFactory.CreateSession(_user);
+            sessionUser = sessionUser ?? _user;
+            var session = SessionFactory.CreateSession(sessionUser);
 
             // POST the new session.
             return AddSessionToAccessControl(session);
@@ -71,30 +95,109 @@ namespace AccessControlTests
 
         #region GetLicensesInfo tests
 
-        [TestCase]
+        [Category(Categories.CannotRunInParallel)] // This test may fail if sessions are created or deleted while it's in progress. 
+        [TestCase(LicenseLevel.Author)]
+        [TestCase(LicenseLevel.Collaborator)]
+        [TestCase(LicenseLevel.Viewer)]
         [TestRail(96107)]
-        [Description("Check that GET active licenses info returns 200 OK")]
-        public void GetActiveLicensesInfo_200OK()
+        [Description("Check that GET svc/AccessControl/licenses/active returns 200 OK. Check that license count is " +
+            "incremented as new sessions are added.")]
+        public void GetActiveLicensesInfo_UserAddedAndAuthenticated_LicenseCountIsIncremented(LicenseLevel level)
         {
-            // TODO: add expected results
+            // Setup:
+            IList<IAccessControlLicensesInfo> licenses = null;
+
             Assert.DoesNotThrow(() =>
             {
-                Helper.AccessControl.GetLicensesInfo(LicenseState.active);
-            });
+                licenses = Helper.AccessControl.GetLicensesInfo(LicenseState.active);
+            }, "'GET {0}' should return 200 OK when getting active licenses.", REST_PATH_ACTIVE);
+
+            int licBefore = 0;
+            foreach (var element in licenses)
+            {
+                if (element.LicenseLevel == (int)level)
+                {
+                    licBefore = element.Count;
+                }
+            }
+
+            Helper.CreateUserWithProjectRolePermissions(_licenseLevelToProjectRole[level], _project, licenseType: _licenseLevelToGroupLicenseType[level]);
+
+            // Execute:
+            Assert.DoesNotThrow(() =>
+            {
+                licenses = Helper.AccessControl.GetLicensesInfo(LicenseState.active);
+            }, "'GET {0}' should return 200 OK when getting active licenses.", REST_PATH_ACTIVE);
+
+            // Verify:
+            int licAfter = 0;
+            foreach (IAccessControlLicensesInfo element in licenses)
+            {
+                if (element.LicenseLevel == (int)level)
+                {
+                    licAfter = element.Count;
+                }
+            }
+
+            Assert.AreEqual((licBefore + 1), licAfter,
+                "The expected number of active {0} licenses does not match the actual number.", level.ToString());
+
         }
 
-        [TestCase]
+        [Category(Categories.CannotRunInParallel)] // This test may fail if sessions are created or deleted while it's in progress. 
+        [TestCase(LicenseLevel.Author)]
+        [TestCase(LicenseLevel.Collaborator)]
+        [TestCase(LicenseLevel.Viewer)]
         [TestRail(96110)]
-        [Description("Check that GET locked licenses info returns 200 OK")]
-        public void GetLockedLicensesInfo_200OK()
+        [Description("Check that GET svc/AccessControl/licenses/locked returns 200 OK. Check that license count is " +
+            "incremented as new sessions are added.")]
+        public void GetLockedLicensesInfo_UserAddedAndAuthenticated_LicenseCountIsIncremented(LicenseLevel level)
         {
-            var session = CreateAndAddSessionToAccessControl();
+            // Setup:
+            var sessionUser = Helper.CreateUserWithProjectRolePermissions(_licenseLevelToProjectRole[level], _project, licenseType: _licenseLevelToGroupLicenseType[level]);
+            string session = sessionUser.Token.AccessControlToken;
 
-            // TODO: add expected results
+            IList<IAccessControlLicensesInfo> licenseInfo = null;
+            int licBefore = 0;
             Assert.DoesNotThrow(() =>
             {
-                Helper.AccessControl.GetLicensesInfo(LicenseState.locked, session: session);
-            });
+                licenseInfo = Helper.AccessControl.GetLicensesInfo(LicenseState.locked, token: session);
+            }, "'GET {0}' should return 200 OK when getting the number of active licenses for the current user's license level, excluding any active license for the current user.", REST_PATH_LOCKED);
+            licBefore = licenseInfo[0].Count;
+
+            Assert.AreEqual(licenseInfo.Count, 1, "licenseInfo should contain only one item.");
+
+            Helper.CreateUserWithProjectRolePermissions(_licenseLevelToProjectRole[level], _project, licenseType: _licenseLevelToGroupLicenseType[level]);
+
+            // Execute:
+            int licAfter = 0;
+            Assert.DoesNotThrow(() =>
+            {
+                licenseInfo = Helper.AccessControl.GetLicensesInfo(LicenseState.locked, token: session);
+            }, "'GET {0}' should return 200 OK when getting the number of active licenses for the current user's license level, excluding any active license for the current user.", REST_PATH_LOCKED);
+            licAfter = licenseInfo[0].Count;
+
+            Assert.AreEqual(1, licenseInfo.Count, "licenseInfo should contain only one item.");
+
+            // Verify:
+            Assert.AreEqual((licBefore + 1), licAfter,
+                "The expected number of active {0} licenses does not match the actual number", level.ToString());
+        }
+
+        [TestCase(null)]
+        [TestCase(CommonConstants.InvalidToken, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // TFS bug 5823
+        [TestRail(267191)]
+        [Description("Check that GET svc/AccessControl/licenses/locked with an invalid token return 401 Unauthorized.")]
+        public void GetLockedLicensesInfo_InvalidToken_401Unauthorized(string token)
+        {
+            // Execute:
+            var ex = Assert.Throws<Http401UnauthorizedException>(() =>
+            {
+                Helper.AccessControl.GetLicensesInfo(LicenseState.locked, token);
+            }, "'GET {0}' should return 401 Unauthorized the token provided in invalid.", REST_PATH_LOCKED);
+
+            // Verify:
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse); // To be changed after bug 5823 is fixed.
         }
 
         #endregion GetLicensesInfo tests

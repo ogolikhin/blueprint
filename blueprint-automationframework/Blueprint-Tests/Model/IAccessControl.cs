@@ -112,9 +112,20 @@ namespace Model
         /// (Runs: GET /licenses/active[locked])
         /// </summary>
         /// <param name="state">License state active or locked.</param>
+        /// <param name="session">The AccessControl session.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>License level and number of licenses in this state.</returns>
-        IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null);
+        IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets number of active/locked licenses.
+        /// (Runs: GET /licenses/active[locked])
+        /// </summary>
+        /// <param name="state">License state active or locked.</param>
+        /// <param name="token">The AccessControl token.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>License level and number of licenses in this state.</returns>
+        IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, string token = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets list of license transactions.

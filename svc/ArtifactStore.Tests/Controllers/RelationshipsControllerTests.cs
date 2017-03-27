@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ServiceLibrary.Repositories;
+using System;
 
 namespace ArtifactStore.Controllers
 {
@@ -60,7 +61,19 @@ namespace ArtifactStore.Controllers
             const int destId = 123;
             var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
             var permisionDictionary = new Dictionary<int, RolePermissions>();
-            var resultSet = new RelationshipResultSet { ManualTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } }, OtherTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } } };
+            var resultSet = new RelationshipResultSet {
+                ManualTraces = new List<Relationship> {
+                    new Relationship {
+                        ArtifactId = destId,
+                        ArtifactName = "test" }
+                },
+                OtherTraces = new List<Relationship> {
+                    new Relationship {
+                        ArtifactId = destId,
+                        ArtifactName = "test"
+                    }
+                }
+            };
             permisionDictionary.Add(artifactId, RolePermissions.Read);
             permisionDictionary.Add(destId, RolePermissions.Read);
 
@@ -91,7 +104,20 @@ namespace ArtifactStore.Controllers
             const int destId = 123;
             var itemInfo = new ItemInfo { ProjectId = projectId, ArtifactId = artifactId, ItemId = artifactId };
             var permisionDictionary = new Dictionary<int, RolePermissions>();
-            var resultSet = new RelationshipResultSet { ManualTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } }, OtherTraces = new List<Relationship> { new Relationship { ArtifactId = destId, ArtifactName = "test" } } };
+            var resultSet = new RelationshipResultSet {
+                ManualTraces = new List<Relationship> {
+                    new Relationship {
+                        ArtifactId = destId,
+                        ArtifactName = "test"
+                    }
+                },
+                OtherTraces = new List<Relationship> {
+                    new Relationship {
+                        ArtifactId = destId,
+                        ArtifactName = "test"
+                    }
+                }
+            };
             permisionDictionary.Add(artifactId, RolePermissions.Read | RolePermissions.Trace | RolePermissions.Edit);       
             permisionDictionary.Add(destId, RolePermissions.Read);
 
@@ -509,6 +535,136 @@ namespace ArtifactStore.Controllers
 
             //Assert
             Assert.AreSame(expected, actual);
+        }
+
+        [TestMethod]
+        public async Task GetReviews_BadRequest_ThrowsException()
+        {
+            //Arrange
+            const int artifactId = -1;
+            var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
+
+            //Act
+            try {
+                var result = await controller.GetReviewRelationships(artifactId);
+            } catch (Exception e)
+            {
+                Assert.IsTrue(e is HttpResponseException);
+            }
+        }
+
+        [TestMethod]
+        public async Task GetReviews_NotFound_ThrowsException()
+        {
+            //Arrange
+            const int artifactId = 1;
+            var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(null);
+
+            //Act
+            try
+            {
+                var result = await controller.GetReviewRelationships(artifactId);
+            }
+            catch (Exception e)
+            {
+                Assert.IsTrue(e is HttpResponseException);
+            }
+        }
+
+        [TestMethod]
+        public async Task GetReviews_RelationshipIsReadOnly_Success()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int projectId = 10;
+            const int destId = 123;
+            var itemInfo = new ItemInfo {
+                ProjectId = projectId,
+                ArtifactId = artifactId,
+                ItemId = artifactId
+            };
+            var permisionDictionary = new Dictionary<int, RolePermissions>();
+            var resultSet = new ReviewRelationshipsResultSet {
+                ReviewArtifacts = new List<ReferencedReviewArtifact> {
+                    new ReferencedReviewArtifact {
+                        ItemId = destId,
+                        ItemName = "Test Review",
+                        ItemTypePrefix = "Rev"
+                    }
+                }
+            };
+            permisionDictionary.Add(artifactId, RolePermissions.Read);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
+            _relationshipsRepositoryMock.Setup(m => m.GetReviewRelationships(artifactId, _session.UserId, true, It.IsAny<int?>())).ReturnsAsync(resultSet);
+            var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
+
+            //Act
+            var result = await controller.GetReviewRelationships(artifactId);
+
+            //Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(destId, result.ReviewArtifacts[0].ItemId);
+            Assert.AreEqual("Test Review", result.ReviewArtifacts[0].ItemName);
+            Assert.AreEqual("Rev", result.ReviewArtifacts[0].ItemTypePrefix);
+        }
+
+        [TestMethod]
+        public async Task GetReviews_NoPermissionToArtifact_ThrowsException()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int projectId = 10;
+            const int destId = 123;
+            var itemInfo = new ItemInfo
+            {
+                ProjectId = projectId,
+                ArtifactId = artifactId,
+                ItemId = artifactId
+            };
+            var permisionDictionary = new Dictionary<int, RolePermissions>();
+            var resultSet = new ReviewRelationshipsResultSet
+            {
+                ReviewArtifacts = new List<ReferencedReviewArtifact> {
+                    new ReferencedReviewArtifact {
+                        ItemId = destId,
+                        ItemName = "Test Review",
+                        ItemTypePrefix = "Rev"
+                    }
+                }
+            };
+            permisionDictionary.Add(artifactId, RolePermissions.None);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
+            _relationshipsRepositoryMock.Setup(m => m.GetReviewRelationships(artifactId, _session.UserId, true, It.IsAny<int?>())).ReturnsAsync(resultSet);
+            var controller = new RelationshipsController(_relationshipsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsRepositoryMock.Object)
+            {
+                Request = new HttpRequestMessage()
+            };
+            controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
+
+            //Act
+            try
+            {
+                var result = await controller.GetReviewRelationships(artifactId);
+            }
+            catch (Exception e)
+            {
+                Assert.IsTrue(e is HttpResponseException);
+            }
         }
     }
 }

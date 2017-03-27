@@ -48,7 +48,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactsAuthorHistory(new List<int>{artifact.Id}, _adminUser);
-            }, "GetArtifactsAuthorHistory shouldn return 200 OK when sent with valid parameters!");
+            }, "GetArtifactsAuthorHistory should return 200 OK when sent with valid parameters!");
 
             // Verify:
             if ((state == TestHelper.TestArtifactState.Published) || (state == TestHelper.TestArtifactState.PublishedWithDraft))
@@ -79,18 +79,24 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 artifactHistory = Helper.ArtifactStore.GetArtifactsAuthorHistory(new List<int> { artifact1.Id, artifact2.Id }, _viewerUser);
-            }, "GetArtifactsAuthorHistory shouldn return 200 OK when sent with valid parameters!");
+            }, "GetArtifactsAuthorHistory should return 200 OK when sent with valid parameters!");
 
             // Verify:
             ValidateArtifactHistory(artifactHistory, new List<INovaArtifactDetails> { artifact1, artifact2 });
         }
 
+        /// <summary>
+        /// Checks that list of history items corresponds to the list of artifacts
+        /// </summary>
+        /// <param name="historyItems">List of history items</param>
+        /// <param name="artifacts">List of artifacts</param>
         private static void ValidateArtifactHistory(List<AuthorHistoryItem> historyItems, List<INovaArtifactDetails> artifacts)
         {
             Assert.AreEqual(artifacts.Count, historyItems.Count, "List of Author history items should have expected number of elements.");
             foreach (var artifact in artifacts)
             {
                 var historyItem = historyItems.Find(item => item.ItemId == artifact.Id);
+                Assert.IsNotNull(historyItem, "Each artifact should be in history items list.");
                 Assert.AreEqual(artifact.CreatedBy.Id, historyItem.CreatedByUserId, "Artifacts Author History item should have expected CreatedByUserId");
                 Assert.AreEqual(artifact.CreatedOn, historyItem.CreatedOn, "Artifacts Author History item should have expected CreatedOn");
                 Assert.AreEqual(artifact.LastEditedOn, historyItem.LastEditedOn, "Artifacts Author History item should have expected LastEditedOn");

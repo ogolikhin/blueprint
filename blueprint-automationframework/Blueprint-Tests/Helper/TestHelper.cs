@@ -673,7 +673,7 @@ namespace Helper
         /// <param name="project">The project in which Baseline will be created.</param>
         /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
         /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines&Reviews folder.</param>
-        /// <param name="artifactsToAddIds">(optional)Artifact's id to be added to baseline.
+        /// <param name="artifactToAddId">(optional)Artifact's id to be added to baseline.
         /// By default empty baseline will be created.</param>
         /// <returns>The Baseline artifact.</returns>
         public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,

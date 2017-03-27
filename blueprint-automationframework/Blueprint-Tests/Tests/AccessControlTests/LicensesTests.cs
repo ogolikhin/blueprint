@@ -154,7 +154,7 @@ namespace AccessControlTests
         public void GetLockedLicensesInfo_UserAddedAndAuthenticated_LicenseCountIsIncremented(LicenseLevel level)
         {
             // Setup:
-            IUser sessionUser = Helper.CreateUserWithProjectRolePermissions(_licenseLevelToProjectRole[level], _project, licenseType: _licenseLevelToGroupLicenseType[level]);
+            var sessionUser = Helper.CreateUserWithProjectRolePermissions(_licenseLevelToProjectRole[level], _project, licenseType: _licenseLevelToGroupLicenseType[level]);
             string session = sessionUser.Token.AccessControlToken;
 
             IList<IAccessControlLicensesInfo> licenseInfo = null;
@@ -177,7 +177,7 @@ namespace AccessControlTests
             }, "'GET {0}' should return 200 OK when getting the number of active licenses for the current user's license level, excluding any active license for the current user.", REST_PATH_LOCKED);
             licAfter = licenseInfo[0].Count;
 
-            Assert.AreEqual(licenseInfo.Count, 1, "licenseInfo should contain only one item.");
+            Assert.AreEqual(1, licenseInfo.Count, "licenseInfo should contain only one item.");
 
             // Verify:
             Assert.AreEqual((licBefore + 1), licAfter,

@@ -25,7 +25,7 @@ namespace Model.Impl
         [JsonProperty("Source")]
         public new UserSource Source { get; }
 
-        [JsonProperty("LicenseLevel")]
+        [JsonProperty("LicenseType")]
         public new LicenseLevel License { get; set; }
 
         [JsonProperty("InstanceAdminRoleId")]

@@ -1162,7 +1162,7 @@ namespace Helper
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
         /// after adding a new permissions role</param>
-        /// <param name="licenseType">(optinal) The type of user license (Author, Collaborator, Viewer).</param>
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
         public void AssignProjectRolePermissionsToUser(
             IUser user, 
             ProjectRole role, 

@@ -15,7 +15,7 @@ namespace AdminStore.Helpers
             var fromEmail = "from@test.com";
 
             //Act
-            MailMessage message = EmailHelper.PreparePasswordResetMessage(string.Empty, toEmail, fromEmail);
+            MailMessage message = EmailHelper.PrepareMessage(toEmail, fromEmail, string.Empty, string.Empty);
 
             //Assert
             Assert.AreEqual(toEmail, message.To[0].Email);

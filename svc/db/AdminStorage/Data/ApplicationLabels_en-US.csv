@@ -29,13 +29,6 @@ App_LoadingMsg,"Loading ..."
 App_PrerequisiteMsg_JavaScript,"You must enable JavaScript to use this application"
 App_GeneralError, "An error ocurred while loading the page.<br/>Please try again.<br/><br/>If the problem persists, contact your Blueprint administrator."
 
-PasswordRecovery_Title, "Forgot password?"
-PasswordRecovery_Submit, "Recover Password"
-PasswordRecovery_ConfirmRequest, "The email has been sent"
-PasswordRecovery_Disabled, "Password recovery feature is disabled"
-PasswordRecovery_Error_InvalidUserName, "Invalid user name"
-PasswordRecovery_Error_General, "Server Error"
-
 App_Header_Name,"Blueprint"
 App_Header_SignedInAs,"Signed in as"
 App_Header_Welcome,"Welcome"
@@ -372,7 +365,7 @@ Login_Auth_FederatedAuthFailed,"There is a problem with federated authentication
 Login_Auth_FederatedFallbackDisabled,"Please log in with your corporate credentials."
 Login_Username,"Username"
 Login_Password,"Password"
-Login_ForgotPassword,"Forgot Password"
+Login_ForgotPassword,"Forgot password"
 Login_ChangePasswordButton,"Change Password"
 Login_UpdatePasswordButton,"Update Password"
 Login_LoginButton,"Log In"
@@ -411,6 +404,21 @@ Login_Session_NewPasswordCriteria,"Your new password must contain at least one n
 Login_Session_NewPasswordAlreadyUsedPreviously,"Ensure your new password is different from previously used ones."
 Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
 Login_Session_InvalidLicense,"Your license does not include access to this application."
+
+PasswordRecovery_Recovery_Title, "Forgot Password?"
+PasswordRecovery_Recovery_Submit, "Recover Password"
+PasswordRecovery_Reset_Title, "Reset password"
+PasswordRecovery_Reset_Submit, "Reset password"
+PasswordRecovery_ConfirmRequest, "The email has been sent"
+PasswordRecovery_ConfirmReset, "The password has been changed successfully"
+PasswordRecovery_Disabled, "Password recovery feature is disabled"
+PasswordRecovery_NewPassword, "Password"
+PasswordRecovery_ConfirmPassword, "Confirm Password"
+PasswordRecovery_Error_RecoveryFailed, "You are not allowed to request password change.<br/>Please contact your system administrator"
+PasswordRecovery_Error_ResetFailed, "The reset password request has failed.<br/>Please contact you system administrator."
+PasswordRecovery_Error_InvalidPassword, "The reset password request has failed.<br/>Please contact your system administrator."
+PasswordRecovery_Error_RequestFailed, "The request has failed.<br/>Please contact your system administrator."
+
 
 Input_Required,"Required"
 
@@ -461,6 +469,7 @@ Label_Height, "Height"
 Label_Label, "Label"
 Label_Options, "Options"
 Label_ID, "ID"
+Label_UserName, "User name"
 
 Diagram_OldFormat_Message,"This diagram is stored in an old format that is incompatible with this version. To display the diagram, please open it in Silverlight Main Experience, make a modification, and publish it."
 

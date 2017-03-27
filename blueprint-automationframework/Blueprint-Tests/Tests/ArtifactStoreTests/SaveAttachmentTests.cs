@@ -74,9 +74,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(_attachmentFile.FileName, attachmentAfterTest.AttachedFiles[0].FileName, "Filename must have expected value.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
 
-            // Trello bug: Does not return indicatorFlags for attachments created with bpartifactstore/artifacts/{Id} call https://trello.com/c/f1gga4iK 
-            // TODO: Change verification of IndicatorFlags to ItemIndicatorFlags.HasAttachmentsOrDocumentRefs instead of null
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         [TestCase]
@@ -126,9 +124,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(2, attachmentAfterTest.AttachedFiles.Count, "Artifact should have 2 attachments at this point.");
             Assert.AreEqual(0, attachmentAfterTest.DocumentReferences.Count, "List of Document References must be empty.");
 
-            // Trello bug: Does not return indicatorFlags for attachments created with bpartifactstore/artifacts/{Id} call https://trello.com/c/f1gga4iK 
-            // TODO: Change verification of IndicatorFlags to ItemIndicatorFlags.HasAttachmentsOrDocumentRefs instead of null
-            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, artifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
         }
 
         #endregion 200 OK Tests

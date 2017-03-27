@@ -235,22 +235,15 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, bool?, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, bool? includeAuthorHistory = false,
+        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            Dictionary<string, string> queryParameters = null;
-            if (includeAuthorHistory != null)
-            {
-                queryParameters = new Dictionary<string, string> { { nameof(includeAuthorHistory), I18NHelper.ToStringInvariant(includeAuthorHistory.Value) } };
-            }
-
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
         }

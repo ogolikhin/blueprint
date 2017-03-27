@@ -885,13 +885,14 @@ namespace Helper
                     CSharpUtilities.SetProperty("Description", PublishedDescription, artifactDetails);
                     UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    return artifact;
+                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
                 case TestArtifactState.PublishedWithDraft:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", DraftDescription, artifactDetails);
                     SvcShared.LockArtifacts(user, new List<int> { artifact.Id });
-                    return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
                 case TestArtifactState.ScheduledToDelete:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     ArtifactStore.DeleteArtifact(artifact.Id, user);

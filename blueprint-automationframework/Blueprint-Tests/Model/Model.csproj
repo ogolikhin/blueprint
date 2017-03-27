@@ -93,6 +93,7 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="NovaModel\Impl\ReferencedReviewArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\SubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />
     <Compile Include="ArtifactModel\INovaArtifactBase.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Common\Constants\ApiBusinessErrorCodes.cs" />
     <Compile Include="Common\Enums\InstanceAdminRole.cs" />
     <Compile Include="Common\Enums\InstanceAdminRoleExtension.cs" />
+    <Compile Include="Common\Enums\LicenseLevel.cs" />
     <Compile Include="Common\Enums\PropertyTypePredefined.cs" />
     <Compile Include="Factories\OpenApiFactory.cs" />
     <Compile Include="Factories\ProjectRoleFactory.cs" />
@@ -270,7 +272,6 @@
     <Compile Include="Archive\ArtifactModel\IUseCaseDiagram.cs" />
     <Compile Include="IUser.cs" />
     <Compile Include="Archive\ArtifactModel\IUserStory.cs" />
-    <Compile Include="LicenseType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -111,7 +111,7 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes);
 
             string token = GetToken(response);
-            var session = new Session(userId, username, licenseLevel.GetValueOrDefault(), isSso.GetValueOrDefault(), token, beginTime, endTime);
+            var session = new Session(userId, username, isSso.GetValueOrDefault(), licenseLevel.GetValueOrDefault(), token, beginTime, endTime);
             Logger.WriteDebug("Got session token '{0}' for User ID: {1}.", token, userId);
 
             // Add session to list of created sessions, so we can delete them later.
@@ -185,14 +185,21 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAccessControl.GetLicensesInfo(LicenseState, ISession, List{HttpStatusCode})"/>
-        public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, ISession session, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetLicensesInfo(state, session?.SessionId, expectedStatusCodes);
+
+        }
+
+        /// <seealso cref="IAccessControl.GetLicensesInfo(LicenseState, string, List{HttpStatusCode})"/>
+        public IList<IAccessControlLicensesInfo> GetLicensesInfo(LicenseState state, string token = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path;
             Dictionary<string, string> additionalHeaders = null;
 
-            if (session != null)
+            if (token != null)
             {
-                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, session.SessionId } };
+                additionalHeaders = new Dictionary<string, string> { { TOKEN_HEADER, token } };
             }
 
             switch (state)

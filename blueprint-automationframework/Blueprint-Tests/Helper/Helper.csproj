@@ -57,6 +57,7 @@
     <Compile Include="ConcurrentTestHelper.cs" />
     <Compile Include="ErrorCodes.cs" />
     <Compile Include="ExceptionHelper.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SearchServiceTestHelper.cs" />
     <Compile Include="StorytellerTestHelper.cs" />
     <Compile Include="FileStoreTestHelper.cs" />

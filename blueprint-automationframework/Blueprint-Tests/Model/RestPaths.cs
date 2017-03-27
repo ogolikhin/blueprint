@@ -214,6 +214,7 @@ namespace Model
                     public const string MOVE_TO_id_                 = "svc/bpartifactstore/artifacts/{0}/moveTo/{1}";   // XXX: For some reason they decided to put this call in blueprint-current!
                     public const string RELATIONSHIPS               = "svc/artifactstore/artifacts/{0}/relationships";
                     public const string RELATIONSHIP_DETAILS        = "svc/artifactstore/artifacts/{0}/relationshipdetails";
+                    public const string REVIEWS                     = "svc/artifactstore/artifacts/{0}/reviews";
                     public const string VERSION                     = "svc/artifactstore/artifacts/{0}/version";
                     public const string SUBARTIFACTS                = "svc/artifactstore/artifacts/{0}/subartifacts";
                     public const string SUBARTIFACTS_id_            = "svc/bpartifactstore/artifacts/{0}/subartifacts/{1}";
@@ -284,16 +285,15 @@ namespace Model
                     [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
                     public static class Artifacts_id_
                     {
+                        public const string DELETE_COMMENT_id_      = "svc/components/RapidReview/artifacts/{0}/deletecomment/{1}";
+                        public const string DELETE_THREAD_id_       = "svc/components/RapidReview/artifacts/{0}/deletethread/{1}";
                         public const string DISCUSSIONS             = "svc/components/RapidReview/artifacts/{0}/discussions";
-                        public const string DELETE_THREAD_ID        = "svc/components/RapidReview/artifacts/{0}/deletethread/{1}";
-                        public const string DELETE_COMMENT_ID       = "svc/components/RapidReview/artifacts/{0}/deletecomment/{1}";
-
 
                         public static class Discussions_id_
                         {
                             public const string COMMENT             = "svc/components/RapidReview/artifacts/{0}/discussions/{1}";
                             public const string REPLY               = "svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply";
-                            public const string REPLY_ID            = "svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply/{2}";
+                            public const string REPLY_id_           = "svc/components/RapidReview/artifacts/{0}/discussions/{1}/reply/{2}";
                         }
                     }
 

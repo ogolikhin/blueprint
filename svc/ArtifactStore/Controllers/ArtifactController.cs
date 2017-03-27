@@ -44,20 +44,18 @@ namespace ArtifactStore.Controllers
         /// Returns child artifacts of the project with the specified id.
         /// </remarks>
         /// <param name="projectId">Id of the project</param>
-        /// <param name="includeAuthorHistory">[Optional] The default value is fasle.
-        /// Used to retrieve extra information about artifact like 'createdOn'</param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
         /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("projects/{projectId:int:min(1)}/children/{includeAuthorHistory=includeAuthorHistory?}"), SessionRequired]
+        [Route("projects/{projectId:int:min(1)}/children"), SessionRequired]
         [ActionName("GetProjectChildren")]
-        public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId, bool? includeAuthorHistory = null)
+        public async Task<List<Artifact>> GetProjectChildrenAsync(int projectId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId, includeAuthorHistory.GetValueOrDefault(false));
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, null, session.UserId);
         }
 
         /// <summary>
@@ -68,20 +66,18 @@ namespace ArtifactStore.Controllers
         /// </remarks>
         /// <param name="projectId">Id of the project</param>
         /// <param name="artifactId">Id of the artifact</param>
-        /// <param name="includeAuthorHistory">[Optional] The default value is fasle.
-        /// Used to retrieve extra information about artifact like 'createdOn'</param>
         /// <response code="200">OK.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for the artifact.</response>
         /// <response code="404">Not found. A project or an artifact for the specified ids is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpGet, NoCache]
-        [Route("projects/{projectId:int:min(1)}/artifacts/{artifactId:int:min(1)}/children/{includeAuthorHistory=includeAuthorHistory?}"), SessionRequired]
+        [Route("projects/{projectId:int:min(1)}/artifacts/{artifactId:int:min(1)}/children"), SessionRequired]
         [ActionName("GetArtifactChildren")]
-        public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId, bool? includeAuthorHistory = null)
+        public async Task<List<Artifact>> GetArtifactChildrenAsync(int projectId, int artifactId)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId, includeAuthorHistory.GetValueOrDefault(false));
+            return await ArtifactRepository.GetProjectOrArtifactChildrenAsync(projectId, artifactId, session.UserId);
         }
 
         /// <summary>

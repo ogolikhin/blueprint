@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Model.ArtifactModel.Adaptors
+namespace Model.ArtifactModel.Adapters
 {
     public interface ICommentBaseAdapter
     {
@@ -20,7 +20,7 @@ namespace Model.ArtifactModel.Adaptors
         #endregion Serialized JSON properties
     }
 
-    public interface IDiscussionAdaptor : ICommentBaseAdapter
+    public interface IDiscussionAdapter : ICommentBaseAdapter
     {
         #region Serialized JSON properties
 

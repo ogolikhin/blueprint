@@ -85,10 +85,17 @@ namespace Helper
         /// </summary>
         /// <param name="actualIndicatorFlags">Actual indicators flags</param>
         /// <param name="expectedIndicatorFlags">Expected indicator flags</param>
-        public static void AssertIndicatorFlagsBitsAreEnabled(ItemIndicatorFlags actualIndicatorFlags, int expectedIndicatorFlags)
+        public static void AssertIndicatorFlagsBitsAreEnabled(ItemIndicatorFlags? actualIndicatorFlags, ItemIndicatorFlags? expectedIndicatorFlags)
         {
-            Assert.AreEqual(expectedIndicatorFlags, (expectedIndicatorFlags & (int)actualIndicatorFlags), 
-                "Indicator {0} is not found in indicatorFlags", expectedIndicatorFlags);
+            if ((actualIndicatorFlags == null) || (expectedIndicatorFlags == null))
+            {
+                Assert.AreEqual(expectedIndicatorFlags, actualIndicatorFlags, "Both indicator flags must be null!");
+            }
+            else
+            {
+                Assert.AreEqual(expectedIndicatorFlags, (expectedIndicatorFlags & actualIndicatorFlags),
+                    "Indicator '{0}' was expected but '{1}' was returned.", expectedIndicatorFlags, actualIndicatorFlags);
+            }
         }
 
         /// <summary>
@@ -99,7 +106,7 @@ namespace Helper
         /// <param name="artifactId">Artifact Id</param>
         /// <param name="subArtifactId">(optional)Sub-artifact Id. By default artifact indicatorFlags is asserted</param>
         /// <param name="expectedIndicatorFlags">Expected indicator value</param>
-        public static void VerifyIndicatorFlags(TestHelper helper, IUser user, int artifactId, int expectedIndicatorFlags, int subArtifactId = 0)
+        public static void VerifyIndicatorFlags(TestHelper helper, IUser user, int artifactId, ItemIndicatorFlags? expectedIndicatorFlags, int subArtifactId = 0)
         {
             const string ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
             const string SUB_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_;
@@ -109,7 +116,7 @@ namespace Helper
                 NovaArtifactDetails artifact = null;
                 Assert.DoesNotThrow(() =>
                 {
-                    artifact = helper.ArtifactStore.GetArtifactDetails(user, artifactId, versionId: 1);
+                    artifact = helper.ArtifactStore.GetArtifactDetails(user, artifactId);
                 }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", ARTIFACT_ID_PATH);
 
                 AssertIndicatorFlagsBitsAreEnabled(artifact.IndicatorFlags, expectedIndicatorFlags);

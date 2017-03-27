@@ -62,8 +62,7 @@ namespace Model.ArtifactModel.Impl
 
         public ItemTypePredefined? PredefinedType { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public ItemIndicatorFlags IndicatorFlags { get; set; } = 0;
+        public ItemIndicatorFlags? IndicatorFlags { get; set; }
 
         public List<AttachmentValue> AttachmentValues { get; set; }
 

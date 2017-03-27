@@ -49,6 +49,7 @@ namespace AdminStore.Controllers
                 Configuration = new HttpConfiguration()
             };
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
+            _controller.Request.RequestUri = new Uri("http://localhost");
         }
 
         #region Constuctor
@@ -780,7 +781,7 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository
                 .Setup(repo => repo.GetValue("IsPasswordRecoveryEnabled", It.IsAny<bool>()))
                 .ReturnsAsync(true);
-           
+            
         }
 
         #endregion PasswordRecovery

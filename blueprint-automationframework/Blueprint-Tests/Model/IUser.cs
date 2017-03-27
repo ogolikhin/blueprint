@@ -26,7 +26,7 @@ namespace Model
         List<IGroup> GroupMembership { get; }
         InstanceAdminRole? InstanceAdminRole { get; set; }  // (NULLABLE) From "InstanceAdminRoleId" field in database.
         string LastName { get; set; }
-        LicenseType License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
+        LicenseLevel License { get; set; }                   // This isn't in the database, it's inferred by the Group memberships.
         string Password { get; set; }                       // (NULLABLE)
         IEnumerable<byte> Picture { get; set; }             // (NULLABLE) "Image_ImageId" in database.
         UserSource Source { get; }

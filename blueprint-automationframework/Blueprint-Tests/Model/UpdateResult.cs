@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Model
 {
@@ -27,9 +28,11 @@ namespace Model
         /// <summary>
         /// The result returned by the update method
         /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public T Result { get; set; }
     }
 
+    // Found in: blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/Shared/Models/OperationMessageResult.cs
     /// <summary>
     /// The OperationMessageResult class used by the UpdateResult class. This defines a returned
     /// message and various descriptive properties related to the message.

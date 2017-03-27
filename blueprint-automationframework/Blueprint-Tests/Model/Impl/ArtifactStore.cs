@@ -13,6 +13,7 @@ using Utilities.Facades;
 using System.Web;
 using System.Net.Mime;
 using Model.Factories;
+using Model.NovaModel.Impl;
 
 namespace Model.Impl
 {
@@ -735,6 +736,16 @@ namespace Model.Impl
             }
 
             return publishedArtifacts;
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviews(int, IUser, List{HttpStatusCode})"/>
+        public ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.REVIEWS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<ReviewRelationshipsResultSet>(path, RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
         #region Process methods

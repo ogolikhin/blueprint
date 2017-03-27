@@ -672,9 +672,8 @@ namespace Helper
         /// <param name="user">The user to perform the operation.</param>
         /// <param name="project">The project in which Baseline will be created.</param>
         /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
-        /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines&Reviews folder.</param>
-        /// <param name="artifactsToAddIds">(optional)Artifact's id to be added to baseline.
-        /// By default empty baseline will be created.</param>
+        /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines and Reviews folder.</param>
+        /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
         /// <returns>The Baseline artifact.</returns>
         public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
             int? artifactToAddId = null)
@@ -851,6 +850,7 @@ namespace Helper
         /// <param name="state">State of the artifact(Created, Published, PublishedWithDraft, ScheduledToDelete, Deleted)</param>
         /// <param name="itemType">itemType of artifact to be created</param>
         /// <param name="parentId">Parent Id of artifact to be created</param>
+        /// <param name="artifactName">(optional) The name to assign to the new artifact.  By default a random name is assigned.</param>
         /// <returns>Artifact in the required state</returns>
         public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
             ItemTypePredefined itemType, int parentId, string artifactName = null)
@@ -890,15 +890,15 @@ namespace Helper
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", DraftDescription, artifactDetails);
-                    Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
+                    SvcShared.LockArtifacts(user, new List<int> { artifact.Id });
                     return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                 case TestArtifactState.ScheduledToDelete:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    ArtifactStore.DeleteArtifact(artifact.Id, user);
                     return artifact;
                 case TestArtifactState.Deleted:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    ArtifactStore.DeleteArtifact(artifact.Id, user);
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     return artifact;
                 default:
@@ -986,7 +986,7 @@ namespace Helper
         /// </summary>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
-        /// <param name="licenseType">(optional) The license type of the user (Author, Collaborator, Viewer).</param>
+        /// <param name="licenseLevel">(optional) The license level of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object that was added to the database.</returns>
         public IUser CreateUserAndAddToDatabase(
             InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
@@ -1697,13 +1697,10 @@ namespace Helper
 
             if (disposing)
             {
-                Storyteller?.Dispose();
-                FileStore?.Dispose();
-                ConfigControl?.Dispose();
-                BlueprintServer?.Dispose();
-                ArtifactStore?.Dispose();
-
                 Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
+
+                Storyteller?.Dispose();
+
                 ArtifactBase.DisposeArtifacts(Artifacts, this);
 
                 if (NovaArtifacts.Count > 0)
@@ -1712,28 +1709,36 @@ namespace Helper
                     {
                         ArtifactStore.DiscardArtifacts(artifacts: null, user: user, all: true);
                     }
+
                     var deleteExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
                         System.Net.HttpStatusCode.NotFound, System.Net.HttpStatusCode.Forbidden};
                     var publishExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
                         System.Net.HttpStatusCode.Conflict, System.Net.HttpStatusCode.NotFound};
+
                     foreach (var user in NovaArtifacts.Keys)
                     {
                         {
                             var neverPublishedArtifacIds = new List<int>();
+
                             foreach (int id in NovaArtifacts[user])
                             {
-                                var results = DeleteArtifact(ArtifactStore.Address, id, user, deleteExpectedStatusCodes);
+                                var results = ArtifactStore.DeleteArtifact(id, user, deleteExpectedStatusCodes);
+
                                 if ((results != null) && (results[0].Version == 0))
                                 {
                                     neverPublishedArtifacIds.Add(results[0].Id);
                                 }
                             }
+
                             foreach (int id in neverPublishedArtifacIds)
                             {
                                 NovaArtifacts[user].Remove(id);
                             }
+
                             if (NovaArtifacts[user].Count > 0)
-                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: publishExpectedStatusCodes);
+                            {
+                                ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: publishExpectedStatusCodes);
+                            }
                         }
                     }
                 }
@@ -1774,6 +1779,10 @@ namespace Helper
                     }
                 }
 
+                ArtifactStore?.Dispose();
+                FileStore?.Dispose();
+                ConfigControl?.Dispose();
+                BlueprintServer?.Dispose();
                 AdminStore?.Dispose();
                 AccessControl?.Dispose();
             }

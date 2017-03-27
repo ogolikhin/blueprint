@@ -25,6 +25,34 @@ namespace Model
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Lock an Artifact.
+        /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactToLock">The artifact to lock.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        List<LockResultInfo> LockArtifact(
+            IUser user,
+            IArtifactBase artifactToLock,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Lock an Artifact.
+        /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactIdToLock">The ID of the artifact to lock.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        List<LockResultInfo> LockArtifact(
+            IUser user,
+            int artifactIdToLock,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Lock Artifact(s).
         /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
         /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
@@ -33,8 +61,23 @@ namespace Model
         /// <param name="artifactsToLock">The list of artifacts to lock.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>List of LockResultInfo for the locked artifacts.</returns>
-        List<LockResultInfo> LockArtifacts(IUser user,
+        List<LockResultInfo> LockArtifacts(
+            IUser user,
             List<IArtifactBase> artifactsToLock,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Lock Artifact(s).
+        /// NOTE: The internal IsLocked and LockOwner flags are NOT updated by this function.
+        /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
+        /// </summary>
+        /// <param name="user">The user locking the artifact.</param>
+        /// <param name="artifactIdsToLock">The list of artifact Ids to lock.</param>
+        /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        List<LockResultInfo> LockArtifacts(
+            IUser user,
+            List<int> artifactIdsToLock,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

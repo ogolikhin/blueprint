@@ -15,7 +15,10 @@ namespace ArtifactStore.Repositories
     public class SqlRelationshipsRepository: IRelationshipsRepository
     {
         private readonly ISqlConnectionWrapper _connectionWrapper;
+
         private readonly ISqlItemInfoRepository _itemInfoRepository;
+
+        private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
 
         public SqlRelationshipsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -25,12 +28,14 @@ namespace ArtifactStore.Repositories
         {
             _connectionWrapper = connectionWrapper;
             _itemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
+            _artifactPermissionsRepository = new SqlArtifactPermissionsRepository(connectionWrapper);
         }
 
-        internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper, ISqlItemInfoRepository itemInfoRepository)
+        internal SqlRelationshipsRepository(ISqlConnectionWrapper connectionWrapper, ISqlItemInfoRepository itemInfoRepository, IArtifactPermissionsRepository artifactPermissionsRepository)
         {
             _connectionWrapper = connectionWrapper;
             _itemInfoRepository = itemInfoRepository;
+            _artifactPermissionsRepository = artifactPermissionsRepository;
         }
 
         private async Task<IEnumerable<LinkInfo>> GetLinkInfo(int itemId, int userId, bool addDrafts, int revisionId = int.MaxValue, IEnumerable<int> linkTypes = null)
@@ -99,7 +104,7 @@ namespace ArtifactStore.Repositories
                 }
             }
         }
-        private Relationship NewRelationship(LinkInfo link, TraceDirection traceDirection)
+        private Relationship ComposeRelationship(LinkInfo link, TraceDirection traceDirection)
         {
             int artifactId;
             int itemId;
@@ -126,6 +131,7 @@ namespace ArtifactStore.Repositories
                 ProjectId = projectId
             };
         }
+
         private List<Relationship> GetManualTraceRelationships(List<LinkInfo> manualLinks, int itemId)
         {
             var fromManualLinks = manualLinks.Where(a => a.SourceItemId == itemId).ToList();
@@ -134,7 +140,7 @@ namespace ArtifactStore.Repositories
 
             foreach (var fromManualLink in fromManualLinks)
             {
-                result.Add(NewRelationship(fromManualLink, TraceDirection.To));
+                result.Add(ComposeRelationship(fromManualLink, TraceDirection.To));
             }
             foreach (var toManualLink in toManualLinks)
             {
@@ -145,7 +151,7 @@ namespace ArtifactStore.Repositories
                 }
                 else
                 {
-                    result.Add(NewRelationship(toManualLink, TraceDirection.From));
+                    result.Add(ComposeRelationship(toManualLink, TraceDirection.From));
                 }
             }
             return result;
@@ -169,7 +175,23 @@ namespace ArtifactStore.Repositories
             foreach (var otherLink in otherLinks)
             {
                 var traceDirection = otherLink.SourceItemId == itemId ? TraceDirection.To : TraceDirection.From;
-                otherTraceRelationships.Add(NewRelationship(otherLink, traceDirection));
+                Relationship relationship = null;
+                if (otherLink.LinkType == LinkType.ActorInheritsFrom)
+                {
+                    var itemInfo = await _artifactPermissionsRepository.GetItemInfo(otherLink.DestinationArtifactId, userId, addDrafts, revisionId);
+                    if (itemInfo != null)
+                    {
+                        relationship = ComposeRelationship(otherLink, traceDirection);
+                    }
+                }
+                else
+                {
+                    relationship = ComposeRelationship(otherLink, traceDirection);
+                }
+                if (relationship != null)
+                {
+                    otherTraceRelationships.Add(relationship);
+                }
             }
 
             var distinctItemIds = new HashSet<int>();

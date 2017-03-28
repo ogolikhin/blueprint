@@ -18,13 +18,15 @@ namespace ArtifactStore.Repositories
         private SqlConnectionWrapperMock _cxn;
         private IRelationshipsRepository _relationshipsRepository;
         private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        private Mock<IArtifactPermissionsRepository> _artifactPermissionsRepositoryMock;
 
         [TestInitialize]
         public void Initialize()
         {
             _cxn = new SqlConnectionWrapperMock();
             _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>();
-            _relationshipsRepository = new SqlRelationshipsRepository(_cxn.Object, _itemInfoRepositoryMock.Object);
+            _artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
+            _relationshipsRepository = new SqlRelationshipsRepository(_cxn.Object, _itemInfoRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object);
         }
 
         [TestMethod]
@@ -323,6 +325,90 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(2, result.ReviewArtifacts[0].ItemId);
             Assert.AreEqual("Some Review", result.ReviewArtifacts[0].ItemName);
             Assert.AreEqual("ReviewPrefix", result.ReviewArtifacts[0].ItemTypePrefix);
+        }
+
+        [TestMethod]
+        public async Task GetRelationships_ActorInheritsFrom_LinkToDeletedActor_Empty()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int userId = 1;
+            const int versionId = 3;
+            const int revisionId = 99999;
+            const bool addDrafts = false;
+
+            var actorInheritsFromLink = new LinkInfo
+            {
+                DestinationArtifactId = 2,
+                DestinationItemId = 2,
+                DestinationProjectId = 0,
+                IsSuspect = false,
+                LinkType = LinkType.ActorInheritsFrom,
+                SourceArtifactId = 1,
+                SourceItemId = 1,
+                SourceProjectId = 0
+            };
+
+            var links = new List<LinkInfo>
+            {
+                actorInheritsFromLink
+            };
+
+            _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }, links);
+
+            _artifactPermissionsRepositoryMock.Setup(p => p.GetItemInfo(actorInheritsFromLink.DestinationArtifactId, userId, addDrafts, revisionId)).ReturnsAsync(null);
+
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
+
+            //Act
+            var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
+            Assert.AreEqual(0, relationships.OtherTraces.Count);
+        }
+
+        [TestMethod]
+        public async Task GetRelationships_ActorInheritsFrom_LinkToAliveActor_OneResult()
+        {
+            //Arrange
+            const int artifactId = 1;
+            const int userId = 1;
+            const int versionId = 3;
+            const int revisionId = 99999;
+            const bool addDrafts = true;
+
+            var actorInheritsFromLink = new LinkInfo
+            {
+                DestinationArtifactId = 2,
+                DestinationItemId = 2,
+                DestinationProjectId = 0,
+                IsSuspect = false,
+                LinkType = LinkType.ActorInheritsFrom,
+                SourceArtifactId = 1,
+                SourceItemId = 1,
+                SourceProjectId = 0
+            };
+
+            var baseActor = new ItemInfo
+            {
+                ArtifactId = actorInheritsFromLink.DestinationArtifactId,
+                ItemId = actorInheritsFromLink.DestinationArtifactId,
+                ProjectId = 1
+            };
+
+            var links = new List<LinkInfo>
+            {
+                actorInheritsFromLink
+            };
+
+            _cxn.SetupQueryAsync("GetRelationshipLinkInfo", new Dictionary<string, object> { { "itemId", artifactId }, { "userId", userId }, { "addDrafts", addDrafts }, { "revisionId", revisionId } }, links);
+
+            _artifactPermissionsRepositoryMock.Setup(p => p.GetItemInfo(actorInheritsFromLink.DestinationArtifactId, userId, addDrafts, revisionId)).ReturnsAsync(baseActor);
+
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
+
+            //Act
+            var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
+            Assert.AreEqual(1, relationships.OtherTraces.Count);
+            Assert.AreEqual(actorInheritsFromLink.DestinationArtifactId, relationships.OtherTraces.ElementAt(0).ArtifactId);
         }
     }
 }

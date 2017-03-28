@@ -673,7 +673,7 @@ namespace Helper
         /// <param name="project">The project in which Baseline will be created.</param>
         /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
         /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines&Reviews folder.</param>
-        /// <param name="artifactsToAddIds">(optional)Artifact's id to be added to baseline.
+        /// <param name="artifactToAddId">(optional)Artifact's id to be added to baseline.
         /// By default empty baseline will be created.</param>
         /// <returns>The Baseline artifact.</returns>
         public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
@@ -885,13 +885,14 @@ namespace Helper
                     CSharpUtilities.SetProperty("Description", PublishedDescription, artifactDetails);
                     UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    return artifact;
+                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
                 case TestArtifactState.PublishedWithDraft:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", DraftDescription, artifactDetails);
                     Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
-                    return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
                 case TestArtifactState.ScheduledToDelete:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     DeleteArtifact(ArtifactStore.Address, artifact.Id, user);

@@ -562,7 +562,7 @@ namespace AdminStore.Repositories
             {
                 DomainList = new List<FederatedAuthenticationSettings.FAAllowedDomian>
                 {
-                    new FederatedAuthenticationSettings.FAAllowedDomian { Name = customDomainName, Index = 0}
+                    new FederatedAuthenticationSettings.FAAllowedDomian { Name = customDomainName, OrderIndex = 0}
                 },
                 IsAllowingNoDomain = true
             });

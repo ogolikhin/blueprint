@@ -1543,29 +1543,7 @@ namespace ArtifactStoreTests
                 ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copiedArtifact.Id, sourceSubArtifact.IndicatorFlags, (int)copiedSubArtifact.Id);
             }
         }
-/*
-        /// <summary>
-        /// Compares two lists of OpenApiTrace's and asserts they are equal.
-        /// </summary>
-        /// <param name="expectedTraces">The list of expected OpenApiTrace's.</param>
-        /// <param name="actualTraces">The list of actual OpenApiTrace's.</param>
-        /// <exception cref="AssertionException">If any OpenApiTrace properties don't match between the two lists.</exception>
-        private static void CompareTwoOpenApiTraceLists(List<OpenApiTrace> expectedTraces, List<OpenApiTrace> actualTraces)
-        {
-            ThrowIf.ArgumentNull(expectedTraces, nameof(expectedTraces));
-            ThrowIf.ArgumentNull(actualTraces, nameof(actualTraces));
 
-            Assert.AreEqual(expectedTraces.Count, actualTraces.Count, "The number of traces are different!");
-
-            foreach (var expectedTrace in expectedTraces)
-            {
-                var actualTrace = actualTraces.Find(t => (t.TraceType == expectedTrace.TraceType) && (t.ArtifactId == expectedTrace.ArtifactId));
-                Assert.NotNull(actualTrace, "Couldn't find actual trace type '{0}' with ArtifactId: {1}", expectedTrace.TraceType, expectedTrace.ArtifactId);
-
-                OpenApiTrace.AssertAreEqual(expectedTrace, actualTrace);
-            }
-        }
-*/
         /// <summary>
         /// Copies the specified artifact to the new parent, wraps it in an IArtifact that gets disposed automatically,
         /// and returns the result of the CopyArtifact call.

@@ -53,4 +53,9 @@ namespace Model.ArtifactModel.Impl
             }
         }
     }
+
+    public class AddToBaselineCollectionResult
+    {
+        public int ArtifactCount { get; set; }
+    }
 }

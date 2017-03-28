@@ -236,10 +236,6 @@ namespace AdminStore.Controllers
                 await _userRepository.UpdatePasswordRecoveryTokensAsync(login, recoveryToken);
                 return Ok();
             }
-            catch (ConflictException)
-            {
-                throw;
-            }
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceUsersPasswordReset, ex);

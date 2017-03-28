@@ -614,8 +614,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
-            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
         [TestMethod]
@@ -634,8 +633,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
-            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
         [TestMethod]
@@ -654,8 +652,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
-            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
         [TestMethod]
@@ -676,8 +673,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
-            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
         [TestMethod]
@@ -696,8 +692,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
-            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
         [TestMethod]
@@ -716,8 +711,7 @@ namespace AdminStore.Controllers
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result, typeof(ResponseMessageResult));
-            Assert.AreEqual(HttpStatusCode.Conflict, ((ResponseMessageResult)result).Response.StatusCode);
+            Assert.IsInstanceOfType(result, typeof(ConflictResult));
         }
 
         [TestMethod]

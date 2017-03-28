@@ -50,5 +50,7 @@ namespace AdminStore
         internal static string LogSourceSessions = "AdminStore.Sessions";
         internal static string LogSourceStatus = "AdminStore.Status";
         internal static string LogSourceUsers = "AdminStore.Users";
+        internal static string LogSourceUsersPasswordReset = "AdminStore.Users.PasswordReset";
+
     }
 }

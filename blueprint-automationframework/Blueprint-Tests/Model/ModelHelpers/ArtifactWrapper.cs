@@ -19,11 +19,13 @@ namespace Model.ModelHelpers
         /// <param name="artifact">The artifact to wrap.</param>
         /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
         /// <param name="svcShared">The SvcShared to use for REST calls.</param>
-        public ArtifactWrapper(T artifact, IArtifactStore artifactStore, ISvcShared svcShared)
+        /// <param name="createdBy">The user who created the artifact.</param>
+        public ArtifactWrapper(T artifact, IArtifactStore artifactStore, ISvcShared svcShared, IUser createdBy)
         {
             Artifact = artifact;
             ArtifactStore = artifactStore;
             SvcShared = svcShared;
+            CreatedBy = createdBy;
         }
 
         #region IArtifactObservable methods
@@ -94,6 +96,19 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
+        /// Discards all unpublished changes for this artifact.
+        /// </summary>
+        /// <param name="user">The user to perform the discard.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
+        public INovaArtifactsAndProjectsResponse Discard(IUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
+            return Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
+        }
+
+        /// <summary>
         /// Locks this artifact.
         /// </summary>
         /// <param name="user">The user to perform the delete.</param>
@@ -103,6 +118,31 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(user, nameof(user));
 
             return SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
+        }
+
+        /// <summary>
+        /// Publishes this artifact.
+        /// </summary>
+        /// <param name="user">The user to perform the publish.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        public NovaArtifactsAndProjectsResponse Publish(IUser user)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            return ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
+        }
+
+        /// <summary>
+        /// Updates the artifact with the properties specified in the updateArtifact.
+        /// </summary>
+        /// <param name="user">The user to perform the update.</param>
+        /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
+        /// <returns>The updated artifact.</returns>
+        public INovaArtifactDetails Update(IUser user, NovaArtifactDetails updateArtifact)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            return ArtifactStore.UpdateArtifact(user, updateArtifact);
         }
     }
 }

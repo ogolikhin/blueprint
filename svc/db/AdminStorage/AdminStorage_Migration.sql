@@ -1581,6 +1581,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_UserIt
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_UserItem_Short_Description', 'en-US', N'As a {0}, I want to {1}')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_StartPanel_Label', 'en-US', N'This is the start of your process.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_EndPanel_Label', 'en-US', N'This is the end of your process.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('FullScreen_Component_FullScreen_Button_Tooltip', 'en-US', N'Full Screen View')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('FullScreen_Component_Restore_Button_Tooltip', 'en-US', N'Restore View')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_Reset_Button_Tooltip', 'en-US', N'Reset to 100%')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_FitWidth_Button_Tooltip', 'en-US', N'Fit to page')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('App_Button_Yes', 'fr-CA', N'Oui')

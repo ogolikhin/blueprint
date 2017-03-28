@@ -85,6 +85,7 @@ namespace Model.ArtifactModel.Impl
         public void SetIsAvailableInAnalytics(bool availableInAnalytics) // TFS 5761
         {
             SetBaselineProperty(PropertyTypePredefined.BaselineIsDataAnalyticsAvailable, availableInAnalytics);
+            _isAvailableInAnalytics = availableInAnalytics;
         }
 
         /// <summary>
@@ -94,6 +95,7 @@ namespace Model.ArtifactModel.Impl
         public void SetUtcTimestamp(DateTime utcTimestamp) // TFS 5761
         {
             SetBaselineProperty(PropertyTypePredefined.BaselineTimestamp, utcTimestamp);
+            _utcTimestamp = utcTimestamp;
         }
 
         /// <summary>
@@ -103,13 +105,14 @@ namespace Model.ArtifactModel.Impl
         public void SetIsSealed(bool isSealed) // TFS 5761
         {
             SetBaselineProperty(PropertyTypePredefined.BaselineIsSealed, isSealed);
+            _isSealed = isSealed;
         }
 
         /// <summary>
-        /// 
+        /// Sets or adds property value to the specified value
         /// </summary>
-        /// <param name="baselinePropertyType"></param>
-        /// <param name="baselinePropertyValue"></param>
+        /// <param name="baselinePropertyType">Property type to set</param>
+        /// <param name="baselinePropertyValue">Property type value to set</param>
         private void SetBaselineProperty(PropertyTypePredefined baselinePropertyType, object baselinePropertyValue) // TFS 5761
         {
             var specProperty = SpecificPropertyValues.Find(property => property.PropertyType == baselinePropertyType);
@@ -119,30 +122,20 @@ namespace Model.ArtifactModel.Impl
             }
             else
             {
-                var analyticsProperty = new CustomProperty();
-                analyticsProperty.Name = nameof(baselinePropertyType);
-                analyticsProperty.PropertyTypeId = -1;
-                analyticsProperty.PropertyType = baselinePropertyType;
-                analyticsProperty.CustomPropertyValue = baselinePropertyValue;
+                specProperty = new CustomProperty();
+                specProperty.Name = baselinePropertyType.ToString();
+                specProperty.PropertyTypeId = -1;
+                specProperty.PropertyType = baselinePropertyType;
+                specProperty.CustomPropertyValue = baselinePropertyValue;
                 
-                SpecificPropertyValues.Add(analyticsProperty);
+                SpecificPropertyValues.Add(specProperty);
             }
-
-            if (baselinePropertyType == PropertyTypePredefined.BaselineIsDataAnalyticsAvailable)
-            {
-                _isAvailableInAnalytics = (bool)baselinePropertyValue;
-            }
-
-            if (baselinePropertyType == PropertyTypePredefined.IsSealedPublished)
-            {
-                _isSealed = (bool)baselinePropertyValue;
-            }
-
-            if (baselinePropertyType == PropertyTypePredefined.BaselineTimestamp)
-            {
-                _utcTimestamp = (DateTime)baselinePropertyValue;
-            }
-            
         }
+    }
+
+    public class AddToBaselineResult : AddToBaselineCollectionResult
+    {
+        public int? UnpublishedArtifactCount { get; set; }
+        public int? NonExistentArtifactCount { get; set; }
     }
 }

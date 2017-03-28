@@ -11,6 +11,7 @@ using Common;
 using Model.Impl;
 using TestCommon;
 using Utilities;
+using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {
@@ -22,7 +23,7 @@ namespace ArtifactStoreTests
         private IProject _project = null;
         private const string DISCARD_PATH = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
         private const string UPDATE_ARTIFACT_ID_PATH = RestPaths.Svc.ArtifactStore.ARTIFACTS_id_;
-
+        
         [SetUp]
         public void SetUp()
         {
@@ -416,6 +417,33 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
             DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { lastArtifact });
+        }
+
+        [TestCase]
+        [TestRail(267244)]
+        [Description("Create and publish Baseline, add artifact to Baseline, Discard Baseline - Baseline should be empty.")]
+        public void DiscardArtifact_BaselineWithAddedArtifact_ReturnsBaselineToEmpty()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published, ItemTypePredefined.Actor,
+                _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user);
+            Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
+
+            INovaArtifactsAndProjectsResponse discardArtifactResponse = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                discardArtifactResponse = ArtifactStore.DiscardArtifacts(Helper.ArtifactStore.Address,
+                    new List<int> { baselineArtifact.Id }, _user);
+            }, "Discard of Baseline shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Expected number of artifacts should be discarded.");
+            var discardedBaseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            Assert.IsEmpty(discardedBaseline.Artifacts, "After Discard baseline should be empty.");
         }
 
         #endregion 200 OK Tests

@@ -51,5 +51,9 @@ namespace ServiceLibrary.Helpers
         public const string StoredDateHeader = "Stored-Date";
         public const string FileSizeHeader = "File-Size";
         public const string FileChunkCountHeader = "File-Chunk-Count";
+
+        public static string ForgotPasswordUrlConfigKey = "ForgotPasswordURL";
+        public static string ForgotPasswordUrl = "/index.html#/passwordrecovery";
+
     }
 }

@@ -13,6 +13,7 @@ using Utilities.Facades;
 using System.Web;
 using System.Net.Mime;
 using Model.Factories;
+using Model.NovaModel.Impl;
 
 namespace Model.Impl
 {
@@ -188,22 +189,15 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, bool?, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, bool? includeAuthorHistory = false,
+        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            Dictionary<string, string> queryParameters = null;
-            if (includeAuthorHistory != null)
-            {
-                queryParameters = new Dictionary<string, string> { { nameof(includeAuthorHistory), I18NHelper.ToStringInvariant(includeAuthorHistory.Value) } };
-            }
-
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
         }
@@ -494,16 +488,6 @@ namespace Model.Impl
             return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
         }
 
-        /*
-        /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
-        public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts,
-            IUser user = null,
-            bool? publishAll = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            return PublishArtifacts(artifacts, user, publishAll, expectedStatusCodes);
-        }*/
-
         /// <seealso cref="IArtifactStore.GetNavigationPath(IUser, int, List{HttpStatusCode})"/>
         public List<INovaVersionControlArtifactInfo> GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -579,13 +563,11 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.AddArtifactToCollection(IUser, int, int, bool, List{HttpStatusCode})"/>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
+        public AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
-            var responseObject = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
-            return responseObject["artifactCount"];
+            return AddArtifactToBaselineOrCollection<AddToCollectionResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
@@ -631,15 +613,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.AddArtifactToBaseline(IUser, int, int, bool, List{HttpStatusCode})"/>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+        public AddToBaselineResult AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             //
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
-            var addArtifactResult = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
-            Assert.IsTrue(addArtifactResult.ContainsKey("artifactCount"));
-            return addArtifactResult;
+            return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -686,10 +665,7 @@ namespace Model.Impl
             bool? publishAll = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            if (artifacts == null)
-            {
-                artifacts = new List<IArtifactBase>();
-            }
+            artifacts = artifacts ?? new List<IArtifactBase>();
 
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
 
@@ -748,6 +724,16 @@ namespace Model.Impl
             }
 
             return publishedArtifacts;
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviews(int, IUser, List{HttpStatusCode})"/>
+        public ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.REVIEWS, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<ReviewRelationshipsResultSet>(path, RestRequestMethod.GET,
+                expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
         #region Process methods
@@ -849,9 +835,9 @@ namespace Model.Impl
         /// <param name="path">The REST path to use.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Number of artifacts added to Baseline or Collection</returns>
+        /// <returns>Result of adding artifact to Baseline or Collection</returns>
         /// <exception cref="AssertionException">Throws for unexpected itemType</exception>
-        private Dictionary<string, int> AddArtifactToBaselineOrCollection(IUser user, int artifactId, string path, bool includeDescendants = false,
+        private T AddArtifactToBaselineOrCollection<T>(IUser user, int artifactId, string path, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -860,13 +846,11 @@ namespace Model.Impl
             collectionContentToAdd.Add("addChildren", includeDescendants);
             collectionContentToAdd.Add("artifactId", artifactId);
 
-            var response = restApi.SendRequestAndGetResponse<object>(
+            return restApi.SendRequestAndDeserializeObject<T, object> (
                 path,
                 RestRequestMethod.PUT,
-                bodyObject: collectionContentToAdd,
+                jsonObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-
-            return JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
         }
 
         #endregion Private Methods
@@ -1541,30 +1525,17 @@ namespace Model.Impl
                 artifacts = new List<IArtifactBase>();
             }
 
-            const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
             var artifactIds = artifacts.Select(artifact => artifact.Id).ToList();
-            Dictionary<string, string> queryParams = null;
 
-            if (all != null)
-            {
-                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
-            }
+            var discardedArtifactResponse = DiscardArtifacts(address, artifactIds, user, all, expectedStatusCodes);
 
-            var discardedArtifactResponse = restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
-                path,
-                RestRequestMethod.POST,
-                artifactIds,
-                queryParameters: queryParams,
-                expectedStatusCodes: expectedStatusCodes);
-
-            if (restApi.StatusCode == HttpStatusCode.OK)
+            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
             {
                 // Set the IsSaved flags for the artifact that we discarded so the Dispose() works properly.
                 foreach (var discardedArtifacts in discardedArtifactResponse.Artifacts)
                 {
-                    Logger.WriteDebug("'POST {0}' returned following artifact Id: {1}",
-                        path, discardedArtifacts.Id);
+                    Logger.WriteDebug("DiscardArtifacts returned following artifact Id: {0}",
+                        discardedArtifacts.Id);
 
                     if (artifacts.Count > 0)
                     {
@@ -1579,6 +1550,38 @@ namespace Model.Impl
             }
 
             return discardedArtifactResponse;
+        }
+
+        /// <summary>
+        /// Discards a list of artifacts.
+        /// </summary>
+        /// <param name="address">The base address of the ArtifactStore.</param>
+        /// <param name="artifactIds">The ids of artifacts to discard.  This can be null if the 'all' parameter is true.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="all">(optional) Pass true to discard all artifacts created by the user that have changes.  In this case, you don't need to specify the artifacts to discard.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
+        public static INovaArtifactsAndProjectsResponse DiscardArtifacts(string address,
+            List<int> artifactIds,
+            IUser user = null,
+            bool? all = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            const string path = RestPaths.Svc.ArtifactStore.Artifacts.DISCARD;
+            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
+
+            Dictionary<string, string> queryParams = null;
+            if (all != null)
+            {
+                queryParams = new Dictionary<string, string> { { "all", all.Value.ToString() } };
+            }
+
+            return restApi.SendRequestAndDeserializeObject<NovaArtifactsAndProjectsResponse, List<int>>(
+                path,
+                RestRequestMethod.POST,
+                artifactIds,
+                queryParameters: queryParams,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>

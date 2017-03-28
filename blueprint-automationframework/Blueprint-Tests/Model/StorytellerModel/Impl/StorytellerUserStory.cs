@@ -3,10 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Utilities;
-using Utilities.Facades;
 using Common;
 using Model.Common.Enums;
-using Model.Impl;
+using Model.Factories;
+using Model.NovaModel.Components.RapidReview;
 using NUnit.Framework;
 
 namespace Model.StorytellerModel.Impl
@@ -92,37 +92,26 @@ namespace Model.StorytellerModel.Impl
             }
         }
 
-        public UpdateResult<StorytellerProperty> UpdateNonfunctionalRequirements(string address,
+        public UpdateResult<ArtifactProperty> UpdateNonFunctionalRequirements(
             IUser user,
             string value,
-            List<HttpStatusCode> expectedStatusCodes = null,
-            bool sendAuthorizationAsCookie = false)
+            List<HttpStatusCode> expectedStatusCodes = null)
         {
-            ThrowIf.ArgumentNull(user, nameof(user));
-            var path = I18NHelper.FormatInvariant(RestPaths.Svc.Components.RapidReview.Items_id_.PROPERTIES, Id);
-                        
-            string tokenValue = user.Token?.AccessControlToken;
-            var cookies = new Dictionary<string, string>();
+            // NOTE: Use StartsWithOrdinal() instead of == because it might have "(Agile Pack)" on the end of the name.
+            var nonFunctionalRequirementProperty = CustomProperties.First(
+                property => property.Name.StartsWithOrdinal("ST-Non-Functional Requirements"));
 
-            if (sendAuthorizationAsCookie)
+            var artifactProperty = new ArtifactProperty
             {
-                cookies.Add(SessionTokenCookieName, tokenValue);
-                tokenValue = BlueprintToken.NO_TOKEN;
-            }
+                Format = PropertyValueFormat.Html,
+                Name = nonFunctionalRequirementProperty.Name,
+                PropertyTypeId = nonFunctionalRequirementProperty.PropertyTypeId,
+                Value = value
+            };
 
-            var nonFunctionalRequirementProperty = CustomProperties.First(property => property.Name.StartsWithOrdinal("ST-Non-Functional Requirements"));   // Use StartsWith() instead of == because it might have "(Agile Pack)" on the end of the name.
-            nonFunctionalRequirementProperty.Value = value;
-            
-            var restApi = new RestApiFacade(address, tokenValue);
-
-            var userstoryUpdateResult = restApi.SendRequestAndDeserializeObject<UpdateResult<StorytellerProperty>, List<StorytellerProperty>>(
-                path,
-                RestRequestMethod.PATCH, 
-                jsonObject: new List<StorytellerProperty>(){ nonFunctionalRequirementProperty }, 
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return userstoryUpdateResult;
+            // TODO: Refactor this to update the way the current version of Storyteller works instead of using this RapidReview call.
+            var service = SvcComponentsFactory.GetSvcSharedFromTestConfig();
+            return service.UpdateRapidReviewItemProperties(user, Id, new List<ArtifactProperty> { artifactProperty });
         }
     }
 }

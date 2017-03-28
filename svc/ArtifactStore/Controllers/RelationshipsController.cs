@@ -142,5 +142,39 @@ namespace ArtifactStore.Controllers
             RolePermissions permission;
             return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
         }
+
+
+        [HttpGet, NoCache]
+        [Route("artifacts/{artifactId:int:min(1)}/reviews"), SessionRequired]
+        [ActionName("GetReviews")]
+        public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, bool addDrafts = true, int? versionId = null)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            if (artifactId < 1 || versionId.HasValue && versionId.Value < 1)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+            if (addDrafts && versionId != null)
+            {
+                addDrafts = false;
+            }
+            var isDeleted = await _artifactVersionsRepository.IsItemDeleted(artifactId);
+            var itemInfo = isDeleted && versionId != null ?
+                await _artifactVersionsRepository.GetDeletedItemInfo(artifactId) :
+                await _artifactPermissionsRepository.GetItemInfo(artifactId, session.UserId, addDrafts);
+            if (itemInfo == null)
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+
+            // We do not need drafts for historical artifacts 
+            var effectiveAddDraft = !versionId.HasValue && addDrafts;
+            var result = await _relationshipsRepository.GetReviewRelationships(artifactId, session.UserId, effectiveAddDraft, versionId);
+            var artifactIds = new List<int> { artifactId };
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
+            if (!HasPermissions(artifactId, permissions, RolePermissions.Read))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            return result;
+        }
     }
 }

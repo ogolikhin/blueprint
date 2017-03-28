@@ -40,6 +40,16 @@ namespace ServiceLibrary.Repositories
             return await _connectionWrapper.QueryAsync<ItemDetails>("GetItemsDetails", parameters, commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<IEnumerable<ItemRawDataCreatedDate>> GetItemsRawDataCreatedDate(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@itemIds", SqlConnectionWrapper.ToDataTable(itemIds, "Int32Collection", "Int32Value"));
+            parameters.Add("@userId", userId);
+            parameters.Add("@addDrafts", addDrafts);
+            parameters.Add("@revisionId", revisionId);
+            return (await _connectionWrapper.QueryAsync<ItemRawDataCreatedDate>("GetItemsRawDataCreatedDate", parameters, commandType: CommandType.StoredProcedure));
+        }
+
         public async Task<int> GetRevisionIdByVersionIndex(int artifactId, int versionIndex)
         {
             var parameters = new DynamicParameters();

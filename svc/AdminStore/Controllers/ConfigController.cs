@@ -97,7 +97,7 @@ namespace AdminStore.Controllers
                 var locale = new StringWithQualityHeaderValue(defaultLocale).Value;
 
                 var settings = await _appSettingsRepo.GetSettings();
-
+                
                 var labels = await _configRepo.GetLabels(locale);
 
                 var config = new

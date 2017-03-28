@@ -254,7 +254,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -270,6 +269,9 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.ValidateTrace(sourceRelationships.ManualTraces[0], targetArtifact);
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [TestCase(BaseArtifactType.TextualRequirement, TraceDirection.TwoWay, true)]
@@ -308,12 +310,12 @@ namespace ArtifactStoreTests
                         _project);
 
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, targetArtifact.Id, userNoTracePermission),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
-            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true);
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(
+                sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true, skipIndicatorFlags: true);
 
             // Get traces & compare.
             var copyRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
@@ -324,6 +326,9 @@ namespace ArtifactStoreTests
             // Verify that source and target artifacts still have the same traces they had before the copy.
             Assert.AreEqual(1, targetRelationships.ManualTraces.Count, "Target artifact should have 1 manual trace.");
             ArtifactStoreHelper.ValidateTrace(targetRelationships.ManualTraces[0], sourceArtifact);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, copyResult.Artifact.Id, expectedIndicatorFlags: null);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, userNoTracePermission, targetArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
         }
 
         [Category(Categories.CustomData)]
@@ -353,7 +358,6 @@ namespace ArtifactStoreTests
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
-
             Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(preCreatedArtifact, targetFolder.Id, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
@@ -375,9 +379,14 @@ namespace ArtifactStoreTests
             var copiedArtifact = ArtifactFactory.CreateOpenApiArtifact(customDataProject, _user, artifactType, copyResult.Artifact.Id, name: artifactName);
 
             // Verify preCreatedArtifact is Reused.
-            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author,
-                getTraces: OpenApiTraceTypes.Reuse);
+            var reuseTracesOfCopy = copiedArtifact.GetArtifact(customDataProject, author, getTraces: OpenApiTraceTypes.Reuse);
             Assert.IsEmpty(reuseTracesOfCopy.Traces, "There should be no Reuse traces on the copied artifact!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, preCreatedArtifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, preCreatedArtifact.Id, ItemIndicatorFlags.HasAttachmentsOrDocumentRefs);
+            // TODO: Trello bug: https://trello.com/c/cWLiVWdL IndicatorFlags remais the same after reused artifact was copied and lost its traces
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copyResult.Artifact.Id, ItemIndicatorFlags.HasManualReuseOrOtherTraces);
+
         }
         
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // Ignore for now.
@@ -958,13 +967,13 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.UseCase);
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.UseCase);
             var targetFolder = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
 
             // Add the discussion to the artifact.
             string commentText = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(100);
 
-            OpenApiArtifact.PostRaptorDiscussion(artifact.Address, artifact.Id, commentText, author);
+            artifact.PostRapidReviewArtifactDiscussion(commentText, author);
 
             var discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
             Assert.AreEqual(1, discussions.Discussions.Count, "Artifact should have 1 discussion!");
@@ -981,7 +990,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
-                skipCreatedBy: true);
+                skipCreatedBy: true, skipIndicatorFlags: true);
 
             // Verify the Discussions of source artifact didn't change.
             var sourceDiscussionsAfterCopy = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, author);
@@ -994,6 +1003,8 @@ namespace ArtifactStoreTests
             // Verify the copied artifact has no Discussions.
             var copiedArtifactDiscussions = Helper.ArtifactStore.GetArtifactDiscussions(copyResult.Artifact.Id, author);
             Assert.IsEmpty(copiedArtifactDiscussions.Discussions, "There should be no discussion in the copied artifact!");
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copiedArtifact.Id, expectedIndicatorFlags: null);
         }
 
         #endregion 201 Created tests
@@ -1464,6 +1475,7 @@ namespace ArtifactStoreTests
         /// <param name="skipCreatedBy">(optional) Pass true to skip comparison of the CreatedBy properties.</param>
         /// <param name="skipPermissions">(optional) Pass true to skip comparison of the Permissions properties.</param>
         /// <param name="skipDescription">(optional) Pass true to skip comparison of the Description properties.</param>
+        /// <param name="skipIndicatorFlags">(optional) Pass true to skip comparison of the IndicatorFlags properties.</param>
         /// <exception cref="AssertionException">If any expectations failed.</exception>
         private void AssertCopiedArtifactPropertiesAreIdenticalToOriginal(INovaArtifactDetails originalArtifact,
             CopyNovaArtifactResultSet copyResult,
@@ -1472,7 +1484,8 @@ namespace ArtifactStoreTests
             int expectedVersionOfOriginalArtifact = 1,
             bool skipCreatedBy = false,
             bool skipPermissions = false,
-            bool skipDescription = false)
+            bool skipDescription = false,
+            bool skipIndicatorFlags = false)
         {
             Assert.NotNull(copyResult, "The result returned from CopyArtifact() shouldn't be null!");
             Assert.NotNull(copyResult.Artifact, "The Artifact property returned by CopyArtifact() shouldn't be null!");
@@ -1497,6 +1510,9 @@ namespace ArtifactStoreTests
                 skipDescription: skipDescription);
             Assert.AreEqual(expectedVersionOfOriginalArtifact, originalArtifactDetails.Version,
                 "The Version of the original artifact shouldn't have changed after the copy!");
+
+            var indicator = skipIndicatorFlags ? null : originalArtifactDetails.IndicatorFlags;
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copyResult.Artifact.Id, indicator);
         }
 
         /// <summary>
@@ -1532,6 +1548,8 @@ namespace ArtifactStoreTests
                 };
                 ArtifactStoreHelper.AssertSubArtifactsAreEqual(sourceSubArtifact, copiedSubArtifact, Helper.ArtifactStore, user,
                      copiedArtifact.Id, propertyCompareOptions, attachmentCompareOptions);
+
+                ArtifactStoreHelper.VerifyIndicatorFlags(Helper, user, copiedArtifact.Id, sourceSubArtifact.IndicatorFlags, (int)copiedSubArtifact.Id);
             }
         }
 

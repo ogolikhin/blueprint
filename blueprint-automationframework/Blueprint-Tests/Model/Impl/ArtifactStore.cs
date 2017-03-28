@@ -127,34 +127,33 @@ namespace Model.Impl
 
             var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
 
-            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
+            // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
+            foreach (var deletedArtifact in deletedArtifacts)
             {
-                // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
-                foreach (var deletedArtifact in deletedArtifacts)
+                Logger.WriteDebug("DeleteArtifact() returned following artifact Id: {0}", deletedArtifact.Id);
+
+                // Hack: This is needed until we can refactor ArtifactBase better.
+                var deletedArtifactResult = new OpenApiDeleteArtifactResult
                 {
-                    Logger.WriteDebug("DeleteArtifact() returned following artifact Id: {0}", deletedArtifact.Id);
+                    ArtifactId = deletedArtifact.Id,
+                    ResultCode = HttpStatusCode.OK
+                };
 
-                    var artifaceBaseToDelete = artifact as ArtifactBase;
+                // Add all other artifacts that were deleted as a result of the artifact being deleted.
+                var artifaceBaseToDelete = artifact as ArtifactBase;
+                artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
 
-                    // Hack: This is needed until we can refactor ArtifactBase better.
-                    var deletedArtifactResult = new OpenApiDeleteArtifactResult
+                if (deletedArtifact.Id == artifact.Id)
+                {
+                    // If the artifact was published, it will require another publish to really delete the artifact.
+                    // If the artifact was never published, no other users can see it, so deleting it will permanently delete it.
+                    if (artifact.IsPublished)
                     {
-                        ArtifactId = deletedArtifact.Id,
-                        ResultCode = HttpStatusCode.OK
-                    };
-
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifact.Id == artifact.Id)
+                        artifact.IsMarkedForDeletion = true;
+                    }
+                    else
                     {
-                        if (artifact.IsPublished)
-                        {
-                            artifact.IsMarkedForDeletion = true;
-                        }
-                        else
-                        {
-                            artifact.IsDeleted = true;
-                        }
+                        artifact.IsDeleted = true;
                     }
                 }
             }

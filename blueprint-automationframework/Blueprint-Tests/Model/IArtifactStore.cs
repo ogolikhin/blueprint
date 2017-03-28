@@ -144,7 +144,7 @@ namespace Model
         /// (Runs 'DELETE svc/bpartifactstore/artifacts/{0}')
         /// </summary>
         /// <param name="artifactId">The Id of artifact to delete.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
         List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);

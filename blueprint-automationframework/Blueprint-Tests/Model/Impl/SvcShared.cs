@@ -74,7 +74,17 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(artifactToLock, nameof(artifactToLock));
 
-            return LockArtifacts(user, new List<int> { artifactToLock.Id }, expectedStatusCodes);
+            var lockResults = LockArtifacts(user, new List<int> { artifactToLock.Id }, expectedStatusCodes);
+
+            // Update the LockOwner property with the user who locked it.
+            var lockResult = lockResults.Find(r => r.Info.ArtifactId == artifactToLock.Id);
+
+            if (lockResult.Result == LockResult.Success)
+            {
+                artifactToLock.LockOwner = user;
+            }
+
+            return lockResults;
         }
 
         /// <seealso cref="ISvcShared.LockArtifact(IUser, int, List{HttpStatusCode})"/>

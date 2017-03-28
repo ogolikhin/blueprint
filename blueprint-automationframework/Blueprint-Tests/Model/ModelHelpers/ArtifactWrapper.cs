@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
@@ -11,11 +8,17 @@ using Utilities;
 
 namespace Model.ModelHelpers
 {
-    public class ArtifactWrapper<T> : ArtifactStateWrapper<T>, IArtifactObservable where T : IArtifactId
+    public class ArtifactWrapper<T> : ArtifactStateWrapper<T>, IArtifactObservable where T : IHaveAnId
     {
         public IArtifactStore ArtifactStore { get; private set; }
         public ISvcShared SvcShared { get; private set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="artifact">The artifact to wrap.</param>
+        /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
+        /// <param name="svcShared">The SvcShared to use for REST calls.</param>
         public ArtifactWrapper(T artifact, IArtifactStore artifactStore, ISvcShared svcShared)
         {
             Artifact = artifact;
@@ -78,16 +81,26 @@ namespace Model.ModelHelpers
 
         #endregion IArtifactObservable methods
 
-        public List<NovaArtifactResponse> Delete(IUser user = null)
+        /// <summary>
+        /// Deletes this artifact.  (You must publish after deleting to make the delete permanent).
+        /// </summary>
+        /// <param name="user">The user to perform the delete.</param>
+        /// <returns>A list of artifacts that were deleted.</returns>
+        public List<NovaArtifactResponse> Delete(IUser user)
         {
-            user = user ?? LockOwner ?? CreatedBy;
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             return ArtifactStore.DeleteArtifact(Artifact.Id, user);
         }
 
-        public List<LockResultInfo> Lock(IUser user = null)
+        /// <summary>
+        /// Locks this artifact.
+        /// </summary>
+        /// <param name="user">The user to perform the delete.</param>
+        /// <returns>List of LockResultInfo for the locked artifacts.</returns>
+        public List<LockResultInfo> Lock(IUser user)
         {
-            user = user ?? CreatedBy;
+            ThrowIf.ArgumentNull(user, nameof(user));
 
             return SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
         }

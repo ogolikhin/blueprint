@@ -547,6 +547,46 @@ namespace AdminStore.Repositories
             // Assert
         }
 
+        [TestMethod]
+        public async Task AuthenticateSamlUserAsync_NoDomain_ReturnsUser()
+        {
+            // Arrange
+            var userLicense = 2;
+            _sqlUserRepositoryMock.Setup(ur => ur.GetEffectiveUserLicenseAsync(It.IsAny<int>())).ReturnsAsync(userLicense);
+
+            _instanceSettings.IsSamlEnabled = true;
+            const string samlEncodedResponse = "fakeSamlResponce";
+            const string customDomainName = "TEST";
+
+            var xml = SerializationHelper.Serialize(new FederatedAuthenticationSettings.FASettings
+            {
+                DomainList = new List<FederatedAuthenticationSettings.FAAllowedDomian>
+                {
+                    new FederatedAuthenticationSettings.FAAllowedDomian { Name = customDomainName, Index = 0}
+                },
+                IsAllowingNoDomain = true
+            });
+            var fedAuthSettings = new FederatedAuthenticationSettings(xml, null);
+            _sqlSettingsRepositoryMock.Setup(m => m.GetFederatedAuthenticationSettingsAsync())
+                .ReturnsAsync(fedAuthSettings);
+            var identityMock = new Mock<IIdentity>();
+            identityMock.SetupGet(p => p.Name).Returns(Login);
+            var principalMock = new Mock<IPrincipal>();
+            principalMock.SetupGet(p => p.Identity).Returns(identityMock.Object);
+            _sqlUserRepositoryMock
+                .Setup(m => m.GetUserByLoginAsync($"{customDomainName}\\{Login}"))
+                .ReturnsAsync(_loginUser);
+
+            _samlRepositoryMock.Setup(m => m.ProcessEncodedResponse(samlEncodedResponse, fedAuthSettings)).Returns(principalMock.Object);
+
+            // Act
+            var result = await _authenticationRepository.AuthenticateSamlUserAsync(samlEncodedResponse);
+
+            // Assert
+            Assert.AreEqual(_loginUser, result);
+            Assert.AreEqual(userLicense, result.LicenseType);
+        }
+
         #endregion
 
         #region AuthenticateUserForResetAsync

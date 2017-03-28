@@ -467,7 +467,7 @@ namespace Model
         /// <param name="collectionId">Id of Collection.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Result of artifacts adding to Collection</returns>
+        /// <returns>Result of adding artifact to Collection</returns>
         AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -500,7 +500,7 @@ namespace Model
         /// <param name="baselineId">Id of Baseline.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Result of artifact adding to Baseline</returns>
+        /// <returns>Result of adding artifact to Baseline</returns>
         AddToBaselineResult AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null);
 

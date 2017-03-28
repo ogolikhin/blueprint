@@ -248,8 +248,9 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267266)]
-        [Description("Create new collection with publish artifact, add the same artifact to collection, check the response.")]
-        public void AddArtifactToCollection_ArtifactAlreadyInCollection_Validateresponse()
+        [Description("Create new collection with published artifact, add the same artifact to collection, " +
+            "check that call returns number of artifacts which are already in collection.")]
+        public void AddArtifactToCollection_ArtifactAlreadyInCollection_ValidateResponse()
         {
             // Setup:
             var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);

@@ -25,6 +25,8 @@ namespace ArtifactStoreTests
         private readonly string draftDescription = TestHelper.DraftDescription;
         private readonly string publishedDescription = TestHelper.PublishedDescription;
 
+        private const string expectedInternalExceptionMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
+
         [SetUp]
         public void SetUp()
         {
@@ -252,7 +254,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
-            numberOfNonnexistentArtifacts = addArtifactResult.NonexistentArtifactCount.Value;
+            numberOfNonnexistentArtifacts = addArtifactResult.NonExistentArtifactCount.Value;
 
             Assert.AreEqual(0, numberOfAddedArtifacts, "Nothing should be added to baseline, when its TimeStamp older than Artifact.");
             Assert.AreEqual(1, numberOfNonnexistentArtifacts, "AddArtifactToBaseline should return expected number of Nonnexistent Artifacts.");

@@ -846,13 +846,11 @@ namespace Model.Impl
             collectionContentToAdd.Add("addChildren", includeDescendants);
             collectionContentToAdd.Add("artifactId", artifactId);
 
-            var response = restApi.SendRequestAndGetResponse<object>(
+            return restApi.SendRequestAndDeserializeObject<T, object> (
                 path,
                 RestRequestMethod.PUT,
-                bodyObject: collectionContentToAdd,
+                jsonObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-
-            return JsonConvert.DeserializeObject<T>(response.Content);
         }
 
         #endregion Private Methods

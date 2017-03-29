@@ -558,8 +558,11 @@ namespace Helper
                 {
                     actualProperty = actualPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
                 }
-                
-                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+
+                if (actualProperty != null)
+                {
+                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
+                }
             }
         }
 

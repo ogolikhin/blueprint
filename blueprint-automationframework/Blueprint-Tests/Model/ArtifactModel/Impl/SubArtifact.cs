@@ -9,6 +9,7 @@ namespace Model.ArtifactModel.Impl
     {
         public int Id { get; set; }
         public int ParentId { get; set; }
+        public int ArtifactId { get; set; }
         public int ItemTypeId { get; set; }
         public string DisplayName { get; set; }
         public ItemTypePredefined PredefinedType { get; set; }

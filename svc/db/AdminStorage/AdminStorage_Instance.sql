@@ -1540,6 +1540,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_LastEditOn',
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Description', 'en-US', N'Description')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ActorInheritFrom', 'en-US', N'Inherits from')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewType', 'en-US', N'Review Type')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewTypeFormal', 'en-US', N'Formal')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewTypeInformal', 'en-US', N'Informal')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewActivityStatus', 'en-US', N'Activity Status')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewExperienceLink', 'en-US', N'Review Experience')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Group_Identifier', 'en-US', N'(g)')

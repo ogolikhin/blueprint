@@ -494,40 +494,13 @@ namespace Helper
 
             if (propertyCompareOptions.CompareCustomProperties)
             {
-                Assert.AreEqual(expectedSubArtifact.CustomPropertyValues.Count, actualSubArtifact.CustomPropertyValues.Count, 
-                    "The number of Custom Properties is different!");
-
-                // Compare each property in CustomProperties.
-                foreach (var expectedProperty in expectedSubArtifact.CustomPropertyValues)
-                {
-                    Assert.That(actualSubArtifact.CustomPropertyValues.Exists(p => p.Name == expectedProperty.Name),
-                    "Couldn't find a CustomProperty named '{0}'!", expectedProperty.Name);
-
-                    var actualProperty = actualSubArtifact.CustomPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
-
-                    AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
-                }
+                ComparePropertyValuesLists(expectedSubArtifact.CustomPropertyValues, actualSubArtifact.CustomPropertyValues);
             }
 
             if (propertyCompareOptions.CompareSpecificPropertyValues)
             {
-                Assert.AreEqual(expectedSubArtifact.SpecificPropertyValues.Count,actualSubArtifact.SpecificPropertyValues.Count, 
-                    "The number of Specific Property Values is different!");
-
-                // Compare each property in SpecificPropertyValues.
-                foreach (var expectedProperty in expectedSubArtifact.SpecificPropertyValues)
-                {
-                    Assert.That(actualSubArtifact.SpecificPropertyValues.Exists(p => p.Name == expectedProperty.Name),
-                    "Couldn't find a SpecificProperty named '{0}'!", expectedProperty.Name);
-
-                    // Only check real properties.  "Virtual" properties have Name=null & PropertyTypeId=-1, so skip those.
-                    if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
-                    {
-                        var actualProperty = actualSubArtifact.SpecificPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
-
-                        AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
-                    }
-                }
+                ComparePropertyValuesLists(expectedSubArtifact.SpecificPropertyValues, actualSubArtifact.SpecificPropertyValues,
+                    skipVirtualProperties: true);
             }
 
             // NOTE: Currently, NovaSubArtifacts don't return any Attachments, DocReferences or Traces.  You need to make separate calls to get those.
@@ -553,6 +526,40 @@ namespace Helper
                     actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
 
                 Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
+            }
+        }
+
+        /// <summary>
+        /// Compares two lists of Custom properties
+        /// </summary>
+        /// <param name="expectedPropertyValues">List of expected Custom Properties</param>
+        /// <param name="actualPropertyValues">List of actual Custom Properties</param>
+        /// <param name="skipVirtualProperties">(Optional) Set true to skip coparing properties with empty 'name' or 'typeid' -1.
+        /// Set 'true' for Specific properties</param>
+        private static void ComparePropertyValuesLists(List<CustomProperty> expectedPropertyValues,
+            List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false)
+        {
+            Assert.AreEqual(expectedPropertyValues.Count, actualPropertyValues.Count,
+                    "The number of Custom Properties is different!");
+
+            // Compare each property in CustomProperties.
+            foreach (var expectedProperty in expectedPropertyValues)
+            {
+                Assert.That(actualPropertyValues.Exists(p => p.Name == expectedProperty.Name),
+                "Couldn't find a Custom Property named '{0}'!", expectedProperty.Name);
+
+                CustomProperty actualProperty = null;
+                if (skipVirtualProperties)
+                {
+                    if ((expectedProperty.Name != null) || (expectedProperty.PropertyTypeId != -1))
+                        actualProperty = actualPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+                }
+                else
+                {
+                    actualProperty = actualPropertyValues.Find(cp => cp.Name == expectedProperty.Name);
+                }
+                
+                AssertCustomPropertiesAreEqual(expectedProperty, actualProperty);
             }
         }
 

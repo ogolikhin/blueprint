@@ -430,7 +430,7 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
 
-        public int PropertyTypeId { get; set; }
+        public int? PropertyTypeId { get; set; }
 
         public int? PropertyTypeVersionId { get; set; }
 

@@ -464,6 +464,28 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
+        [TestCase]
+        [TestRail(267373)]
+        [Description("Add never published Artifact to Baseline, check that artifact wasn't added.")]
+        public void EditBaselineArtifacts_AddCreatedArtifactToBaseline_ValidateArtifactWasNotAdded()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created, ItemTypePredefined.Actor,
+                _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            baseline.UpdateArtifacts(new List<int> { artifactToAdd.Id });
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int>());
+        }
+
         #endregion Edit Baseline Content
 
         #region Edit Baseline Properties

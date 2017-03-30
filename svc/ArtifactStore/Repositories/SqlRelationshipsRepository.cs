@@ -165,7 +165,7 @@ namespace ArtifactStore.Repositories
             int? versionId = null,
             int? baselineId = null)
         {
-            var revisionId = await GetRevisionId(artifactId, userId, versionId, baselineId);
+            var revisionId = await _itemInfoRepository.GetRevisionId(artifactId, userId, versionId, baselineId);
             var itemId = subArtifactId ?? artifactId;
             var types = new List<int> { (int)LinkType.Manual,
                                         (int)LinkType.Association,
@@ -257,7 +257,7 @@ namespace ArtifactStore.Repositories
 
         public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int userId, bool addDrafts = true, int? versionId = null)
         {
-            var revisionId = await GetRevisionId(artifactId, userId, versionId);
+            var revisionId = await _itemInfoRepository.GetRevisionId(artifactId, userId, versionId);
             var reviewType = new List<int> { (int)LinkType.ReviewPackageReference };
             var reviewLinks = (await GetLinkInfo(artifactId, userId, addDrafts, revisionId, reviewType)).ToList();
             var result = new ReviewRelationshipsResultSet { };
@@ -289,23 +289,6 @@ namespace ArtifactStore.Repositories
                 result.ReviewArtifacts = referencedReviewArtifacts;
             }
             return result;
-        }
-
-        private async Task<int> GetRevisionId(int artifactId, int userId, int? versionId = null, int? baselineId = null)
-        {
-            var revisionId = int.MaxValue;
-            if (versionId != null)
-            {
-                revisionId = await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
-            } else if (baselineId != null)
-            {
-                revisionId = await _artifactPermissionsRepository.GetRevisionIdFromBaselineId(baselineId.Value, userId);
-            }
-            if (revisionId <= 0)
-            {
-                throw new ResourceNotFoundException($"Version Index or Baseline Timestamp is not found.", ErrorCodes.ResourceNotFound);
-            }
-            return revisionId;
         }
     }
 }

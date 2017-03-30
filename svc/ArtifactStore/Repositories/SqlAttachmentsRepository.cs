@@ -81,7 +81,7 @@ namespace ArtifactStore.Repositories
             {
                 itemId = subArtifactId.Value;
             }
-            var revisionId = await GetRevisionId(itemId, userId, versionId, baselineId);
+            var revisionId = await ItemInfoRepository.GetRevisionId(itemId, userId, versionId, baselineId);
 
             var attachments = (await GetAttachments(itemId, userId, revisionId, addDrafts)).ToList();
             var referencedArtifacts = (await GetDocumentReferenceArtifacts(itemId, userId, revisionId, addDrafts)).ToList();
@@ -135,24 +135,5 @@ namespace ArtifactStore.Repositories
             };
             return result;
         }
-
-        private async Task<int> GetRevisionId(int artifactId, int userId, int? versionId = null, int? baselineId = null)
-        {
-            var revisionId = int.MaxValue;
-            if (versionId != null)
-            {
-                revisionId = await ItemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
-            }
-            else if (baselineId != null)
-            {
-                revisionId = await ArtifactPermissionsRepository.GetRevisionIdFromBaselineId(baselineId.Value, userId);
-            }
-            if (revisionId <= 0)
-            {
-                throw new ResourceNotFoundException($"Version Index or Baseline Timestamp is not found.", ErrorCodes.ResourceNotFound);
-            }
-            return revisionId;
-        }
-
     }
 }

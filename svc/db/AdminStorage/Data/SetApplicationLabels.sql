@@ -439,6 +439,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewTypeFo
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewTypeInformal', 'en-US', N'Informal')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewActivityStatus', 'en-US', N'Activity Status')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_ReviewExperienceLink', 'en-US', N'Review Experience')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_EditReview', 'en-US', N'Edit Review')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Group_Identifier', 'en-US', N'(g)')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Projects', 'en-US', N'Search for projects')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Label_Search_Artifacts', 'en-US', N'Search for artifacts')

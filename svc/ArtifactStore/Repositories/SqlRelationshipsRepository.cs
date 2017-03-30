@@ -264,23 +264,24 @@ namespace ArtifactStore.Repositories
             if (reviewLinks != null)
             {
                 var distinctReviewIds = reviewLinks.Select(a => a.SourceItemId).Distinct().ToList();
+                var reviewIdsWithAccess = new List<int>();
                 var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(distinctReviewIds, userId);
                 foreach (var reviewId in distinctReviewIds)
                 {
-                    if (!HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
+                    if (HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
                     {
-                        distinctReviewIds.Remove(reviewId);
+                        reviewIdsWithAccess.Add(reviewId);
                     }
                 }
 
-                var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctReviewIds, true, revisionId))
+                var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, reviewIdsWithAccess, true, revisionId))
                     .ToDictionary(a => a.HolderId);
-                var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, distinctReviewIds, true, revisionId))
+                var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, reviewIdsWithAccess, true, revisionId))
                     .ToDictionary(a => a.ItemId);
                 var referencedReviewArtifacts = new List<ReferencedReviewArtifact>();
                 ItemRawDataCreatedDate itemRawDataCreatedDate;
                 ItemDetails itemDetails;
-                foreach (var reviewId in distinctReviewIds)
+                foreach (var reviewId in reviewIdsWithAccess)
                 {
                     if ((itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate)) && (itemDetailsDictionary.TryGetValue(reviewId, out itemDetails)))
                     {

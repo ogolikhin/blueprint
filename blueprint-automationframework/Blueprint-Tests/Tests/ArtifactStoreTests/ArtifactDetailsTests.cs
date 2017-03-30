@@ -72,6 +72,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(artifact.Artifact, artifactDetails);
 
             Assert.AreEqual(RolePermissions.Read, artifactDetails.Permissions, "Viewer should have read permissions (i.e. 1)!");
         }

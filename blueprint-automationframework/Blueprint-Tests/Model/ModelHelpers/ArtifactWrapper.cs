@@ -92,7 +92,11 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return ArtifactStore.DeleteArtifact(Artifact.Id, user);
+            var response = ArtifactStore.DeleteArtifact(Artifact.Id, user);
+
+            IsMarkedForDeletion = true;
+
+            return response;
         }
 
         /// <summary>
@@ -105,7 +109,13 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
-            return Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
+            var response = Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
+
+            IsDraft = true;
+            IsMarkedForDeletion = false;
+            LockOwner = null;
+
+            return response;
         }
 
         /// <summary>
@@ -117,7 +127,11 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
+            var response = SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
+
+            LockOwner = user;
+
+            return response;
         }
 
         /// <summary>
@@ -129,7 +143,18 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
+            var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
+
+            // If it was marked for deletion, publishing it will make it permanently deleted.
+            if (IsMarkedForDeletion)
+            {
+                IsDeleted = true;
+            }
+
+            IsPublished = true;
+            LockOwner = null;
+
+            return response;
         }
 
         /// <summary>
@@ -142,7 +167,11 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            return ArtifactStore.UpdateArtifact(user, updateArtifact);
+            var response = ArtifactStore.UpdateArtifact(user, updateArtifact);
+
+            IsDraft = true;
+
+            return response;
         }
     }
 }

@@ -396,7 +396,7 @@ namespace Helper
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
-        public ArtifactWrapper<INovaArtifactDetails> CreateAndSaveNovaArtifact(
+        public ArtifactWrapper<INovaArtifactDetails> CreateNovaArtifact(
             IUser user, IProject project, ItemTypePredefined itemType,
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
@@ -430,8 +430,9 @@ namespace Helper
             IUser user, IProject project, ItemTypePredefined itemType,
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
-            var wrappedArtifact = CreateAndSaveNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
-            wrappedArtifact.Publish(user);
+            var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
+            var response = wrappedArtifact.Publish(user);
+            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
 
             return wrappedArtifact;
         }

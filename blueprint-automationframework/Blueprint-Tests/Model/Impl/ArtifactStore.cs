@@ -233,7 +233,7 @@ namespace Model.Impl
             return artifactTypes;
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, bool?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
         public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {

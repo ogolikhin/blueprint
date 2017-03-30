@@ -219,25 +219,9 @@ namespace Model.ArtifactModel.Impl
 
             var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
 
-            CheckIsJsonChanged<T>(specificProperty);
+            SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
+            
             return specificPropertyValue;
-        }
-
-        /// <summary>
-        /// Checks that CustomProperty model corresponds to JSON from Blueprint server 
-        /// </summary>
-        /// <param name="property">property to check</param>
-        private static void CheckIsJsonChanged<T>(CustomProperty property)
-        {
-            // Deserialization
-            string specificPropertyString = property.CustomPropertyValue.ToString();
-            var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyString);
-
-            // Try to serialize and compare with JSON from the server
-            string serializedObject = JsonConvert.SerializeObject(specificPropertyValue, Formatting.Indented);
-            bool isJsonChanged = !(string.Equals(specificPropertyString, serializedObject, StringComparison.OrdinalIgnoreCase));
-            string msg = I18NHelper.FormatInvariant("JSON for {0} has been changed!", nameof(T));
-            Assert.IsFalse(isJsonChanged, msg);
         }
 
         /// <summary>

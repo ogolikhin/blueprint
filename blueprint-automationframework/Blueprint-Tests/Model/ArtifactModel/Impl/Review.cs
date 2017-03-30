@@ -21,7 +21,7 @@ namespace Model.ArtifactModel.Impl
             get
             {
                 var specificProperty = SpecificPropertyValues.FirstOrDefault(
-                p => p.PropertyType == PropertyTypePredefined.ReviewLink);
+                    p => p.PropertyType == PropertyTypePredefined.ReviewLink);
                 return specificProperty.CustomPropertyValue.ToString();
             }
         }
@@ -32,7 +32,7 @@ namespace Model.ArtifactModel.Impl
             get
             {
                 var specificProperty = SpecificPropertyValues.FirstOrDefault(
-                p => p.PropertyType == PropertyTypePredefined.ReviewIsFormal);
+                    p => p.PropertyType == PropertyTypePredefined.ReviewIsFormal);
                 return (bool)specificProperty.CustomPropertyValue;
             }
         }

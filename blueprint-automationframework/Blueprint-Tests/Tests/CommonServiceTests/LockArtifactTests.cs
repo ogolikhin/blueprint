@@ -109,7 +109,7 @@ namespace CommonServiceTests
             var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, baseArtifactType);
 
             // Execute:
-            Artifact.Lock(artifact, artifact.Address, _user);
+            Helper.SvcShared.LockArtifact(_user, artifact);
 
             // Verify:
             // Assert that the second user cannot save the artifact
@@ -246,7 +246,7 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 // Obtain locks for artifact(s) with user.
-                lockResultInfoList = Artifact.LockArtifacts(artifactList, artifactList.First().Address, _user);
+                lockResultInfoList = Helper.SvcShared.LockArtifacts(_user, artifactList);
             }, "Locking multiple artifacts failed!");
 
             // Verify:
@@ -290,7 +290,7 @@ namespace CommonServiceTests
             Assert.DoesNotThrow(() =>
             {
                 // Obtain locks for artifact(s) with the user1
-                lockResultInfoList = Artifact.LockArtifacts(artifactList, artifactList.First().Address, _user, expectedLockResults);
+                lockResultInfoList = Artifact.LockArtifacts(artifactList, _user, expectedLockResults);
             }, "LockArtifacts() should return 200 OK when passed multiple valid artifact IDs.");
             
             // Verify:
@@ -325,18 +325,19 @@ namespace CommonServiceTests
             // Saves the artifact (which gets a lock).
             artifact.Save();
 
-            LockResultInfo lockResultInfo = null;
+            List<LockResultInfo> lockResultInfo = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
                 // Attempt to lock artifact that already has been locked due to the save
-                lockResultInfo = Artifact.Lock(artifact, artifact.Address, _user);
+                lockResultInfo = Helper.SvcShared.LockArtifact(_user, artifact);
             }, "Failed to lock an already locked artifact!");
 
             // Verify:
             // Assert that the lock was successfully obtained
-            Assert.AreEqual(lockResultInfo.Result, LockResult.Success,
+            Assert.NotNull(lockResultInfo, "LockArtifact() returned null!");
+            Assert.AreEqual(LockResult.Success,  lockResultInfo[0].Result,
                 "The user was not able to obtain a lock on the artifact when the artifact was already locked by the user.");
 
             // Assert that user can Publish the artifact to verify that the lock was actually obtained

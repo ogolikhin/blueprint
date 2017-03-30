@@ -356,8 +356,8 @@ namespace ArtifactStoreTests
             List<NovaArtifactResponse> deletedArtifacts = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => deletedArtifacts = ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
-                baselineArtifact.Id, _user), "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(baselineArtifact.Id, _user),
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             Assert.AreEqual(1, deletedArtifacts.Count, "One artifact(Baseline) should be deleted.");
@@ -385,8 +385,8 @@ namespace ArtifactStoreTests
             List<NovaArtifactResponse> deletedArtifacts = null;
 
             // Execute:
-            Assert.DoesNotThrow(() => deletedArtifacts = ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
-                baselineFolder.Id, _user), "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(baselineFolder.Id, _user),
+                "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
             Assert.AreEqual(2, deletedArtifacts.Count, "Two artifacts(Baseline and Baseline Folder) should be deleted.");
@@ -554,8 +554,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
-                baselineArtifact.Id, _user), "DELETE sealed Baseline should return 403 error.");
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(baselineArtifact.Id, _user),
+                "DELETE sealed Baseline should return 403 error.");
 
             // Verify:
             string errorMessage = "The artifact cannot be deleted because one or more of its descendants cannot currently be deleted (for example, a Baseline has been sealed).";
@@ -583,8 +583,8 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user, publishAll: true);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address,
-                baselineFolder.Id, _user), "DELETE sealed Baseline should return 403 error.");
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(baselineFolder.Id, _user),
+                "DELETE sealed Baseline should return 403 error.");
 
             // Verify:
             string errorMessage = "The artifact cannot be deleted because one or more of its descendants cannot currently be deleted (for example, a Baseline has been sealed).";

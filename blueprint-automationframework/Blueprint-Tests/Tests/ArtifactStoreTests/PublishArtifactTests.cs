@@ -320,7 +320,7 @@ namespace ArtifactStoreTests
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, publishedArtifactType, numberOfPublishedArtifacts);
             var publishedWithDraftArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _user, publishedWithDraftArtifactType, numberOfPublishedWithDraftArtifacts);
 
-            Artifact.LockArtifacts(publishedWithDraftArtifacts, publishedWithDraftArtifacts.First().Address, _user);
+            Helper.SvcShared.LockArtifacts(_user, publishedWithDraftArtifacts);
 
             foreach (var artifact in publishedWithDraftArtifacts)
             {

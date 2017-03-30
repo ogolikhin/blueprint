@@ -140,6 +140,16 @@ namespace Model
         List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
+        /// (Runs 'DELETE svc/bpartifactstore/artifacts/{0}')
+        /// </summary>
+        /// <param name="artifactId">The Id of artifact to delete.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A list of artifacts that were deleted.</returns>
+        List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Discard a single artifact.
         /// </summary>
         /// <param name="artifact">The artifact to discard.  This can be null if the 'all' parameter is true.</param>

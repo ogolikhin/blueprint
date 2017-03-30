@@ -93,6 +93,7 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="ArtifactModel\Impl\Review.cs" />
     <Compile Include="NovaModel\Impl\ReferencedReviewArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\SubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />

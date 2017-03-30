@@ -264,6 +264,15 @@ namespace ArtifactStore.Repositories
             if (reviewLinks != null)
             {
                 var distinctReviewIds = reviewLinks.Select(a => a.SourceItemId).Distinct().ToList();
+                var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(distinctReviewIds, userId);
+                foreach (var reviewId in distinctReviewIds)
+                {
+                    if (!HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
+                    {
+                        distinctReviewIds.Remove(reviewId);
+                    }
+                }
+
                 var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctReviewIds, true, revisionId))
                     .ToDictionary(a => a.HolderId);
                 var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, distinctReviewIds, true, revisionId))
@@ -289,6 +298,11 @@ namespace ArtifactStore.Repositories
                 result.ReviewArtifacts = referencedReviewArtifacts;
             }
             return result;
+        }
+        private bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
+        {
+            RolePermissions permission;
+            return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
         }
     }
 }

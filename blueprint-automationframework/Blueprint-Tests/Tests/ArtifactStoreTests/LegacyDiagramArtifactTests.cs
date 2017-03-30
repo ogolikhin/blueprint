@@ -2,6 +2,7 @@ using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
@@ -38,15 +39,16 @@ namespace ArtifactStoreTests
 
         #region 200 OK Tests
 
-        [TestCase(2,BaseArtifactType.DomainDiagram)]
-        [TestCase(3,BaseArtifactType.GenericDiagram)]
-        [TestCase(4,BaseArtifactType.UseCaseDiagram)]
+        [TestCase(2, ItemTypePredefined.DomainDiagram)]
+        [TestCase(3, ItemTypePredefined.GenericDiagram)]
+        [TestCase(4, ItemTypePredefined.UseCaseDiagram)]
         [TestRail(183352)]
-        [Description("Create & publish a diagram artifact multiple times to have multiple version of it, Get diagram artifact without version. Verify that latest version of artifact is returned.")]
-        public void GetDiagramArtifact_PublishAndGetDiagramArtifactWithoutSpecificVersion_ReturnsLatestVersionOfDiagramArtifact(int numberOfVersions, BaseArtifactType artifactType)
+        [Description("Create & publish a diagram artifact multiple times to have multiple version of it, Get diagram artifact without version.  " +
+                     "Verify that latest version of artifact is returned.")]
+        public void GetDiagramArtifact_PublishAndGetDiagramArtifactWithoutSpecificVersion_ReturnsLatestVersionOfDiagramArtifact(int numberOfVersions, ItemTypePredefined artifactType)
         {
             // Setup: Create and publish a diagram artifact multiple times to have multiple versions of it
-            var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType, numberOfVersions: numberOfVersions);
+            var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions: numberOfVersions);
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, publishedDiagramArtifact.Id);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -60,15 +62,16 @@ namespace ArtifactStoreTests
             NovaArtifactDetails.AssertArtifactsEqual(diagramArtifact, retrievedArtifact);
         }
 
-        [TestCase(BaseArtifactType.DomainDiagram)]
-        [TestCase(BaseArtifactType.GenericDiagram)]
-        [TestCase(BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ItemTypePredefined.DomainDiagram)]
+        [TestCase(ItemTypePredefined.GenericDiagram)]
+        [TestCase(ItemTypePredefined.UseCaseDiagram)]
         [TestRail(183355)]
-        [Description("Create & publish a diagram artifact, modify & publish it again, GetDiagramArtifact with versionId=1. Verify that first version of diagram artifact is returned.")]
-        public void GetDiagramArtifact_PublishAndGetDiagramArtifactWithVersion1_ReturnsFirstVersionOfDiagramArtifact(BaseArtifactType artifactType)
+        [Description("Create & publish a diagram artifact, modify & publish it again, GetDiagramArtifact with versionId=1.  " +
+                     "Verify that first version of diagram artifact is returned.")]
+        public void GetDiagramArtifact_PublishAndGetDiagramArtifactWithVersion1_ReturnsFirstVersionOfDiagramArtifact(ItemTypePredefined artifactType)
         {
             // Setup: Create and publish a diagram artifact two times to have two versions of it			
-            var publishedDiagramArtifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType: artifactType, numberOfVersions: 2);
+            var publishedDiagramArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions: 2);
             var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_user, publishedDiagramArtifact.Id, versionId: 1);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 

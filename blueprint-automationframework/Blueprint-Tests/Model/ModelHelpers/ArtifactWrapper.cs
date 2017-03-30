@@ -4,11 +4,23 @@ using Common;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
+using NUnit.Framework;
 using Utilities;
+using Utilities.Factories;
 
 namespace Model.ModelHelpers
 {
-    public class ArtifactWrapper<T> : ArtifactStateWrapper<T>, IArtifactObservable where T : IHaveAnId
+    public interface IArtifactWrapper<T> : IArtifactStateWrapper<T>, IArtifactObservable where T : IHaveAnId
+    {
+        List<NovaArtifactResponse> Delete(IUser user);
+        INovaArtifactsAndProjectsResponse Discard(IUser user);
+        List<LockResultInfo> Lock(IUser user);
+        NovaArtifactsAndProjectsResponse Publish(IUser user);
+        WrappedNovaArtifact SaveWithNewDescription(IUser user, INovaArtifactBase thisArtifact);
+        INovaArtifactDetails Update(IUser user, NovaArtifactDetails updateArtifact);
+    }
+
+    public class ArtifactWrapper<T> : ArtifactStateWrapper<T>, IArtifactWrapper<T>, IArtifactObservable where T : IHaveAnId
     {
         public IArtifactStore ArtifactStore { get; private set; }
         public ISvcShared SvcShared { get; private set; }
@@ -130,6 +142,33 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(user, nameof(user));
 
             return ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
+        }
+
+        /// <summary>
+        /// Updates the artifact with the properties specified in the updateArtifact.
+        /// </summary>
+        /// <param name="user">The user to perform the update.</param>
+        /// <param name="thisArtifact">This should be the artifact that this object is wrapping.</param>
+        /// <returns>The updated artifact.</returns>
+        public WrappedNovaArtifact SaveWithNewDescription(IUser user, INovaArtifactBase thisArtifact)
+        {
+            ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(thisArtifact, nameof(thisArtifact));
+
+            Assert.AreEqual(Artifact.Id, thisArtifact.Id, "The '{0}' parameter isn't this artifact!", nameof(thisArtifact));
+
+            var changes = new NovaArtifactDetails
+            {
+                Id = thisArtifact.Id,
+                ProjectId = thisArtifact.ProjectId,
+                Version = thisArtifact.Version,
+                Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+            };
+
+            var updatedArtifact = ArtifactStore.UpdateArtifact(user, changes);
+            var wrappedArtifact = new WrappedNovaArtifact(updatedArtifact, ArtifactStore, SvcShared, user);
+
+            return wrappedArtifact;
         }
 
         /// <summary>

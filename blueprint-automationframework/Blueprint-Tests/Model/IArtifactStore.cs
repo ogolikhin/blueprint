@@ -428,6 +428,15 @@ namespace Model
         INovaArtifactsAndProjectsResponse PublishArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Publishes an artifact.
+        /// </summary>
+        /// <param name="artifactId">The ID of the artifact to publish.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        INovaArtifactsAndProjectsResponse PublishArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publishes a list of artifacts.
         /// </summary>
         /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>

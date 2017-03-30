@@ -10,6 +10,7 @@ using System.Linq;
 using TestCommon;
 using Utilities;
 using Common;
+using Model.ArtifactModel.Enums;
 
 namespace ArtifactStoreTests
 {
@@ -314,14 +315,14 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, subArtifacts.Last().ParentId, author);
         }
 
-        [TestCase(BaseArtifactType.Actor, 2)]
-        [TestCase(BaseArtifactType.PrimitiveFolder, 2)]
+        [TestCase(ItemTypePredefined.Actor, 2)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, 2)]
         [TestRail(185143)]
         [Description("Create, publish & delete artifact.  Verify get artifact navigation path call returns project information for another user.")]
-        public void ArtifactNavigation_PublishedArtifactDeletedAndAccessedByAnotherUser_ReturnsProjectInfo(BaseArtifactType artifactType, int numberOfVersions)
+        public void ArtifactNavigation_PublishedArtifactDeletedAndAccessedByAnotherUser_ReturnsProjectInfo(ItemTypePredefined artifactType, int numberOfVersions)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
             artifact.Delete(_user);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
@@ -333,7 +334,7 @@ namespace ArtifactStoreTests
                                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
-            VerifyAncestorsInformation(basicArtifactInfoList, artifact.ParentId);
+            VerifyAncestorsInformation(basicArtifactInfoList, artifact.Artifact.ParentId);
         }
 
         //TODO Test for project in a folder

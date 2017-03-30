@@ -583,7 +583,7 @@ namespace ArtifactStoreTests
         public void PostNewDiscussion_ArtifactHasVersion2_CheckCommentHasVersion2()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2); //artifact version is 2
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _project, ItemTypePredefined.UseCase, numberOfVersions: 2); //artifact version is 2
 
             IDiscussionAdapter postedRaptorComment = null;
             DiscussionResultSet discussions = null;
@@ -591,8 +591,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                postedRaptorComment = artifact.PostRapidReviewArtifactDiscussion(ORIGINAL_COMMENT, _authorUser);
-                artifact.Save(_authorUser);
+                postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
+                artifact.SaveWithNewDescription(_authorUser, artifact.Artifact);
                 artifact.Publish(_authorUser);  //artifact version is 3
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             }, "UpdateDiscussions and GetDiscussion shouldn't throw any error.");

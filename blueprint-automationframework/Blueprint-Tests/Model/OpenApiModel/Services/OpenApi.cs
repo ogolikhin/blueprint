@@ -261,6 +261,31 @@ namespace Model.OpenApiModel.Services
             return updateResultList;
         }
 
+        /// <seealso cref="IOpenApi.GetArtifact(IProject, int, IUser, bool?, bool?, OpenApiTraceTypes?, bool?, bool?, bool?, bool?, List{HttpStatusCode})"/>
+        public IOpenApiArtifact GetArtifact(
+            IProject project,
+            int artifactId,
+            IUser user,
+            bool? getStatus = null,
+            bool? getComments = null,
+            OpenApiTraceTypes? getTraces = null,
+            bool? getAttachments = null,
+            bool? richTextAsPlain = null,
+            bool? getInlineCSS = null,
+            bool? getContent = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            return GetArtifact(Address, project, artifactId, user,
+                getStatus: getStatus,
+                getComments: getComments,
+                getTraces: getTraces,
+                getAttachments: getAttachments,
+                richTextAsPlain: richTextAsPlain,
+                getInlineCSS: getInlineCSS,
+                getContent: getContent,
+                expectedStatusCodes: expectedStatusCodes);
+        }
+
         /// <summary>
         /// Retrieves a single artifact by Project ID and Artifact ID and returns information about the artifact.
         /// (Runs:  'GET /api/v1/projects/{projectId}/artifacts/{artifactId}'  with the following optional query parameters:

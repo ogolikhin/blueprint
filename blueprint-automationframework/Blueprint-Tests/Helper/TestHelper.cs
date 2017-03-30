@@ -79,11 +79,11 @@ namespace Helper
         public List<IGroup> Groups { get; } = new List<IGroup>();
         public List<IProjectRole> ProjectRoles { get; } = new List<IProjectRole>();
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
+        [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
         public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
         [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        public List<ArtifactStateWrapper<IHaveAnId>> WrappedArtifacts { get; } = new List<ArtifactStateWrapper<IHaveAnId>>();   // TODO: Dispose these artifacts and track their state...
+        public List<IArtifactStateWrapper<IHaveAnId>> WrappedArtifacts { get; } = new List<IArtifactStateWrapper<IHaveAnId>>();   // TODO: Dispose these artifacts and track their state...
 
         #region IArtifactObserver methods
 
@@ -410,7 +410,7 @@ namespace Helper
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
                 itemType, name, project, artifactTypeName, parentId, orderIndex);
 
-            return WrapArtifact(artifact, user);
+            return WrapNovaArtifact(artifact, user);
         }
 
         /// <summary>
@@ -437,21 +437,87 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new artifact, then saves and publishes it the specified number of times.
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="numberOfVersions">The number of times to save and publish the artifact (to create multiple historical versions).</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
+        /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
+        public ArtifactWrapper<INovaArtifactDetails> CreateAndPublishNovaArtifactWithMultipleVersions(
+            IUser user, IProject project, ItemTypePredefined itemType, int numberOfVersions,
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
+        {
+            var artifact = CreateAndPublishNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
+
+            for (int i = 1; i < numberOfVersions; ++i)
+            {
+                var changes = new NovaArtifactDetails
+                {
+                    Id = artifact.Artifact.Id,
+                    ProjectId = artifact.Artifact.ProjectId,
+                    Version = artifact.Artifact.Version,
+                    Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                };
+
+                artifact.Lock(user);
+                artifact.Update(user, changes);
+                artifact.Publish(user);
+            }
+
+            return artifact;
+        }
+
+        /// <summary>
         /// Wraps an INovaArtifactDetails in an IArtifact and adds it the list of artifacts that get disposed.
         /// </summary>
         /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
         /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
-        public ArtifactWrapper<T> WrapArtifact<T>(T artifact,
-            IUser createdBy) where T : IHaveAnId
+        public ArtifactWrapper<T> WrapArtifact<T>(T artifact, IUser createdBy) where T : IHaveAnId
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             var wrappedArtifact = new ArtifactWrapper<T>(artifact, ArtifactStore, SvcShared, createdBy);
-            WrappedArtifacts.Add(wrappedArtifact as ArtifactWrapper<IHaveAnId>);
+
+            if (!WrappedArtifacts.Exists(a => a.Id == artifact.Id))
+            {
+                var item = wrappedArtifact as IArtifactStateWrapper<IHaveAnId>;     // XXX: This cast fails!
+                Assert.NotNull(item, "The casted item shouldn't be null!");
+                WrappedArtifacts.Add(item);
+            }
 
             return wrappedArtifact;
         }
+
+        /// <summary>
+        /// Wraps an INovaArtifactDetails in an IArtifact and adds it the list of artifacts that get disposed.
+        /// </summary>
+        /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="createdBy">The user that created this artifact.</param>
+        /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
+        public WrappedNovaArtifact WrapNovaArtifact(INovaArtifactDetails artifact, IUser createdBy)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            var wrappedArtifact = new WrappedNovaArtifact(artifact, ArtifactStore, SvcShared, createdBy);
+
+            if (!WrappedArtifacts.Exists(a => a.Id == artifact.Id))
+            {
+                var item = wrappedArtifact as IArtifactStateWrapper<INovaArtifactDetails>;
+                Assert.NotNull(item, "The casted item shouldn't be null!");
+                var idItem = item as IArtifactStateWrapper<IHaveAnId>;      // XXX: This cast fails!
+                WrappedArtifacts.Add(idItem);
+            }
+
+             return wrappedArtifact;
+         }
 
         /// <summary>
         /// Creates and publishes a new Nova artifact (wrapped inside an IArtifact object).
@@ -542,22 +608,17 @@ namespace Helper
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <param name="name">(optional) Artifact's name.</param>
-        /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
         /// <returns>The artifact.</returns>
         public IArtifact CreateAndPublishArtifact(IProject project,
             IUser user,
             BaseArtifactType artifactType,
             IArtifactBase parent = null,
-            string name = null,
-            int numberOfVersions = 1)
+            string name = null)
         {
             var artifact = CreateArtifact(project, user, artifactType, parent, name);
 
-            for (int i = 0; i < numberOfVersions; ++i)
-            {
-                artifact.Save();
-                artifact.Publish();
-            }
+            artifact.Save();
+            artifact.Publish();
 
             return artifact;
         }

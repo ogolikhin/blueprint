@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using Model.ModelHelpers;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -180,6 +181,40 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that the properties of the Nova artifact response match with the specified artifact (but don't check the versions).
+        /// Some properties are expected to be null.
+        /// </summary>
+        /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>
+        /// <param name="artifact">The artifact to compare against.</param>
+        /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.  By default it compares the version of the NovaArtifactResponse with the artifact.</param>
+        public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
+            INovaArtifactResponse novaArtifactResponse,
+            INovaArtifactDetails artifact,
+            int? expectedVersion = null)
+        {
+            ThrowIf.ArgumentNull(novaArtifactResponse, nameof(novaArtifactResponse));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            Assert.AreEqual(artifact.Id, novaArtifactResponse.Id, "The {0} properties of the artifacts don't match!", nameof(artifact.Id));
+            Assert.AreEqual(artifact.ItemTypeIconId, novaArtifactResponse.ItemTypeIconId, "The {0} properties of the artifacts don't match!", nameof(artifact.ItemTypeIconId));
+            Assert.AreEqual(artifact.ItemTypeId, novaArtifactResponse.ItemTypeId, "The {0} properties of the artifacts don't match!", nameof(artifact.ItemTypeId));
+            Assert.AreEqual(artifact.Name, novaArtifactResponse.Name, "The {0} properties of the artifacts don't match!", nameof(artifact.Name));
+            Assert.AreEqual(artifact.ParentId, novaArtifactResponse.ParentId, "The {0} properties of the artifacts don't match!", nameof(artifact.ParentId));
+            Assert.AreEqual(artifact.OrderIndex, novaArtifactResponse.OrderIndex, "The {0} properties of the artifacts don't match!", nameof(artifact.OrderIndex));
+            Assert.AreEqual(artifact.PredefinedType, novaArtifactResponse.PredefinedType, "The {0} properties of the artifacts don't match!", nameof(artifact.PredefinedType));
+            Assert.AreEqual(artifact.Prefix, novaArtifactResponse.Prefix, "The {0} properties of the artifacts don't match!", nameof(artifact.Prefix));
+            Assert.AreEqual(artifact.ProjectId, novaArtifactResponse.ProjectId, "The {0} properties of the artifacts don't match!", nameof(artifact.ProjectId));
+            Assert.AreEqual(expectedVersion ?? artifact.Version, novaArtifactResponse.Version, "The {0} properties of the artifacts don't match!", nameof(artifact.Version));
+
+            // These properties should always be null:
+            Assert.IsNull(novaArtifactResponse.CreatedBy, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.CreatedBy));
+            Assert.IsNull(novaArtifactResponse.CreatedOn, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.CreatedOn));
+            Assert.IsNull(novaArtifactResponse.Description, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.Description));
+            Assert.IsNull(novaArtifactResponse.LastEditedBy, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.LastEditedBy));
+            Assert.IsNull(novaArtifactResponse.LastEditedOn, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.LastEditedOn));
+        }
+
+        /// <summary>
         /// Asserts that the response from the Nova call contains all the specified artifacts and that they now have the correct version.
         /// </summary>
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
@@ -206,6 +241,38 @@ namespace Helper
                 else
                 {
                     AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the response from the Nova call contains all the specified artifacts and that they now have the correct version.
+        /// </summary>
+        /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
+        /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
+        /// <param name="expectedVersion">The version expected in the artifacts.</param>
+        [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
+        public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(
+            INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
+            List<ArtifactWrapper<INovaArtifactDetails>> artifacts,
+            int expectedVersion)
+        {
+            ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            foreach (var artifact in artifacts)
+            {
+                var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
+                Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
+
+                // The artifact doesn't have a version before it's published at least once, so we can't compare version of unpublished artifacts.
+                if (artifact.IsPublished)
+                {
+                    AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact.Artifact, expectedVersion);
+                }
+                else
+                {
+                    AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact.Artifact);
                 }
             }
         }

@@ -533,6 +533,16 @@ namespace Model.Impl
             return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
         }
 
+        /// <seealso cref="IArtifactStore.PublishArtifact(int, IUser, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse PublishArtifact(int artifactId,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var artifacts = new List<int> { artifactId };
+
+            return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
+        }
+
         /// <seealso cref="IArtifactStore.GetNavigationPath(IUser, int, List{HttpStatusCode})"/>
         public List<INovaVersionControlArtifactInfo> GetNavigationPath(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -708,8 +718,7 @@ namespace Model.Impl
 
             return publishedArtifacts;
         }
-
-
+        
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null,
             bool? publishAll = null,

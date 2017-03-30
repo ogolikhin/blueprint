@@ -280,13 +280,12 @@ namespace SearchServiceTests
         {
             // Setup:
             int numberOfVersions = 3;
-            var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.Document,
-                numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _firstProject, ItemTypePredefined.Document, numberOfVersions);
 
-            artifact.Save(_authorUser);
+            artifact.SaveWithNewDescription(_authorUser, artifact.Artifact);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);
-            var searchCriteria = new ItemNameSearchCriteria(artifact.Name, selectedProjectIds);
+            var searchCriteria = new ItemNameSearchCriteria(artifact.Artifact.Name, selectedProjectIds);
             searchCriteria.IncludeArtifactPath = true;
             ItemNameSearchResultSet results = null;
 
@@ -297,7 +296,7 @@ namespace SearchServiceTests
             // Verify:
             Assert.AreEqual(1, results.Items.Count, "List of SearchItems should have 1 item.");
             Assert.AreEqual(1, results.PageItemCount, "PageItemCount should be 1.");
-            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact, si)), "Published artifact must be in search results.");
+            Assert.That(results.Items.Exists(si => DoesSearchItemCorrespondToArtifact(artifact.Artifact, si)), "Published artifact must be in search results.");
 
             Assert.AreEqual(numberOfVersions, results.Items[0].Version, "Version should have expected value.");
         }

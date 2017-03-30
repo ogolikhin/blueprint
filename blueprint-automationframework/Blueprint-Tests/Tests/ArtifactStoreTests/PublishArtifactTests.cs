@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using Model.ModelHelpers;
 using TestCommon;
 using Utilities;
 using Utilities.Factories;
@@ -199,27 +200,27 @@ namespace ArtifactStoreTests
             Assert.AreEqual(1, artifactHistoryAfter[0].VersionId, "Version ID after publish should be 1!");
         }
 
-        [TestCase(BaseArtifactType.Actor, 2)]
-        [TestCase(BaseArtifactType.Process, 3)]
+        [TestCase(ItemTypePredefined.Actor, 2)]
+        [TestCase(ItemTypePredefined.Process, 3)]
         [TestRail(165968)]
         [Description("Create & publish a single artifact several times, then save to create a draft.  Publish the artifact." +
             "Verify publish is successful and that artifact has the expected version.")]
-        public void PublishArtifact_SinglePublishedArtifactWithMultipleVersionsWithDraft_ArtifactHasExpectedVersion(BaseArtifactType artifactType, int numberOfVersions)
+        public void PublishArtifact_SinglePublishedArtifactWithMultipleVersionsWithDraft_ArtifactHasExpectedVersion(ItemTypePredefined artifactType, int numberOfVersions)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            var artifactWithMultipleVersions = Helper.CreateAndPublishArtifact(_project, author, artifactType, numberOfVersions: numberOfVersions);
+            var artifactWithMultipleVersions = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(author, _project, artifactType, numberOfVersions);
 
             var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, author);
             Assert.AreEqual(numberOfVersions, artifactHistoryBefore[0].VersionId, "Version ID before Nova publish should be {0}!", numberOfVersions);
 
-            artifactWithMultipleVersions.Save();    // Now save to make a draft.
+            artifactWithMultipleVersions.SaveWithNewDescription(author, artifactWithMultipleVersions.Artifact);    // Now save to make a draft.
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifactWithMultipleVersions, author),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifact(artifactWithMultipleVersions.Id, author),
                 "'POST {0}' should return 200 OK if a valid artifact ID is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -232,7 +233,7 @@ namespace ArtifactStoreTests
 
             ArtifactStoreHelper.AssertOnlyExpectedProjectWasReturned(publishResponse.Projects, _project);
             Assert.AreEqual(1, publishResponse.Artifacts.Count, "There should only be 1 published artifact returned!");
-            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifactWithMultipleVersions, expectedVersion);
+            ArtifactStoreHelper.AssertNovaArtifactResponsePropertiesMatchWithArtifact(publishResponse.Artifacts.First(), artifactWithMultipleVersions.Artifact, expectedVersion);
 
             var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, _user);
 
@@ -262,33 +263,33 @@ namespace ArtifactStoreTests
             AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(publishResponse, artifacts, expectedVersion: 1);
         }
 
-        [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.Document, BaseArtifactType.Glossary)]
-        [TestCase(3, BaseArtifactType.Process, BaseArtifactType.TextualRequirement, BaseArtifactType.UseCase)]
+        [TestCase(2, ItemTypePredefined.Actor, ItemTypePredefined.Document, ItemTypePredefined.Glossary)]
+        [TestCase(3, ItemTypePredefined.Process, ItemTypePredefined.TextualRequirement, ItemTypePredefined.UseCase)]
         [TestRail(165969)]
         [Description("Create & publish a multiple artifacts several times and save to create drafts.  Publish the artifacts." +
             "Verify publish is successful and that the artifacts have the expected versions.")]
-        public void PublishArtifact_MultiplePublishedArtifactsWithMultipleVersionsWithDraft_ArtifactHasExpectedVersion(int numberOfVersions, params BaseArtifactType[] artifactTypes)
+        public void PublishArtifact_MultiplePublishedArtifactsWithMultipleVersionsWithDraft_ArtifactHasExpectedVersion(int numberOfVersions, params ItemTypePredefined[] artifactTypes)
         {
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             // Setup:
-            var artifactsWithMultipleVersions = new List<IArtifactBase>();
+            var artifactsWithMultipleVersions = new List<ArtifactWrapper<INovaArtifactDetails>>();
 
             foreach (var artifactType in artifactTypes)
             {
-                IArtifact artifactWithMultipleVersions = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+                var artifactWithMultipleVersions = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
                 artifactsWithMultipleVersions.Add(artifactWithMultipleVersions);
 
                 var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, _user);
                 Assert.AreEqual(numberOfVersions, artifactHistoryBefore[0].VersionId, "Version ID before Nova publish should be {0}!", numberOfVersions);
 
-                artifactWithMultipleVersions.Save();    // Now save to make a draft.
+                artifactWithMultipleVersions.SaveWithNewDescription(_user, artifactWithMultipleVersions.Artifact);    // Now save to make a draft.
             }
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
 
-            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(artifactsWithMultipleVersions, _user),
+            Assert.DoesNotThrow(() => publishResponse = Helper.ArtifactStore.PublishArtifacts(artifactsWithMultipleVersions.Select(a => a.Id).ToList(), _user),
                 "'POST {0}' should return 200 OK if a valid list of artifact IDs is sent!", PUBLISH_PATH);
 
             // Verify:
@@ -1110,6 +1111,27 @@ namespace ArtifactStoreTests
         private void AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
             INovaArtifactsAndProjectsResponse publishResponse,
             List<IArtifactBase> artifactsToPublish,
+            int expectedVersion)
+        {
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(
+                publishResponse, artifactsToPublish, expectedVersion);
+
+            foreach (var artifact in artifactsToPublish)
+            {
+                var artifactHistoryAfter = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user);
+                Assert.AreEqual(expectedVersion, artifactHistoryAfter[0].VersionId, "Version ID after publish should be {0}!", expectedVersion);
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the response from the publish call contains all the specified artifacts and that they now have the correct version.
+        /// </summary>
+        /// <param name="publishResponse">The response from the publish call.</param>
+        /// <param name="artifactsToPublish">The Nova artifacts that we sent to the publish call.</param>
+        /// <param name="expectedVersion">The version expected in the publishedArtifact.</param>
+        private void AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
+            INovaArtifactsAndProjectsResponse publishResponse,
+            List<ArtifactWrapper<INovaArtifactDetails>> artifactsToPublish,
             int expectedVersion)
         {
             ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(

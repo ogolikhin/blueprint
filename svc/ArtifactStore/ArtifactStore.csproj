@@ -111,7 +111,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\BaselineRawDataHelper.cs" />
     <Compile Include="Helpers\MentionHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\ReviewRawDataHelper.cs" />

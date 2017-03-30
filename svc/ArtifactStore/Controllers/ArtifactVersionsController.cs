@@ -91,7 +91,7 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/versionControlInfo/{itemId:int:min(1)}"), SessionRequired]
         [ActionName("GetVersionControlArtifactInfo")]
-        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId)
+        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             return await ArtifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, baselineId, session.UserId);

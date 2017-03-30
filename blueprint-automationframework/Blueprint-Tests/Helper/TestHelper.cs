@@ -83,7 +83,7 @@ namespace Helper
         public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
         [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        public List<ArtifactStateWrapper<IHaveAnId>> WrappedArtifacts { get; } = new List<ArtifactStateWrapper<IHaveAnId>>();   // TODO: Dispose these artifacts and track their state...
+        public List<ArtifactWrapper> WrappedArtifacts { get; } = new List<ArtifactWrapper>();   // TODO: Dispose these artifacts and track their state...
 
         #region IArtifactObserver methods
 
@@ -396,7 +396,7 @@ namespace Helper
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
-        public ArtifactWrapper<INovaArtifactDetails> CreateNovaArtifact(
+        public ArtifactWrapper CreateNovaArtifact(
             IUser user, IProject project, ItemTypePredefined itemType,
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
@@ -426,7 +426,7 @@ namespace Helper
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
-        public ArtifactWrapper<INovaArtifactDetails> CreateAndPublishNovaArtifact(
+        public ArtifactWrapper CreateAndPublishNovaArtifact(
             IUser user, IProject project, ItemTypePredefined itemType,
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
@@ -438,18 +438,17 @@ namespace Helper
         }
 
         /// <summary>
-        /// Wraps an INovaArtifactDetails in an IArtifact and adds it the list of artifacts that get disposed.
+        /// Wraps an INovaArtifactDetails in an ArtifactWrapper and adds it the list of artifacts that get disposed.
         /// </summary>
         /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
-        /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
-        public ArtifactWrapper<T> WrapArtifact<T>(T artifact,
-            IUser createdBy) where T : IHaveAnId
+        /// <returns>The ArtifactWrapper for the novaArtifact.</returns>
+        public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IUser createdBy)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper<T>(artifact, ArtifactStore, SvcShared, createdBy);
-            WrappedArtifacts.Add(wrappedArtifact as ArtifactWrapper<IHaveAnId>);
+            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, createdBy);
+            WrappedArtifacts.Add(wrappedArtifact);
 
             return wrappedArtifact;
         }

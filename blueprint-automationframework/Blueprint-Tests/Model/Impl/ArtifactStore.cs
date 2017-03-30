@@ -608,13 +608,11 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.AddArtifactToCollection(IUser, int, int, bool, List{HttpStatusCode})"/>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
+        public AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
-            var responseObject = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
-            return responseObject["artifactCount"];
+            return AddArtifactToBaselineOrCollection<AddToCollectionResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
@@ -660,15 +658,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.AddArtifactToBaseline(IUser, int, int, bool, List{HttpStatusCode})"/>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+        public AddToBaselineResult AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             //
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
-            var addArtifactResult = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
-            Assert.IsTrue(addArtifactResult.ContainsKey("artifactCount"));
-            return addArtifactResult;
+            return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -885,9 +880,9 @@ namespace Model.Impl
         /// <param name="path">The REST path to use.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Number of artifacts added to Baseline or Collection</returns>
+        /// <returns>Result of adding artifact to Baseline or Collection</returns>
         /// <exception cref="AssertionException">Throws for unexpected itemType</exception>
-        private Dictionary<string, int> AddArtifactToBaselineOrCollection(IUser user, int artifactId, string path, bool includeDescendants = false,
+        private T AddArtifactToBaselineOrCollection<T>(IUser user, int artifactId, string path, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -896,13 +891,11 @@ namespace Model.Impl
             collectionContentToAdd.Add("addChildren", includeDescendants);
             collectionContentToAdd.Add("artifactId", artifactId);
 
-            var response = restApi.SendRequestAndGetResponse<object>(
+            return restApi.SendRequestAndDeserializeObject<T, object> (
                 path,
                 RestRequestMethod.PUT,
-                bodyObject: collectionContentToAdd,
+                jsonObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-
-            return JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
         }
 
         #endregion Private Methods

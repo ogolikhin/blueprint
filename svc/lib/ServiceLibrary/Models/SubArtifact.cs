@@ -11,6 +11,8 @@ namespace ServiceLibrary.Models
         [JsonProperty]
         public int ParentId { get; set; }
         [JsonProperty]
+        public int ArtifactId { get; set; }
+        [JsonProperty]
         public int ItemTypeId { get; set; }
         [JsonProperty]
         public string DisplayName { get; set; }

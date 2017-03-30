@@ -167,8 +167,7 @@ namespace ArtifactStoreTests
         [TestRail(182509)]
         [Description("Create two artifacts: main artifact that has inline trace to inline trace artifact. Update the inline trace artifact information - Verify that " +
             "GetArtifactDetails call returns updated inline trace information.")]
-        public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(
-            BaseArtifactType baseArtifactType)
+        public void GetArtifactDetails_UpdateInlineTraceArtifact_ReturnsUpdatedInlineTraceLink(BaseArtifactType baseArtifactType)
         {
             // Setup: Create to artifacts: main artifact and inline trace artifact with the same user on the same project
             var mainArtifact = Helper.CreateAndPublishArtifact(_projects[0], _user, baseArtifactType);
@@ -206,8 +205,10 @@ namespace ArtifactStoreTests
             // Verify: Returned ArtifactDeatils contains the updated information for InlineTrace
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
 
-            Assert.AreEqual(mainArtifactDetails.IndicatorFlags, ItemIndicatorFlags.HasManualReuseOrOtherTraces,
-                "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
+            var indicatorFlags = baseArtifactType == BaseArtifactType.UIMockup ? ItemIndicatorFlags.HasManualReuseOrOtherTraces | ItemIndicatorFlags.HasUIMockup :
+                    ItemIndicatorFlags.HasManualReuseOrOtherTraces;
+
+            Assert.AreEqual(mainArtifactDetails.IndicatorFlags, indicatorFlags, "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -263,8 +264,10 @@ namespace ArtifactStoreTests
             //Verify: Returned ArtifactDeatils contains valid inline traceLink to the inlineTraceArtifact
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(mainArtifactDetails, inlineTraceArtifact, validInlineTraceLink: true);
 
-            Assert.AreEqual(mainArtifactDetails.IndicatorFlags, ItemIndicatorFlags.HasManualReuseOrOtherTraces,
-                "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
+            var indicatorFlags = baseArtifactType == BaseArtifactType.UIMockup ? ItemIndicatorFlags.HasManualReuseOrOtherTraces | ItemIndicatorFlags.HasUIMockup :
+                ItemIndicatorFlags.HasManualReuseOrOtherTraces;
+
+            Assert.AreEqual(mainArtifactDetails.IndicatorFlags, indicatorFlags, "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -339,7 +342,10 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateInlineTraceLinkFromArtifactDetails(
                 mainArtifactDetailsWithUserWithPermissionOnMainProject, inlineTraceArtifact, validInlineTraceLink: false);
 
-            Assert.AreEqual(mainArtifactDetailsWithUserWithPermissionOnMainProject.IndicatorFlags, ItemIndicatorFlags.HasManualReuseOrOtherTraces,
+            var indicatorFlags = baseArtifactType == BaseArtifactType.UIMockup ? ItemIndicatorFlags.HasManualReuseOrOtherTraces | ItemIndicatorFlags.HasUIMockup :
+                ItemIndicatorFlags.HasManualReuseOrOtherTraces;
+
+            Assert.AreEqual(mainArtifactDetailsWithUserWithPermissionOnMainProject.IndicatorFlags, indicatorFlags,
                 "IndicatorFlags property should have HasManualReuseOrOtherTraces(4) value!");
         }
 

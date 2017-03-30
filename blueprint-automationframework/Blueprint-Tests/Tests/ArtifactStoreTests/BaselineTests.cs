@@ -790,11 +790,13 @@ namespace ArtifactStoreTests
             Assert.AreEqual(3, reviews.reviewArtifacts.Count, "List should have expected number of reviews.");
             foreach (var review in reviews.reviewArtifacts)
             {
-                var reviewArtifact = Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
+                var reviewArtifact = (Review)Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
                 Assert.AreEqual(reviewArtifact.Name, review.ItemName, "Review name should have expected value.");
                 Assert.AreEqual(reviewArtifact.Prefix, review.ItemTypePrefix, "Review ItemTypePrefix should have expected value.");
                 Assert.AreEqual(reviewArtifact.CreatedOn, review.CreatedDate, "Review CreatedDate should have expected value.");
-                Assert.IsTrue((review.Status >= 0) && (review.Status < 3), "Review status should be in the expected range.");
+                Assert.AreEqual(reviewArtifact.ReviewStatus, review.Status, "Review status should should have expected value.");
+                Assert.IsTrue(reviewArtifact.IsFormal, "Sealed baseline can be use in Formal reviews only.");
+                Assert.IsNotEmpty(reviewArtifact.ReviewLink, "Review link shouldn't be empty.");
             }
         }
 

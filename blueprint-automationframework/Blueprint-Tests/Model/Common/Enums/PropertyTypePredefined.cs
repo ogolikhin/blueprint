@@ -50,6 +50,10 @@ namespace Model.Common.Enums
         BaselineIsDataAnalyticsAvailable = 4137,
         BaselineTimestamp = 4138,
         BaselineIsSealed = 4139,
+        BaselineCurrentClientUtcTime = 4140, // TODO: test for it?
+        ReviewStatus = 4141,
+        ReviewLink = 4142,
+        ReviewIsFormal = 4143,
 
         X = 8193,
         Y = 8194,

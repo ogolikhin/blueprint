@@ -96,6 +96,7 @@
     <Compile Include="ModelHelpers\ArtifactStateWrapper.cs" />
     <Compile Include="ModelHelpers\ArtifactWrapper.cs" />
     <Compile Include="ModelHelpers\IHaveAnId.cs" />
+    <Compile Include="ArtifactModel\Impl\Review.cs" />
     <Compile Include="NovaModel\Impl\ReferencedReviewArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\SubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />

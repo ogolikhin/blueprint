@@ -596,7 +596,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            string expectedErrorMessage = "Baseline timestamp date is from the future.";
+            string expectedErrorMessage = "Baseline timestamp should be between project creation date and current time.";
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp, expectedErrorMessage);
         }
 

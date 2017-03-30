@@ -558,8 +558,11 @@ namespace ArtifactStoreTests
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
+            ThrowIf.ArgumentNull(artifactName, nameof(artifactName));
+            var skipIndicatorFlags = artifactName.Equals("UI Mockup") || artifactName.Equals("MainUseCase") ? true : false;
+
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author,
-                expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true);
+                expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact, skipCreatedBy: true, skipIndicatorFlags: skipIndicatorFlags);
 
             // Publish the copied artifact so we can add a breakpoint and check it in the UI.
             WrappedArtifact.Publish(author);

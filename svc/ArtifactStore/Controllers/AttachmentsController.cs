@@ -15,20 +15,20 @@ namespace ArtifactStore.Controllers
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
     public class AttachmentsController : LoggableApiController
-    {       
+    {
         internal readonly IAttachmentsRepository AttachmentsRepository;
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         internal readonly IArtifactVersionsRepository ArtifactVersionsRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Attachments";
 
-        public AttachmentsController() : this(new SqlAttachmentsRepository(), 
-            new SqlArtifactPermissionsRepository(), 
+        public AttachmentsController() : this(new SqlAttachmentsRepository(),
+            new SqlArtifactPermissionsRepository(),
             new SqlArtifactVersionsRepository())
         {
         }
-        public AttachmentsController(IAttachmentsRepository attachmentsRepository, 
-            IArtifactPermissionsRepository artifactPermissionsRepository, 
+        public AttachmentsController(IAttachmentsRepository attachmentsRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
             IArtifactVersionsRepository artifactVersionsRepository) : base()
         {
             AttachmentsRepository = attachmentsRepository;
@@ -49,9 +49,14 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/attachment"), SessionRequired]
         [ActionName("GetAttachmentsAndDocumentReferences")]
-        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int? versionId = null, int? subArtifactId = null,  bool addDrafts = true)
+        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(
+            int artifactId,
+            int? versionId = null,
+            int? subArtifactId = null,
+            bool addDrafts = true,
+            int? baselineId = null)
         {
-            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
+            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1) || (versionId != null && baselineId != null))
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
@@ -76,7 +81,7 @@ namespace ArtifactStore.Controllers
                     throw new HttpResponseException(HttpStatusCode.BadRequest);
                 }
             }
-            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts);
+            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts, baselineId);
             var artifactIds = new List<int> { artifactId };
             foreach (var documentReference in result.DocumentReferences)
             {

@@ -21,8 +21,6 @@ namespace ArtifactStore.Repositories
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly IUsersRepository UserRepository;
         private readonly ISqlItemInfoRepository ItemInfoRepository;
-        private readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
-
 
         public SqlAttachmentsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlUsersRepository())
@@ -34,7 +32,6 @@ namespace ArtifactStore.Repositories
             ConnectionWrapper = connectionWrapper;
             UserRepository = userRepository;
             ItemInfoRepository = new SqlItemInfoRepository(connectionWrapper);
-            ArtifactPermissionsRepository = new SqlArtifactPermissionsRepository(connectionWrapper);
         }
 
         private async Task<IEnumerable<Attachment>> GetAttachments(int itemId, int userId, int revisionId = int.MaxValue, bool addDrafts = true)

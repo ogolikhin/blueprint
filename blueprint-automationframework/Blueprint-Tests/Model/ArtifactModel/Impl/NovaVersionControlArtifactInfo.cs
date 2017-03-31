@@ -24,6 +24,7 @@ namespace Model.ArtifactModel.Impl
         public DateTime? LockedDateTime { get; set; }
         public Identification DeletedByUser { get; set; }
         public DateTime? DeletedDateTime { get; set; }
+        public bool? IsInBaseline { get; set; }
 
         #endregion Serialized JSON Properties
     }

@@ -215,7 +215,7 @@ namespace ArtifactStoreTests
             var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, author);
             Assert.AreEqual(numberOfVersions, artifactHistoryBefore[0].VersionId, "Version ID before Nova publish should be {0}!", numberOfVersions);
 
-            artifactWithMultipleVersions.SaveWithNewDescription(author, artifactWithMultipleVersions.Artifact);    // Now save to make a draft.
+            artifactWithMultipleVersions.SaveWithNewDescription(author);    // Now save to make a draft.
 
             // Execute:
             INovaArtifactsAndProjectsResponse publishResponse = null;
@@ -283,7 +283,7 @@ namespace ArtifactStoreTests
                 var artifactHistoryBefore = Helper.ArtifactStore.GetArtifactHistory(artifactWithMultipleVersions.Id, _user);
                 Assert.AreEqual(numberOfVersions, artifactHistoryBefore[0].VersionId, "Version ID before Nova publish should be {0}!", numberOfVersions);
 
-                artifactWithMultipleVersions.SaveWithNewDescription(_user, artifactWithMultipleVersions.Artifact);    // Now save to make a draft.
+                artifactWithMultipleVersions.SaveWithNewDescription(_user);    // Now save to make a draft.
             }
 
             // Execute:

@@ -31,6 +31,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
         }
 
         [TearDown]

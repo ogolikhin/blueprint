@@ -181,12 +181,13 @@ namespace Helper
         }
 
         /// <summary>
-        /// Asserts that the properties of the Nova artifact response match with the specified artifact (but don't check the versions).
+        /// Asserts that the properties of the Nova artifact response match with the specified artifact.
         /// Some properties are expected to be null.
         /// </summary>
         /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>
         /// <param name="artifact">The artifact to compare against.</param>
-        /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.  By default it compares the version of the NovaArtifactResponse with the artifact.</param>
+        /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.
+        ///     By default it compares the version of the NovaArtifactResponse with the artifact.</param>
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
             INovaArtifactResponse novaArtifactResponse,
             INovaArtifactDetails artifact,
@@ -249,7 +250,7 @@ namespace Helper
         /// Asserts that the response from the Nova call contains all the specified artifacts and that they now have the correct version.
         /// </summary>
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
-        /// <param name="artifacts">The OpenApi artifacts that we sent to the Nova call.</param>
+        /// <param name="artifacts">The artifacts that we sent to the Nova call.</param>
         /// <param name="expectedVersion">The version expected in the artifacts.</param>
         public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(
             INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
@@ -512,7 +513,7 @@ namespace Helper
         /// Asserts that both NovaSubArtifact objects are equal.
         /// </summary>
         /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>
-        /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
+        /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NovaSubArtifact.</param>
         /// <param name="artifactStore">An ArtifactStore to make REST calls to.</param>
         /// <param name="user">User to authenticate with.</param>
         /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
@@ -596,12 +597,12 @@ namespace Helper
         }
 
         /// <summary>
-        /// Compares two lists of Custom properties
+        /// Compares two lists of Custom properties.
         /// </summary>
         /// <param name="expectedPropertyValues">List of expected Custom Properties</param>
         /// <param name="actualPropertyValues">List of actual Custom Properties</param>
-        /// <param name="skipVirtualProperties">(Optional) Set true to skip coparing properties with empty 'name' or 'typeid' -1.
-        /// Set 'true' for Specific properties</param>
+        /// <param name="skipVirtualProperties">(Optional) Set true to skip comparing properties with empty 'name' or 'typeid' -1.
+        ///     Set 'true' when comparing Specific properties.</param>
         private static void ComparePropertyValuesLists(List<CustomProperty> expectedPropertyValues,
             List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false)
         {

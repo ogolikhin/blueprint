@@ -37,13 +37,14 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Deletes this artifact.  (You must publish after deleting to make the delete permanent).
+        /// Copies this artifact (and any children) to a new location.
         /// </summary>
-        /// <param name="user">The user to perform the delete.</param>
+        /// <param name="user">The user to perform the copy.</param>
         /// <param name="newParentId">The ID of the new parent where this artifact will be copied to.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
-        /// <returns>A list of artifacts that were deleted.</returns>
+        /// <returns>The copy results and a list of artifacts that were copied.  The first item in the list is the main artifact that you copied.
+        ///     If the artifact had any children, the copied children will also be in the list.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
         public Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> CopyTo(IUser user, int newParentId, double? orderIndex = null)
         {
@@ -94,7 +95,7 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Deletes this artifact.  (You must publish after deleting to make the delete permanent).
+        /// Deletes this artifact.  (If this artifact is published, you must publish after deleting to make the delete permanent).
         /// </summary>
         /// <param name="user">The user to perform the delete.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
@@ -104,13 +105,21 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.DeleteArtifact(Artifact.Id, user);
 
-            ArtifactState.IsMarkedForDeletion = true;
+            // If the artifact was published, you need to publish after delete to permanently delete it.
+            if (ArtifactState.IsPublished)
+            {
+                ArtifactState.IsMarkedForDeletion = true;
+            }
+            else
+            {
+                ArtifactState.IsDeleted = true;
+            }
 
             return response;
         }
 
         /// <summary>
-        /// Discards all unpublished changes for this artifact.
+        /// Discards all unpublished changes for this artifact.  If the artifact was never published, the discard effectively deletes the artifact.
         /// </summary>
         /// <param name="user">The user to perform the discard.</param>
         /// <returns>An object containing a list of artifacts that were discarded and their projects.</returns>
@@ -121,9 +130,16 @@ namespace Model.ModelHelpers
             // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
             var response = Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
 
-            ArtifactState.IsDraft = true;
-            ArtifactState.IsMarkedForDeletion = false;
-            ArtifactState.LockOwner = null;
+            if (ArtifactState.IsPublished)
+            {
+                ArtifactState.IsDraft = true;
+                ArtifactState.IsMarkedForDeletion = false;
+                ArtifactState.LockOwner = null;
+            }
+            else
+            {
+                ArtifactState.IsDeleted = true;
+            }
 
             return response;
         }
@@ -168,34 +184,30 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Updates the artifact with the properties specified in the updateArtifact.
+        /// Updates this artifact with a new random Description.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
-        /// <param name="thisArtifact">This should be the artifact that this object is wrapping.</param>
         /// <returns>The updated artifact.</returns>
-        public ArtifactWrapper SaveWithNewDescription(IUser user, INovaArtifactBase thisArtifact)
+        public ArtifactWrapper SaveWithNewDescription(IUser user)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(thisArtifact, nameof(thisArtifact));
-
-            Assert.AreEqual(Artifact.Id, thisArtifact.Id, "The '{0}' parameter isn't this artifact!", nameof(thisArtifact));
 
             var changes = new NovaArtifactDetails
             {
-                Id = thisArtifact.Id,
-                ProjectId = thisArtifact.ProjectId,
-                Version = thisArtifact.Version,
+                Id = Artifact.Id,
+                ProjectId = Artifact.ProjectId,
+                Version = Artifact.Version,
                 Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
             };
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, changes);
-            var wrappedArtifact = new ArtifactWrapper(updatedArtifact, ArtifactStore, SvcShared, user);
+            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
-            return wrappedArtifact;
+            return this;
         }
 
         /// <summary>
-        /// Updates the artifact with the properties specified in the updateArtifact.
+        /// Updates this artifact with the properties specified in the updateArtifact.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
@@ -204,11 +216,12 @@ namespace Model.ModelHelpers
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
-            var response = ArtifactStore.UpdateArtifact(user, updateArtifact);
+            var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
+            CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
             ArtifactState.IsDraft = true;
 
-            return response;
+            return updatedArtifact;
         }
 
         #region INovaArtifactObservable members

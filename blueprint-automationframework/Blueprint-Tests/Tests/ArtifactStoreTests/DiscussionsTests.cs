@@ -592,7 +592,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() =>
             {
                 postedRaptorComment = Helper.SvcComponents.PostRapidReviewDiscussion(_authorUser, artifact.Id, ORIGINAL_COMMENT);
-                artifact.SaveWithNewDescription(_authorUser, artifact.Artifact);
+                artifact.SaveWithNewDescription(_authorUser);
                 artifact.Publish(_authorUser);  //artifact version is 3
                 discussions = Helper.ArtifactStore.GetArtifactDiscussions(artifact.Id, _adminUser);
             }, "UpdateDiscussions and GetDiscussion shouldn't throw any error.");

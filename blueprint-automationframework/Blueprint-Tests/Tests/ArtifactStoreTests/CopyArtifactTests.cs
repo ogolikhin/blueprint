@@ -1581,7 +1581,7 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
-        /// Copies the specified artifact to the new parent, wraps it in an IArtifact that gets disposed automatically,
+        /// Copies the specified artifact to the new parent, wraps it in an ArtifactWrapper that gets disposed automatically,
         /// and returns the result of the CopyArtifact call.
         /// </summary>
         /// <param name="artifact">The artifact to copy.</param>

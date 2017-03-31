@@ -245,6 +245,7 @@ namespace ServiceLibrary.Repositories
                 {
                     return await GetRevisionIdByTime(snapTime.Value);
                 }
+                return int.MaxValue;
             }
             return -1;
         }

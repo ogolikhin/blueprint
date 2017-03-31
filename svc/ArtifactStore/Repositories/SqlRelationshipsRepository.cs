@@ -157,9 +157,15 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
-        public async Task<RelationshipResultSet> GetRelationships(int artifactId, int userId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
+        public async Task<RelationshipResultSet> GetRelationships(
+            int artifactId, 
+            int userId, 
+            int? subArtifactId = null, 
+            bool addDrafts = true, 
+            int? versionId = null,
+            int? baselineId = null)
         {
-            var revisionId = await GetRevisionId(artifactId, versionId);
+            var revisionId = await _itemInfoRepository.GetRevisionId(artifactId, userId, versionId, baselineId);
             var itemId = subArtifactId ?? artifactId;
             var types = new List<int> { (int)LinkType.Manual,
                                         (int)LinkType.Association,
@@ -209,7 +215,6 @@ namespace ArtifactStore.Repositories
             var itemLabelsDictionary = (await _itemInfoRepository.GetItemsLabels(userId, distinctItemIds, true, revisionId)).ToDictionary(a => a.ItemId);
             PopulateRelationshipInfos(manualTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
             PopulateRelationshipInfos(otherTraceRelationships, itemDetailsDictionary, itemLabelsDictionary);
-
             return new RelationshipResultSet
             {
                 RevisionId = revisionId,
@@ -252,21 +257,31 @@ namespace ArtifactStore.Repositories
 
         public async Task<ReviewRelationshipsResultSet> GetReviewRelationships(int artifactId, int userId, bool addDrafts = true, int? versionId = null)
         {
-            var revisionId = await GetRevisionId(artifactId, versionId);
+            var revisionId = await _itemInfoRepository.GetRevisionId(artifactId, userId, versionId);
             var reviewType = new List<int> { (int)LinkType.ReviewPackageReference };
             var reviewLinks = (await GetLinkInfo(artifactId, userId, addDrafts, revisionId, reviewType)).ToList();
             var result = new ReviewRelationshipsResultSet { };
             if (reviewLinks != null)
             {
                 var distinctReviewIds = reviewLinks.Select(a => a.SourceItemId).Distinct().ToList();
-                var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, distinctReviewIds, true, revisionId))
+                var reviewIdsWithAccess = new List<int>();
+                var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(distinctReviewIds, userId);
+                foreach (var reviewId in distinctReviewIds)
+                {
+                    if (HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))
+                    {
+                        reviewIdsWithAccess.Add(reviewId);
+                    }
+                }
+
+                var itemDetailsDictionary = (await _itemInfoRepository.GetItemsDetails(userId, reviewIdsWithAccess, true, revisionId))
                     .ToDictionary(a => a.HolderId);
-                var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, distinctReviewIds, true, revisionId))
+                var itemRawDataDictionary = (await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, reviewIdsWithAccess, true, revisionId))
                     .ToDictionary(a => a.ItemId);
                 var referencedReviewArtifacts = new List<ReferencedReviewArtifact>();
                 ItemRawDataCreatedDate itemRawDataCreatedDate;
                 ItemDetails itemDetails;
-                foreach (var reviewId in distinctReviewIds)
+                foreach (var reviewId in reviewIdsWithAccess)
                 {
                     if ((itemRawDataDictionary.TryGetValue(reviewId, out itemRawDataCreatedDate)) && (itemDetailsDictionary.TryGetValue(reviewId, out itemDetails)))
                     {
@@ -285,15 +300,10 @@ namespace ArtifactStore.Repositories
             }
             return result;
         }
-
-        private async Task<int> GetRevisionId(int artifactId, int? versionId)
+        private bool HasPermissions(int itemId, Dictionary<int, RolePermissions> permissions, RolePermissions permissionType)
         {
-            var revisionId = versionId.HasValue ? await _itemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value) : int.MaxValue;
-            if (revisionId <= 0)
-            {
-                throw new ResourceNotFoundException($"Version index (Id:{versionId}) is not found.", ErrorCodes.ResourceNotFound);
-            }
-            return revisionId;
+            RolePermissions permission;
+            return permissions.TryGetValue(itemId, out permission) && permission.HasFlag(permissionType);
         }
     }
 }

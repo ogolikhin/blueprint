@@ -277,7 +277,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId);
+            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
         }
 
         [TestMethod]
@@ -305,7 +305,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId);
+            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
         }
 
         [TestMethod]
@@ -333,7 +333,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId);
+            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
         }
 
         [TestMethod]
@@ -361,7 +361,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId);
+            await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
         }
 
         [TestMethod]
@@ -388,7 +388,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();
@@ -419,7 +419,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();
@@ -455,7 +455,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();
@@ -491,7 +491,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();
@@ -529,7 +529,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();
@@ -565,7 +565,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();
@@ -599,7 +599,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();
@@ -633,7 +633,7 @@ namespace ArtifactStore.Repositories
                 connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
 
             // Act
-            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, userId));
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
 
             // Assert
             connectionWrapperMock.Verify();

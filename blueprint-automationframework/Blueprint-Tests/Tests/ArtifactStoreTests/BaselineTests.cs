@@ -453,7 +453,7 @@ namespace ArtifactStoreTests
 
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
             baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToRemove .Id });
-            SvcShared.LockArtifacts(((NovaServiceBase)(Helper.SvcShared)).Address, _user, new List<int> { baseline.Id });
+            Helper.SvcShared.LockArtifacts(_user, new List<int> { baseline.Id });
             
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -501,7 +501,7 @@ namespace ArtifactStoreTests
             var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
-            SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
+            Helper.SvcShared.LockArtifacts(_adminUser, new List<int> { baseline.Id });
 
             var sealedDate = DateTime.UtcNow.AddMinutes(-1);
             baseline.SetUtcTimestamp(sealedDate);
@@ -596,7 +596,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            string expectedErrorMessage = "Baseline timestamp date is from the future.";
+            string expectedErrorMessage = "Baseline timestamp should be between project creation date and current time.";
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp, expectedErrorMessage);
         }
 
@@ -678,8 +678,7 @@ namespace ArtifactStoreTests
                 new List<int> { artifactToAdd.Id });
 
             Helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, _user);
-
-            ArtifactStore.DeleteArtifact(Helper.ArtifactStore.Address, artifactToAdd.Id, _user);
+            Helper.ArtifactStore.DeleteArtifact(artifactToAdd.Id, _user);
 
             var baseline = Helper.CreateBaseline(_user, _project);
 
@@ -727,7 +726,7 @@ namespace ArtifactStoreTests
             var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
 
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
-            SvcShared.LockArtifacts(Helper.ArtifactStore.Address, _adminUser, new List<int> { baseline.Id });
+            Helper.SvcShared.LockArtifacts(_adminUser, new List<int> { baseline.Id });
 
             baseline.SetIsAvailableInAnalytics(true);
 
@@ -790,11 +789,13 @@ namespace ArtifactStoreTests
             Assert.AreEqual(3, reviews.reviewArtifacts.Count, "List should have expected number of reviews.");
             foreach (var review in reviews.reviewArtifacts)
             {
-                var reviewArtifact = Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
+                var reviewArtifact = (Review)Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
                 Assert.AreEqual(reviewArtifact.Name, review.ItemName, "Review name should have expected value.");
                 Assert.AreEqual(reviewArtifact.Prefix, review.ItemTypePrefix, "Review ItemTypePrefix should have expected value.");
                 Assert.AreEqual(reviewArtifact.CreatedOn, review.CreatedDate, "Review CreatedDate should have expected value.");
-                Assert.IsTrue((review.Status >= 0) && (review.Status < 3), "Review status should be in the expected range.");
+                Assert.AreEqual(reviewArtifact.ReviewStatus, review.Status, "Review status should should have expected value.");
+                Assert.IsTrue(reviewArtifact.IsFormal, "Sealed baseline can be use in Formal reviews only.");
+                Assert.IsNotEmpty(reviewArtifact.ReviewLink, "Review link shouldn't be empty.");
             }
         }
 

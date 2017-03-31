@@ -119,13 +119,58 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
-        public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var deletedArtifacts = DeleteArtifact(Address, artifact, user, expectedStatusCodes);
+            var deletedArtifacts = DeleteArtifact(artifact.Id, user, expectedStatusCodes);
 
-            return deletedArtifacts;
+            var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
+
+            // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
+            foreach (var deletedArtifact in deletedArtifacts)
+            {
+                Logger.WriteDebug("DeleteArtifact() returned following artifact Id: {0}", deletedArtifact.Id);
+
+                // Hack: This is needed until we can refactor ArtifactBase better.
+                var deletedArtifactResult = new OpenApiDeleteArtifactResult
+                {
+                    ArtifactId = deletedArtifact.Id,
+                    ResultCode = HttpStatusCode.OK
+                };
+
+                // Add all other artifacts that were deleted as a result of the artifact being deleted.
+                var artifaceBaseToDelete = artifact as ArtifactBase;
+                artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                if (deletedArtifact.Id == artifact.Id)
+                {
+                    // If the artifact was published, it will require another publish to really delete the artifact.
+                    // If the artifact was never published, no other users can see it, so deleting it will permanently delete it.
+                    if (artifact.IsPublished)
+                    {
+                        artifact.IsMarkedForDeletion = true;
+                    }
+                    else
+                    {
+                        artifact.IsDeleted = true;
+                    }
+                }
+            }
+
+            return deletedArtifactsToReturn;
+        }
+
+        /// <seealso cref="IArtifactStore.DeleteArtifact(int, IUser, List{HttpStatusCode})"/>
+        public List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.DiscardArtifact(IArtifactBase, IUser, bool?, List{HttpStatusCode})"/>
@@ -188,7 +233,7 @@ namespace Model.Impl
             return artifactTypes;
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, bool?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
         public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -1184,78 +1229,6 @@ namespace Model.Impl
                 shouldControlJsonChanges: false);
 
             return newArtifact;
-        }
-
-        /// <summary>
-        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifact">The artifact to delete.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A list of artifacts that were deleted.</returns>
-        public static List<INovaArtifactResponse> DeleteArtifact(string address, IArtifactBase artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            var deletedArtifacts = DeleteArtifact(address, artifact.Id, user, expectedStatusCodes);
-
-            var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
-
-            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
-            {
-                // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
-                foreach (var deletedArtifact in deletedArtifacts)
-                {
-                    Logger.WriteDebug("DeleteArtifact() returned following artifact Id: {0}", deletedArtifact.Id);
-
-                    var artifaceBaseToDelete = artifact as ArtifactBase;
-
-                    // Hack: This is needed until we can refactor ArtifactBase better.
-                    var deletedArtifactResult = new OpenApiDeleteArtifactResult
-                    {
-                        ArtifactId = deletedArtifact.Id,
-                        ResultCode = HttpStatusCode.OK
-                    };
-
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifact.Id == artifact.Id)
-                    {
-                        if (artifact.IsPublished)
-                        {
-                            artifact.IsMarkedForDeletion = true;
-                        }
-                        else
-                        {
-                            artifact.IsDeleted = true;
-                        }
-                    }
-                }
-            }
-
-            return deletedArtifactsToReturn;
-        }
-
-        /// <summary>
-        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
-        /// Runs DELETE svc/bpartifactstore/artifacts/{0}
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifactId">The Id of artifact to delete.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A list of artifacts that were deleted.</returns>
-        public static List<NovaArtifactResponse> DeleteArtifact(string address, int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
-                path,
-                RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <summary>

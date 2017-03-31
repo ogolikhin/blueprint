@@ -133,11 +133,23 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <seealso cref="IArtifact.Lock(IUser, LockResult, List{HttpStatusCode})"/>
-        public LockResultInfo Lock(IUser user = null,
+        public LockResultInfo Lock(
+            IUser user = null,
             LockResult expectedLockResult = LockResult.Success,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            return Lock(this, Address, user, expectedLockResult, expectedStatusCodes);
+            user = user ?? CreatedBy;
+
+            var service = SvcSharedFactory.GetSvcSharedFromTestConfig();
+            var lockResults = service.LockArtifact(user, Id, expectedStatusCodes);
+
+            Assert.AreEqual(1, lockResults.Count, "Multiple lock artifact results were returned when 1 was expected.");
+
+            UpdateStatusOfArtifactsThatWereLocked(lockResults, user,
+                artifactsToLock: new List<IArtifactBase> { this },
+                expectedLockResults: new List<LockResult> { expectedLockResult });
+
+            return lockResults[0];
         }
 
         /// <seealso cref="IArtifact.GetArtifactInfo(IUser, List{HttpStatusCode})"/>
@@ -383,7 +395,8 @@ namespace Model.ArtifactModel.Impl
             {
                 if (shouldGetLockForUpdate)
                 {
-                    Lock(artifactToSave, artifactToSave.Address, user);
+                    var service = SvcSharedFactory.GetSvcSharedFromTestConfig();
+                    service.LockArtifact(user, artifactToSave);
                 }
 
                 UpdateArtifact(artifactToSave, user, expectedStatusCodes: expectedStatusCodes);
@@ -597,49 +610,9 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <summary>
-        /// Lock an Artifact.
-        /// (Runs:  POST /svc/shared/artifacts/lock  with artifact ID in the request body)
-        /// </summary>
-        /// <param name="artifact">The artifact to lock.</param>
-        /// <param name="address">The base url of the API.</param>
-        /// <param name="user">(optional) The user locking the artifact.  If null, it will use the user that created the artifact.</param>
-        /// <param name="expectedLockResult">(optional) The expected LockResult returned in the JSON body.  This is only checked if StatusCode = 200.
-        ///     If null, only Success is expected.</param>
-        /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
-        /// <returns>The artifact lock result information</returns>
-        public static LockResultInfo Lock(IArtifactBase artifact,
-            string address,
-            IUser user = null,
-            LockResult expectedLockResult = LockResult.Success,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            if (user == null)
-            {
-                Assert.NotNull(artifact?.CreatedBy, "No user is available to lock the artifact.");
-                user = artifact?.CreatedBy;
-            }
-
-            var artifactToLock = new List<IArtifactBase> { artifact };
-
-            var artifactLockResults = LockArtifacts(
-                artifactToLock,
-                address,
-                user,
-                new List<LockResult> { expectedLockResult },
-                expectedStatusCodes);
-
-            Assert.AreEqual(1, artifactLockResults.Count, "Multiple lock artifact results were returned when 1 was expected.");
-
-            var artifactLockResult = artifactLockResults.First();
-
-            return artifactLockResult;
-        }
-
-        /// <summary>
         /// Lock Artifact(s).
         /// (Runs:  'POST /svc/shared/artifacts/lock'  with artifact IDs in the request body)
         /// </summary>
-        /// <param name="address">The base URL of the Blueprint server.</param>
         /// <param name="user">The user locking the artifact.</param>
         /// <param name="artifactsToLock">The list of artifacts to lock.</param>
         /// <param name="expectedLockResults">(optional) A list of expected LockResults returned in the JSON body.  This is only checked if StatusCode = 200.
@@ -647,12 +620,12 @@ namespace Model.ArtifactModel.Impl
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes.  If null, only '200 OK' is expected.</param>
         /// <returns>List of LockResultInfo for the locked artifacts.</returns>
         public static List<LockResultInfo> LockArtifacts(List<IArtifactBase> artifactsToLock,
-            string address,
             IUser user,
             List<LockResult> expectedLockResults = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
-            var lockResults = SvcShared.LockArtifacts(address, user, artifactsToLock, expectedStatusCodes);
+            var service = SvcSharedFactory.GetSvcSharedFromTestConfig();
+            var lockResults = service.LockArtifacts(user, artifactsToLock, expectedStatusCodes);
 
             UpdateStatusOfArtifactsThatWereLocked(lockResults, user, artifactsToLock, expectedLockResults);
 

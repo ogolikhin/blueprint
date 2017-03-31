@@ -54,13 +54,13 @@ namespace ArtifactStoreTests
 
         #region 200 OK Tests
 
-        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
+        [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForNovaRestMethods))]
         [TestRail(154601)]
         [Description("Create & publish an artifact, GetArtifactDetails.  Verify the artifact details are returned.")]
-        public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(BaseArtifactType artifactType)
+        public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(ItemTypePredefined artifactType)
         {
-            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, artifactType);
-            var retrievedArtifact = OpenApi.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _projects[0], artifactType);
+            var retrievedArtifact = OpenApi.GetArtifact(Helper.OpenApi.Address, _projects[0], artifact.Id, _user);
 
             INovaArtifactDetails artifactDetails = null;
 
@@ -72,6 +72,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
+            NovaArtifactDetails.AssertArtifactsEqual(artifact, artifactDetails);
 
             Assert.AreEqual(RolePermissions.Read, artifactDetails.Permissions, "Viewer should have read permissions (i.e. 1)!");
         }

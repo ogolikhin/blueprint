@@ -146,33 +146,6 @@ namespace ArtifactStore.Repositories
             Assert.AreEqual(3, result.ManualTraces[0].ItemId);
             Assert.AreEqual(2, result.ManualTraces[0].ArtifactId);
         }
-
-        [ExpectedException(typeof(ResourceNotFoundException))]
-        [TestMethod]
-        public async Task GetRelationships_ArtifactVersionNotFound_ThrowExceprion()
-        {
-            //Arrange
-            const int artifactId = 1;
-            const int userId = 2;
-            const int versionId = 3;
-            const int revisionId = 0;
-            const bool addDrafts = false;
-
-            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
-
-            try
-            {
-                //Act
-                await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                //Assert
-                Assert.AreEqual(ErrorCodes.ResourceNotFound, ex.ErrorCode);
-                throw;
-            }
-        }
-
         [TestMethod]
         public async Task GetRelationships_ArtifactVersionExists_Success()
         {
@@ -183,7 +156,7 @@ namespace ArtifactStore.Repositories
             const int revisionId = 999;
             const bool addDrafts = false;
 
-            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
             var mockLinkInfoList = new List<LinkInfo>
             {
@@ -246,7 +219,7 @@ namespace ArtifactStore.Repositories
             const bool isDeleted = false;
             const string description = "artifact description";
 
-            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(int.MaxValue);
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(int.MaxValue);
 
             var pathToRoot = new List<ItemIdItemNameParentId>
             {
@@ -316,6 +289,9 @@ namespace ArtifactStore.Repositories
                         Prefix = "ReviewPrefix"
                     }
                 });
+            var permisionDictionary = new Dictionary<int, RolePermissions>();
+            permisionDictionary.Add(2, RolePermissions.Read);
+            _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), userId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
 
             // Act
             var result = await _relationshipsRepository.GetReviewRelationships(itemId, userId, addDrafts);
@@ -358,7 +334,7 @@ namespace ArtifactStore.Repositories
 
             _artifactPermissionsRepositoryMock.Setup(p => p.GetItemInfo(actorInheritsFromLink.DestinationArtifactId, userId, addDrafts, revisionId)).ReturnsAsync(null);
 
-            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
             //Act
             var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);
@@ -403,7 +379,7 @@ namespace ArtifactStore.Repositories
 
             _artifactPermissionsRepositoryMock.Setup(p => p.GetItemInfo(actorInheritsFromLink.DestinationArtifactId, userId, addDrafts, revisionId)).ReturnsAsync(baseActor);
 
-            _itemInfoRepositoryMock.Setup(m => m.GetRevisionIdByVersionIndex(artifactId, versionId)).ReturnsAsync(revisionId);
+            _itemInfoRepositoryMock.Setup(m => m.GetRevisionId(artifactId, userId, versionId, null)).ReturnsAsync(revisionId);
 
             //Act
             var relationships = await _relationshipsRepository.GetRelationships(artifactId, userId, It.IsAny<int?>(), addDrafts, versionId);

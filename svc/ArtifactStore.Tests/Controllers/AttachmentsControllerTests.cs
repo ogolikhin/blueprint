@@ -130,7 +130,7 @@ namespace ArtifactStore.Controllers
             bool addDrafts = true;
 
             _artifactPermissionsRepositoryMock.Setup(a => a.GetItemInfo(1, 1, true, int.MaxValue)).ReturnsAsync(new ItemInfo { ArtifactId = 1 });
-            _attachmentsRepositoryMock.Setup(a => a.GetAttachmentsAndDocumentReferences(artifactId, 1, versionId, subArtifactId, true))
+            _attachmentsRepositoryMock.Setup(a => a.GetAttachmentsAndDocumentReferences(artifactId, 1, versionId, subArtifactId, true, null))
                 .ReturnsAsync(new FilesInfo(new List<Attachment>(), new List<DocumentReference>()));
             _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissionsInChunks(new List<int> { 1 }, 1, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { {1, RolePermissions.None } });
@@ -162,7 +162,7 @@ namespace ArtifactStore.Controllers
             bool addDrafts = true;
 
             _artifactPermissionsRepositoryMock.Setup(a => a.GetItemInfo(1, 1, true, int.MaxValue)).ReturnsAsync(new ItemInfo { ArtifactId = 1 });
-            _attachmentsRepositoryMock.Setup(a => a.GetAttachmentsAndDocumentReferences(artifactId, 1, versionId, subArtifactId, true))
+            _attachmentsRepositoryMock.Setup(a => a.GetAttachmentsAndDocumentReferences(artifactId, 1, versionId, subArtifactId, true, null))
                 .ReturnsAsync(
                 new FilesInfo(
                     new List<Attachment> { new Attachment { AttachmentId = 123 } }, 

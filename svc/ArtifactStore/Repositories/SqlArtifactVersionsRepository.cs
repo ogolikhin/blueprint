@@ -177,9 +177,19 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
+        private async Task<bool> IsArtifactInBaseline(int artifactId, int baselineId, int userId)
+        {
+            var baselinArtifacts = await _artifactPermissionsRepository.GetBaselineArtifacts(baselineId, userId);
+            if (baselinArtifacts != null)
+            {
+                return baselinArtifacts.Contains(artifactId);
+            }
+            return false;
+        }
+
         #region GetVersionControlArtifactInfoAsync
 
-        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int userId)
+        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId, int userId)
         {
             DynamicParameters dynamicParameters = new DynamicParameters();
             dynamicParameters.Add("@userId", userId);
@@ -239,6 +249,11 @@ namespace ArtifactStore.Repositories
                     : null;
             }
             artifactInfo.Permissions = itemIdsPermissions[artifactBasicDetails.ArtifactId];
+
+            if (baselineId != null)
+            {
+                artifactInfo.IsInBaseline = await IsArtifactInBaseline(artifactBasicDetails.ArtifactId, baselineId.Value, userId);                
+            }
             return artifactInfo;
         }
 

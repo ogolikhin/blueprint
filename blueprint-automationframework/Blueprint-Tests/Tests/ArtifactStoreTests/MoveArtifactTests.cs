@@ -345,7 +345,7 @@ namespace ArtifactStoreTests
             var parentFolder = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
             var artifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _authorUser, artifactType, numberOfArtifacts, parentFolder);
 
-            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _authorUser);
+            Helper.SvcShared.LockArtifact(_authorUser, artifacts[whichArtifact]);
 
             // Execute:
             Assert.DoesNotThrow(() =>
@@ -386,7 +386,7 @@ namespace ArtifactStoreTests
                 artifacts.Add(Helper.CreateWrapAndPublishNovaArtifact(_project, _authorUser, artifactType, parentFolder.Id, baseType: fakeBaseType));
             }
 
-            Artifact.Lock(artifacts[whichArtifact], Helper.ArtifactStore.Address, _authorUser);
+            Helper.SvcShared.LockArtifact(_authorUser, artifacts[whichArtifact]);
 
             // Execute:
             Assert.DoesNotThrow(() =>

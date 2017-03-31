@@ -333,6 +333,8 @@ Artifact_Baseline_Save_Warning, "Baseline is going to be saved. Do you want to c
 Artifact_Baseline_Seal_Warning, "Sealing a Baseline finalizes its contents, and they will not be updated to reflect any further changes you make to them. Once sealed, a Baseline cannot be unsealed or deleted. Please confirm that you want to permanently seal this Baseline."
 Artifact_Baseline_Seal_Confirm, "Seal Baseline"
 Artifact_Baseline_TimestampChangeOnSave_WarningMessage, "Are you sure you want to apply this Timestamp to your Baseline? If you do, you will permanently remove the following artifacts, since they did not exist on the date you have selected: "
+Included_in_baseline, "Included in Baseline {0}."
+Navigated_from_baseline, "Navigated from Baseline {0}."
 Artifact_Collection_Content_Header,"Collection Contents"
 Artifact_Collection_Edit_Rapid_Review,"Edit Rapid Review"
 Artifact_Collection_No_Artifacts_In_Collection,"There are no artifacts in this Collection"

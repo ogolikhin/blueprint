@@ -313,6 +313,8 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Warning', 'en-US', N'Sealing a Baseline finalizes its contents, and they will not be updated to reflect any further changes you make to them. Once sealed, a Baseline cannot be unsealed or deleted. Please confirm that you want to permanently seal this Baseline.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Confirm', 'en-US', N'Seal Baseline')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_TimestampChangeOnSave_WarningMessage', 'en-US', N'Are you sure you want to apply this Timestamp to your Baseline? If you do, you will permanently remove the following artifacts, since they did not exist on the date you have selected:')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Included_in_baseline', 'en-US', N'Included in Baseline {0}.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Navigated_from_baseline', 'en-US', N'Navigated from Baseline {0}.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Content_Header', 'en-US', N'Collection Contents')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_Edit_Rapid_Review', 'en-US', N'Edit Rapid Review')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Collection_No_Artifacts_In_Collection', 'en-US', N'There are no artifacts in this Collection')

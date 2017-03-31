@@ -16,6 +16,12 @@ namespace ArtifactStore.Repositories
     [TestClass]
     public class SqlArtifactVersionsRepositoryTests
     {
+        private Mock<ISqlItemInfoRepository> _itemInfoRepositoryMock;
+        [TestInitialize]
+        public void Initialize()
+        {
+            _itemInfoRepositoryMock = new Mock<ISqlItemInfoRepository>();
+        }
 
         [TestMethod]
         [ExpectedException (typeof(ArgumentOutOfRangeException))]
@@ -274,7 +280,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(null);
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
@@ -302,7 +308,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
@@ -330,7 +336,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { itemId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
@@ -358,7 +364,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { itemId, RolePermissions.Read }, { artifactId, RolePermissions.None } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId);
@@ -385,7 +391,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
@@ -416,7 +422,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
@@ -452,7 +458,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
@@ -488,7 +494,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
@@ -526,7 +532,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
@@ -562,7 +568,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
@@ -596,7 +602,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));
@@ -630,7 +636,7 @@ namespace ArtifactStore.Repositories
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { artifactId, RolePermissions.Read } });
 
             SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
-                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object);
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
 
             // Act
             VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(itemId, null, userId));

@@ -213,29 +213,34 @@ namespace Model.ModelHelpers
 
         #region INovaArtifactObservable members
 
+        /// <seealso cref="INovaArtifactObservable.NovaArtifactObservers"/>
         public List<INovaArtifactObserver> NovaArtifactObservers
         {
             get { return Artifact.NovaArtifactObservers; }
         }
 
+        /// <seealso cref="INovaArtifactObservable.RegisterObserver(INovaArtifactObserver)"/>
         public void RegisterObserver(INovaArtifactObserver observer)
         {
             Artifact.RegisterObserver(observer);
         }
 
+        /// <seealso cref="INovaArtifactObservable.UnregisterObserver(INovaArtifactObserver)"/>
         public void UnregisterObserver(INovaArtifactObserver observer)
         {
             Artifact.UnregisterObserver(observer);
         }
 
-        public void NotifyArtifactDeleted(List<INovaArtifactBase> deletedArtifactsList)
+        /// <seealso cref="INovaArtifactObservable.NotifyArtifactDeleted(IEnumerable{int})"/>
+        public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
         {
-            Artifact.NotifyArtifactDeleted(deletedArtifactsList);
+            Artifact.NotifyArtifactDeleted(deletedArtifactIds);
         }
 
-        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
+        /// <seealso cref="INovaArtifactObservable.NotifyArtifactPublished(IEnumerable{int})"/>
+        public void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds)
         {
-            Artifact.NotifyArtifactPublished(publishedArtifactsList);
+            Artifact.NotifyArtifactPublished(publishedArtifactIds);
         }
 
         #endregion INovaArtifactObservable members

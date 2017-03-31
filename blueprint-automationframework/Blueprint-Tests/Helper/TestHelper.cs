@@ -26,7 +26,7 @@ using Utilities.Factories;
 namespace Helper
 {
     [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is a Helper class, so this is expected to be large.
-    public class TestHelper : IDisposable, IArtifactObserver
+    public class TestHelper : IDisposable, IArtifactObserver, INovaArtifactObserver
     {
         public enum ProjectRole
         {
@@ -82,9 +82,12 @@ namespace Helper
         [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
         public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
-        public List<ArtifactWrapper> WrappedArtifacts { get; } = new List<ArtifactWrapper>();   // TODO: Dispose these artifacts and track their state...
-
         #region IArtifactObserver methods
+
+        /// <seealso cref="INovaArtifactObserver.WrappedArtifactsToDispose" />
+        public List<ArtifactWrapper> WrappedArtifactsToDispose { get; } = new List<ArtifactWrapper>();   // TODO: Dispose these artifacts and track their state...
+
+        // TODO: Change the IArtifactObserver functions below to INovaArtifactObserver functions.
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
         public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
@@ -95,7 +98,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeleted), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, artifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
@@ -107,7 +110,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactDiscarded), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, artifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
@@ -119,7 +122,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, artifactIds);
         }
 
         #endregion IArtifactObserver methods
@@ -485,7 +488,7 @@ namespace Helper
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, createdBy);
-            WrappedArtifacts.Add(wrappedArtifact);
+            WrappedArtifactsToDispose.Add(wrappedArtifact);
 
             return wrappedArtifact;
         }

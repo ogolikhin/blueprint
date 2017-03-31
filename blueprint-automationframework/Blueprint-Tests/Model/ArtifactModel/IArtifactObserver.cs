@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Model.ModelHelpers;
 
 namespace Model.ArtifactModel
 {
@@ -55,6 +56,11 @@ namespace Model.ArtifactModel
     public interface INovaArtifactObserver
     {
         /// <summary>
+        /// A list of wrapped artifacts to delete in this object's Dispose() method.
+        /// </summary>
+        List<ArtifactWrapper> WrappedArtifactsToDispose { get; }
+
+        /// <summary>
         /// Notifies this observer about artifacts that were deleted and published.
         /// </summary>
         /// <param name="deletedArtifactIds">The list of artifact IDs that were deleted.</param>
@@ -69,6 +75,9 @@ namespace Model.ArtifactModel
 
     public interface INovaArtifactObservable
     {
+        /// <summary>
+        /// A list of observers to listen for state changes in this artifact.
+        /// </summary>
         List<INovaArtifactObserver> NovaArtifactObservers { get; }
 
         /// <summary>
@@ -86,13 +95,13 @@ namespace Model.ArtifactModel
         /// <summary>
         /// Notifies all registered observers about artifacts that were deleted and published.
         /// </summary>
-        /// <param name="deletedArtifactsList">The list of artifacts that were deleted.</param>
-        void NotifyArtifactDeleted(List<INovaArtifactBase> deletedArtifactsList);
+        /// <param name="deletedArtifactIds">The list of IDs of artifacts that were deleted.</param>
+        void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds);
 
         /// <summary>
         /// Notifies all registered observers about artifacts that were published.
         /// </summary>
-        /// <param name="publishedArtifactsList">The list of artifacts that were published.</param>
-        void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList);
+        /// <param name="publishedArtifactIds">The list of IDs of artifacts that were published.</param>
+        void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds);
     }
 }

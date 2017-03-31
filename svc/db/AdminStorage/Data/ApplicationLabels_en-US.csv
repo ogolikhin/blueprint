@@ -254,6 +254,7 @@ Refresh_Project_NotFound,"You have attempted to access a project that has been d
 Refresh_Artifact_Deleted,"The artifact you were viewing has been deleted. The artifact's parent or project is now being displayed."
 
 SubArtifact_Has_Been_Deleted, "The subartifact has been deleted or moved. Please refresh your display."
+SubArtifact_Not_Found, "The subartifact {0} could not be found."
 
 Publish_All_Dialog_Header,"Publish All"
 Publish_All_Dialog_Message,"Artifacts with unpublished changes: {0}<br/>After publishing, all changes made to each artifact will be available to other users. Please review and confirm:"
@@ -703,6 +704,8 @@ Walkthrough_UserItem_Description, "As a {0}, I want to {1}, so that I can {2}"
 Walkthrough_UserItem_Short_Description, "As a {0}, I want to {1}"
 Walkthrough_StartPanel_Label, "This is the start of your process."
 Walkthrough_EndPanel_Label, "This is the end of your process."
+Walkthrough_ValidationErrors_SwitchToDiagram, "Please return to the Process editor to be able to edit all values."
+Walkthrough_StartFromBeginning, "The Walkthrough has started at the beginning of the Process."
 
 #Full Screen
 FullScreen_Component_FullScreen_Button_Tooltip, "Full-Screen View"

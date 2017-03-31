@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ServiceLibrary.Exceptions;
 
 namespace ServiceLibrary.Repositories
 {
@@ -240,12 +241,26 @@ namespace ServiceLibrary.Repositories
             {
                 var rawData = itemRawData.RawData;
                 var snapTime = BaselineRawDataHelper.ExtractSnapTime(rawData);
-                if (snapTime != null && snapTime is DateTime)
+                if (snapTime != null)
                 {
                     return await GetRevisionIdByTime(snapTime.Value);
                 }
+                return int.MaxValue;
             }
             return -1;
+        }
+
+        public async Task<ISet<int>> GetBaselineArtifacts(int baselineId, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var itemRawData = (await GetItemsRawData(new List<int> { baselineId }, userId, addDrafts, revisionId)).SingleOrDefault();
+            if (itemRawData != null)
+            {
+                var rawData = itemRawData.RawData;
+                return BaselineRawDataHelper.ExtractBaselineArtifacts(rawData);                
+            }
+
+            string errorMessage = I18NHelper.FormatInvariant("Baseline (Id:{0}) is not found.", baselineId);
+            throw new ResourceNotFoundException(errorMessage, ErrorCodes.ResourceNotFound);            
         }
 
     }

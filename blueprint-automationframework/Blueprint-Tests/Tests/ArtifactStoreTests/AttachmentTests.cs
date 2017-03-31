@@ -717,7 +717,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifact(artifact, _adminUser);
             //versionId = 1 - 1 attachment - _novaAttachmentFile
 
-            string messageText = I18NHelper.FormatInvariant("Version index (Id:{0}) is not found.", versionId);
+            string messageText = I18NHelper.FormatInvariant("Version Index or Baseline Timestamp is not found.");
             var errorMessage = ServiceErrorMessageFactory.CreateServiceErrorMessage(ErrorCodes.ResourceNotFound, messageText);
 
             // Execute & Verify:

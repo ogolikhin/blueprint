@@ -584,6 +584,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _project, ItemTypePredefined.UseCase, numberOfVersions: 2); //artifact version is 2
+            artifact.Lock(_authorUser);
 
             IDiscussionAdapter postedRaptorComment = null;
             DiscussionResultSet discussions = null;

@@ -282,6 +282,7 @@ namespace SearchServiceTests
             int numberOfVersions = 3;
             var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _firstProject, ItemTypePredefined.Document, numberOfVersions);
 
+            artifact.Lock(_authorUser);
             artifact.SaveWithNewDescription(_authorUser);
 
             var selectedProjectIds = _projects.ConvertAll(project => project.Id);

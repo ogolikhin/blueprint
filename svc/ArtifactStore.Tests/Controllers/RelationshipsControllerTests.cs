@@ -603,6 +603,7 @@ namespace ArtifactStore.Controllers
                 }
             };
             permisionDictionary.Add(artifactId, RolePermissions.Read);
+            permisionDictionary.Add(destId, RolePermissions.Read);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(itemInfo);
             _artifactPermissionsRepositoryMock.Setup(m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), _session.UserId, false, int.MaxValue, true)).ReturnsAsync(permisionDictionary);
             _relationshipsRepositoryMock.Setup(m => m.GetReviewRelationships(artifactId, _session.UserId, true, It.IsAny<int?>())).ReturnsAsync(resultSet);

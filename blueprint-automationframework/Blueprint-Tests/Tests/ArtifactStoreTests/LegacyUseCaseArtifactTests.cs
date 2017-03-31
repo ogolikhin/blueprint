@@ -90,7 +90,6 @@ namespace ArtifactStoreTests
             NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion1);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase]
@@ -109,7 +108,6 @@ namespace ArtifactStoreTests
             // Verify: Verify that the postcondition subartifact's indicatorflag contains value that represents UIMockup association.
             NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
 
-            // TODO: Use below commented VerifyIndicatorFlags once https://trello.com/c/IzDuRwMW gets addressed: [5084] Legacy UseCase artifact with UIMockup association on step subartifact - indicatorflag shows it as 0x4 instead of 0x10
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasUIMockup, usecaseArtifact.PostCondition.Id);
         }
 

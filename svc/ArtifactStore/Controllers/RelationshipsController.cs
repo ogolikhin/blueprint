@@ -36,11 +36,16 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/relationships"), SessionRequired]
         [ActionName("GetRelationships")]
-        public async Task<RelationshipResultSet> GetRelationships(int artifactId, int? subArtifactId = null, bool addDrafts = true, int? versionId = null)
+        public async Task<RelationshipResultSet> GetRelationships(
+            int artifactId,
+            int? subArtifactId = null,
+            bool addDrafts = true,
+            int? versionId = null,
+            int? baselineId = null)
         {
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1)
-                || versionId.HasValue && versionId.Value < 1)
+                || versionId.HasValue && versionId.Value < 1 || (versionId != null && baselineId != null))
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
@@ -61,7 +66,7 @@ namespace ArtifactStore.Controllers
             // We do not need drafts for historical artifacts 
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
 
-            var result = await _relationshipsRepository.GetRelationships(artifactId, session.UserId, subArtifactId, effectiveAddDraft, versionId);
+            var result = await _relationshipsRepository.GetRelationships(artifactId, session.UserId, subArtifactId, effectiveAddDraft, versionId, baselineId);
             var artifactIds = new List<int> { artifactId };
             artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);

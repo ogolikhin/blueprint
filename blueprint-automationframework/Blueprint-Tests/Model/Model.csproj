@@ -94,10 +94,9 @@
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
     <Compile Include="ModelHelpers\ArtifactAdapterExtensions.cs" />
-    <Compile Include="ModelHelpers\ArtifactStateWrapper.cs" />
+    <Compile Include="ModelHelpers\ArtifactState.cs" />
     <Compile Include="ModelHelpers\ArtifactWrapper.cs" />
-    <Compile Include="ModelHelpers\IHaveAnId.cs" />
-    <Compile Include="ModelHelpers\WrappedNovaArtifact.cs" />
+    <Compile Include="ArtifactModel\Impl\Review.cs" />
     <Compile Include="NovaModel\Impl\ReferencedReviewArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\SubArtifact.cs" />
     <Compile Include="ArtifactModel\Impl\UsersAndGroups.cs" />

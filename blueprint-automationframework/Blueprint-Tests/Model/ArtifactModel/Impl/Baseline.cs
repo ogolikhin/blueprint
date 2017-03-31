@@ -132,4 +132,10 @@ namespace Model.ArtifactModel.Impl
             }
         }
     }
+
+    public class AddToBaselineResult : AddToBaselineCollectionResult
+    {
+        public int? UnpublishedArtifactCount { get; set; }
+        public int? NonExistentArtifactCount { get; set; }
+    }
 }

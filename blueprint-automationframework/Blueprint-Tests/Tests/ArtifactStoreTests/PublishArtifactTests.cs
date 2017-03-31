@@ -273,7 +273,7 @@ namespace ArtifactStoreTests
             ThrowIf.ArgumentNull(artifactTypes, nameof(artifactTypes));
 
             // Setup:
-            var artifactsWithMultipleVersions = new List<ArtifactWrapper<INovaArtifactDetails>>();
+            var artifactsWithMultipleVersions = new List<ArtifactWrapper>();
 
             foreach (var artifactType in artifactTypes)
             {
@@ -1131,7 +1131,7 @@ namespace ArtifactStoreTests
         /// <param name="expectedVersion">The version expected in the publishedArtifact.</param>
         private void AssertPublishedArtifactResponseContainsAllArtifactsInListAndHasExpectedVersion(
             INovaArtifactsAndProjectsResponse publishResponse,
-            List<ArtifactWrapper<INovaArtifactDetails>> artifactsToPublish,
+            List<ArtifactWrapper> artifactsToPublish,
             int expectedVersion)
         {
             ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(

@@ -82,8 +82,7 @@ namespace Helper
         [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
         public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
-        [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        public List<IArtifactStateWrapper<IHaveAnId>> WrappedArtifacts { get; } = new List<IArtifactStateWrapper<IHaveAnId>>();   // TODO: Dispose these artifacts and track their state...
+        public List<ArtifactWrapper> WrappedArtifacts { get; } = new List<ArtifactWrapper>();   // TODO: Dispose these artifacts and track their state...
 
         #region IArtifactObserver methods
 
@@ -396,7 +395,7 @@ namespace Helper
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
-        public ArtifactWrapper<INovaArtifactDetails> CreateAndSaveNovaArtifact(
+        public ArtifactWrapper CreateNovaArtifact(
             IUser user, IProject project, ItemTypePredefined itemType,
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
@@ -410,7 +409,7 @@ namespace Helper
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
                 itemType, name, project, artifactTypeName, parentId, orderIndex);
 
-            return WrapNovaArtifact(artifact, user);
+            return WrapArtifact(artifact, user);
         }
 
         /// <summary>
@@ -426,12 +425,13 @@ namespace Helper
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
-        public ArtifactWrapper<INovaArtifactDetails> CreateAndPublishNovaArtifact(
+        public ArtifactWrapper CreateAndPublishNovaArtifact(
             IUser user, IProject project, ItemTypePredefined itemType,
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
-            var wrappedArtifact = CreateAndSaveNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
-            wrappedArtifact.Publish(user);
+            var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
+            var response = wrappedArtifact.Publish(user);
+            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
 
             return wrappedArtifact;
         }
@@ -450,7 +450,7 @@ namespace Helper
         /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
         /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
         /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
-        public ArtifactWrapper<INovaArtifactDetails> CreateAndPublishNovaArtifactWithMultipleVersions(
+        public ArtifactWrapper CreateAndPublishNovaArtifactWithMultipleVersions(
             IUser user, IProject project, ItemTypePredefined itemType, int numberOfVersions,
             int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
         {
@@ -475,49 +475,20 @@ namespace Helper
         }
 
         /// <summary>
-        /// Wraps an INovaArtifactDetails in an IArtifact and adds it the list of artifacts that get disposed.
+        /// Wraps an INovaArtifactDetails in an ArtifactWrapper and adds it the list of artifacts that get disposed.
         /// </summary>
         /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
-        /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
-        public ArtifactWrapper<T> WrapArtifact<T>(T artifact, IUser createdBy) where T : IHaveAnId
+        /// <returns>The ArtifactWrapper for the novaArtifact.</returns>
+        public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IUser createdBy)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper<T>(artifact, ArtifactStore, SvcShared, createdBy);
-
-            if (!WrappedArtifacts.Exists(a => a.Id == artifact.Id))
-            {
-                var item = wrappedArtifact as IArtifactStateWrapper<IHaveAnId>;     // XXX: This cast fails!
-                Assert.NotNull(item, "The casted item shouldn't be null!");
-                WrappedArtifacts.Add(item);
-            }
+            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, createdBy);
+            WrappedArtifacts.Add(wrappedArtifact);
 
             return wrappedArtifact;
         }
-
-        /// <summary>
-        /// Wraps an INovaArtifactDetails in an IArtifact and adds it the list of artifacts that get disposed.
-        /// </summary>
-        /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
-        /// <param name="createdBy">The user that created this artifact.</param>
-        /// <returns>The IArtifact wrapper for the novaArtifact.</returns>
-        public WrappedNovaArtifact WrapNovaArtifact(INovaArtifactDetails artifact, IUser createdBy)
-        {
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            var wrappedArtifact = new WrappedNovaArtifact(artifact, ArtifactStore, SvcShared, createdBy);
-
-            if (!WrappedArtifacts.Exists(a => a.Id == artifact.Id))
-            {
-                var item = wrappedArtifact as IArtifactStateWrapper<INovaArtifactDetails>;
-                Assert.NotNull(item, "The casted item shouldn't be null!");
-                var idItem = item as IArtifactStateWrapper<IHaveAnId>;      // XXX: This cast fails!
-                WrappedArtifacts.Add(idItem);
-            }
-
-             return wrappedArtifact;
-         }
 
         /// <summary>
         /// Creates and publishes a new Nova artifact (wrapped inside an IArtifact object).

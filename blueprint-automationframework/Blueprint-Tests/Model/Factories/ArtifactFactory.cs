@@ -152,6 +152,9 @@ namespace Model.Factories
                 case (int)ItemTypePredefined.Actor:
                     var actorDetails = JsonConvert.DeserializeObject<Actor>(artifactDetailsJSON);
                     return actorDetails;
+                case (int)ItemTypePredefined.ArtifactReviewPackage:
+                    var reviewDetails = JsonConvert.DeserializeObject<Review>(artifactDetailsJSON);
+                    return reviewDetails;
                 default:
                     return artifactDetails;
             }

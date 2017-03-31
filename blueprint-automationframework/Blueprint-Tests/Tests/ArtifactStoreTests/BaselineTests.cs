@@ -25,10 +25,6 @@ namespace ArtifactStoreTests
         private readonly string draftDescription = TestHelper.DraftDescription;
         private readonly string publishedDescription = TestHelper.PublishedDescription;
 
-        Func<Dictionary<string, int>, int> getNumberOfAddedArtifacts = dict => dict["artifactCount"];
-        Func<Dictionary<string, int>, int> getUnpublishedArtifactCount = dict => dict["unpublishedArtifactCount"];
-        Func<Dictionary<string, int>, int> getNonexistentArtifactCount = dict => dict["nonexistentArtifactCount"];
-
         private const string expectedInternalExceptionMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
 
         [SetUp]
@@ -68,14 +64,12 @@ namespace ArtifactStoreTests
 
             var baseline = Helper.CreateBaseline(_adminUser, _project);
 
-            int numberOfAddedArtifacts = 0;
             int expectedArtifactsNumber = 3;
 
             var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_adminUser, artifactToAdd.Id,
                     baseline.Id, includeDescendants: true);
 
-            numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
-            Assert.AreEqual(expectedArtifactsNumber, numberOfAddedArtifacts, "AddArtifactToBaseline should return expected number of added artifacts.");
+            Assert.AreEqual(expectedArtifactsNumber, addArtifactResult.ArtifactCount, "AddArtifactToBaseline should return expected number of added artifacts.");
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
 
             Baseline updatedBaseline = null;
@@ -113,7 +107,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -154,7 +148,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id,
                     includeDescendants);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -188,7 +182,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifact.Id, baseline.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -219,7 +213,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baseline.Id,
                     includeDescendants: true);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -251,7 +245,7 @@ namespace ArtifactStoreTests
             int numberOfAddedArtifacts = -1;
             int numberOfNonnexistentArtifacts = -1;
 
-            Dictionary<string, int> addArtifactResult = null;
+            AddToBaselineResult addArtifactResult = null;
 
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -259,8 +253,8 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
-            numberOfNonnexistentArtifacts = getNonexistentArtifactCount(addArtifactResult);
+            numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
+            numberOfNonnexistentArtifacts = addArtifactResult.NonExistentArtifactCount.Value;
 
             Assert.AreEqual(0, numberOfAddedArtifacts, "Nothing should be added to baseline, when its TimeStamp older than Artifact.");
             Assert.AreEqual(1, numberOfNonnexistentArtifacts, "AddArtifactToBaseline should return expected number of Nonnexistent Artifacts.");
@@ -283,8 +277,8 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, artifactToAdd.Id, baselineArtifact.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
-                numberOfUnpublishedArtifacts = getUnpublishedArtifactCount(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
+                numberOfUnpublishedArtifacts = addArtifactResult.UnpublishedArtifactCount.Value;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -318,7 +312,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -351,7 +345,7 @@ namespace ArtifactStoreTests
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id,
                     includeDescendants: true);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding Collection to Baseline shouldn't throw an error.");
             
             // Verify:
@@ -378,7 +372,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -407,7 +401,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -468,6 +462,28 @@ namespace ArtifactStoreTests
 
             // Verify:
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
+        }
+
+        [TestCase]
+        [TestRail(267373)]
+        [Description("Add never published Artifact to Baseline, check that artifact wasn't added.")]
+        public void EditBaselineArtifacts_AddCreatedArtifactToBaseline_ValidateArtifactWasNotAdded()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created, ItemTypePredefined.Actor,
+                _project.Id);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            baseline.UpdateArtifacts(new List<int> { artifactToAdd.Id });
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
+            }, "Adding artifact to Baseline shouldn't throw an error.");
+
+            // Verify:
+            GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int>());
         }
 
         #endregion Edit Baseline Content
@@ -580,7 +596,7 @@ namespace ArtifactStoreTests
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
-            string expectedErrorMessage = "Baseline timestamp date is from the future.";
+            string expectedErrorMessage = "Baseline timestamp should be between project creation date and current time.";
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp, expectedErrorMessage);
         }
 
@@ -637,7 +653,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
-                _project.Id); 
+                _project.Id);
 
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
@@ -671,7 +687,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, collection.Id, baseline.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding artifact to Baseline shouldn't throw an error.");
 
             // Verify:
@@ -692,7 +708,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http404NotFoundException>(() => {
                 var addArtifactResult = Helper.ArtifactStore.AddArtifactToBaseline(_user, baseline1.Id, baseline2.Id);
-                numberOfAddedArtifacts = getNumberOfAddedArtifacts(addArtifactResult);
+                numberOfAddedArtifacts = addArtifactResult.ArtifactCount;
             }, "Adding Baseline to another Baseline should throw 404 error.");
 
             // Verify:
@@ -773,11 +789,13 @@ namespace ArtifactStoreTests
             Assert.AreEqual(3, reviews.reviewArtifacts.Count, "List should have expected number of reviews.");
             foreach (var review in reviews.reviewArtifacts)
             {
-                var reviewArtifact = Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
+                var reviewArtifact = (Review)Helper.ArtifactStore.GetArtifactDetails(viewerUser, review.ItemId);
                 Assert.AreEqual(reviewArtifact.Name, review.ItemName, "Review name should have expected value.");
                 Assert.AreEqual(reviewArtifact.Prefix, review.ItemTypePrefix, "Review ItemTypePrefix should have expected value.");
                 Assert.AreEqual(reviewArtifact.CreatedOn, review.CreatedDate, "Review CreatedDate should have expected value.");
-                Assert.IsTrue((review.Status >= 0) && (review.Status < 3), "Review status should be in the expected range.");
+                Assert.AreEqual(reviewArtifact.ReviewStatus, review.Status, "Review status should should have expected value.");
+                Assert.IsTrue(reviewArtifact.IsFormal, "Sealed baseline can be use in Formal reviews only.");
+                Assert.IsNotEmpty(reviewArtifact.ReviewLink, "Review link shouldn't be empty.");
             }
         }
 

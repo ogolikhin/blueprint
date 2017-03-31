@@ -1,14 +1,14 @@
 using Model.ArtifactModel.Impl;
 using System;
 using System.Collections.Generic;
-using Model.ModelHelpers;
 
 namespace Model.ArtifactModel
 {
-    public interface INovaArtifactBase : INovaArtifactObservable, IHaveAnId
+    public interface INovaArtifactBase : INovaArtifactObservable
     {
         #region Serialized JSON Properties
 
+        int Id { get; set; }
         int? ItemTypeId { get; set; }
         string Name { get; set; }
         int? ParentId { get; set; }

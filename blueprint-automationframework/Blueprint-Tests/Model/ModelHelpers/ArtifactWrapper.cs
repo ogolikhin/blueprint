@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Common;
+﻿using System;
+using System.Collections.Generic;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Impl;
 using Newtonsoft.Json;
@@ -8,10 +7,17 @@ using Utilities;
 
 namespace Model.ModelHelpers
 {
-    public class ArtifactWrapper<T> : ArtifactStateWrapper<T>, IArtifactObservable where T : IHaveAnId
+    public class ArtifactWrapper : INovaArtifactDetails, INovaArtifactObservable
     {
+        public ArtifactState ArtifactState { get; } = new ArtifactState();
         public IArtifactStore ArtifactStore { get; private set; }
         public ISvcShared SvcShared { get; private set; }
+
+        /// <summary>
+        /// The artifact that is being wrapped.
+        /// </summary>
+        [JsonIgnore]
+        public INovaArtifactDetails Artifact { get; set; }
 
         /// <summary>
         /// Constructor.
@@ -20,68 +26,13 @@ namespace Model.ModelHelpers
         /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
         /// <param name="svcShared">The SvcShared to use for REST calls.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
-        public ArtifactWrapper(T artifact, IArtifactStore artifactStore, ISvcShared svcShared, IUser createdBy)
+        public ArtifactWrapper(INovaArtifactDetails artifact, IArtifactStore artifactStore, ISvcShared svcShared, IUser createdBy)
         {
             Artifact = artifact;
             ArtifactStore = artifactStore;
             SvcShared = svcShared;
-            CreatedBy = createdBy;
+            ArtifactState.CreatedBy = createdBy;
         }
-
-        #region IArtifactObservable methods
-
-        [JsonIgnore]
-        public List<IArtifactObserver> ArtifactObservers { get; private set; }
-
-        /// <seealso cref="RegisterObserver(IArtifactObserver)"/>
-        public void RegisterObserver(IArtifactObserver observer)
-        {
-            if (ArtifactObservers == null)
-            {
-                ArtifactObservers = new List<IArtifactObserver>();
-            }
-
-            ArtifactObservers.Add(observer);
-        }
-
-        /// <seealso cref="UnregisterObserver(IArtifactObserver)"/>
-        public void UnregisterObserver(IArtifactObserver observer)
-        {
-            ArtifactObservers?.Remove(observer);
-        }
-
-        /// <seealso cref="NotifyArtifactDeleted(List{IArtifactBase})"/>
-        public void NotifyArtifactDeleted(List<IArtifactBase> deletedArtifactsList)
-        {
-            ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
-
-            // Notify the observers about any artifacts that were deleted as a result of this publish.
-            foreach (var deletedArtifact in deletedArtifactsList)
-            {
-                IEnumerable<int> deletedArtifactIds =
-                    from result in ((ArtifactBase)deletedArtifact).DeletedArtifactResults
-                    select result.ArtifactId;
-
-                Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", deletedArtifactIds));
-                deletedArtifact.ArtifactObservers?.ForEach(o => o.NotifyArtifactDeleted(deletedArtifactIds));
-            }
-        }
-
-        /// <seealso cref="NotifyArtifactPublished(List{INovaArtifactResponse})"/>
-        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
-        {
-            ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
-
-            // Notify the observers about any artifacts that were deleted as a result of this publish.
-            IEnumerable<int> publishedArtifactIds =
-                from result in publishedArtifactsList
-                select result.Id;
-
-            Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", publishedArtifactIds));
-            ArtifactObservers?.ForEach(o => o.NotifyArtifactPublished(publishedArtifactIds));
-        }
-
-        #endregion IArtifactObservable methods
 
         /// <summary>
         /// Deletes this artifact.  (You must publish after deleting to make the delete permanent).
@@ -94,7 +45,7 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.DeleteArtifact(Artifact.Id, user);
 
-            IsMarkedForDeletion = true;
+            ArtifactState.IsMarkedForDeletion = true;
 
             return response;
         }
@@ -111,9 +62,9 @@ namespace Model.ModelHelpers
             // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
             var response = Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
 
-            IsDraft = true;
-            IsMarkedForDeletion = false;
-            LockOwner = null;
+            ArtifactState.IsDraft = true;
+            ArtifactState.IsMarkedForDeletion = false;
+            ArtifactState.LockOwner = null;
 
             return response;
         }
@@ -129,7 +80,7 @@ namespace Model.ModelHelpers
 
             var response = SvcShared.LockArtifacts(user, new List<int> { Artifact.Id });
 
-            LockOwner = user;
+            ArtifactState.LockOwner = user;
 
             return response;
         }
@@ -146,13 +97,13 @@ namespace Model.ModelHelpers
             var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
 
             // If it was marked for deletion, publishing it will make it permanently deleted.
-            if (IsMarkedForDeletion)
+            if (ArtifactState.IsMarkedForDeletion)
             {
-                IsDeleted = true;
+                ArtifactState.IsDeleted = true;
             }
 
-            IsPublished = true;
-            LockOwner = null;
+            ArtifactState.IsPublished = true;
+            ArtifactState.LockOwner = null;
 
             return response;
         }
@@ -169,9 +120,195 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.UpdateArtifact(user, updateArtifact);
 
-            IsDraft = true;
+            ArtifactState.IsDraft = true;
 
             return response;
         }
+
+        #region INovaArtifactObservable members
+
+        public List<INovaArtifactObserver> NovaArtifactObservers
+        {
+            get { return Artifact.NovaArtifactObservers; }
+        }
+
+        public void RegisterObserver(INovaArtifactObserver observer)
+        {
+            Artifact.RegisterObserver(observer);
+        }
+
+        public void UnregisterObserver(INovaArtifactObserver observer)
+        {
+            Artifact.UnregisterObserver(observer);
+        }
+
+        public void NotifyArtifactDeleted(List<INovaArtifactBase> deletedArtifactsList)
+        {
+            Artifact.NotifyArtifactDeleted(deletedArtifactsList);
+        }
+
+        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
+        {
+            Artifact.NotifyArtifactPublished(publishedArtifactsList);
+        }
+
+        #endregion INovaArtifactObservable members
+
+        #region INovaArtifactDetails members
+
+        public int Id
+        {
+            get { return Artifact.Id; }
+            set { Artifact.Id = value; }
+        }
+
+        public int? ItemTypeId
+        {
+            get { return Artifact.ItemTypeId; }
+            set { Artifact.ItemTypeId = value; }
+        }
+
+        public string Name
+        {
+            get { return Artifact.Name; }
+            set { Artifact.Name = value; }
+        }
+
+        public int? ParentId
+        {
+            get { return Artifact.ParentId; }
+            set { Artifact.ParentId = value; }
+        }
+
+        public int? ProjectId
+        {
+            get { return Artifact.ProjectId; }
+            set { Artifact.ProjectId = value; }
+        }
+
+        public int? Version
+        {
+            get { return Artifact.Version; }
+            set { Artifact.Version = value; }
+        }
+
+        public List<AttachmentValue> AttachmentValues
+        {
+            get { return Artifact.AttachmentValues; }
+        }
+
+        public Identification CreatedBy
+        {
+            get { return Artifact.CreatedBy; }
+            set { Artifact.CreatedBy = value; }
+        }
+
+        public DateTime? CreatedOn
+        {
+            get { return Artifact.CreatedOn; }
+            set { Artifact.CreatedOn = value; }
+        }
+
+        public string Description
+        {
+            get { return Artifact.Description; }
+            set { Artifact.Description = value; }
+        }
+
+        public string ItemTypeName
+        {
+            get { return Artifact.ItemTypeName; }
+            set { Artifact.ItemTypeName = value; }
+        }
+
+        public int? ItemTypeIconId
+        {
+            get { return Artifact.ItemTypeIconId; }
+            set { Artifact.ItemTypeIconId = value; }
+        }
+
+        public int ItemTypeVersionId
+        {
+            get { return Artifact.ItemTypeVersionId; }
+            set { Artifact.ItemTypeVersionId = value; }
+        }
+
+        public bool? LastSaveInvalid
+        {
+            get { return Artifact.LastSaveInvalid; }
+            set { Artifact.LastSaveInvalid = value; }
+        }
+
+        public RolePermissions? Permissions
+        {
+            get { return Artifact.Permissions; }
+            set { Artifact.Permissions = value; }
+        }
+
+        public double? OrderIndex
+        {
+            get { return Artifact.OrderIndex; }
+            set { Artifact.OrderIndex = value; }
+        }
+
+        public Identification LastEditedBy
+        {
+            get { return Artifact.LastEditedBy; }
+            set { Artifact.LastEditedBy = value; }
+        }
+
+        public DateTime? LastEditedOn
+        {
+            get { return Artifact.LastEditedOn; }
+            set { Artifact.LastEditedOn = value; }
+        }
+
+        public Identification LockedByUser
+        {
+            get { return Artifact.LockedByUser; }
+            set { Artifact.LockedByUser = value; }
+        }
+
+        public DateTime? LockedDateTime
+        {
+            get { return Artifact.LockedDateTime; }
+            set { Artifact.LockedDateTime = value; }
+        }
+
+        public string Prefix
+        {
+            get { return Artifact.Prefix; }
+            set { Artifact.Prefix = value; }
+        }
+
+        public List<CustomProperty> CustomPropertyValues
+        {
+            get { return Artifact.CustomPropertyValues; }
+        }
+
+        public List<CustomProperty> SpecificPropertyValues
+        {
+            get { return Artifact.SpecificPropertyValues; }
+        }
+
+        public int? PredefinedType
+        {
+            get { return Artifact.PredefinedType; }
+            set { Artifact.PredefinedType = value; }
+        }
+
+        public List<NovaTrace> Traces
+        {
+            get { return Artifact.Traces; }
+            set { Artifact.Traces = value; }
+        }
+
+        public List<NovaSubArtifact> SubArtifacts
+        {
+            get { return Artifact.SubArtifacts; }
+            set { Artifact.SubArtifacts = value; }
+        }
+
+        #endregion INovaArtifactDetails members
     }
 }

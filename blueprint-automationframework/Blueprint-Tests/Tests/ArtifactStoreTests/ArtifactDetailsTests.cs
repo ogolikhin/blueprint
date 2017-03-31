@@ -60,7 +60,7 @@ namespace ArtifactStoreTests
         public void GetArtifactDetails_PublishedArtifact_ReturnsArtifactDetails(ItemTypePredefined artifactType)
         {
             var artifact = Helper.CreateAndPublishNovaArtifact(_user, _projects[0], artifactType);
-            var retrievedArtifact = OpenApi.GetArtifact(Helper.OpenApi.Address, _projects[0], artifact.Artifact.Id, _user);
+            var retrievedArtifact = OpenApi.GetArtifact(Helper.OpenApi.Address, _projects[0], artifact.Id, _user);
 
             INovaArtifactDetails artifactDetails = null;
 
@@ -68,11 +68,11 @@ namespace ArtifactStoreTests
 
             Assert.DoesNotThrow(() =>
             {
-                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(viewer, artifact.Artifact.Id);
+                artifactDetails = Helper.ArtifactStore.GetArtifactDetails(viewer, artifact.Id);
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifact);
-            NovaArtifactDetails.AssertArtifactsEqual(artifact.Artifact, artifactDetails);
+            NovaArtifactDetails.AssertArtifactsEqual(artifact, artifactDetails);
 
             Assert.AreEqual(RolePermissions.Read, artifactDetails.Permissions, "Viewer should have read permissions (i.e. 1)!");
         }

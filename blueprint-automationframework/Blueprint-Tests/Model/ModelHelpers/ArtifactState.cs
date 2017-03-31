@@ -6,15 +6,8 @@ namespace Model.ModelHelpers
     /// This class wraps Blueprint Artifacts and tracks the state of the artifact.
     /// The artifact state is only needed by the automation framework (mostly for the Dispose() method).
     /// </summary>
-    /// <typeparam name="T">The artifact type being wrapped.</typeparam>
-    public class ArtifactStateWrapper<T> where T : IHaveAnId
+    public class ArtifactState
     {
-        /// <summary>
-        /// The artifact that is being wrapped.
-        /// </summary>
-        [JsonIgnore]
-        public T Artifact { get; set; }
-
         /// <summary>
         /// The project where the artifact exists.
         /// </summary>

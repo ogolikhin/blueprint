@@ -308,6 +308,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Time_Before_2000_Not_Allowed', 'en-US', N'Please use date after Jan 01 2000')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Future_Time_Not_Allowed', 'en-US', N'Future time not allowed')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Create_Timestamp', 'en-US', N'Create Timestamp')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Timestamp_Date', 'en-US', N'Timestamp Date:')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Available_In_Analytics', 'en-US', N'Baseline Data Available In Analytics')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Save_Warning', 'en-US', N'Baseline is going to be saved. Do you want to continue?')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Artifact_Baseline_Seal_Warning', 'en-US', N'Sealing a Baseline finalizes its contents, and they will not be updated to reflect any further changes you make to them. Once sealed, a Baseline cannot be unsealed or deleted. Please confirm that you want to permanently seal this Baseline.')

@@ -376,7 +376,7 @@ Login_Auth_FederatedAuthFailed,"There is a problem with federated authentication
 Login_Auth_FederatedFallbackDisabled,"Please log in with your corporate credentials."
 Login_Username,"Username"
 Login_Password,"Password"
-Login_ForgotPassword,"Forgot password"
+Login_ForgotPassword,"Forgot my password"
 Login_ChangePasswordButton,"Change Password"
 Login_UpdatePasswordButton,"Update Password"
 Login_LoginButton,"Log In"
@@ -416,11 +416,12 @@ Login_Session_NewPasswordAlreadyUsedPreviously,"Ensure your new password is diff
 Login_Session_Timeout,"​Your session has expired or was overridden.<br>Please log in to continue.​"
 Login_Session_InvalidLicense,"Your license does not include access to this application."
 
-PasswordRecovery_Recovery_Title, "Forgot Password?"
+PasswordRecovery_Recovery_Title, "Reset Password"
 PasswordRecovery_Recovery_Submit, "Recover Password"
+PasswordRecovery_UserName, "Blueprint Username"
 PasswordRecovery_Reset_Title, "Reset password"
-PasswordRecovery_Reset_Submit, "Reset password"
-PasswordRecovery_ConfirmRequest, "The email has been sent"
+PasswordRecovery_Reset_Submit, "Reset Password"
+PasswordRecovery_ConfirmRequest, "A confirmation email has been sent to the address belonging to the provided Blueprint user."
 PasswordRecovery_ConfirmReset, "The password has been changed successfully"
 PasswordRecovery_Disabled, "Password recovery feature is disabled"
 PasswordRecovery_NewPassword, "New Password"
@@ -429,7 +430,6 @@ PasswordRecovery_Error_RecoveryFailed, "You are not allowed to request password 
 PasswordRecovery_Error_ResetFailed, "The reset password request has failed.<br/>Please contact you system administrator."
 PasswordRecovery_Error_InvalidPassword, "The reset password request has failed.<br/>Please contact your system administrator."
 PasswordRecovery_Error_RequestFailed, "The request has failed.<br/>Please contact your system administrator."
-
 
 Input_Required,"Required"
 

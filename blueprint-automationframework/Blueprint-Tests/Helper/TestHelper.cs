@@ -412,7 +412,7 @@ namespace Helper
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
                 itemType, name, project, artifactTypeName, parentId, orderIndex);
 
-            return WrapArtifact(artifact, user);
+            return WrapArtifact(artifact, project, user);
         }
 
         /// <summary>
@@ -481,13 +481,14 @@ namespace Helper
         /// Wraps an INovaArtifactDetails in an ArtifactWrapper and adds it the list of artifacts that get disposed.
         /// </summary>
         /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
         /// <returns>The ArtifactWrapper for the novaArtifact.</returns>
-        public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IUser createdBy)
+        public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IProject project, IUser createdBy)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, createdBy);
+            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, project, createdBy);
             WrappedArtifactsToDispose.Add(wrappedArtifact);
 
             return wrappedArtifact;

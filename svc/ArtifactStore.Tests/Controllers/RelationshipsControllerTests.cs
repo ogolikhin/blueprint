@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using ServiceLibrary.Repositories;
 using System;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -230,7 +231,7 @@ namespace ArtifactStore.Controllers
             Assert.IsFalse(result.OtherTraces[0].ReadOnly);
         }
 
-        [ExpectedException(typeof(HttpResponseException))]
+        [ExpectedException(typeof(AuthorizationException))]
         [TestMethod]
         public async Task GetRelationships_ArtifactHasNoPermission_ExcetionThrown()
         {
@@ -285,7 +286,7 @@ namespace ArtifactStore.Controllers
             Assert.IsFalse(result.OtherTraces[0].HasAccess);
         }
 
-        [ExpectedException (typeof(HttpResponseException))]
+        [ExpectedException (typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetRelationships_BadSubartifactId_ExceptionThrown()
         {
@@ -336,7 +337,7 @@ namespace ArtifactStore.Controllers
             Assert.IsTrue(result.OtherTraces[0].HasAccess);
         }
 
-        [ExpectedException(typeof(HttpResponseException))]
+        [ExpectedException(typeof(BadRequestException))]
         [TestMethod]
         public async Task GetRelationshipsDetails_BadartifactId_ExceptionThrown()
         {
@@ -351,7 +352,7 @@ namespace ArtifactStore.Controllers
             await controller.GetRelationshipDetails(artifactId);
         }
 
-        [ExpectedException(typeof(HttpResponseException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetRelationshipsDetails_IncorrectRevisionId_ExceptionThrown()
         {
@@ -366,7 +367,7 @@ namespace ArtifactStore.Controllers
             await controller.GetRelationshipDetails(artifactId);
         }
 
-        [ExpectedException(typeof(HttpResponseException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetRelationshipDetails_ArtifactNoPermission_ExceptionThrown()
         {
@@ -411,7 +412,7 @@ namespace ArtifactStore.Controllers
             Assert.AreEqual(1, result.ArtifactId);
         }
 
-        [ExpectedException(typeof(HttpResponseException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetRelationships_ItemNotFoundForLatest_ExceptionThrownNotFound()
         {
@@ -478,7 +479,7 @@ namespace ArtifactStore.Controllers
             Assert.AreSame(expected, actual);
         }
 
-        [ExpectedException(typeof(HttpResponseException))]
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetRelationshipDetails_ItemNotFoundForLatest_ExceptionThrownNotFound()
         {
@@ -551,12 +552,13 @@ namespace ArtifactStore.Controllers
             //Act
             try {
                 var result = await controller.GetReviewRelationships(artifactId);
-            } catch (Exception e)
+            } catch (BadRequestException e)
             {
-                Assert.IsTrue(e is HttpResponseException);
+                Assert.AreEqual(ErrorCodes.BadRequest, e.ErrorCode);
             }
         }
 
+        [ExpectedException(typeof(ResourceNotFoundException))]
         [TestMethod]
         public async Task GetReviews_NotFound_ThrowsException()
         {
@@ -570,14 +572,7 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(m => m.GetItemInfo(artifactId, _session.UserId, true, int.MaxValue)).ReturnsAsync(null);
 
             //Act
-            try
-            {
-                var result = await controller.GetReviewRelationships(artifactId);
-            }
-            catch (Exception e)
-            {
-                Assert.IsTrue(e is HttpResponseException);
-            }
+            var result = await controller.GetReviewRelationships(artifactId);
         }
 
         [TestMethod]
@@ -623,6 +618,7 @@ namespace ArtifactStore.Controllers
             Assert.AreEqual("Rev", result.ReviewArtifacts[0].ItemTypePrefix);
         }
 
+        [ExpectedException(typeof(AuthorizationException))]
         [TestMethod]
         public async Task GetReviews_NoPermissionToArtifact_ThrowsException()
         {
@@ -658,14 +654,8 @@ namespace ArtifactStore.Controllers
             controller.Request.Properties[ServiceConstants.SessionProperty] = _session;
 
             //Act
-            try
-            {
-                var result = await controller.GetReviewRelationships(artifactId);
-            }
-            catch (Exception e)
-            {
-                Assert.IsTrue(e is HttpResponseException);
-            }
+            
+            var result = await controller.GetReviewRelationships(artifactId);            
         }
     }
 }

@@ -79,6 +79,10 @@ namespace ArtifactStore.Repositories
                 itemId = subArtifactId.Value;
             }
             var revisionId = await ItemInfoRepository.GetRevisionId(itemId, userId, versionId, baselineId);
+            if (baselineId != null)
+            {
+                addDrafts = false;
+            }
 
             var attachments = (await GetAttachments(itemId, userId, revisionId, addDrafts)).ToList();
             var referencedArtifacts = (await GetDocumentReferenceArtifacts(itemId, userId, revisionId, addDrafts)).ToList();

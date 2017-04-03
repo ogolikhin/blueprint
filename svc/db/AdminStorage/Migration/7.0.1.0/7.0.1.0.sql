@@ -649,9 +649,7 @@ EXEC @ReturnCode =  msdb.dbo.sp_add_job @job_name=@jobname,
 IF (@@ERROR <> 0 OR @ReturnCode <> 0) GOTO QuitWithRollback
 
 -- Add Step 1 - Delete old logs from AdminStorage
-SET @cmd = N'
--- Delete log entries
-EXECUTE [dbo].[DeleteLogs] '
+SET @cmd = N'[dbo].[DeleteLogs]'
 EXEC @ReturnCode = msdb.dbo.sp_add_jobstep @job_id=@jobId, @step_name=N'Delete old logs from AdminStorage', 
 		@step_id=1, 
 		@cmdexec_success_code=0, 

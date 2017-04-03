@@ -16,6 +16,7 @@ using Utilities;
 
 namespace ArtifactStoreTests
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class ArtifactVersionControlInfoTests : TestBase
@@ -31,6 +32,7 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
+            _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
         }
 
         [TearDown]
@@ -43,13 +45,13 @@ namespace ArtifactStoreTests
 
         #region Artifact Changes
 
-        [TestCase(BaseArtifactType.Actor, 2)]
+        [TestCase(ItemTypePredefined.Actor, 2)]
         [TestRail(182452)]
         [Description("Create & publish an artifact.  Verify the basic artifact information returned with HasChanges flag set to false.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoChanges_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType, int numberOfVersions)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -134,14 +136,14 @@ namespace ArtifactStoreTests
                 versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.Actor, 3)]
+        [TestCase(ItemTypePredefined.Actor, 3)]
         [TestRail(182499)]
         [Description("Create, publish & lock an artifact.  Verify the basic artifact information for another user returned with HasChanges flag set to false.")]
         public void VersionControlInfoWithArtifactId_PublishedAndLockedArtifact_NoChangesForAnotherUser_ReturnsArtifactInfo_200OK(
-            BaseArtifactType artifactType, int numberOfVersions)
+            ItemTypePredefined artifactType, int numberOfVersions)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
             artifact.Lock(_user);
 
             var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
@@ -240,15 +242,15 @@ namespace ArtifactStoreTests
                 versionCount: 0);
         }
 
-        [TestCase(BaseArtifactType.UseCase, 2)]
-        [TestCase(BaseArtifactType.Process, 3)]
+        [TestCase(ItemTypePredefined.UseCase, 2)]
+        [TestCase(ItemTypePredefined.Process, 3)]
         [TestRail(182544)]
         [Description("Create & publish multiple versions of an artifact with sub-artifacts.  Verify user gets basic artifact information with subartifact Id.")]
         public void VersionControlInfoWithSubArtifactId_PublishedMultipleVersionsOfArtifactWithSubArtifacts_ReturnsArtifactInfo_200OK(
-            BaseArtifactType artifactType, int numberOfVersions)
+            ItemTypePredefined artifactType, int numberOfVersions)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
@@ -435,18 +437,18 @@ namespace ArtifactStoreTests
 
         #region Delete
 
-        [TestCase(BaseArtifactType.Actor, 1)]
+        [TestCase(ItemTypePredefined.Actor, 1)]
         [TestRail(182543)]
         [Description("Create & publish an artifact, then delete & publish the artifact.  Verify user gets basic artifact information.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifactDeleteAndPublish_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType, int numberOfVersions)
+        public void VersionControlInfoWithArtifactId_PublishedArtifactDeleteAndPublish_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType, int numberOfVersions)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            artifact.Delete();
-            artifact.Publish();
+            artifact.Delete(_user);
+            artifact.Publish(_user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 

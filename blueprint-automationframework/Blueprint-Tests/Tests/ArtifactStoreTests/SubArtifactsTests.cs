@@ -657,8 +657,8 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 404 Not Found when passed a non-existing ID of sub-artifact!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
-                "You have attempted to access an artifact that does not exist or has been deleted.");
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.SubartifactNotFound,
+                "You have attempted to access an item that does not exist or you do not have permission to view.");
         }
 
         [TestCase]
@@ -698,8 +698,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             // Bug: Wrong message returned http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5106
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
-                "You have attempted to access an artifact that does not exist or has been deleted.");
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.SubartifactNotFound,
+                "You have attempted to access an item that does not exist or you do not have permission to view.");
         }
 
         #endregion 404 Not Found

@@ -1,4 +1,5 @@
-﻿using Model.ArtifactModel.Impl.PredefinedProperties;
+﻿using System;
+using Model.ArtifactModel.Impl.PredefinedProperties;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System.Linq;

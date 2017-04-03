@@ -465,7 +465,46 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            return GetRelationships(Address, user, artifact.Id, subArtifactId, addDrafts, versionId, expectedStatusCodes);
+            return GetRelationships(user, artifact.Id, subArtifactId, addDrafts, versionId, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.GetRelationships(IUser, int, int?, bool?, int?, List{HttpStatusCode})"/>
+        public Relationships GetRelationships(
+            IUser user,
+            int artifactId,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifactId);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
+            }
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return relationships;
         }
 
         /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, List{HttpStatusCode})"/>
@@ -537,6 +576,16 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             var artifacts = new List<IArtifactBase> { artifact };
+
+            return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.PublishArtifact(int, IUser, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse PublishArtifact(int artifactId,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var artifacts = new List<int> { artifactId };
 
             return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
         }
@@ -711,8 +760,7 @@ namespace Model.Impl
 
             return publishedArtifacts;
         }
-
-
+        
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null,
             bool? publishAll = null,
@@ -1331,58 +1379,6 @@ namespace Model.Impl
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
-        }
-
-        /// <summary>
-        /// Gets relationships for the specified artifact/subartifact
-        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationships)
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
-        /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
-        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
-        /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Relationships object for the specified artifact/subartifact.</returns>
-        public static Relationships GetRelationships(string address,
-            IUser user,
-            int artifactId,
-            int? subArtifactId = null,
-            bool? addDrafts = null,
-            int? versionId = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifactId);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (subArtifactId != null)
-            {
-                queryParameters.Add("subArtifactId", subArtifactId.ToString());
-            }
-
-            if (addDrafts != null)
-            {
-                queryParameters.Add("addDrafts", addDrafts.ToString());
-            }
-
-            if (versionId != null)
-            {
-                queryParameters.Add("versionId", versionId.ToString());
-            }
-
-            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
-
-            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return relationships;
         }
 
         /// <summary>

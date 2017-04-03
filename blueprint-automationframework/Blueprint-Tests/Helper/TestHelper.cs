@@ -26,7 +26,7 @@ using Utilities.Factories;
 namespace Helper
 {
     [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is a Helper class, so this is expected to be large.
-    public class TestHelper : IDisposable, IArtifactObserver
+    public class TestHelper : IDisposable, IArtifactObserver, INovaArtifactObserver
     {
         public enum ProjectRole
         {
@@ -79,13 +79,15 @@ namespace Helper
         public List<IGroup> Groups { get; } = new List<IGroup>();
         public List<IProjectRole> ProjectRoles { get; } = new List<IProjectRole>();
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
+        [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
         public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
-        [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        public List<ArtifactWrapper> WrappedArtifacts { get; } = new List<ArtifactWrapper>();   // TODO: Dispose these artifacts and track their state...
-
         #region IArtifactObserver methods
+
+        /// <seealso cref="INovaArtifactObserver.WrappedArtifactsToDispose" />
+        public List<ArtifactWrapper> WrappedArtifactsToDispose { get; } = new List<ArtifactWrapper>();   // TODO: Dispose these artifacts and track their state...
+
+        // TODO: Change the IArtifactObserver functions below to INovaArtifactObserver functions.
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
         public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
@@ -96,7 +98,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeleted), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, artifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
@@ -108,7 +110,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactDiscarded), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, artifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
@@ -120,7 +122,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, artifactIds);
         }
 
         #endregion IArtifactObserver methods
@@ -410,7 +412,7 @@ namespace Helper
             var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
                 itemType, name, project, artifactTypeName, parentId, orderIndex);
 
-            return WrapArtifact(artifact, user);
+            return WrapArtifact(artifact, project, user);
         }
 
         /// <summary>
@@ -438,17 +440,56 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a new artifact, then saves and publishes it the specified number of times.
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="numberOfVersions">The number of times to save and publish the artifact (to create multiple historical versions).</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
+        /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
+        public ArtifactWrapper CreateAndPublishNovaArtifactWithMultipleVersions(
+            IUser user, IProject project, ItemTypePredefined itemType, int numberOfVersions,
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
+        {
+            var artifact = CreateAndPublishNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
+
+            for (int i = 1; i < numberOfVersions; ++i)
+            {
+                var changes = new NovaArtifactDetails
+                {
+                    Id = artifact.Artifact.Id,
+                    ProjectId = artifact.Artifact.ProjectId,
+                    Version = artifact.Artifact.Version,
+                    Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                };
+
+                artifact.Lock(user);
+                artifact.Update(user, changes);
+                artifact.Publish(user);
+            }
+
+            return artifact;
+        }
+
+        /// <summary>
         /// Wraps an INovaArtifactDetails in an ArtifactWrapper and adds it the list of artifacts that get disposed.
         /// </summary>
         /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user that created this artifact.</param>
         /// <returns>The ArtifactWrapper for the novaArtifact.</returns>
-        public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IUser createdBy)
+        public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IProject project, IUser createdBy)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, createdBy);
-            WrappedArtifacts.Add(wrappedArtifact);
+            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, project, createdBy);
+            WrappedArtifactsToDispose.Add(wrappedArtifact);
 
             return wrappedArtifact;
         }
@@ -542,22 +583,17 @@ namespace Helper
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <param name="name">(optional) Artifact's name.</param>
-        /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
         /// <returns>The artifact.</returns>
         public IArtifact CreateAndPublishArtifact(IProject project,
             IUser user,
             BaseArtifactType artifactType,
             IArtifactBase parent = null,
-            string name = null,
-            int numberOfVersions = 1)
+            string name = null)
         {
             var artifact = CreateArtifact(project, user, artifactType, parent, name);
 
-            for (int i = 0; i < numberOfVersions; ++i)
-            {
-                artifact.Save();
-                artifact.Publish();
-            }
+            artifact.Save();
+            artifact.Publish();
 
             return artifact;
         }

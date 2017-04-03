@@ -2,6 +2,9 @@
 {
     public class ErrorCodes
     {
+        //Generic errors
+        public const int BadRequest = 400;
+
         //Configuration errors
         public const int LdapIsDisabled = 1000;
         public const int FallbackIsDisabled = 1001;
@@ -53,5 +56,9 @@
         public const int QueueJobProjectIdInvalid = 8005;
         public const int QueueJobProjectNameEmpty = 8006;
         public const int QueueJobEmptyRequest = 8007;
+
+        //Artifact Retrieval Errors
+        public const int ArtifactNotFound = 9001;
+        public const int SubartifactNotFound = 9002;
     }
 }

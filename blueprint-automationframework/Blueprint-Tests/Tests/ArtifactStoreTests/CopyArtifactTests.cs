@@ -16,6 +16,7 @@ using Common;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
 using System;
+using Model.ModelHelpers;
 using Utilities.Factories;
 
 namespace ArtifactStoreTests
@@ -89,50 +90,52 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: -1);
         }
         
-        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Glossary)]
-        [TestCase(BaseArtifactType.Document, BaseArtifactType.Actor)]
-        [TestCase(BaseArtifactType.Glossary, BaseArtifactType.TextualRequirement)]
-        [TestCase(BaseArtifactType.PrimitiveFolder, BaseArtifactType.PrimitiveFolder)]  // Folders can only be children of other folders.
-        [TestCase(BaseArtifactType.TextualRequirement, BaseArtifactType.Document)]
+        [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
+        [TestCase(ItemTypePredefined.Document, ItemTypePredefined.Actor)]
+        [TestCase(ItemTypePredefined.Glossary, ItemTypePredefined.TextualRequirement)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, ItemTypePredefined.PrimitiveFolder)]  // Folders can only be children of other folders.
+        [TestCase(ItemTypePredefined.TextualRequirement, ItemTypePredefined.Document)]
         [TestRail(191048)]
         [Description("Create and publish a source & parent artifact (source should have 2 published versions).  Copy the source artifact into the project root.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedChildArtifact_ToProjectRoot_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType parentArtifactType)
+        public void CopyArtifact_SinglePublishedChildArtifact_ToProjectRoot_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType, ItemTypePredefined parentArtifactType)
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, author, parentArtifactType);
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, author, sourceArtifactType, parentArtifact, numberOfVersions: 2);
+            var parentArtifact = Helper.CreateAndPublishNovaArtifact(author, _project, parentArtifactType);
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(author, _project, sourceArtifactType,
+                numberOfVersions: 2, parentId: parentArtifact.Id);
 
             var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, author),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, _project.Id, _project, author),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: 2);
         }
 
-        [TestCase(BaseArtifactType.Actor, BaseArtifactType.Glossary)]
+        [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Glossary)]
         [TestRail(195425)]
         [Description("Create and publish a source & parent artifact (source should have 2 published versions).  Copy the source artifact into the same parent.  " +
             "Verify the source artifact is unchanged and the new artifact is identical to the source artifact.  New copied artifact should not be published.")]
-        public void CopyArtifact_SinglePublishedChildArtifact_ToSameParent_ReturnsNewArtifact(BaseArtifactType sourceArtifactType, BaseArtifactType parentArtifactType)
+        public void CopyArtifact_SinglePublishedChildArtifact_ToSameParent_ReturnsNewArtifact(ItemTypePredefined sourceArtifactType, ItemTypePredefined parentArtifactType)
         {
             // Setup:
-            var parentArtifact = Helper.CreateAndPublishArtifact(_project, _user, parentArtifactType);
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, _user, sourceArtifactType, parentArtifact, numberOfVersions: 2);
+            var parentArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, parentArtifactType);
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, sourceArtifactType,
+                numberOfVersions: 2, parentId: parentArtifact.Id);
 
             var sourceArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, sourceArtifact.Id);
 
             // Execute:
             CopyNovaArtifactResultSet copyResult = null;
 
-            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentArtifact.Id, _user),
+            Assert.DoesNotThrow(() => copyResult = CopyArtifactAndWrap(sourceArtifact, parentArtifact.Id, _project, _user),
                 "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
 
             // Verify:
@@ -261,7 +264,7 @@ namespace ArtifactStoreTests
             AssertCopiedArtifactPropertiesAreIdenticalToOriginal(sourceArtifactDetails, copyResult, author, expectedVersionOfOriginalArtifact: expectedVersionOfOriginalArtifact);
 
             // Get traces & compare.
-            var sourceRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, author, copyResult.Artifact.Id, addDrafts: true);
+            var sourceRelationships = Helper.ArtifactStore.GetRelationships(author, copyResult.Artifact.Id, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(author, targetArtifact, addDrafts: true);
 
             Assert.AreEqual(1, sourceRelationships.ManualTraces.Count, "Copied artifact should have 1 manual trace.");
@@ -318,7 +321,7 @@ namespace ArtifactStoreTests
                 sourceArtifactDetails, copyResult, userNoTracePermission, skipCreatedBy: true, skipPermissions: true, skipIndicatorFlags: true);
 
             // Get traces & compare.
-            var copyRelationships = ArtifactStore.GetRelationships(Helper.ArtifactStore.Address, userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
+            var copyRelationships = Helper.ArtifactStore.GetRelationships(userNoTracePermission, copyResult.Artifact.Id, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_user, targetArtifact, addDrafts: true);
 
             Assert.AreEqual(0, copyRelationships.ManualTraces.Count, "Copied artifact should have no manual traces.");
@@ -1572,6 +1575,36 @@ namespace ArtifactStoreTests
                 var project = _projects.Find(p => p.Id == copyResult.Artifact.ProjectId);
 
                 _wrappedArtifacts.Add(Helper.WrapNovaArtifact(copyResult.Artifact, project, user, artifact.BaseArtifactType));
+            }
+
+            return copyResult;
+        }
+
+        /// <summary>
+        /// Copies the specified artifact to the new parent, wraps it in an ArtifactWrapper that gets disposed automatically,
+        /// and returns the result of the CopyArtifact call.
+        /// </summary>
+        /// <param name="artifact">The artifact to copy.</param>
+        /// <param name="newParentId">The Id of the new parent where this artifact will be copied to.</param>
+        /// <param name="project">The project where this artifact exists.</param>
+        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
+        ///     By default the artifact is copied to the end (after the last artifact).</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 201 Created is expected.</param>
+        /// <returns>The details of the artifact that we copied and the number of artifacts copied.</returns>
+        private CopyNovaArtifactResultSet CopyArtifactAndWrap(
+            ArtifactWrapper artifact,
+            int newParentId,
+            IProject project,
+            IUser user = null,
+            double? orderIndex = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, artifact.Id, newParentId, user, orderIndex, expectedStatusCodes);
+
+            if (copyResult?.Artifact != null)
+            {
+                Helper.WrapArtifact(copyResult.Artifact, project, user);
             }
 
             return copyResult;

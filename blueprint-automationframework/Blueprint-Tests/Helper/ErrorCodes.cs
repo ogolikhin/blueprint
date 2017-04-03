@@ -56,6 +56,9 @@ namespace Helper
         public const int QueueJobProjectIdInvalid = 8005;
         public const int QueueJobProjectNameEmpty = 8006;
         public const int QueueJobEmptyRequest = 8007;
+
+        public const int ArtifactNotFound = 9001;
+        public const int SubartifactNotFound = 9002;
     }
 
     // This is the global error code being used for Blueprint-current/NoSilverlight project

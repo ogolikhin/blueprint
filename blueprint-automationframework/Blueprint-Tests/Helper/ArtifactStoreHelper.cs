@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using Model.ModelHelpers;
 using Utilities;
 using Utilities.Facades;
 using Utilities.Factories;
@@ -180,6 +181,41 @@ namespace Helper
         }
 
         /// <summary>
+        /// Asserts that the properties of the Nova artifact response match with the specified artifact.
+        /// Some properties are expected to be null.
+        /// </summary>
+        /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>
+        /// <param name="artifact">The artifact to compare against.</param>
+        /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.
+        ///     By default it compares the version of the NovaArtifactResponse with the artifact.</param>
+        public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
+            INovaArtifactResponse novaArtifactResponse,
+            INovaArtifactDetails artifact,
+            int? expectedVersion = null)
+        {
+            ThrowIf.ArgumentNull(novaArtifactResponse, nameof(novaArtifactResponse));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            Assert.AreEqual(artifact.Id, novaArtifactResponse.Id, "The {0} properties of the artifacts don't match!", nameof(artifact.Id));
+            Assert.AreEqual(artifact.ItemTypeIconId, novaArtifactResponse.ItemTypeIconId, "The {0} properties of the artifacts don't match!", nameof(artifact.ItemTypeIconId));
+            Assert.AreEqual(artifact.ItemTypeId, novaArtifactResponse.ItemTypeId, "The {0} properties of the artifacts don't match!", nameof(artifact.ItemTypeId));
+            Assert.AreEqual(artifact.Name, novaArtifactResponse.Name, "The {0} properties of the artifacts don't match!", nameof(artifact.Name));
+            Assert.AreEqual(artifact.ParentId, novaArtifactResponse.ParentId, "The {0} properties of the artifacts don't match!", nameof(artifact.ParentId));
+            Assert.AreEqual(artifact.OrderIndex, novaArtifactResponse.OrderIndex, "The {0} properties of the artifacts don't match!", nameof(artifact.OrderIndex));
+            Assert.AreEqual(artifact.PredefinedType, novaArtifactResponse.PredefinedType, "The {0} properties of the artifacts don't match!", nameof(artifact.PredefinedType));
+            Assert.AreEqual(artifact.Prefix, novaArtifactResponse.Prefix, "The {0} properties of the artifacts don't match!", nameof(artifact.Prefix));
+            Assert.AreEqual(artifact.ProjectId, novaArtifactResponse.ProjectId, "The {0} properties of the artifacts don't match!", nameof(artifact.ProjectId));
+            Assert.AreEqual(expectedVersion ?? artifact.Version, novaArtifactResponse.Version, "The {0} properties of the artifacts don't match!", nameof(artifact.Version));
+
+            // These properties should always be null:
+            Assert.IsNull(novaArtifactResponse.CreatedBy, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.CreatedBy));
+            Assert.IsNull(novaArtifactResponse.CreatedOn, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.CreatedOn));
+            Assert.IsNull(novaArtifactResponse.Description, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.Description));
+            Assert.IsNull(novaArtifactResponse.LastEditedBy, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.LastEditedBy));
+            Assert.IsNull(novaArtifactResponse.LastEditedOn, "The {0} property of the Nova artifact response should always be null!", nameof(artifact.LastEditedOn));
+        }
+
+        /// <summary>
         /// Asserts that the response from the Nova call contains all the specified artifacts and that they now have the correct version.
         /// </summary>
         /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
@@ -206,6 +242,37 @@ namespace Helper
                 else
                 {
                     AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(novaArtifactResponse, artifact);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Asserts that the response from the Nova call contains all the specified artifacts and that they now have the correct version.
+        /// </summary>
+        /// <param name="artifactAndProjectResponse">The response from the Nova call.</param>
+        /// <param name="artifacts">The artifacts that we sent to the Nova call.</param>
+        /// <param name="expectedVersion">The version expected in the artifacts.</param>
+        public static void AssertArtifactsAndProjectsResponseContainsAllArtifactsInListAndHasExpectedVersion(
+            INovaArtifactsAndProjectsResponse artifactAndProjectResponse,
+            List<ArtifactWrapper> artifacts,
+            int expectedVersion)
+        {
+            ThrowIf.ArgumentNull(artifactAndProjectResponse, nameof(artifactAndProjectResponse));
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+
+            foreach (var artifact in artifacts)
+            {
+                var novaArtifactResponse = artifactAndProjectResponse.Artifacts.Find(a => a.Id == artifact.Id);
+                Assert.NotNull(novaArtifactResponse, "Couldn't find artifact ID {0} in the list of artifacts!");
+
+                // The artifact doesn't have a version before it's published at least once, so we can't compare version of unpublished artifacts.
+                if (artifact.ArtifactState.IsPublished)
+                {
+                    AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact.Artifact, expectedVersion);
+                }
+                else
+                {
+                    AssertNovaArtifactResponsePropertiesMatchWithArtifact(novaArtifactResponse, artifact.Artifact);
                 }
             }
         }
@@ -446,7 +513,7 @@ namespace Helper
         /// Asserts that both NovaSubArtifact objects are equal.
         /// </summary>
         /// <param name="expectedSubArtifact">The expected NovaSubArtifact.</param>
-        /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NoaSubArtifact.</param>
+        /// <param name="actualSubArtifact">The actual NovaSubArtifact to compare against the expected NovaSubArtifact.</param>
         /// <param name="artifactStore">An ArtifactStore to make REST calls to.</param>
         /// <param name="user">User to authenticate with.</param>
         /// <param name="expectedParentId">(optional) Pass the expected ParentId property of the actualSubArtifact or leave null if the 2 NovaSubArtifacts
@@ -520,22 +587,20 @@ namespace Helper
             // Get and compare sub-artifact Traces.
             if (propertyCompareOptions.CompareTraces)
             {
-                var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
-                    expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
-                var actualRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
-                    actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
+                var expectedRelationships = artifactStore.GetRelationships(user, expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
+                var actualRelationships = artifactStore.GetRelationships(user, actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
 
                 Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
             }
         }
 
         /// <summary>
-        /// Compares two lists of Custom properties
+        /// Compares two lists of Custom properties.
         /// </summary>
         /// <param name="expectedPropertyValues">List of expected Custom Properties</param>
         /// <param name="actualPropertyValues">List of actual Custom Properties</param>
-        /// <param name="skipVirtualProperties">(Optional) Set true to skip coparing properties with empty 'name' or 'typeid' -1.
-        /// Set 'true' for Specific properties</param>
+        /// <param name="skipVirtualProperties">(Optional) Set true to skip comparing properties with empty 'name' or 'typeid' -1.
+        ///     Set 'true' when comparing Specific properties.</param>
         private static void ComparePropertyValuesLists(List<CustomProperty> expectedPropertyValues,
             List<CustomProperty> actualPropertyValues, bool skipVirtualProperties = false)
         {

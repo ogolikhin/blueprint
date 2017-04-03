@@ -3,6 +3,7 @@ using ArtifactStore.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ServiceLibrary.Attributes;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
@@ -86,10 +87,10 @@ namespace ArtifactStore.Controllers
             {
                 var result = await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
             }
-            catch (HttpResponseException e)
+            catch (ResourceNotFoundException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.NotFound, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.ArtifactNotFound, e.ErrorCode);
             }
         }
 
@@ -113,10 +114,10 @@ namespace ArtifactStore.Controllers
             {
                 var result = await controller.GetAttachmentsAndDocumentReferences(artifactId, versionId, subArtifactId, addDrafts);
             }
-            catch (HttpResponseException e)
+            catch (BadRequestException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.BadRequest, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.BadRequest, e.ErrorCode);
             }
         }
 

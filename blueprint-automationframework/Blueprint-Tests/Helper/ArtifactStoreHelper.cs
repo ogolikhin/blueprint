@@ -587,10 +587,8 @@ namespace Helper
             // Get and compare sub-artifact Traces.
             if (propertyCompareOptions.CompareTraces)
             {
-                var expectedRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
-                    expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
-                var actualRelationships = ArtifactStore.GetRelationships(artifactStore.Address, user,
-                    actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
+                var expectedRelationships = artifactStore.GetRelationships(user, expectedSubArtifact.ParentId.Value, expectedSubArtifact.Id.Value);
+                var actualRelationships = artifactStore.GetRelationships(user, actualSubArtifact.ParentId.Value, actualSubArtifact.Id.Value);
 
                 Relationships.AssertRelationshipsAreEqual(expectedRelationships, actualRelationships);
             }

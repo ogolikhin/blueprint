@@ -303,7 +303,32 @@ namespace Model
         /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Relationships object for the specified artifact/subartifact.</returns>
-        Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+        Relationships GetRelationships(
+            IUser user,
+            IArtifactBase artifact,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets relationships for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationships)
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
+        /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Relationships object for the specified artifact/subartifact.</returns>
+        Relationships GetRelationships(
+            IUser user,
+            int artifactId,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifact details by specifying its ID.

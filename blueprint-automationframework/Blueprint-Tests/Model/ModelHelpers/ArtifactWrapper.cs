@@ -22,31 +22,49 @@ namespace Model.ModelHelpers
         public INovaArtifactDetails Artifact { get; set; }
 
         /// <summary>
+        /// The project where the artifact exists (not serialized; used by tests only).
+        /// </summary>
+        [JsonIgnore]
+        public IProject Project { get; private set; }
+
+        #region Constructors
+
+        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="artifact">The artifact to wrap.</param>
         /// <param name="artifactStore">The ArtifactStore to use for REST calls.</param>
         /// <param name="svcShared">The SvcShared to use for REST calls.</param>
+        /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
-        public ArtifactWrapper(INovaArtifactDetails artifact, IArtifactStore artifactStore, ISvcShared svcShared, IUser createdBy)
+        public ArtifactWrapper(
+            INovaArtifactDetails artifact,
+            IArtifactStore artifactStore,
+            ISvcShared svcShared,
+            IProject project,
+            IUser createdBy)
         {
             Artifact = artifact;
             ArtifactStore = artifactStore;
             SvcShared = svcShared;
+            Project = project;
             ArtifactState.CreatedBy = createdBy;
         }
+
+        #endregion Constructors
 
         /// <summary>
         /// Copies this artifact (and any children) to a new location.
         /// </summary>
         /// <param name="user">The user to perform the copy.</param>
+        /// <param name="newProject">The new project where this artifact will be copied to.</param>
         /// <param name="newParentId">The ID of the new parent where this artifact will be copied to.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
         /// <returns>The copy results and a list of artifacts that were copied.  The first item in the list is the main artifact that you copied.
         ///     If the artifact had any children, the copied children will also be in the list.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        public Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> CopyTo(IUser user, int newParentId, double? orderIndex = null)
+        public Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> CopyTo(IUser user, IProject newProject, int newParentId, double? orderIndex = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
@@ -56,7 +74,7 @@ namespace Model.ModelHelpers
 
             if (copyResult?.Artifact != null)
             {
-                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, ArtifactStore, SvcShared, user);
+                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, ArtifactStore, SvcShared, newProject, user);
                 response.Item2.Add(wrappedArtifact);
             }
 
@@ -86,7 +104,7 @@ namespace Model.ModelHelpers
 
                     // TODO: Also copy children of children...
 
-                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, ArtifactStore, SvcShared, user);
+                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, ArtifactStore, SvcShared, newProject, user);
                     response.Item2.Add(wrappedArtifact);
                 }
             }

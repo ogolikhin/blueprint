@@ -8,6 +8,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -68,7 +69,8 @@ namespace ArtifactStore.Controllers
             }
             if (itemInfo == null)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.",
+                    subArtifactId.HasValue ? ErrorCodes.SubartifactNotFound : ErrorCodes.ArtifactNotFound);
             }
 
             var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(new[] { artifactId }, session.UserId, false, revisionId);

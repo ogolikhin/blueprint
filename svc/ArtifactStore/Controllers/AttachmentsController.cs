@@ -9,6 +9,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -72,13 +73,14 @@ namespace ArtifactStore.Controllers
                 (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
             if (itemInfo == null)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.",
+                    subArtifactId.HasValue ? ErrorCodes.SubartifactNotFound : ErrorCodes.ArtifactNotFound);
             }
             if (subArtifactId.HasValue)
             {
                 if (itemInfo.ArtifactId != artifactId)
                 {
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);
+                    throw new BadRequestException();
                 }
             }
             var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts, baselineId);

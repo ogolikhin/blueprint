@@ -215,7 +215,7 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(234412)]
-        [Description("Create and publish Actor, set one Actor icon, check that icon has expected values.")]
+        [Description("Create and publish Actor.  Try to set the Actor icon to a deleted file.  Verify a 404 error is returned.")]
         public void SetActorIcon_DeletedFile_Validate404()
         {
             // Setup:

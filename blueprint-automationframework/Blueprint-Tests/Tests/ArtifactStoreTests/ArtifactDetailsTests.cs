@@ -84,7 +84,7 @@ namespace ArtifactStoreTests
         public void GetArtifactDetails_PublishedArtifactWithMultipleVersions_ReturnsArtifactDetailsForLatestVersion(int numberOfVersions)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_projects[0], _user, BaseArtifactType.Process, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _projects[0], ItemTypePredefined.Process, numberOfVersions);
             INovaArtifactDetails artifactDetails = null;
 
             // Execute:
@@ -94,7 +94,7 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 200 OK when passed a valid artifact ID!", GET_ARTIFACT_ID_PATH);
 
             // Verify:
-            var retrievedArtifactVersion = OpenApi.GetArtifact(artifact.Address, _projects[0], artifact.Id, _user);
+            var retrievedArtifactVersion = Helper.OpenApi.GetArtifact(_projects[0], artifact.Id, _user);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)

@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
@@ -175,10 +176,10 @@ namespace ArtifactStore.Controllers
             {
                 var result = await controller.GetDiscussions(artifactId);
             }
-            catch (HttpResponseException e)
+            catch (ResourceNotFoundException e)
             {
                 //Assert
-                Assert.AreEqual(HttpStatusCode.NotFound, e.Response.StatusCode);
+                Assert.AreEqual(ErrorCodes.ArtifactNotFound, e.ErrorCode);
             }
         }
         [TestMethod]

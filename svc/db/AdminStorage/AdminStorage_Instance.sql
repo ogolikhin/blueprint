@@ -1502,7 +1502,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Login_Session_Inva
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Recovery_Title', 'en-US', N'Reset Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Recovery_Submit', 'en-US', N'Recover Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_UserName', 'en-US', N'Blueprint Username')
-INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Reset_Title', 'en-US', N'Reset password')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Reset_Title', 'en-US', N'Reset Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_Reset_Submit', 'en-US', N'Reset Password')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_ConfirmRequest', 'en-US', N'A confirmation email has been sent to the address belonging to the provided Blueprint user.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('PasswordRecovery_ConfirmReset', 'en-US', N'The password has been changed successfully')

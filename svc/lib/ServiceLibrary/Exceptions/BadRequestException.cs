@@ -7,11 +7,11 @@ namespace ServiceLibrary.Exceptions
     [Serializable]
     public class BadRequestException : ExceptionWithErrorCode
     {
-        public BadRequestException() : base()
+        public BadRequestException() : base(string.Empty, ErrorCodes.BadRequest)
         {
         }
 
-        public BadRequestException(string message) : base(message)
+        public BadRequestException(string message) : base(message, ErrorCodes.BadRequest)
         {
         }
 

@@ -256,7 +256,7 @@ namespace ArtifactStore.Repositories
             if (baselineId != null)
             {
                 var baselineRevisionId = await _itemInfoRepository.GetRevisionId(itemId, userId, null, baselineId.Value);                
-                var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, userId, true, baselineRevisionId);
+                var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, userId, false, baselineRevisionId);
                 if (itemInfo == null)
                 {
                     artifactInfo.IsNotExistsInBaseline = true;

@@ -56,7 +56,7 @@ namespace ArtifactStore.Controllers
             }
             var itemId = subArtifactId ?? artifactId;
             var isDeleted = await _artifactVersionsRepository.IsItemDeleted(itemId);
-            var itemInfo = isDeleted && versionId != null ?
+            var itemInfo = isDeleted && (versionId != null || baselineId != null) ?
                 await _artifactVersionsRepository.GetDeletedItemInfo(itemId) :
                 await _artifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts);
             if (itemInfo == null)

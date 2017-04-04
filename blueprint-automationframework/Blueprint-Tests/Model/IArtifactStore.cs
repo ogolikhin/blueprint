@@ -421,9 +421,10 @@ namespace Model
         /// </summary>
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="itemId">Id of artifact or sub-artifact.</param>
+        /// <param name="baselineId">(optional) Id of Baseline which we want to check for having Artifact. If null is passed IsIncludedInBaseline will be null.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
         /// <returns>The artifact that was requested.</returns>
-        INovaVersionControlArtifactInfo GetVersionControlInfo(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null);
+        INovaVersionControlArtifactInfo GetVersionControlInfo(IUser user, int itemId, int? baselineId = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Moves an artifact to a different parent.

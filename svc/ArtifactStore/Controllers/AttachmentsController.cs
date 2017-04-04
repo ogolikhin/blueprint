@@ -68,7 +68,7 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var isDeleted = await ArtifactVersionsRepository.IsItemDeleted(itemId);
-            var itemInfo = isDeleted && versionId != null?
+            var itemInfo = isDeleted && (versionId != null || baselineId != null) ?
                 (await ArtifactVersionsRepository.GetDeletedItemInfo(itemId)) :
                 (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
             if (itemInfo == null)

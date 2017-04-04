@@ -535,16 +535,24 @@ namespace Model.Impl
             return GetUnpublishedChanges(Address, user, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.GetVersionControlInfo(IUser, int, List{HttpStatusCode})"/>
-        public INovaVersionControlArtifactInfo GetVersionControlInfo(IUser user, int itemId, List<HttpStatusCode> expectedStatusCodes = null)
+        /// <seealso cref="IArtifactStore.GetVersionControlInfo(IUser, int, int?, List{HttpStatusCode})"/>
+        public INovaVersionControlArtifactInfo GetVersionControlInfo(IUser user, int itemId, int? baselineId = null, List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts.VERSION_CONTROL_INFO_id_, itemId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (baselineId != null)
+            {
+                queryParameters.Add("baselineId", baselineId.ToString());
+            }
 
             var artifactBaseInfo = restApi.SendRequestAndDeserializeObject<NovaVersionControlArtifactInfo>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
+                queryParameters: queryParameters,
                 shouldControlJsonChanges: true);
 
             return artifactBaseInfo;

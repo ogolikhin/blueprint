@@ -10,6 +10,7 @@ using Model.Factories;
 using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
+using System.Collections.Generic;
 using TestCommon;
 using Utilities;
 
@@ -184,6 +185,32 @@ namespace ArtifactStoreTests
         }
 
         #endregion Artifact Changes
+
+        [TestCase]
+        [TestRail(267418)]
+        [Description("Add published artifact to baseline, publish baseline, get VersionControlInfo for artifact passing id of baseline - check that IsInBaseline is 'true'.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifactIncludedInBaseline_ReturnsArtifactInfoWithIsInBaselineTrue()
+        {
+            // Setup:
+            var artifact = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
+                ItemTypePredefined.Actor, _project.Id);
+            var baseline = Helper.CreateBaseline(_user, _project, artifactToAddId: artifact.Id);
+            Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _user);
+
+            INovaVersionControlArtifactInfo basicArtifactInfo = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => basicArtifactInfo = Helper.ArtifactStore.GetVersionControlInfo(_user, artifact.Id, baseline.Id),
+                "'GET {0}' should return 200 OK when passed a valid artifact and baseline IDs!", SVC_PATH);
+
+            // Verify:
+            Assert.IsTrue(basicArtifactInfo.IsIncludedInBaseline.Value, "IsIncludedInBaseline should be 'true'.");
+        }
+
+
+        #region Baseline
+
+        #endregion Baseline
 
         #region Sub-Artifact
 

@@ -578,6 +578,35 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
+        [TestCase]
+        [TestRail(267470)]
+        [Description("Create and publish two artifacts, create trace between artifacts and save changes, add saved artifact" +
+            " to newly created baseline, publish this artifact, get relationships for this artifact providing BaselineId" +
+            " as param, check that returned traces have expected values.")]
+        public void GetRelationshipsDetails_ArtifactAddedToBaselineProvideBaselineId_ValidateTraces()
+        {
+            // Setup:
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Document);
+            sourceArtifact.Lock(_user);
+            // TODO: create UpdateManualArtifactTraceAndSave which will work with ArtifactWrapper
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id,
+                targetArtifact.Artifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: sourceArtifact.Id);
+            sourceArtifact.Publish(_user);
+
+            Relationships relationships = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact.Id, baselineId: baselineArtifact.Id);
+            }, "Getting relationships with valid baselineId shouldn't throw any error.");
+
+            // Verify:
+            Assert.AreEqual(1, relationships?.ManualTraces?.Count, "Relationships should have expected number of manual traces.");
+            Assert.AreEqual(targetArtifact.Id, relationships.ManualTraces[0].ArtifactId, "Trace target should have expected artifact Id.");
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests

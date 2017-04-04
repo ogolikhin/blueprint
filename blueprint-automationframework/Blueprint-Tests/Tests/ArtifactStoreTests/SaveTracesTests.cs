@@ -47,12 +47,12 @@ namespace ArtifactStoreTests
         public void AddTrace_Between2PublishedArtifacts_TraceHasExpectedValue(TraceDirection direction)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            var sourceArtifact = Helper.CreateAndSaveArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             var targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
 
             // Execute:
-            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact, traceDirection: direction,
-                changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore); }, "Trace creation shouldn't throw any error.");
+            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId,
+                traceDirection: direction, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore); }, "Trace creation shouldn't throw any error.");
 
             // Verify:
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
@@ -113,10 +113,12 @@ namespace ArtifactStoreTests
             sourceArtifact.Publish(_adminUser);
             Assert.AreEqual(1, traces.Count);
 
+            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+
             // Execute:
-            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.To); },
-                "Trace deletion shouldn't throw any error.");
+            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
+                targetArtifact.Id, targetArtifact.ProjectId,changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore,
+                traceDirection: TraceDirection.To); }, "Trace deletion shouldn't throw any error.");
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
 
@@ -137,15 +139,16 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
             var targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
 
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
+            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
+                targetArtifact.ProjectId, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
 
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Artifact should have 1 trace.");
 
             // Execute:
-            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore);
+            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
+                targetArtifact.Id, targetArtifact.ProjectId, changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore);
             }, "Trace delete shouldn't throw any error.");
 
             // Verify:
@@ -165,15 +168,15 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndSaveArtifact(_projectTest, _authorUser, BaseArtifactType.Glossary);
             var targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.DomainDiagram);
 
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
+                targetArtifact.ProjectId, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
 
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             Assert.AreEqual(1, relationships.ManualTraces.Count, "Artifact should have 1 trace.");
 
             // Execute:
-            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore);
+            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
+                targetArtifact.Id, targetArtifact.ProjectId, changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore);
             }, "Trace delete shouldn't throw any error.");
 
             // Verify:
@@ -199,10 +202,12 @@ namespace ArtifactStoreTests
             sourceArtifact.Publish(_adminUser);
             Assert.AreEqual(1, traces.Count);
 
+            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+
             // Execute:
-            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    changeType: ChangeType.Update, artifactStore: Helper.ArtifactStore, traceDirection: finalDirection);
-            },"Changing trace direction shouldn't throw any error.");
+            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
+                targetArtifact.Id, targetArtifact.ProjectId, changeType: ChangeType.Update, artifactStore: Helper.ArtifactStore,
+                traceDirection: finalDirection); },"Changing trace direction shouldn't throw any error.");
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
 
             // Verify:
@@ -382,9 +387,9 @@ namespace ArtifactStoreTests
             targetArtifact.Lock(_adminUser);
             
             // Execute:
-            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore, traceDirection: TraceDirection.TwoWay);
-            }, "Trace adding shouldn't throw any error.");
+            Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
+                targetArtifact.Id, targetArtifact.ProjectId, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore,
+                traceDirection: TraceDirection.TwoWay); }, "Trace adding shouldn't throw any error.");
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
 
@@ -412,9 +417,9 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    traceDirection: TraceDirection.TwoWay, changeType: 0, artifactStore: Helper.ArtifactStore);
-            }, "Adding a trace to a deleted artifact should return 409 Conflict!");
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
+                    targetArtifact.ProjectId, traceDirection: TraceDirection.TwoWay, changeType: 0,
+                    artifactStore: Helper.ArtifactStore); }, "Adding a trace to a deleted artifact should return 409 Conflict!");
 
             // Verify:
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
@@ -504,11 +509,13 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Edit | RolePermissions.Delete, _projectTest, sourceArtifact);
 
+            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    traceDirection: TraceDirection.From, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
-                },"Trace creation shouldn't throw any error.");
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
+                    targetArtifact.ProjectId, traceDirection: TraceDirection.From, changeType: ChangeType.Create,
+                    artifactStore: Helper.ArtifactStore); },"Trace creation shouldn't throw any error.");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveDueToReadOnly,
@@ -534,11 +541,13 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Delete, _projectTest, targetArtifact);
 
+            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    traceDirection: TraceDirection.From, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
-            }, "Adding a trace when the user doesn't have Edit permission for the trace target should return 409 Conflict!");
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
+                    targetArtifact.ProjectId, traceDirection: TraceDirection.From, changeType: ChangeType.Create,
+                    artifactStore: Helper.ArtifactStore); },
+                    "Adding a trace when the user doesn't have Edit permission for the trace target should return 409 Conflict!");
 
             // Verify:
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotSaveDueToReadOnly,
@@ -564,10 +573,13 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read, _projectTest, targetArtifact);
 
+            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact, targetArtifact,
-                    traceDirection: TraceDirection.From, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
+                    targetArtifact.ProjectId, traceDirection: TraceDirection.From, changeType: ChangeType.Create,
+                    artifactStore: Helper.ArtifactStore);
             }, "Adding a trace with a user that has no access to the target artifact should return 409 Conflict!");
 
             // Verify:
@@ -598,10 +610,13 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             var projectArtifact = ArtifactFactory.CreateArtifact(_projectTest, _adminUser, BaseArtifactType.Glossary, nonValidItemId);
 
+            Helper.SvcShared.LockArtifact(_authorUser, artifact.Id);
+
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
-                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_adminUser, artifact, projectArtifact,
-                    traceDirection: TraceDirection.To, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
+                ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_adminUser, artifact.Id, projectArtifact.Id,
+                    projectArtifact.Id, traceDirection: TraceDirection.To, changeType: ChangeType.Create,
+                    artifactStore: Helper.ArtifactStore);
             }, "Adding a trace to an invalid (unsupported) artifact type should return 409 Conflict!");
 
             // Verify:

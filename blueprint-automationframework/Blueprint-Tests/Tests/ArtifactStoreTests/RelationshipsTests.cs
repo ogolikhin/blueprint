@@ -580,28 +580,30 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(267470)]
-        [Description(".")]
+        [Description("Create and publish two artifacts, create trace between artifacts and save changes, add saved artifact" +
+            " to newly created baseline, publish this artifact, get relationships for this artifact providing BaselineId" +
+            " as param, check that returned traces have expected values.")]
         public void GetRelationshipsDetails_ArtifactAddedToBaselineProvideBaselineId_ValidateTraces()
         {
             // Setup:
-            var sourceArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.Actor);
-            var targetArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.Document);
-            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact, targetArtifact, ChangeType.Create,
-                Helper.ArtifactStore);
+            var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Document);
+            Helper.SvcShared.LockArtifact(_user, sourceArtifact.Id);
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id,
+                targetArtifact.Artifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore);
             var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: sourceArtifact.Id);
-            //var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
-
             sourceArtifact.Publish(_user);
 
             Relationships relationships = null;
 
             // Execute:
             Assert.DoesNotThrow(() => {
-                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, baselineId: baselineArtifact.Id);
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact.Id, baselineId: baselineArtifact.Id);
             }, "Getting relationships with valid baselineId shouldn't throw any error.");
 
             // Verify:
-            Assert.IsNotNull(relationships);
+            Assert.AreEqual(1, relationships?.ManualTraces?.Count, "Relationships should have expected number of manual traces.");
+            Assert.AreEqual(targetArtifact.Id, relationships.ManualTraces[0].ArtifactId, "Trace target should have expected artifact Id.");
         }
 
         #endregion 200 OK Tests

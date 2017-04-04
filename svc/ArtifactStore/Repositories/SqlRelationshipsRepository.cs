@@ -172,6 +172,11 @@ namespace ArtifactStore.Repositories
                                         (int)LinkType.ActorInheritsFrom,
                                         (int)LinkType.DocumentReference };
 
+            if (baselineId != null)
+            {
+                addDrafts = false;
+            }
+
             var results = (await GetLinkInfo(itemId, userId, addDrafts, revisionId, types)).ToList();
             var manualLinks = results.Where(a => a.LinkType == LinkType.Manual).ToList();
             var otherLinks = results.Where(a => a.LinkType != LinkType.Manual).ToList();

@@ -1310,11 +1310,13 @@ namespace Helper
 
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
 
-            Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
 
             var rolePermissions = GetRolePermissionsForProjectRole(role);
 
@@ -1425,11 +1427,13 @@ namespace Helper
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
 
-            Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
 
             IProjectRole projectRole = null;
 

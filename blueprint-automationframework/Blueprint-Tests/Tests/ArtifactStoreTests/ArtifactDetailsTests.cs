@@ -118,6 +118,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            var retrievedArtifactVersion1 = Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
 
             artifact.Lock(_user);
             artifact.SaveWithNewDescription(_user);
@@ -133,7 +134,6 @@ namespace ArtifactStoreTests
 
             // Verify:
             // Compare OpenAPI retrieved artifact with the Nova artifact to verify they both agree.
-            var retrievedArtifactVersion1 = Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)
@@ -150,6 +150,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            var retrievedArtifactVersion1 = Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
 
             artifact.Lock(_user);
             artifact.SaveWithNewDescription(_user);
@@ -169,7 +170,6 @@ namespace ArtifactStoreTests
 
             // Verify:
             // Compare OpenAPI retrieved artifact with the Nova artifact to verify they both agree.
-            var retrievedArtifactVersion1 = Helper.OpenApi.GetArtifact(_project, artifact.Id, _user);
             ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, retrievedArtifactVersion1);
 
             // TODO: add check that Process has SpecificPropery - ClientType (?)

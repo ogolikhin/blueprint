@@ -41,8 +41,10 @@ namespace Model.ModelHelpers
             Artifact = artifact;
             ArtifactStore = artifactStore;
             SvcShared = svcShared;
+
             ArtifactState.Project = project;
             ArtifactState.CreatedBy = createdBy;
+            ArtifactState.LockOwner = createdBy;
         }
 
         #endregion Constructors

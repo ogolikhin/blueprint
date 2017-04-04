@@ -47,8 +47,10 @@ namespace ArtifactStoreTests
         public void AddTrace_Between2PublishedArtifacts_TraceHasExpectedValue(TraceDirection direction)
         {
             // Setup:
-            var sourceArtifact = Helper.CreateAndSaveArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+            var sourceArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             var targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
+
+            sourceArtifact.Lock(_authorUser);
 
             // Execute:
             Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId,
@@ -113,11 +115,11 @@ namespace ArtifactStoreTests
             sourceArtifact.Publish(_adminUser);
             Assert.AreEqual(1, traces.Count);
 
-            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+            sourceArtifact.Lock(_authorUser);
 
             // Execute:
             Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
-                targetArtifact.Id, targetArtifact.ProjectId,changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore,
+                targetArtifact.Id, targetArtifact.ProjectId, changeType: ChangeType.Delete, artifactStore: Helper.ArtifactStore,
                 traceDirection: TraceDirection.To); }, "Trace deletion shouldn't throw any error.");
             var relationships = Helper.ArtifactStore.GetRelationships(_authorUser, sourceArtifact, addDrafts: true);
             var targetRelationships = Helper.ArtifactStore.GetRelationships(_authorUser, targetArtifact, addDrafts: true);
@@ -139,7 +141,7 @@ namespace ArtifactStoreTests
             var sourceArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.Actor);
             var targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
 
-            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+            sourceArtifact.Lock(_authorUser);
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
                 targetArtifact.ProjectId, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
 
@@ -202,7 +204,7 @@ namespace ArtifactStoreTests
             sourceArtifact.Publish(_adminUser);
             Assert.AreEqual(1, traces.Count);
 
-            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+            sourceArtifact.Lock(_authorUser);
 
             // Execute:
             Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
@@ -385,6 +387,7 @@ namespace ArtifactStoreTests
             var targetArtifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.UseCase);
 
             targetArtifact.Lock(_adminUser);
+            sourceArtifact.Lock(_authorUser);
             
             // Execute:
             Assert.DoesNotThrow(() => { ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id,
@@ -415,6 +418,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.DeleteArtifact(targetArtifact, _adminUser);
             Helper.ArtifactStore.PublishArtifact(targetArtifact, _adminUser);
 
+            sourceArtifact.Lock(_authorUser);
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
                 ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
@@ -509,7 +513,7 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Edit | RolePermissions.Delete, _projectTest, sourceArtifact);
 
-            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+            sourceArtifact.Lock(_authorUser);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
@@ -541,7 +545,7 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read | RolePermissions.Delete, _projectTest, targetArtifact);
 
-            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+            sourceArtifact.Lock(_authorUser);
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
                 ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_authorUser, sourceArtifact.Id, targetArtifact.Id,
@@ -573,7 +577,7 @@ namespace ArtifactStoreTests
 
             Helper.AssignProjectRolePermissionsToUser(_authorUser, RolePermissions.Read, _projectTest, targetArtifact);
 
-            Helper.SvcShared.LockArtifact(_authorUser, sourceArtifact.Id);
+            sourceArtifact.Lock(_authorUser);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
@@ -610,7 +614,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_projectTest, _adminUser, BaseArtifactType.TextualRequirement);
             var projectArtifact = ArtifactFactory.CreateArtifact(_projectTest, _adminUser, BaseArtifactType.Glossary, nonValidItemId);
 
-            Helper.SvcShared.LockArtifact(_authorUser, artifact.Id);
+            artifact.Lock(_adminUser);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {

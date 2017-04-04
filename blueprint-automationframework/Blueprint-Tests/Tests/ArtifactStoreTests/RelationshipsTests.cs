@@ -588,7 +588,8 @@ namespace ArtifactStoreTests
             // Setup:
             var sourceArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
             var targetArtifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Document);
-            Helper.SvcShared.LockArtifact(_user, sourceArtifact.Id);
+            sourceArtifact.Lock(_user);
+            // TODO: create UpdateManualArtifactTraceAndSave which will work with ArtifactWrapper
             ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact.Id, targetArtifact.Id,
                 targetArtifact.Artifact.ProjectId.Value, ChangeType.Create, Helper.ArtifactStore);
             var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: sourceArtifact.Id);

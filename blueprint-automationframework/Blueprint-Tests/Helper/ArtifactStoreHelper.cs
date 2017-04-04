@@ -1914,7 +1914,6 @@ namespace Helper
             ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            //artifact.Lock(user);
             var artifactDetails = artifactStore.GetArtifactDetails(user, artifactId);
 
             var traceToCreate = new NovaTrace();
@@ -1930,7 +1929,6 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            //Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
             ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
         }

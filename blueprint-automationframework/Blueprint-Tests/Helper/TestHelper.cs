@@ -478,6 +478,21 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates and Publishes a Nova Artifact for a Specific Standard Artifact Type.
+        /// </summary>
+        /// <param name="user">The user creating the artifact.</param>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <returns>The Standard Nova artifact in a published state.</returns>
+        public ArtifactWrapper CreateAndPublishNovaArtifactForStandardArtifactType(IUser user, IProject project, ItemTypePredefined itemType)
+        {
+            var artifactTypeName = ArtifactStoreHelper.GetStandardPackArtifactTypeName(itemType);
+
+            return CreateAndPublishNovaArtifact(user, project, itemType,
+                artifactTypeName: artifactTypeName);
+        }
+
+        /// <summary>
         /// Wraps an INovaArtifactDetails in an ArtifactWrapper and adds it the list of artifacts that get disposed.
         /// </summary>
         /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
@@ -770,7 +785,7 @@ namespace Helper
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
         /// <returns>The new Nova artifact that was created.</returns>
-        public INovaArtifactDetails UpdateNovaArtifact(IUser user, NovaArtifactDetails novaArtifactDetails)
+        public INovaArtifactDetails UpdateNovaArtifact(IUser user, INovaArtifactDetails novaArtifactDetails)
         {     
             return UpdateArtifact(ArtifactStore.Address, user, novaArtifactDetails);
         }
@@ -1289,19 +1304,63 @@ namespace Helper
             IUser user, 
             ProjectRole role, 
             IProject project, 
-            IArtifactBase artifact = null,
+            IArtifactBase artifact,
             GroupLicenseType licenseType = GroupLicenseType.Author)
         {
 
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
+            Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+
+            var rolePermissions = GetRolePermissionsForProjectRole(role);
+
+            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact, licenseType);
+        }
+
+        /// <summary>
+        /// Assigns project role permissions to the specified user and gets updated Session-Token.
+        /// Optionally, creates role permissions for a single artifact within a project.
+        /// </summary>
+        /// <param name="user">User to assign role.</param>
+        /// <param name="role">Author, Viewer or No permission role.</param>
+        /// <param name="project">The project that the role is created for.</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
+        ///     after adding a new permissions role.</param>
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
+        public void AssignProjectRolePermissionsToUser(
+            IUser user,
+            ProjectRole role,
+            IProject project,
+            INovaArtifactDetails artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
+        {
+
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
             if (artifact != null)
             {
                 Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
             }
 
-            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+            var rolePermissions = GetRolePermissionsForProjectRole(role);
 
+            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact, licenseType);
+        }
+
+        /// <summary>
+        /// Gets the specific role permissions for the specified Project Role.
+        /// </summary>
+        /// <param name="role">The Project Role whose permissions you want to get.</param>
+        /// <returns>The permissions for the Project Role.</returns>
+        private static RolePermissions GetRolePermissionsForProjectRole(ProjectRole role)
+        {
             var rolePermissions = RolePermissions.None;
 
             if (role == ProjectRole.Viewer)
@@ -1344,34 +1403,33 @@ namespace Helper
                         RolePermissions.Trace;
             }
 
-            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact, licenseType);
+            return rolePermissions;
         }
 
         /// <summary>
         /// Assigns project role permissions to the specified user and gets updated Session-Token.
         /// Optionally, creates role permissions for a single artifact within a project.
         /// </summary>
-        /// <param name="user">User to assign role</param>
+        /// <param name="user">User to assign role.</param>
         /// <param name="rolePermissions">Role permissions.</param>
-        /// <param name="project">The project that the role is created for</param>
-        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
-        /// after adding a new permissions role</param>
+        /// <param name="project">The project that the role is created for.</param>
+        /// <param name="artifact">Specific artifact to apply permissions to instead of project-wide
+        ///     after adding a new permissions role.</param>
         /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
         public void AssignProjectRolePermissionsToUser(
             IUser user, 
             RolePermissions rolePermissions, 
             IProject project, 
-            IArtifactBase artifact = null,
+            IArtifactBase artifact,
             GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
-            if (artifact != null)
-            {
-                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
-            }
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
+            Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
 
             IProjectRole projectRole = null;
 
@@ -1389,7 +1447,52 @@ namespace Helper
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
 
             Logger.WriteInfo("User {0} created.", user.Username);
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+        }
 
+        /// <summary>
+        /// Assigns project role permissions to the specified user and gets updated Session-Token.
+        /// Optionally, creates role permissions for a single artifact within a project.
+        /// </summary>
+        /// <param name="user">User to assign role</param>
+        /// <param name="rolePermissions">Role permissions.</param>
+        /// <param name="project">The project that the role is created for</param>
+        /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
+        /// after adding a new permissions role</param>
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
+        public void AssignProjectRolePermissionsToUser(
+            IUser user,
+            RolePermissions rolePermissions,
+            IProject project,
+            INovaArtifactDetails artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
+
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
+
+            IProjectRole projectRole = null;
+
+            projectRole = ProjectRoleFactory.CreateProjectRole(
+                        project, rolePermissions,
+                        rolePermissions.ToString());
+
+            if (projectRole != null)
+            {
+                ProjectRoles.Add(projectRole);
+            }
+
+            var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
+            permissionsGroup.AddUser(user);
+            permissionsGroup.AssignRoleToProjectOrNovaArtifact(project, role: projectRole, artifact: artifact);
+
+            Logger.WriteInfo("User {0} created.", user.Username);
             Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(AssignProjectRolePermissionsToUser));
         }
 

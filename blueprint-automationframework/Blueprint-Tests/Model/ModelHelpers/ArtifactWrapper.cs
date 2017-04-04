@@ -230,7 +230,7 @@ namespace Model.ModelHelpers
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>
         /// <returns>The updated artifact.</returns>
-        public INovaArtifactDetails Update(IUser user, NovaArtifactDetails updateArtifact)
+        public INovaArtifactDetails Update(IUser user, INovaArtifactDetails updateArtifact)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 

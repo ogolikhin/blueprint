@@ -477,10 +477,32 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
-                "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+                "We should get a 403 Fordbidden when a user trying to delete an artifact if user does not have permission to delete it!");
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDelete, expectedMessage);
+        }
+
+        [TestRail(267471)]
+        [TestCase(BaseArtifactType.Actor)]
+        [Description("Create and publish an artifact. Attempt to delete the artifact with a user that does not have permission " +
+             "to read. Verify that HTTP 403 Forbidden exception is thrown.")]
+        public void DeleteArtifact_UserDoesNotHaveReadPermission_403Forbidden(BaseArtifactType artifactType)
+        {
+            // Setup:
+            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+
+            // Create a user without permission to read the artifact.
+            var userWithoutReadPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            Helper.AssignProjectRolePermissionsToUser(userWithoutReadPermission, TestHelper.ProjectRole.None, _project, artifact);
+
+            // Execute:
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutReadPermission),
+                "We should get a 403 Fordbidden when a user trying to delete an artifact if user does not have permission to read it!");
+
+            // Verify:
+            string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to access the artifact (ID: {0})", artifact.Id);
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
         }
 
@@ -506,7 +528,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", childArtifact.Id);
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDelete, expectedMessage);
         }
 
         [TestRail(190967)]
@@ -534,7 +556,7 @@ namespace ArtifactStoreTests
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.Forbidden, expectedMessage);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotDelete, expectedMessage);
         }
 
         [TestCase]

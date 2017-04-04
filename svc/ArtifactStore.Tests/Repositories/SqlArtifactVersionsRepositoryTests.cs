@@ -644,6 +644,105 @@ namespace ArtifactStore.Repositories
             // Assert
             connectionWrapperMock.Verify();
             Assert.IsTrue(artifactInfo.HasChanges);
+        }        
+
+        private SqlArtifactVersionsRepository CreateSqlRepositoryMock(int userId, int artifactId, int baselineId,
+            int revisionId, ItemInfo itemInfo, ISet<int> baselineArtifacts)
+        {
+            SqlConnectionWrapperMock connectionWrapperMock = new SqlConnectionWrapperMock();
+            connectionWrapperMock.SetupQueryAsync("GetArtifactBasicDetails",
+                new Dictionary<string, object> {{"@userId", userId}, {"@itemId", artifactId } },
+                new List<ArtifactBasicDetails>
+                {
+                    new ArtifactBasicDetails
+                    {
+                        ItemId = artifactId,
+                        ArtifactId = artifactId
+                    }
+                });
+
+            Mock<IArtifactPermissionsRepository> artifactPermissionsRepositoryMock = new Mock<IArtifactPermissionsRepository>();
+            artifactPermissionsRepositoryMock.Setup(apr => apr.GetArtifactPermissions(
+                It.IsAny<IEnumerable<int>>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>()))
+                .ReturnsAsync(new Dictionary<int, RolePermissions> {{artifactId, RolePermissions.Read}});
+
+            _itemInfoRepositoryMock.Setup(iir => iir.GetRevisionId(
+                artifactId, userId, null, baselineId))
+                .ReturnsAsync(revisionId);
+
+            artifactPermissionsRepositoryMock.Setup(apr => apr.GetItemInfo(
+                artifactId, userId, false, revisionId))
+                .ReturnsAsync(itemInfo);
+
+            artifactPermissionsRepositoryMock.Setup(apr => apr.GetBaselineArtifacts(
+                baselineId, userId, true, int.MaxValue))
+                .ReturnsAsync(baselineArtifacts);
+
+            SqlArtifactVersionsRepository artifactVersionsRepository = new SqlArtifactVersionsRepository(
+                connectionWrapperMock.Object, artifactPermissionsRepositoryMock.Object, _itemInfoRepositoryMock.Object);
+            return artifactVersionsRepository;
+        }
+
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_ExistsInBaselines()
+        {
+            // Arrange
+            int userId = 1, artifactId = 10, baselineId = 20, revisionId = 30;
+
+            var artifactVersionsRepository = CreateSqlRepositoryMock(userId, artifactId, baselineId, revisionId, new ItemInfo(), null);
+
+            // Act
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(artifactId, baselineId, userId));
+
+            // Assert
+            Assert.IsNull(artifactInfo.IsNotExistsInBaseline);
+        }
+
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_IsNotExistsInBaselines()
+        {
+            // Arrange
+            int userId = 1, artifactId = 10, baselineId = 20, revisionId = 30;
+
+            var artifactVersionsRepository = CreateSqlRepositoryMock(userId, artifactId, baselineId, revisionId, null, null);
+
+            // Act
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(artifactId, baselineId, userId));
+
+            // Assert
+            Assert.IsTrue(artifactInfo.IsNotExistsInBaseline != null && artifactInfo.IsNotExistsInBaseline.Value);
+        }
+
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_IncludedArtifactInBaselines()
+        {
+            // Arrange
+            int userId = 1, artifactId = 10, baselineId = 20, revisionId = 30;
+
+            var artifactVersionsRepository = CreateSqlRepositoryMock(userId, artifactId,
+                baselineId, revisionId, null, new HashSet<int>() { artifactId });
+
+            // Act
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(artifactId, baselineId, userId));
+
+            // Assert
+            Assert.IsTrue(artifactInfo.IsIncludedInBaseline != null && artifactInfo.IsIncludedInBaseline.Value);
+        }
+
+        [TestMethod]
+        public async Task GetVersionControlArtifactInfoAsync_NotIncludedArtifactInBaselines()
+        {
+            // Arrange
+            int userId = 1, artifactId = 10, baselineId = 20, revisionId = 30;
+
+            var artifactVersionsRepository = CreateSqlRepositoryMock(userId, artifactId,
+                baselineId, revisionId, null, new HashSet<int>() { 12 });
+
+            // Act
+            VersionControlArtifactInfo artifactInfo = (await artifactVersionsRepository.GetVersionControlArtifactInfoAsync(artifactId, baselineId, userId));
+
+            // Assert
+            Assert.IsTrue(artifactInfo.IsIncludedInBaseline != null && artifactInfo.IsIncludedInBaseline.Value == false);
         }
     }
 }

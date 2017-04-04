@@ -552,7 +552,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.DeleteArtifact(artifact, userWithoutDeletePermission),
-                "We should get a 403 Fordbidden when a user trying to delete an artifact does not have permission to delete!");
+                "We should get a 403 Forbidden when a user trying to delete an artifact does not have permission to delete!");
 
             // Verify:
             string expectedMessage = I18NHelper.FormatInvariant("You do not have permission to delete the artifact (ID: {0})", artifact.Id);

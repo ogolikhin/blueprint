@@ -14,6 +14,7 @@ using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 
+
 namespace AdminStore.Controllers
 {
     [ApiControllerJsonConfig]
@@ -166,43 +167,78 @@ namespace AdminStore.Controllers
         public async Task<IHttpActionResult> PostRequestPasswordResetAsync([FromBody]string login)
         {
             try
-			{
-            	const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
-			    var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
-        	    if (!matchingSetting)
-	            {
-	                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
-	            }
-	
-	            var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+            {
+                const string IsPasswordRecoveryEnabledKey = "IsPasswordRecoveryEnabled";
 
-                bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
-                bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
+                var matchingSetting = await _applicationSettingsRepository.GetValue(IsPasswordRecoveryEnabledKey, false);
+                if (!matchingSetting)
+                {
+                    await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Password recovery is disabled");
+                    return Conflict();
+                }
+
+                var instanceSettings = await _settingsRepository.GetInstanceSettingsAsync();
+                if (instanceSettings?.EmailSettingsDeserialized?.HostName == null)
+                {
+                    await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Invalid instance email settings");
+                    return Conflict();
+                }
 
                 var user = await _userRepository.GetUserByLoginAsync(login);
-                if(user == null)
+                if (user == null)
                 {
-                    return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
+                    await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "The user doesn't exist");
+                    return Conflict();
                 }
+
+                bool passwordResetAllowed = await _userRepository.CanUserResetPasswordAsync(login);
+                if (!passwordResetAllowed)
+                {
+                    await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "The user isn't allowed to reset the password");
+                    return Conflict();
+                }
+
+                bool passwordRequestLimitExceeded = await _userRepository.HasUserExceededPasswordRequestLimitAsync(login);
+                if (passwordRequestLimitExceeded)
+                {
+                    await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Exceeded requests limit");
+                    return Conflict();
+                }
+
 
                 bool passwordResetCooldownInEffect = await _authenticationRepository.IsChangePasswordCooldownInEffect(user);
-
-                if (passwordResetAllowed && !passwordRequestLimitExceeded && !passwordResetCooldownInEffect && instanceSettings?.EmailSettingsDeserialized?.HostName != null)
+                if (passwordResetCooldownInEffect)
                 {
-                    var recoveryToken = SystemEncryptions.CreateCryptographicallySecureGuid();
-
-                    _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
-                    _emailHelper.SendEmail(user);
-
-                    await _userRepository.UpdatePasswordRecoveryTokensAsync(login, recoveryToken);
-                    return Ok();
+                    await _log.LogInformation(WebApiConfig.LogSourceUsersPasswordReset, "Cooldown is in effect");
+                    return Conflict();
                 }
 
-                return ResponseMessage(Request.CreateResponse(HttpStatusCode.Conflict));
+                var recoveryToken = SystemEncryptions.CreateCryptographicallySecureGuid();
+                var recoveryUrl = new Uri(Request.RequestUri, ServiceConstants.ForgotPasswordResetUrl + "/" + recoveryToken).AbsoluteUri;
+
+                _emailHelper.Initialize(instanceSettings.EmailSettingsDeserialized);
+
+                _emailHelper.SendEmail(user.Email, "Reset Password",
+                    $@"
+                        <html>
+                            <div>Hello {user.DisplayName}.</div>
+                            <br>
+                            <div>We have received a request to reset your password.</div>
+                            <br>
+                            <div>To confirm this password reset, visit the following link:</div>
+                            <a href='{recoveryUrl}'>Reset password</a>
+                            <br><br>
+                            <div>If you did not make this request, you can ignore this email, and no changes will be made.</div>
+                            <br>
+                            <div>If you have any questions, please contact your administrator. </div>
+                        </html>");
+
+                await _userRepository.UpdatePasswordRecoveryTokensAsync(login, recoveryToken);
+                return Ok();
             }
             catch (Exception ex)
             {
-                await _log.LogError(WebApiConfig.LogSourceConfig, ex);
+                await _log.LogError(WebApiConfig.LogSourceUsersPasswordReset, ex);
                 return InternalServerError();
             }
         }

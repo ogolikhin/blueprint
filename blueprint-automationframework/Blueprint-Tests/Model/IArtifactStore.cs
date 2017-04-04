@@ -140,6 +140,16 @@ namespace Model
         List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
+        /// (Runs 'DELETE svc/bpartifactstore/artifacts/{0}')
+        /// </summary>
+        /// <param name="artifactId">The Id of artifact to delete.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>A list of artifacts that were deleted.</returns>
+        List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Discard a single artifact.
         /// </summary>
         /// <param name="artifact">The artifact to discard.  This can be null if the 'all' parameter is true.</param>
@@ -209,11 +219,9 @@ namespace Model
         /// <param name="projectId">The id of specific project.</param>
         /// <param name="artifactId">The id of specific artifact.</param>
         /// <param name="user">The user to authenticate with.</param>
-        /// <param name="includeAuthorHistory">Should include Author History into search results.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of all sub-artifacts of the specified artifact.</returns>
         List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
-            bool? includeAuthorHistory = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -295,7 +303,32 @@ namespace Model
         /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Relationships object for the specified artifact/subartifact.</returns>
-        Relationships GetRelationships(IUser user, IArtifactBase artifact, int? subArtifactId = null, bool? addDrafts = null, int? versionId = null, List<HttpStatusCode> expectedStatusCodes = null);
+        Relationships GetRelationships(
+            IUser user,
+            IArtifactBase artifact,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets relationships for the specified artifact/subartifact
+        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationships)
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
+        /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
+        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
+        /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
+        /// <returns>Relationships object for the specified artifact/subartifact.</returns>
+        Relationships GetRelationships(
+            IUser user,
+            int artifactId,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets artifact details by specifying its ID.
@@ -420,6 +453,15 @@ namespace Model
         INovaArtifactsAndProjectsResponse PublishArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
+        /// Publishes an artifact.
+        /// </summary>
+        /// <param name="artifactId">The ID of the artifact to publish.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
+        INovaArtifactsAndProjectsResponse PublishArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
         /// Publishes a list of artifacts.
         /// </summary>
         /// <param name="artifacts">The artifacts to publish.  This can be null if the 'publishAll' parameter is true.</param>
@@ -469,8 +511,8 @@ namespace Model
         /// <param name="collectionId">Id of Collection.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Number of artifacts added to Collection</returns>
-        int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
+        /// <returns>Result of adding artifact to Collection</returns>
+        AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Gets image file for Actor's icon
@@ -502,8 +544,8 @@ namespace Model
         /// <param name="baselineId">Id of Baseline.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Dictionary with numbers added/never published/newer than Baseline sealed date artifacts</returns>
-        Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+        /// <returns>Result of adding artifact to Baseline</returns>
+        AddToBaselineResult AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

@@ -29,12 +29,13 @@ namespace Model.ArtifactModel.Impl
 
         #endregion Serialized properties
 
-        #region IArtifactObservable methods
+        #region INovaArtifactObservable methods
 
+        /// <seealso cref="INovaArtifactObservable.NovaArtifactObservers"/>
         [JsonIgnore]
         public List<INovaArtifactObserver> NovaArtifactObservers { get; private set; }
 
-        /// <seealso cref="RegisterObserver(INovaArtifactObserver)"/>
+        /// <seealso cref="INovaArtifactObservable.RegisterObserver(INovaArtifactObserver)"/>
         public void RegisterObserver(INovaArtifactObserver observer)
         {
             if (NovaArtifactObservers == null)
@@ -45,45 +46,39 @@ namespace Model.ArtifactModel.Impl
             NovaArtifactObservers.Add(observer);
         }
 
-        /// <seealso cref="UnregisterObserver(INovaArtifactObserver)"/>
+        /// <seealso cref="INovaArtifactObservable.UnregisterObserver(INovaArtifactObserver)"/>
         public void UnregisterObserver(INovaArtifactObserver observer)
         {
             NovaArtifactObservers?.Remove(observer);
         }
 
-        /// <seealso cref="NotifyArtifactDeleted(List{INovaArtifactBase})"/>
-        public void NotifyArtifactDeleted(List<INovaArtifactBase> deletedArtifactsList)
+        /// <seealso cref="INovaArtifactObservable.NotifyArtifactDeleted(IEnumerable{int})"/>
+        public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
         {
-            ThrowIf.ArgumentNull(deletedArtifactsList, nameof(deletedArtifactsList));
+            ThrowIf.ArgumentNull(deletedArtifactIds, nameof(deletedArtifactIds));
+
+            // Convert to a list to remove the "Possible multiple enumeration" warning.
+            var artifactIds = deletedArtifactIds as IList<int> ?? deletedArtifactIds.ToList();
 
             // Notify the observers about any artifacts that were deleted as a result of this publish.
-            foreach (var deletedArtifact in deletedArtifactsList)
-            {
-                var artifactIds = ((NovaArtifact) deletedArtifact).DeletedArtifactIds;
-
-                Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", artifactIds));
-                deletedArtifact.NovaArtifactObservers?.ForEach(o => o.NotifyArtifactDeleted(artifactIds));
-            }
+            Logger.WriteDebug("*** Notifying observers about deletion of artifact IDs: {0}", string.Join(", ", artifactIds));
+            NovaArtifactObservers?.ForEach(o => o.NotifyArtifactPublished(artifactIds));
         }
 
-        /// <seealso cref="NotifyArtifactPublished(List{INovaArtifactResponse})"/>
-        public void NotifyArtifactPublished(List<INovaArtifactResponse> publishedArtifactsList)
+        /// <seealso cref="INovaArtifactObservable.NotifyArtifactPublished(IEnumerable{int})"/>
+        public void NotifyArtifactPublished(IEnumerable<int> publishedArtifactIds)
         {
-            ThrowIf.ArgumentNull(publishedArtifactsList, nameof(publishedArtifactsList));
-
-            // Notify the observers about any artifacts that were deleted as a result of this publish.
-            IEnumerable<int> publishedArtifactIds =
-                from result in publishedArtifactsList
-                select result.Id;
+            ThrowIf.ArgumentNull(publishedArtifactIds, nameof(publishedArtifactIds));
 
             // Convert to a list to remove the "Possible multiple enumeration" warning.
             var artifactIds = publishedArtifactIds as IList<int> ?? publishedArtifactIds.ToList();
 
+            // Notify the observers about any artifacts that were deleted as a result of this publish.
             Logger.WriteDebug("*** Notifying observers about publish of artifact IDs: {0}", string.Join(", ", artifactIds));
             NovaArtifactObservers?.ForEach(o => o.NotifyArtifactPublished(artifactIds));
         }
 
-        #endregion IArtifactObservable methods
+        #endregion INovaArtifactObservable methods
     }
 
     public class NovaArtifactDetails : NovaArtifactBase, INovaArtifactDetails
@@ -198,6 +193,31 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion Other properties
+
+        /// <summary>
+        /// Get specific property value from SpecificPropertyValues list
+        /// Common code to use for properties of ActorIcon, ActorInheritance, DocumentFile
+        /// </summary>
+        /// <typeparam name="T">Type of specific property value</typeparam>
+        /// <param name="propertyType">Property type to use for search in SpecificPropertyValues list</param>
+        /// <returns>Specific Property Value</returns>
+        public T GetSpecificPropertyValue<T>(PropertyTypePredefined propertyType)
+        {
+            var specificProperty = SpecificPropertyValues.FirstOrDefault(
+                p => p.PropertyType == propertyType);
+            if (specificProperty?.CustomPropertyValue == null)
+            {
+                return default(T);
+            }
+            // Deserialization
+            string specificPropertyPropertyString = specificProperty.CustomPropertyValue.ToString();
+
+            var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
+
+            SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
+            
+            return specificPropertyValue;
+        }
 
         /// <summary>
         /// Asserts that the specified INovaArtifactBase object is equal to the specified IArtifactBase.
@@ -430,7 +450,7 @@ namespace Model.ArtifactModel.Impl
         [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
 
-        public int PropertyTypeId { get; set; }
+        public int? PropertyTypeId { get; set; }
 
         public int? PropertyTypeVersionId { get; set; }
 

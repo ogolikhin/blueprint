@@ -9,26 +9,27 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
 using ServiceLibrary.Repositories;
+using ServiceLibrary.Exceptions;
 
 namespace ArtifactStore.Controllers
 {
     [ApiControllerJsonConfig]
     [BaseExceptionFilter]
     public class AttachmentsController : LoggableApiController
-    {       
+    {
         internal readonly IAttachmentsRepository AttachmentsRepository;
         internal readonly IArtifactPermissionsRepository ArtifactPermissionsRepository;
         internal readonly IArtifactVersionsRepository ArtifactVersionsRepository;
 
         public override string LogSource { get; } = "ArtifactStore.Attachments";
 
-        public AttachmentsController() : this(new SqlAttachmentsRepository(), 
-            new SqlArtifactPermissionsRepository(), 
+        public AttachmentsController() : this(new SqlAttachmentsRepository(),
+            new SqlArtifactPermissionsRepository(),
             new SqlArtifactVersionsRepository())
         {
         }
-        public AttachmentsController(IAttachmentsRepository attachmentsRepository, 
-            IArtifactPermissionsRepository artifactPermissionsRepository, 
+        public AttachmentsController(IAttachmentsRepository attachmentsRepository,
+            IArtifactPermissionsRepository artifactPermissionsRepository,
             IArtifactVersionsRepository artifactVersionsRepository) : base()
         {
             AttachmentsRepository = attachmentsRepository;
@@ -49,9 +50,14 @@ namespace ArtifactStore.Controllers
         [HttpGet, NoCache]
         [Route("artifacts/{artifactId:int:min(1)}/attachment"), SessionRequired]
         [ActionName("GetAttachmentsAndDocumentReferences")]
-        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int? versionId = null, int? subArtifactId = null,  bool addDrafts = true)
+        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(
+            int artifactId,
+            int? versionId = null,
+            int? subArtifactId = null,
+            bool addDrafts = true,
+            int? baselineId = null)
         {
-            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1))
+            if (artifactId < 1 || (subArtifactId.HasValue && subArtifactId.Value < 1) || (versionId != null && baselineId != null))
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
@@ -62,21 +68,22 @@ namespace ArtifactStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             var itemId = subArtifactId.HasValue ? subArtifactId.Value : artifactId;
             var isDeleted = await ArtifactVersionsRepository.IsItemDeleted(itemId);
-            var itemInfo = isDeleted && versionId != null?
+            var itemInfo = isDeleted && (versionId != null || baselineId != null) ?
                 (await ArtifactVersionsRepository.GetDeletedItemInfo(itemId)) :
                 (await ArtifactPermissionsRepository.GetItemInfo(itemId, session.UserId, addDrafts));
             if (itemInfo == null)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                throw new ResourceNotFoundException("You have attempted to access an item that does not exist or you do not have permission to view.",
+                    subArtifactId.HasValue ? ErrorCodes.SubartifactNotFound : ErrorCodes.ArtifactNotFound);
             }
             if (subArtifactId.HasValue)
             {
                 if (itemInfo.ArtifactId != artifactId)
                 {
-                    throw new HttpResponseException(HttpStatusCode.BadRequest);
+                    throw new BadRequestException();
                 }
             }
-            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts);
+            var result = await AttachmentsRepository.GetAttachmentsAndDocumentReferences(artifactId, session.UserId, versionId, subArtifactId, addDrafts, baselineId);
             var artifactIds = new List<int> { artifactId };
             foreach (var documentReference in result.DocumentReferences)
             {

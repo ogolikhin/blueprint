@@ -2,6 +2,7 @@
 using Helper;
 using Model;
 using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
 using Model.Factories;
 using Model.Impl;
@@ -40,11 +41,12 @@ namespace ArtifactStoreTests
 
         [TestCase(4)]
         [TestRail(183353)]
-        [Description("Create & publish a glossary artifact multiple times to have multiple version of it, Get glossary artifact without version. Verify that latest version of artifact is returned.")]
+        [Description("Create & publish a glossary artifact multiple times to have multiple version of it, Get glossary artifact without version.  " +
+            "Verify that latest version of artifact is returned.")]
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithoutSpecificVersion_ReturnsLatestVersionOfGlossaryArtifact(int numberOfVersions)
         {
             // Setup: Create and publish a glossary artifact multiple times to have multiple versions of it
-            var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary, numberOfVersions: numberOfVersions);
+            var publishedGlossaryArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Glossary, numberOfVersions);
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, publishedGlossaryArtifact.Id);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -60,11 +62,12 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183356)]
-        [Description("Create & publish a glossary artifact, modify & publish it again, GetGlossaryArtifact with versionId=1. Verify that first version of glossary artifact is returned.")]
+        [Description("Create & publish a glossary artifact, modify & publish it again, GetGlossaryArtifact with versionId=1.  " +
+                     "Verify that first version of glossary artifact is returned.")]
         public void GetGlossaryArtifact_PublishAndGetGlossaryArtifactWithVersion1_ReturnsFirstVersionOfGlossaryArtifact()
         {
             // Setup: Create and publish a glossary artifact two times to have two versions of it			
-            var publishedGlossaryArtifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Glossary, numberOfVersions: 2);
+            var publishedGlossaryArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Glossary, numberOfVersions: 2);
             var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_user, publishedGlossaryArtifact.Id, versionId: 1);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 

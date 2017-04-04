@@ -17,6 +17,7 @@ namespace ArtifactStore.Repositories
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly IArtifactPermissionsRepository _artifactPermissionsRepository;
+        private readonly ISqlItemInfoRepository _itemInfoRepository;
 
         public SqlArtifactVersionsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain))
@@ -24,14 +25,16 @@ namespace ArtifactStore.Repositories
         }
 
         internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper)
-            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper))
+            : this(connectionWrapper, new SqlArtifactPermissionsRepository(connectionWrapper), new SqlItemInfoRepository(connectionWrapper))
         {
         }
 
-        internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper, IArtifactPermissionsRepository artifactPermissionsRepository)
+        internal SqlArtifactVersionsRepository(ISqlConnectionWrapper connectionWrapper,
+                IArtifactPermissionsRepository artifactPermissionsRepository, ISqlItemInfoRepository itemInfoRepository)
         {
             ConnectionWrapper = connectionWrapper;
             _artifactPermissionsRepository = artifactPermissionsRepository;
+            _itemInfoRepository = itemInfoRepository;
         }
 
         private async Task<bool> IncludeDraftVersion(int? userId, int sessionUserId, int artifactId)
@@ -89,7 +92,7 @@ namespace ArtifactStore.Repositories
             artifactVersionsPrm.Add("@ascd", asc);
             return await ConnectionWrapper.QueryAsync<ArtifactHistoryVersion>("GetArtifactVersions", artifactVersionsPrm, commandType: CommandType.StoredProcedure);
         }
-
+        
         private async Task<IEnumerable<UserInfo>> GetUserInfos(IEnumerable<int> userIds)
         {
             var userInfosPrm = new DynamicParameters();
@@ -177,10 +180,20 @@ namespace ArtifactStore.Repositories
             return result;
         }
 
+        private async Task<bool> IsArtifactInBaseline(int artifactId, int baselineId, int userId)
+        {
+            var baselinArtifacts = await _artifactPermissionsRepository.GetBaselineArtifacts(baselineId, userId);
+            if (baselinArtifacts != null)
+            {
+                return baselinArtifacts.Contains(artifactId);
+            }
+            return false;
+        }
+
         #region GetVersionControlArtifactInfoAsync
 
-        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int userId)
-        {
+        public async Task<VersionControlArtifactInfo> GetVersionControlArtifactInfoAsync(int itemId, int? baselineId, int userId)
+        {            
             DynamicParameters dynamicParameters = new DynamicParameters();
             dynamicParameters.Add("@userId", userId);
             dynamicParameters.Add("@itemId", itemId);
@@ -239,6 +252,17 @@ namespace ArtifactStore.Repositories
                     : null;
             }
             artifactInfo.Permissions = itemIdsPermissions[artifactBasicDetails.ArtifactId];
+
+            if (baselineId != null)
+            {
+                var baselineRevisionId = await _itemInfoRepository.GetRevisionId(itemId, userId, null, baselineId.Value);                
+                var itemInfo = await _artifactPermissionsRepository.GetItemInfo(itemId, userId, false, baselineRevisionId);
+                if (itemInfo == null)
+                {
+                    artifactInfo.IsNotExistsInBaseline = true;
+                }
+                artifactInfo.IsIncludedInBaseline = await IsArtifactInBaseline(artifactBasicDetails.ArtifactId, baselineId.Value, userId);                                                    
+            }
             return artifactInfo;
         }
 

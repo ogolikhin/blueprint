@@ -54,11 +54,12 @@ namespace ArtifactStoreTests
 
         [TestCase(4)]
         [TestRail(183354)]
-        [Description("Create & publish a use case artifact multiple times to have multiple version of it, Get use case artifact without passing version. Verify that latest version of artifact is returned.")]
+        [Description("Create & publish a use case artifact multiple times to have multiple version of it, Get use case artifact without passing version.  +" +
+                     "Verify that latest version of artifact is returned.")]
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithoutSpecificVersion_ReturnsLatestVersionOfUseCaseArtifact(int numberOfVersions)
         {
             // Setup: Create and publish a use case artifact multiple times to have multiple versions of it
-            var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: numberOfVersions);
+            var publishedUseCaseArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _project, ItemTypePredefined.UseCase, numberOfVersions);
             // getting the latest version of the artifact using open API GetArtifact
             var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_adminUser, publishedUseCaseArtifact.Id);
 
@@ -73,11 +74,12 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183357)]
-        [Description("Create & publish a use case artifact, modify & publish it again, GetUseCaseArtifact with versionId=1. Verify that first version of use case artifact is returned.")]
+        [Description("Create & publish a use case artifact, modify & publish it again, GetUseCaseArtifact with versionId=1.  " +
+                     "Verify that first version of use case artifact is returned.")]
         public void GetUseCaseArtifact_PublishAndGetUseCaseArtifactWithVersion1_ReturnsFirstVersionOfUseCaseArtifact()
         {
             // Setup: Create and publish a use case artifact two times to have two versions of it			
-            var publishedUseCaseArtifact = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase, numberOfVersions: 2);
+            var publishedUseCaseArtifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_adminUser, _project, ItemTypePredefined.UseCase, numberOfVersions: 2);
             var retrievedArtifactVersion1 = Helper.ArtifactStore.GetArtifactDetails(_adminUser, publishedUseCaseArtifact.Id, versionId: 1);
 
             // Execute: Get the use case artifact using GetUseCaseArtifact with first versionId		
@@ -88,7 +90,6 @@ namespace ArtifactStoreTests
             NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifactVersion1);
         }
 
-        [Explicit(IgnoreReasons.ProductBug)]
         [Category(Categories.CustomData)]
         [Category(Categories.GoldenData)]
         [TestCase]
@@ -107,7 +108,6 @@ namespace ArtifactStoreTests
             // Verify: Verify that the postcondition subartifact's indicatorflag contains value that represents UIMockup association.
             NovaArtifactDetails.AssertArtifactsEqual(usecaseArtifact, retrievedArtifact);
 
-            // TODO: Use below commented VerifyIndicatorFlags once https://trello.com/c/IzDuRwMW gets addressed: [5084] Legacy UseCase artifact with UIMockup association on step subartifact - indicatorflag shows it as 0x4 instead of 0x10
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _authorUser, USECASE_ID_WITHUIMOCKUP, ItemIndicatorFlags.HasUIMockup, usecaseArtifact.PostCondition.Id);
         }
 

@@ -103,6 +103,7 @@
     <Compile Include="Helpers\SerializationHelper.cs" />
     <Compile Include="Helpers\ServerHelper.cs" />
     <Compile Include="Helpers\ServerUriHelper.cs" />
+    <Compile Include="Helpers\ComplexObjectReader.cs" />
     <Compile Include="Helpers\ServiceConstants.cs" />
     <Compile Include="Helpers\StatusControllerHelper.cs" />
     <Compile Include="Helpers\JsonHelper.cs" />
@@ -178,6 +179,7 @@
     <Compile Include="Repositories\IStatusRepository.cs" />
     <Compile Include="Repositories\SqlUsersRepository.cs" />
     <Compile Include="Exceptions\SqlTimeoutException.cs" />
+    <Compile Include="Repositories\BaselineRawDataHelper.cs" />
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />

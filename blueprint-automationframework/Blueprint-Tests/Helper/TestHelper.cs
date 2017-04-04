@@ -26,15 +26,23 @@ using Utilities.Factories;
 namespace Helper
 {
     [SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]    // This is a Helper class, so this is expected to be large.
-    public class TestHelper : IDisposable, IArtifactObserver
+    public class TestHelper : IDisposable, IArtifactObserver, INovaArtifactObserver
     {
         public enum ProjectRole
         {
             None,
             Viewer,
             AuthorFullAccess,
-            Author
+            Author,
+            Collaborator
         }
+
+        private Dictionary<GroupLicenseType, LicenseLevel> _groupLicenseTypeToLicenseLevel = new Dictionary<GroupLicenseType, LicenseLevel>
+        {
+            {GroupLicenseType.Author, LicenseLevel.Author},
+            {GroupLicenseType.Collaborate, LicenseLevel.Collaborator},
+            {GroupLicenseType.None, LicenseLevel.Viewer}
+        };
 
         public static class GoldenDataProject
         {
@@ -71,10 +79,15 @@ namespace Helper
         public List<IGroup> Groups { get; } = new List<IGroup>();
         public List<IProjectRole> ProjectRoles { get; } = new List<IProjectRole>();
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
+        [SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
         public Dictionary<IUser, List<int>> NovaArtifacts { get; } = new Dictionary<IUser, List<int>>();
 
         #region IArtifactObserver methods
+
+        /// <seealso cref="INovaArtifactObserver.WrappedArtifactsToDispose" />
+        public List<ArtifactWrapper> WrappedArtifactsToDispose { get; } = new List<ArtifactWrapper>();   // TODO: Dispose these artifacts and track their state...
+
+        // TODO: Change the IArtifactObserver functions below to INovaArtifactObserver functions.
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDeleted(IEnumerable{int})" />
         public void NotifyArtifactDeleted(IEnumerable<int> deletedArtifactIds)
@@ -85,7 +98,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactDeleted), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, deletedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDeleted(Artifacts, artifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactDiscarded(IEnumerable{int})" />
@@ -97,7 +110,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactDiscarded), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, discardedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactDiscarded(Artifacts, artifactIds);
         }
 
         /// <seealso cref="IArtifactObserver.NotifyArtifactPublished(IEnumerable{int})" />
@@ -109,7 +122,7 @@ namespace Helper
             Logger.WriteTrace("*** {0}.{1}({2}) was called.",
                 nameof(TestHelper), nameof(TestHelper.NotifyArtifactPublished), string.Join(", ", artifactIds));
 
-            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, publishedArtifactIds);
+            ArtifactObserverHelper.NotifyArtifactPublished(Artifacts, artifactIds);
         }
 
         #endregion IArtifactObserver methods
@@ -373,6 +386,115 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates and saves a new Nova artifact (wrapped inside an ArtifactWrapper that tracks the state of the artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova artifact should be created.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
+        /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
+        public ArtifactWrapper CreateNovaArtifact(
+            IUser user, IProject project, ItemTypePredefined itemType,
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            if (name == null)
+            {
+                name = RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
+            }
+
+            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user,
+                itemType, name, project, artifactTypeName, parentId, orderIndex);
+
+            return WrapArtifact(artifact, project, user);
+        }
+
+        /// <summary>
+        /// Creates and saves a new Nova artifact (wrapped inside an ArtifactWrapper that tracks the state of the artifact.).
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="project">The project where the Nova artifact should be created.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
+        /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
+        public ArtifactWrapper CreateAndPublishNovaArtifact(
+            IUser user, IProject project, ItemTypePredefined itemType,
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
+        {
+            var wrappedArtifact = CreateNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
+            var response = wrappedArtifact.Publish(user);
+            wrappedArtifact.Artifact.Version = response.Artifacts[0].Version;   // Update Version from -1 to 1.
+
+            return wrappedArtifact;
+        }
+
+        /// <summary>
+        /// Creates a new artifact, then saves and publishes it the specified number of times.
+        /// </summary>
+        /// <param name="project">The project where the artifact is to be created.</param>
+        /// <param name="user">The user who will create the artifact.</param>
+        /// <param name="itemType">The Nova base ItemType to create.</param>
+        /// <param name="numberOfVersions">The number of times to save and publish the artifact (to create multiple historical versions).</param>
+        /// <param name="parentId">(optional) The parent of this Nova artifact.
+        ///     By default the parent should be the project.</param>
+        /// <param name="orderIndex">(optional) The order index of this Nova artifact.
+        ///     By default the order index should be after the last artifact.</param>
+        /// <param name="name">(optional) The artifact name.  By default a random name is created.</param>
+        /// <param name="artifactTypeName">(optional) Name of the artifact type to be used to create the artifact</param>
+        /// <returns>The Nova artifact wrapped in an ArtifactWrapper that tracks the state of the artifact.</returns>
+        public ArtifactWrapper CreateAndPublishNovaArtifactWithMultipleVersions(
+            IUser user, IProject project, ItemTypePredefined itemType, int numberOfVersions,
+            int? parentId = null, double? orderIndex = null, string name = null, string artifactTypeName = null)
+        {
+            var artifact = CreateAndPublishNovaArtifact(user, project, itemType, parentId, orderIndex, name, artifactTypeName);
+
+            for (int i = 1; i < numberOfVersions; ++i)
+            {
+                var changes = new NovaArtifactDetails
+                {
+                    Id = artifact.Artifact.Id,
+                    ProjectId = artifact.Artifact.ProjectId,
+                    Version = artifact.Artifact.Version,
+                    Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                };
+
+                artifact.Lock(user);
+                artifact.Update(user, changes);
+                artifact.Publish(user);
+            }
+
+            return artifact;
+        }
+
+        /// <summary>
+        /// Wraps an INovaArtifactDetails in an ArtifactWrapper and adds it the list of artifacts that get disposed.
+        /// </summary>
+        /// <param name="artifact">The INovaArtifactDetails that was created by ArtifactStore.</param>
+        /// <param name="project">The project where the artifact was created.</param>
+        /// <param name="createdBy">The user that created this artifact.</param>
+        /// <returns>The ArtifactWrapper for the novaArtifact.</returns>
+        public ArtifactWrapper WrapArtifact(INovaArtifactDetails artifact, IProject project, IUser createdBy)
+        {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+
+            var wrappedArtifact = new ArtifactWrapper(artifact, ArtifactStore, SvcShared, project, createdBy);
+            WrappedArtifactsToDispose.Add(wrappedArtifact);
+
+            return wrappedArtifact;
+        }
+
+        /// <summary>
         /// Creates and publishes a new Nova artifact (wrapped inside an IArtifact object).
         /// </summary>
         /// <param name="project">The project where the Nova artifact should be created.</param>
@@ -461,22 +583,17 @@ namespace Helper
         /// <param name="artifactType">The type of artifact to create.</param>
         /// <param name="parent">(optional) The parent artifact. By default artifact will be created in the root of the project.</param>
         /// <param name="name">(optional) Artifact's name.</param>
-        /// <param name="numberOfVersions">(optional) The number of times to save and publish the artifact (to create multiple historical versions).</param>
         /// <returns>The artifact.</returns>
         public IArtifact CreateAndPublishArtifact(IProject project,
             IUser user,
             BaseArtifactType artifactType,
             IArtifactBase parent = null,
-            string name = null,
-            int numberOfVersions = 1)
+            string name = null)
         {
             var artifact = CreateArtifact(project, user, artifactType, parent, name);
 
-            for (int i = 0; i < numberOfVersions; ++i)
-            {
-                artifact.Save();
-                artifact.Publish();
-            }
+            artifact.Save();
+            artifact.Publish();
 
             return artifact;
         }
@@ -664,9 +781,8 @@ namespace Helper
         /// <param name="user">The user to perform the operation.</param>
         /// <param name="project">The project in which Baseline will be created.</param>
         /// <param name="name">(optional) The name of Baseline to create. By default random name will be used.</param>
-        /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines&Reviews folder.</param>
-        /// <param name="artifactsToAddIds">(optional)Artifact's id to be added to baseline.
-        /// By default empty baseline will be created.</param>
+        /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines and Reviews folder.</param>
+        /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
         /// <returns>The Baseline artifact.</returns>
         public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
             int? artifactToAddId = null)
@@ -843,6 +959,7 @@ namespace Helper
         /// <param name="state">State of the artifact(Created, Published, PublishedWithDraft, ScheduledToDelete, Deleted)</param>
         /// <param name="itemType">itemType of artifact to be created</param>
         /// <param name="parentId">Parent Id of artifact to be created</param>
+        /// <param name="artifactName">(optional) The name to assign to the new artifact.  By default a random name is assigned.</param>
         /// <returns>Artifact in the required state</returns>
         public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
             ItemTypePredefined itemType, int parentId, string artifactName = null)
@@ -877,20 +994,21 @@ namespace Helper
                     CSharpUtilities.SetProperty("Description", PublishedDescription, artifactDetails);
                     UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    return artifact;
+                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
                 case TestArtifactState.PublishedWithDraft:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
                     CSharpUtilities.SetProperty("Description", DraftDescription, artifactDetails);
-                    Model.Impl.SvcShared.LockArtifacts(ArtifactStore.Address, user, new List<int> { artifact.Id });
-                    return UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    SvcShared.LockArtifacts(user, new List<int> { artifact.Id });
+                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
+                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
                 case TestArtifactState.ScheduledToDelete:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    ArtifactStore.DeleteArtifact(artifact.Id, user);
                     return artifact;
                 case TestArtifactState.Deleted:
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    DeleteArtifact(ArtifactStore.Address, artifact.Id, user);
+                    ArtifactStore.DeleteArtifact(artifact.Id, user);
                     ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
                     return artifact;
                 default:
@@ -978,11 +1096,14 @@ namespace Helper
         /// </summary>
         /// <param name="instanceAdminRole">(optional) The Instance Admin Role to assign to the user.  Pass null if you don't want any role assigned.</param>
         /// <param name="source">(optional) Where the user exists.</param>
+        /// <param name="licenseLevel">(optional) The license level of the user (Author, Collaborator, Viewer).</param>
         /// <returns>A new unique user object that was added to the database.</returns>
-        public IUser CreateUserAndAddToDatabase(InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
-            UserSource source = UserSource.Database)
+        public IUser CreateUserAndAddToDatabase(
+            InstanceAdminRole? instanceAdminRole = InstanceAdminRole.DefaultInstanceAdministrator,
+            UserSource source = UserSource.Database,
+            LicenseLevel licenseLevel = LicenseLevel.Author)
         {
-            var user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source);
+            var user = UserFactory.CreateUserAndAddToDatabase(instanceAdminRole, source, licenseLevel);
             Users.Add(user);
             return user;
         }
@@ -1100,21 +1221,23 @@ namespace Helper
         /// <param name="role">Author, Viewer or No permission role</param>
         /// <param name="projects">The list of projects that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
         /// <returns>Created authenticated user with required premissions</returns>
         public IUser CreateUserWithProjectRolePermissions(
             ProjectRole role, 
             List<IProject> projects, 
-            IArtifactBase artifact = null)
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(projects, nameof(projects));
 
             Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
 
-            var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null);
+            var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null, licenseLevel : _groupLicenseTypeToLicenseLevel[licenseType]);
 
             foreach (var project in projects)
             {
-                AssignProjectRolePermissionsToUser(newUser, role, project, artifact);
+                AssignProjectRolePermissionsToUser(newUser, role, project, artifact, licenseType);
             }
 
             AdminStore.AddSession(newUser);//assign premission and after it authenticate, reverse doesn't work - need to investigate!
@@ -1134,11 +1257,13 @@ namespace Helper
         /// <param name="role">Author, Viewer or No permission role</param>
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide</param>
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
         /// <returns>Newly created, authenticated user with required premissions</returns>
         public IUser CreateUserWithProjectRolePermissions( 
             ProjectRole role,
             IProject project, 
-            IArtifactBase artifact = null)
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -1147,7 +1272,7 @@ namespace Helper
                 Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
             }
 
-            return CreateUserWithProjectRolePermissions(role, new List<IProject> { project }, artifact);
+            return CreateUserWithProjectRolePermissions(role, new List<IProject> { project }, artifact, licenseType);
         }
 
         /// <summary>
@@ -1159,8 +1284,15 @@ namespace Helper
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
         /// after adding a new permissions role</param>
-        public void AssignProjectRolePermissionsToUser(IUser user, ProjectRole role, IProject project, IArtifactBase artifact = null)
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
+        public void AssignProjectRolePermissionsToUser(
+            IUser user, 
+            ProjectRole role, 
+            IProject project, 
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
+
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
             if (artifact != null)
@@ -1190,6 +1322,11 @@ namespace Helper
                         RolePermissions.Share |
                         RolePermissions.Trace;
             }
+            else if (role == ProjectRole.Collaborator)
+            {
+                rolePermissions = RolePermissions.Read |
+                        RolePermissions.Comment;
+            }
             else if (role == ProjectRole.None)
             {
                 rolePermissions = RolePermissions.None;
@@ -1207,7 +1344,7 @@ namespace Helper
                         RolePermissions.Trace;
             }
 
-            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact);
+            AssignProjectRolePermissionsToUser(user, rolePermissions, project, artifact, licenseType);
         }
 
         /// <summary>
@@ -1219,7 +1356,13 @@ namespace Helper
         /// <param name="project">The project that the role is created for</param>
         /// <param name="artifact">(optional) Specific artifact to apply permissions to instead of project-wide
         /// after adding a new permissions role</param>
-        public void AssignProjectRolePermissionsToUser(IUser user, RolePermissions rolePermissions, IProject project, IArtifactBase artifact = null)
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
+        public void AssignProjectRolePermissionsToUser(
+            IUser user, 
+            RolePermissions rolePermissions, 
+            IProject project, 
+            IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -1241,7 +1384,6 @@ namespace Helper
                 ProjectRoles.Add(projectRole);
             }
 
-            var licenseType = GroupLicenseType.Author;
             var permissionsGroup = CreateGroupAndAddToDatabase(licenseType);
             permissionsGroup.AddUser(user);
             permissionsGroup.AssignRoleToProjectOrArtifact(project, role: projectRole, artifact: artifact);
@@ -1665,13 +1807,10 @@ namespace Helper
 
             if (disposing)
             {
-                Storyteller?.Dispose();
-                FileStore?.Dispose();
-                ConfigControl?.Dispose();
-                BlueprintServer?.Dispose();
-                ArtifactStore?.Dispose();
-
                 Logger.WriteDebug("Deleting/Discarding all artifacts created by this TestHelper instance...");
+
+                Storyteller?.Dispose();
+
                 ArtifactBase.DisposeArtifacts(Artifacts, this);
 
                 if (NovaArtifacts.Count > 0)
@@ -1680,28 +1819,36 @@ namespace Helper
                     {
                         ArtifactStore.DiscardArtifacts(artifacts: null, user: user, all: true);
                     }
+
                     var deleteExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
                         System.Net.HttpStatusCode.NotFound, System.Net.HttpStatusCode.Forbidden};
                     var publishExpectedStatusCodes = new List<System.Net.HttpStatusCode> { System.Net.HttpStatusCode.OK,
                         System.Net.HttpStatusCode.Conflict, System.Net.HttpStatusCode.NotFound};
+
                     foreach (var user in NovaArtifacts.Keys)
                     {
                         {
                             var neverPublishedArtifacIds = new List<int>();
+
                             foreach (int id in NovaArtifacts[user])
                             {
-                                var results = DeleteArtifact(ArtifactStore.Address, id, user, deleteExpectedStatusCodes);
+                                var results = ArtifactStore.DeleteArtifact(id, user, deleteExpectedStatusCodes);
+
                                 if ((results != null) && (results[0].Version == 0))
                                 {
                                     neverPublishedArtifacIds.Add(results[0].Id);
                                 }
                             }
+
                             foreach (int id in neverPublishedArtifacIds)
                             {
                                 NovaArtifacts[user].Remove(id);
                             }
+
                             if (NovaArtifacts[user].Count > 0)
-                            ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: publishExpectedStatusCodes);
+                            {
+                                ArtifactStore.PublishArtifacts(NovaArtifacts[user], user, expectedStatusCodes: publishExpectedStatusCodes);
+                            }
                         }
                     }
                 }
@@ -1742,6 +1889,10 @@ namespace Helper
                     }
                 }
 
+                ArtifactStore?.Dispose();
+                FileStore?.Dispose();
+                ConfigControl?.Dispose();
+                BlueprintServer?.Dispose();
                 AdminStore?.Dispose();
                 AccessControl?.Dispose();
             }

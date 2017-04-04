@@ -10,8 +10,8 @@ namespace ServiceLibrary.Repositories
 
         Task<IEnumerable<ItemDetails>> GetItemsDetails(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue);
 
-        Task<int> GetRevisionIdByVersionIndex(int artifactId, int versionIndex);
-
         Task<IEnumerable<ItemRawDataCreatedDate>> GetItemsRawDataCreatedDate(int userId, IEnumerable<int> itemIds, bool addDrafts = true, int revisionId = int.MaxValue);
+
+        Task<int> GetRevisionId(int artifactId, int userId, int? versionId = null, int? baselineId = null);
     }
 }

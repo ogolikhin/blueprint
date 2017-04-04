@@ -60,5 +60,11 @@ namespace ArtifactStore.Models
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? DeletedDateTime { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsIncludedInBaseline { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsNotExistsInBaseline { get; set; }
     }
 }

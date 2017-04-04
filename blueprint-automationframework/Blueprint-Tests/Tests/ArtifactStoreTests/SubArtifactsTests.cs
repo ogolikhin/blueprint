@@ -145,13 +145,11 @@ namespace ArtifactStoreTests
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects: 2);
 
-            var mainProject = projects[0];
-            var secondProject = projects[1];
-            secondProject.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
+            projects[1].GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
-            var artifact = Helper.CreateAndPublishArtifact(mainProject, _user, baseArtifactType);
+            var artifact = Helper.CreateAndPublishArtifact(projects[0], _user, baseArtifactType);
 
-            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(secondProject, _user, ItemTypePredefined.Process);
+            var processArtifact = Helper.CreateWrapAndPublishNovaArtifactForStandardArtifactType(projects[1], _user, ItemTypePredefined.Process);
 
             var expectedDescriptionProperty = CreateInlineTraceFromProcessSubArtifactToArtifactAndPublish(processArtifact, artifact);
 
@@ -162,7 +160,6 @@ namespace ArtifactStoreTests
 
             Assert.AreEqual(expectedDescriptionProperty, updatedDescriptionProperty.Value.ToString(), "Description properties don't match.");
 
-            // Execute:
             artifact.Lock();
 
             // Change the name of artifact
@@ -222,6 +219,8 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.ValidateInlineTraceLinkFromSubArtifactDetails(subArtifact, artifact, validInlineTraceLink: false);
 
             CheckSubArtifacts(_user, processArtifact.Id, expectedSubArtifactsNumber: 5, itemTypeVersionId: 2);
+
+            Assert.AreEqual(subArtifact.IndicatorFlags, null, "IndicatorFlags property should be null!");
         }
 
         [Test, TestCaseSource(typeof(TestCaseSources), nameof(TestCaseSources.AllArtifactTypesForOpenApiRestMethods))]
@@ -658,8 +657,8 @@ namespace ArtifactStoreTests
             }, "'GET {0}' should return 404 Not Found when passed a non-existing ID of sub-artifact!", RestPaths.Svc.ArtifactStore.Artifacts_id_.SUBARTIFACTS_id_);
 
             // Verify:
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
-                "You have attempted to access an artifact that does not exist or has been deleted.");
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.SubartifactNotFound,
+                "You have attempted to access an item that does not exist or you do not have permission to view.");
         }
 
         [TestCase]
@@ -699,8 +698,8 @@ namespace ArtifactStoreTests
 
             // Verify:
             // Bug: Wrong message returned http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=5106
-            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound,
-                "You have attempted to access an artifact that does not exist or has been deleted.");
+            TestHelper.ValidateServiceError(ex.RestResponse, ErrorCodes.SubartifactNotFound,
+                "You have attempted to access an item that does not exist or you do not have permission to view.");
         }
 
         #endregion 404 Not Found

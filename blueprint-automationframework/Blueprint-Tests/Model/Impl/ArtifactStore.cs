@@ -119,13 +119,58 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.DeleteArtifact(IArtifactBase, IUser, List{HttpStatusCode})"/>
-        public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user = null, List<HttpStatusCode> expectedStatusCodes = null)
+        public List<INovaArtifactResponse> DeleteArtifact(IArtifactBase artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            var deletedArtifacts = DeleteArtifact(Address, artifact, user, expectedStatusCodes);
+            var deletedArtifacts = DeleteArtifact(artifact.Id, user, expectedStatusCodes);
 
-            return deletedArtifacts;
+            var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
+
+            // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
+            foreach (var deletedArtifact in deletedArtifacts)
+            {
+                Logger.WriteDebug("DeleteArtifact() returned following artifact Id: {0}", deletedArtifact.Id);
+
+                // Hack: This is needed until we can refactor ArtifactBase better.
+                var deletedArtifactResult = new OpenApiDeleteArtifactResult
+                {
+                    ArtifactId = deletedArtifact.Id,
+                    ResultCode = HttpStatusCode.OK
+                };
+
+                // Add all other artifacts that were deleted as a result of the artifact being deleted.
+                var artifaceBaseToDelete = artifact as ArtifactBase;
+                artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
+
+                if (deletedArtifact.Id == artifact.Id)
+                {
+                    // If the artifact was published, it will require another publish to really delete the artifact.
+                    // If the artifact was never published, no other users can see it, so deleting it will permanently delete it.
+                    if (artifact.IsPublished)
+                    {
+                        artifact.IsMarkedForDeletion = true;
+                    }
+                    else
+                    {
+                        artifact.IsDeleted = true;
+                    }
+                }
+            }
+
+            return deletedArtifactsToReturn;
+        }
+
+        /// <seealso cref="IArtifactStore.DeleteArtifact(int, IUser, List{HttpStatusCode})"/>
+        public List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
+                path,
+                RestRequestMethod.DELETE,
+                expectedStatusCodes: expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.DiscardArtifact(IArtifactBase, IUser, bool?, List{HttpStatusCode})"/>
@@ -188,23 +233,16 @@ namespace Model.Impl
             return artifactTypes;
         }
 
-        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, bool?, List{HttpStatusCode})"/>
-        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user, bool? includeAuthorHistory = false,
+        /// <seealso cref="IArtifactStore.GetArtifactChildrenByProjectAndArtifactId(int, int, IUser, List{HttpStatusCode})"/>
+        public List<NovaArtifact> GetArtifactChildrenByProjectAndArtifactId(int projectId, int artifactId, IUser user,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Projects_id_.Artifacts_id_.CHILDREN, projectId, artifactId);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
-            Dictionary<string, string> queryParameters = null;
-            if (includeAuthorHistory != null)
-            {
-                queryParameters = new Dictionary<string, string> { { nameof(includeAuthorHistory), I18NHelper.ToStringInvariant(includeAuthorHistory.Value) } };
-            }
-
             return restApi.SendRequestAndDeserializeObject<List<NovaArtifact>>(
                 path,
                 RestRequestMethod.GET,
-                queryParameters: queryParameters,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
         }
@@ -427,7 +465,46 @@ namespace Model.Impl
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            return GetRelationships(Address, user, artifact.Id, subArtifactId, addDrafts, versionId, expectedStatusCodes);
+            return GetRelationships(user, artifact.Id, subArtifactId, addDrafts, versionId, expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.GetRelationships(IUser, int, int?, bool?, int?, List{HttpStatusCode})"/>
+        public Relationships GetRelationships(
+            IUser user,
+            int artifactId,
+            int? subArtifactId = null,
+            bool? addDrafts = null,
+            int? versionId = null,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifactId);
+            var queryParameters = new Dictionary<string, string>();
+
+            if (subArtifactId != null)
+            {
+                queryParameters.Add("subArtifactId", subArtifactId.ToString());
+            }
+
+            if (addDrafts != null)
+            {
+                queryParameters.Add("addDrafts", addDrafts.ToString());
+            }
+
+            if (versionId != null)
+            {
+                queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
+                path,
+                RestRequestMethod.GET,
+                queryParameters: queryParameters,
+                expectedStatusCodes: expectedStatusCodes,
+                shouldControlJsonChanges: false);
+
+            return relationships;
         }
 
         /// <seealso cref="IArtifactStore.GetRelationshipsDetails(IUser, IArtifactBase, List{HttpStatusCode})"/>
@@ -491,6 +568,16 @@ namespace Model.Impl
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             var artifacts = new List<IArtifactBase> { artifact };
+
+            return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
+        }
+
+        /// <seealso cref="IArtifactStore.PublishArtifact(int, IUser, List{HttpStatusCode})"/>
+        public INovaArtifactsAndProjectsResponse PublishArtifact(int artifactId,
+            IUser user,
+            List<HttpStatusCode> expectedStatusCodes = null)
+        {
+            var artifacts = new List<int> { artifactId };
 
             return PublishArtifacts(artifacts, user, expectedStatusCodes: expectedStatusCodes);
         }
@@ -570,13 +657,11 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.AddArtifactToCollection(IUser, int, int, bool, List{HttpStatusCode})"/>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public int AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
+        public AddToCollectionResult AddArtifactToCollection(IUser user, int artifactId, int collectionId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Collection_id_.CONTENT, collectionId);
-            var responseObject = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
-            return responseObject["artifactCount"];
+            return AddArtifactToBaselineOrCollection<AddToCollectionResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetActorIcon(IUser, int, int?, List{HttpStatusCode})"/>
@@ -622,15 +707,12 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IArtifactStore.AddArtifactToBaseline(IUser, int, int, bool, List{HttpStatusCode})"/>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1308:NormalizeStringsToUppercase")]
-        public Dictionary<string, int> AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
+        public AddToBaselineResult AddArtifactToBaseline(IUser user, int artifactId, int baselineId, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             //
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Baseline_id_.CONTENT, baselineId);
-            var addArtifactResult = AddArtifactToBaselineOrCollection(user, artifactId, path, includeDescendants, expectedStatusCodes);
-            Assert.IsTrue(addArtifactResult.ContainsKey("artifactCount"));
-            return addArtifactResult;
+            return AddArtifactToBaselineOrCollection<AddToBaselineResult>(user, artifactId, path, includeDescendants, expectedStatusCodes);
         }
 
         /// <seealso cref="IArtifactStore.GetArtifactHistory(int, IUser, bool?, int?, int?, List{HttpStatusCode})"/>
@@ -670,8 +752,7 @@ namespace Model.Impl
 
             return publishedArtifacts;
         }
-
-
+        
         /// <seealso cref="IArtifactStore.PublishArtifacts(List{IArtifactBase}, IUser, bool?, List{HttpStatusCode})"/>
         public INovaArtifactsAndProjectsResponse PublishArtifacts(List<IArtifactBase> artifacts, IUser user = null,
             bool? publishAll = null,
@@ -847,9 +928,9 @@ namespace Model.Impl
         /// <param name="path">The REST path to use.</param>
         /// <param name="includeDescendants">(optional)Pass true to include artifact's children.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
-        /// <returns>Number of artifacts added to Baseline or Collection</returns>
+        /// <returns>Result of adding artifact to Baseline or Collection</returns>
         /// <exception cref="AssertionException">Throws for unexpected itemType</exception>
-        private Dictionary<string, int> AddArtifactToBaselineOrCollection(IUser user, int artifactId, string path, bool includeDescendants = false,
+        private T AddArtifactToBaselineOrCollection<T>(IUser user, int artifactId, string path, bool includeDescendants = false,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -858,13 +939,11 @@ namespace Model.Impl
             collectionContentToAdd.Add("addChildren", includeDescendants);
             collectionContentToAdd.Add("artifactId", artifactId);
 
-            var response = restApi.SendRequestAndGetResponse<object>(
+            return restApi.SendRequestAndDeserializeObject<T, object> (
                 path,
                 RestRequestMethod.PUT,
-                bodyObject: collectionContentToAdd,
+                jsonObject: collectionContentToAdd,
                 expectedStatusCodes: expectedStatusCodes);
-
-            return JsonConvert.DeserializeObject<Dictionary<string, int>>(response.Content);
         }
 
         #endregion Private Methods
@@ -1201,78 +1280,6 @@ namespace Model.Impl
         }
 
         /// <summary>
-        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifact">The artifact to delete.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A list of artifacts that were deleted.</returns>
-        public static List<INovaArtifactResponse> DeleteArtifact(string address, IArtifactBase artifact, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(address, nameof(address));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-
-            var deletedArtifacts = DeleteArtifact(address, artifact.Id, user, expectedStatusCodes);
-
-            var deletedArtifactsToReturn = deletedArtifacts.ConvertAll(o => (INovaArtifactResponse)o);
-
-            if ((expectedStatusCodes == null) || expectedStatusCodes.Contains(HttpStatusCode.OK))
-            {
-                // Set the IsMarkedForDeletion flag for the artifact that we deleted so the Dispose() works properly.
-                foreach (var deletedArtifact in deletedArtifacts)
-                {
-                    Logger.WriteDebug("DeleteArtifact() returned following artifact Id: {0}", deletedArtifact.Id);
-
-                    var artifaceBaseToDelete = artifact as ArtifactBase;
-
-                    // Hack: This is needed until we can refactor ArtifactBase better.
-                    var deletedArtifactResult = new OpenApiDeleteArtifactResult
-                    {
-                        ArtifactId = deletedArtifact.Id,
-                        ResultCode = HttpStatusCode.OK
-                    };
-
-                    artifaceBaseToDelete.DeletedArtifactResults.Add(deletedArtifactResult);
-
-                    if (deletedArtifact.Id == artifact.Id)
-                    {
-                        if (artifact.IsPublished)
-                        {
-                            artifact.IsMarkedForDeletion = true;
-                        }
-                        else
-                        {
-                            artifact.IsDeleted = true;
-                        }
-                    }
-                }
-            }
-
-            return deletedArtifactsToReturn;
-        }
-
-        /// <summary>
-        /// Deletes the specified artifact and any children/traces/links/attachments belonging to the artifact.
-        /// Runs DELETE svc/bpartifactstore/artifacts/{0}
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="artifactId">The Id of artifact to delete.</param>
-        /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>A list of artifacts that were deleted.</returns>
-        public static List<NovaArtifactResponse> DeleteArtifact(string address, int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.ARTIFACTS_id_, artifactId);
-            var restApi = new RestApiFacade(address, user?.Token?.AccessControlToken);
-
-            return restApi.SendRequestAndDeserializeObject<List<NovaArtifactResponse>>(
-                path,
-                RestRequestMethod.DELETE,
-                expectedStatusCodes: expectedStatusCodes);
-        }
-
-        /// <summary>
         /// Gets attachments for the specified artifact/subartifact
         /// (Runs: GET svc/artifactstore/artifacts/{artifactId}/attachment?addDrafts={addDrafts})
         /// </summary>
@@ -1364,58 +1371,6 @@ namespace Model.Impl
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
-        }
-
-        /// <summary>
-        /// Gets relationships for the specified artifact/subartifact
-        /// (Runs: GET svc/artifactstore/artifacts/{itemId}/relationships)
-        /// </summary>
-        /// <param name="address">The base address of the ArtifactStore.</param>
-        /// <param name="user">The user to authenticate with.</param>
-        /// <param name="artifactId">The ID of the artifact containing the relationship to get.</param>
-        /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
-        /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
-        /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
-        /// <returns>Relationships object for the specified artifact/subartifact.</returns>
-        public static Relationships GetRelationships(string address,
-            IUser user,
-            int artifactId,
-            int? subArtifactId = null,
-            bool? addDrafts = null,
-            int? versionId = null,
-            List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            ThrowIf.ArgumentNull(user, nameof(user));
-
-            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifactId);
-            var queryParameters = new Dictionary<string, string>();
-
-            if (subArtifactId != null)
-            {
-                queryParameters.Add("subArtifactId", subArtifactId.ToString());
-            }
-
-            if (addDrafts != null)
-            {
-                queryParameters.Add("addDrafts", addDrafts.ToString());
-            }
-
-            if (versionId != null)
-            {
-                queryParameters.Add("versionId", versionId.ToString());
-            }
-
-            var restApi = new RestApiFacade(address, user.Token?.AccessControlToken);
-
-            var relationships = restApi.SendRequestAndDeserializeObject<Relationships>(
-                path,
-                RestRequestMethod.GET,
-                queryParameters: queryParameters,
-                expectedStatusCodes: expectedStatusCodes,
-                shouldControlJsonChanges: false);
-
-            return relationships;
         }
 
         /// <summary>

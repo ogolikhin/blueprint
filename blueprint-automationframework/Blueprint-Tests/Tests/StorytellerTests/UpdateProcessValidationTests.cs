@@ -197,7 +197,7 @@ namespace StorytellerTests
             var artifactsToLock = new List<IArtifactBase> { Helper.Storyteller.Artifacts.Find(a => a.Id == process.Id) };
 
             // Second user locks the artifact
-            Artifact.LockArtifacts(artifactsToLock, Helper.BlueprintServer.Address, _user2);
+            Helper.SvcShared.LockArtifacts(_user2, artifactsToLock);
 
             var ex = Assert.Throws<Http409ConflictException>(() =>
                 // First user attempts to update the process

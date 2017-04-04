@@ -401,6 +401,7 @@ namespace ServiceLibrary.Repositories
                 {
                     subArtifactEntry.Value.Prefix = itemDetails.Prefix;
                 }
+                subArtifact.ArtifactId = artifactId;
             }
             var isUseCase = subArtifactsDictionary.Any() && (subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PreCondition
                                         || subArtifactsDictionary.ElementAt(0).Value.PredefinedType == ItemTypePredefined.PostCondition

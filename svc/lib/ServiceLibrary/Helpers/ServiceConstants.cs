@@ -54,6 +54,7 @@ namespace ServiceLibrary.Helpers
 
         public static string ForgotPasswordUrlConfigKey = "ForgotPasswordURL";
         public static string ForgotPasswordUrl = "/index.html#/passwordrecovery";
+        public static string ForgotPasswordResetUrl = "/index.html#/passwordrecovery/reset";
 
     }
 }

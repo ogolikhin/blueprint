@@ -20,7 +20,7 @@ namespace ArtifactStore.Repositories
     {
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
         private readonly IUsersRepository UserRepository;
-        private readonly SqlItemInfoRepository ItemInfoRepository;
+        private readonly ISqlItemInfoRepository ItemInfoRepository;
 
         public SqlAttachmentsRepository()
             : this(new SqlConnectionWrapper(ServiceConstants.RaptorMain), new SqlUsersRepository())
@@ -65,22 +65,23 @@ namespace ArtifactStore.Repositories
             return await ConnectionWrapper.QueryAsync<LinkedArtifactInfo>("GetDocumentArtifactInfos", parameters, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(int artifactId, int userId, int? versionId = null, int? subArtifactId = null, bool addDrafts = true)
+        public async Task<FilesInfo> GetAttachmentsAndDocumentReferences(
+            int artifactId, 
+            int userId, 
+            int? versionId = null, 
+            int? subArtifactId = null, 
+            bool addDrafts = true, 
+            int? baselineId = null)
         {
             var itemId = artifactId;
             if (subArtifactId.HasValue)
             {
                 itemId = subArtifactId.Value;
             }
-            var revisionId = int.MaxValue;
-            if (versionId.HasValue)
+            var revisionId = await ItemInfoRepository.GetRevisionId(itemId, userId, versionId, baselineId);
+            if (baselineId != null)
             {
-                revisionId = await ItemInfoRepository.GetRevisionIdByVersionIndex(artifactId, versionId.Value);
-            }
-
-            if (revisionId <= 0)
-            {
-                throw new ResourceNotFoundException(string.Format("Version index (Id:{0}) is not found.", versionId), ErrorCodes.ResourceNotFound);
+                addDrafts = false;
             }
 
             var attachments = (await GetAttachments(itemId, userId, revisionId, addDrafts)).ToList();
@@ -135,6 +136,5 @@ namespace ArtifactStore.Repositories
             };
             return result;
         }
-
     }
 }

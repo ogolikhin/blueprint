@@ -204,7 +204,7 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact and baseline IDs!", SVC_PATH);
 
             // Verify:
-            Assert.IsTrue(((NovaVersionControlArtifactInfo)basicArtifactInfo).IsInBaseline.Value, "IsInBaseline should be 'true'.");
+            Assert.IsTrue(basicArtifactInfo.IsIncludedInBaseline.Value, "IsIncludedInBaseline should be 'true'.");
         }
 
 

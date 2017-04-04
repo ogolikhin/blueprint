@@ -126,6 +126,7 @@ namespace Model.ArtifactModel
         DateTime? LockedDateTime { get; set; }
         Identification DeletedByUser { get; set; }
         DateTime? DeletedDateTime { get; set; }
+        bool? IsIncludedInBaseline { get; set; }
 
         #endregion Serialized JSON Properties
     }

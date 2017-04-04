@@ -21,12 +21,6 @@ namespace Model.ModelHelpers
         [JsonIgnore]
         public INovaArtifactDetails Artifact { get; set; }
 
-        /// <summary>
-        /// The project where the artifact exists (not serialized; used by tests only).
-        /// </summary>
-        [JsonIgnore]
-        public IProject Project { get; private set; }
-
         #region Constructors
 
         /// <summary>
@@ -47,7 +41,7 @@ namespace Model.ModelHelpers
             Artifact = artifact;
             ArtifactStore = artifactStore;
             SvcShared = svcShared;
-            Project = project;
+            ArtifactState.Project = project;
             ArtifactState.CreatedBy = createdBy;
         }
 

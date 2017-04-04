@@ -315,7 +315,8 @@ namespace ArtifactStoreTests
             Assert.IsNotNull(actorDetails.ActorInheritance, "Actor Inheritance shouldn't be null, but it does.");
             Assert.AreEqual(expectedBaseActor.Id, actorDetails.ActorInheritance.ActorId, "ArtifactId must be the same, but it isn't.");
             Assert.AreEqual(expectedBaseActor.Name, actorDetails.ActorInheritance.ActorName, "Name must be the same, but it isn't.");
-            Assert.AreEqual(expectedBaseActor.Project.Name, actorDetails.ActorInheritance.PathToProject[0], "Base Actor should have expected project name, but it doesn't.");
+            Assert.AreEqual(expectedBaseActor.ArtifactState.Project.Name, actorDetails.ActorInheritance.PathToProject[0],
+                "Base Actor should have expected project name, but it doesn't.");
         }
 
         /// <summary>
@@ -340,7 +341,8 @@ namespace ArtifactStoreTests
 
             Assert.IsNotNull(actorDetails.ActorInheritance, "Actor Inheritance shouldn't be null, but it does.");
             Assert.AreEqual(actorDetails.ActorInheritance.HasAccess, actorInheritanceTrace.HasAccess, "Trace should have expected 'HasAccess' value, but it doesn't.");
-            Assert.AreEqual(expectedBaseActor.Project.Name, actorInheritanceTrace.ProjectName, "Base Actor should have expected project name, but it doesn't.");
+            Assert.AreEqual(expectedBaseActor.ArtifactState.Project.Name, actorInheritanceTrace.ProjectName,
+                "Base Actor should have expected project name, but it doesn't.");
         }
 
         /// <summary>

@@ -1691,7 +1691,7 @@ namespace Helper
                 "font-style: normal; font-weight: normal; text-decoration: underline; color: #0000FF\">{2}{1}: {3}</span></a><span " +
                 "style=\"-c1-editable: true; font-family: 'Portable User Interface'; font-size: 10.67px; font-style: normal; font-weight: normal; color: Black\">" +
                 "&#x200b;</span></p></div></body></html>",
-                blueprintServerAddress, inlineTraceArtifact.Id, inlineTraceArtifact.Prefix, inlineTraceArtifact.Name, inlineTraceArtifact.Project.Name);
+                blueprintServerAddress, inlineTraceArtifact.Id, inlineTraceArtifact.Prefix, inlineTraceArtifact.Name, inlineTraceArtifact.ArtifactState.Project.Name);
 
             return inlineTraceText;
         }
@@ -1878,7 +1878,7 @@ namespace Helper
                     " linkassemblyqualifiedname=\"BluePrintSys.RC.Client.SL.RichText.RichTextArtifactLink, BluePrintSys.RC.Client.SL.RichText, " +
                     "Version=1.0.0.0, Culture=neutral, PublicKeyToken=null\" canclick=\"True\" isvalid=\"True\" title=\"Project: {3}\">" +
                     "<span style=\"text-decoration: underline; color: #0000ff\">{4}{1}: {2}</span></a>",
-                    blueprintBaseAddress, artifact.Id, artifact.Name, artifact.Project.Name, artifact.Prefix);
+                    blueprintBaseAddress, artifact.Id, artifact.Name, artifact.ArtifactState.Project.Name, artifact.Prefix);
             }
 
             Assert.IsFalse(string.IsNullOrWhiteSpace(text), "Text for inline trace was null or whitespace!");

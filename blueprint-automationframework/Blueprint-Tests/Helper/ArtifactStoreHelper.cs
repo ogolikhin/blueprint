@@ -1931,6 +1931,7 @@ namespace Helper
             artifactDetails.Traces = updatedTraces;
 
             Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
+            //ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
         }
 

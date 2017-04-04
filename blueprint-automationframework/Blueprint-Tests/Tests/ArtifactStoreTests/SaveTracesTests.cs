@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using CustomAttributes;
 using Helper;
 using Model;
-using Model.Impl;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.Factories;

@@ -301,6 +301,7 @@ namespace Model
         /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
         /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
+        /// <param name="baselineId">(optional) The id of baseline for which we want to get relationships. null = latest version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Relationships object for the specified artifact/subartifact.</returns>
         Relationships GetRelationships(
@@ -309,6 +310,7 @@ namespace Model
             int? subArtifactId = null,
             bool? addDrafts = null,
             int? versionId = null,
+            int? baselineId = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
@@ -320,6 +322,7 @@ namespace Model
         /// <param name="subArtifactId">(optional) ID of the sub-artifact.</param>
         /// <param name="addDrafts">(optional) Should include attachments in draft state.  Without addDrafts it works as if addDrafts=true</param>
         /// <param name="versionId">(optional) The version of the artifact whose relationships you want to get. null = latest version.</param>
+        /// <param name="baselineId">(optional) The id of baseline for which we want to get relationships. null = latest version.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>Relationships object for the specified artifact/subartifact.</returns>
         Relationships GetRelationships(
@@ -328,6 +331,7 @@ namespace Model
             int? subArtifactId = null,
             bool? addDrafts = null,
             int? versionId = null,
+            int? baselineId = null,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

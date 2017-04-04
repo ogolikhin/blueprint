@@ -455,26 +455,28 @@ namespace Model.Impl
                 expectedStatusCodes, expectedServiceErrorMessage);
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetRelationships(IUser, IArtifactBase, int?, bool?, int?, int?, List{HttpStatusCode})"/>
         public Relationships GetRelationships(IUser user,
             IArtifactBase artifact,
             int? subArtifactId = null,
             bool? addDrafts = null,
             int? versionId = null,
+            int? baselineId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(artifact, nameof(artifact));
 
-            return GetRelationships(user, artifact.Id, subArtifactId, addDrafts, versionId, expectedStatusCodes);
+            return GetRelationships(user, artifact.Id, subArtifactId, addDrafts, versionId, baselineId, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.GetRelationships(IUser, int, int?, bool?, int?, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.GetRelationships(IUser, int, int?, bool?, int?, int?, List{HttpStatusCode})"/>
         public Relationships GetRelationships(
             IUser user,
             int artifactId,
             int? subArtifactId = null,
             bool? addDrafts = null,
             int? versionId = null,
+            int? baselineId = null,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Artifacts_id_.RELATIONSHIPS, artifactId);
@@ -493,6 +495,11 @@ namespace Model.Impl
             if (versionId != null)
             {
                 queryParameters.Add("versionId", versionId.ToString());
+            }
+
+            if (baselineId != null)
+            {
+                queryParameters.Add("baselineId", baselineId.ToString());
             }
 
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);

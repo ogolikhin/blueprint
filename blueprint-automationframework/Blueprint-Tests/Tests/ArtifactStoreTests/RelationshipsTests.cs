@@ -578,6 +578,32 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, artifact.Id, expectedIndicatorFlags: null);
         }
 
+        [TestCase]
+        [TestRail(267470)]
+        [Description(".")]
+        public void GetRelationshipsDetails_ArtifactAddedToBaselineProvideBaselineId_ValidateTraces()
+        {
+            // Setup:
+            var sourceArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.Actor);
+            var targetArtifact = Helper.CreateWrapAndPublishNovaArtifact(_project, _user, ItemTypePredefined.Document);
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(_user, sourceArtifact, targetArtifact, ChangeType.Create,
+                Helper.ArtifactStore);
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: sourceArtifact.Id);
+            //var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+
+            sourceArtifact.Publish(_user);
+
+            Relationships relationships = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                relationships = Helper.ArtifactStore.GetRelationships(_user, sourceArtifact, baselineId: baselineArtifact.Id);
+            }, "Getting relationships with valid baselineId shouldn't throw any error.");
+
+            // Verify:
+            Assert.IsNotNull(relationships);
+        }
+
         #endregion 200 OK Tests
 
         #region 400 Bad Request Tests

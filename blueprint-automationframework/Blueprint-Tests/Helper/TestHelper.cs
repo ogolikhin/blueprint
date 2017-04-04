@@ -465,8 +465,7 @@ namespace Helper
                 {
                     Id = artifact.Artifact.Id,
                     ProjectId = artifact.Artifact.ProjectId,
-                    Version = artifact.Artifact.Version,
-                    Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                    Description = I18NHelper.FormatInvariant("Description for version: {0}", artifact.Version + 1)
                 };
 
                 artifact.Lock(user);

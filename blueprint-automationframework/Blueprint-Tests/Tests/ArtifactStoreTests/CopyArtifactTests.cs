@@ -1796,9 +1796,9 @@ namespace ArtifactStoreTests
         /// Sets Includes association values for Process artifact and its subartifact.
         /// </summary>
         /// <param name="process">Process artifact.</param>
-        /// <param name="includeProcess">Process to use for Includes association.</param>
+        /// <param name="includesProcess">Process to use for Includes association.</param>
         /// <param name="user">User to perform operation.</param>
-        private void SetProcessDefaultUserTaskWithIncludes(ArtifactWrapper process, ArtifactWrapper includes, IUser user)
+        private void SetProcessDefaultUserTaskWithIncludes(ArtifactWrapper process, ArtifactWrapper includesProcess, IUser user)
         {
             //Get Nova Process
             var novaProcess = Helper.ArtifactStore.GetNovaProcess(user, process.Id);
@@ -1807,14 +1807,14 @@ namespace ArtifactStoreTests
             var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifact(user, process.Id, defaultUTShape.Id);
 
             //Set Associated Artifact under default user task
-            defaultUTShape.AddAssociatedArtifact(includes.Artifact);
+            defaultUTShape.AddAssociatedArtifact(includesProcess.Artifact);
 
             //Set SubArtifact Includes association
             var specProperty = new CustomProperty();
             specProperty.Name = null;
             specProperty.PropertyTypeId = -1;
             specProperty.PropertyType = PropertyTypePredefined.AssociatedArtifact;
-            specProperty.CustomPropertyValue = includes.Artifact.Id;
+            specProperty.CustomPropertyValue = includesProcess.Artifact.Id;
 
             userTaskSubArtifact = TestHelper.CreateSubArtifactChangeSet(userTaskSubArtifact, specificProperty: specProperty);
             novaProcess.SubArtifacts = new List<NovaSubArtifact> { userTaskSubArtifact };

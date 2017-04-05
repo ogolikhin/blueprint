@@ -373,7 +373,7 @@ namespace ArtifactStoreTests
         public void DeleteArtifact_PublishedBaselineFolderWithBaseline_BaselineFolderIsDeleted()
         {
             // Setup:
-            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
+            var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Actor,_project.Id);
             var defaultBaselineFolder = _project.GetDefaultBaselineFolder(_user);
             var baselineFolder = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,

@@ -189,6 +189,8 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
 
+            CSharpUtilities.ReplaceAllNonNullProperties(response.Artifacts[0], Artifact);
+
             // If it was marked for deletion, publishing it will make it permanently deleted.
             if (ArtifactState.IsMarkedForDeletion)
             {
@@ -219,6 +221,7 @@ namespace Model.ModelHelpers
             };
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, changes);
+            CSharpUtilities.ReplaceAllNonNullProperties(changes, Artifact);
             CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
             return this;
@@ -350,7 +353,7 @@ namespace Model.ModelHelpers
             set { Artifact.ItemTypeIconId = value; }
         }
 
-        public int ItemTypeVersionId
+        public int? ItemTypeVersionId
         {
             get { return Artifact.ItemTypeVersionId; }
             set { Artifact.ItemTypeVersionId = value; }

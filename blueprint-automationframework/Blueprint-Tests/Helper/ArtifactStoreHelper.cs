@@ -1664,8 +1664,7 @@ namespace Helper
             var novaArtifactDetails = new NovaArtifactDetails
             {
                 Id = artifact.Id,
-                ProjectId = artifact.ProjectId,
-                Version = artifact.Version
+                ProjectId = artifact.ProjectId
             };
             return novaArtifactDetails;
         }

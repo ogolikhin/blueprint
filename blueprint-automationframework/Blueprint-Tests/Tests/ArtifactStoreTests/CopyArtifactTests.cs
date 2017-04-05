@@ -1,22 +1,24 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using Common;
 using CustomAttributes;
 using Helper;
 using Model;
 using Model.ArtifactModel;
 using Model.ArtifactModel.Enums;
 using Model.ArtifactModel.Impl;
+using Model.ArtifactModel.Impl.PredefinedProperties;
+using Model.Common.Enums;
 using Model.Factories;
 using Model.Impl;
-using NUnit.Framework;
-using TestCommon;
-using Utilities;
-using System.Linq;
-using Common;
+using Model.ModelHelpers;
 using Model.StorytellerModel;
 using Model.StorytellerModel.Impl;
+using NUnit.Framework;
 using System;
-using Model.ModelHelpers;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using TestCommon;
+using Utilities;
 using Utilities.Factories;
 
 namespace ArtifactStoreTests
@@ -1004,6 +1006,106 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.VerifyIndicatorFlags(Helper, author, copiedArtifact.Id, expectedIndicatorFlags: null);
         }
 
+        [TestCase(ItemTypePredefined.Actor, ItemTypePredefined.Actor)]
+        [TestRail(267472)]
+        [Description("Create an actor with a child actor. Create an inherit association from the parent to the child. Copy the parent actor to its below. " +
+            "Verify the source actor that its inherit association to the child is not altered. Also verify the newly created parent actor that its child are " +
+            "identical to the sources child but its inherit association is still set to the same source child actor.")]
+        public void CopyArtifact_ActorInheritsFromChildActor_CopiedActorIsIdenticalToSourceActorVerifyInheritsAssociations(ItemTypePredefined parentArtifactItemType, ItemTypePredefined childArtifactItemType)
+        {
+            // Setup: Create an actor with child actor which the parent actor inherits from its child actor
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var sourceParentActor = Helper.CreateNovaArtifact(author, _project, parentArtifactItemType);
+            var sourceChildActor = Helper.CreateNovaArtifact(author, _project, childArtifactItemType, parentId: sourceParentActor.Id);
+            SetActorInheritance(sourceParentActor, sourceChildActor, author);
+
+            var sourceParentArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceParentActor.Id);
+            var sourceParentArtifactRelationshipsBeforeCopy = Helper.ArtifactStore.GetRelationships(author, sourceParentActor.Id);
+
+            // Execute: Copy the prepared actor that has child actor
+            CopyNovaArtifactResultSet copyResult = null;
+            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceParentActor.Id, _project.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify: the content of the new parent artifact, the content of the new child artifact, the inherit association from
+            // new parent actor is idential to the inherit association from the source actor
+            var sourceParentArtifactRelationshipsAfterCopy = Helper.ArtifactStore.GetRelationships(author, sourceParentActor.Id);
+            var newParentArtifactRelationships = Helper.ArtifactStore.GetRelationships(author, copyResult.Artifact.Id);
+
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(
+                sourceParentArtifactDetails,
+                copyResult,
+                author,
+                expectedNumberOfArtifactsCopied: 2,
+                expectedVersionOfOriginalArtifact: -1,
+                skipCreatedBy: true
+                );
+
+            var compareOptions = new Attachments.CompareOptions
+            {
+                CompareAttachmentIds = false,
+                CompareUploadedDates = false
+            };
+
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceParentArtifactDetails, copyResult.Artifact, skipSubArtifactTraces: true, attachmentCompareOptions: compareOptions);
+
+            Relationships.AssertRelationshipsAreEqual(sourceParentArtifactRelationshipsBeforeCopy, newParentArtifactRelationships);
+
+            Relationships.AssertRelationshipsAreEqual(sourceParentArtifactRelationshipsAfterCopy, newParentArtifactRelationships);
+        }
+
+        [TestCase(ItemTypePredefined.Process , ItemTypePredefined.Process)]
+        [TestRail(267473)]
+        [Description("Create an process with a child process. Create an includes association from the parent to the child. Copy the process to its below. " +
+            "Verify the source process's default user task that the includes association to the child is un altered. Also verify the newly created parent " +
+            "process's default user task that its its child are identical to the sources child but its includes association set to the same source child actor.")]
+        public void CopyArtifact_ProcessIncludesChildProcess_CopiedProcessIsIdenticalToSourceProcessVerifyIncludesAssociations(ItemTypePredefined parentArtifactItemType, ItemTypePredefined childArtifactItemType)
+        {
+            // Setup: Create a process with child process which the parent actor includes its child process
+            var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
+            var sourceParentProcess = Helper.CreateNovaArtifact(author, _project, parentArtifactItemType);
+            var sourceChildProcess = Helper.CreateNovaArtifact(author, _project, childArtifactItemType, parentId: sourceParentProcess.Id);
+            SetProcessDefaultUserTaskWithIncludes(sourceParentProcess, sourceChildProcess, author);
+
+            var sourceParentNovaProcess = Helper.ArtifactStore.GetNovaProcess(author, sourceParentProcess.Id);
+            var sourceParentArtifactDetails = Helper.ArtifactStore.GetArtifactDetails(author, sourceParentProcess.Id);
+            var sourceParentDefaultUTShape = sourceParentNovaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var sourceParentSubartifactRelationshipsBeforeCopy = Helper.ArtifactStore.GetRelationships(author, sourceParentProcess.Id, sourceParentDefaultUTShape.Id);
+
+            // Execute: Copy the prepared souce parent process that has an includes association to its child process
+            CopyNovaArtifactResultSet copyResult = null;
+            Assert.DoesNotThrow(() => copyResult = ArtifactStore.CopyArtifact(Helper.ArtifactStore.Address, sourceParentProcess.Id, _project.Id, author),
+                "'POST {0}' should return 201 Created when valid parameters are passed.", SVC_PATH);
+
+            // Verify: the content of the new parent artifact, the content of the new child artifact, the includes association from
+            // new parent process is idential to the includes association from the source process
+            var sourceParentSubartifactRelationshipsAfterCopy = Helper.ArtifactStore.GetRelationships(author, sourceParentProcess.Id, sourceParentDefaultUTShape.Id);
+            var newParentNovaProcess = Helper.ArtifactStore.GetNovaProcess(author, copyResult.Artifact.Id);
+            var newParentDefaultUTShape = newParentNovaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var newParentSubartifactRelationships = Helper.ArtifactStore.GetRelationships(author, copyResult.Artifact.Id, newParentDefaultUTShape.Id);
+
+            AssertCopiedArtifactPropertiesAreIdenticalToOriginal(
+                sourceParentArtifactDetails,
+                copyResult,
+                author,
+                expectedNumberOfArtifactsCopied: 2,
+                expectedVersionOfOriginalArtifact: -1,
+                skipCreatedBy: true
+                );
+
+            var compareOptions = new Attachments.CompareOptions
+            {
+                CompareAttachmentIds = false,
+                CompareUploadedDates = false
+            };
+
+            AssertCopiedSubArtifactsAreEqualToOriginal(author, sourceParentArtifactDetails, copyResult.Artifact, attachmentCompareOptions: compareOptions);
+
+            Relationships.AssertRelationshipsAreEqual(sourceParentSubartifactRelationshipsBeforeCopy, newParentSubartifactRelationships);
+
+            Relationships.AssertRelationshipsAreEqual(sourceParentSubartifactRelationshipsAfterCopy, newParentSubartifactRelationships);
+        }
+
         #endregion 201 Created tests
 
         #region 400 Bad Request tests
@@ -1681,6 +1783,54 @@ namespace ArtifactStoreTests
                     VerifyChildrenWereCopied(user, sourceChild, copiedChild, parentWasCopiedToChild, sourceArtifact);
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets Actor Inheritance value for Actor artifact.
+        /// </summary>
+        /// <param name="actor">Actor artifact.</param>
+        /// <param name="baseActor">Actor to use for Actor Inheritance.</param>
+        /// <param name="user">User to perform operation.</param>
+        private void SetActorInheritance(ArtifactWrapper actor, ArtifactWrapper baseActor, IUser user)
+        {
+            var actorDetails = (Actor)Helper.ArtifactStore.GetArtifactDetails(user, actor.Id);
+
+            var actorInheritance = new ActorInheritanceValue { ActorId = baseActor.Id };
+            actorDetails.ActorInheritance = actorInheritance;
+
+            actor.Lock(user);
+            actor.Update(user, actorDetails);
+        }
+
+        /// <summary>
+        /// Sets Includes association values for Process artifact and its subartifact.
+        /// </summary>
+        /// <param name="process">Process artifact.</param>
+        /// <param name="includesProcess">Process to use for Includes association.</param>
+        /// <param name="user">User to perform operation.</param>
+        private void SetProcessDefaultUserTaskWithIncludes(ArtifactWrapper process, ArtifactWrapper includesProcess, IUser user)
+        {
+            //Get Nova Process
+            var novaProcess = Helper.ArtifactStore.GetNovaProcess(user, process.Id);
+            //Get default user task
+            var defaultUTShape = novaProcess.Process.GetProcessShapeByShapeName(Process.DefaultUserTaskName);
+            var userTaskSubArtifact = Helper.ArtifactStore.GetSubartifact(user, process.Id, defaultUTShape.Id);
+
+            //Set Associated Artifact under default user task
+            defaultUTShape.AddAssociatedArtifact(includesProcess.Artifact);
+
+            //Set SubArtifact Includes association
+            var specProperty = new CustomProperty();
+            specProperty.Name = null;
+            specProperty.PropertyTypeId = -1;
+            specProperty.PropertyType = PropertyTypePredefined.AssociatedArtifact;
+            specProperty.CustomPropertyValue = includesProcess.Artifact.Id;
+
+            userTaskSubArtifact = TestHelper.CreateSubArtifactChangeSet(userTaskSubArtifact, specificProperty: specProperty);
+            novaProcess.SubArtifacts = new List<NovaSubArtifact> { userTaskSubArtifact };
+
+            process.Lock(user);
+            Helper.Storyteller.UpdateNovaProcess(user, novaProcess);
         }
 
         #endregion Private functions

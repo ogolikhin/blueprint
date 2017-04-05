@@ -1887,19 +1887,21 @@ namespace Helper
         }
 
         /// <summary>
-        /// Adds trace to the artifact (and saves changes).
+        /// Adds trace to the artifact (and saves changes). Artifact should be locked by user.
         /// </summary>
         /// <param name="user">User to perform an operation.</param>
-        /// <param name="artifact">Artifact to add trace.</param>
-        /// <param name="traceTarget">Trace's target.</param>
-        /// <param name="traceDirection">Trace direction.</param>
+        /// <param name="artifactId">If of Artifact to add trace.</param>
+        /// <param name="traceTargetArtifactId">Id of Trace's target artifact.</param>
+        /// <param name="traceTargetArtifactProjectId">Id of Trace's target artifact project.</param>
         /// <param name="changeType">ChangeType enum - Add, Update or Delete trace</param>
         /// <param name="artifactStore">IArtifactStore.</param>
+        /// <param name="traceDirection">(optional)Trace direction. 'From' by default.</param>
         /// <param name="isSuspect">(optional)isSuspect, true for suspect trace, false otherwise.</param>
         /// <param name="targetSubArtifact">(optional)subArtifact for trace target(creates trace with subartifact).</param>
         public static void UpdateManualArtifactTraceAndSave(IUser user,
-            IArtifact artifact,
-            IArtifactBase traceTarget,
+            int artifactId,
+            int traceTargetArtifactId,
+            int traceTargetArtifactProjectId,
             ChangeType changeType,
             IArtifactStore artifactStore,
             TraceDirection traceDirection = TraceDirection.From,
@@ -1907,20 +1909,17 @@ namespace Helper
             NovaItem targetSubArtifact = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
-            ThrowIf.ArgumentNull(artifact, nameof(artifact));
-            ThrowIf.ArgumentNull(traceTarget, nameof(traceTarget));
             ThrowIf.ArgumentNull(traceDirection, nameof(traceDirection));
             ThrowIf.ArgumentNull(artifactStore, nameof(artifactStore));
 
-            artifact.Lock(user);
-            var artifactDetails = artifactStore.GetArtifactDetails(user, artifact.Id);
+            var artifactDetails = artifactStore.GetArtifactDetails(user, artifactId);
 
             var traceToCreate = new NovaTrace();
-            traceToCreate.ArtifactId = traceTarget.Id;
-            traceToCreate.ProjectId = traceTarget.ProjectId;
+            traceToCreate.ArtifactId = traceTargetArtifactId;
+            traceToCreate.ProjectId = traceTargetArtifactProjectId;
             traceToCreate.Direction = traceDirection;
             traceToCreate.TraceType = TraceType.Manual;
-            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTarget.Id;
+            traceToCreate.ItemId = targetSubArtifact?.Id ?? traceTargetArtifactId;
             traceToCreate.ChangeType = changeType;
             traceToCreate.IsSuspect = isSuspect ?? false;
 
@@ -1928,7 +1927,7 @@ namespace Helper
 
             artifactDetails.Traces = updatedTraces;
 
-            Artifact.UpdateArtifact(artifact, user, artifactDetails, address: artifactStore.Address);
+            ArtifactStore.UpdateArtifact(artifactStore.Address, user, artifactDetails);
             // TODO: add assertions about changed traces
         }
 

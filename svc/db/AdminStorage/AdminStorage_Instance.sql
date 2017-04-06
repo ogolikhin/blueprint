@@ -1112,10 +1112,14 @@ END
 -- 
 -- DO NOT EDIT THESE INSERT STATEMENTS DIRECTLY AS YOUR CHANGES WILL BE OVERWRITTEN
 
+IF  EXISTS (SELECT * FROM tempdb.sys.objects WHERE object_id = OBJECT_ID(N'tempdb..#tempAppLabels') AND type in (N'U'))
+    DROP TABLE #tempAppLabels
+GO
+
 CREATE TABLE #tempAppLabels (
-	[Key] [nvarchar](128) NOT NULL,
-	[Locale] [nvarchar](32) NOT NULL,
-	[Text] [nvarchar](512) NOT NULL
+	[Key] [nvarchar](128) COLLATE database_default NOT NULL,
+	[Locale] [nvarchar](32) COLLATE database_default NOT NULL,
+	[Text] [nvarchar](512) COLLATE database_default NOT NULL
 
 	CONSTRAINT [PK_ApplicationLabels] PRIMARY KEY NONCLUSTERED 
 	(

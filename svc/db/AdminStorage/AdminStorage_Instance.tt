@@ -34,7 +34,6 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Jobs\Blueprint_AdminStorage_Maintenance.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Data\DefaultConfigSettings.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Data\SetApplicationLabels.sql" ) ) #>
 
 -- --------------------------------------------------
 -- Always add your code just above this comment block

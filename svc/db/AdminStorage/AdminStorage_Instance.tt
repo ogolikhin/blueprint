@@ -18,7 +18,6 @@ GO
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Scripts\CompatibilityLevel.sql" ) ) #>
 
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\DbVersionInfo.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ApplicationLabels.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\ConfigSettings.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\Sessions.sql" ) ) #>
 <#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"Tables\LicenseActivityDetails.sql" ) ) #>

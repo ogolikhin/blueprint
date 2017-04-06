@@ -49,15 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\DefaultConfigSettings.sql" />
-    <Content Include="Data\SetApplicationLabels.sql">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SetApplicationLabels.tt</DependentUpon>
-    </Content>
-    <Content Include="Data\SetApplicationLabels.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SetApplicationLabels.sql</LastGenOutput>
-    </Content>
     <Content Include="Functions\IsSchemaVersionLessOrEqual.sql" />
     <Content Include="AdminStorage_Instance.sql">
       <DependentUpon>AdminStorage_Instance.tt</DependentUpon>
@@ -211,8 +202,6 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Data\ApplicationLabels_en-US.csv" />
-    <None Include="Data\ApplicationLabels_fr-CA.csv" />
     <None Include="ExecTemplates.cmd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

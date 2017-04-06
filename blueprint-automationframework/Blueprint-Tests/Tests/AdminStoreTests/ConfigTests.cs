@@ -128,11 +128,10 @@ namespace AdminStoreTests
             foreach (var keyValue in keysAndValues)
             {
                 string searchTerm = I18NHelper.FormatInvariant("'{0}':'{1}'", keyValue.Key, keyValue.Value);
-                Logger.WriteDebug("Checking if JSON contains {0} ...", searchTerm);
+                Logger.WriteDebug("Checking if Config JS contains {0} ...", searchTerm);
 
-                // Note: We need to replace ' with \' because single quotes are escaped in JSON.
-                Assert.That(configJs.Contains(searchTerm),  //value.Replace("'", "\\'")),
-                    "The expected string {0} wasn't found in the returned JSON text!", searchTerm);
+                Assert.That(configJs.Contains(searchTerm),
+                    "The expected string {0} wasn't found in the returned Config JS text!", searchTerm);
             }
         }
 

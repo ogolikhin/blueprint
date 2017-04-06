@@ -26,14 +26,10 @@ namespace SearchService.Repositories
         });
         private static readonly DataTable PrimitiveItemTypePredefineds = SqlConnectionWrapper.ToDataTable(new[]
         {
-            4097, // Project
-            4098, // Baseline
-            4353, // Baseline Folder
-            4354, // Artifact Baseline
-            4355, // ArtifactReviewPackage
-            4609, // Collection Folder
-            4610, // Artifact Collection
-            32769 // Data Object
+            (int)ItemTypePredefined.Project,                // (4097)
+            (int)ItemTypePredefined.Baseline,               // (4098)
+            (int)ItemTypePredefined.ArtifactReviewPackage,  // (4355)                     
+            (int)ItemTypePredefined.DataObject              // (32769)
         });
 
         internal readonly ISqlConnectionWrapper ConnectionWrapper;

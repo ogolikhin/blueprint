@@ -706,6 +706,7 @@ Walkthrough_StartPanel_Label, "This is the start of your process."
 Walkthrough_EndPanel_Label, "This is the end of your process."
 Walkthrough_ValidationErrors_SwitchToDiagram, "Please return to the Process editor to be able to edit all values."
 Walkthrough_StartFromBeginning, "The Walkthrough has started at the beginning of the Process."
+Walkthrough_Image_Alt, "Mockup"
 
 #Full Screen
 FullScreen_Component_FullScreen_Button_Tooltip, "Full-Screen View"

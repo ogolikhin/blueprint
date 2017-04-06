@@ -1600,6 +1600,7 @@ INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_StartP
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_EndPanel_Label', 'en-US', N'This is the end of your process.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_ValidationErrors_SwitchToDiagram', 'en-US', N'Please return to the Process editor to be able to edit all values.')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_StartFromBeginning', 'en-US', N'The Walkthrough has started at the beginning of the Process.')
+INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Walkthrough_Image_Alt', 'en-US', N'Mockup')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('FullScreen_Component_FullScreen_Button_Tooltip', 'en-US', N'Full-Screen View')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('FullScreen_Component_Restore_Button_Tooltip', 'en-US', N'Restore View')
 INSERT INTO #tempAppLabels ([Key], [Locale], [Text]) VALUES ('Zoom_Component_Reset_Button_Tooltip', 'en-US', N'Reset to 100%')

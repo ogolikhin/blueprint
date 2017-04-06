@@ -96,17 +96,7 @@ namespace AdminStoreTests
             }, "GetConfigJs() should return 200 OK if a valid token is passed!");
 
             // Verify:
-            Logger.WriteDebug("GetConfigJS returned: {0}", configJs);
-            var textValues = ReadApplicationLabelsFromDatabase();
-
-            foreach (string value in textValues)
-            {
-                Logger.WriteDebug("Checking if JSON contains '{0}'...", value);
-
-                // Note: We need to replace ' with \' because single quotes are escaped in JSON.
-                Assert.That(configJs.Contains(value.Replace("'", "\\'")),
-                    "The expected string '{0}' wasn't found in the returned JSON text!", value);
-            }
+            VerifyConfigJs(configJs);
         }
 
         [TestCase]
@@ -123,33 +113,43 @@ namespace AdminStoreTests
             }, "GetConfigJs() should return 200 OK if token is missing!");
 
             // Verify:
-            Logger.WriteDebug("GetConfigJS returned: {0}", configJs);
-            var textValues = ReadApplicationLabelsFromDatabase();
+            VerifyConfigJs(configJs);
+        }
 
-            foreach (string value in textValues)
+        /// <summary>
+        /// Verifies that the specified config JS string contains the Application Settings from the database.
+        /// </summary>
+        /// <param name="configJs">The Config JS string returned from the REST call.</param>
+        private static void VerifyConfigJs(string configJs)
+        {
+            Logger.WriteDebug("GetConfigJS returned: {0}", configJs);
+            var keysAndValues = ReadApplicationSettingsFromDatabase();
+
+            foreach (var keyValue in keysAndValues)
             {
-                Logger.WriteDebug("Checking if JSON contains '{0}'...", value);
+                string searchTerm = I18NHelper.FormatInvariant("'{0}':'{1}'", keyValue.Key, keyValue.Value);
+                Logger.WriteDebug("Checking if JSON contains {0} ...", searchTerm);
 
                 // Note: We need to replace ' with \' because single quotes are escaped in JSON.
-                Assert.That(configJs.Contains(value.Replace("'", "\\'")),
-                    "The expected string '{0}' wasn't found in the returned JSON text!", value);
+                Assert.That(configJs.Contains(searchTerm),  //value.Replace("'", "\\'")),
+                    "The expected string {0} wasn't found in the returned JSON text!", searchTerm);
             }
         }
 
         /// <summary>
-        /// Reads the specified number of records from the [dbo].[ApplicationLabels] table.
+        /// Reads the specified number of records from the [dbo].[ApplicationSettings] table.
         /// Used to compare against what was returned by GetConfigJS().
         /// </summary>
         /// <param name="numberOfRecords">(optional) The max number of records to return.</param>
-        /// <returns>A list of strings contained in the [dbo].[ApplicationLabels] table.</returns>
-        private static List<string> ReadApplicationLabelsFromDatabase(int numberOfRecords = 200)
+        /// <returns>A dictionary of key/value strings contained in the [dbo].[ApplicationSettings] table.</returns>
+        private static Dictionary<string, string> ReadApplicationSettingsFromDatabase(int numberOfRecords = 200)
         {
             const string LOCALE = "en-US";
-            var textValues = new List<string>();
+            var keysAndValues = new Dictionary<string, string>();
 
-            using (var database = DatabaseFactory.CreateDatabase("AdminStore"))
+            using (var database = DatabaseFactory.CreateDatabase())
             {
-                string query = I18NHelper.FormatInvariant("SELECT TOP {0} * FROM [dbo].[ApplicationLabels] WHERE Locale = '{1}'",
+                string query = I18NHelper.FormatInvariant("SELECT TOP {0} * FROM [dbo].[ApplicationSettings]",
                     numberOfRecords, LOCALE);
                 Logger.WriteDebug("Running: {0}", query);
 
@@ -165,9 +165,13 @@ namespace AdminStoreTests
                             {
                                 while (reader.Read())
                                 {
-                                    int textIdOrdinal = reader.GetOrdinal("Text");
-                                    string rawValue = (string)reader.GetSqlString(textIdOrdinal);
-                                    textValues.Add(rawValue.Replace("\\'", "'"));
+                                    int keyIdOrdinal = reader.GetOrdinal("Key");
+                                    string key = (string)reader.GetSqlString(keyIdOrdinal);
+
+                                    int valueIdOrdinal = reader.GetOrdinal("Value");
+                                    string value = (string)reader.GetSqlString(valueIdOrdinal);
+
+                                    keysAndValues.Add(key.Replace("\\'", "'"), value.Replace("\\'", "'"));
                                 }
                             }
                         }
@@ -179,7 +183,7 @@ namespace AdminStoreTests
                 }
             }
 
-            return textValues;
+            return keysAndValues;
         }
     }
 }

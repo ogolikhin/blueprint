@@ -1063,3 +1063,11 @@ BEGIN
 	INSERT INTO [dbo].[ConfigSettings] ([Key], [Value], [Group], [IsRestricted])
 		 VALUES (N'DaysToKeepInLogs', N'7', N'Maintenance', 0)
 END
+
+-- --------------------------------------------------
+-- Always add your code just above this comment block
+-- --------------------------------------------------
+EXEC [dbo].[SetSchemaVersion] @value = N'8.2.0';
+GO
+-- --------------------------------------------------
+

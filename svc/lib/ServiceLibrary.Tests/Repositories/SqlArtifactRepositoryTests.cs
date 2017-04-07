@@ -1856,7 +1856,7 @@ namespace ServiceLibrary.Repositories
             permissions.Add(artifactIds[0], rolePermissions);
             var mockArtifactPermissionsRepository = new Mock<IArtifactPermissionsRepository>();
             mockArtifactPermissionsRepository.Setup(
-                m => m.GetArtifactPermissionsInChunks(It.IsAny<List<int>>(), userId, false, int.MaxValue, true))
+                m => m.GetArtifactPermissions(It.IsAny<IEnumerable<int>>(), userId, false, int.MaxValue, true))
                 .ReturnsAsync(permissions);
 
             return new SqlArtifactRepository(cxn.Object, null, mockArtifactPermissionsRepository.Object);

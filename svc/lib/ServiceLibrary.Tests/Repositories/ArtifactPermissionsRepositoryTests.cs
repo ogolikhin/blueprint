@@ -11,19 +11,6 @@ namespace ServiceLibrary.Repositories
     public class ArtifactPermissionsRepositoryTests
     {
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public async Task GetArtifactPermissions_ItemIdsMoreThan50_ArgumentOutOfRangeException()
-        {
-            // Arrange
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlArtifactPermissionsRepository(cxn.Object);
-            var itemIds = Enumerable.Range(1, 60);
-
-            // Act
-            await repository.GetArtifactPermissions(itemIds, 0);
-        }
-
-        [TestMethod]
         public async Task GetArtifactPermissions_UserIsInstanceAdmin_ReturnsAllPermissions()
         {
             // Arrange

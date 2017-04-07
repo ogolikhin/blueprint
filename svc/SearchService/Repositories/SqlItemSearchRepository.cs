@@ -210,19 +210,19 @@ namespace SearchService.Repositories
                 }
                 throw;
             }
-            
+
+            var itemIds = items.Select(i => i.ItemId).ToList();
 
             var itemIdsPermissions =
                 // Always getting permissions for the Head version of an artifact.
-                await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(items.Select(i => i.ItemId).ToList(), userId);
+                await _artifactPermissionsRepository.GetArtifactPermissions(itemIds, userId);
 
             IDictionary<int, IEnumerable<Artifact>> itemsNavigationPaths;
             if (searchCriteria.IncludeArtifactPath)
             {
                 itemsNavigationPaths =
                     await
-                        _artifactRepository.GetArtifactsNavigationPathsAsync(userId, items.Select(i => i.ItemId).ToList(),
-                            false);
+                        _artifactRepository.GetArtifactsNavigationPathsAsync(userId, itemIds, false);
             }
             else
             {

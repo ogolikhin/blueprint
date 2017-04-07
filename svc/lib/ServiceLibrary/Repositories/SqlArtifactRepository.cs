@@ -732,7 +732,7 @@ namespace ServiceLibrary.Repositories
                 throw new ArgumentOutOfRangeException(nameof(artifactIds));
             }
 
-            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds.ToList(), userId);
+            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
 
             var readPermissions = artifactsPermissions.Where(perm => perm.Value.HasFlag(RolePermissions.Read));
 

@@ -76,7 +76,7 @@ namespace ArtifactStore.Controllers
             var result = await _relationshipsRepository.GetRelationships(artifactId, session.UserId, subArtifactId, effectiveAddDraft, versionId, baselineId);
             var artifactIds = new List<int> { artifactId };
             artifactIds = artifactIds.Union(result.ManualTraces.Select(a=>a.ArtifactId)).Union(result.OtherTraces.Select(a => a.ArtifactId)).Distinct().ToList();
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
             if (!HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();
@@ -155,7 +155,7 @@ namespace ArtifactStore.Controllers
             var effectiveAddDraft = !versionId.HasValue && addDrafts;
             var result = await _relationshipsRepository.GetReviewRelationships(artifactId, session.UserId, effectiveAddDraft, versionId);
             var artifactIds = new List<int> { artifactId };
-            var permissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds, session.UserId);
+            var permissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, session.UserId);
             if (!HasPermissions(artifactId, permissions, RolePermissions.Read))
             {
                 throw new AuthorizationException();

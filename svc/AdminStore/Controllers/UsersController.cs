@@ -322,5 +322,54 @@ namespace AdminStore.Controllers
 
             return Ok();
         }
+
+
+        [HttpPost]
+        [NoSessionRequired]
+        [ResponseType(typeof(HttpResponseMessage))]
+        [Route(""), BaseExceptionFilter]
+        public async Task<IHttpActionResult> PostUser([FromBody]User user)
+        {
+            if (string.IsNullOrEmpty(user.Login))
+            {
+                throw new BadRequestException(ErrorMessages.LoginRequered, ErrorCodes.BadRequest);
+            }
+
+            if (string.IsNullOrEmpty(user.DisplayName))
+            {
+                throw new BadRequestException(ErrorMessages.DisplayNameRequered, ErrorCodes.BadRequest);
+            }
+
+            if (string.IsNullOrEmpty(user.FirstName))
+            {
+                throw new BadRequestException(ErrorMessages.FirstNameRequered, ErrorCodes.BadRequest);
+            }
+
+            if (string.IsNullOrEmpty(user.LastName))
+            {
+                throw new BadRequestException(ErrorMessages.LastNameRequered, ErrorCodes.BadRequest);
+            }
+
+            var newGuid = Guid.NewGuid();
+            user.UserSALT = newGuid;
+
+            if (user.AllowFallback == null || (user.AllowFallback != null && (bool) !user.AllowFallback))
+            {
+                if (string.IsNullOrEmpty(user.Password))
+                {
+                    throw new BadRequestException(ErrorMessages.PasswordRequered, ErrorCodes.BadRequest);
+                }
+                
+                var decodedPasword = SystemEncryptions.Decode(user.Password);
+                user.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, (Guid) user.UserSALT);
+            }
+            else
+            {
+                user.Password = null;
+            }
+
+            var userId = await _userRepository.AddUser(user);
+            return Ok(userId);
+        }
     }
 }

@@ -126,6 +126,29 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
+        public  Task<int> AddUser(User loginUser)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@Login", loginUser.Login);
+            prm.Add("@Source", (int)loginUser.Source);
+            prm.Add("@InstanceAdminRoleId", loginUser.InstanceAdminRoleId);
+            prm.Add("@AllowFallback", loginUser.AllowFallback);
+            prm.Add("@Enabled", loginUser.Enabled);
+            prm.Add("@ExpirePassword", loginUser.ExpirePassword);
+            prm.Add("@DisplayName", loginUser.DisplayName);
+            prm.Add("@FirstName", loginUser.FirstName);
+            prm.Add("@LastName", loginUser.LastName);
+            prm.Add("@ImageId", loginUser.ImageId);
+            prm.Add("@Password", loginUser.Password);
+            prm.Add("@UserSALT", loginUser.UserSALT);
+            prm.Add("@Email", loginUser.Email);
+            prm.Add("@Title", loginUser.Title);
+            prm.Add("@Department", loginUser.Department);
+            prm.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
+            prm.Add("@Guest", loginUser.Guest);
+            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", prm, commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
         {
             const int passwordRequestLimit = 3;

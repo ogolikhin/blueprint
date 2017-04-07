@@ -125,6 +125,7 @@
     <Compile Include="Models\PasswordRecoveryToken.cs" />
     <Compile Include="Models\ResetPasswordContent.cs" />
     <Compile Include="Models\ResetPostContent.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Models\UserIcon.cs" />
     <Compile Include="Repositories\ApplicationSettingsRepository.cs" />
     <Compile Include="Repositories\ISettingsRepository.cs" />

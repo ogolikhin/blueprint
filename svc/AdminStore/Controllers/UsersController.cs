@@ -250,8 +250,9 @@ namespace AdminStore.Controllers
         /// Initiates a password reset
         /// </remarks>
         /// <response code="200">OK.</response>
-        /// <response code="400">Error. Password provided is invalid..</response>
-        /// <response code="409">Error. Token is invalid.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for the project.</response>
+        /// <response code="404">Not found. A project for the specified id is not found, does not exist or is deleted.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
         [HttpPost]
         [Route("passwordrecovery/reset"), NoSessionRequired]
@@ -323,16 +324,50 @@ namespace AdminStore.Controllers
             return Ok();
         }
 
-
+        /// <summary>
+        /// PostUser
+        /// </summary>
+        /// <remarks>
+        /// Returns id of the created user.
+        /// </remarks>
+        /// <response code="201">OK. The user is created.</response>
+        /// <response code="400">BadRequest. Some errors. </response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="403">Forbidden. The user does not have permissions for creating the user.</response>
         [HttpPost]
-        [NoSessionRequired]
+        //[SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         [Route(""), BaseExceptionFilter]
-        public async Task<IHttpActionResult> PostUser([FromBody]User user)
+        public async Task<HttpResponseMessage> PostUser([FromBody]User user)
         {
+            //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+
+            //if (session == null)
+            //{
+            //    throw new BadRequestException(ErrorMessages.SessionIsEmpty);
+            //}
+
+            var hasPermissions = await _userRepository.HasPermissions(2,
+                new InstanceAdminPrivileges[] { InstanceAdminPrivileges.ManageUsers, InstanceAdminPrivileges.AssignAdminRoles });
+
+            if (!hasPermissions)
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+
+
             if (string.IsNullOrEmpty(user.Login))
             {
                 throw new BadRequestException(ErrorMessages.LoginRequered, ErrorCodes.BadRequest);
+            }
+
+            if (user.Login.Length < 4 || user.Login.Length > 256)
+            {
+                throw new BadRequestException(ErrorMessages.LoginFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            var existLogin = await _userRepository.GetUserByLoginAsync(user.Login);
+            if (existLogin != null)
+            {
+                throw new BadRequestException(ErrorMessages.LoginNameUnique);
             }
 
             if (string.IsNullOrEmpty(user.DisplayName))
@@ -340,9 +375,19 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.DisplayNameRequered, ErrorCodes.BadRequest);
             }
 
+            if (user.DisplayName.Length < 2 || user.DisplayName.Length > 255)
+            {
+                throw new BadRequestException(ErrorMessages.DisplayNameFieldLimitation, ErrorCodes.BadRequest);
+            }
+
             if (string.IsNullOrEmpty(user.FirstName))
             {
                 throw new BadRequestException(ErrorMessages.FirstNameRequered, ErrorCodes.BadRequest);
+            }
+
+            if (user.FirstName.Length < 2 || user.FirstName.Length > 255)
+            {
+                throw new BadRequestException(ErrorMessages.FirstNameFieldLimitation, ErrorCodes.BadRequest);
             }
 
             if (string.IsNullOrEmpty(user.LastName))
@@ -350,26 +395,49 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.LastNameRequered, ErrorCodes.BadRequest);
             }
 
+            if (user.LastName.Length < 2 || user.LastName.Length > 255)
+            {
+                throw new BadRequestException(ErrorMessages.LastNameFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+
+            if (!string.IsNullOrEmpty(user.Email) && (user.Email.Length < 4 || user.Email.Length > 255))
+            {
+                throw new BadRequestException(ErrorMessages.EmailFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            if (!string.IsNullOrEmpty(user.Title) && (user.Title.Length < 2 || user.Title.Length > 255))
+            {
+                throw new BadRequestException(ErrorMessages.TitleFieldLimitation, ErrorCodes.BadRequest);
+            }
+
+            if (!string.IsNullOrEmpty(user.Title) && (user.Title.Length < 1 || user.Title.Length > 255))
+            {
+                throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
+            }
+
             var newGuid = Guid.NewGuid();
             user.UserSALT = newGuid;
 
-            if (user.AllowFallback == null || (user.AllowFallback != null && (bool) !user.AllowFallback))
+            if (user.AllowFallback == null || (user.AllowFallback != null && (bool)!user.AllowFallback))
             {
-                if (string.IsNullOrEmpty(user.Password))
+                if (string.IsNullOrEmpty(user.NewPassword))
                 {
                     throw new BadRequestException(ErrorMessages.PasswordRequered, ErrorCodes.BadRequest);
                 }
-                
-                var decodedPasword = SystemEncryptions.Decode(user.Password);
-                user.Password = HashingUtilities.GenerateSaltedHash(decodedPasword, (Guid) user.UserSALT);
+
+                var decodedPasword = SystemEncryptions.Decode(user.NewPassword);
+                user.NewPassword = HashingUtilities.GenerateSaltedHash(decodedPasword, (Guid)user.UserSALT);
             }
             else
             {
-                user.Password = null;
+                user.NewPassword = null;
             }
 
             var userId = await _userRepository.AddUser(user);
-            return Ok(userId);
+
+            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+
         }
     }
 }

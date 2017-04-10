@@ -8,6 +8,7 @@ using AdminStore.Models;
 using Dapper;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
+using ServiceLibrary.Models;
 
 namespace AdminStore.Repositories
 {
@@ -139,14 +140,47 @@ namespace AdminStore.Repositories
             prm.Add("@FirstName", loginUser.FirstName);
             prm.Add("@LastName", loginUser.LastName);
             prm.Add("@ImageId", loginUser.ImageId);
-            prm.Add("@Password", loginUser.Password);
+            prm.Add("@Password", loginUser.NewPassword);
             prm.Add("@UserSALT", loginUser.UserSALT);
             prm.Add("@Email", loginUser.Email);
             prm.Add("@Title", loginUser.Title);
             prm.Add("@Department", loginUser.Department);
-            prm.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
+            if(loginUser.GroupMembership != null)
+                prm.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
             prm.Add("@Guest", loginUser.Guest);
             return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", prm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<bool> HasPermissions(int userId, InstanceAdminPrivileges[] instanceAdminPrivilegeses)
+        {
+            if (instanceAdminPrivilegeses == null || (instanceAdminPrivilegeses.Length == 0))
+            {
+                return false;
+            }
+
+            int[] privileges = Array.ConvertAll<InstanceAdminPrivileges, int>(instanceAdminPrivilegeses,
+                value => (int) value);
+
+            var prm = new DynamicParameters();
+            prm.Add("@UserId", userId);
+            prm.Add("@Permissions", SqlConnectionWrapper.ToDataTable(privileges, "Int32Collection", "Int32Value"));
+            var arrayPermissions = (await _connectionWrapper.QueryAsync<PermissionsItem>("CheckPermissionsForUser", prm, commandType: CommandType.StoredProcedure)).ToList();
+
+            if (((!arrayPermissions.Any()) || (arrayPermissions.Count != instanceAdminPrivilegeses.Length)))
+            {
+                return false;
+            }
+
+            for (var i = 0; i < arrayPermissions.Count; i++)
+            {
+                if (arrayPermissions[i].PermissionValue != privileges[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+
         }
 
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)

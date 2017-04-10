@@ -30,7 +30,7 @@ namespace AdminStore.Models
         /// <summary>
         /// Defines the password of the user.
         /// </summary>
-        public string Password { get; set; }
+        public string NewPassword { get; set; }
 
 
         /// <summary>

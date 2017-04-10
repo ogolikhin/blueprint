@@ -45,6 +45,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -94,6 +95,7 @@
     <Compile Include="Exceptions\ExceptionWithErrorCode.cs" />
     <Compile Include="Exceptions\ResourceNotFoundException.cs" />
     <Compile Include="Helpers\ErrorCodes.cs" />
+    <Compile Include="Helpers\ErrorMessages.cs" />
     <Compile Include="Helpers\HttpWebClient.cs" />
     <Compile Include="Helpers\IHttpWebClient.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
@@ -124,6 +126,7 @@
     <Compile Include="Models\Enums\ProjectSection.cs" />
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
+    <Compile Include="Models\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
     <Compile Include="Models\Interfaces\IArtifact.cs" />
     <Compile Include="Models\ItemDetails.cs" />
@@ -139,6 +142,7 @@
     <Compile Include="Models\LicenseUsage.cs" />
     <Compile Include="Models\Messaging\SystemJobCommand.cs" />
     <Compile Include="Models\Messaging\SystemMessage.cs" />
+    <Compile Include="Models\PermissionsItem.cs" />
     <Compile Include="Models\ProjectNameIdPair.cs" />
     <Compile Include="Models\ProjectPermissions.cs" />
     <Compile Include="Models\RolePermissions.cs" />

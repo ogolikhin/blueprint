@@ -119,6 +119,7 @@
     <Compile Include="Models\ArtifactsNavigationPath.cs" />
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
+    <Compile Include="Models\BaselineInfo.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />

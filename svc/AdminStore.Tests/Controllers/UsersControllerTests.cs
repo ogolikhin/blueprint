@@ -780,5 +780,64 @@ namespace AdminStore.Controllers
 
         #endregion PasswordRecovery
 
+        #region GetAllUsers
+
+        [TestMethod]
+        public async Task GetAllUsers_RepositoryReturnUsers()
+        {
+            //arrange
+            var sort = string.Empty;
+            var filter = string.Empty;
+
+            var settings = new TableSettings() { PageSize = 3, Page = 1 };
+            var users = new List<User>() { new User() };
+
+            _usersRepoMock.Setup(repo => repo.GetUsersAsync(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
+                .ReturnsAsync(users);
+            _usersRepoMock.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+
+            //act
+            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<IEnumerable<User>>;
+
+            //assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result.Content, typeof(IEnumerable<User>));
+        }
+
+        [TestMethod]
+        public async Task GetAllUsers_BadRequestResult()
+        {
+            //arrange
+
+            //act
+            var result = await _controller.GetAllUsers(0, 0, string.Empty, string.Empty);
+
+            //assert
+            Assert.IsInstanceOfType(result, typeof(BadRequestErrorMessageResult));
+        }
+
+        [TestMethod]
+        public async Task GetAllUsers_ForbiddenResult()
+        {
+            //arrange
+            Exception exception = null;
+            _usersRepoMock.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
+
+            //act
+            try
+            {
+                var result = await _controller.GetAllUsers(1, 2, string.Empty, string.Empty);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+            }
+
+            //assert
+            Assert.IsInstanceOfType(exception, typeof(HttpResponseException));
+            Assert.AreEqual(HttpStatusCode.Forbidden, ((HttpResponseException)exception).Response.StatusCode);
+        }
+        #endregion
+
     }
 }

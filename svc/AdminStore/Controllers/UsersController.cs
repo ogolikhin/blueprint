@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,6 +14,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
+using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
 
 
@@ -87,6 +90,39 @@ namespace AdminStore.Controllers
                 await _log.LogError(WebApiConfig.LogSourceUsers, ex);
                 return InternalServerError();
             }
+        }
+
+        /// <summary>
+        /// Get users list
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="filter"></param>
+        /// <param name="sort"></param>
+        /// <returns code="200">OK if admin user session exists and user is permitted to list users</returns>
+        /// <returns code="400">BadRequest if page, pageSize are missing or invalid</returns>
+        /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
+        /// <returns code="403">Forbidden if used doesn’t have permissions to get users list</returns>
+        [SessionRequired(true)]
+        [Route("")]
+        public async Task<IHttpActionResult> GetAllUsers(int page, int pageSize, string filter, string sort)
+        {
+            if (pageSize <= 0 || page <= 0)
+            {
+                return BadRequest("Page, PageSize are missing or invalid.");
+            }
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var userId = session.UserId;
+            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
+            if (!await _userRepository.IsUserHasPermissions(permissions, userId))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+
+            var result = await _userRepository.GetUsersAsync(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = sort });
+            result = UsersHelper.SortUsers(result.ToList(), sort.ToLower(CultureInfo.InvariantCulture));
+
+            return Ok(result);
         }
 
         /// <summary>

@@ -126,6 +126,24 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
+        public async Task<IEnumerable<User>> GetUsersAsync(TableSettings settings)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@Page", settings.Page);
+            prm.Add("@PageSize", settings.PageSize);
+            prm.Add("@SearchUser", settings.SearchUser);
+            return await _connectionWrapper.QueryAsync<User>("GetUsers", prm, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<bool> IsUserHasPermissions(IEnumerable<int> permissionsList, int userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@UserId", userId);
+            prm.Add("@Permissions", SqlConnectionWrapper.ToDataTable(permissionsList, "Int32Collection", "Int32Value"));
+            var permissionsResult = await _connectionWrapper.QueryAsync<int>("CheckPermissionsForUser", prm, commandType: CommandType.StoredProcedure);
+            return permissionsList.ToList().OrderBy(p => p).SequenceEqual(permissionsResult.OrderBy(p => p));
+        }
+
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
         {
             const int passwordRequestLimit = 3;

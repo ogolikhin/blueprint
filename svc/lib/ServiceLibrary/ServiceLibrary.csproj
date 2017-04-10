@@ -45,6 +45,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -80,6 +81,7 @@
     <Compile Include="Attributes\ApiControllerConfigAttribute.cs" />
     <Compile Include="Attributes\BaseExceptionFilterAttribute.cs" />
     <Compile Include="Attributes\NoCacheAttribute.cs" />
+    <Compile Include="Attributes\PreRequiredPrivilegeAttribute.cs" />
     <Compile Include="Attributes\SessionAttribute.cs" />
     <Compile Include="Attributes\UnhandledExceptionFilterAttribute.cs" />
     <Compile Include="EventSources\SQLTraceLogEventSource.cs" />
@@ -120,8 +122,14 @@
     <Compile Include="Models\ArtifactVersion.cs" />
     <Compile Include="Models\AuthorHistory.cs" />
     <Compile Include="Models\ClientLogModel.cs" />
+    <Compile Include="Models\Enums\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
+    <Compile Include="Models\Enums\StringTokens.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>StringTokens.resx</DependentUpon>
+    </Compile>
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
@@ -183,6 +191,10 @@
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />
+    <EmbeddedResource Include="Models\Enums\StringTokens.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>StringTokens.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Swagger\swagger-config.js" />
   </ItemGroup>
   <ItemGroup>

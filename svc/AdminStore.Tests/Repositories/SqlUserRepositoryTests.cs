@@ -312,5 +312,57 @@ namespace AdminStore.Repositories
         }
 
         #endregion ValidateUserPasswordForHistoryAsync
+
+        #region GetUsersAsync
+
+        [TestMethod]
+        public async Task GetUsersAsync_QueryReturnUsers()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var setting = new TableSettings() { Page = 1, PageSize = 3 };
+            var parameters = new Dictionary<string, object>
+            {
+                {"Page", setting.Page},
+                {"PageSize", setting.PageSize},
+                {"SearchUser", setting.SearchUser}
+            };
+            User[] returnResult = { new User() { FirstName = "test" } };
+            cxn.SetupQueryAsync("GetUsers", parameters, returnResult);
+
+            //act
+            var result = await repository.GetUsersAsync(setting);
+
+            //assert
+            cxn.Verify();
+            CollectionAssert.AreEquivalent(returnResult, result.ToList());
+        }
+
+        [TestMethod]
+        public async Task GetUsersAsync_QueryReturn_Empty()
+        {
+            //arrange
+            var cxn = new SqlConnectionWrapperMock();
+            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
+            var setting = new TableSettings();
+            var parameters = new Dictionary<string, object>
+            {
+                {"Page", setting.Page},
+                {"PageSize", setting.PageSize},
+                {"SearchUser", setting.SearchUser}
+            };
+            User[] returnResult = { };
+            cxn.SetupQueryAsync("GetUsers", parameters, returnResult);
+
+            //act
+            var result = await repository.GetUsersAsync(setting);
+
+            //assert
+            cxn.Verify();
+            CollectionAssert.AreEquivalent(returnResult, result.ToList());
+        }
+
+        #endregion GetUsersAsync
     }
 }

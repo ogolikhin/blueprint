@@ -809,12 +809,14 @@ namespace Helper
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var baselineArtifact = CreateNovaArtifactInSpecificState(user, project, TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
-                parentId.Value, artifactName: name);
+            var baselineArtifact = CreateNovaArtifact(user, project, ItemTypePredefined.ArtifactBaseline, parentId.Value,
+                name: name);
             if (artifactToAddId != null)
             {
                 var result = ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);
                 Assert.GreaterOrEqual(result.ArtifactCount, 1, "At least one artifact should be added to Baseline.");
+                baselineArtifact.ArtifactState.LockOwner = user;
+                baselineArtifact.ArtifactState.IsDraft = true;
             }
             return baselineArtifact;
         }

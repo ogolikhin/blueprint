@@ -344,7 +344,7 @@ namespace AdminStore.Repositories
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
 
             var userId = 100;
-            cxn.SetupExecuteScalarAsync<int>( "AddUserAsync", It.IsAny<Dictionary<string, object>>(), userId);
+            cxn.SetupExecuteScalarAsync<int>( "AddUser", It.IsAny<Dictionary<string, object>>(), userId);
 
             var result = await repository.AddUserAsync(user);
 

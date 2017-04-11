@@ -148,7 +148,7 @@ namespace AdminStore.Repositories
             if(loginUser.GroupMembership != null)
                 prm.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
             prm.Add("@Guest", loginUser.Guest);
-            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUserAsync", prm, commandType: CommandType.StoredProcedure);
+            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", prm, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<bool> HasPermissionsAsync(int userId, InstanceAdminPrivileges[] instanceAdminPrivilegeses)

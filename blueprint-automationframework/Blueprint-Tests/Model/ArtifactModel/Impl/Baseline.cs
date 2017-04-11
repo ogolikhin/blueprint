@@ -9,6 +9,9 @@ namespace Model.ArtifactModel.Impl
     public class Baseline : NovaCollectionBase
     {
         #region JSON Properties
+
+        public DateTime? MinimalUtcTimestamp { get; set; }
+
         public bool IsAvailableInAnalytics {
             get { return _isAvailableInAnalytics; }
             set { _isAvailableInAnalytics = value; }
@@ -32,7 +35,7 @@ namespace Model.ArtifactModel.Impl
         }
         private DateTime? _utcTimestamp;
 
-        #endregion
+        #endregion JSON Properties
 
         #region Constructors
         public Baseline(bool isAvailableInAnalytics, bool notAllArtifactsAreShown, bool isSealed)

@@ -121,26 +121,27 @@ namespace ServiceLibrary.Repositories
             return (await ConnectionWrapper.QueryAsync<int>(queryText, prm)).SingleOrDefault();
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInChunks(List<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
         {
+            var itemIdsList = itemIds is List<int> ? (List<int>)itemIds : itemIds.ToList();
             var dictionary = new Dictionary < int, RolePermissions>();
             int index = 0;
-            while (index < itemIds.Count())
+            while (index < itemIdsList.Count)
             {
                 int chunkSize = 50;
-                if (chunkSize > itemIds.Count - index)
+                if (chunkSize > itemIdsList.Count - index)
                 {
-                    chunkSize = itemIds.Count - index;
+                    chunkSize = itemIdsList.Count - index;
                 }
-                var chunk = itemIds.GetRange(index, chunkSize);
-                var localResult = await GetArtifactPermissions(chunk, sessionUserId, contextUser, revisionId, addDrafts);
+                var chunk = itemIdsList.GetRange(index, chunkSize);
+                var localResult = await GetArtifactPermissionsInternal(chunk, sessionUserId, contextUser, revisionId, addDrafts);
                 dictionary = dictionary.Union(localResult).ToDictionary(k => k.Key, v=> v.Value);
                 index += chunkSize;
             }
             return dictionary;
         }
 
-        public async Task<Dictionary<int, RolePermissions>> GetArtifactPermissions(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
+        private async Task<Dictionary<int, RolePermissions>> GetArtifactPermissionsInternal(IEnumerable<int> itemIds, int sessionUserId, bool contextUser = false, int revisionId = int.MaxValue, bool addDrafts = true)
         {
             if (itemIds.Count() > 50)
             {

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
+using System.Text;
 using System.Web.Http;
 using System.Web.Http.Description;
 using AdminStore.Repositories;
@@ -19,20 +18,16 @@ namespace AdminStore.Controllers
     [RoutePrefix("config")]
     public class ConfigController : ApiController
     {
-        const string defaultLocale = "en-US";
-        internal readonly IConfigRepository _configRepo;
         internal readonly IApplicationSettingsRepository _appSettingsRepo;
         internal readonly IHttpClientProvider _httpClientProvider;
         internal readonly sl.IServiceLogRepository _log;
 
-        public ConfigController() : this(new SqlConfigRepository(), new ApplicationSettingsRepository(),  new HttpClientProvider(), new sl.ServiceLogRepository())
+        public ConfigController() : this(new ApplicationSettingsRepository(),  new HttpClientProvider(), new sl.ServiceLogRepository())
         {
-
         }
 
-        internal ConfigController(IConfigRepository configRepo, IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, sl.IServiceLogRepository log)
+        internal ConfigController(IApplicationSettingsRepository settingsRepo, IHttpClientProvider httpClientProvider, sl.IServiceLogRepository log)
         {
-            _configRepo = configRepo;
             _appSettingsRepo = settingsRepo;
             _httpClientProvider = httpClientProvider;
             _log = log;
@@ -78,8 +73,7 @@ namespace AdminStore.Controllers
         /// </summary>
         /// <remarks>
         /// Returns a valid JavaScript file that defines a config object on the window object.
-        /// The config object contains a settings property, containing all application settings,
-        /// and a labels property, containing all application labels.
+        /// The config object contains a settings property, containing all application settings.
         /// </remarks>
         /// <response code="200">OK.</response>
         /// <response code="500">Internal Server Error. An error occurred.</response>
@@ -90,23 +84,14 @@ namespace AdminStore.Controllers
         {
             try
             {
-                //TODO: Use the locale set by client
-                //Apr 1, 2016:: Currently use default (en-US) locale all the time
-                //var locale = (Request.Headers.AcceptLanguage.FirstOrDefault() ?? new StringWithQualityHeaderValue(defaultLocale)).Value;
+                var settings = (await _appSettingsRepo.GetSettings()).ToDictionary(it => it.Key, it => it.Value);
 
-                var locale = new StringWithQualityHeaderValue(defaultLocale).Value;
-
-                var settings = await _appSettingsRepo.GetSettings();
-                
-                var labels = await _configRepo.GetLabels(locale);
-
-                var config = new
-                {
-                    settings = settings.ToDictionary(it => it.Key, it => it.Value),
-                    labels = labels.ToDictionary(it => it.Key, it => it.Text),
-                }.ToJSON();
-
-                var script = $"window.config={config};";
+                var script = "(function (window) {\n" +
+                    "    if (!window.config) {\n" +
+                    "        window.config = {};\n" +
+                    "    }\n" +
+                    $"    window.config.settings = {settings.ToJSON()}\n" +
+                    "}(window));";
 
                 var response = Request.CreateResponse(HttpStatusCode.OK);
                 response.Content = new StringContent(script, Encoding.UTF8, "application/javascript");

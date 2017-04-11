@@ -88,7 +88,17 @@ namespace Model.ArtifactModel.Impl
         {
             return AttachmentValues.Count > 0;
         }
+        
+        public virtual bool ShouldSerializeCustomPropertyValues()
+        {
+            return (CustomPropertyValues != null);
+        }
 
+        public virtual bool ShouldSerializeSpecificPropertyValues()
+        {
+            return (SpecificPropertyValues != null);
+        }
+        
         #region Serialized JSON Properties
 
         // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
@@ -123,7 +133,7 @@ namespace Model.ArtifactModel.Impl
         public double? OrderIndex { get; set; }
         public override int? ItemTypeId { get; set; }
         public string ItemTypeName { get; set; }
-        public int ItemTypeVersionId { get; set; }
+        public int? ItemTypeVersionId { get; set; }
         public int? ItemTypeIconId { get; set; }
         public string Prefix { get; set; }
         public List<CustomProperty> CustomPropertyValues { get; set; } = new List<CustomProperty>();
@@ -163,7 +173,7 @@ namespace Model.ArtifactModel.Impl
             get
             {
                 // Finding DocumentFile among other properties
-                var documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                var documentFileProperty = SpecificPropertyValues?.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
                 if ((documentFileProperty == null) || (documentFileProperty.CustomPropertyValue == null))
@@ -182,7 +192,7 @@ namespace Model.ArtifactModel.Impl
             set
             {
                 // Finding DocumentFile among other properties
-                var documentFileProperty = SpecificPropertyValues.FirstOrDefault(
+                var documentFileProperty = SpecificPropertyValues?.FirstOrDefault(
                     p => p.PropertyType == PropertyTypePredefined.DocumentFile);
 
                 if (documentFileProperty != null)   // TODO: Should this throw an exception instead?
@@ -242,37 +252,19 @@ namespace Model.ArtifactModel.Impl
     /// <summary>
     /// This is the class returned by some ArtifactStore REST calls.
     /// </summary>
-    public class NovaArtifactResponse : NovaArtifactBase, INovaArtifactResponse
+    public class NovaArtifactResponse : NovaArtifactDetails, INovaArtifactResponse
     {
-        #region Serialized JSON Properties
+        // TODO: Remove this class and use NovaArtifactDetails directly instead (make CustomPropertyValues & SpecificPropertyValues null in constructor).
 
-        // NOTE: Keep the properties in this order so the shouldControlJsonChanges option in RestApiFacade works properly.  This is the order of the incoming JSON.
+        public override bool ShouldSerializeCustomPropertyValues()
+        {
+            return CustomPropertyValues.Count > 0;
+        }
 
-        public override int? ProjectId { get; set; }
-        public override int? Version { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedOn, even if it's null.
-        public DateTime? CreatedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedOn, even if it's null.
-        public DateTime? LastEditedOn { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends CreatedBy, even if it's null.
-        public Identification CreatedBy { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends LastEditedBy, even if it's null.
-        public Identification LastEditedBy { get; set; }
-
-        public ItemIndicatorFlags? IndicatorFlags { get; set; }
-
-        public override int Id { get; set; }
-        public override string Name { get; set; }
-        [JsonProperty(NullValueHandling = NullValueHandling.Include)]   // Dev always sends Description, even if it's null.
-        public string Description { get; set; }
-        public override int? ParentId { get; set; }
-        public double OrderIndex { get; set; }
-        public override int? ItemTypeId { get; set; }
-        public int? ItemTypeIconId { get; set; }
-        public string Prefix { get; set; }
-        public int PredefinedType { get; set; }
-
-        #endregion Serialized JSON Properties
+        public override bool ShouldSerializeSpecificPropertyValues()
+        {
+            return SpecificPropertyValues.Count > 0;
+        }
     }
 
     public class NovaProject : INovaProject

@@ -5,7 +5,7 @@ using NUnit.Framework;
 using CustomAttributes;
 using System.Collections.Generic;
 using TestCommon;
-using Model.ArtifactModel;
+using Model.ArtifactModel.Enums;
 using Model.Factories;
 using Model.ArtifactModel.Impl;
 using Utilities;
@@ -17,7 +17,6 @@ namespace ArtifactStoreTests
     public class ArtifactHistoryTests : TestBase
     {
         private IUser _user = null;
-        private IUser _user2 = null;
         private IProject _project = null;
 
         private const string SVC_PATH = RestPaths.Svc.ArtifactStore.Artifacts_id_.VERSION;
@@ -28,7 +27,6 @@ namespace ArtifactStoreTests
             Helper = new TestHelper();
             _user = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
             _project = ProjectFactory.GetProject(_user);
-            _user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
         }
 
         [TearDown]
@@ -43,8 +41,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_PublishedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
@@ -69,10 +66,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-
-            var artifact = Helper.CreateArtifact(_project, author, BaseArtifactType.Actor);
-
-            artifact.Save(author);
+            var artifact = Helper.CreateNovaArtifact(author, _project, ItemTypePredefined.Actor);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -85,18 +79,20 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, artifactHistory.Count, "Artifact history must have 1 item, but it has {0} items", artifactHistory.Count);
 
-            var expectedArtifactHistoryVersion = CreateArtifactHistoryVersion(versionId: Int32.MaxValue, userId: author.Id, displayName: author.DisplayName, artifactState: ArtifactState.Draft,
-                timestamp: new DateTime());
+            var expectedArtifactHistoryVersion = CreateArtifactHistoryVersion(
+                versionId: Int32.MaxValue, userId: author.Id, displayName: author.DisplayName, artifactState: ArtifactState.Draft, timestamp: new DateTime());
             AssertArtifactHistory(artifactHistory[0], expectedArtifactHistoryVersion);
         }
 
         [TestCase]
         [TestRail(145869)]
-        [Description("Create artifact, publish, delete, publish, get history.  Verify 2 artifact histories are returned with the expected values (latest one with ArtifactState = Deleted).")]
+        [Description("Create artifact, publish, delete, publish, get history.  Verify 2 artifact histories are returned with the expected values " +
+                     "(latest one with ArtifactState = Deleted).")]
         public void GetArtifactHistory_DeletedArtifact_VerifyHistoryHasExpectedValue()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Actor);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+            artifact.Lock(_user);
             artifact.Delete(_user);
             artifact.Publish(_user);
 
@@ -121,15 +117,18 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_PublishedArtifactInDraft_VerifyOtherUserSeeOnlyPublishedVersions()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Save(_user);
+            var user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Actor);
+
+            artifact.Lock(_user);
+            artifact.SaveWithNewDescription(_user);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, user2);
             }, "GetArtifactHistory shouldn't throw any error.");
 
             // Verify:
@@ -141,19 +140,19 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(145871)]
-        [Description("Create artifact, save.  Verify other user sees empty history.")]
+        [Description("Create artifact.  Verify other user sees empty history.")]
         public void GetArtifactHistory_UnpublishedArtifactInDraft_VerifyOtherUserGetsEmptyHistory()
         {
             // Setup:
-            var artifact = Helper.CreateArtifact(_project, _user, BaseArtifactType.Actor);
-            artifact.Save(_user);
+            var user2 = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Actor);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, _user2);
+                artifactHistory = Helper.ArtifactStore.GetArtifactHistory(artifact.Id, user2);
             }, "GetArtifactHistory shouldn't throw any error.");
 
             // Verify:
@@ -166,7 +165,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactWith12PublishedVersions_VerifyOnly10LatestVersionsReturned()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 12);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 12);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -204,7 +203,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistory_ArtifactWith5PublishedVersions_VerifyDefaultAscIsFalse()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -229,7 +228,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscTrue_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInAscendingOrder()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -254,7 +253,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscFalse_ArtifactWith5PublishedVersions_VerifyVersionsReturnedInDescendingOrder()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -279,7 +278,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithOffset2_ArtifactWith5PublishedVersions_VerifyOnly3LatestVersionsReturned()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 5);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -304,8 +303,7 @@ namespace ArtifactStoreTests
         public void GetArtifactHistoryWithAscTrueAndOffset3AndLimit1_ArtifactWith5PublishedVersions_VerifyOnlyVersion4Returned()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: 5);
-
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions: 5);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
@@ -326,12 +324,12 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(191175)]
-        [Description("Create process artifact with two versions.  User tryes to get artifact versions using sub-artifact Id.  Verify empty list of artifact versions returned")]
+        [Description("Create process artifact with two versions.  User tries to get artifact versions using sub-artifact Id.  " +
+                     "Verify empty list of artifact versions returned.")]
         public void GetArtifactHistory_ArtifactWithSubArtifacts_PublishedVersions_SendSubArtifactId_VerifyReturn()
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Process, numberOfVersions: 2);
-
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Process, numberOfVersions: 2);
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(viewer, artifact.Id);
@@ -351,14 +349,14 @@ namespace ArtifactStoreTests
 
         #region 403 Forbidden
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(191190)]
-        [Description("Create & publish an artifact.  User that does not have permissions to artifact tries to get artifact version. Verify 403 Forbidden error code returned.")]
-        public void GetArtifactHistory_PublishedArtifact_UserWithoutPermissions_403Forbidden(BaseArtifactType artifactType)
+        [Description("Create & publish an artifact.  User that does not have permissions to artifact tries to get artifact version.  " +
+                     "Verify 403 Forbidden error code returned.")]
+        public void GetArtifactHistory_PublishedArtifact_UserWithoutPermissions_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
 
             // Execute:
@@ -369,14 +367,15 @@ namespace ArtifactStoreTests
             // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4691
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(191191)]
-        [Description("Create & publish parent & child artifacts.  User that does not have permissions to parent artifact tries to get artifact version.  Verify 403 Forbidden error code returned.")]
-        public void GetArtifactHistory_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(BaseArtifactType artifactType)
+        [Description("Create & publish parent & child artifacts.  User that does not have permissions to parent artifact tries to get artifact version.  " +
+                     "Verify 403 Forbidden error code returned.")]
+        public void GetArtifactHistory_PublishedArtifactWithAChild_UserWithoutPermissionsToParent_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup
-            var parent = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            Helper.CreateAndPublishArtifact(_project, _user, artifactType, parent);
+            var parent = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType, parent.Id);
 
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, parent);
 
@@ -388,15 +387,14 @@ namespace ArtifactStoreTests
             // TODO : Currently, impossible to verify error message. Bug: http://svmtfs2015:8080/tfs/svmtfs2015/Blueprint/_workitems?_a=edit&id=4691
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(191192)]
-        [Description("Create & publish an artifact with sub-artifacts.  User that does not have permissions to artifact tries to get version of artifact using sub-artifact Id.  " +
-            "Verify 403 Forbidden error code returned.")]
-        public void GetSubArtifactDetails_PublishedArtifact_UserWithoutPermissionsUsingSubArtifactId_403Forbidden(BaseArtifactType artifactType)
+        [Description("Create & publish an artifact with sub-artifacts.  User that does not have permissions to artifact tries to get version of artifact " +
+                     "using sub-artifact Id.  Verify 403 Forbidden error code returned.")]
+        public void GetSubArtifactDetails_PublishedArtifact_UserWithoutPermissionsUsingSubArtifactId_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var user = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.None, _project, artifact);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
@@ -482,7 +480,7 @@ namespace ArtifactStoreTests
         private void GetArtifactHistoryWithLimitHelper(int numberOfVersions, int limit)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishOpenApiArtifact(_project, _user, BaseArtifactType.Actor, numberOfVersions: numberOfVersions);
+            var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, ItemTypePredefined.Actor, numberOfVersions);
 
             List<ArtifactHistoryVersion> artifactHistory = null;
 
@@ -500,6 +498,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(expectedLastVersion, artifactHistory[artifactHistory.Count - 1].VersionId,
                 "The last version in the list should be {0}!", expectedLastVersion);
         }
+
         #endregion private functions
     }
 }

@@ -59,24 +59,28 @@ namespace Model.ModelHelpers
         /// Copies this artifact (and any children) to a new location.
         /// </summary>
         /// <param name="user">The user to perform the copy.</param>
-        /// <param name="newProject">The new project where this artifact will be copied to.</param>
-        /// <param name="newParentId">The ID of the new parent where this artifact will be copied to.</param>
+        /// <param name="targetProject">The project where this artifact will be copied to.</param>
+        /// <param name="targetParentId">The ID of the parent where this artifact will be copied to.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be copied to.
         ///     By default the artifact is copied to the end (after the last artifact).</param>
         /// <returns>The copy results and a list of artifacts that were copied.  The first item in the list is the main artifact that you copied.
         ///     If the artifact had any children, the copied children will also be in the list.</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1006:DoNotNestGenericTypesInMemberSignatures")]
-        public Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> CopyTo(IUser user, IProject newProject, int newParentId, double? orderIndex = null)
+        public Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>> CopyTo(
+            IUser user,
+            IProject targetProject,
+            int targetParentId,
+            double? orderIndex = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
 
             // TODO: Refactor ArtifactStore.CopyArtifact to not be static...
-            var copyResult = Model.Impl.ArtifactStore.CopyArtifact(ArtifactStore.Address, Artifact.Id, newParentId, user, orderIndex);
+            var copyResult = Model.Impl.ArtifactStore.CopyArtifact(ArtifactStore.Address, Artifact.Id, targetParentId, user, orderIndex);
             var response = new Tuple<CopyNovaArtifactResultSet, List<ArtifactWrapper>>(copyResult, new List<ArtifactWrapper>());
 
             if (copyResult?.Artifact != null)
             {
-                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, ArtifactStore, SvcShared, newProject, user);
+                var wrappedArtifact = new ArtifactWrapper(copyResult.Artifact, ArtifactStore, SvcShared, targetProject, user);
                 response.Item2.Add(wrappedArtifact);
             }
 
@@ -106,7 +110,7 @@ namespace Model.ModelHelpers
 
                     // TODO: Also copy children of children...
 
-                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, ArtifactStore, SvcShared, newProject, user);
+                    var wrappedArtifact = new ArtifactWrapper(novaArtifact, ArtifactStore, SvcShared, targetProject, user);
                     response.Item2.Add(wrappedArtifact);
                 }
             }
@@ -190,6 +194,8 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.PublishArtifacts(new List<int> { Artifact.Id }, user);
 
+            CSharpUtilities.ReplaceAllNonNullProperties(response.Artifacts[0], Artifact);
+
             // If it was marked for deletion, publishing it will make it permanently deleted.
             if (ArtifactState.IsMarkedForDeletion)
             {
@@ -221,6 +227,7 @@ namespace Model.ModelHelpers
             };
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, changes);
+            CSharpUtilities.ReplaceAllNonNullProperties(changes, Artifact);
             CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
             return this;
@@ -237,6 +244,7 @@ namespace Model.ModelHelpers
             ThrowIf.ArgumentNull(user, nameof(user));
 
             var updatedArtifact = ArtifactStore.UpdateArtifact(user, updateArtifact);
+            CSharpUtilities.ReplaceAllNonNullProperties(updateArtifact, Artifact);
             CSharpUtilities.ReplaceAllNonNullProperties(updatedArtifact, Artifact);
 
             ArtifactState.IsDraft = true;
@@ -351,7 +359,7 @@ namespace Model.ModelHelpers
             set { Artifact.ItemTypeIconId = value; }
         }
 
-        public int ItemTypeVersionId
+        public int? ItemTypeVersionId
         {
             get { return Artifact.ItemTypeVersionId; }
             set { Artifact.ItemTypeVersionId = value; }

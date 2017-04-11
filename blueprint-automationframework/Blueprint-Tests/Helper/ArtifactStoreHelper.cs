@@ -157,6 +157,7 @@ namespace Helper
         /// </summary>
         /// <param name="novaArtifactResponse">The artifact returned by the Nova call.</param>
         /// <param name="artifact">The artifact to compare against.</param>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifactSkipVersion(
             INovaArtifactResponse novaArtifactResponse,
             IArtifactBase artifact)
@@ -188,6 +189,7 @@ namespace Helper
         /// <param name="artifact">The artifact to compare against.</param>
         /// <param name="expectedVersion">(optional) The version expected in the NovaArtifactResponse.
         ///     By default it compares the version of the NovaArtifactResponse with the artifact.</param>
+        [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         public static void AssertNovaArtifactResponsePropertiesMatchWithArtifact(
             INovaArtifactResponse novaArtifactResponse,
             INovaArtifactDetails artifact,
@@ -435,38 +437,6 @@ namespace Helper
             {
                 Assert.That(artifact2.SpecificPropertyValues.Exists(p => p.Name == property.Name),
                 "Couldn't find a SpecificPropertyValue named '{0}'!", property.Name);
-            }
-        }
-
-        /// <summary>
-        /// Asserts that the specified INovaArtifactDetails object is equal to the specified INovaArtifactResponse.
-        /// </summary>
-        /// <param name="artifact1">The first INovaArtifactDetails to compare against.</param>
-        /// <param name="artifact2">The second INovaArtifactResponse to compare against.</param>
-        /// <param name="skipDatesAndDescription">(optional) Pass true to skip comparing the Created*, LastEdited* and Description properties.
-        ///     This is needed when comparing the response of the GetUnpublishedChanges REST call which always returns null for those fields.</param>
-        /// <exception cref="AssertionException">If any of the properties are different.</exception>
-        public static void AssertArtifactsEqual(INovaArtifactDetails artifact1, INovaArtifactResponse artifact2, bool skipDatesAndDescription = false)
-        {
-            ThrowIf.ArgumentNull(artifact1, nameof(artifact1));
-            ThrowIf.ArgumentNull(artifact2, nameof(artifact2));
-
-            Assert.AreEqual(artifact1.Id, artifact2.Id, "The Id parameters don't match!");
-            Assert.AreEqual(artifact1.Name, artifact2.Name, "The Name  parameters don't match!");
-            Assert.AreEqual(artifact1.ParentId, artifact2.ParentId, "The ParentId  parameters don't match!");
-            Assert.AreEqual(artifact1.OrderIndex, artifact2.OrderIndex, "The OrderIndex  parameters don't match!");
-            Assert.AreEqual(artifact1.ItemTypeId, artifact2.ItemTypeId, "The ItemTypeId  parameters don't match!");
-            Assert.AreEqual(artifact1.ProjectId, artifact2.ProjectId, "The ProjectId  parameters don't match!");
-            Assert.AreEqual(artifact1.Version, artifact2.Version, "The Version  parameters don't match!");
-
-            if (!skipDatesAndDescription)
-            {
-                Assert.AreEqual(artifact1.Description, artifact2.Description, "The Description  parameters don't match!");
-                Assert.AreEqual(artifact1.CreatedOn, artifact2.CreatedOn, "The CreatedOn  parameters don't match!");
-                Assert.AreEqual(artifact1.LastEditedOn, artifact2.LastEditedOn, "The LastEditedOn  parameters don't match!");
-
-                Identification.AssertEquals(artifact1.CreatedBy, artifact2.CreatedBy);
-                Identification.AssertEquals(artifact1.LastEditedBy, artifact2.LastEditedBy);
             }
         }
 

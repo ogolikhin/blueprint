@@ -465,8 +465,7 @@ namespace Helper
                 {
                     Id = artifact.Artifact.Id,
                     ProjectId = artifact.Artifact.ProjectId,
-                    Version = artifact.Artifact.Version,
-                    Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
+                    Description = I18NHelper.FormatInvariant("Description for version: {0}", artifact.Version + 1)
                 };
 
                 artifact.Lock(user);
@@ -1267,6 +1266,41 @@ namespace Helper
         }
 
         /// <summary>
+        /// Creates a user with project role permissions for one or more projects.
+        /// </summary>
+        /// <param name="role">Author, Viewer or No permission role.</param>
+        /// <param name="projects">The list of projects that the role is created for.</param>
+        /// <param name="artifact">Specific artifact to apply permissions to instead of project-wide.</param>
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
+        /// <returns>Created authenticated user with required premissions.</returns>
+        public IUser CreateUserWithProjectRolePermissions(
+            ProjectRole role,
+            List<IProject> projects,
+            INovaArtifactDetails artifact,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
+        {
+            ThrowIf.ArgumentNull(projects, nameof(projects));
+
+            Logger.WriteTrace("{0}.{1} called.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
+
+            var newUser = CreateUserAndAddToDatabase(instanceAdminRole: null, licenseLevel: _groupLicenseTypeToLicenseLevel[licenseType]);
+
+            foreach (var project in projects)
+            {
+                AssignProjectRolePermissionsToUser(newUser, role, project, artifact, licenseType);
+            }
+
+            AdminStore.AddSession(newUser);//assign premission and after it authenticate, reverse doesn't work - need to investigate!
+            BlueprintServer.LoginUsingBasicAuthorization(newUser);
+
+            Logger.WriteInfo("User {0} created.", newUser.Username);
+
+            Logger.WriteTrace("{0}.{1} finished.", nameof(TestHelper), nameof(CreateUserWithProjectRolePermissions));
+
+            return newUser;
+        }
+
+        /// <summary>
         /// Creates a user with project role permissions for the specified project. Optionally, creates role permissions for a single artifact within
         /// a project.
         /// </summary>
@@ -1279,6 +1313,31 @@ namespace Helper
             ProjectRole role,
             IProject project, 
             IArtifactBase artifact = null,
+            GroupLicenseType licenseType = GroupLicenseType.Author)
+        {
+            ThrowIf.ArgumentNull(project, nameof(project));
+
+            if (artifact != null)
+            {
+                Assert.IsTrue(artifact.ProjectId == project.Id, "Artifact should belong to the project");
+            }
+
+            return CreateUserWithProjectRolePermissions(role, new List<IProject> { project }, artifact, licenseType);
+        }
+
+        /// <summary>
+        /// Creates a user with project role permissions for the specified project and creates role permissions for a single artifact
+        /// within the project.
+        /// </summary>
+        /// <param name="role">Author, Viewer or No permission role.</param>
+        /// <param name="project">The project that the role is created for.</param>
+        /// <param name="artifact">Specific artifact to apply permissions to instead of project-wide.</param>
+        /// <param name="licenseType">(optional) The type of user license (Author, Collaborator, Viewer).</param>
+        /// <returns>Newly created, authenticated user with required premissions.</returns>
+        public IUser CreateUserWithProjectRolePermissions(
+            ProjectRole role,
+            IProject project,
+            INovaArtifactDetails artifact,
             GroupLicenseType licenseType = GroupLicenseType.Author)
         {
             ThrowIf.ArgumentNull(project, nameof(project));

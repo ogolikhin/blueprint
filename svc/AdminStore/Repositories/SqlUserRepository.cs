@@ -127,7 +127,7 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public  Task<int> AddUser(User loginUser)
+        public  Task<int> AddUserAsync(User loginUser)
         {
             var prm = new DynamicParameters();
             prm.Add("@Login", loginUser.Login);
@@ -148,10 +148,10 @@ namespace AdminStore.Repositories
             if(loginUser.GroupMembership != null)
                 prm.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
             prm.Add("@Guest", loginUser.Guest);
-            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", prm, commandType: CommandType.StoredProcedure);
+            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUserAsync", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<bool> HasPermissions(int userId, InstanceAdminPrivileges[] instanceAdminPrivilegeses)
+        public async Task<bool> HasPermissionsAsync(int userId, InstanceAdminPrivileges[] instanceAdminPrivilegeses)
         {
             if (instanceAdminPrivilegeses == null || (instanceAdminPrivilegeses.Length == 0))
             {

@@ -335,19 +335,19 @@ namespace AdminStore.Controllers
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="403">Forbidden. The user does not have permissions for creating the user.</response>
         [HttpPost]
-        //[SessionRequired]
+        [SessionRequired]
         [ResponseType(typeof(HttpResponseMessage))]
         [Route(""), BaseExceptionFilter]
         public async Task<HttpResponseMessage> PostUser([FromBody]User user)
         {
-            //var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
 
-            //if (session == null)
-            //{
-            //    throw new BadRequestException(ErrorMessages.SessionIsEmpty);
-            //}
+            if (session == null)
+            {
+                throw new BadRequestException(ErrorMessages.SessionIsEmpty);
+            }
 
-            var hasPermissions = await _userRepository.HasPermissions(2,
+            var hasPermissions = await _userRepository.HasPermissionsAsync(session.UserId,
                 new InstanceAdminPrivileges[] { InstanceAdminPrivileges.ManageUsers, InstanceAdminPrivileges.AssignAdminRoles });
 
             if (!hasPermissions)
@@ -411,7 +411,7 @@ namespace AdminStore.Controllers
                 throw new BadRequestException(ErrorMessages.TitleFieldLimitation, ErrorCodes.BadRequest);
             }
 
-            if (!string.IsNullOrEmpty(user.Title) && (user.Title.Length < 1 || user.Title.Length > 255))
+            if (!string.IsNullOrEmpty(user.Department) && (user.Department.Length < 1 || user.Department.Length > 255))
             {
                 throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
             }
@@ -434,7 +434,7 @@ namespace AdminStore.Controllers
                 user.NewPassword = null;
             }
 
-            var userId = await _userRepository.AddUser(user);
+            var userId = await _userRepository.AddUserAsync(user);
 
             return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
 

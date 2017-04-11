@@ -144,6 +144,15 @@ namespace AdminStore.Repositories
             return permissionsList.ToList().OrderBy(p => p).SequenceEqual(permissionsResult.OrderBy(p => p));
         }
 
+        public async Task<User> GetUser(int userId)
+        {
+            var prm = new DynamicParameters();
+            prm.Add("@UserId", userId);
+            var result = await _connectionWrapper.QueryAsync<User>("GetUserDetails", prm, commandType: CommandType.StoredProcedure);
+            var enumerable = result as IList<User> ?? result.ToList();
+            return enumerable.Any() ? enumerable.First() : new User();
+        }
+
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)
         {
             const int passwordRequestLimit = 3;

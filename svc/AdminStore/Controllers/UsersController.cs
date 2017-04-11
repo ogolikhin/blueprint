@@ -35,15 +35,15 @@ namespace AdminStore.Controllers
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
-        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(), 
-            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(), 
+        public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
+            new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
             new ServiceLogRepository(), new HttpClientProvider())
         {
         }
 
-        internal UsersController(IAuthenticationRepository authenticationRepository, 
-            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository, 
-            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository, 
+        internal UsersController(IAuthenticationRepository authenticationRepository,
+            ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository,
+            IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository,
             IServiceLogRepository log, IHttpClientProvider httpClientProvider)
         {
             _authenticationRepository = authenticationRepository;
@@ -123,6 +123,35 @@ namespace AdminStore.Controllers
             result = UsersHelper.SortUsers(result.ToList(), sort.ToLower(CultureInfo.InvariantCulture));
 
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Get user by Id
+        /// </summary>
+        /// <param name="userId">User's identity</param>
+        /// <returns>
+        /// <response code="200">OK. Returns the specified user's icon.</response>
+        /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
+        /// <response code="404">Not Found. The user with the provided ID was not found.</response>
+        /// <returns code="403">User with userId doesn’t exists or removed from the system</returns>
+        /// </returns>
+        //[SessionRequired(true)]
+        [Route("{userId:int:min(1)}")]
+        public async Task<IHttpActionResult> GetUser(int userId)
+        {
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            var uId = session.UserId;
+            var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
+            if (!await _userRepository.IsUserHasPermissions(permissions, userId))
+            {
+                throw new HttpResponseException(HttpStatusCode.Forbidden);
+            }
+            var user = await _userRepository.GetUser(userId);
+
+            if (user.UserId == 0)
+                return NotFound();
+
+            return Ok(user);
         }
 
         /// <summary>
@@ -346,7 +375,7 @@ namespace AdminStore.Controllers
             {
                 throw new BadRequestException("Password reset failed, new password cannot be equal to the old one", ErrorCodes.SamePassword);
             }
-                
+
             //reset password
             await _authenticationRepository.ResetPassword(user, null, decodedNewPassword);
 

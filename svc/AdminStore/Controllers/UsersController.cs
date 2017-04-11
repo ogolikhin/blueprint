@@ -135,7 +135,7 @@ namespace AdminStore.Controllers
         /// <response code="404">Not Found. The user with the provided ID was not found.</response>
         /// <returns code="403">User with userId doesn’t exists or removed from the system</returns>
         /// </returns>
-        //[SessionRequired(true)]
+        [SessionRequired(true)]
         [Route("{userId:int:min(1)}")]
         public async Task<IHttpActionResult> GetUser(int userId)
         {

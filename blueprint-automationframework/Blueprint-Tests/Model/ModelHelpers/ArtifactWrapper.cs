@@ -31,6 +31,7 @@ namespace Model.ModelHelpers
         /// <param name="svcShared">The SvcShared to use for REST calls.</param>
         /// <param name="project">The project where the artifact was created.</param>
         /// <param name="createdBy">The user who created the artifact.</param>
+        /// <exception cref="AssertionException">If the Project ID of the artifact is different than the ID of the IProject.</exception>
         public ArtifactWrapper(
             INovaArtifactDetails artifact,
             IArtifactStore artifactStore,
@@ -38,6 +39,9 @@ namespace Model.ModelHelpers
             IProject project,
             IUser createdBy)
         {
+            ThrowIf.ArgumentNull(artifact, nameof(artifact));
+            ThrowIf.ArgumentNull(project, nameof(project));
+
             Artifact = artifact;
             ArtifactStore = artifactStore;
             SvcShared = svcShared;
@@ -45,6 +49,8 @@ namespace Model.ModelHelpers
             ArtifactState.Project = project;
             ArtifactState.CreatedBy = createdBy;
             ArtifactState.LockOwner = createdBy;
+
+            Assert.AreEqual(artifact.ProjectId, project.Id, "The artifact doesn't belong to the project specified!");
         }
 
         #endregion Constructors
@@ -123,6 +129,8 @@ namespace Model.ModelHelpers
 
             var response = ArtifactStore.DeleteArtifact(Artifact.Id, user);
 
+            ArtifactState.IsDraft = false;
+
             // If the artifact was published, you need to publish after delete to permanently delete it.
             if (ArtifactState.IsPublished)
             {
@@ -130,6 +138,7 @@ namespace Model.ModelHelpers
             }
             else
             {
+                ArtifactState.LockOwner = null;
                 ArtifactState.IsDeleted = true;
             }
 
@@ -148,16 +157,12 @@ namespace Model.ModelHelpers
             // TODO: Refactor ArtifactStore.DiscardArtifacts to not be static...
             var response = Model.Impl.ArtifactStore.DiscardArtifacts(ArtifactStore.Address, new List<int> { Artifact.Id }, user);
 
-            if (ArtifactState.IsPublished)
-            {
-                ArtifactState.IsDraft = true;
-                ArtifactState.IsMarkedForDeletion = false;
-                ArtifactState.LockOwner = null;
-            }
-            else
-            {
-                ArtifactState.IsDeleted = true;
-            }
+            ArtifactState.LockOwner = null;
+            ArtifactState.IsDraft = false;
+            ArtifactState.IsMarkedForDeletion = false;
+
+            // Create & Discard = Deleted.  Published & Discard = not Deleted.
+            ArtifactState.IsDeleted = !ArtifactState.IsPublished;
 
             return response;
         }
@@ -197,8 +202,10 @@ namespace Model.ModelHelpers
                 ArtifactState.IsDeleted = true;
             }
 
-            ArtifactState.IsPublished = true;
             ArtifactState.LockOwner = null;
+            ArtifactState.IsDraft = false;
+            ArtifactState.IsPublished = true;
+            ArtifactState.IsMarkedForDeletion = false;
 
             return response;
         }
@@ -216,7 +223,6 @@ namespace Model.ModelHelpers
             {
                 Id = Artifact.Id,
                 ProjectId = Artifact.ProjectId,
-                Version = Artifact.Version,
                 Description = "NewDescription_" + RandomGenerator.RandomAlphaNumeric(5)
             };
 

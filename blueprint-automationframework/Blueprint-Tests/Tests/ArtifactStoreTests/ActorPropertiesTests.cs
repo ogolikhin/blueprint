@@ -137,7 +137,6 @@ namespace ArtifactStoreTests
             var imageFile = CreateAndUploadRandomImageFile(_author);
 
             var actor = Helper.CreateNovaArtifact(_author, _project, ItemTypePredefined.Actor);
-            actor.Lock(_author);
 
             // Execute & Verify:
             SetActorIconAndValidate(_author, actor, imageFile);

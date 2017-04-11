@@ -110,9 +110,9 @@ namespace Model.Impl
             return CreateArtifact(Address, user, baseArtifactType, name, project, parentArtifact?.Id, orderIndex, expectedStatusCodes);
         }
 
-        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, NovaArtifactDetails, List{HttpStatusCode})"/>
+        /// <seealso cref="IArtifactStore.UpdateArtifact(IUser, INovaArtifactDetails, List{HttpStatusCode})"/>
         public INovaArtifactDetails UpdateArtifact(IUser user,
-            NovaArtifactDetails novaArtifactDetails,
+            INovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             return UpdateArtifact(Address, user, novaArtifactDetails);
@@ -1274,7 +1274,7 @@ namespace Model.Impl
         /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
-        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, NovaArtifactDetails novaArtifactDetails,
+        public static INovaArtifactDetails UpdateArtifact(string address, IUser user, INovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(address, nameof(address));
@@ -1287,7 +1287,7 @@ namespace Model.Impl
             var newArtifact = restApi.SendRequestAndDeserializeObject<NovaArtifactDetails, NovaArtifactDetails>(
                 path,
                 RestRequestMethod.PATCH,
-                novaArtifactDetails,
+                (NovaArtifactDetails)novaArtifactDetails,
                 expectedStatusCodes: expectedStatusCodes,
                 shouldControlJsonChanges: false);
 

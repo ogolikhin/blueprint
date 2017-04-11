@@ -126,7 +126,7 @@ namespace Model
         /// <param name="novaArtifactDetails">The artifact details of the Nova artifact being updated</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>The new Nova artifact that was created.</returns>
-        INovaArtifactDetails UpdateArtifact(IUser user, NovaArtifactDetails novaArtifactDetails,
+        INovaArtifactDetails UpdateArtifact(IUser user, INovaArtifactDetails novaArtifactDetails,
             List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>

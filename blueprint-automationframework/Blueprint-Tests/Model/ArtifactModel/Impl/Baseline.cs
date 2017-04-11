@@ -141,4 +141,21 @@ namespace Model.ArtifactModel.Impl
         public int? UnpublishedArtifactCount { get; set; }
         public int? NonExistentArtifactCount { get; set; }
     }
+
+    public class BaselineInfo
+    {
+        #region JSON Properties
+        public int ItemId { set; get; }
+        public bool IsSealed { set; get; }
+        public DateTime? UtcTimestamp { set; get; }
+        #endregion
+
+        public void AssertBaselineInfoCorrespondsToBaseline(Baseline baseline)
+        {
+            ThrowIf.ArgumentNull(baseline, nameof(baseline));
+            Assert.AreEqual(ItemId, baseline.Id, "ItemId for BaselineInfo should be equal to Id for Baseline.");
+            Assert.AreEqual(IsSealed, baseline.IsSealed, "IsSealed for BaselineInfo and for Baseline should be equal.");
+            Assert.AreEqual(UtcTimestamp, baseline.UtcTimestamp, "UtcTimestamp for BaselineInfo and for Baseline should be equal.");
+        }
+    }
 }

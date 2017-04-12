@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel.Enums;
+using Model.ModelHelpers;
 
 namespace Model
 {
@@ -147,7 +148,7 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
-        List<NovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
+        List<INovaArtifactResponse> DeleteArtifact(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
         /// Discard a single artifact.
@@ -439,14 +440,50 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCodes">(optional) Expected status codes for the request. By default only 200 OK is expected.</param>
+        /// <param name="expectedStatusCode">(optional) Expected status code for the request.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         INovaArtifactDetails MoveArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent, 
             IUser user = null,
             double? orderIndex = null,
-            List<HttpStatusCode> expectedStatusCodes = null);
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK);
+
+        /// <summary>
+        /// Moves an artifact to a different parent.
+        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
+        /// </summary>
+        /// <param name="artifact">The artifact to move.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
+        /// <param name="expectedStatusCode">(optional) Expected status code for the request.</param>
+        /// <returns>The details of the artifact that we moved.</returns>
+        INovaArtifactDetails MoveArtifact(
+            IArtifactBase artifact,
+            int newParentId,
+            IUser user,
+            double? orderIndex = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK);
+
+        /// <summary>
+        /// Moves an artifact to a different parent.
+        /// (Runs: POST {server}/svc/bpartifactstore/artifacts/{artifactId}/moveTo/{newParentId}?orderIndex={orderIndex})
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        /// <param name="artifactId">The ID of the artifact to move.</param>
+        /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
+        /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
+        ///     By default the artifact is moved to the end (after the last artifact).</param>
+        /// <param name="expectedStatusCode">(optional) Expected status code for the request.</param>
+        /// <returns>The details of the artifact that we moved.</returns>
+        INovaArtifactDetails MoveArtifact(
+            IUser user,
+            int artifactId,
+            int newParentId,
+            double? orderIndex = null,
+            HttpStatusCode expectedStatusCode = HttpStatusCode.OK);
 
         /// <summary>
         /// Publishes an artifact.

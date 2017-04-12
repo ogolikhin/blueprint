@@ -61,7 +61,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, parentArtifact, _project.Id, _authorUser);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(parentArtifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -87,7 +87,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, parentArtifact, _project.Id, _authorUser);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(parentArtifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -183,7 +183,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _authorUser);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -253,7 +253,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _authorUser);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(artifact, _project.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with a valid token!", SVC_PATH);
 
             // Verify:
@@ -286,7 +286,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, collectionFolder.Id, _authorUser);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(childArtifact, collectionFolder.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
@@ -318,7 +318,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, defaultCollectionFolder.Id, _authorUser);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(childArtifact, defaultCollectionFolder.Id, _authorUser);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
@@ -457,8 +457,7 @@ namespace ArtifactStoreTests
             // Execute:
             Assert.DoesNotThrow(() =>
             {
-                movedArtifactDetails = ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    newBaselineFolder.Id, _authorUser);
+                movedArtifactDetails = Helper.ArtifactStore.MoveArtifact(_authorUser, childArtifact.Id, newBaselineFolder.Id);
             }, "'POST {0}' should return 200 OK when called with valid parameters!", SVC_PATH);
 
             // Verify:
@@ -521,8 +520,8 @@ namespace ArtifactStoreTests
             artifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http400BadRequestException>(() => 
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, _project.Id, _authorUser, orderIndex),
+            var ex = Assert.Throws<Http400BadRequestException>(() =>
+                Helper.ArtifactStore.MoveArtifact(artifact, _project.Id, _authorUser, orderIndex),
                 "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
 
             // Verify:
@@ -549,7 +548,7 @@ namespace ArtifactStoreTests
 
             // Execute:
             var ex = Assert.Throws<Http400BadRequestException>(() =>
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, collectionFolder.Id, _authorUser, orderIndex),
+                Helper.ArtifactStore.MoveArtifact(artifact, collectionFolder.Id, _authorUser, orderIndex),
                 "'POST {0}?orderIndex={1}' should return 400 Bad Request for non-positive OrderIndex values", SVC_PATH, orderIndex);
 
             // Verify:
@@ -694,7 +693,7 @@ namespace ArtifactStoreTests
             artifact.Lock(_authorUser);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, parentArtifact.Id, _authorUser),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(artifact, parentArtifact.Id, _authorUser),
                "'POST {0}' should return 403 Forbidden when user tries to move regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
@@ -720,7 +719,7 @@ namespace ArtifactStoreTests
             childArtifact.Lock(_authorUser);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact, parentArtifact.Id, _authorUser),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(childArtifact, parentArtifact.Id, _authorUser),
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -746,7 +745,7 @@ namespace ArtifactStoreTests
             collection.Lock(_authorUser);
              
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, collection, collectionArtifact.Id, _authorUser),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.MoveArtifact(collection, collectionArtifact.Id, _authorUser),
                    "'POST {0}' should return 403 Forbidden when user tries to move collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:
@@ -773,8 +772,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    _project.Id, _authorUser);
+                Helper.ArtifactStore.MoveArtifact(_authorUser, childArtifact.Id, _project.Id);
             }, "Attempt to move Baseline or Baseline folder to Project root should return 403 Forbidden.");
 
             // Verify:
@@ -799,7 +797,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, defaultBaselineFolder.Id, _authorUser);
+                Helper.ArtifactStore.MoveArtifact(_authorUser, artifact.Id, defaultBaselineFolder.Id);
             }, "Attempt to move Baseline or Baseline folder to Project root should return 403 Forbidden.");
 
             // Verify:
@@ -829,7 +827,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact.Id, baselineArtifact.Id, _authorUser);
+                Helper.ArtifactStore.MoveArtifact(_authorUser, artifact.Id, baselineArtifact.Id);
             }, "Attempt to move artifact to Baseline or Baseline folder should return 403 Forbidden.");
 
             // Verify:
@@ -858,8 +856,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    defaultCollectionFolder.Id, _authorUser);
+                Helper.ArtifactStore.MoveArtifact(_authorUser, childArtifact.Id, defaultCollectionFolder.Id);
             }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
@@ -888,8 +885,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, childArtifact.Id,
-                    defaultBaselineFolder.Id, _authorUser);
+                Helper.ArtifactStore.MoveArtifact(_authorUser, childArtifact.Id, defaultBaselineFolder.Id);
             }, "Attempt to move Baseline or Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
@@ -912,8 +908,7 @@ namespace ArtifactStoreTests
             // Execute:
             var ex = Assert.Throws<Http403ForbiddenException>(() =>
             {
-                ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, defaultBaselineFolder.Id,
-                    defaultCollectionFolder.Id, _authorUser);
+                Helper.ArtifactStore.MoveArtifact(_authorUser, defaultBaselineFolder.Id, defaultCollectionFolder.Id);
             }, "Attempt to move Default Baseline folder to the Default Collection folder should return 403 Forbidden.");
 
             // Verify:
@@ -937,7 +932,7 @@ namespace ArtifactStoreTests
             artifact.Lock();
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
+            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact, ARTIFACT_WITH_ID_0, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
             // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
@@ -953,7 +948,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndPublishArtifact(_project, _authorUser, artifactType);
 
             // Execute & Verify:
-            Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, ARTIFACT_WITH_ID_0, _authorUser),
+            Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact, ARTIFACT_WITH_ID_0, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that has Id 0", SVC_PATH);
 
             // NOTE: No ServiceErrorMessage JSON is returned, so this just returns the generic 404 page from IIS.
@@ -970,7 +965,7 @@ namespace ArtifactStoreTests
             artifact.Lock();
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, artifactId, _authorUser),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifactId, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -987,7 +982,7 @@ namespace ArtifactStoreTests
             var artifact = Helper.CreateAndSaveArtifact(_project, _authorUser, artifactType);
 
             // Execute:
-            var ex = Assert.Throws<Http404NotFoundException>(() => ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, artifact, artifactId, _authorUser),
+            var ex = Assert.Throws<Http404NotFoundException>(() => Helper.ArtifactStore.MoveArtifact(artifact, artifactId, _authorUser),
                 "'POST {0}' should return 404 Not Found when user tries to move artifact to one that does not exist", SVC_PATH);
 
             // Verify:
@@ -1155,12 +1150,12 @@ namespace ArtifactStoreTests
                 "Cannot move an artifact that has not been locked.");
         }
 
-        [TestCase(BaseArtifactType.Process, 2)]
-        [TestCase(BaseArtifactType.Process, 3)]
+        [TestCase(ItemTypePredefined.Process, 2)]
+        [TestCase(ItemTypePredefined.Process, 3)]
         [TestRail(182406)]
         [Description("Create & publish number of artifacts.  Move the first created artifact to be a child of one of its descendents.  " +
             "If one created it will be circular to itself.  Verify returned code 409 Conflict.")]
-        public void MoveArtifact_PublishArtifactsAndCreateCircularDependency_409Conflict(BaseArtifactType artifactType, int numberOfArtifacts)
+        public void MoveArtifact_PublishArtifactsAndCreateCircularDependency_409Conflict(ItemTypePredefined artifactType, int numberOfArtifacts)
         {
             // Setup:
             var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
@@ -1172,10 +1167,10 @@ namespace ArtifactStoreTests
             var firstArtifact = artifactList.First();
             var lastArtifact = artifactList.Last();
 
-            firstArtifact.Lock();
+            firstArtifact.Lock(_authorUser);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _authorUser),
+            var ex = Assert.Throws<Http409ConflictException>(() => firstArtifact.MoveArtifact(_authorUser, lastArtifact.Id),
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
@@ -1183,12 +1178,12 @@ namespace ArtifactStoreTests
                 "This move will result in a circular relationship between the artifact and its new parent.");
         }
 
-        [TestCase(BaseArtifactType.Process, 2)]
-        [TestCase(BaseArtifactType.Process, 3)]
+        [TestCase(ItemTypePredefined.Process, 2)]
+        [TestCase(ItemTypePredefined.Process, 3)]
         [TestRail(182483)]
         [Description("Publish artifact chain.  Save and move the first created artifact to be a child of one of its descendents.  " +
             "If one created it will be circular to itself.  Verify returned code 409 Conflict.")]
-        public void MoveArtifact_SaveArtifactAndCreateCircularDependency_409Conflict(BaseArtifactType artifactType, int numberOfArtifacts)
+        public void MoveArtifact_SaveArtifactAndCreateCircularDependency_409Conflict(ItemTypePredefined artifactType, int numberOfArtifacts)
         {
             // Setup:
             var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactType);
@@ -1200,10 +1195,11 @@ namespace ArtifactStoreTests
             var firstArtifact = artifactList.First();
             var lastArtifact = artifactList.Last();
 
-            firstArtifact.Save(_authorUser);
+            firstArtifact.Lock(_authorUser);
+            firstArtifact.SaveWithNewDescription(_authorUser);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.MoveArtifact(firstArtifact, lastArtifact, _authorUser),
+            var ex = Assert.Throws<Http409ConflictException>(() => firstArtifact.MoveArtifact(_authorUser, lastArtifact.Id),
                 "'POST {0}' should return 409 Conflict when artifact moved to one of its descendents", SVC_PATH);
 
             // Verify:
@@ -1221,9 +1217,9 @@ namespace ArtifactStoreTests
         /// <param name="numberOfArtifacts">The number of artifact types to add to the list.</param>
         /// <param name="artifactType">The artifact type.</param>
         /// <returns>A list of artifact types.</returns>
-        private static List<BaseArtifactType> CreateListOfArtifactTypes(int numberOfArtifacts, BaseArtifactType artifactType)
+        private static List<ItemTypePredefined> CreateListOfArtifactTypes(int numberOfArtifacts, ItemTypePredefined artifactType)
         {
-            var artifactTypes = new List<BaseArtifactType>();
+            var artifactTypes = new List<ItemTypePredefined>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {

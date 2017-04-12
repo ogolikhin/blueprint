@@ -221,12 +221,18 @@ namespace Model.ArtifactModel.Impl
             }
             // Deserialization
             string specificPropertyPropertyString = specificProperty.CustomPropertyValue.ToString();
+            if(SerializationUtilities.IsStringAJson(specificPropertyPropertyString))
+            {
+                var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
 
-            var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
+                SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
 
-            SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
-            
-            return specificPropertyValue;
+                return specificPropertyValue;
+            }
+            else
+            {
+                return (T)(specificProperty.CustomPropertyValue);
+            }
         }
 
         /// <summary>

@@ -814,8 +814,6 @@ namespace Helper
             {
                 var result = ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);
                 Assert.GreaterOrEqual(result.ArtifactCount, 1, "At least one artifact should be added to Baseline.");
-                baselineArtifact.ArtifactState.LockOwner = user;
-                baselineArtifact.ArtifactState.IsDraft = true;
             }
             return baselineArtifact;
         }

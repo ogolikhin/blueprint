@@ -892,6 +892,15 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
+        public List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user)
+        {
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<List<BaselineInfo>, List<int>>(
+                RestPaths.Svc.ArtifactStore.Artifacts.BASELINE_INFO, RestRequestMethod.POST,
+                baselineIds, shouldControlJsonChanges: true);
+        }
+
         #region Process methods
 
         /// <seealso cref="IArtifactStore.DeleteNovaProcessArtifact(IUser, NovaProcess, List{HttpStatusCode})"/>

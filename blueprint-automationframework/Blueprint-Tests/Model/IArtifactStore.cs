@@ -619,6 +619,14 @@ namespace Model
         /// <returns>Reviews associated with the specified Baseline,</returns>
         ReviewRelationshipsResultSet GetReviews(int artifactId, IUser user, List<HttpStatusCode> expectedStatusCodes = null);
 
+        /// <summary>
+        /// Gets BaselineInfo
+        /// </summary>
+        /// <param name="baselineIds">List of Baseline's ids for which BaselineInfo should be returned.</param>
+        /// <param name="user">user to perform the operation.</param>
+        /// <returns>List of BaselineInfo</returns>
+        List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user);
+
         #region Process methods
 
         /// <summary>

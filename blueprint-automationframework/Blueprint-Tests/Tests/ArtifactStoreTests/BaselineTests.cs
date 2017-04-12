@@ -549,6 +549,31 @@ namespace ArtifactStoreTests
 
         #endregion Edit Baseline Properties
 
+        #region BaselineInfo Tests
+
+        [TestCase]
+        [TestRail(288884)]
+        [Description("Create Baseline, get BaselineInfo and check that response has expected values.")]
+        public void GetBaselineInfo_ExistingLiveBaseline_ValidateResponse()
+        {
+            // Setup:
+            var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
+
+            List<BaselineInfo> baselineInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                baselineInfoList = Helper.ArtifactStore.GetBaselineInfo(new List<int> { baselineArtifact.Id }, _adminUser);
+            }, "Getting BaselineInfo shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
+        }
+
+        #endregion BaselineInfo Tests
+
         #endregion Positive Tests
 
         #region Negative Tests

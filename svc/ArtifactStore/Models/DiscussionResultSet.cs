@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 
 namespace ArtifactStore.Models
 {
@@ -76,7 +75,7 @@ namespace ArtifactStore.Models
 
         public DateTime LastEditedOn { get; set; }
 
-        public string UserName { get; set; }
+        public string DisplayName { get; set; }
 
         public bool IsGuest { get; set; }
 

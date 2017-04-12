@@ -171,12 +171,7 @@ namespace Model.Impl
                 RestRequestMethod.DELETE,
                 expectedStatusCodes: expectedStatusCodes);
 
-            if (restApi.StatusCode == HttpStatusCode.OK)
-            {
-                return response.ConvertAll(o => (INovaArtifactResponse) o);
-            }
-
-            return null;
+            return response?.ConvertAll(o => (INovaArtifactResponse)o);
         }
 
         /// <seealso cref="IArtifactStore.DiscardArtifact(IArtifactBase, IUser, bool?, List{HttpStatusCode})"/>

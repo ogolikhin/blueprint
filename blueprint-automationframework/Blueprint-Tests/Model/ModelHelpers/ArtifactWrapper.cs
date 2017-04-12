@@ -188,7 +188,7 @@ namespace Model.ModelHelpers
         /// </summary>
         /// <param name="user">The user to perform the move.</param>
         /// <param name="newParent">The new parent of this artifact.</param>
-        /// <param name = "orderIndex"> (optional)The order index(relative to other artifacts) where this artifact should be moved to.
+        /// <param name="orderIndex"> (optional)The order index(relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>
         /// <returns>The artifact that was moved (this artifact).</returns>
         public INovaArtifactDetails MoveArtifact(

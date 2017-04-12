@@ -241,7 +241,7 @@ namespace ServiceLibrary.Repositories
             if (itemRawData != null)
             {
                 var rawData = itemRawData.RawData;
-                var snapTime = BaselineRawDataHelper.ExtractSnapTime(rawData);
+                var snapTime = BaselineRawDataHelper.ExtractTimestamp(rawData);
                 if (snapTime != null)
                 {
                     return await GetRevisionIdByTime(snapTime.Value);

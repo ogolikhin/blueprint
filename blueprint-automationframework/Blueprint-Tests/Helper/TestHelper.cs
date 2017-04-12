@@ -798,7 +798,7 @@ namespace Helper
         /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines and Reviews folder.</param>
         /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
         /// <returns>The Baseline artifact.</returns>
-        public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
+        public ArtifactWrapper CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
             int? artifactToAddId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -808,12 +808,14 @@ namespace Helper
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var baselineArtifact = CreateNovaArtifactInSpecificState(user, project, TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
-                parentId.Value, artifactName: name);
+            var baselineArtifact = CreateNovaArtifact(user, project, ItemTypePredefined.ArtifactBaseline, parentId.Value,
+                name: name);
             if (artifactToAddId != null)
             {
                 var result = ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);
                 Assert.GreaterOrEqual(result.ArtifactCount, 1, "At least one artifact should be added to Baseline.");
+                baselineArtifact.ArtifactState.LockOwner = user;
+                baselineArtifact.ArtifactState.IsDraft = true;
             }
             return baselineArtifact;
         }

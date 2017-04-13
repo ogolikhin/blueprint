@@ -104,6 +104,10 @@ namespace AccessControl.Controllers
             {
                 return Unauthorized();
             }
+            catch (FormatException)
+            {
+                return Unauthorized();
+            }
             catch (Exception ex)
             {
                 await _log.LogError(WebApiConfig.LogSourceLicenses, ex);

@@ -93,6 +93,14 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="Common\Constants\BusinessLayerConstants.cs" />
+    <Compile Include="Common\Enums\SupportedAcceptTypes.cs" />
+    <Compile Include="Impl\ImpactAnalysis.cs" />
+    <Compile Include="Impl\ImpactAnalysisNode.cs" />
+    <Compile Include="Impl\ImpactAnalysisResult.cs" />
+    <Compile Include="Impl\ImpactAnalysisTree.cs" />
+    <Compile Include="Impl\ItemTypeInformation.cs" />
+    <Compile Include="Impl\ItemTypesInformation.cs" />
     <Compile Include="ModelHelpers\ArtifactState.cs" />
     <Compile Include="ModelHelpers\ArtifactWrapper.cs" />
     <Compile Include="ArtifactModel\Impl\Review.cs" />

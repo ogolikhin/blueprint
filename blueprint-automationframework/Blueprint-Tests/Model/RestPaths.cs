@@ -427,5 +427,10 @@ namespace Model
                 public const string UPCHECK                     = "svc/status/upcheck";
             }
         }
+
+        public static class ImpactAnalysis
+        {
+            public const string IMPACT_ANALYSIS = "ImpactAnalysis/api/{0}/{1}";
+        }
     }
 }

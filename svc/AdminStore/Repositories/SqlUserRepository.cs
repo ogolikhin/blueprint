@@ -126,29 +126,34 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<User>> GetUsersAsync(TableSettings settings)
+        public async Task<QueryResult> GetUsersAsync(TableSettings settings)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@Page", settings.Page);
-            prm.Add("@PageSize", settings.PageSize);
-            prm.Add("@SearchUser", settings.SearchUser);
-            return await _connectionWrapper.QueryAsync<User>("GetUsers", prm, commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task<bool> IsUserHasPermissions(IEnumerable<int> permissionsList, int userId)
-        {
-            var prm = new DynamicParameters();
-            prm.Add("@UserId", userId);
-            prm.Add("@Permissions", SqlConnectionWrapper.ToDataTable(permissionsList, "Int32Collection", "Int32Value"));
-            var permissionsResult = await _connectionWrapper.QueryAsync<int>("CheckPermissionsForUser", prm, commandType: CommandType.StoredProcedure);
-            return permissionsList.ToList().OrderBy(p => p).SequenceEqual(permissionsResult.OrderBy(p => p));
+            var parameters = new DynamicParameters();
+            parameters.Add("@Page", settings.Page);
+            parameters.Add("@PageSize", settings.PageSize);
+            parameters.Add("@SearchUser", settings.SearchUser);
+            parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            var res = (await _connectionWrapper.QueryAsync<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            var total = parameters.Get<int>("Total");
+            var result = new QueryResult()
+            {
+                Data = new Data() { Users = res.ToList() },
+                Pagination = new Pagination()
+                {
+                    TotalCount = total,
+                    Page = settings.Page,
+                    PageSize = settings.PageSize,
+                    Count = res.Count
+                }
+            };
+            return result;
         }
 
         public async Task<User> GetUser(int userId)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@UserId", userId);
-            var result = await _connectionWrapper.QueryAsync<User>("GetUserDetails", prm, commandType: CommandType.StoredProcedure);
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", userId);
+            var result = await _connectionWrapper.QueryAsync<User>("GetUserDetails", parameters, commandType: CommandType.StoredProcedure);
             var enumerable = result as IList<User> ?? result.ToList();
             return enumerable.Any() ? enumerable.First() : new User();
         }

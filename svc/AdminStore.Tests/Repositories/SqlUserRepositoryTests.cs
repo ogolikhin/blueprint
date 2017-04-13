@@ -316,7 +316,7 @@ namespace AdminStore.Repositories
         #region GetUsersAsync
 
         [TestMethod]
-        public async Task GetUsersAsync_QueryReturnUsers()
+        public async Task GetUsersAsync_AllParamsAreGood_QueryReturnUsers()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -326,41 +326,65 @@ namespace AdminStore.Repositories
             {
                 {"Page", setting.Page},
                 {"PageSize", setting.PageSize},
-                {"SearchUser", setting.SearchUser}
+                {"SearchUser", setting.SearchUser},
+
             };
-            User[] returnResult = { new User() { FirstName = "test" } };
-            cxn.SetupQueryAsync("GetUsers", parameters, returnResult);
+            var output = new Dictionary<string, object>
+            {
+                { "Total",2}
+            };
+
+            var returnResult = new List<User>() { new User() { UserId = 1 } };
+            var expectedResult = new QueryResult()
+            {
+                Data = new Data() { Users = returnResult },
+                Pagination = new Pagination()
+                {
+                    Page = setting.Page,
+                    PageSize = setting.PageSize
+                }
+            };
+
+            cxn.SetupQueryAsync("GetUsers", parameters, returnResult, output);
 
             //act
             var result = await repository.GetUsersAsync(setting);
 
             //assert
             cxn.Verify();
-            CollectionAssert.AreEquivalent(returnResult, result.ToList());
+            Assert.AreEqual(expectedResult.Data.Users.First(), result.Data.Users.First());
         }
 
         [TestMethod]
-        public async Task GetUsersAsync_QueryReturn_Empty()
+        public async Task GetUsersAsync_ParamsAreInvalid_QueryReturnEmpty()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-            var setting = new TableSettings();
+            var setting = new TableSettings() { };
             var parameters = new Dictionary<string, object>
             {
                 {"Page", setting.Page},
                 {"PageSize", setting.PageSize},
-                {"SearchUser", setting.SearchUser}
+                {"SearchUser", setting.SearchUser},
+
             };
-            User[] returnResult = { };
-            cxn.SetupQueryAsync("GetUsers", parameters, returnResult);
+            var output = new Dictionary<string, object>
+            {
+                { "Total",0}
+            };
+
+            var returnResult = new List<User>() { };
+
+
+            cxn.SetupQueryAsync("GetUsers", parameters, returnResult, output);
 
             //act
             var result = await repository.GetUsersAsync(setting);
 
             //assert
             cxn.Verify();
-            CollectionAssert.AreEquivalent(returnResult, result.ToList());
+            Assert.IsTrue(result.Data.Users.Count == 0);
         }
 
         #endregion GetUsersAsync
@@ -368,7 +392,7 @@ namespace AdminStore.Repositories
         #region GetUser
 
         [TestMethod]
-        public async Task GetUser_QueryReturn_User()
+        public async Task GetUser_WeHaveThisUserInDb_QueryReturnUser()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();
@@ -386,7 +410,7 @@ namespace AdminStore.Repositories
         }
 
         [TestMethod]
-        public async Task GetUser_QueryReturn_EmptyUser()
+        public async Task GetUser_WeDoNotHaveThisActiveUserInDb_QueryReturnEmptyUser()
         {
             //arrange
             var cxn = new SqlConnectionWrapperMock();

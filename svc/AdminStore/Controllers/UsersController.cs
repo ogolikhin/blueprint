@@ -32,19 +32,20 @@ namespace AdminStore.Controllers
         internal readonly IApplicationSettingsRepository _applicationSettingsRepository;
         internal readonly IServiceLogRepository _log;
         internal readonly IHttpClientProvider _httpClientProvider;
+        internal readonly ISqlPrivilegesRepository _privilegesRepository;
         private const string PasswordResetTokenExpirationInHoursKey = "PasswordResetTokenExpirationInHours";
         private const int DefaultPasswordResetTokenExpirationInHours = 24;
 
         public UsersController() : this(new AuthenticationRepository(), new SqlUserRepository(),
             new SqlSettingsRepository(), new EmailHelper(), new ApplicationSettingsRepository(),
-            new ServiceLogRepository(), new HttpClientProvider())
+            new ServiceLogRepository(), new HttpClientProvider(), new SqlPrivilegesRepository())
         {
         }
 
         internal UsersController(IAuthenticationRepository authenticationRepository,
             ISqlUserRepository userRepository, ISqlSettingsRepository settingsRepository,
             IEmailHelper emailHelper, IApplicationSettingsRepository applicationSettingsRepository,
-            IServiceLogRepository log, IHttpClientProvider httpClientProvider)
+            IServiceLogRepository log, IHttpClientProvider httpClientProvider, ISqlPrivilegesRepository privilegesRepository)
         {
             _authenticationRepository = authenticationRepository;
             _userRepository = userRepository;
@@ -53,6 +54,7 @@ namespace AdminStore.Controllers
             _applicationSettingsRepository = applicationSettingsRepository;
             _log = log;
             _httpClientProvider = httpClientProvider;
+            _privilegesRepository = privilegesRepository;
         }
 
         /// <summary>
@@ -93,12 +95,12 @@ namespace AdminStore.Controllers
         }
 
         /// <summary>
-        /// Get users list
+        /// Get users list according to the input parameters 
         /// </summary>
-        /// <param name="page"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="filter"></param>
-        /// <param name="sort"></param>
+        /// <param name="page">page number</param>
+        /// <param name="pageSize">page size</param>
+        /// <param name="filter">filter</param>
+        /// <param name="sort">sott parameters</param>
         /// <returns code="200">OK if admin user session exists and user is permitted to list users</returns>
         /// <returns code="400">BadRequest if page, pageSize are missing or invalid</returns>
         /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
@@ -109,24 +111,24 @@ namespace AdminStore.Controllers
         {
             if (pageSize <= 0 || page <= 0)
             {
-                return BadRequest("Page, PageSize are missing or invalid.");
+                return BadRequest(ErrorMessages.InvalidPageOrPageNumber);
             }
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             var userId = session.UserId;
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _userRepository.IsUserHasPermissions(permissions, userId))
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, userId))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
 
             var result = await _userRepository.GetUsersAsync(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = sort });
-            result = UsersHelper.SortUsers(result.ToList(), sort.ToLower(CultureInfo.InvariantCulture));
+            result.Data.Users = UsersHelper.SortUsers(result.Data.Users.ToList(), sort.ToLower(CultureInfo.InvariantCulture));
 
             return Ok(result);
         }
 
         /// <summary>
-        /// Get user by Id
+        /// Get user by Identifier
         /// </summary>
         /// <param name="userId">User's identity</param>
         /// <returns>
@@ -142,7 +144,7 @@ namespace AdminStore.Controllers
             var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
             var uId = session.UserId;
             var permissions = new List<int> { Convert.ToInt32(InstanceAdminPrivileges.ViewUsers) };
-            if (!await _userRepository.IsUserHasPermissions(permissions, userId))
+            if (!await _privilegesRepository.IsUserHasPermissions(permissions, uId))
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }

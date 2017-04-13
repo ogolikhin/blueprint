@@ -29,6 +29,7 @@ namespace AdminStore.Controllers
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock;
+        private Mock<ISqlPrivilegesRepository> _privilegesRepository;
 
         [TestInitialize]
         public void Initialize()
@@ -41,8 +42,9 @@ namespace AdminStore.Controllers
             _emailHelperMock = new Mock<IEmailHelper>();
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
+            _privilegesRepository = new Mock<ISqlPrivilegesRepository>();
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object, _privilegesRepository.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -567,7 +569,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _privilegesRepository.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -783,29 +785,36 @@ namespace AdminStore.Controllers
         #region GetAllUsers
 
         [TestMethod]
-        public async Task GetAllUsers_RepositoryReturnUsers()
+        public async Task GetAllUsers_AllParamsAreCorrect_RepositoryReturnUsers()
         {
             //arrange
             var sort = string.Empty;
             var filter = string.Empty;
 
             var settings = new TableSettings() { PageSize = 3, Page = 1 };
-            var users = new List<User>() { new User() };
-
+            QueryResult returnResult = new QueryResult()
+            {
+                Data = new Data() { Users = new List<User>() { new User() { UserId = 1 } } },
+                Pagination = new Pagination()
+                {
+                    Page = settings.Page,
+                    PageSize = settings.PageSize
+                }
+            };
             _usersRepoMock.Setup(repo => repo.GetUsersAsync(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
-                .ReturnsAsync(users);
-            _usersRepoMock.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+                .ReturnsAsync(returnResult);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<IEnumerable<User>>;
+            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResult>;
 
             //assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Content, typeof(IEnumerable<User>));
+            Assert.IsInstanceOfType(result.Content, typeof(QueryResult));
         }
 
         [TestMethod]
-        public async Task GetAllUsers_BadRequestResult()
+        public async Task GetAllUsers_ParamsAreNotCorrect_BadRequestResult()
         {
             //arrange
 
@@ -817,11 +826,11 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetAllUsers_ForbiddenResult()
+        public async Task GetAllUsers_UserDoesNotHaveRequiredPermissions_ForbiddenResult()
         {
             //arrange
             Exception exception = null;
-            _usersRepoMock.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
 
             //act
             try
@@ -842,12 +851,12 @@ namespace AdminStore.Controllers
         #region GetUser
 
         [TestMethod]
-        public async Task GetUser_RepositoryReturnUser()
+        public async Task GetUser_AllParamsAreCorrectAndPermissionsOk_RepositoryReturnUser()
         {
             //arrange
             var user = new User() { UserId = 5 };
             _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
-            _usersRepoMock.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
             var result = await _controller.GetUser(5) as OkNegotiatedContentResult<User>;
@@ -857,11 +866,11 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetUser_ForbiddenResult()
+        public async Task GetUser_UserWithInvalidPermissions_ForbiddenResult()
         {
             //arrange
             Exception exception = null;
-            _usersRepoMock.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(false);
 
             //act
             try
@@ -879,12 +888,12 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetUser_NotFoundResult()
+        public async Task GetUser_TheIsNoSuchUser_NotFoundResult()
         {
             //arrange
             var user = new User();
             _usersRepoMock.Setup(repo => repo.GetUser(It.Is<int>(i => i > 0))).ReturnsAsync(user);
-            _usersRepoMock.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
+            _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
             var result = await _controller.GetUser(1) as NotFoundResult;

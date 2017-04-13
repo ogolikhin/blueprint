@@ -167,13 +167,12 @@ namespace ArtifactStoreTests
 
         [TestCase]
         [TestRail(183630)]
-        [Description("Create & save a collection artifact in collection folder. Verify get artifact navigation path call for collection returns Collections folder and project information.")]
+        [Description("Create & save a collection artifact in collection folder.  Verify get artifact navigation path call for collection returns " +
+                     "Collections folder and project information.")]
         public void ArtifactNavigation_CollectionInCollectionFolder_ReturnsCollectionFolderAndProjectInfo()
         {
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
-           
-            // TODO: Change the lines below to use ArtifactWrapper methods as part of task 6304 in US4793.
 
             var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author);
             var collection = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);

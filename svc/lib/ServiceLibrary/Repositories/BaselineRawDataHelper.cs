@@ -18,12 +18,13 @@ namespace BluePrintSys.RC.Service.Business.Baselines.Impl
             return false;
         }
 
-        public static DateTime? ExtractSnapTime(string rawData)
+        public static DateTime? ExtractTimestamp(string rawData)
         {
             var snaptimeValue = ExtractPropertyValue(rawData, "Snaptime");
-            if (!string.IsNullOrWhiteSpace(snaptimeValue))
+            DateTime timestamp;
+            if (DateTime.TryParse(snaptimeValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out timestamp))
             {
-                return DateTime.SpecifyKind(DateTime.Parse(snaptimeValue, CultureInfo.InvariantCulture), DateTimeKind.Utc);
+                return timestamp.ToUniversalTime();
             }
             return null;
         }

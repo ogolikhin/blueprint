@@ -211,28 +211,27 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, basicArtifactInfo.ParentId);
         }
 
-        [TestCase(BaseArtifactType.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
-            BaseArtifactType.Actor,
-            BaseArtifactType.BusinessProcess,
-            BaseArtifactType.Document,
-            BaseArtifactType.DomainDiagram,
-            BaseArtifactType.GenericDiagram,
-            BaseArtifactType.Glossary,
-            BaseArtifactType.Process,
-            BaseArtifactType.Storyboard,
-            BaseArtifactType.TextualRequirement,
-            BaseArtifactType.UIMockup,
-            BaseArtifactType.UseCase,
-            BaseArtifactType.UseCaseDiagram)]
+        [TestCase(ItemTypePredefined.PrimitiveFolder, // PrimitiveFolders can only have projects as parents.
+            ItemTypePredefined.Actor,
+            ItemTypePredefined.BusinessProcess,
+            ItemTypePredefined.Document,
+            ItemTypePredefined.DomainDiagram,
+            ItemTypePredefined.GenericDiagram,
+            ItemTypePredefined.Glossary,
+            ItemTypePredefined.Process,
+            ItemTypePredefined.Storyboard,
+            ItemTypePredefined.TextualRequirement,
+            ItemTypePredefined.UIMockup,
+            ItemTypePredefined.UseCase,
+            ItemTypePredefined.UseCaseDiagram)]
         [TestRail(184481)]
         [Description("Create a chain of published parent/child artifacts and other top level artifacts. Verify a list of top level artifact information " +
                      "is returned and values of properties are correct.")]
-        public void ArtifactNavigation_PublishedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params BaseArtifactType[] artifactTypeChain)
+        public void ArtifactNavigation_PublishedChainWithAllArtifactTypes_ReturnListOfArtifactInfo(params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
             // Setup:
-            // TODO: Change the line below to use ArtifactWrapper as part of task 6305 in US4793.
             var artifactChain = Helper.CreatePublishedArtifactChain(_project, _user, artifactTypeChain);
 
             var viewer = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Viewer, _project);
@@ -270,7 +269,6 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // TODO: Change the line below to use ArtifactWrapper as part of task 6305 in US4793.
             var artifactChain = Helper.CreateSavedArtifactChain(_project, author, artifactTypeChain);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
@@ -283,27 +281,26 @@ namespace ArtifactStoreTests
             VerifyAncestorsInformation(basicArtifactInfoList, artifactChain.Last().ParentId, author);
         }
 
-        [TestCase(BaseArtifactType.UseCase, 5, BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase, 3, ItemTypePredefined.Process)]
         [TestRail(184484)]
         [Description("Create & publish an artifact with sub-artifacts and chains of 5 child artifacts and 5 folders.  Move chain of artifacts to one folder before the last.  " +
             "Verify get artifact navigation path call for sub-artifact in an artifact returns information about an artifact, all ancestor artifacts, ancestor folders and a project.")]
         public void ArtifactNavigation_SubArtifactInAChainOfPublishedArtifactsAndFolders_ReturnsListOfArtifactAndFolderInfo(
-            BaseArtifactType artifactType, int numberOfArtifacts, BaseArtifactType artifactTypeInChain)
+            ItemTypePredefined artifactType, int numberOfArtifacts, ItemTypePredefined artifactTypeInChain)
         {
             // Setup:
-            var folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, BaseArtifactType.PrimitiveFolder);
+            var folderTypes = CreateListOfArtifactTypes(numberOfArtifacts, ItemTypePredefined.PrimitiveFolder);
             var artifactTypes = CreateListOfArtifactTypes(numberOfArtifacts, artifactTypeInChain);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            // TODO: Change the lines below to use ArtifactWrapper as part of task 6305 in US4793.
             var artifacts = Helper.CreatePublishedArtifactChain(_project, author, artifactTypes.ToArray());
             var folders = Helper.CreatePublishedArtifactChain(_project, author, folderTypes.ToArray());
 
-            artifacts.First().Lock(author);
-            Helper.ArtifactStore.MoveArtifact(artifacts.First(), folders[folders.Count - 2], author);
+            artifacts[0].Lock(author);
+            artifacts[0].MoveArtifact(author, folders[folders.Count - 2].Id);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, author, artifactType, artifacts.Last());
+            var artifact = Helper.CreateNovaArtifact(author, _project, artifactType, parentId: artifacts.Last().Id);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(author, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
@@ -553,9 +550,9 @@ namespace ArtifactStoreTests
         /// <param name="numberOfArtifacts">The number of artifact types to add to the list.</param>
         /// <param name="artifactType">The artifact type.</param>
         /// <returns>A list of artifact types.</returns>
-        private static List<BaseArtifactType> CreateListOfArtifactTypes(int numberOfArtifacts, BaseArtifactType artifactType)
+        private static List<ItemTypePredefined> CreateListOfArtifactTypes(int numberOfArtifacts, ItemTypePredefined artifactType)
         {
-            List<BaseArtifactType> artifactTypes = new List<BaseArtifactType>();
+            List<ItemTypePredefined> artifactTypes = new List<ItemTypePredefined>();
 
             for (int i = 0; i < numberOfArtifacts; i++)
             {

@@ -224,6 +224,7 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase(-5)]
         [TestRail(267117)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before or after artifact's CreatedOn date," +
@@ -239,7 +240,7 @@ namespace ArtifactStoreTests
 
             var utcTimestamp = DateTime.UtcNow.AddMinutes(utcTimestampMinutesFromNow);
 
-            baseline.SetUtcTimestamp(utcTimestamp);
+            baseline.UtcTimestamp = utcTimestamp;
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
             int numberOfAddedArtifacts = -1;
@@ -412,6 +413,7 @@ namespace ArtifactStoreTests
 
         #region Edit Baseline Content
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(266912)]
         [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
@@ -434,6 +436,7 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267192)]
         [Description("Create and publish artifact with the child artifact, add two artifact to baseline and publish changes," + 
@@ -464,6 +467,7 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267373)]
         [Description("Add never published Artifact to Baseline, check that artifact wasn't added.")]
@@ -504,11 +508,11 @@ namespace ArtifactStoreTests
             Helper.SvcShared.LockArtifacts(_adminUser, new List<int> { baseline.Id });
 
             var sealedDate = DateTime.UtcNow.AddMinutes(-1);
-            baseline.SetUtcTimestamp(sealedDate);
-            baseline.SetIsSealed(true);
+            baseline.UtcTimestamp = sealedDate;
+            baseline.IsSealed = true;
             if (setAvailableForAnalytics)
             {
-                baseline.SetIsAvailableInAnalytics(true);
+                baseline.IsAvailableInAnalytics = true;
             }
 
             // Execute:
@@ -522,6 +526,7 @@ namespace ArtifactStoreTests
                 isAvailableInAnalytics: setAvailableForAnalytics);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267202)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date," +
@@ -536,7 +541,7 @@ namespace ArtifactStoreTests
             var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
 
             var timestampDate = DateTime.UtcNow.AddMinutes(-3);
-            baseline.SetUtcTimestamp(timestampDate);
+            baseline.UtcTimestamp = timestampDate;
             
             // Execute:
             Assert.DoesNotThrow(() => {
@@ -548,6 +553,123 @@ namespace ArtifactStoreTests
         }
 
         #endregion Edit Baseline Properties
+
+        #region BaselineInfo Tests
+
+        [TestCase]
+        [TestRail(288884)]
+        [Description("Create Baseline, get BaselineInfo and check that response has expected values.")]
+        public void GetBaselineInfo_ExistingLiveBaseline_ValidateResponse()
+        {
+            // Setup:
+            var baselineArtifact = Helper.CreateBaseline(_adminUser, _project);
+            var baseline = Helper.ArtifactStore.GetBaseline(_adminUser, baselineArtifact.Id);
+
+            List<BaselineInfo> baselineInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                baselineInfoList = Helper.ArtifactStore.GetBaselineInfo(new List<int> { baselineArtifact.Id }, _adminUser);
+            }, "Getting BaselineInfo shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
+        }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ATaaDfUM UtcTimestamp isn't UTC
+        [TestRail(288888)]
+        [Description("Create Baseline with timestamp, get BaselineInfo, check that BaselineInfo has expected values.")]
+        public void GetBaselineInfo_TimestampedBaseline_ValidateResponse()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Document);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
+            var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
+
+            var timestampDate = DateTime.UtcNow.AddMinutes(-3);
+            baseline.UtcTimestamp = timestampDate;
+            baselineArtifact.Update(_user, baseline);
+
+            List<BaselineInfo> baselineInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                baselineInfoList = Helper.ArtifactStore.GetBaselineInfo(new List<int> { baselineArtifact.Id }, _user);
+            }, "Getting BaselineInfo shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
+        }
+
+        [TestCase]
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ATaaDfUM UtcTimestamp isn't UTC
+        [TestRail(288901)]
+        [Description("Create sealed Baseline with timestamp, get BaselineInfo, check that BaselineInfo has expected values.")]
+        public void GetBaselineInfo_TimestampedSealedBaseline_ValidateResponse()
+        {
+            // Setup:
+            var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.UseCase);
+
+            var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
+            var baseline = GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
+
+            var timestampDate = DateTime.UtcNow.AddMinutes(-3);
+            baseline.UtcTimestamp = timestampDate;
+            baseline.IsSealed = true;
+            baselineArtifact.Update(_user, baseline);
+
+            List<BaselineInfo> baselineInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                baselineInfoList = Helper.ArtifactStore.GetBaselineInfo(new List<int> { baselineArtifact.Id }, _user);
+            }, "Getting BaselineInfo shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(1, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
+            baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ATaaDfUM UtcTimestamp isn't UTC
+        [TestCase]
+        [TestRail(288884)]
+        [Description("Create two Baselines, get BaselineInfo and check that response has expected values.")]
+        public void GetBaselineInfo_TwoLiveBaseline_ValidateResponse()
+        {
+            // Setup:
+            var baselineArtifact1 = Helper.CreateBaseline(_user, _project);
+            var baselineArtifact2 = Helper.CreateBaseline(_user, _project);
+
+            var baseline1 = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact1.Id);
+
+            var baseline2 = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact2.Id);
+            var timestampDate = DateTime.UtcNow.AddMinutes(-3);
+            baseline2.UtcTimestamp = timestampDate;
+            baseline2.IsSealed = true;
+            baselineArtifact2.Update(_user, baseline2);
+            baseline2 = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact2.Id);
+
+            List<BaselineInfo> baselineInfoList = null;
+
+            // Execute:
+            Assert.DoesNotThrow(() => {
+                baselineInfoList = Helper.ArtifactStore.GetBaselineInfo(new List<int> { baselineArtifact1.Id,
+                    baselineArtifact2.Id }, _user);
+            }, "Getting BaselineInfo shouldn't throw an error.");
+
+            // Verify:
+            Assert.AreEqual(2, baselineInfoList?.Count, "List of BaselineInfo should have two items.");
+            baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline1);
+            baselineInfoList[1].AssertBaselineInfoCorrespondsToBaseline(baseline2);
+        }
+
+        #endregion BaselineInfo Tests
 
         #endregion Positive Tests
 
@@ -565,8 +687,8 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
-            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
-            baseline.SetIsSealed(true);
+            baseline.UtcTimestamp = DateTime.UtcNow.AddMinutes(-1);
+            baseline.IsSealed = true;
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
             // Execute:
@@ -588,7 +710,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
-            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(1));//one minute from now
+            baseline.UtcTimestamp = DateTime.UtcNow.AddMinutes(1);//one minute from now
             
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
@@ -613,8 +735,8 @@ namespace ArtifactStoreTests
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
 
             baseline.UpdateArtifacts(artifactsIdsToAdd: new List<int> { artifactToAdd.Id });
-            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
-            baseline.SetIsSealed(true);
+            baseline.UtcTimestamp = DateTime.UtcNow.AddMinutes(-1);
+            baseline.IsSealed = true;
             ArtifactStore.UpdateArtifact(Helper.ArtifactStore.Address, _user, baseline);
 
             baseline.UpdateArtifacts(artifactsIdsToRemove: new List<int> { artifactToAdd.Id });
@@ -716,6 +838,7 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267021)]
         [Description("Try to set IsAvailableInAnalytics for unsealed Baseline, check 409 and error message.")]
@@ -728,7 +851,7 @@ namespace ArtifactStoreTests
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
             Helper.SvcShared.LockArtifacts(_adminUser, new List<int> { baseline.Id });
 
-            baseline.SetIsAvailableInAnalytics(true);
+            baseline.IsAvailableInAnalytics = true;
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {

@@ -721,17 +721,17 @@ namespace Helper
         /// <param name="user">The user who will create the artifacts.</param>
         /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
         /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
-        public List<IArtifact> CreatePublishedArtifactChain(IProject project, IUser user, BaseArtifactType[] artifactTypeChain)
+        public List<ArtifactWrapper> CreatePublishedArtifactChain(IProject project, IUser user, ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
+            var artifactChain = new List<ArtifactWrapper>();
+            ArtifactWrapper bottomArtifact = null;
 
             // Create artifact chain.
             foreach (var artifactType in artifactTypeChain)
             {
-                bottomArtifact = CreateAndPublishArtifact(project, user, artifactType, parent: bottomArtifact);
+                bottomArtifact = CreateAndPublishNovaArtifact(user, project, artifactType, bottomArtifact?.Id);
                 artifactChain.Add(bottomArtifact);
             }
 
@@ -798,7 +798,7 @@ namespace Helper
         /// <param name="parentId">(optional) The id of the parent artifact where Baseline should be created. By default it will be created in the Baselines and Reviews folder.</param>
         /// <param name="artifactToAddId">(optional) Artifact ID to be added to baseline.  By default empty baseline will be created.</param>
         /// <returns>The Baseline artifact.</returns>
-        public INovaArtifactDetails CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
+        public ArtifactWrapper CreateBaseline(IUser user, IProject project, string name = null, int? parentId = null,
             int? artifactToAddId = null)
         {
             ThrowIf.ArgumentNull(user, nameof(user));
@@ -808,8 +808,8 @@ namespace Helper
 
             name = name ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
 
-            var baselineArtifact = CreateNovaArtifactInSpecificState(user, project, TestArtifactState.Created, ItemTypePredefined.ArtifactBaseline,
-                parentId.Value, artifactName: name);
+            var baselineArtifact = CreateNovaArtifact(user, project, ItemTypePredefined.ArtifactBaseline, parentId.Value,
+                name: name);
             if (artifactToAddId != null)
             {
                 var result = ArtifactStore.AddArtifactToBaseline(user, artifactToAddId.Value, baselineArtifact.Id);

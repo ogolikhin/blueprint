@@ -79,6 +79,29 @@ namespace Model.ArtifactModel.Impl
         }
 
         #endregion INovaArtifactObservable methods
+
+        /// <summary>
+        /// Asserts that the two artifacts are equal.
+        /// </summary>
+        /// <param name="expected">The expected INovaArtifactBase.</param>
+        /// <param name="actual">The actual INovaArtifactBase.</param>
+        /// <param name="shouldCompareVersions">(optional) Pass false to skip comparison of the version parameters.</param>
+        public static void AssertAreEqual(INovaArtifactBase expected, INovaArtifactBase actual, bool shouldCompareVersions = true)
+        {
+            ThrowIf.ArgumentNull(expected, nameof(expected));
+            ThrowIf.ArgumentNull(actual, nameof(actual));
+
+            Assert.AreEqual(expected.Id, actual.Id, "The '{0}' parameters are different!", nameof(Id));
+            Assert.AreEqual(expected.ItemTypeId, actual.ItemTypeId, "The '{0}' parameters are different!", nameof(ItemTypeId));
+            Assert.AreEqual(expected.Name, actual.Name, "The '{0}' parameters are different!", nameof(Name));
+            Assert.AreEqual(expected.ParentId, actual.ParentId, "The '{0}' parameters are different!", nameof(ParentId));
+            Assert.AreEqual(expected.ProjectId, actual.ProjectId, "The '{0}' parameters are different!", nameof(ProjectId));
+
+            if (shouldCompareVersions)
+            {
+                Assert.AreEqual(expected.Version, actual.Version, "The '{0}' parameters are different!", nameof(Version));
+            }
+        }
     }
 
     public class NovaArtifactDetails : NovaArtifactBase, INovaArtifactDetails
@@ -221,12 +244,18 @@ namespace Model.ArtifactModel.Impl
             }
             // Deserialization
             string specificPropertyPropertyString = specificProperty.CustomPropertyValue.ToString();
+            if(SerializationUtilities.IsStringAJson(specificPropertyPropertyString))
+            {
+                var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
 
-            var specificPropertyValue = JsonConvert.DeserializeObject<T>(specificPropertyPropertyString);
+                SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
 
-            SerializationUtilities.CheckJson<T>(specificPropertyValue, specificPropertyPropertyString);
-            
-            return specificPropertyValue;
+                return specificPropertyValue;
+            }
+            else
+            {
+                return (T)(specificProperty.CustomPropertyValue);
+            }
         }
 
         /// <summary>

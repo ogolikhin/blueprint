@@ -268,7 +268,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <seealso cref="IArtifact.PostRapidReviewDiscussionReply(ICommentBaseAdapter, string, IUser, List{HttpStatusCode})"/>
-        public IReplyAdapter PostRapidReviewDiscussionReply(
+        public IRaptorReply PostRapidReviewDiscussionReply(
             ICommentBaseAdapter discussion,
             string comment,
             IUser user,
@@ -298,7 +298,7 @@ namespace Model.ArtifactModel.Impl
         }
 
         /// <seealso cref="IArtifact.UpdateRapidReviewDiscussionReply(IReplyAdapter, string, IUser, List{HttpStatusCode})"/>
-        public IReplyAdapter UpdateRapidReviewDiscussionReply(
+        public IRaptorReply UpdateRapidReviewDiscussionReply(
             IReplyAdapter replyToUpdate,
             string comment,
             IUser user,

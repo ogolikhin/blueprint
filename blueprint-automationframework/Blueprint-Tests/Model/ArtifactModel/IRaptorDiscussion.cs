@@ -27,6 +27,7 @@ namespace Model.ArtifactModel
     {
         #region Serialized JSON properties
 
+        string Username { get; set; }
         List<IReplyAdapter> Replies { get; set; }
 
         #endregion Serialized JSON properties
@@ -35,21 +36,11 @@ namespace Model.ArtifactModel
     //This representation is used for Discussion in RapidReview,
     //Impact Analysis and Storyteller
     // Found in:  blueprint-current/Source/BluePrintSys.RC.Business.Internal/Components/RapidReview/Models/DiscussionsInfo.cs
-    public interface IRaptorReply
+    public interface IRaptorReply : IReplyAdapter
     {
         #region Serialized JSON properties
 
-        int ReplyId { get; set; }
-        int ItemId { get; set; }
-        int DiscussionId { get; set; }
-        int Version { get; set; }
-        int UserId { get; set; }
-        DateTime LastEditedOn { get; set; }
         string Username { get; set; }
-        bool IsGuest { get; set; }
-        string Comment { get; set; }
-        bool CanEdit { get; set; }
-        bool CanDelete { get; set; }
 
         #endregion Serialized JSON properties
     }

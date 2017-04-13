@@ -844,23 +844,14 @@ namespace ArtifactStoreTests
             // Another user locks the child collection.
             childCollection.Lock(userWithLock);
 
-            try
-            {
-                // Execute:
-                var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(parentCollectionFolder, _user),
-                    "We should get a 409 Conflict when a user tries to delete a Collection Folder when it has a child locked by another user!");
+            // Execute:
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(parentCollectionFolder, _user),
+                "We should get a 409 Conflict when a user tries to delete a Collection Folder when it has a child locked by another user!");
 
-                // Verify:
-                string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.ArtifactCollection).Prefix;
-                string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childCollection.Id);
-                TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
-            }
-            finally
-            {
-                // Delete & publish the locked artifact so the TearDown will succeed.
-                Helper.ArtifactStore.DeleteArtifact(childCollection, userWithLock);
-                childCollection.Publish(userWithLock);
-            }
+            // Verify:
+            string prefix = _project.NovaArtifactTypes.Find(a => a.PredefinedType == ItemTypePredefined.ArtifactCollection).Prefix;
+            string expectedMessage = I18NHelper.FormatInvariant("Artifact \"{0}: {1}\" is already locked by other user", prefix, childCollection.Id);
+            TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.LockedByOtherUser, expectedMessage);
         }
 
         #endregion 409 Conflict tests

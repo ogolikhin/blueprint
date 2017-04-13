@@ -613,7 +613,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates and publishes a new artifact collection (wrapped inside an IArtifact object).
+        /// Creates and publishes a new artifact Collection..
         /// </summary>
         /// <param name="project">The project where the collection should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -621,9 +621,14 @@ namespace Helper
         ///     By default it creates the collection in the project's default collection folder.</param>
         /// <param name="orderIndex">(optional) The order index of this collection.
         ///     By default the order index should be after the last collection/folder.</param>
-        /// <returns>The collection wrapped in an IArtifact.  NOTE: the base type is set to PrimitiveFolder
-        ///     because OpenAPI doesn't support collections.</returns>
-        public IArtifact CreateAndPublishCollection(IProject project, IUser user, int? parentId = null, double? orderIndex = null)
+        /// <param name="name">(optional) The name of the new Collection.</param>
+        /// <returns>The new Collection.</returns>
+        public ArtifactWrapper CreateAndPublishCollection(
+            IProject project,
+            IUser user,
+            int? parentId = null,
+            double? orderIndex = null,
+            string name = null)
         {
             ThrowIf.ArgumentNull(project, nameof(project));
 
@@ -633,9 +638,7 @@ namespace Helper
                 parentId = collectionFolder.Id;
             }
 
-            var artifact = CreateWrapAndSaveNovaArtifact(project, user, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, BaseArtifactType.PrimitiveFolder);
-            artifact.Publish();
-            return artifact;
+            return CreateAndPublishNovaArtifact(user, project, ItemTypePredefined.ArtifactCollection, parentId, orderIndex, name);
         }
 
         /// <summary>

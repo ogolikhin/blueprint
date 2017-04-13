@@ -1,6 +1,6 @@
 ﻿namespace Model.Common.Enums
 {
-    public enum SupportedAcceptTypes
+    public enum SupportedAcceptType
 	{
         Json,
         Excel

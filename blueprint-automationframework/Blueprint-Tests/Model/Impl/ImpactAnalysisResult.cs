@@ -10,7 +10,7 @@ namespace Model.Impl
 
         public IEnumerable<ItemTypesInformation> TypesInfo { get; set; }
 
-        [JsonIgnore]
-        internal bool LimitForNodeGenerationReached { get; set; }
+//      [JsonIgnore]
+//      internal bool LimitForNodeGenerationReached { get; set; }
     }
 }

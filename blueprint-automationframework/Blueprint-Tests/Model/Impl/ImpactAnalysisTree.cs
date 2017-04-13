@@ -14,13 +14,13 @@ namespace Model.Impl
             Levels = levels;
         }
 
-        internal int RootId
+/*        internal int RootId
         {
             get
             {
                 return (Root != null) ? Root.Id : 0;
             }
-        }
+        }*/
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using Common;
 using Model.Common.Enums;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using Utilities;
 using Utilities.Facades;
@@ -19,27 +20,12 @@ namespace Model.Impl
 
             Address = address;
         }
- /*
+
         public ImpactAnalysisResult GetImpactAnalysis(IUser user, int sourceId, int level, string format = "", List<HttpStatusCode> expectedStatusCodes = null)
-        {
-            var providedSupportTypes = _httpHeaderHelper.GetCompatibleSupportTypes(Request);
+        { 
+            var acceptType = GetEffectiveSupportedAcceptType(format);
 
-                        //Get corresponding accept type for the defined accept type
-                        var acceptType = GetEffectiveSupportedAcceptType(format, providedSupportTypes);
-            /*
-                        var request = CreateImpactAnalysisRequest(sourceId, level, acceptType);
-
-                                    switch (acceptType)
-                        {
-                            case SupportedAcceptTypes.Json:
-                                return GetImpactAnalysisResult(request);
-                            case SupportedAcceptTypes.Excel:
-                                return GetImpactAnalysisReportResult(request);
-                        }
-                        throw new NotSupportedException();
-                         *
-
-            string path = I18NHelper.FormatInvariant(RestPaths.ImpactAnalysis.IMPACT_ANALYSIS, sourceId, level, format);
+            string path = I18NHelper.FormatInvariant(RestPaths.ImpactAnalysis.IMPACT_ANALYSIS, sourceId, level, acceptType);
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<ImpactAnalysisResult>(
@@ -47,39 +33,19 @@ namespace Model.Impl
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
         }
-*/
-        // Taken from blueprint-current/Source/BluePrintSys.RC.Web.Internal/Components/ImpactAnalysis/Web/IHttpHeaderHelper.cs
-        public SupportedAcceptTypes GetEffectiveSupportedAcceptType(string format, HashSet<SupportedAcceptTypes> providedAcceptTypes)
+
+        public static SupportedAcceptType GetEffectiveSupportedAcceptType(string format)
         {
-            if (string.IsNullOrWhiteSpace(format))
+            ThrowIf.ArgumentNull(format, nameof(format));
+
+            if (format.ToLower(CultureInfo.CurrentCulture).Equals("xlsx"))
             {
-                if (providedAcceptTypes.Contains(SupportedAcceptTypes.Json))
-                {
-                    return SupportedAcceptTypes.Json;
-                }
-                if (providedAcceptTypes.Contains(SupportedAcceptTypes.Excel))
-                {
-                    return SupportedAcceptTypes.Excel;
-                }
+                return SupportedAcceptType.Excel;
             }
-            switch (format.ToLower())
+            else
             {
-                case "text":
-                case "plain":
-                case "json":
-                    if (providedAcceptTypes.Contains(SupportedAcceptTypes.Json))
-                    {
-                        return SupportedAcceptTypes.Json;
-                    }
-                    break;
-                case "xlsx":
-                    if (providedAcceptTypes.Contains(SupportedAcceptTypes.Excel))
-                    {
-                        return SupportedAcceptTypes.Excel;
-                    }
-                    break;
+                return SupportedAcceptType.Json;
             }
-            return SupportedAcceptTypes.Json;
         }
     }
 }

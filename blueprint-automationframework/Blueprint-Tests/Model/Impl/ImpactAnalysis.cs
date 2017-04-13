@@ -22,30 +22,21 @@ namespace Model.Impl
         }
 
         public ImpactAnalysisResult GetImpactAnalysis(IUser user, int sourceId, int level, string format = "", List<HttpStatusCode> expectedStatusCodes = null)
-        { 
-            var acceptType = GetEffectiveSupportedAcceptType(format);
+        {
+            ThrowIf.ArgumentNull(format, nameof(format));
 
-            string path = I18NHelper.FormatInvariant(RestPaths.ImpactAnalysis.IMPACT_ANALYSIS, sourceId, level, acceptType);
+            string path = I18NHelper.FormatInvariant(RestPaths.ImpactAnalysis.IMPACT_ANALYSIS, sourceId, level);
+            if (!string.IsNullOrEmpty(format))
+            {
+                path += "/" + format;
+            }
+
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
 
             return restApi.SendRequestAndDeserializeObject<ImpactAnalysisResult>(
                 path,
                 RestRequestMethod.GET,
                 expectedStatusCodes: expectedStatusCodes);
-        }
-
-        public static SupportedAcceptType GetEffectiveSupportedAcceptType(string format)
-        {
-            ThrowIf.ArgumentNull(format, nameof(format));
-
-            if (format.ToLower(CultureInfo.CurrentCulture).Equals("xlsx"))
-            {
-                return SupportedAcceptType.Excel;
-            }
-            else
-            {
-                return SupportedAcceptType.Json;
-            }
         }
     }
 }

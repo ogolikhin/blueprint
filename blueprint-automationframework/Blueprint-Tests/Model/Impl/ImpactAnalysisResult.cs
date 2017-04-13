@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Model.Impl
 {
@@ -9,8 +8,5 @@ namespace Model.Impl
         public ImpactAnalysisTree Tree { get; set; }
 
         public IEnumerable<ItemTypesInformation> TypesInfo { get; set; }
-
-//      [JsonIgnore]
-//      internal bool LimitForNodeGenerationReached { get; set; }
     }
 }

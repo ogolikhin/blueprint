@@ -570,8 +570,8 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
 
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
-            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
-            baseline.SetIsSealed(true);
+            baseline.UtcTimestamp = DateTime.UtcNow.AddMinutes(-1);
+            baseline.IsSealed = true;
             Helper.ArtifactStore.UpdateArtifact(_user, baseline);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user);
 
@@ -599,8 +599,8 @@ namespace ArtifactStoreTests
                 artifactToAddId: artifactToAdd.Id);
 
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
-            baseline.SetUtcTimestamp(DateTime.UtcNow.AddMinutes(-1));
-            baseline.SetIsSealed(true);
+            baseline.UtcTimestamp = DateTime.UtcNow.AddMinutes(-1);
+            baseline.IsSealed = true;
             Helper.ArtifactStore.UpdateArtifact(_user, baseline);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user, publishAll: true);
 

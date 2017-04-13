@@ -119,7 +119,8 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Deletes this artifact.  (If this artifact is published, you must publish after deleting to make the delete permanent).
+        /// Deletes this artifact.  No lock is required, but it must not be locked by another user.
+        /// (If this artifact is published, you must publish after deleting to make the delete permanent).
         /// </summary>
         /// <param name="user">The user to perform the delete.</param>
         /// <returns>A list of artifacts that were deleted.</returns>
@@ -184,7 +185,7 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Moves this artifact to be under a new parent.
+        /// Moves this artifact to be under a new parent.  You must lock the artifact before moving.
         /// </summary>
         /// <param name="user">The user to perform the move.</param>
         /// <param name="newParent">The new parent of this artifact.</param>
@@ -205,7 +206,7 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Publishes this artifact.
+        /// Publishes this artifact.  You must lock the artifact before publishing.
         /// </summary>
         /// <param name="user">The user to perform the publish.</param>
         /// <returns>An object containing a list of artifacts that were published and their projects.</returns>
@@ -232,7 +233,7 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Updates this artifact with a new random Description.
+        /// Updates this artifact with a new random Description.  You must lock the artifact before saving.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <returns>The updated artifact.</returns>
@@ -255,7 +256,7 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
-        /// Updates this artifact with the properties specified in the updateArtifact.
+        /// Updates this artifact with the properties specified in the updateArtifact.  You must lock the artifact before updating.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>
         /// <param name="updateArtifact">The artifact whose non-null properties will be used to update this artifact.</param>

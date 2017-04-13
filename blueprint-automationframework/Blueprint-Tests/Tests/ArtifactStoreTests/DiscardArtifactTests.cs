@@ -60,7 +60,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, savedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, savedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -85,7 +85,7 @@ namespace ArtifactStoreTests
                 Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                     "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
                 Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-                DiscardVerification(discardArtifactResponse, savedArtifacts);
+                VerifyDiscardResponse(discardArtifactResponse, savedArtifacts);
             }
             finally
             {
@@ -120,7 +120,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedPublishedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, changedPublishedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -149,7 +149,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedPublishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedPublishedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedPublishedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, changedPublishedArtifacts);
         }
 
         [TestCase(2, BaseArtifactType.Actor)]
@@ -199,7 +199,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(savedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", savedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, savedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, savedArtifacts);
         }
 
         #region Custom data tests 
@@ -244,7 +244,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(publishedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", publishedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, publishedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, publishedArtifacts);
         }
 
         [Category(Categories.CustomData)]
@@ -283,7 +283,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "There should be 1 artifacts returned in discard results!");
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, new List<IArtifactBase> { firstArtifact });
+            VerifyDiscardResponse(discardArtifactResponse, new List<IArtifactBase> { firstArtifact });
         }
 
         #endregion Custom data tests
@@ -320,7 +320,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedArtifacts.Count);
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "There should be 1 project returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedArtifacts);
+            VerifyDiscardResponse(discardArtifactResponse, changedArtifacts);
         }
 
         [TestCase(3, ItemTypePredefined.Process)]
@@ -363,7 +363,7 @@ namespace ArtifactStoreTests
             Assert.AreEqual(changedArtifacts.Count, discardArtifactResponse.Artifacts.Count,
                 "There should be {0} artifacts returned in discard results!", changedArtifacts.Count);
             Assert.AreEqual(2, discardArtifactResponse.Projects.Count, "There should be 2 projects returned in discard results!");
-            DiscardVerification(discardArtifactResponse, changedArtifacts, author);
+            VerifyDiscardResponse(discardArtifactResponse, changedArtifacts, author);
         }
 
         [TestCase(3, ItemTypePredefined.Process)]
@@ -391,7 +391,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
-            DiscardVerification(discardArtifactResponse, new List<ArtifactWrapper> { lastArtifact });
+            VerifyDiscardResponse(discardArtifactResponse, new List<ArtifactWrapper> { lastArtifact });
         }
 
         [TestCase(3, ItemTypePredefined.Process)]
@@ -418,7 +418,7 @@ namespace ArtifactStoreTests
             // Verify:
             Assert.AreEqual(1, discardArtifactResponse.Artifacts.Count, "Only 1 artifact should be returned in discard results!");
             Assert.AreEqual(1, discardArtifactResponse.Projects.Count, "Only 1 project should be returned in discard results!");
-            DiscardVerification(discardArtifactResponse, new List<ArtifactWrapper> { lastArtifact });
+            VerifyDiscardResponse(discardArtifactResponse, new List<ArtifactWrapper> { lastArtifact });
         }
 
         [TestCase]
@@ -683,7 +683,10 @@ namespace ArtifactStoreTests
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
         /// <param name="user">(optional) The user to authenticate with.  By default _user is used.</param>
-        private void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<IArtifactBase> artifactsTodiscard, IUser user = null)
+        private void VerifyDiscardResponse(
+            INovaArtifactsAndProjectsResponse discardArtifactResponse,
+            List<IArtifactBase> artifactsTodiscard,
+            IUser user = null)
         {
             ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));
             ThrowIf.ArgumentNull(artifactsTodiscard, nameof(artifactsTodiscard));
@@ -717,7 +720,10 @@ namespace ArtifactStoreTests
         /// <param name="discardArtifactResponse">The response from Nova discard call.</param>
         /// <param name="artifactsTodiscard">artifacts that are being discarded</param>
         /// <param name="user">(optional) The user to authenticate with.  By default _user is used.</param>
-        private void DiscardVerification(INovaArtifactsAndProjectsResponse discardArtifactResponse, List<ArtifactWrapper> artifactsTodiscard, IUser user = null)
+        private void VerifyDiscardResponse(
+            INovaArtifactsAndProjectsResponse discardArtifactResponse,
+            List<ArtifactWrapper> artifactsTodiscard,
+            IUser user = null)
         {
             ThrowIf.ArgumentNull(discardArtifactResponse, nameof(discardArtifactResponse));
             ThrowIf.ArgumentNull(artifactsTodiscard, nameof(artifactsTodiscard));

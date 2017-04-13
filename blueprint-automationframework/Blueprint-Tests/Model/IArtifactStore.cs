@@ -440,14 +440,12 @@ namespace Model
         /// <param name="user">(optional) The user to authenticate with.  By default it uses the user that created the artifact.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCode">(optional) Expected status code for the request.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         INovaArtifactDetails MoveArtifact(
             IArtifactBase artifact,
             IArtifactBase newParent, 
             IUser user = null,
-            double? orderIndex = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK);
+            double? orderIndex = null);
 
         /// <summary>
         /// Moves an artifact to a different parent.
@@ -458,14 +456,12 @@ namespace Model
         /// <param name="user">The user to authenticate with.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCode">(optional) Expected status code for the request.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         INovaArtifactDetails MoveArtifact(
             IArtifactBase artifact,
             int newParentId,
             IUser user,
-            double? orderIndex = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK);
+            double? orderIndex = null);
 
         /// <summary>
         /// Moves an artifact to a different parent.
@@ -476,14 +472,12 @@ namespace Model
         /// <param name="newParentId">The ID of the new parent where this artifact will be moved to.</param>
         /// <param name="orderIndex">(optional) The order index (relative to other artifacts) where this artifact should be moved to.
         ///     By default the artifact is moved to the end (after the last artifact).</param>
-        /// <param name="expectedStatusCode">(optional) Expected status code for the request.</param>
         /// <returns>The details of the artifact that we moved.</returns>
         INovaArtifactDetails MoveArtifact(
             IUser user,
             int artifactId,
             int newParentId,
-            double? orderIndex = null,
-            HttpStatusCode expectedStatusCode = HttpStatusCode.OK);
+            double? orderIndex = null);
 
         /// <summary>
         /// Publishes an artifact.

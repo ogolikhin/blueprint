@@ -123,7 +123,7 @@ namespace Model
         /// <param name="comment">Comment text of the reply.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Newly created RaptorReply for artifact/subartifact discussion.</returns>
-        IReplyAdapter PostRapidReviewDiscussionReply(
+        IRaptorReply PostRapidReviewDiscussionReply(
             IUser user,
             int itemId,
             int discussionId,
@@ -188,7 +188,7 @@ namespace Model
         /// <param name="comment">The new comment for reply.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Updated RaptorReply.</returns>
-        IReplyAdapter UpdateRapidReviewDiscussionReply(
+        IRaptorReply UpdateRapidReviewDiscussionReply(
             IUser user,
             int itemId,
             int discussionId,

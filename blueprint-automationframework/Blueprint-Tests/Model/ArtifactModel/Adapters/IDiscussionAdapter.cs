@@ -11,7 +11,6 @@ namespace Model.ArtifactModel.Adapters
         int Version { get; set; }
         int UserId { get; set; }
         DateTime LastEditedOn { get; set; }
-        string Username { get; set; }
         bool IsGuest { get; set; }
         string Comment { get; set; }
         bool CanEdit { get; set; }

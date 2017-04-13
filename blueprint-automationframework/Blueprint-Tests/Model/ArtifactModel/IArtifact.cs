@@ -144,7 +144,7 @@ namespace Model.ArtifactModel
         /// <param name="user">The user credentials to authenticate with</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>Newly created Reply for artifact/subartifact discussion.</returns>
-        IReplyAdapter PostRapidReviewDiscussionReply(
+        IRaptorReply PostRapidReviewDiscussionReply(
             ICommentBaseAdapter discussion,
             string comment,
             IUser user,
@@ -174,7 +174,7 @@ namespace Model.ArtifactModel
         /// <param name="user">The user credentials for the request.</param>
         /// <param name="expectedStatusCodes">(optional) A list of expected status codes. If null, only OK: '200' is expected.</param>
         /// <returns>The updated Reply.</returns>
-        IReplyAdapter UpdateRapidReviewDiscussionReply(
+        IRaptorReply UpdateRapidReviewDiscussionReply(
             IReplyAdapter replyToUpdate,
             string comment,
             IUser user,

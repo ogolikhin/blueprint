@@ -638,7 +638,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var baselineArtifact1 = Helper.CreateBaseline(_user, _project);
-            var baselineArtifact2 = Helper.CreateBaseline(_adminUser, _project);
+            var baselineArtifact2 = Helper.CreateBaseline(_user, _project);
 
             var baseline1 = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact1.Id);
 
@@ -658,7 +658,7 @@ namespace ArtifactStoreTests
             }, "Getting BaselineInfo shouldn't throw an error.");
 
             // Verify:
-            Assert.AreEqual(2, baselineInfoList?.Count, "List of BaselineInfo should have one item.");
+            Assert.AreEqual(2, baselineInfoList?.Count, "List of BaselineInfo should have two items.");
             baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline1);
             baselineInfoList[1].AssertBaselineInfoCorrespondsToBaseline(baseline2);
         }

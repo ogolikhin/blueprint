@@ -950,23 +950,23 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.CannotPublishOverValidationErrors, expectedExceptionMessage);
         }
 
-        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
-        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 1)] //Insert value into Numeric field which is out of range in parent artifact
-        [TestCase("value\":10.0", "value\":999.0", BaseArtifactType.Actor, 2)] //Insert value into Numeric field which is out of range in child artifact
-        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 0)] //Insert value into Date field which is out of range in grandparent artifact
-        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 1)] //Insert value into Date field which is out of range in parent artifact
-        [TestCase("value\":\"20", "value\":\"21", BaseArtifactType.Actor, 2)] //Insert value into Date field which is out of range in child artifact
+        [TestCase("value\":10.0", "value\":999.0", ItemTypePredefined.Actor, 0)] //Insert value into Numeric field which is out of range in grandparent artifact
+        [TestCase("value\":10.0", "value\":999.0", ItemTypePredefined.Actor, 1)] //Insert value into Numeric field which is out of range in parent artifact
+        [TestCase("value\":10.0", "value\":999.0", ItemTypePredefined.Actor, 2)] //Insert value into Numeric field which is out of range in child artifact
+        [TestCase("value\":\"20", "value\":\"21", ItemTypePredefined.Actor, 0)] //Insert value into Date field which is out of range in grandparent artifact
+        [TestCase("value\":\"20", "value\":\"21", ItemTypePredefined.Actor, 1)] //Insert value into Date field which is out of range in parent artifact
+        [TestCase("value\":\"20", "value\":\"21", ItemTypePredefined.Actor, 2)] //Insert value into Date field which is out of range in child artifact
         [Category(Categories.CustomData)]
         [TestRail(166129)]
         [Description("Try to publish an artifact with a value of property that out of its permitted range. Verify 409 Conflict is returned.")]
-        public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, BaseArtifactType artifactType, int index)
+        public void PublishAllArtifacts_PropertyOutOfRange_Conflict(string toChange, string changeTo, ItemTypePredefined artifactType, int index)
         {
             // Setup:
             var projectCustomData = ArtifactStoreHelper.GetCustomDataProject(_user);
 
-            var artifactTypes = new BaseArtifactType[] { artifactType, artifactType, artifactType };
+            var artifactTypes = new ItemTypePredefined[] { artifactType, artifactType, artifactType };
             var artifactList = Helper.CreatePublishedArtifactChain(projectCustomData, _user, artifactTypes);
-            artifactList[index].Lock();
+            artifactList[index].Lock(_user);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifactList[index].Id);
 
@@ -981,7 +981,7 @@ namespace ArtifactStoreTests
                 "'PATCH {0}' should return 200 OK if properties are out of range!", UPDATE_ARTIFACT_ID_PATH);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.ConvertAll(o => (IArtifactBase)o), _user, publishAll: true),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.PublishArtifacts(artifactList.Select(o => o.Id).ToList(), _user, publishAll: true),
                 "'POST {0}' should return 409 Conflict if an artifact already published!", PUBLISH_PATH);
 
             // Verify:

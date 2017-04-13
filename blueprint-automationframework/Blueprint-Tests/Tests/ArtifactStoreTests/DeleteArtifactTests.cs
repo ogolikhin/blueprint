@@ -14,6 +14,7 @@ using TestCommon;
 using Utilities;
 using Utilities.Facades;
 using System;
+using Model.ModelHelpers;
 
 namespace ArtifactStoreTests
 {
@@ -141,13 +142,13 @@ namespace ArtifactStoreTests
             VerifyArtifactIsDeleted(artifact.Id, _user);
         }
 
-        [TestCase(0, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
-        [TestCase(1, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
-        [TestCase(2, BaseArtifactType.Actor, BaseArtifactType.Glossary, BaseArtifactType.Process)]
+        [TestCase(0, ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process)]
+        [TestCase(1, ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process)]
+        [TestCase(2, ItemTypePredefined.Actor, ItemTypePredefined.Glossary, ItemTypePredefined.Process)]
         [TestRail(165798)]
         [Description("Create & publish an artifact with a child & grandchild.  Delete one of the artifacts in the chain - it should return 200 OK and the deleted artifact and its children." +
             "Try to get the artifact & its children and verify you get a 404 since it was deleted.")]
-        public void DeleteArtifact_PublishedArtifactWithChildren_ArtifactIsDeleted(int indexToDelete, params BaseArtifactType[] artifactTypeChain)
+        public void DeleteArtifact_PublishedArtifactWithChildren_ArtifactIsDeleted(int indexToDelete, params ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
@@ -157,7 +158,7 @@ namespace ArtifactStoreTests
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
 
-            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain[indexToDelete], _user),
+            Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(artifactChain[indexToDelete].Id, _user),
                 "'DELETE {0}' should return 200 OK if a valid artifact ID is sent!", DELETE_ARTIFACT_ID_PATH);
 
             // Verify:
@@ -320,7 +321,7 @@ namespace ArtifactStoreTests
 
             // Move parent under project.
             parentArtifact.Lock();
-            ArtifactStore.MoveArtifact(Helper.ArtifactStore.Address, parentArtifact, _project.Id, _user);
+            Helper.ArtifactStore.MoveArtifact(parentArtifact, _project.Id, _user);
 
             // Execute:
             List<INovaArtifactResponse> deletedArtifacts = null;
@@ -353,7 +354,7 @@ namespace ArtifactStoreTests
             var baselineArtifact = Helper.CreateBaseline(_user, _project, artifactToAddId: artifactToAdd.Id);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user);
 
-            List<NovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactResponse> deletedArtifacts = null;
 
             // Execute:
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(baselineArtifact.Id, _user),
@@ -382,7 +383,7 @@ namespace ArtifactStoreTests
                 artifactToAddId: artifactToAdd.Id);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baselineArtifact.Id }, _user, publishAll: true);
 
-            List<NovaArtifactResponse> deletedArtifacts = null;
+            List<INovaArtifactResponse> deletedArtifacts = null;
 
             // Execute:
             Assert.DoesNotThrow(() => deletedArtifacts = Helper.ArtifactStore.DeleteArtifact(baselineFolder.Id, _user),
@@ -885,6 +886,24 @@ namespace ArtifactStoreTests
         }
 
         /// <summary>
+        /// Try to get each artifact in the list (starting at the specified index) and verify a 404 error is returned.
+        /// </summary>
+        /// <param name="artifacts">The list of artifacts.</param>
+        /// <param name="user">The user to perform operation.</param>
+        /// <param name="startIndex">(optional) To skip artifacts at the beginning of the list, enter the index of the first artifact to check.</param>
+        private void VerifyArtifactsAreDeleted(List<ArtifactWrapper> artifacts, IUser user, int startIndex = 0)
+        {
+            ThrowIf.ArgumentNull(artifacts, nameof(artifacts));
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            // Try to get each artifact to verify they're deleted.
+            for (int i = startIndex; i < artifacts.Count; ++i)
+            {
+                VerifyArtifactIsDeleted(artifacts[i].Id, user);
+            }
+        }
+
+        /// <summary>
         /// Try to get the artifact and verify a 404 error is returned.
         /// </summary>
         /// <param name="artifactId">The artifact whose existence is being verified.</param>
@@ -920,6 +939,30 @@ namespace ArtifactStoreTests
         /// <param name="deletedArtifacts">The list of artifacts returned by the delete call.</param>
         /// <param name="startIndex">(optional) To skip artifacts at the beginning of the list, enter the index of the first artifact to check.</param>
         private static void VerifyDeletedArtifactAndChildrenWereReturned(List<IArtifact> artifactChain, List<INovaArtifactResponse> deletedArtifacts,
+            int startIndex = 0)
+        {
+            ThrowIf.ArgumentNull(artifactChain, nameof(artifactChain));
+            ThrowIf.ArgumentNull(deletedArtifacts, nameof(deletedArtifacts));
+
+            for (int i = startIndex; i < artifactChain.Count; ++i)
+            {
+                var artifact = artifactChain[i];
+
+                Assert.That(deletedArtifacts.Exists(a => a.Id == artifact.Id),
+                    "The list of deleted artifacts returned by 'DELETE {0}' didn't contain an artifact with ID: {1}!",
+                    DELETE_ARTIFACT_ID_PATH, artifact.Id);
+            }
+        }
+
+        /// <summary>
+        /// Verifies that each artifact in the chain (starting at the specified index) was returned in the list of deleted artifacts.
+        /// </summary>
+        /// <param name="artifactChain">The chain of parent/child artifacts that were created.</param>
+        /// <param name="deletedArtifacts">The list of artifacts returned by the delete call.</param>
+        /// <param name="startIndex">(optional) To skip artifacts at the beginning of the list, enter the index of the first artifact to check.</param>
+        private static void VerifyDeletedArtifactAndChildrenWereReturned(
+            List<ArtifactWrapper> artifactChain,
+            List<INovaArtifactResponse> deletedArtifacts,
             int startIndex = 0)
         {
             ThrowIf.ArgumentNull(artifactChain, nameof(artifactChain));

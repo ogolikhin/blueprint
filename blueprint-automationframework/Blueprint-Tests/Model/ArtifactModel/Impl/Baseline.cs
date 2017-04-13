@@ -38,6 +38,13 @@ namespace Model.ArtifactModel.Impl
             set { SetBaselineProperty(PropertyTypePredefined.BaselineTimestamp, value); }
         }
 
+        [JsonIgnore]
+        public DateTime? BaselineCurrentClientUtcTime
+        {
+            get { return GetSpecificPropertyValue<DateTime?>(PropertyTypePredefined.BaselineCurrentClientUtcTime); }
+            set { SetBaselineProperty(PropertyTypePredefined.BaselineCurrentClientUtcTime, value); }
+        }
+
         #region Constructors
         public Baseline(bool isAvailableInAnalytics, bool notAllArtifactsAreShown, bool isSealed)
         {

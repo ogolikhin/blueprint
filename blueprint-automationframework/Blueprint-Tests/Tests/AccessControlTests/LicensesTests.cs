@@ -185,7 +185,7 @@ namespace AccessControlTests
         }
 
         [TestCase(null)]
-        [TestCase(CommonConstants.InvalidToken, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // TFS bug 5823
+        [TestCase(CommonConstants.InvalidToken)]
         [TestRail(267191)]
         [Description("Check that GET svc/AccessControl/licenses/locked with an invalid token return 401 Unauthorized.")]
         public void GetLockedLicensesInfo_InvalidToken_401Unauthorized(string token)
@@ -194,10 +194,10 @@ namespace AccessControlTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AccessControl.GetLicensesInfo(LicenseState.locked, token);
-            }, "'GET {0}' should return 401 Unauthorized the token provided in invalid.", REST_PATH_LOCKED);
+            }, "'GET {0}' should return 401 Unauthorized when the token provided is invalid.", REST_PATH_LOCKED);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse); // To be changed after bug 5823 is fixed.
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
         }
 
         #endregion GetLicensesInfo tests

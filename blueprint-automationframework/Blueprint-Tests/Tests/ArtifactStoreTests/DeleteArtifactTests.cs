@@ -839,13 +839,13 @@ namespace ArtifactStoreTests
             var parentCollectionFolder = Helper.CreateAndPublishCollectionFolder(_project, _user);
             var childCollection = Helper.CreateAndPublishCollection(_project, _user, parentCollectionFolder.Id);
 
-            var userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
+            var userWithLock = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken);
 
             // Another user locks the child collection.
             childCollection.Lock(userWithLock);
 
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.ArtifactStore.DeleteArtifact(parentCollectionFolder, _user),
+            var ex = Assert.Throws<Http409ConflictException>(() => parentCollectionFolder.Delete(_user),
                 "We should get a 409 Conflict when a user tries to delete a Collection Folder when it has a child locked by another user!");
 
             // Verify:

@@ -749,7 +749,7 @@ namespace ServiceLibrary.Repositories
             {
                 ItemId = i.ItemId,
                 IsSealed = BaselineRawDataHelper.ExtractIsSelead(i.RawData),
-                UtcTimestamp = BaselineRawDataHelper.ExtractSnapTime(i.RawData)
+                UtcTimestamp = BaselineRawDataHelper.ExtractTimestamp(i.RawData)
             }).ToList();
         }
 

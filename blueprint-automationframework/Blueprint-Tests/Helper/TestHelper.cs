@@ -721,17 +721,17 @@ namespace Helper
         /// <param name="user">The user who will create the artifacts.</param>
         /// <param name="artifactTypeChain">The artifact types of each artifact in the chain starting at the top parent.</param>
         /// <returns>The list of artifacts in the chain starting at the top parent.</returns>
-        public List<IArtifact> CreatePublishedArtifactChain(IProject project, IUser user, BaseArtifactType[] artifactTypeChain)
+        public List<ArtifactWrapper> CreatePublishedArtifactChain(IProject project, IUser user, ItemTypePredefined[] artifactTypeChain)
         {
             ThrowIf.ArgumentNull(artifactTypeChain, nameof(artifactTypeChain));
 
-            var artifactChain = new List<IArtifact>();
-            IArtifact bottomArtifact = null;
+            var artifactChain = new List<ArtifactWrapper>();
+            ArtifactWrapper bottomArtifact = null;
 
             // Create artifact chain.
             foreach (var artifactType in artifactTypeChain)
             {
-                bottomArtifact = CreateAndPublishArtifact(project, user, artifactType, parent: bottomArtifact);
+                bottomArtifact = CreateAndPublishNovaArtifact(user, project, artifactType, bottomArtifact?.Id);
                 artifactChain.Add(bottomArtifact);
             }
 

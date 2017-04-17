@@ -1,5 +1,5 @@
 ﻿using System;
-using AdminStore.Models;
+using AdminStore.Models.DTO;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 

@@ -33,7 +33,7 @@ namespace AdminStore.Controllers
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock ;
         private Mock<ISqlPrivilegesRepository> _sqlPrivilegesRepositoryMock;
-        private User _user;
+        private Models.DTO.User _user;
 
         private const int FullPernissions = 524287;
         private const int NoManageUsersPernissions = 13312;
@@ -61,7 +61,7 @@ namespace AdminStore.Controllers
             };
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
-            _user = new User()
+            _user = new Models.DTO.User()
             {
                 Login = "UserLogin",
                 FirstName = "FirstNameValue",
@@ -73,7 +73,6 @@ namespace AdminStore.Controllers
                 Enabled = true,
                 ExpirePassword = true,
                 NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },

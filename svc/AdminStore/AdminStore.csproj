@@ -122,6 +122,7 @@
     <Compile Include="Helpers\PasswordValidationHelper.cs" />
     <Compile Include="Helpers\PermissionsChecker.cs" />
     <Compile Include="Models\ApplicationSettings.cs" />
+    <Compile Include="Models\DTO\User.cs" />
     <Compile Include="Models\EmailConfigInstanceSettings.cs" />
     <Compile Include="Models\InstanceItem.cs" />
     <Compile Include="Models\PasswordRecoveryToken.cs" />

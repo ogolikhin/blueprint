@@ -292,7 +292,7 @@ namespace ArtifactStoreTests
                 "Original comment and comment returned after discussion created different!");
 
             string replyText = null;
-            IReplyAdapter raptorReply = null;
+            IRaptorReply raptorReply = null;
 
             for (int i = 0; i < 2; i++)
             {
@@ -558,7 +558,7 @@ namespace ArtifactStoreTests
                 "Original reply and reply returned after reply created different!");
 
             string newReplyText = "New " + REPLY;
-            IReplyAdapter updatedReply = null;
+            IRaptorReply updatedReply = null;
 
             // Execute:
             Assert.DoesNotThrow(() =>

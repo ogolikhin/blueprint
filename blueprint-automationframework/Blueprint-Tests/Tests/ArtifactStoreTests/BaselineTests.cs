@@ -224,6 +224,7 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_adminUser, baseline.Id, new List<int> { artifactToAdd.Id, childArtifact1.Id }); // after Publish using Instance Admin that artifact wasn't added to the Baseline
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase(-5)]
         [TestRail(267117)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before or after artifact's CreatedOn date," +
@@ -412,6 +413,7 @@ namespace ArtifactStoreTests
 
         #region Edit Baseline Content
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(266912)]
         [Description("Add published Artifact to Baseline, check that Baseline has expected values.")]
@@ -434,6 +436,7 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267192)]
         [Description("Create and publish artifact with the child artifact, add two artifact to baseline and publish changes," + 
@@ -464,6 +467,7 @@ namespace ArtifactStoreTests
             GetAndValidateBaseline(_user, baselineArtifact.Id, new List<int> { artifactToAdd.Id });
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267373)]
         [Description("Add never published Artifact to Baseline, check that artifact wasn't added.")]
@@ -522,6 +526,7 @@ namespace ArtifactStoreTests
                 isAvailableInAnalytics: setAvailableForAnalytics);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267202)]
         [Description("Add published Artifact to Baseline, Baseline has timestamp before artifact CreatedOn date," +
@@ -631,6 +636,7 @@ namespace ArtifactStoreTests
             baselineInfoList[0].AssertBaselineInfoCorrespondsToBaseline(baseline);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/ATaaDfUM UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(288884)]
         [Description("Create two Baselines, get BaselineInfo and check that response has expected values.")]
@@ -832,6 +838,7 @@ namespace ArtifactStoreTests
             TestHelper.ValidateServiceError(ex.RestResponse, InternalApiErrorCodes.ItemNotFound, expectedErrorMessage);
         }
 
+        [Explicit(IgnoreReasons.ProductBug)]// https://trello.com/c/FGclNU5y UtcTimestamp isn't UTC
         [TestCase]
         [TestRail(267021)]
         [Description("Try to set IsAvailableInAnalytics for unsealed Baseline, check 409 and error message.")]

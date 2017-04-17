@@ -125,6 +125,22 @@ namespace Model
         List<ISession> GetSession(string adminToken, uint pageSize, uint pageNumber);
 
         /// <summary>
+        /// Creates a user.
+        /// (Runs: POST /users)
+        /// </summary>
+        /// <param name="user">A user object representing the user to be created.</param>
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode CreateUser(IUser user);
+
+        /// <summary>
+        /// Deletes a user.
+        /// (Runs: DELETE /users/{userId})
+        /// </summary>
+        /// <param name="userId">The id of the user to be deleted.</param>
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode DeleteUser(int userId);
+
+        /// <summary>
         /// Gets login user for specified token.
         /// (Runs: GET /users/loginuser)
         /// </summary>
@@ -132,6 +148,41 @@ namespace Model
         /// <param name="expectedStatusCodes">(optional) Expected status codes for the request.  By default only 200 OK is expected.</param>
         /// <returns>A user object.</returns>
         IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null);
+
+        /// <summary>
+        /// Gets a user by user Id.
+        /// (Runs: GET /users/{userId})
+        /// </summary>
+        /// <param name="userId">The user id of the user.</param>
+        /// <returns>A user object</returns>
+        IUser GetUserById(int userId);
+
+        /// <summary>
+        /// Gets a user by user login.
+        /// (Runs: GET /users/search?login={login})
+        /// </summary>
+        /// <param name="login">The login of the user.</param>
+        /// <returns>A user object</returns>
+        IUser GetUserByLogin(string login);
+
+        /// <summary>
+        /// Gets a list of non-deleted users matching a specified filter.
+        /// (Runs: GET /users?page={page}&pageSize={pageSize}&filter={filter}&sort={sort})
+        /// </summary>
+        /// <param name="page">(optional) The page number of the user list (determined by pageSize).</param>
+        /// <param name="pageSize">(optional) The number of users on a page.</param>
+        /// <param name="filter">(optional) A query filter to determine which users to diplay.</param>
+        /// <param name="sort">(optional) A comma-delimited list of columns to sort by.</param>
+        /// <returns>A user object</returns>
+        IUser GetUsers(int? page = null, int? pageSize = null, string filter = null, string sort = null);
+
+        /// <summary>
+        /// Updates a user.
+        /// (Runs: PUT /users/{userId})
+        /// </summary>
+        /// <param name="user">A user object representing the user to update.</param>
+        /// <returns>A user object</returns>
+        IUser UpdateUser(IUser user);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.

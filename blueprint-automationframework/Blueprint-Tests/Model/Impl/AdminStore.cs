@@ -228,6 +228,18 @@ namespace Model.Impl
             Sessions.RemoveAll(session => session.SessionId == token);
         }
 
+        /// <seealso cref="IAdminStore.CreateUser(IUser)"/>
+        public HttpStatusCode CreateUser(IUser user)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.DeleteUser(int)"/>
+        public HttpStatusCode DeleteUser(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
         public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -265,6 +277,30 @@ namespace Model.Impl
                 Logger.WriteError("Error while getting GetLoginUser - {0}", ex.Message);
                 throw;
             }
+        }
+
+        /// <seealso cref="IAdminStore.GetUserById(int)"/>
+        public IUser GetUserById(int userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.GetUserByLogin(string)"/>
+        public IUser GetUserByLogin(string login)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.GetUsers(int?, int?, string, string)"/>
+        public IUser GetUsers(int? page = null, int? pageSize = null, string filter = null, string sort = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.UpdateUser(IUser)"/>
+        public IUser UpdateUser(IUser user)
+        {
+            throw new NotImplementedException();
         }
 
         /// <seealso cref="IAdminStore.GetSession(int?)"/>

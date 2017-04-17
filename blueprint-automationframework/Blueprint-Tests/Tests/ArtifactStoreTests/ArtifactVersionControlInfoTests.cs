@@ -11,12 +11,12 @@ using Model.StorytellerModel.Enums;
 using Model.StorytellerModel.Impl;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Model.ModelHelpers;
 using TestCommon;
 using Utilities;
 
 namespace ArtifactStoreTests
 {
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1506:AvoidExcessiveClassCoupling")]
     [TestFixture]
     [Category(Categories.ArtifactStore)]
     public class ArtifactVersionControlInfoTests : TestBase
@@ -68,13 +68,13 @@ namespace ArtifactStoreTests
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(182453)]
         [Description("Create & save an artifact.  Verify the basic artifact information returned with HasChanges flag set to true.")]
-        public void VersionControlInfoWithArtifactId_SavedArtifact_HasChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_SavedArtifact_HasChanges_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -83,21 +83,22 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", SVC_PATH);
 
             // Verify:
+            // Make sure the artifact is identical before & after the GetVersionControlInfo() call.
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
-            ArtifactStoreHelper.AssertArtifactsEqual(artifactDetails, basicArtifactInfo, compareLockInfo: false);
+            ArtifactStoreHelper.AssertArtifactsEqual(artifact, artifactDetails);
 
             VerifyBasicInformationResponse(artifact, basicArtifactInfo, hasChanges: true, isDeleted: false, versionCount: 0);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(182500)]
         [Description("Create & publish an artifact.  Create manual trace to the artifact using another user.  " +
-            "Verify another user gets basic artifact information with HasChanges flag set to true.")]
-        public void VersionControlInfoWithArtifactId_PublishArtifactWithTrace_ReturnsArtifactInfoWithHasChangesTrue_200OK(BaseArtifactType artifactType)
+                     "Verify another user gets basic artifact information with HasChanges flag set to true.")]
+        public void VersionControlInfoWithArtifactId_PublishArtifactWithTrace_ReturnsArtifactInfoWithHasChangesTrue_200OK(ItemTypePredefined artifactType)
         {
             //Setup
             var artifact = CreatePublishedArtifactWithTrace(artifactType, TraceDirection.From, _user);
-            artifact.Lock();
+            artifact.Lock(_user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -113,10 +114,10 @@ namespace ArtifactStoreTests
                 versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(182504)]
         [Description("Create & publish an artifact.  Create manual trace to the artifact with current user. Verify another user gets basic artifact information")]
-        public void VersionControlInfoWithArtifactId_PublishArtifactWithTrace_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_PublishArtifactWithTrace_AnotherUserGetsBasicInfo_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             //Setup
             var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
@@ -161,14 +162,14 @@ namespace ArtifactStoreTests
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges: false, isDeleted: false, versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(182551)]
         [Description("Create, publish & lock an artifact.  Verify the basic artifact information returned with HasChanges flag set to true.")]
-        public void VersionControlInfoWithArtifactId_PublishedAndLockedArtifact_HasChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_PublishedAndLockedArtifact_HasChanges_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock();
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            artifact.Lock(_user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -185,6 +186,8 @@ namespace ArtifactStoreTests
         }
 
         #endregion Artifact Changes
+
+        #region Baseline
 
         [TestCase]
         [TestRail(267418)]
@@ -207,22 +210,18 @@ namespace ArtifactStoreTests
             Assert.IsTrue(basicArtifactInfo.IsIncludedInBaseline.Value, "IsIncludedInBaseline should be 'true'.");
         }
 
-
-        #region Baseline
-
         #endregion Baseline
 
         #region Sub-Artifact
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182512)]
         [Description("Create & save an artifact with sub-artifacts. Verify user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfoWithSubArtifactId_SavedArtifactWithSubArtifact_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithSubArtifactId_SavedArtifactWithSubArtifact_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
@@ -251,7 +250,6 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
-
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
@@ -278,7 +276,7 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create a Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);       // TODO: Return ArtifactWrapper when we convert Storyteller tests to Nova.
 
             // Get the process artifact
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
@@ -308,20 +306,19 @@ namespace ArtifactStoreTests
                 versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182554)]
         [Description("Create, publish & lock an artifact with subartifact. Verify user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifact_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifact_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
-            artifact.Lock();
+            artifact.Lock(_user);
 
             int subArtifactId = subArtifacts[0].Id;
 
@@ -339,20 +336,19 @@ namespace ArtifactStoreTests
                 versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182555)]
         [Description("Create, publish & lock an artifact with subartifact. Verify another user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifactAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifactAnotherUser_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
-            artifact.Lock();
+            artifact.Lock(_user);
 
             var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
@@ -379,7 +375,7 @@ namespace ArtifactStoreTests
         {
             // Setup
             // Create a Process artifact
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(project: _project, user: _user);   // TODO: Return ArtifactWrapper when we convert Storyteller tests to Nova.
 
             // Get the process artifact
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
@@ -406,14 +402,15 @@ namespace ArtifactStoreTests
                 versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(183445)]
         [Description("Create, publish & lock an artifact with subartifact. Lock artifact. Verify user gets basic artifact information with subartifact Id.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithSubArtifactId_PublishedSubArtifactLockedArtifactWithChanges_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Save();
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            artifact.Lock(_user);
+            artifact.SaveWithNewDescription(_user);
 
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
@@ -444,7 +441,6 @@ namespace ArtifactStoreTests
         {
             // Setup:
             var artifact = Helper.CreateAndPublishNovaArtifactWithMultipleVersions(_user, _project, artifactType, numberOfVersions);
-
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
             artifact.Delete(_user);
@@ -463,18 +459,18 @@ namespace ArtifactStoreTests
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(182563)]
         [Description("Create, publish & delete an artifact.  Verify user gets basic artifact information.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifactDeleted_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_PublishedArtifactDeleted_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-            artifact.Lock();
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
+            artifact.Lock(_user);
 
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            artifact.Delete();
+            artifact.Delete(_user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -489,14 +485,14 @@ namespace ArtifactStoreTests
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(182564)]
         [Description("Create & publish an artifact as user1.  Delete the artifact as user2.  Get basic information as user1.  " +
-            "Verify user gets basic artifact information.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifactDeletedByAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+                     "Verify user gets basic artifact information.")]
+        public void VersionControlInfoWithArtifactId_PublishedArtifactDeletedByAnotherUser_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
             artifact.Delete(anotherUser);
@@ -515,23 +511,24 @@ namespace ArtifactStoreTests
                 versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182565)]
         [Description("Create, publish & delete an artifact with sub-artifacts.  Verify user gets basic artifact information when sending a sub-artifact ID.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedArtifactDeleted_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+        public void VersionControlInfoWithSubArtifactId_PublishedArtifactDeleted_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact!");
             int subArtifactId = subArtifacts[0].Id;
 
-            artifact.Lock();
+            artifact.Lock(_user);
+
             var artifactDetails = Helper.ArtifactStore.GetArtifactDetails(_user, artifact.Id);
 
-            artifact.Delete();
+            artifact.Delete(_user);
 
             INovaVersionControlArtifactInfo basicArtifactInfo = null;
 
@@ -546,17 +543,17 @@ namespace ArtifactStoreTests
                 version: artifactDetails.Version, versionCount: artifactDetails.Version);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182593)]
         [Description("Create, publish an artifact as user1.  Delete the artifact as user2.  " +
-            "Verify user2 get basic artifact information when sending a sub-artifact ID.")]
-        public void VersionControlInfoWithSubArtifactId_PublishedArtifactDeletedByAnotherUser_ReturnsArtifactInfo_200OK(BaseArtifactType artifactType)
+                     "Verify user2 get basic artifact information when sending a sub-artifact ID.")]
+        public void VersionControlInfoWithSubArtifactId_PublishedArtifactDeletedByAnotherUser_ReturnsArtifactInfo_200OK(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
 
             var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
@@ -581,12 +578,12 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182601)]
         [Description("Create & publish process artifact.  Delete a sub-artifact & publish.  " +
-            "Verify user gets basic artifact information when sending the sub-artifact Id.")]
+                     "Verify user gets basic artifact information when sending the sub-artifact Id.")]
         public void VersionControlInfoWithSubArtifactId_PublishedArtifact_DeleteAndPublishSubArtifact_ReturnsArtifactInfo_200OK()
         {
             // Setup:
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);  // TODO: Derive Process from ArtifactWrapper...
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
 
             var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -614,12 +611,12 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182602)]
         [Description("Create & publish process artifact.  Delete a sub-artifact & save.  " +
-            "Verify user gets basic artifact information when sending the sub-artifact Id.")]
+                     "Verify user gets basic artifact information when sending the sub-artifact Id.")]
         public void VersionControlInfoWithSubArtifactId_PublishedArtifact_DeleteAndSaveSubArtifact_ReturnsArtifactInfo_200OK()
         {
             // Setup:
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);  // TODO: Derive Process from ArtifactWrapper...
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
 
             var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -647,12 +644,12 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182605)]
         [Description("Create & publish process artifact.  Delete a sub-artifact & save.  " +
-            "Verify another user gets basic artifact information when sending the sub-artifact Id.")]
+                     "Verify another user gets basic artifact information when sending the sub-artifact Id.")]
         public void VersionControlInfoWithSubArtifactId_PublishedArtifact_DeleteAndSaveSubArtifact_AnotherUserReturnsArtifactInfo_200OK()
         {
             // Setup:
             // Create & publish a Process artifact with 2 sequential User Tasks.
-            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);
+            var processArtifact = StorytellerTestHelper.CreateAndGetDefaultProcessWithTwoSequentialUserTasks(Helper.Storyteller, _project, _user);  // TODO: Derive Process from ArtifactWrapper...
             StorytellerTestHelper.UpdateVerifyAndPublishProcess(processArtifact, Helper.Storyteller, _user);
 
             var userTasks = processArtifact.GetProcessShapesByShapeType(ProcessShapeType.UserTask);
@@ -687,16 +684,16 @@ namespace ArtifactStoreTests
 
         #region 401 Unauthorized
 
-        [TestCase(BaseArtifactType.Actor)]
+        [TestCase(ItemTypePredefined.Actor)]
         [TestRail(182607)]
         [Description("Create & publish an artifact.  Send no token header in the request.  Verify 401 Unauthorized is returned.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoTokenHeader_401Unauthorized(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_NoTokenHeader_401Unauthorized(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
 
             // Execute:
-            var ex = Assert.Throws <Http401UnauthorizedException>(() => Helper.ArtifactStore.GetVersionControlInfo(user: null, itemId: artifact.Id),
+            var ex = Assert.Throws<Http401UnauthorizedException>(() => Helper.ArtifactStore.GetVersionControlInfo(user: null, itemId: artifact.Id),
                 "'GET {0}' should return 401 Unauthorized when no token header is passed!", SVC_PATH);
 
             // Verify:
@@ -707,13 +704,13 @@ namespace ArtifactStoreTests
         }
 
         [TestRail(182858)]
-        [TestCase(BaseArtifactType.Actor, "")]
-        [TestCase(BaseArtifactType.Actor, CommonConstants.InvalidToken)]
+        [TestCase(ItemTypePredefined.Actor, "")]
+        [TestCase(ItemTypePredefined.Actor, CommonConstants.InvalidToken)]
         [Description("Create & publish an artifact.  Send invalid token in the request.  Verify 401 Unauthorized is returned.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_InvalidTokenHeader_401Unauthorized(BaseArtifactType artifactType, string invalidToken)
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_InvalidTokenHeader_401Unauthorized(ItemTypePredefined artifactType, string invalidToken)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
             var unauthorizedUser = UserFactory.CreateUserAndAddToDatabase();
             unauthorizedUser.SetToken(invalidToken);
 
@@ -730,13 +727,13 @@ namespace ArtifactStoreTests
 
         #region 403 Forbidden
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182859)]
         [Description("Create & publish an artifact.  User without permissions to project tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToProject_403Forbidden(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToProject_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
 
             var userWithoutPermissions = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.AccessControlToken,
                 InstanceAdminRole.BlueprintAnalytics);
@@ -750,13 +747,13 @@ namespace ArtifactStoreTests
                 "Expected '{0}' error when user without permissions tries to get basic artifact information.", expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(183363)]
         [Description("Create & publish an artifact. User without permissions to artifact tries to access basic artifact information.  Verify returned code 403 Forbidden.")]
-        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_PublishedArtifact_UserWithoutPermissionsToArtifact_403Forbidden(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, artifactType);
 
             // Create a user that has access to the project but not the artifact.
             var userWithoutPermissions = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
@@ -790,13 +787,13 @@ namespace ArtifactStoreTests
                 "Expected '{0}' error when user tries to get basic information of artifact that does not exist.", expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(182861)]
         [Description("User tries to get basic information of artifact that was saved but not published by another user.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithArtifactId_SavedArtifactFromAnotherUser_404NotFound(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_SavedArtifactFromAnotherUser_404NotFound(ItemTypePredefined artifactType)
         {
             // Setup:
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
 
             var anotherUser = Helper.CreateUserAndAuthenticate(TestHelper.AuthenticationTokenTypes.BothAccessControlAndOpenApiTokens);
 
@@ -815,12 +812,12 @@ namespace ArtifactStoreTests
         [TestCase]
         [TestRail(182862)]
         [Description("Another user tries to get basic information of sub-artifact that was saved but not published in published artifact.  " +
-            "Verify returned code 404 Not Found.")]
+                     "Verify returned code 404 Not Found.")]
         public void VersionControlInfoWithSubArtifactId_PublishedArtifactWithSavedSubArtifact_AnotherUser_404NotFound()
         {
             // Setup:
             // Create a Process artifact.
-            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);
+            var processArtifact = Helper.Storyteller.CreateAndPublishProcessArtifact(_project, _user);  // TODO: Return ArtifactWrapper when we convert Storyteller tests to Nova.
             var process = Helper.Storyteller.GetProcess(_user, processArtifact.Id);
 
             // Add UserTask.
@@ -853,8 +850,9 @@ namespace ArtifactStoreTests
         {
             // Setup:
             // Create a Process artifact
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.Process);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
+
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact!");
 
             int subArtifactId = subArtifacts[0].Id;
@@ -873,14 +871,14 @@ namespace ArtifactStoreTests
                 expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(ItemTypePredefined.Glossary)]
         [TestRail(183377)]
         [Description("User tries to get basic information of an artifact that was deleted.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithArtifactId_SavedArtifactDeleted_404NotFound(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_SavedArtifactDeleted_404NotFound(ItemTypePredefined artifactType)
         {
             // Setup:
             // Create a Process artifact
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
 
             artifact.Delete(_user);
 
@@ -896,14 +894,14 @@ namespace ArtifactStoreTests
                 expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.Glossary)]
+        [TestCase(ItemTypePredefined.Glossary)]
         [TestRail(183378)]
         [Description("Another user tries to get basic information of an artifact that was deleted.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithArtifactId_SavedArtifactDeletedForAnotherUser_404NotFound(BaseArtifactType artifactType)
+        public void VersionControlInfoWithArtifactId_SavedArtifactDeletedForAnotherUser_404NotFound(ItemTypePredefined artifactType)
         {
             // Setup:
             // Create a Process artifact
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
+            var artifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
 
             artifact.Delete(_user);
 
@@ -921,16 +919,15 @@ namespace ArtifactStoreTests
                 expectedExceptionMessage);
         }
 
-        [TestCase(BaseArtifactType.UseCase)]
-        [TestCase(BaseArtifactType.Process)]
+        [TestCase(ItemTypePredefined.UseCase)]
+        [TestCase(ItemTypePredefined.Process)]
         [TestRail(183402)]
         [Description("User tries to get basic information with sub-artifact id of an artifact that was deleted.  Verify returned code 404 Not Found.")]
-        public void VersionControlInfoWithSubArtifactId_SavedArtifactWithSubArtifact_ArtifactDeleted_404NotFound(BaseArtifactType artifactType)
+        public void VersionControlInfoWithSubArtifactId_SavedArtifactWithSubArtifact_ArtifactDeleted_404NotFound(ItemTypePredefined artifactType)
         {
             // Setup:
             // Create a Process artifact
-            var artifact = Helper.CreateAndSaveArtifact(_project, _user, artifactType);
-
+            var artifact = Helper.CreateNovaArtifact(_user, _project, artifactType);
             var subArtifacts = Helper.ArtifactStore.GetSubartifacts(_user, artifact.Id);
 
             Assert.IsTrue(subArtifacts.Count > 0, "There is no sub-artifact in this artifact");
@@ -963,12 +960,15 @@ namespace ArtifactStoreTests
         /// <param name="traceDirection">Direction of trace.</param>
         /// <param name="user">The user that will create the artifacts and traces.</param>
         /// <returns>Artifact with the trace.</returns>
-        private IArtifact CreatePublishedArtifactWithTrace(BaseArtifactType artifactType, TraceDirection traceDirection, IUser user)
+        private ArtifactWrapper CreatePublishedArtifactWithTrace(ItemTypePredefined artifactType, TraceDirection traceDirection, IUser user)
         {
-            var sourceArtifact = Helper.CreateAndPublishArtifact(_project, user, artifactType);
-            var targetArtifact = Helper.CreateAndPublishArtifact(_project, user, BaseArtifactType.UseCase);
+            var sourceArtifact = Helper.CreateNovaArtifact(user, _project, artifactType);
+            var targetArtifact = Helper.CreateAndPublishNovaArtifact(user, _project, ItemTypePredefined.UseCase);
 
-            OpenApiArtifact.AddTrace(Helper.BlueprintServer.Address, sourceArtifact, targetArtifact, traceDirection, user);
+            ArtifactStoreHelper.UpdateManualArtifactTraceAndSave(user, sourceArtifact.Id, targetArtifact.Id, targetArtifact.ProjectId.Value,
+                traceDirection: traceDirection, changeType: ChangeType.Create, artifactStore: Helper.ArtifactStore);
+
+            sourceArtifact.Publish(user);
 
             return sourceArtifact;
         }
@@ -983,7 +983,7 @@ namespace ArtifactStoreTests
         /// <param name="subArtifactId">(optional) Id of requested subartifact</param>
         /// <param name="version">(optional) The expected Version to be returned.</param>
         /// <param name="versionCount">(optional) The expected VersionCount to be returned.</param>
-        private static void VerifyBasicInformationResponse(IArtifactBase artifact,
+        private static void VerifyBasicInformationResponse(ArtifactWrapper artifact,
             INovaVersionControlArtifactInfo basicArtifactInfo,
             bool hasChanges,
             bool isDeleted,
@@ -995,9 +995,9 @@ namespace ArtifactStoreTests
 
             VerifyBasicInformationResponse(basicArtifactInfo, hasChanges, isDeleted, subArtifactId, version, versionCount);
 
-            if (artifact.LockOwner != null)
+            if (artifact.ArtifactState.LockOwner != null)
             {
-                Assert.AreEqual(artifact.LockOwner.Id, basicArtifactInfo.LockedByUser.Id, "LockedByUser value doesn't have the expected value!");
+                Assert.AreEqual(artifact.ArtifactState.LockOwner.Id, basicArtifactInfo.LockedByUser.Id, "LockedByUser value doesn't have the expected value!");
                 Assert.IsNotNull(basicArtifactInfo.LockedDateTime, "LockedDateTime should have value");
             }
         }

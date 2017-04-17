@@ -21,6 +21,16 @@ namespace Model.Impl
             Address = address;
         }
 
+        /// <summary>
+        /// Creates GET call returns Gets impact analysys information
+        /// {base_blueprint_url}/ImpactAnalysis/api/{sourceId}/{level}/{format}
+        /// </summary>
+        /// <param name="user">User to authenticate with.</param>
+        /// <param name="sourceId"></param>
+        /// <param name="level"></param>
+        /// <param name="format"></param>
+        /// <param name="expectedStatusCodes"></param>
+        /// <returns></returns>
         public ImpactAnalysisResult GetImpactAnalysis(IUser user, int sourceId, int level, string format = "", List<HttpStatusCode> expectedStatusCodes = null)
         {
             ThrowIf.ArgumentNull(format, nameof(format));

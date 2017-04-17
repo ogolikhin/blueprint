@@ -278,7 +278,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a new artifact collection (unpublished).
+        /// Creates a new artifact collection.
         /// </summary>
         /// <param name="project">The project where the collection should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -288,7 +288,7 @@ namespace Helper
         ///     By default the order index should be after the last collection/folder.</param>
         /// <param name="name">(optional) The name of the new Collection.</param>
         /// <returns>The new Collection.</returns>
-        public ArtifactWrapper CreateAndSaveCollection(
+        public ArtifactWrapper CreateUnpublishedCollection(
             IProject project,
             IUser user,
             int? parentId = null,
@@ -308,7 +308,7 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates a new artifact Collection Folder (unpublished).
+        /// Creates a new artifact Collection Folder.
         /// </summary>
         /// <param name="project">The project where the collection folder should be created.</param>
         /// <param name="user">The user to authenticate with.</param>
@@ -318,7 +318,7 @@ namespace Helper
         ///     By default the order index should be after the last collection/folder.</param>
         /// <param name="name">(optional) The name of the new Collection Folder.</param>
         /// <returns>The new Collection Folder.</returns>
-        public ArtifactWrapper CreateAndSaveCollectionFolder(
+        public ArtifactWrapper CreateUnpublishedCollectionFolder(
             IProject project,
             IUser user,
             int? parentId = null,
@@ -745,13 +745,11 @@ namespace Helper
             int numberOfArtifacts,
             int? parentId = null)
         {
-            var artifactList = new List<ArtifactWrapper>();
+            var artifactList = CreateAndSaveMultipleArtifacts(project, user, artifactType, numberOfArtifacts, parentId);
 
-            for (int i = 0; i < numberOfArtifacts; ++i)
-            {
-                var artifact = CreateAndPublishNovaArtifact(user, project, artifactType, parentId);
-                artifactList.Add(artifact);
-            }
+            // TODO: Make one Publish call with multiple artifact Ids and update each artifact in the list with the results...
+            //       That would require you to extract some of the Publish logic from ArtifactWrapper into another function like UpdateArtifactAndMarkAsPublished().
+            artifactList.ForEach(a => a.Publish(user));
 
             return artifactList;
         }
@@ -1095,21 +1093,21 @@ namespace Helper
         }
 
         /// <summary>
-        /// Creates collection in the specified state with artifacts
+        /// Creates a new collection with artifacts in the specified state.
         /// </summary>
-        /// <param name="user">User to perform operation</param>
-        /// <param name="project">Project in which artifact will be created</param>
-        /// <param name="collectionState">State of the collection(Created, Published)</param>
-        /// <param name="artifactsIdsToAdd">List of artifact's id to be added</param>
-        /// <returns>Collection in the required state</returns>
-        public Collection CreateCollectionWithArtifactsInSpecificState(
+        /// <param name="user">User to perform operation.</param>
+        /// <param name="project">Project in which artifact will be created.</param>
+        /// <param name="collectionState">State of the collection(Created, Published).</param>
+        /// <param name="artifactsIdsToAdd">List of artifact's id to be added.</param>
+        /// <returns>Collection in the required state.</returns>
+        public Collection CreateUnpublishedCollectionWithArtifactsInSpecificState(
             IUser user,
             IProject project,
             TestArtifactState collectionState,
             List<int> artifactsIdsToAdd)
             // TODO: Refactor Collection to derive from ArtifactWrapper...
         {
-            var collectionArtifact = CreateAndSaveCollection(project, user);
+            var collectionArtifact = CreateUnpublishedCollection(project, user);
             var collection = ArtifactStore.GetCollection(user, collectionArtifact.Id);
 
             collection.UpdateArtifacts(artifactsIdsToAdd: artifactsIdsToAdd);

@@ -45,7 +45,7 @@ namespace ArtifactStoreTests
         public void GetCollection_CreateEmptyCollection_ValidateReturnedCollection()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
 
             // Execute: 
             Collection collection = null;
@@ -65,7 +65,7 @@ namespace ArtifactStoreTests
         public void CreateEmptyCollection_AddArtifactToCollectionAndSave_ValidateCollectionContent()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor);
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
 
@@ -90,7 +90,7 @@ namespace ArtifactStoreTests
         public void UpdateCollection_AddTwoArtifactsToCollectionAndSave_RemoveOneArtifactFromCollectionAndSave_CheckContent()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var artifactToAdd = Helper.CreateNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor);
             var artifactToRemove = Helper.CreateNovaArtifact(_authorUser, _project, ItemTypePredefined.Process);
             var collection = Helper.ArtifactStore.GetCollection(_authorUser, collectionArtifact.Id);
@@ -120,7 +120,7 @@ namespace ArtifactStoreTests
         public void UpdateCollection_AddPublishedArtifactsToCollection_Publish_ValidateCollectionContent(int artifactsNumber)
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var artifactsToAdd = new List<ArtifactWrapper>();
 
             for (int i = 0; i < artifactsNumber; i++)
@@ -152,7 +152,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_PublishedArtifact_ValidateCollectionContent(ItemTypePredefined artifactTypeToAdd)
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, artifactTypeToAdd);
 
             AddToCollectionResult addToCollectionResult = null;
@@ -179,7 +179,7 @@ namespace ArtifactStoreTests
             int expectedNumberOfAddedArtifacts)
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var parentArtifact = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor);
             var childArtifact = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor, parentArtifact.Id);
 
@@ -212,7 +212,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_SavedArtifact_ValidateCollectionContent()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var artifact = Helper.CreateNovaArtifact(_authorUser, _project, ItemTypePredefined.Process);
 
             AddToCollectionResult addToCollectionResult = null;
@@ -237,7 +237,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_SavedArtifact_CheckDescriptionFromCollectionContent()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var artifact = Helper.CreateNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor);
 
             artifact.SaveWithNewDescription(_authorUser);
@@ -266,7 +266,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_ArtifactAlreadyInCollection_ValidateResponse()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var artifactToAdd = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor);
             var addToCollectionResult = Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifactToAdd.Id, collectionArtifact.Id);
 
@@ -289,7 +289,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToCollection_PublishedArtifactWithChild_ChildAlreadyInCollection_ValidateContentAndResponse()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var parentArtifact = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor);
             var childArtifact = Helper.CreateAndPublishNovaArtifact(_authorUser, _project, ItemTypePredefined.Actor, parentArtifact.Id);
 

@@ -537,7 +537,7 @@ namespace SearchServiceTests
 
             var baseline = Helper.CreateBaseline(_adminUser, _firstProject, name: artifactName);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { baseline.Id }, _adminUser);
-            var collection = Helper.CreateAndSaveCollection(_firstProject, _adminUser, name: artifactName);
+            var collection = Helper.CreateUnpublishedCollection(_firstProject, _adminUser, name: artifactName);
             Helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, _adminUser);
             var artifact = Helper.CreateAndPublishArtifact(_firstProject, _adminUser, BaseArtifactType.DomainDiagram,
                 name: artifactName);

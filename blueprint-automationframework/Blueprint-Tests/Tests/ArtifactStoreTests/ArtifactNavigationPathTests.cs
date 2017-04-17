@@ -174,8 +174,8 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, _project);
 
-            var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author);
-            var collection = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
+            var collectionFolder = Helper.CreateUnpublishedCollectionFolder(_project, author);
+            var collection = Helper.CreateUnpublishedCollection(_project, author, collectionFolder.Id);
 
             List<INovaVersionControlArtifactInfo> basicArtifactInfoList = null;
 

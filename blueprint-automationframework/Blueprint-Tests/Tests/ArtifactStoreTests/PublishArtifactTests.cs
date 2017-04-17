@@ -63,7 +63,7 @@ namespace ArtifactStoreTests
             bool shouldPublishIncludingArtifacts)
         {
             // Setup: Create a collection and add published artifacts
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
 
             var savedOrPublishedArtifacts = Helper.CreateAndSaveMultipleArtifacts(_project, _authorUser, includingArtifactType, numberOfArtifacts);
 
@@ -99,7 +99,7 @@ namespace ArtifactStoreTests
             // Setup: Create a collection which contains inaccessible published artifact to the user
             var authorWithoutPermission = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, authorWithoutPermission);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, authorWithoutPermission);
             var publishedArtifact = Helper.CreateAndPublishNovaArtifact(authorWithoutPermission, _project, ItemTypePredefined.Actor);
 
             Helper.ArtifactStore.AddArtifactToCollection(authorWithoutPermission, publishedArtifact.Id, collectionArtifact.Id);
@@ -135,7 +135,7 @@ namespace ArtifactStoreTests
         public void PublishArtifact_PublishCollectionContainingDeletedArtifacts_VerifyCollection(int numberOfArtifacts)
         {
             // Setup: Create a collection and add artifacts in it
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _authorUser);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _authorUser);
             var publishedArtifacts = Helper.CreateAndPublishMultipleArtifacts(_project, _authorUser, ItemTypePredefined.Actor, numberOfArtifacts);
             
             publishedArtifacts.ForEach(artifact => Helper.ArtifactStore.AddArtifactToCollection(_authorUser, artifact.Id, collectionArtifact.Id));
@@ -681,8 +681,8 @@ namespace ArtifactStoreTests
             // Setup:
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.AuthorFullAccess, _project);
 
-            var collectionFolder = Helper.CreateAndSaveCollectionFolder(_project, author);
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, author, collectionFolder.Id);
+            var collectionFolder = Helper.CreateUnpublishedCollectionFolder(_project, author);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, author, collectionFolder.Id);
 
             INovaArtifactsAndProjectsResponse publishResponse = null;
 

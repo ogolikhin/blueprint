@@ -129,58 +129,26 @@ namespace AdminStore.Repositories
 
         public  Task<int> AddUserAsync(User loginUser)
         {
-            var prm = new DynamicParameters();
-            prm.Add("@Login", loginUser.Login);
-            prm.Add("@Source", (int)loginUser.Source);
-            prm.Add("@InstanceAdminRoleId", loginUser.InstanceAdminRoleId);
-            prm.Add("@AllowFallback", loginUser.AllowFallback);
-            prm.Add("@Enabled", loginUser.Enabled);
-            prm.Add("@ExpirePassword", loginUser.ExpirePassword);
-            prm.Add("@DisplayName", loginUser.DisplayName);
-            prm.Add("@FirstName", loginUser.FirstName);
-            prm.Add("@LastName", loginUser.LastName);
-            prm.Add("@ImageId", loginUser.ImageId);
-            prm.Add("@Password", loginUser.NewPassword);
-            prm.Add("@UserSALT", loginUser.UserSALT);
-            prm.Add("@Email", loginUser.Email);
-            prm.Add("@Title", loginUser.Title);
-            prm.Add("@Department", loginUser.Department);
+            var parameters = new DynamicParameters();
+            parameters.Add("@Login", loginUser.Login);
+            parameters.Add("@Source", (int)loginUser.Source);
+            parameters.Add("@InstanceAdminRoleId", loginUser.InstanceAdminRoleId);
+            parameters.Add("@AllowFallback", loginUser.AllowFallback);
+            parameters.Add("@Enabled", loginUser.Enabled);
+            parameters.Add("@ExpirePassword", loginUser.ExpirePassword);
+            parameters.Add("@DisplayName", loginUser.DisplayName);
+            parameters.Add("@FirstName", loginUser.FirstName);
+            parameters.Add("@LastName", loginUser.LastName);
+            parameters.Add("@ImageId", loginUser.ImageId);
+            parameters.Add("@Password", loginUser.NewPassword);
+            parameters.Add("@UserSALT", loginUser.UserSALT);
+            parameters.Add("@Email", loginUser.Email);
+            parameters.Add("@Title", loginUser.Title);
+            parameters.Add("@Department", loginUser.Department);
             if(loginUser.GroupMembership != null)
-                prm.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
-            prm.Add("@Guest", loginUser.Guest);
-            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", prm, commandType: CommandType.StoredProcedure);
-        }
-
-        public async Task<bool> HasPermissionsAsync(int userId, InstanceAdminPrivileges[] instanceAdminPrivilegeses)
-        {
-            if (instanceAdminPrivilegeses == null || (instanceAdminPrivilegeses.Length == 0))
-            {
-                return false;
-            }
-
-            int[] privileges = Array.ConvertAll<InstanceAdminPrivileges, int>(instanceAdminPrivilegeses,
-                value => (int) value);
-
-            var prm = new DynamicParameters();
-            prm.Add("@UserId", userId);
-            prm.Add("@Permissions", SqlConnectionWrapper.ToDataTable(privileges, "Int32Collection", "Int32Value"));
-            var arrayPermissions = (await _connectionWrapper.QueryAsync<PermissionsItem>("CheckPermissionsForUser", prm, commandType: CommandType.StoredProcedure)).ToList();
-
-            if (((!arrayPermissions.Any()) || (arrayPermissions.Count != instanceAdminPrivilegeses.Length)))
-            {
-                return false;
-            }
-
-            for (var i = 0; i < arrayPermissions.Count; i++)
-            {
-                if (arrayPermissions[i].PermissionValue != privileges[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
-
+                parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
+            parameters.Add("@Guest", loginUser.Guest);
+            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", parameters, commandType: CommandType.StoredProcedure);
         }
 
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)

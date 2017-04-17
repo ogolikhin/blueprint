@@ -15,7 +15,9 @@ using ServiceLibrary.Models;
 using ServiceLibrary.Repositories.ConfigControl;
 using ServiceLibrary.Exceptions;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Net.Http.Formatting;
+using System.Runtime.Serialization;
 
 namespace AdminStore.Controllers
 {
@@ -30,6 +32,14 @@ namespace AdminStore.Controllers
         private Mock<IApplicationSettingsRepository> _applicationSettingsRepository;
         private UsersController _controller;
         private Mock<IHttpClientProvider> _httpClientProviderMock ;
+        private Mock<ISqlPrivilegesRepository> _sqlPrivilegesRepositoryMock;
+        private User _user;
+
+        private const int FullPernissions = 524287;
+        private const int NoManageUsersPernissions = 13312;
+        private const int NoAssignAdminRolesPermissions = 15360;    
+        private const int CreatedUserId = 100;
+        private const string ExistedUserLogin = "ExistedUser";
 
         [TestInitialize]
         public void Initialize()
@@ -42,14 +52,41 @@ namespace AdminStore.Controllers
             _emailHelperMock = new Mock<IEmailHelper>();
             _httpClientProviderMock = new Mock<IHttpClientProvider>();
             _applicationSettingsRepository = new Mock<IApplicationSettingsRepository>();
+            _sqlPrivilegesRepositoryMock = new Mock<ISqlPrivilegesRepository>();
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object, 
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, _httpClientProviderMock.Object, _sqlPrivilegesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
             };
             _controller.Request.Properties[ServiceConstants.SessionProperty] = session;
             _controller.Request.RequestUri = new Uri("http://localhost");
+            _user = new User()
+            {
+                Login = "UserLogin",
+                FirstName = "FirstNameValue",
+                LastName = "LastNameValue",
+                DisplayName = "DisplayNameValue",
+                Email = "email@test.com",
+                Source = UserGroupSource.Database,
+                AllowFallback = false,
+                Enabled = true,
+                ExpirePassword = true,
+                NewPassword = "dGVzdA==",
+                UserSALT = Guid.NewGuid(),
+                Title = "TitleValue",
+                Department = "Departmentvalue",
+                GroupMembership = new int[] { 1 },
+                Guest = false
+            };
+            _usersRepoMock
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
+                .ReturnsAsync(CreatedUserId);
+
+            var sqlException = new SqlExceptionBuilder().ThrowWithErrorNumber(50001).Build();
+            _usersRepoMock
+                .Setup(repo => repo.AddUserAsync(It.Is<User>(u=> u.Login == ExistedUserLogin)))
+                .ThrowsAsync(sqlException);
         }
 
         #region Constuctor
@@ -68,8 +105,6 @@ namespace AdminStore.Controllers
         }
 
         #endregion
-
-       
 
         #region GetUserIcon
 
@@ -569,7 +604,7 @@ namespace AdminStore.Controllers
                 .ReturnsAsync(24);
 
             _controller = new UsersController(_authRepoMock.Object, _usersRepoMock.Object, _settingsRepoMock.Object,
-                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider)
+                _emailHelperMock.Object, _applicationSettingsRepository.Object, _logMock.Object, httpClientProvider, _sqlPrivilegesRepositoryMock.Object)
             {
                 Request = new HttpRequestMessage(),
                 Configuration = new HttpConfiguration()
@@ -784,605 +819,276 @@ namespace AdminStore.Controllers
 
         #region Post user
         [TestMethod]
-        public async Task PostUser_Sucess()
+        public async Task PostUser_SuccessfulCreationOfUser_ReturnCreatedUserIdResult()
         {
-            var user = new User()
-            {
-                Login = "UserLogin",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _sqlPrivilegesRepositoryMock
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            var result = await _controller.PostUser(_user);
 
-            _usersRepoMock
-                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
-
+            // Assert
             Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-            Assert.AreEqual(userId, await result.Content.ReadAsAsync<int>());
+            Assert.AreEqual(CreatedUserId, await result.Content.ReadAsAsync<int>());
         }
 
         [TestMethod]
         [ExpectedException(typeof(AuthorizationException))]
-        public async Task PostUser_ReturnForbiddenErrorResult()
+        public async Task PostUser_NoManageUsersPermissions_ReturnForbiddenErrorResult()
         {
-            var user = new User()
-            {
-                Login = "UserLogin",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _sqlPrivilegesRepositoryMock
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(NoManageUsersPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(false);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(AuthorizationException))]
+        public async Task PostUser_NoAssignAdminRolesPermissions_ReturnForbiddenErrorResult()
+        {
+            // Arrange
+            _user.InstanceAdminRoleId = 1;
+            _sqlPrivilegesRepositoryMock
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(NoAssignAdminRolesPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_UserLoginEmpty_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = string.Empty,
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.Login = string.Empty;
+            _sqlPrivilegesRepositoryMock
+                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+                .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_UserLoginOutOfRangeLengthString_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "123",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.Login = "123";
+            _sqlPrivilegesRepositoryMock
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-                .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-                .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_UserLoginAlreadyExist_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.Login = ExistedUserLogin;
+            _sqlPrivilegesRepositoryMock
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(new AuthenticationUser());
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_DisplayNameEmpty_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = string.Empty,
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.DisplayName = string.Empty;
+            _sqlPrivilegesRepositoryMock
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_DisplayNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "1",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.DisplayName = "1";
+            _sqlPrivilegesRepositoryMock
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_FirstNameEmpty_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = string.Empty,
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.FirstName = string.Empty;
+            _sqlPrivilegesRepositoryMock
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_FirstNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "1",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.FirstName = "1";
+            _sqlPrivilegesRepositoryMock
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_LastNameEmpty_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = string.Empty,
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.LastName = string.Empty;
+            _sqlPrivilegesRepositoryMock
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
-
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_LastNameOutOfRangeStringLength_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "1",
-                DisplayName = "DisplayNameValue",
-                Email = "email@test.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.LastName = "1";
+            _sqlPrivilegesRepositoryMock
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_EmailOutOfRangeStringLength_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "1@1",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.Email = "1@1";
+            _sqlPrivilegesRepositoryMock
+             .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+             .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_TitleOutOfRangeStringLength_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "test@mail.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "1",
-                Department = "Departmentvalue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.Title = "1";
+            _sqlPrivilegesRepositoryMock
+             .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+             .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_DepartmentOutOfRangeStringLength_ReturnBadRequestResult()
         {
-
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "test@mail.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = "dGVzdA==",
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = string.Empty,
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
-
+            // Arrange
             for (var i = 0; i < 258; i++)
             {
-                user.Department += i;
+                _user.Department += i;
             }
+            _sqlPrivilegesRepositoryMock
+              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+              .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
 
         [TestMethod]
         [ExpectedException(typeof(BadRequestException))]
         public async Task PostUser_PasswordEmpty_ReturnBadRequestResult()
         {
-            var user = new User()
-            {
-                Login = "LoginUser",
-                FirstName = "FirstNameValue",
-                LastName = "LastNameValue",
-                DisplayName = "DisplayNameValue",
-                Email = "test@mail.com",
-                Source = UserGroupSource.Database,
-                AllowFallback = false,
-                Enabled = true,
-                ExpirePassword = true,
-                NewPassword = string.Empty,
-                UserSALT = Guid.NewGuid(),
-                Title = "TitleValue",
-                Department = "DepartmentValue",
-                GroupMembership = new int[] { 1 },
-                Guest = false
-            };
+            // Arrange
+            _user.NewPassword = string.Empty;
+            _sqlPrivilegesRepositoryMock
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPernissions);
 
-            _usersRepoMock
-                .Setup(repo => repo.HasPermissionsAsync(It.IsAny<int>(), It.IsAny<InstanceAdminPrivileges[]>()))
-                .ReturnsAsync(true);
+            // Act
+            await _controller.PostUser(_user);
 
-            _usersRepoMock
-               .Setup(repo => repo.GetUserByLoginAsync(It.IsAny<string>()))
-               .ReturnsAsync(null);
-
-            var userId = 100;
-            _usersRepoMock
-                .Setup(repo => repo.AddUserAsync(It.IsAny<User>()))
-                .ReturnsAsync(userId);
-
-            var result = await _controller.PostUser(user);
+            // Assert
+            // Exception
         }
 
         #endregion

@@ -315,12 +315,12 @@ namespace AdminStore.Repositories
 
         #endregion ValidateUserPasswordForHistoryAsync
 
-
         #region AddUserAsync
 
         [TestMethod]
-        public async Task AddUserSucess()
+        public async Task AddUserAsync_SuccessfulCreationOfUser_ReturnCreatedUserId()
         {
+            // Arrange
             var user = new User()
             {
                 Login = "LoginUser",
@@ -339,66 +339,19 @@ namespace AdminStore.Repositories
                 GroupMembership = new int[] { 1 },
                 Guest = false
             };
-
             var cxn = new SqlConnectionWrapperMock();
             var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-
             var userId = 100;
-            cxn.SetupExecuteScalarAsync<int>( "AddUser", It.IsAny<Dictionary<string, object>>(), userId);
+            cxn.SetupExecuteScalarAsync<int>("AddUser", It.IsAny<Dictionary<string, object>>(), userId);
 
+            // Act
             var result = await repository.AddUserAsync(user);
 
+            // Assert
             cxn.Verify();
             Assert.AreEqual(result, userId);
         }
 
         #endregion AddUserAsync
-
-
-
-        #region HasPermissionsAsync
-
-        [TestMethod]
-        public async Task HasPermissions_True()
-        {
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-
-            var instanceAdminPrivilegesInput = new InstanceAdminPrivileges[2]
-            {InstanceAdminPrivileges.ManageUsers, InstanceAdminPrivileges.AssignAdminRoles};
-
-            var instanceAdminPrivilegesOutPut = new List<PermissionsItem>() {new PermissionsItem {PermissionValue = 3072}, new PermissionsItem { PermissionValue = 31744 } };
-
-            var userId = 100;
-            cxn.SetupQueryAsync<PermissionsItem>("CheckPermissionsForUser", It.IsAny<Dictionary<string, object>>(), instanceAdminPrivilegesOutPut);
-
-            var result = await repository.HasPermissionsAsync(userId, instanceAdminPrivilegesInput);
-
-            cxn.Verify();
-            Assert.IsTrue(result);
-        }
-
-
-        [TestMethod]
-        public async Task HasPermissions_False()
-        {
-            var cxn = new SqlConnectionWrapperMock();
-            var repository = new SqlUserRepository(cxn.Object, cxn.Object);
-
-            var instanceAdminPrivilegesInput = new InstanceAdminPrivileges[2]
-            {InstanceAdminPrivileges.ManageUsers, InstanceAdminPrivileges.AssignAdminRoles};
-
-            var instanceAdminPrivilegesOutPut = new List<PermissionsItem>() { new PermissionsItem { PermissionValue = 3072 }, new PermissionsItem { PermissionValue = 31745 } };
-
-            var userId = 100;
-            cxn.SetupQueryAsync<PermissionsItem>("CheckPermissionsForUser", It.IsAny<Dictionary<string, object>>(), instanceAdminPrivilegesOutPut);
-
-            var result = await repository.HasPermissionsAsync(userId, instanceAdminPrivilegesInput);
-
-            cxn.Verify();
-            Assert.IsFalse(result);
-        }
-
-        #endregion HasPermissionsAsync
     }
 }

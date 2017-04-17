@@ -33,7 +33,5 @@ namespace AdminStore.Repositories
         Task<IEnumerable<PasswordRecoveryToken>> GetPasswordRecoveryTokensAsync(Guid token);
 
         Task<int> AddUserAsync(User loginUser);
-
-        Task<bool> HasPermissionsAsync(int userId, InstanceAdminPrivileges[] instanceAdminPrivilegeses);
     }
 }

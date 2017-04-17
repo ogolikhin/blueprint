@@ -115,16 +115,8 @@ namespace Model
                 {
                     public const string GROUPS                      = "svc/adminstore/groups";
                     public const string GROUPS_id_                  = "svc/adminstore/groups/{0}";
-
-                    public static class InstanceRoles
-                    {
-                        public const string INSTANCE_ROLES          = "svc/adminstore/groups/instanceroles";
-                    }
-
-                    public static class Search
-                    {
-                        public const string SEARCH                  = "svc/adminstore/groups/search";
-                    }  
+                    public const string INSTANCE_ROLES              = "svc/adminstore/groups/instanceroles";
+                    public const string SEARCH                      = "svc/adminstore/groups/search"; 
                 }
 
                 public static class Groups_id_
@@ -186,6 +178,7 @@ namespace Model
                 {
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
+                    public const string SEARCH                      = "svc/adminstore/users/search";
                     public const string USERS                       = "svc/adminstore/users";
                     public const string USERS_id_                   = "svc/adminstore/users/{0}";
 
@@ -194,11 +187,6 @@ namespace Model
                     {
                         public const string REQUEST                 = "svc/adminstore/users/passwordrecovery/request";
                         public const string RESET                   = "svc/adminstore/users/passwordrecovery/reset";
-                    }
-
-                    public static class Search
-                    {
-                        public const string SEARCH                  = "svc/adminstore/users/search";
                     }
                 }
 

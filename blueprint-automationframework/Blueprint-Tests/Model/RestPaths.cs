@@ -111,6 +111,20 @@ namespace Model
                     public const string CONFIG_JS                   = "svc/adminstore/config/config.js";
                 }
 
+                public static class Groups
+                {
+                    public const string GROUPS                      = "svc/adminstore/groups";
+                    public const string GROUPS_id_                  = "svc/adminstore/groups/{0}";
+                    public const string INSTANCE_ROLES              = "svc/adminstore/groups/instanceroles";
+                    public const string SEARCH                      = "svc/adminstore/groups/search"; 
+                }
+
+                public static class Groups_id_
+                {
+                    public const string USERS                       = "svc/adminstore/groups/{0}/users";
+                    public const string CHILDREN                    = "svc/adminstore/groups/{0}/children";
+                }
+
                 [SuppressMessage("Microsoft.Naming", "CA1708:IdentifiersShouldDifferByMoreThanCase")]   // Ignore this warning.
                 public static class Instance
                 {
@@ -164,6 +178,10 @@ namespace Model
                 {
                     public const string LOGINUSER                   = "svc/adminstore/users/loginuser";
                     public const string RESET                       = "svc/adminstore/users/reset";
+                    public const string SEARCH                      = "svc/adminstore/users/search";
+                    public const string USERS                       = "svc/adminstore/users";
+                    public const string USERS_id_                   = "svc/adminstore/users/{0}";
+
 
                     public static class PasswordRecovery
                     {
@@ -174,6 +192,7 @@ namespace Model
 
                 public static class Users_id_
                 {
+                    public const string GROUPS                      = "svc/adminstore/users/{0}/groups";
                     public const string ICON                        = "svc/adminstore/users/{0}/icon";
                 }
             }

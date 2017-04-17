@@ -1254,11 +1254,12 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
+            collection.Publish(_user);
 
-            var artifact = Helper.CreateAndPublishArtifact(_project, _user, BaseArtifactType.Process);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, _project, ItemTypePredefined.Process);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(artifact, collection, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => artifact.CopyTo(_user, _project, collection.Id),
                "'POST {0}' should return 403 Forbidden when user tries to copy a regular artifact to a {1} artifact type", SVC_PATH, artifactType);
 
             // Verify:
@@ -1277,11 +1278,10 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var collection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
-
-            var parentArtifact = Helper.CreateAndSaveArtifact(_project, _user, BaseArtifactType.PrimitiveFolder);
+            var parentArtifact = Helper.CreateNovaArtifact(_user, _project, ItemTypePredefined.PrimitiveFolder);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(collection, parentArtifact, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => collection.CopyTo(_user, _project, parentArtifact.Id),
                    "'POST {0}' should return 403 Forbidden when user tries to copy a collection or collection folder to be a child of a regular artifact", SVC_PATH);
 
             // Verify:
@@ -1300,11 +1300,12 @@ namespace ArtifactStoreTests
             _project.GetAllNovaArtifactTypes(Helper.ArtifactStore, _user);
 
             var sourceCollection = Helper.CreateCollectionOrCollectionFolder(_project, _user, artifactType);
+            sourceCollection.Publish(_user);
 
             var targetCollection = Helper.CreateAndPublishCollectionFolder(_project, _user);
 
             // Execute:
-            var ex = Assert.Throws<Http403ForbiddenException>(() => Helper.ArtifactStore.CopyArtifact(sourceCollection, targetCollection, _user),
+            var ex = Assert.Throws<Http403ForbiddenException>(() => sourceCollection.CopyTo(_user, _project, targetCollection.Id),
                    "'POST {0}' should return 403 Forbidden when user tries to copy collection or collection folder to collection artifact", SVC_PATH);
 
             // Verify:

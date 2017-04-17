@@ -380,7 +380,7 @@ namespace AdminStore.Controllers
                     throw new BadRequestException(ErrorMessages.SessionIsEmpty);
                 }
 
-                var userPermissions = await _sqlPrivilegesRepository.GetUserPermissionsAsync(1);
+                var userPermissions = await _sqlPrivilegesRepository.GetUserPermissionsAsync(session.UserId);
                 if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
                     throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
 

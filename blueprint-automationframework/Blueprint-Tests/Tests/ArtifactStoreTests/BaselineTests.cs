@@ -31,7 +31,7 @@ namespace ArtifactStoreTests
 
         private const string expectedInternalExceptionMessage = "Exception of type 'BluePrintSys.RC.Business.Internal.Models.InternalApiBusinessException' was thrown.";
 
-        private static Dictionary<int, string> projectExpectedCreationDateMap { get; } = new Dictionary<int, string>
+        private static Dictionary<int, string> ProjectExpectedCreationDateMap { get; } = new Dictionary<int, string>
         {
             { 1, "2016-09-20 17:04:14.787" },
             { 4, "2016-09-20 17:04:35.690" },
@@ -525,7 +525,7 @@ namespace ArtifactStoreTests
             }, "Getting Baseline shouldn't throw an error.");
 
             // Verify:
-            ValidateMinimalUtctTimestamp(_project, receivedBaseline, projectExpectedCreationDateMap);
+            ValidateMinimalUtctTimestamp(_project, receivedBaseline, ProjectExpectedCreationDateMap);
         }
 
         [TestCase(true)]
@@ -793,12 +793,12 @@ namespace ArtifactStoreTests
             // Setup:
             var baselineArtifact = Helper.CreateBaseline(_user, _project);
             var baseline = Helper.ArtifactStore.GetBaseline(_user, baselineArtifact.Id);
-            var myDate = DateTime.ParseExact(
-                projectExpectedCreationDateMap[_project.Id],
+            var projectCreationDate = DateTime.ParseExact(
+                ProjectExpectedCreationDateMap[_project.Id],
                 "yyyy-MM-dd HH:mm:ss.fff",
                 CultureInfo.InvariantCulture);
 
-            baseline.UtcTimestamp = myDate.AddMinutes(-1);
+            baseline.UtcTimestamp = projectCreationDate.AddMinutes(-1);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => {
@@ -812,7 +812,7 @@ namespace ArtifactStoreTests
                 InternalApiErrorCodes.CannotSaveBaselineBecauseOfFutureTimestamp,
                 expectedErrorMessage);
 
-            ValidateMinimalUtctTimestamp(_project, baseline, projectExpectedCreationDateMap);
+            ValidateMinimalUtctTimestamp(_project, baseline, ProjectExpectedCreationDateMap);
         }
 
         [TestCase]
@@ -1025,7 +1025,6 @@ namespace ArtifactStoreTests
             return baseline;
         }
 
-        /// TODO: Move it to Helper class
         /// <summary>
         /// Validate MinimalUtcTimestamp
         /// </summary>

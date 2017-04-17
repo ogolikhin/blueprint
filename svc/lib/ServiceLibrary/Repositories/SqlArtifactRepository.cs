@@ -308,20 +308,7 @@ namespace ServiceLibrary.Repositories
 
             return directAncestorUserVersion.DirectPermissions != null
                 ? directAncestorUserVersion
-                : FindAncestorUserVersionWithDirectPermissions(dicUserArtifactVersions, directAncestorUserVersion);
-        }
-
-        private ArtifactVersion FindAncestorUserVersionWithDirectPermissions(Dictionary<int, ArtifactVersion> dicUserArtifactVersions, ArtifactVersion userArtifactVersion)
-        {
-            if (userArtifactVersion?.ParentId == null)
-                return null;
-
-            ArtifactVersion ancestorUserVersion;
-            dicUserArtifactVersions.TryGetValue(userArtifactVersion.ParentId.GetValueOrDefault(), out ancestorUserVersion);
-
-            return ancestorUserVersion.DirectPermissions != null
-                ? ancestorUserVersion
-                : FindAncestorUserVersionWithDirectPermissions(dicUserArtifactVersions, ancestorUserVersion);
+                : FindAncestorOrProjectUserVersionWithDirectPermissions(dicUserArtifactVersions, directAncestorUserVersion, projectId);
         }
 
         private ArtifactVersion GetUserArtifactVersion(List<ArtifactVersion> headAndDraft)

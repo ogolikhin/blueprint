@@ -228,14 +228,14 @@ namespace Model.Impl
             Sessions.RemoveAll(session => session.SessionId == token);
         }
 
-        /// <seealso cref="IAdminStore.CreateUser(IUser)"/>
-        public HttpStatusCode CreateUser(IUser user)
+        /// <seealso cref="IAdminStore.CreateUser(IUser, IUser)"/>
+        public HttpStatusCode CreateUser(IUser adminUser, IUser user)
         {
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IAdminStore.DeleteUser(int)"/>
-        public HttpStatusCode DeleteUser(int userId)
+        /// <seealso cref="IAdminStore.DeleteUser(IUser, int)"/>
+        public HttpStatusCode DeleteUser(IUser adminUser, int userId)
         {
             throw new NotImplementedException();
         }
@@ -279,26 +279,26 @@ namespace Model.Impl
             }
         }
 
-        /// <seealso cref="IAdminStore.GetUserById(int)"/>
-        public IUser GetUserById(int userId)
+        /// <seealso cref="IAdminStore.GetUserById(IUser, int)"/>
+        public IUser GetUserById(IUser adminUser, int userId)
         {
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IAdminStore.GetUserByLogin(string)"/>
-        public IUser GetUserByLogin(string login)
+        /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string)"/>
+        public IUser GetUserByLogin(IUser adminUser, string login)
         {
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IAdminStore.GetUsers(int?, int?, string, string)"/>
-        public IUser GetUsers(int? page = null, int? pageSize = null, string filter = null, string sort = null)
+        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string)"/>
+        public List<IUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null)
         {
             throw new NotImplementedException();
         }
 
-        /// <seealso cref="IAdminStore.UpdateUser(IUser)"/>
-        public IUser UpdateUser(IUser user)
+        /// <seealso cref="IAdminStore.UpdateUser(IUser, IUser)"/>
+        public IUser UpdateUser(IUser adminUser, IUser user)
         {
             throw new NotImplementedException();
         }

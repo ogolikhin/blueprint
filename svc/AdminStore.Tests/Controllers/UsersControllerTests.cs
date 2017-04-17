@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
+using AdminStore.Dto;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
@@ -806,11 +807,11 @@ namespace AdminStore.Controllers
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResult>;
+            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResultDto>;
 
             //assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Content, typeof(QueryResult));
+            Assert.IsInstanceOfType(result.Content, typeof(QueryResultDto));
         }
 
         [TestMethod]
@@ -888,7 +889,7 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetUser_TheIsNoSuchUser_NotFoundResult()
+        public async Task GetUser_ThereIsNoSuchUser_NotFoundResult()
         {
             //arrange
             var user = new User();

@@ -326,7 +326,7 @@ namespace AdminStore.Repositories
             {
                 {"Page", setting.Page},
                 {"PageSize", setting.PageSize},
-                {"SearchUser", setting.SearchUser},
+                {"SearchUser", setting.Filter},
 
             };
             var output = new Dictionary<string, object>
@@ -366,7 +366,7 @@ namespace AdminStore.Repositories
             {
                 {"Page", setting.Page},
                 {"PageSize", setting.PageSize},
-                {"SearchUser", setting.SearchUser},
+                {"SearchUser", setting.Filter},
 
             };
             var output = new Dictionary<string, object>

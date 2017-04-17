@@ -126,11 +126,6 @@
     <Compile Include="Models\Enums\InstanceAdminPrivileges.cs" />
     <Compile Include="Models\Enums\ItemTypePredefined.cs" />
     <Compile Include="Models\Enums\ProjectSection.cs" />
-    <Compile Include="Models\Enums\StringTokens.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>StringTokens.resx</DependentUpon>
-    </Compile>
     <Compile Include="Models\Files\File.cs" />
     <Compile Include="Models\Files\FileInfo.cs" />
     <Compile Include="Models\InstanceSettings\EmailSettings.cs" />
@@ -192,10 +187,6 @@
     <Compile Include="Swagger\SwaggerConfig.cs" />
     <Compile Include="Models\Files\NetworkContentStream.cs" />
     <Compile Include="Helpers\WebHeaderCollectionExtensions.cs" />
-    <EmbeddedResource Include="Models\Enums\StringTokens.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>StringTokens.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="Swagger\swagger-config.js" />
   </ItemGroup>
   <ItemGroup>

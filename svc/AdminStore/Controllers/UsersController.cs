@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
+using AdminStore.Dto;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using AdminStore.Repositories;
@@ -105,7 +106,7 @@ namespace AdminStore.Controllers
         /// <returns code="400">BadRequest if page, pageSize are missing or invalid</returns>
         /// <returns code="401">Unauthorized if session token is missing, malformed or invalid (session expired)</returns>
         /// <returns code="403">Forbidden if used doesn’t have permissions to get users list</returns>
-        [SessionRequired(true)]
+        [SessionRequired]
         [Route("")]
         public async Task<IHttpActionResult> GetAllUsers(int page, int pageSize, string filter, string sort)
         {
@@ -120,11 +121,23 @@ namespace AdminStore.Controllers
             {
                 throw new HttpResponseException(HttpStatusCode.Forbidden);
             }
+            var orderField = UsersHelper.SortUsers(sort.ToLower(CultureInfo.InvariantCulture));
 
-            var result = await _userRepository.GetUsersAsync(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = sort });
-            result.Data.Users = UsersHelper.SortUsers(result.Data.Users.ToList(), sort.ToLower(CultureInfo.InvariantCulture));
+            var result = await _userRepository.GetUsersAsync(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = orderField });
+            var dtoResult = new QueryResultDto()
+            {
+                Data = new DataDto() {Users = UserMapper.Map(result.Data.Users)},
+                Pagination =
+                    new PaginationDto()
+                    {
+                        Count = result.Pagination.Count,
+                        PageSize = result.Pagination.PageSize,
+                        Page = result.Pagination.Page,
+                        TotalCount = result.Pagination.Page
+                    }
+            };
 
-            return Ok(result);
+            return Ok(dtoResult);
         }
 
         /// <summary>
@@ -135,9 +148,9 @@ namespace AdminStore.Controllers
         /// <response code="200">OK. Returns the specified user's icon.</response>
         /// <response code="401">Unauthorized. The session token is invalid, missing or malformed.</response>
         /// <response code="404">Not Found. The user with the provided ID was not found.</response>
-        /// <returns code="403">User with userId doesn’t exists or removed from the system</returns>
+        /// <response code="403">User doesn’t have permission to view users.</response>
         /// </returns>
-        [SessionRequired(true)]
+        [SessionRequired]
         [Route("{userId:int:min(1)}")]
         public async Task<IHttpActionResult> GetUser(int userId)
         {

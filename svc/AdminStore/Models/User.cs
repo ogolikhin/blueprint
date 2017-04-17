@@ -8,7 +8,6 @@ namespace AdminStore.Models
         public bool Guest { get; set; }
         public int CurrentVersion { get; set; }
         public string Password { get; set; }
-        public bool EULAAccepted { get; set; }
         public bool Enabled { get; set; }
         public string Title { get; set; }
         public string Department { get; set; }
@@ -20,5 +19,6 @@ namespace AdminStore.Models
         public DateTime? EndTimestamp { get; set; }
         public DateTime? LastPasswordChangeTimestamp { get; set; }
         public int? Image_ImageId { get; set; }
+        public string InstanceAdminRoleName { get; set; }
     }
 }

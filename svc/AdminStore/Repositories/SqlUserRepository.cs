@@ -131,7 +131,8 @@ namespace AdminStore.Repositories
             var parameters = new DynamicParameters();
             parameters.Add("@Page", settings.Page);
             parameters.Add("@PageSize", settings.PageSize);
-            parameters.Add("@SearchUser", settings.SearchUser);
+            parameters.Add("@SearchUser", settings.Filter);
+            parameters.Add("@OrderField", settings.Sort);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
             var res = (await _connectionWrapper.QueryAsync<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
             var total = parameters.Get<int>("Total");

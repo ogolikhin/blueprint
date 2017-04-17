@@ -6,6 +6,5 @@
         public int PageSize { get; set; }
         public string Filter { get; set; }
         public string Sort { get; set; }
-        public string SearchUser { get; set; }
     }
 }

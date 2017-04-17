@@ -1,40 +1,72 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AdminStore.Models;
-
-namespace AdminStore.Helpers
+﻿namespace AdminStore.Helpers
 {
     public static class UsersHelper
     {
-        public static List<User> SortUsers(List<User> users, string sortString)
+        public static string SortUsers(string sortString)
         {
-            var sortedUsers = users;
+            var orderField = "displayName";
             var sortArray = sortString.Split(',');
             foreach (var sort in sortArray)
             {
                 switch (sort)
                 {
                     case "source":
-                        sortedUsers = users.OrderBy(u => u.Source).ToList();
+                        orderField = "source";
                         break;
                     case "-source":
-                        sortedUsers = users.OrderByDescending(u => u.Source).ToList();
+                        orderField = "-source";
                         break;
                     case "enabled":
-                        sortedUsers = users.OrderBy(u => u.Enabled).ToList();
+                        orderField = "enabled";
                         break;
                     case "-enabled":
-                        sortedUsers = users.OrderByDescending(u => u.Enabled).ToList();
+                        orderField = "-enabled";
                         break;
                     case "license":
-                        sortedUsers = users.OrderBy(u => u.LicenseType).ToList();
+                        orderField = "license";
                         break;
                     case "-license":
-                        sortedUsers = users.OrderByDescending(u => u.LicenseType).ToList();
+                        orderField = "-license";
+                        break;
+                    case "role":
+                        orderField = "role";
+                        break;
+                    case "-role":
+                        orderField = "-role";
+                        break;
+                    case "department":
+                        orderField = "department";
+                        break;
+                    case "-department":
+                        orderField = "-department";
+                        break;
+                    case "title":
+                        orderField = "title";
+                        break;
+                    case "-title":
+                        orderField = "-title";
+                        break;
+                    case "email":
+                        orderField = "email";
+                        break;
+                    case "-email":
+                        orderField = "-email";
+                        break;
+                    case "displayName":
+                        orderField = "displayName";
+                        break;
+                    case "-displayName":
+                        orderField = "-displayName";
+                        break;
+                    case "login":
+                        orderField = "login";
+                        break;
+                    case "-login":
+                        orderField = "-login";
                         break;
                 }
             }
-            return sortedUsers;
+            return orderField;
         }
     }
 }

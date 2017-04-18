@@ -416,16 +416,11 @@ namespace AdminStore.Controllers
                 };
 
                 if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
-                {                
-                    var decodedPasword = SystemEncryptions.Decode(user.NewPassword);
-                    string errorMessage;
-                    var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true, out errorMessage);
-                    if (!isValidPassword)
-                    {
-                        throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
-                    }
+                {
+                    var decodedPassword = SystemEncryptions.Decode(user.NewPassword);
+                    ModelValidator.ValidateUserPassword(decodedPassword);
                     if (databaseUser.UserSALT != null)
-                        databaseUser.NewPassword = HashingUtilities.GenerateSaltedHash(decodedPasword, (Guid)databaseUser.UserSALT);
+                        databaseUser.NewPassword = HashingUtilities.GenerateSaltedHash(decodedPassword, (Guid)databaseUser.UserSALT);
                 }
                 else
                 {

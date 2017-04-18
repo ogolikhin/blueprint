@@ -26,7 +26,7 @@ namespace AdminStore.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("@UserId", userId);
-            return  (await _connectionWrapper.QueryAsync<int>("GetUserPermissions", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
+            return  (await _connectionWrapper.QueryAsync<int>("GetInstancePermissionsForUser", parameters, commandType: CommandType.StoredProcedure)).FirstOrDefault();
         }
     }
 }

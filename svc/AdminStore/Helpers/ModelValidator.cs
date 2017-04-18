@@ -64,5 +64,15 @@ namespace AdminStore.Helpers
                 throw new BadRequestException(ErrorMessages.DepartmentFieldLimitation, ErrorCodes.BadRequest);
             }           
         }
+
+        public static void ValidateUserPassword(string password)
+        {           
+            string errorMessage;
+            var isValidPassword = PasswordValidationHelper.ValidatePassword(password, true, out errorMessage);
+            if (!isValidPassword)
+            {
+                throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
+            }
+        }
     }
 }

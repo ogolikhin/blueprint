@@ -3,6 +3,7 @@
 namespace Model.Common.Enums
 {
     // Found in: blueprint-current/Source/BluePrintSys.RC.CrossCutting.Portable/Enums/InstanceAdminPrivileges.cs
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2217:DoNotMarkEnumsWithFlags")]
     [Flags]
     public enum InstanceAdminPrivileges
     {

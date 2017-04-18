@@ -990,11 +990,11 @@ namespace Helper
         /// <param name="parentId">Parent Id of artifact to be created</param>
         /// <param name="artifactName">(optional) The name to assign to the new artifact.  By default a random name is assigned.</param>
         /// <returns>Artifact in the required state</returns>
-        public INovaArtifactDetails CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
+        public ArtifactWrapper CreateNovaArtifactInSpecificState(IUser user, IProject project, TestArtifactState state,
             ItemTypePredefined itemType, int parentId, string artifactName = null)
         {
             artifactName = artifactName ?? RandomGenerator.RandomAlphaNumericUpperAndLowerCase(10);
-            var artifact = Model.Impl.ArtifactStore.CreateArtifact(ArtifactStore.Address, user, itemType, artifactName, project, parentId);
+            var artifact = CreateNovaArtifact(user, project, itemType, parentId, name: artifactName);
 
             if (NovaArtifacts.ContainsKey(user))
             {
@@ -1012,38 +1012,34 @@ namespace Helper
                 NovaArtifacts.Add(user, new List<int> { artifact.Id });
             }
 
-            NovaArtifactDetails artifactDetails = null;
-            
             switch (state)
             {
                 case TestArtifactState.Created:
-                    return artifact;
+                    break;
                 case TestArtifactState.Published:
-                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", PublishedDescription, artifactDetails);
-                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    artifact.SaveWithNewDescription(user, PublishedDescription);
+                    artifact.Publish(user);
+                    break;
                 case TestArtifactState.PublishedWithDraft:
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    artifactDetails = ArtifactStore.GetArtifactDetails(user, artifact.Id);
-                    CSharpUtilities.SetProperty("Description", DraftDescription, artifactDetails);
-                    SvcShared.LockArtifacts(user, new List<int> { artifact.Id });
-                    UpdateArtifact(ArtifactStore.Address, user, artifactDetails);
-                    return ArtifactStore.GetArtifactDetails(user, artifact.Id);
+                    artifact.Publish(user);
+                    artifact.Lock(user);
+                    artifact.SaveWithNewDescription(user, DraftDescription);
+                    break;
                 case TestArtifactState.ScheduledToDelete:
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    ArtifactStore.DeleteArtifact(artifact.Id, user);
-                    return artifact;
+                    artifact.Publish(user);
+                    artifact.Delete(user);
+                    break;
                 case TestArtifactState.Deleted:
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    ArtifactStore.DeleteArtifact(artifact.Id, user);
-                    ArtifactStore.PublishArtifacts(new List<int> { artifact.Id }, user);
-                    return artifact;
+                    artifact.Publish(user);
+                    artifact.Delete(user);
+                    artifact.Publish(user);
+                    break;
                 default:
                     Assert.Fail("Unexpected value of Artifact state");
-                    return artifact;
+                    break;
             }
+
+            return artifact;
         }
 
         /// <summary>

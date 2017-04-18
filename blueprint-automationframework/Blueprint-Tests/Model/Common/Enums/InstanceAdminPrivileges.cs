@@ -2,6 +2,7 @@
 
 namespace Model.Common.Enums
 {
+    // Found in: blueprint-current/Source/BluePrintSys.RC.CrossCutting.Portable/Enums/InstanceAdminPrivileges.cs
     [Flags]
     public enum InstanceAdminPrivileges
     {

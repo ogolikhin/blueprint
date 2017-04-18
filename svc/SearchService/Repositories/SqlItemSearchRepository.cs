@@ -26,14 +26,9 @@ namespace SearchService.Repositories
         });
         private static readonly DataTable PrimitiveItemTypePredefineds = SqlConnectionWrapper.ToDataTable(new[]
         {
-            4097, // Project
-            4098, // Baseline
-            4353, // Baseline Folder
-            4354, // Artifact Baseline
-            4355, // ArtifactReviewPackage
-            4609, // Collection Folder
-            4610, // Artifact Collection
-            32769 // Data Object
+            (int)ItemTypePredefined.Project,                // (4097)
+            (int)ItemTypePredefined.Baseline,               // (4098)                  
+            (int)ItemTypePredefined.DataObject              // (32769)
         });
 
         internal readonly ISqlConnectionWrapper ConnectionWrapper;
@@ -215,19 +210,19 @@ namespace SearchService.Repositories
                 }
                 throw;
             }
-            
+
+            var itemIds = items.Select(i => i.ItemId).ToList();
 
             var itemIdsPermissions =
                 // Always getting permissions for the Head version of an artifact.
-                await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(items.Select(i => i.ItemId).ToList(), userId);
+                await _artifactPermissionsRepository.GetArtifactPermissions(itemIds, userId);
 
             IDictionary<int, IEnumerable<Artifact>> itemsNavigationPaths;
             if (searchCriteria.IncludeArtifactPath)
             {
                 itemsNavigationPaths =
                     await
-                        _artifactRepository.GetArtifactsNavigationPathsAsync(userId, items.Select(i => i.ItemId).ToList(),
-                            false);
+                        _artifactRepository.GetArtifactsNavigationPathsAsync(userId, itemIds, false);
             }
             else
             {

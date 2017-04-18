@@ -9,6 +9,8 @@ using NUnit.Framework;
 using TestCommon;
 using Utilities;
 using Common;
+using Model.ArtifactModel.Enums;
+using Model.ModelHelpers;
 
 namespace ArtifactStoreTests
 {
@@ -168,24 +170,24 @@ namespace ArtifactStoreTests
             Assert.AreEqual(0, unpublishedChanges.Projects.Count, "There should be no projects in the list of unpublished changes!");
         }
 
-        [TestCase(BaseArtifactType.Process, 2)]
+        [TestCase(ItemTypePredefined.Process, 2)]
         [TestRail(182336)]
         [Description("Create & save artifacts in different projects.  GetUnpublishedChanges.  Verify the saved artifacts and the specified projects are returned " +
-            "and that the artifacts are ordered by project name, then by artifact ID.")]
+                     "and that the artifacts are ordered by project name, then by artifact ID.")]
         public void GetUnpublishedChanges_ArtifactsSavedInDifferentProjects_ReturnsArtifactDetailsOrderedByProjectNameThenArtifactId(
-            BaseArtifactType artifactType, int numberOfProjects)
+            ItemTypePredefined artifactType, int numberOfProjects)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects);
 
             var author = Helper.CreateUserWithProjectRolePermissions(TestHelper.ProjectRole.Author, projects);
 
-            var artifacts = new List<IArtifactBase>();
+            var artifacts = new List<ArtifactWrapper>();
 
             // Create artifacts in different projects.
             foreach (var project in projects)
             {
-                var artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
+                var artifact = Helper.CreateNovaArtifact(author, project, artifactType);
                 artifacts.Add(artifact);
             }
 
@@ -196,7 +198,7 @@ namespace ArtifactStoreTests
 
             foreach (var project in projectsInReverse)
             {
-                var artifact = Helper.CreateAndSaveArtifact(project, author, artifactType);
+                var artifact = Helper.CreateNovaArtifact(author, project, artifactType);
                 artifacts.Add(artifact);
             }
 
@@ -212,30 +214,33 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(unpublishedChanges.Projects, projects);
             Assert.AreEqual(artifacts.Count, unpublishedChanges.Artifacts.Count,
                 "There should be {0} artifact in the list of unpublished changes!", artifacts.Count);
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(unpublishedChanges, artifacts);
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(unpublishedChanges, artifacts.ConvertAll(a => (INovaArtifactDetails)a));
 
             // Verify - Order by the project name and then by the artifact integer Id.
             AssertArtifactsAndProjectsResponseIsOrderedByProjectNameThenByArtifactId(unpublishedChanges);
         }
 
         [Explicit(IgnoreReasons.UnderDevelopmentDev)]  // We can't move artifacts from one project to another yet.  https://trello.com/c/V3AdEzXK
-        [TestCase(BaseArtifactType.Process, 2)]
+        [TestCase(ItemTypePredefined.Process, 2)]
         [TestRail(000)]     // TODO: Add to TestRail once this test is working.
-        [Description("Create & publish an artifact, then move it to a different project.  GetUnpublishedChanges.  Verify the artifact and the specified projects are returned.")]
-        public void GetUnpublishedChanges_ArtifactMovedToDifferentProject_ReturnsArtifactDetails(BaseArtifactType artifactType, int numberOfProjects)
+        [Description("Create & publish an artifact, then move it to a different project.  GetUnpublishedChanges.  " +
+                     "Verify the artifact and the specified projects are returned.")]
+        public void GetUnpublishedChanges_ArtifactMovedToDifferentProject_ReturnsArtifactDetails(ItemTypePredefined artifactType, int numberOfProjects)
         {
             // Setup:
             var projects = ProjectFactory.GetProjects(_user, numberOfProjects);
 
             // Create artifacts in different projects.
-            var artifact = Helper.CreateAndPublishArtifact(projects[0], _user, artifactType);
+            var artifact = Helper.CreateAndPublishNovaArtifact(_user, projects[0], artifactType);
 
-            var artifacts = new List<IArtifactBase> { artifact };
+            var artifacts = new List<ArtifactWrapper> { artifact };
 
             // Move the artifact to a different project.
             artifact.ProjectId = projects[1].Id;
-            artifact.Project = projects[1];
-            artifact.Save();
+            artifact.ArtifactState.Project = projects[1];
+
+            artifact.Lock(_user);
+            artifact.Update(_user, artifact);
 
             INovaArtifactsAndProjectsResponse unpublishedChanges = null;
 
@@ -249,7 +254,8 @@ namespace ArtifactStoreTests
             ArtifactStoreHelper.AssertAllExpectedProjectsWereReturned(unpublishedChanges.Projects, projects);
             Assert.AreEqual(artifacts.Count, unpublishedChanges.Artifacts.Count,
                 "There should be {0} artifact in the list of unpublished changes!", artifacts.Count);
-            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(unpublishedChanges, artifacts);
+            ArtifactStoreHelper.AssertArtifactsAndProjectsResponseContainsAllArtifactsInList(
+                unpublishedChanges, artifacts.ConvertAll(a => (INovaArtifactDetails)a));
 
             // Verify - Order by the project name and then by the artifact integer Id.
             AssertArtifactsAndProjectsResponseIsOrderedByProjectNameThenByArtifactId(unpublishedChanges);

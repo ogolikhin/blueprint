@@ -9,6 +9,7 @@ using Dapper;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Models;
 using ServiceLibrary.Models.Enums;
+using BluePrintSys.RC.Service.Business.Baselines.Impl;
 
 namespace ServiceLibrary.Repositories
 {
@@ -307,20 +308,7 @@ namespace ServiceLibrary.Repositories
 
             return directAncestorUserVersion.DirectPermissions != null
                 ? directAncestorUserVersion
-                : FindAncestorUserVersionWithDirectPermissions(dicUserArtifactVersions, directAncestorUserVersion);
-        }
-
-        private ArtifactVersion FindAncestorUserVersionWithDirectPermissions(Dictionary<int, ArtifactVersion> dicUserArtifactVersions, ArtifactVersion userArtifactVersion)
-        {
-            if (userArtifactVersion?.ParentId == null)
-                return null;
-
-            ArtifactVersion ancestorUserVersion;
-            dicUserArtifactVersions.TryGetValue(userArtifactVersion.ParentId.GetValueOrDefault(), out ancestorUserVersion);
-
-            return ancestorUserVersion.DirectPermissions != null
-                ? ancestorUserVersion
-                : FindAncestorUserVersionWithDirectPermissions(dicUserArtifactVersions, ancestorUserVersion);
+                : FindAncestorOrProjectUserVersionWithDirectPermissions(dicUserArtifactVersions, directAncestorUserVersion, projectId);
         }
 
         private ArtifactVersion GetUserArtifactVersion(List<ArtifactVersion> headAndDraft)
@@ -732,11 +720,24 @@ namespace ServiceLibrary.Repositories
                 throw new ArgumentOutOfRangeException(nameof(artifactIds));
             }
 
-            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(artifactIds.ToList(), userId);
+            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
 
             var readPermissions = artifactsPermissions.Where(perm => perm.Value.HasFlag(RolePermissions.Read));
 
             return await GetAuthorHistories(readPermissions.Select(rp => rp.Key).ToList());
+        }
+
+        public async Task<IEnumerable<BaselineInfo>> GetBaselineInfo(IEnumerable<int> artifactIds, int userId, bool addDrafts = true, int revisionId = int.MaxValue)
+        {
+            var artifactsPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(artifactIds, userId);
+            var artifactsWithReadPermissions = artifactsPermissions.Where(p => p.Value.HasFlag(RolePermissions.Read)).Select(p => p.Key);
+            var itemsRawData = await _itemInfoRepository.GetItemsRawDataCreatedDate(userId, artifactsWithReadPermissions, addDrafts, revisionId);
+            return itemsRawData.Select(i => new BaselineInfo
+            {
+                ItemId = i.ItemId,
+                IsSealed = BaselineRawDataHelper.ExtractIsSelead(i.RawData),
+                UtcTimestamp = BaselineRawDataHelper.ExtractTimestamp(i.RawData)
+            }).ToList();
         }
 
     }

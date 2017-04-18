@@ -133,7 +133,7 @@ namespace ArtifactStore.Controllers
             _artifactPermissionsRepositoryMock.Setup(a => a.GetItemInfo(1, 1, true, int.MaxValue)).ReturnsAsync(new ItemInfo { ArtifactId = 1 });
             _attachmentsRepositoryMock.Setup(a => a.GetAttachmentsAndDocumentReferences(artifactId, 1, versionId, subArtifactId, true, null))
                 .ReturnsAsync(new FilesInfo(new List<Attachment>(), new List<DocumentReference>()));
-            _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissionsInChunks(new List<int> { 1 }, 1, false, int.MaxValue, true))
+            _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissions(new List<int> { 1 }, 1, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { {1, RolePermissions.None } });
 
             var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)
@@ -169,7 +169,7 @@ namespace ArtifactStore.Controllers
                     new List<Attachment> { new Attachment { AttachmentId = 123 } }, 
                     new List<DocumentReference> { new DocumentReference { ArtifactId  = 123 } }
                     ));
-            _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissionsInChunks(new List<int> { 1, 123 }, 1, false, int.MaxValue, true))
+            _artifactPermissionsRepositoryMock.Setup(a => a.GetArtifactPermissions(new List<int> { 1, 123 }, 1, false, int.MaxValue, true))
                 .ReturnsAsync(new Dictionary<int, RolePermissions> { { 1, RolePermissions.Read }, { 123, RolePermissions.Read } });
 
             var controller = new AttachmentsController(_attachmentsRepositoryMock.Object, _artifactPermissionsRepositoryMock.Object, _artifactVersionsMock.Object)

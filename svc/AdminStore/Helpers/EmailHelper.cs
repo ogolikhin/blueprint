@@ -38,11 +38,11 @@ namespace AdminStore.Helpers
             var smtpServer = SmtpServer;
             var smtp = new Smtp();
             smtp.SmtpServers.Add(smtpServer);
-            smtp.Message = PrepareMessage(toEmail, _configuration.UserName, subject,  body);
+            smtp.Message = PrepareMessage(toEmail, _configuration.SenderEmailAddress, subject,  body);
             smtp.Send();
         }
 
-        internal static MailMessage PrepareMessage(string toEmail, string fromEmail,string subject, string body)
+        internal static MailMessage PrepareMessage(string toEmail, string fromEmail, string subject, string body)
         {
             var mailMessage = new MailMessage();
             mailMessage.To.Add(toEmail);

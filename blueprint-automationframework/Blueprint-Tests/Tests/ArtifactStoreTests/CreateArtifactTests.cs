@@ -529,7 +529,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddCollectionUnderAnotherCollection_409Conflict()
         {
             // Setup:
-            var parentCollection = Helper.CreateAndSaveCollection(_project, _user);
+            var parentCollection = Helper.CreateUnpublishedCollection(_project, _user);
 
             // Execute:
             var ex = Assert.Throws<Http409ConflictException>(() => CreateArtifactWithRandomName(
@@ -546,7 +546,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddCollectionUnderProject_409Conflict()
         {
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateAndSaveCollection(_project, _user, parentId: _project.Id),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateUnpublishedCollection(_project, _user, parentId: _project.Id),
             "'POST {0}' should return 409 Conflict when creating a Collection under the project!");
 
             // Verify:
@@ -559,7 +559,7 @@ namespace ArtifactStoreTests
         public void CreateArtifact_AddCollectionFolderUnderProject_409Conflict()
         {
             // Execute:
-            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateAndSaveCollectionFolder(_project, _user, parentId: _project.Id),
+            var ex = Assert.Throws<Http409ConflictException>(() => Helper.CreateUnpublishedCollectionFolder(_project, _user, parentId: _project.Id),
             "'POST {0}' should return 409 Conflict when creating a Collection Folder under the project!");
 
             // Verify:

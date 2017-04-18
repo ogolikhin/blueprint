@@ -38,7 +38,7 @@ namespace Model.ArtifactModel.Impl
         public int Version { get; set; }
         public int UserId { get; set; }
         public DateTime LastEditedOn { get; set; }
-        public string Username { get; set; }
+        public string DisplayName { get; set; }
         public bool IsGuest { get; set; }
         public string Comment { get; set; }
         public bool CanEdit { get; set; }
@@ -59,7 +59,7 @@ namespace Model.ArtifactModel.Impl
         public int Version { get; set; }
         public int UserId { get; set; }
         public DateTime LastEditedOn { get; set; }
-        public string Username { get; set; }
+        public string DisplayName { get; set; }
         public bool IsGuest { get; set; }
         public string Comment { get; set; }
         public bool CanEdit { get; set; }

@@ -90,6 +90,10 @@ namespace AccessControl.Controllers
             {
                 var token = GetHeaderSessionToken();
                 var session = await _sessions.GetSession(Session.Convert(token));
+                if (session == null)
+                {
+                    return Unauthorized();
+                }
                 var licenses = await _repo.GetLockedLicenses(session.UserId, session.LicenseLevel, WebApiConfig.LicenseHoldTime);
 
                 var response = Request.CreateResponse(HttpStatusCode.OK,
@@ -97,6 +101,10 @@ namespace AccessControl.Controllers
                 return ResponseMessage(response);
             }
             catch (ArgumentNullException)
+            {
+                return Unauthorized();
+            }
+            catch (FormatException)
             {
                 return Unauthorized();
             }

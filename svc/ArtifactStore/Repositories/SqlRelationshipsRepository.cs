@@ -270,7 +270,7 @@ namespace ArtifactStore.Repositories
             {
                 var distinctReviewIds = reviewLinks.Select(a => a.SourceItemId).Distinct().ToList();
                 var reviewIdsWithAccess = new List<int>();
-                var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissionsInChunks(distinctReviewIds, userId);
+                var reviewPermissions = await _artifactPermissionsRepository.GetArtifactPermissions(distinctReviewIds, userId);
                 foreach (var reviewId in distinctReviewIds)
                 {
                     if (HasPermissions(reviewId, reviewPermissions, RolePermissions.Read))

@@ -1,22 +1,18 @@
-﻿<#@ template debug="false" hostspecific="true" language="C#" #>
-<#@ output extension=".sql" #>
-
+﻿
 -- -----------------------------------------------------------------------------------------------
--- Migration 8.1.0.0
+-- Migration 8.2.0.0
 -- -----------------------------------------------------------------------------------------------
-IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'8.1.0') <> 0) 
+IF NOT ([dbo].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0) 
 	set noexec on
-Print 'Migrating 8.1.0.0 ...'
+Print 'Migrating 8.2.0.0 ...'
 -- -----------------------------------------------------------------------------------------------
 
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"CreatePasswordRecoveryTokens.sql" ) ) #>
-<#= System.IO.File.ReadAllText ( this.Host.ResolvePath ( @"DropApplicationLabels.sql" ) ) #>
 
 -- -----------------------------------------------------------------------------------------------
 -- Always add your code just above this comment block
 -- -----------------------------------------------------------------------------------------------
-IF ([dbo].[IsSchemaVersionLessOrEqual](N'8.1.0') <> 0)
-	EXEC [dbo].[SetSchemaVersion] @value = N'8.1.0';
+IF ([dbo].[IsSchemaVersionLessOrEqual](N'8.2.0') <> 0)
+	EXEC [dbo].[SetSchemaVersion] @value = N'8.2.0';
 GO
 set noexec off
 -- -----------------------------------------------------------------------------------------------

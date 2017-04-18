@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Results;
@@ -38,7 +37,6 @@ namespace AdminStore.Controllers
             var controller = new ConfigController();
 
             // Assert
-            Assert.IsInstanceOfType(controller._configRepo, typeof(SqlConfigRepository));
             Assert.IsInstanceOfType(controller._appSettingsRepo, typeof(ApplicationSettingsRepository));
             Assert.IsInstanceOfType(controller._httpClientProvider, typeof(HttpClientProvider));
             Assert.IsInstanceOfType(controller._log, typeof(sl.ServiceLogRepository));
@@ -77,47 +75,30 @@ namespace AdminStore.Controllers
         }
 
         #endregion GetConfigSettings
-
+ 
         #region GetConfig
 
         [TestMethod]
-        public async Task GetConfig_NoLocale_ReturnsHeadersAndContent()
+        public async Task GetConfig_NonEmptySettings_ReturnsHeadersAndContent()
         {
             // Arrange
-            var settings =  new Dictionary<string, string> { { "Key", "Value" } };
-            IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "Key", Locale = "en-US", Text = "Text" } };
-            var controller = CreateController(appSettings:settings, labels: labels);
-
-            // Act
-            var result = await controller.GetConfig() as ResponseMessageResult;
-
-
-            // Assert
-            Assert.IsNotNull(result);
-
-            var content = await result.Response.Content.ReadAsStringAsync();
-
-            Assert.AreEqual(content, "window.config={'settings':{'Key':'Value'},'labels':{'Key':'Text'}};");
-        }
-
-        [TestMethod]
-        public async Task GetConfig_WithLocale_ReturnsHeadersAndContent()
-        {
-            // Arrange
-            string locale = "en-CA";
-            var settings = new Dictionary<string, string> { { "Key", "Value" } } ;
-            IEnumerable<ApplicationLabel> labels = new[] { new ApplicationLabel { Key = "KeyCA", Locale = locale, Text = "TextCA" } };
-            var controller = CreateController(appSettings:settings, labels:labels, locale:locale);
-            controller.Request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(locale));
+            var settings = new Dictionary<string, string> { { "Key", "Value" } };
+            var controller = CreateController(appSettings: settings);
 
             // Act
             var result = await controller.GetConfig() as ResponseMessageResult;
 
             // Assert
             Assert.IsNotNull(result);
+
             var content = await result.Response.Content.ReadAsStringAsync();
-            Assert.AreEqual( @"window.config={'settings':{'Key':'Value'},'labels':{'KeyCA':'TextCA'}};", content);
-            
+
+            Assert.AreEqual(content, "(function (window) {\n" +
+                "    if (!window.config) {\n" +
+                "        window.config = {};\n" +
+                "    }\n" +
+                "    window.config.settings = {'Key':'Value'}\n" +
+                "}(window));");
         }
 
         [TestMethod]
@@ -134,12 +115,11 @@ namespace AdminStore.Controllers
         }
 
         [TestMethod]
-        public async Task GetConfig_EmptySettingsAndLabels_ReturnsHeadersAndContent()
+        public async Task GetConfig_EmptySettings_ReturnsHeadersAndContent()
         {
             // Arrange
-            var settings = new Dictionary<string,string>();
-            IEnumerable<ApplicationLabel> labels = new ApplicationLabel[] { };
-            var controller = CreateController(appSettings:settings, labels:labels);
+            var settings = new Dictionary<string, string>();
+            var controller = CreateController(appSettings: settings);
 
             // Act
             var result = await controller.GetConfig() as ResponseMessageResult;
@@ -147,14 +127,18 @@ namespace AdminStore.Controllers
             // Assert
             Assert.IsNotNull(result);
             var content = await result.Response.Content.ReadAsStringAsync();
-            Assert.AreEqual(content, @"window.config={'settings':{},'labels':{}};");
+            Assert.AreEqual(content, "(function (window) {\n" +
+                "    if (!window.config) {\n" +
+                "        window.config = {};\n" +
+                "    }\n" +
+                "    window.config.settings = {}\n" +
+                "}(window));");
         }
 
         #endregion GetConfig
 
-        private static ConfigController CreateController(Dictionary<string, Dictionary<string, string>> globalSettings = null, Dictionary<string, string> appSettings=null, IEnumerable<ApplicationLabel> labels = null, string locale = "en-US")
+        private static ConfigController CreateController(Dictionary<string, Dictionary<string, string>> globalSettings = null, Dictionary<string, string> appSettings=null)
         {
-            var configRepo = new Mock<IConfigRepository>();
             var appSettingsRepo = new Mock<IApplicationSettingsRepository>();
             IHttpClientProvider httpClientProvider;
             if (globalSettings == null)
@@ -177,13 +161,8 @@ namespace AdminStore.Controllers
                     .ReturnsAsync(appSettings.Select(i => new ApplicationSetting {Key = i.Key, Value = i.Value}));
             }
 
-            if (labels != null)
-            {
-                configRepo.Setup(r => r.GetLabels(It.IsAny<string>())).ReturnsAsync(labels.Select(it => { it.Locale = "en-US"; return it; }));
-            }
-
             var logMock = new Mock<sl.IServiceLogRepository>();
-            var controller = new ConfigController(configRepo.Object, appSettingsRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
+            var controller = new ConfigController(appSettingsRepo.Object, httpClientProvider, logMock.Object) { Request = new HttpRequestMessage() };
             controller.Request.Headers.Add("Session-Token", "");
             controller.Request.SetConfiguration(new HttpConfiguration());
             return controller;

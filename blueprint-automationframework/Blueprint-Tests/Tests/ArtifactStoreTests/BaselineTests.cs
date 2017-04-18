@@ -318,7 +318,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, artifactState, ItemTypePredefined.Actor,
                 _project.Id);
-            var collection = Helper.CreateCollectionWithArtifactsInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
+            var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
                 new List<int> { artifactToAdd.Id });
 
             var baseline = Helper.CreateBaseline(_user, _project);
@@ -348,7 +348,7 @@ namespace ArtifactStoreTests
             
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
-            var collection = Helper.CreateCollectionWithArtifactsInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
+            var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
                 new List<int> { artifactToAdd.Id, artifactWithNoAccess.Id });
 
 
@@ -378,7 +378,7 @@ namespace ArtifactStoreTests
         public void AddArtifactToBaseline_EmptyCollection_ValidateReturnedBaseline()
         {
             // Setup:
-            var collectionArtifact = Helper.CreateAndSaveCollection(_project, _user);
+            var collectionArtifact = Helper.CreateUnpublishedCollection(_project, _user);
             var collection = Helper.ArtifactStore.GetCollection(_user, collectionArtifact.Id);
 
             var baseline = Helper.CreateBaseline(_user, _project);
@@ -406,7 +406,7 @@ namespace ArtifactStoreTests
             var artifactWithNoAccess = Helper.CreateAndPublishArtifact(_project, _adminUser, BaseArtifactType.UseCase);
             Helper.AssignProjectRolePermissionsToUser(_user, RolePermissions.None, _project, artifactWithNoAccess);
 
-            var collection = Helper.CreateCollectionWithArtifactsInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
+            var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_adminUser, _project, TestHelper.TestArtifactState.Published,
                 new List<int> { artifactWithNoAccess.Id });
 
 
@@ -861,7 +861,7 @@ namespace ArtifactStoreTests
             // Setup:
             var artifactToAdd = Helper.CreateNovaArtifactInSpecificState(_user, _project, TestHelper.TestArtifactState.Published,
                 ItemTypePredefined.Actor, _project.Id);
-            var collection = Helper.CreateCollectionWithArtifactsInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
+            var collection = Helper.CreateUnpublishedCollectionWithArtifactsInSpecificState(_user, _project, TestHelper.TestArtifactState.Created,
                 new List<int> { artifactToAdd.Id });
 
             Helper.ArtifactStore.PublishArtifacts(new List<int> { collection.Id }, _user);

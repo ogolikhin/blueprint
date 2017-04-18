@@ -267,7 +267,7 @@ namespace ArtifactStoreTests
         [TestCase(BaselineAndCollectionTypePredefined.CollectionFolder)]
         [TestRail(190011)]
         [Description("Create an artifact of collection artifact type & collection folder.  Move this artifact to be a child of the collection folder.  " +
-            "Verify the moved artifact is returned with the updated Parent ID.")]
+                     "Verify the moved artifact is returned with the updated Parent ID.")]
         public void MoveArtifact_CollectionOrCollectionFolder_MovedToCollectionFolder_ReturnsMovedArtifact(BaselineAndCollectionTypePredefined artifactType)
         {
             // Setup:
@@ -360,7 +360,7 @@ namespace ArtifactStoreTests
         [TestCase(ItemTypePredefined.CollectionFolder, 5, 0, 1.0)]      // Move first artifact to same location.
         [TestRail(191039)]
         [Description("Create & publish several Collection or Collection Folder artifacts.  Move an artifact to the same location but specify an OrderIndex.  " +
-            "Verify the OrderIndex of the artifact was updated.")]
+                     "Verify the OrderIndex of the artifact was updated.")]
         public void MoveArtifactWithOrderIndex_PublishedCollectionOrCollectionFolder_InsideCollectionFolder_VerifyOrderIndexUpdated(
             ItemTypePredefined artifactType, int numberOfArtifacts, int whichArtifact, double orderIndex)
         {

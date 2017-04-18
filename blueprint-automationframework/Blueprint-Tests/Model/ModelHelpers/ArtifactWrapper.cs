@@ -233,6 +233,15 @@ namespace Model.ModelHelpers
         }
 
         /// <summary>
+        /// Gets the artifact from ArtifactStore and replaces the current artifact with the properties returned from the server.
+        /// </summary>
+        /// <param name="user">The user to authenticate with.</param>
+        public void RefreshArtifactFromServer(IUser user)
+        {
+            Artifact = ArtifactStore.GetArtifactDetails(user, Id);
+        }
+
+        /// <summary>
         /// Updates this artifact with a new random Description.  You must lock the artifact before saving.
         /// </summary>
         /// <param name="user">The user to perform the update.</param>

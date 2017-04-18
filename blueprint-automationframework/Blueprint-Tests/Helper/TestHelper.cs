@@ -1019,11 +1019,13 @@ namespace Helper
                 case TestArtifactState.Published:
                     artifact.SaveWithNewDescription(user, PublishedDescription);
                     artifact.Publish(user);
+                    artifact.RefreshArtifactFromServer(user);
                     break;
                 case TestArtifactState.PublishedWithDraft:
                     artifact.Publish(user);
                     artifact.Lock(user);
                     artifact.SaveWithNewDescription(user, DraftDescription);
+                    artifact.RefreshArtifactFromServer(user);
                     break;
                 case TestArtifactState.ScheduledToDelete:
                     artifact.Publish(user);

@@ -21,13 +21,13 @@ namespace AdminStore.Helpers
             return exception;
         }
 
-        public SqlExceptionBuilder ThrowWithErrorNumber(int number)
+        public SqlExceptionBuilder WithErrorNumber(int number)
         {
             this._errorNumber = number;
             return this;
         }
 
-        public SqlExceptionBuilder ThrowWithErrorMessage(string message)
+        public SqlExceptionBuilder WithErrorMessage(string message)
         {
             this._errorMessage = message;
             return this;

@@ -235,15 +235,12 @@ namespace AdminStore.Controllers
                 _emailHelper.SendEmail(user.Email, "Reset Password",
                     $@"
                         <html>
-                            <div>Hello {user.DisplayName
-                        }.</div>
+                            <div>Hello {user.DisplayName}.</div>
                             <br>
                             <div>We have received a request to reset your password.</div>
                             <br>
                             <div>To confirm this password reset, visit the following link:</div>
-                            <a href='{
-                        recoveryUrl
-                        }'>Reset password</a>
+                            <a href='{recoveryUrl}'>Reset password</a>
                             <br><br>
                             <div>If you did not make this request, you can ignore this email, and no changes will be made.</div>
                             <br>
@@ -380,6 +377,11 @@ namespace AdminStore.Controllers
                     throw new BadRequestException(ErrorMessages.SessionIsEmpty);
                 }
 
+                if (user == null)
+                {
+                    throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
+                }
+
                 var userPermissions = await _sqlPrivilegesRepository.GetUserPermissionsAsync(session.UserId);
                 if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
                     throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
@@ -414,13 +416,14 @@ namespace AdminStore.Controllers
                 };
 
                 if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
-                {
-                    if (string.IsNullOrEmpty(user.NewPassword))
-                    {
-                        throw new BadRequestException(ErrorMessages.PasswordRequired, ErrorCodes.BadRequest);
-                    }
-
+                {                
                     var decodedPasword = SystemEncryptions.Decode(user.NewPassword);
+                    string errorMessage;
+                    var isValidPassword = PasswordValidationHelper.ValidatePassword(decodedPasword, true, out errorMessage);
+                    if (!isValidPassword)
+                    {
+                        throw new BadRequestException(errorMessage, ErrorCodes.BadRequest);
+                    }
                     if (databaseUser.UserSALT != null)
                         databaseUser.NewPassword = HashingUtilities.GenerateSaltedHash(decodedPasword, (Guid)databaseUser.UserSALT);
                 }

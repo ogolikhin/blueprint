@@ -35,8 +35,8 @@ namespace AdminStore.Controllers
         private Mock<ISqlPrivilegesRepository> _sqlPrivilegesRepositoryMock;
         private Models.DTO.User _user;
 
-        private const int FullPernissions = 524287;
-        private const int NoManageUsersPernissions = 13312;
+        private const int FullPermissions = 524287;
+        private const int NoManageUsersPermissions = 13312;
         private const int NoAssignAdminRolesPermissions = 15360;    
         private const int CreatedUserId = 100;
         private const string ExistedUserLogin = "ExistedUser";
@@ -72,7 +72,7 @@ namespace AdminStore.Controllers
                 AllowFallback = false,
                 Enabled = true,
                 ExpirePassword = true,
-                NewPassword = "dGVzdA==",
+                NewPassword = "MTIzNFJFV1EhQCMk",
                 Title = "TitleValue",
                 Department = "Departmentvalue",
                 GroupMembership = new int[] { 1 },
@@ -82,7 +82,7 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
                 .ReturnsAsync(CreatedUserId);
 
-            var sqlException = new SqlExceptionBuilder().ThrowWithErrorNumber(50001).Build();
+            var sqlException = new SqlExceptionBuilder().WithErrorNumber(50001).Build();
             _usersRepoMock
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u=> u.Login == ExistedUserLogin)))
                 .ThrowsAsync(sqlException);
@@ -823,7 +823,7 @@ namespace AdminStore.Controllers
             // Arrange
             _sqlPrivilegesRepositoryMock
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-                .ReturnsAsync(FullPernissions);
+                .ReturnsAsync(FullPermissions);
 
             // Act
             var result = await _controller.PostUser(_user);
@@ -840,7 +840,7 @@ namespace AdminStore.Controllers
             // Arrange
             _sqlPrivilegesRepositoryMock
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-                .ReturnsAsync(NoManageUsersPernissions);
+                .ReturnsAsync(NoManageUsersPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -874,7 +874,7 @@ namespace AdminStore.Controllers
             _user.Login = string.Empty;
             _sqlPrivilegesRepositoryMock
                 .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-                .ReturnsAsync(FullPernissions);
+                .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -891,7 +891,7 @@ namespace AdminStore.Controllers
             _user.Login = "123";
             _sqlPrivilegesRepositoryMock
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-               .ReturnsAsync(FullPernissions);
+               .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -908,7 +908,7 @@ namespace AdminStore.Controllers
             _user.Login = ExistedUserLogin;
             _sqlPrivilegesRepositoryMock
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-               .ReturnsAsync(FullPernissions);
+               .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -925,7 +925,7 @@ namespace AdminStore.Controllers
             _user.DisplayName = string.Empty;
             _sqlPrivilegesRepositoryMock
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-              .ReturnsAsync(FullPernissions);
+              .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -942,7 +942,7 @@ namespace AdminStore.Controllers
             _user.DisplayName = "1";
             _sqlPrivilegesRepositoryMock
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-              .ReturnsAsync(FullPernissions);
+              .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -959,7 +959,7 @@ namespace AdminStore.Controllers
             _user.FirstName = string.Empty;
             _sqlPrivilegesRepositoryMock
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-              .ReturnsAsync(FullPernissions);
+              .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -976,7 +976,7 @@ namespace AdminStore.Controllers
             _user.FirstName = "1";
             _sqlPrivilegesRepositoryMock
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-              .ReturnsAsync(FullPernissions);
+              .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -993,7 +993,7 @@ namespace AdminStore.Controllers
             _user.LastName = string.Empty;
             _sqlPrivilegesRepositoryMock
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-              .ReturnsAsync(FullPernissions);
+              .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -1010,7 +1010,7 @@ namespace AdminStore.Controllers
             _user.LastName = "1";
             _sqlPrivilegesRepositoryMock
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-              .ReturnsAsync(FullPernissions);
+              .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -1027,7 +1027,7 @@ namespace AdminStore.Controllers
             _user.Email = "1@1";
             _sqlPrivilegesRepositoryMock
              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-             .ReturnsAsync(FullPernissions);
+             .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -1044,7 +1044,7 @@ namespace AdminStore.Controllers
             _user.Title = "1";
             _sqlPrivilegesRepositoryMock
              .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-             .ReturnsAsync(FullPernissions);
+             .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -1064,7 +1064,7 @@ namespace AdminStore.Controllers
             }
             _sqlPrivilegesRepositoryMock
               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-              .ReturnsAsync(FullPernissions);
+              .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);
@@ -1081,7 +1081,24 @@ namespace AdminStore.Controllers
             _user.NewPassword = string.Empty;
             _sqlPrivilegesRepositoryMock
                .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
-               .ReturnsAsync(FullPernissions);
+               .ReturnsAsync(FullPermissions);
+
+            // Act
+            await _controller.PostUser(_user);
+
+            // Assert
+            // Exception
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(BadRequestException))]
+        public async Task PostUser_PasswordContainsOnlyAlphanumericCharacters_ReturnBadRequestResult()
+        {
+            // Arrange
+            _user.NewPassword = "MTIzNDU2Nzg=";
+            _sqlPrivilegesRepositoryMock
+               .Setup(repo => repo.GetUserPermissionsAsync(It.IsAny<int>()))
+               .ReturnsAsync(FullPermissions);
 
             // Act
             await _controller.PostUser(_user);

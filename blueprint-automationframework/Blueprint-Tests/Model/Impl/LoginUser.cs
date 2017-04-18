@@ -53,7 +53,7 @@ namespace Model.Impl
         public LicenseLevel LicenseType { get; set; }
 
         /// <summary>
-        /// True if this is an SSO user, false otherwise.
+        ///  True only for users who have logged in via SAML. False for other types of SSO
         /// </summary>
         public bool IsSso { get; set; }
 

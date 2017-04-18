@@ -13,7 +13,7 @@ namespace AdminStore.Models
         public string Department { get; set; }
         public int InvalidLogonAttemptsNumber { get; set; }
         public DateTime? LastInvalidLogonTimeStamp { get; set; }
-        public Guid UseSALT { get; set; }
+        public Guid UserSALT { get; set; }
         public bool? ExpirePassword { get; set; }
         public DateTime StartTimestamp { get; set; }
         public DateTime? EndTimestamp { get; set; }

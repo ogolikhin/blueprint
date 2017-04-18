@@ -1,7 +1,7 @@
 ﻿using System;
 using ServiceLibrary.Attributes;
 
-namespace ServiceLibrary.Models.Enums
+namespace ServiceLibrary.Models
 {
     [Flags]
     public enum InstanceAdminPrivileges

@@ -114,9 +114,6 @@
     <Compile Include="Controllers\InstanceController.cs" />
     <Compile Include="Controllers\JobsController.cs" />
     <Compile Include="Controllers\LogController.cs" />
-    <Compile Include="Dto\PaginationDto.cs" />
-    <Compile Include="Dto\DataDto.cs" />
-    <Compile Include="Dto\QueryResultDto.cs" />
     <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />

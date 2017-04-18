@@ -35,6 +35,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -116,7 +117,7 @@
     <Compile Include="Dto\PaginationDto.cs" />
     <Compile Include="Dto\DataDto.cs" />
     <Compile Include="Dto\QueryResultDto.cs" />
-    <Compile Include="Dto\UserDto.cs" />
+    <Compile Include="Models\UserDto.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\HashingUtilities.cs" />
     <Compile Include="Helpers\JobsValidationHelper.cs" />

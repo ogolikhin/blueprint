@@ -795,23 +795,23 @@ namespace AdminStore.Controllers
             var settings = new TableSettings() { PageSize = 3, Page = 1 };
             QueryResult returnResult = new QueryResult()
             {
-                Data = new Data() { Users = new List<User>() { new User() { UserId = 1 } } },
+                Data = new Data() { Users = new List<UserDto>() { new UserDto() { UserId = 1 } } },
                 Pagination = new Pagination()
                 {
                     Page = settings.Page,
                     PageSize = settings.PageSize
                 }
             };
-            _usersRepoMock.Setup(repo => repo.GetUsersAsync(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
-                .ReturnsAsync(returnResult);
+            _usersRepoMock.Setup(repo => repo.GetUsers(It.Is<TableSettings>(t => t.PageSize > 0 && t.Page > 0)))
+                .Returns(returnResult);
             _privilegesRepository.Setup(t => t.IsUserHasPermissions(new[] { 1024 }, It.IsAny<int>())).ReturnsAsync(true);
 
             //act
-            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResultDto>;
+            var result = await _controller.GetAllUsers(settings.Page, settings.PageSize, filter, sort) as OkNegotiatedContentResult<QueryResult>;
 
             //assert
             Assert.IsNotNull(result);
-            Assert.IsInstanceOfType(result.Content, typeof(QueryResultDto));
+            Assert.IsInstanceOfType(result.Content, typeof(QueryResult));
         }
 
         [TestMethod]

@@ -4,6 +4,6 @@ namespace AdminStore.Models
 {
     public class Data
     {
-        public List<User> Users { get; set; }
+        public List<UserDto> Users { get; set; }
     }
 }

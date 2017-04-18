@@ -15,9 +15,7 @@ using ServiceLibrary.Attributes;
 using ServiceLibrary.Exceptions;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
-using ServiceLibrary.Models.Enums;
 using ServiceLibrary.Repositories.ConfigControl;
-
 
 namespace AdminStore.Controllers
 {
@@ -123,21 +121,9 @@ namespace AdminStore.Controllers
             }
             var orderField = UsersHelper.SortUsers(sort.ToLower(CultureInfo.InvariantCulture));
 
-            var result = await _userRepository.GetUsersAsync(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = orderField });
-            var dtoResult = new QueryResultDto()
-            {
-                Data = new DataDto() {Users = UserMapper.Map(result.Data.Users)},
-                Pagination =
-                    new PaginationDto()
-                    {
-                        Count = result.Pagination.Count,
-                        PageSize = result.Pagination.PageSize,
-                        Page = result.Pagination.Page,
-                        TotalCount = result.Pagination.Page
-                    }
-            };
+            var result = _userRepository.GetUsers(new TableSettings() { PageSize = pageSize, Page = page, Filter = filter, Sort = orderField });
 
-            return Ok(dtoResult);
+            return Ok(result);
         }
 
         /// <summary>

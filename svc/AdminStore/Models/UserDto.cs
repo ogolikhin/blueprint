@@ -1,6 +1,4 @@
-﻿using AdminStore.Models;
-
-namespace AdminStore.Dto
+﻿namespace AdminStore.Models
 {
     public class UserDto
     {
@@ -10,9 +8,7 @@ namespace AdminStore.Dto
         public string DisplayName { get; set; }
         public string Email { get; set; }
         public UserGroupSource Source { get; set; }
-        public bool EULAccepted { get; set; }
         public string LicenseType { get; set; }
-        public bool IsSso { get; set; }
         public bool? AllowFallback { get; set; }
         public int? InstanceAdminRoleId { get; set; }
         public int UserId { get; set; }

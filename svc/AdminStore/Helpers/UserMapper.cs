@@ -18,7 +18,6 @@ namespace AdminStore.Helpers
                     CurrentVersion = user.CurrentVersion,
                     Department = user.Department,
                     DisplayName = user.DisplayName,
-                    EULAccepted = user.EULAccepted,
                     Email = user.Email,
                     Enabled = user.Enabled,
                     ExpirePassword = user.ExpirePassword,
@@ -26,7 +25,6 @@ namespace AdminStore.Helpers
                     Guest = user.Guest,
                     Image_ImageId = user.Image_ImageId,
                     InstanceAdminRoleId = user.InstanceAdminRoleId,
-                    IsSso = user.IsSso,
                     Login = user.Login,
                     LastName = user.LastName,
                     Source = user.Source

@@ -126,7 +126,25 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<QueryResult> GetUsersAsync(TableSettings settings)
+        public QueryResult GetUsers(TableSettings settings)
+        {
+            var total = 0;
+            var users = GetUsersList(settings, out total).ToList();
+            var result = new QueryResult()
+            {
+                Data = new Data() { Users = UserMapper.Map(users) },
+                Pagination = new Pagination()
+                {
+                    TotalCount = total,
+                    Page = settings.Page,
+                    PageSize = settings.PageSize,
+                    Count = users.Count
+                }
+            };
+            return result;
+        }
+
+        private IEnumerable<User> GetUsersList(TableSettings settings, out int total)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Page", settings.Page);
@@ -134,20 +152,9 @@ namespace AdminStore.Repositories
             parameters.Add("@SearchUser", settings.Filter);
             parameters.Add("@OrderField", settings.Sort);
             parameters.Add("@Total", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            var res = (await _connectionWrapper.QueryAsync<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
-            var total = parameters.Get<int>("Total");
-            var result = new QueryResult()
-            {
-                Data = new Data() { Users = res.ToList() },
-                Pagination = new Pagination()
-                {
-                    TotalCount = total,
-                    Page = settings.Page,
-                    PageSize = settings.PageSize,
-                    Count = res.Count
-                }
-            };
-            return result;
+            var usersList = (_connectionWrapper.Query<User>("GetUsers", parameters, commandType: CommandType.StoredProcedure)).ToList();
+            total = parameters.Get<int>("Total");
+            return usersList;
         }
 
         public async Task<User> GetUser(int userId)

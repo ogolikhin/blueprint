@@ -93,6 +93,7 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="Common\Enums\InstanceAdminPrivileges.cs" />
     <Compile Include="ModelHelpers\ArtifactState.cs" />
     <Compile Include="ModelHelpers\ArtifactWrapper.cs" />
     <Compile Include="ArtifactModel\Impl\Review.cs" />
@@ -198,7 +199,7 @@
     <Compile Include="StorytellerModel\IProcessShape.cs" />
     <Compile Include="StorytellerModel\IProcess.cs" />
     <Compile Include="StorytellerModel\IStoryteller.cs" />
-    <Compile Include="Impl\AdminStoreUser.cs" />
+    <Compile Include="Impl\LoginUser.cs" />
     <Compile Include="Factories\AccessControlFactory.cs" />
     <Compile Include="Factories\AdminStoreFactory.cs" />
     <Compile Include="Factories\ArtifactFactory.cs" />
@@ -276,6 +277,7 @@
     <Compile Include="IUser.cs" />
     <Compile Include="Archive\ArtifactModel\IUserStory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Common\Enums\UserSource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

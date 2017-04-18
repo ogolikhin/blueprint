@@ -5,14 +5,6 @@ using Model.Common.Enums;
 
 namespace Model
 {
-    public enum UserSource
-    {
-        Unknown = -1,
-        Database = 0,
-        Windows = 1
-    }
-
-
     public interface IUser
     {
         #region Properties

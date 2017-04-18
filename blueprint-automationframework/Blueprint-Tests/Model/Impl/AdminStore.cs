@@ -256,17 +256,16 @@ namespace Model.Impl
                     expectedStatusCodes: expectedStatusCodes);
 
                 Logger.WriteInfo("Deserializing user object...");
-                var adminStoreUser = JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
+                var loginUser = JsonConvert.DeserializeObject<LoginUser>(response.Content);
 
                 var user = UserFactory.CreateUserOnly();
-                user.Department = adminStoreUser.Department;
-                user.DisplayName = adminStoreUser.DisplayName;
-                user.Email = adminStoreUser.Email;
-                user.FirstName = adminStoreUser.FirstName;
-                user.LastName = adminStoreUser.LastName;
-                user.License = adminStoreUser.License;
-                user.Username = adminStoreUser.Username;
-                user.InstanceAdminRole = adminStoreUser.InstanceAdminRole;
+                user.DisplayName = loginUser.DisplayName;
+                user.Email = loginUser.Email;
+                user.FirstName = loginUser.FirstName;
+                user.LastName = loginUser.LastName;
+                user.License = loginUser.LicenseType;
+                user.Username = loginUser.Login;
+                user.InstanceAdminRole = loginUser.InstanceAdminRoleId;
                 user.SetToken(token);
 
                 return user;

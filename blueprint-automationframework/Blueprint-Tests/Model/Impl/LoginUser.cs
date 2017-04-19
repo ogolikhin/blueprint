@@ -60,6 +60,7 @@ namespace Model.Impl
         /// <summary>
         /// True if this user is allowed to fallback to non-SSO authentication.
         /// </summary>
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public bool? AllowFallback { get; set; }
 
         /// <summary>

@@ -129,9 +129,9 @@ namespace Model
         /// (Runs: POST /users)
         /// </summary>
         /// <param name="adminUser">The admin user creating the user.</param>
-        /// <param name="user">A user object representing the user to be created.</param>
+        /// <param name="user">An InstanceUser object representing the user to be created.</param>
         /// <returns>The returned HTTP Status Code</returns>
-        HttpStatusCode CreateUser(IUser adminUser, IUser user);
+        HttpStatusCode CreateUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
         /// Deletes a user.
@@ -187,8 +187,8 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user updating the user.</param>
         /// <param name="user">An InstanceUser object representing the user to update.</param>
-        /// <returns>An InstanceUser object</returns>
-        InstanceUser UpdateUser(IUser adminUser, InstanceUser user);
+        /// <returns>The returned HTTP Status Code</returns>
+        HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.

@@ -13,7 +13,7 @@ using Utilities.Facades;
 using System.Web;
 using System.Net.Mime;
 using Model.Factories;
-using Model.ModelHelpers;
+using Model.ArtifactModel.Impl.OperationsResults;
 using Model.NovaModel.Impl;
 
 namespace Model.Impl
@@ -885,6 +885,7 @@ namespace Model.Impl
                 expectedStatusCodes: expectedStatusCodes, shouldControlJsonChanges: true);
         }
 
+        /// <seealso cref="IArtifactStore.GetBaselineInfo(List{int}, IUser)"/>
         public List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user)
         {
             var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
@@ -892,6 +893,16 @@ namespace Model.Impl
             return restApi.SendRequestAndDeserializeObject<List<BaselineInfo>, List<int>>(
                 RestPaths.Svc.ArtifactStore.Artifacts.BASELINE_INFO, RestRequestMethod.POST,
                 baselineIds, shouldControlJsonChanges: true);
+        }
+
+        /// <seealso cref="IArtifactStore.GetReviewArtifacts(IUser, int)"/>
+        public GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId)
+        {
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.ArtifactStore.Review_id_.CONTENT, reviewId);
+            var restApi = new RestApiFacade(Address, user?.Token?.AccessControlToken);
+
+            return restApi.SendRequestAndDeserializeObject<GetReviewArtifactsResultSet>(path,
+                RestRequestMethod.GET, shouldControlJsonChanges: true);
         }
 
         #region Process methods

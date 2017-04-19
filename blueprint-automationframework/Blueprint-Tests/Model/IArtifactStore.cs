@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net;
 using Model.ArtifactModel.Enums;
 using Model.ModelHelpers;
+using Model.ArtifactModel.Impl.OperationsResults;
 
 namespace Model
 {
@@ -620,6 +621,14 @@ namespace Model
         /// <param name="user">user to perform the operation.</param>
         /// <returns>List of BaselineInfo</returns>
         List<BaselineInfo> GetBaselineInfo(List<int> baselineIds, IUser user);
+
+        /// <summary>
+        /// Gets Review Artifacts
+        /// </summary>
+        /// <param name="user">user to perform the operation. </param>
+        /// <param name="reviewId">Id of Review.</param>
+        /// <returns>Object containing list of artifacts and number of artifacts</returns>
+        GetReviewArtifactsResultSet GetReviewArtifacts(IUser user, int reviewId);
 
         #region Process methods
 

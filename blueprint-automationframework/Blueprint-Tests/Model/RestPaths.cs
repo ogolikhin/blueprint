@@ -273,6 +273,11 @@ namespace Model
                     }
                 }
 
+                public static class Review_id_
+                {
+                    public const string CONTENT                     = "svc/bpartifactstore/reviews/{0}/content";
+                }
+
                 public static class Status
                 {
                     public const string UPCHECK                     = "svc/artifactstore/status/upcheck";

@@ -162,7 +162,7 @@ namespace AccessControlTests
             }, "'GET {0}' should return 401 Unauthorized when the token provided is invalid.", REST_PATH_LOCKED);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse);
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse); // After bug 5826 is fixed, this should be changed to verify that the proper internal error code and message are returned.
         }
 
         #endregion GetLicensesInfo tests

@@ -21,6 +21,7 @@ namespace AccessControlTests
         private const string MONTH_IS_INVALID = "Specified month is invalid";
         private const string YEAR_NOT_SPECIFIED = "A year must be specified";
         private const string MONTH_NOT_SPECIFIED = "A month must be specified";
+        private const string YEAR_AND_MONTH_ARE_INVALID = "Specified year and month are invalid"; // Placeholder. Unknown if this is going to be the message used when bug 6373 is fixed.
 
         private const string REST_PATH_ACTIVE = RestPaths.Svc.AccessControl.Licenses.ACTIVE;
         private const string REST_PATH_LOCKED = RestPaths.Svc.AccessControl.Licenses.LOCKED;
@@ -56,42 +57,6 @@ namespace AccessControlTests
             Logger.WriteTrace("TearDown() is deleting all sessions created by the tests...");
             Helper?.Dispose();
         }
-
-        #region Private functions
-
-        /// <summary>
-        /// Adds (POST's) the specified session to the AccessControl service.
-        /// </summary>
-        /// <param name="session">The session to add.</param>
-        /// <returns>The session that was added including the session token.</returns>
-        private ISession AddSessionToAccessControl(ISession session)
-        {
-            // POST the new session.
-            var createdSession = Helper.AccessControl.AddSession(session);
-
-            // Verify that the POST returned the expected session.
-            Assert.True(session.Equals(createdSession),
-                "POST returned a different session than expected!  Got '{0}', but expected '{1}'.",
-                createdSession.SessionId, session.SessionId);
-
-            return createdSession;
-        }
-
-        /// <summary>
-        /// Creates a random session and adds (POST's) it to the AccessControl service.
-        /// </summary>
-        /// <param name="sessionUser">The user for whom the session is created.</param>
-        /// <returns>The session that was added including the session token.</returns>
-        private ISession CreateAndAddSessionToAccessControl(IUser sessionUser = null)
-        {
-            sessionUser = sessionUser ?? _user;
-            var session = SessionFactory.CreateSession(sessionUser);
-
-            // POST the new session.
-            return AddSessionToAccessControl(session);
-        }
-
-        #endregion Private functions
 
         #region GetLicensesInfo tests
 
@@ -185,7 +150,7 @@ namespace AccessControlTests
         }
 
         [TestCase(null)]
-        [TestCase(CommonConstants.InvalidToken, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // TFS bug 5823
+        [TestCase(CommonConstants.InvalidToken)]
         [TestRail(267191)]
         [Description("Check that GET svc/AccessControl/licenses/locked with an invalid token return 401 Unauthorized.")]
         public void GetLockedLicensesInfo_InvalidToken_401Unauthorized(string token)
@@ -194,10 +159,10 @@ namespace AccessControlTests
             var ex = Assert.Throws<Http401UnauthorizedException>(() =>
             {
                 Helper.AccessControl.GetLicensesInfo(LicenseState.locked, token);
-            }, "'GET {0}' should return 401 Unauthorized the token provided in invalid.", REST_PATH_LOCKED);
+            }, "'GET {0}' should return 401 Unauthorized when the token provided is invalid.", REST_PATH_LOCKED);
 
             // Verify:
-            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse); // To be changed after bug 5823 is fixed.
+            TestHelper.AssertResponseBodyIsEmpty(ex.RestResponse); // After bug 5826 is fixed, this should be changed to verify that the proper internal error code and message are returned.
         }
 
         #endregion GetLicensesInfo tests
@@ -255,6 +220,7 @@ namespace AccessControlTests
         [TestCase(2016, 13, MONTH_IS_INVALID)]
         [TestCase(null, 10, YEAR_NOT_SPECIFIED)]
         [TestCase(2016, null, MONTH_NOT_SPECIFIED)]
+        [TestCase(9999, 13, YEAR_AND_MONTH_ARE_INVALID, Explicit = true, IgnoreReason = IgnoreReasons.ProductBug)] // TFS bug 6373
         [TestRail(227249)]
         [Description("Pass invalid month or year values to GetLicenseUsage and verify it returns 400 Bad Request.")]
         public void GetLicenseUsage_WithInvalidMonthOrYear_400BadRequest(int? year, int? month, string expectedError)
@@ -272,7 +238,41 @@ namespace AccessControlTests
                 "The response body should contain the error: '{0}'", expectedError);
         }
 
+        #endregion GetLicenseUsage tests
+
         #region Private functions
+
+        /// <summary>
+        /// Adds (POST's) the specified session to the AccessControl service.
+        /// </summary>
+        /// <param name="session">The session to add.</param>
+        /// <returns>The session that was added including the session token.</returns>
+        private ISession AddSessionToAccessControl(ISession session)
+        {
+            // POST the new session.
+            var createdSession = Helper.AccessControl.AddSession(session);
+
+            // Verify that the POST returned the expected session.
+            Assert.True(session.Equals(createdSession),
+                "POST returned a different session than expected!  Got '{0}', but expected '{1}'.",
+                createdSession.SessionId, session.SessionId);
+
+            return createdSession;
+        }
+
+        /// <summary>
+        /// Creates a random session and adds (POST's) it to the AccessControl service.
+        /// </summary>
+        /// <param name="sessionUser">(optional) The user for whom the session is created.</param>
+        /// <returns>The session that was added including the session token.</returns>
+        private ISession CreateAndAddSessionToAccessControl(IUser sessionUser = null)
+        {
+            sessionUser = sessionUser ?? _user;
+            var session = SessionFactory.CreateSession(sessionUser);
+
+            // POST the new session.
+            return AddSessionToAccessControl(session);
+        }
 
         /// <summary>
         /// Verifying couple of elements in the response list
@@ -283,7 +283,7 @@ namespace AccessControlTests
         /// <param name="month">The month requested in the REST call.</param>
         private static void VerifySomeProperties(LicenseUsage licenseUsageInfo, bool expectedEmptyResponse, int? year, int? month)
         {
-            Assert.IsNotNull(licenseUsageInfo, "License usage information should ever be null!");
+            Assert.IsNotNull(licenseUsageInfo, "License usage information should never be null!");
 
             if (!expectedEmptyResponse)
             {
@@ -345,15 +345,15 @@ namespace AccessControlTests
         /// <param name="licenseUsageSummary">The LicenseUsageSummary to verify.</param>
         /// <param name="yearMonth">The expected year and month.</param>
         /// <param name="uniqueAuthors">The expected uniqueAuthors.</param>
-        /// <param name="uniqueCollaborators">The expected uniqueCollaborators.</param>
-        /// <param name="uniqueViewers">The expected uniqueViewers.</param>
-        /// <param name="usersFromAnalytics">The expected usersFromAnalytics.</param>
-        /// <param name="usersFromRestApi">The expected usersFromRestApi.</param>
-        /// <param name="maxConcurrentAuthors">The expected maxConcurrentAuthors.</param>
-        /// <param name="maxConcurrentCollaborators">The expected maxConcurrentCollaborators.</param>
-        /// <param name="maxConcurrentViewers">The expected maxConcurrentViewers.</param>
+        /// <param name="uniqueCollaborators">(optional) The expected uniqueCollaborators.</param>
+        /// <param name="uniqueViewers">(optional) The expected uniqueViewers.</param>
+        /// <param name="usersFromAnalytics">(optional) The expected usersFromAnalytics.</param>
+        /// <param name="usersFromRestApi">(optional) The expected usersFromRestApi.</param>
+        /// <param name="maxConcurrentAuthors">(optional) The expected maxConcurrentAuthors.</param>
+        /// <param name="maxConcurrentCollaborators">(optional) The expected maxConcurrentCollaborators.</param>
+        /// <param name="maxConcurrentViewers">(optional) The expected maxConcurrentViewers.</param>
         private static void VerifyLicenseUsageValues(LicenseUsageSummary licenseUsageSummary, int yearMonth, int uniqueAuthors, int uniqueCollaborators = 0,
-            int uniqueViewers = 0, int usersFromAnalytics = 0, int usersFromRestApi = 0, int maxConcurrentAuthors = 1, int maxConcurrentCollaborators = 0, 
+            int uniqueViewers = 0, int usersFromAnalytics = 0, int usersFromRestApi = 0, int maxConcurrentAuthors = 1, int maxConcurrentCollaborators = 0,
             int maxConcurrentViewers = 0)
         {
             Assert.AreEqual(yearMonth, licenseUsageSummary.YearMonth, "The yearMonth should be {0}!", yearMonth);
@@ -382,7 +382,5 @@ namespace AccessControlTests
         }
 
         #endregion Private functions
-
-        #endregion GetLicenseUsage tests
     }
 }

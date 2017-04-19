@@ -446,6 +446,12 @@ namespace Model.Impl
             return discussionReplies;
         }
 
+        /// <seealso cref="IArtifactStore.GetAttachments(IUser, int, bool?, int?, int?)"/>
+        public Attachments GetAttachments(IUser user, int artifactId, bool? addDrafts = null, int? versionId = null, int? subArtifactId = null)
+        {
+            return GetAttachments(Address, artifactId, user, addDrafts, versionId, subArtifactId);
+        }
+
         /// <seealso cref="IArtifactStore.GetAttachments(IArtifactBase, IUser, bool?, int?, int?, List{HttpStatusCode}, IServiceErrorMessage)"/>
         public Attachments GetAttachments(IArtifactBase artifact, IUser user, bool? addDrafts = null, int? versionId = null,
             int? subArtifactId = null, List<HttpStatusCode> expectedStatusCodes = null, IServiceErrorMessage expectedServiceErrorMessage = null)

@@ -375,7 +375,7 @@ namespace Model.ArtifactModel.Impl
         public string DiagramType { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
-        public List<object> Shapes { get; set; }
+        public List<Shape> Shapes { get; set; }
         public List<object> Connections { get; set; }
         public int LibraryVersion { get; set; }
 

@@ -228,16 +228,53 @@ namespace Model.Impl
             Sessions.RemoveAll(session => session.SessionId == token);
         }
 
-        /// <seealso cref="IAdminStore.CreateUser(IUser, IUser)"/>
-        public HttpStatusCode CreateUser(IUser adminUser, IUser user)
+        /// <seealso cref="IAdminStore.CreateUser(IUser, InstanceUser)"/>
+        public HttpStatusCode CreateUser(IUser adminUser, InstanceUser user)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = RestPaths.Svc.AdminStore.Users.USERS;
+
+            try
+            {
+                Logger.WriteInfo("Creating user...");
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.POST,
+                    bodyObject: user);
+
+                return response.StatusCode;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing CreateUser - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.DeleteUser(IUser, int)"/>
         public HttpStatusCode DeleteUser(IUser adminUser, int userId)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
+
+            try
+            {
+                Logger.WriteInfo("Deleting user with Id: {0}", userId);
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.DELETE);
+
+                return response.StatusCode;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing DeleteUser - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
@@ -250,23 +287,19 @@ namespace Model.Impl
             {
                 Logger.WriteInfo("Getting logged in user's info...");
 
-                var response = restApi.SendRequestAndGetResponse(
+                var loginUser = restApi.SendRequestAndDeserializeObject<LoginUser>(
                     path,
                     RestRequestMethod.GET,
                     expectedStatusCodes: expectedStatusCodes);
 
-                Logger.WriteInfo("Deserializing user object...");
-                var adminStoreUser = JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
-
                 var user = UserFactory.CreateUserOnly();
-                user.Department = adminStoreUser.Department;
-                user.DisplayName = adminStoreUser.DisplayName;
-                user.Email = adminStoreUser.Email;
-                user.FirstName = adminStoreUser.FirstName;
-                user.LastName = adminStoreUser.LastName;
-                user.License = adminStoreUser.License;
-                user.Username = adminStoreUser.Username;
-                user.InstanceAdminRole = adminStoreUser.InstanceAdminRole;
+                user.DisplayName = loginUser.DisplayName;
+                user.Email = loginUser.Email;
+                user.FirstName = loginUser.FirstName;
+                user.LastName = loginUser.LastName;
+                user.License = loginUser.LicenseType;
+                user.Username = loginUser.Login;
+                user.InstanceAdminRole = loginUser.InstanceAdminRoleId;
                 user.SetToken(token);
 
                 return user;
@@ -280,27 +313,119 @@ namespace Model.Impl
         }
 
         /// <seealso cref="IAdminStore.GetUserById(IUser, int)"/>
-        public IUser GetUserById(IUser adminUser, int userId)
+        public InstanceUser GetUserById(IUser adminUser, int userId)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
+
+            try
+            {
+                Logger.WriteInfo("Getting user by user id...");
+
+                return restApi.SendRequestAndDeserializeObject<InstanceUser>(
+                    path,
+                    RestRequestMethod.GET);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUserById - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string)"/>
-        public IUser GetUserByLogin(IUser adminUser, string login)
+        public InstanceUser GetUserByLogin(IUser adminUser, string login)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.SEARCH, login);
+
+            try
+            {
+                Logger.WriteInfo("Getting user by user login...");
+
+                return restApi.SendRequestAndDeserializeObject<InstanceUser>(
+                    path,
+                    RestRequestMethod.GET);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUserByLogin - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string)"/>
-        public List<IUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null)
+        public List<InstanceUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null)
         {
-            throw new NotImplementedException();
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS);
+
+            var queryParameters = new Dictionary<string, string>();
+
+            if (page != null)
+            {
+                queryParameters.Add("page", page.ToStringInvariant());
+            }
+
+            if (pageSize != null)
+            {
+                queryParameters.Add("pageSize", pageSize.ToStringInvariant());
+            }
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                queryParameters.Add("filter", filter);
+            }
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                queryParameters.Add("sort", sort);
+            }
+
+            try
+            {
+                Logger.WriteInfo("Getting users...");
+
+                return restApi.SendRequestAndDeserializeObject< List<InstanceUser>>(
+                    path,
+                    RestRequestMethod.GET,
+                    queryParameters: queryParameters);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUsers - {0}", ex.Message);
+                throw;
+            }
         }
 
-        /// <seealso cref="IAdminStore.UpdateUser(IUser, IUser)"/>
-        public IUser UpdateUser(IUser adminUser, IUser user)
+        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser)"/>
+        public HttpStatusCode UpdateUser(IUser adminUser, InstanceUser user)
         {
-            throw new NotImplementedException();
+            ThrowIf.ArgumentNull(user, nameof(user));
+
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, user.Id);
+
+            try
+            {
+                Logger.WriteInfo("Updating user with Id: {0}", user.Id);
+
+                var response = restApi.SendRequestAndGetResponse(
+                    path,
+                    RestRequestMethod.PUT,
+                    bodyObject: user);
+
+                return response.StatusCode;
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing UpdateUser - {0}", ex.Message);
+                throw;
+            }
         }
 
         /// <seealso cref="IAdminStore.GetSession(int?)"/>

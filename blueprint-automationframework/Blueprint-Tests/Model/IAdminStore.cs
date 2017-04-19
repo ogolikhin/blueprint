@@ -152,13 +152,13 @@ namespace Model
         IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null);
 
         /// <summary>
-        /// Gets a user by user Id.
+        /// Gets an user by user Id.
         /// (Runs: GET /users/{userId})
         /// </summary>
         /// <param name="adminUser">The admin user getting the user.</param>
         /// <param name="userId">The user id of the user.</param>
-        /// <returns>A user object</returns>
-        IUser GetUserById(IUser adminUser, int userId);
+        /// <returns>An InstanceUser object</returns>
+        InstanceUser GetUserById(IUser adminUser, int userId);
 
         /// <summary>
         /// Gets a user by user login.
@@ -166,8 +166,8 @@ namespace Model
         /// </summary>
         /// <param name="adminUser">The admin user getting the user.</param>
         /// <param name="login">The login of the user.</param>
-        /// <returns>A user object</returns>
-        IUser GetUserByLogin(IUser adminUser, string login);
+        /// <returns>An InstanceUser object</returns>
+        InstanceUser GetUserByLogin(IUser adminUser, string login);
 
         /// <summary>
         /// Gets a list of non-deleted users matching a specified filter.
@@ -178,17 +178,17 @@ namespace Model
         /// <param name="pageSize">(optional) The number of users on a page.</param>
         /// <param name="filter">(optional) A query filter to determine which users to diplay.</param>
         /// <param name="sort">(optional) A comma-delimited list of columns to sort by.</param>
-        /// <returns>A list of user objects</returns>
-        List<IUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null);
+        /// <returns>A list of InstanceUser objects</returns>
+        List<InstanceUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null);
 
         /// <summary>
         /// Updates a user.
         /// (Runs: PUT /users/{userId})
         /// </summary>
         /// <param name="adminUser">The admin user updating the user.</param>
-        /// <param name="user">A user object representing the user to update.</param>
-        /// <returns>A user object</returns>
-        IUser UpdateUser(IUser adminUser, IUser user);
+        /// <param name="user">An InstanceUser object representing the user to update.</param>
+        /// <returns>An InstanceUser object</returns>
+        InstanceUser UpdateUser(IUser adminUser, InstanceUser user);
 
         /// <summary>
         /// Checks if the AdminStore service is ready for operation.

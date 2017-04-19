@@ -228,6 +228,18 @@ namespace Model.Impl
             Sessions.RemoveAll(session => session.SessionId == token);
         }
 
+        /// <seealso cref="IAdminStore.CreateUser(IUser, IUser)"/>
+        public HttpStatusCode CreateUser(IUser adminUser, IUser user)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.DeleteUser(IUser, int)"/>
+        public HttpStatusCode DeleteUser(IUser adminUser, int userId)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <seealso cref="IAdminStore.GetLoginUser(string, List{HttpStatusCode})"/>
         public IUser GetLoginUser(string token, List<HttpStatusCode> expectedStatusCodes = null)
         {
@@ -244,17 +256,16 @@ namespace Model.Impl
                     expectedStatusCodes: expectedStatusCodes);
 
                 Logger.WriteInfo("Deserializing user object...");
-                var adminStoreUser = JsonConvert.DeserializeObject<AdminStoreUser>(response.Content);
+                var loginUser = JsonConvert.DeserializeObject<LoginUser>(response.Content);
 
                 var user = UserFactory.CreateUserOnly();
-                user.Department = adminStoreUser.Department;
-                user.DisplayName = adminStoreUser.DisplayName;
-                user.Email = adminStoreUser.Email;
-                user.FirstName = adminStoreUser.FirstName;
-                user.LastName = adminStoreUser.LastName;
-                user.License = adminStoreUser.License;
-                user.Username = adminStoreUser.Username;
-                user.InstanceAdminRole = adminStoreUser.InstanceAdminRole;
+                user.DisplayName = loginUser.DisplayName;
+                user.Email = loginUser.Email;
+                user.FirstName = loginUser.FirstName;
+                user.LastName = loginUser.LastName;
+                user.License = loginUser.LicenseType;
+                user.Username = loginUser.Login;
+                user.InstanceAdminRole = loginUser.InstanceAdminRoleId;
                 user.SetToken(token);
 
                 return user;
@@ -265,6 +276,62 @@ namespace Model.Impl
                 Logger.WriteError("Error while getting GetLoginUser - {0}", ex.Message);
                 throw;
             }
+        }
+
+        /// <seealso cref="IAdminStore.GetUserById(IUser, int)"/>
+        public InstanceUser GetUserById(IUser adminUser, int userId)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.USERS_id_, userId);
+
+            try
+            {
+                Logger.WriteInfo("Getting user by user id...");
+
+                return restApi.SendRequestAndDeserializeObject<InstanceUser>(
+                    path,
+                    RestRequestMethod.GET);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUserById - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.GetUserByLogin(IUser, string)"/>
+        public InstanceUser GetUserByLogin(IUser adminUser, string login)
+        {
+            var restApi = new RestApiFacade(Address, adminUser?.Token?.AccessControlToken);
+            string path = I18NHelper.FormatInvariant(RestPaths.Svc.AdminStore.Users.SEARCH, login);
+
+            try
+            {
+                Logger.WriteInfo("Getting user by user login...");
+
+                return restApi.SendRequestAndDeserializeObject<InstanceUser>(
+                    path,
+                    RestRequestMethod.GET);
+            }
+            catch (WebException ex)
+            {
+                Logger.WriteError("Content = '{0}'", restApi.Content);
+                Logger.WriteError("Error while performing GetUserByLogin - {0}", ex.Message);
+                throw;
+            }
+        }
+
+        /// <seealso cref="IAdminStore.GetUsers(IUser, int?, int?, string, string)"/>
+        public List<InstanceUser> GetUsers(IUser adminUser, int? page = null, int? pageSize = null, string filter = null, string sort = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <seealso cref="IAdminStore.UpdateUser(IUser, InstanceUser)"/>
+        public InstanceUser UpdateUser(IUser adminUser, InstanceUser user)
+        {
+            throw new NotImplementedException();
         }
 
         /// <seealso cref="IAdminStore.GetSession(int?)"/>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Common;
 using CustomAttributes;
 using Helper;
@@ -180,6 +181,9 @@ namespace AdminStoreTests.UsersTests
 
                 recoveryToken = AdminStoreHelper.GetRecoveryTokenFromDatabase(user.Username);
                 recoveryTokens.Add(recoveryToken);
+
+                // We need to wait 1s between requests to ensure the CreationTime of the tokens is different.
+                Thread.Sleep(1000);
             }
 
             // Execute:

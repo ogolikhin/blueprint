@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using AdminStore.Helpers;
 using AdminStore.Models;
 using Dapper;
+using ServiceLibrary.Exceptions;
 using ServiceLibrary.Repositories;
 using ServiceLibrary.Helpers;
 using ServiceLibrary.Models;
@@ -127,7 +129,7 @@ namespace AdminStore.Repositories
             return await _adminStorageConnectionWrapper.QueryAsync<PasswordRecoveryToken>("GetUserPasswordRecoveryTokens", prm, commandType: CommandType.StoredProcedure);
         }
 
-        public  Task<int> AddUserAsync(User loginUser)
+        public async Task<int> AddUserAsync(User loginUser)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@Login", loginUser.Login);
@@ -148,7 +150,26 @@ namespace AdminStore.Repositories
             if(loginUser.GroupMembership != null)
                 parameters.Add("@GroupMembership", SqlConnectionWrapper.ToDataTable(loginUser.GroupMembership, "Int32Collection", "Int32Value"));
             parameters.Add("@Guest", loginUser.Guest);
-            return   _connectionWrapper.ExecuteScalarAsync<int>("AddUser", parameters, commandType: CommandType.StoredProcedure);
+            parameters.Add("@ErrorCode", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            var userId = await _connectionWrapper.ExecuteScalarAsync<int>("AddUser", parameters, commandType: CommandType.StoredProcedure);
+            var errorCode = parameters.Get<int?>("ErrorCode");
+
+            if (errorCode.HasValue)
+            {
+                switch (errorCode.Value)
+                {
+                    case (int) SqlErrorCodes.GeneralSqlError:
+                        throw new BadRequestException(ErrorMessages.GeneralErrorOfCreatingUser);
+
+                    case (int) SqlErrorCodes.UserLoginExist:
+                        throw new BadRequestException(ErrorMessages.LoginNameUnique);
+
+                    default:
+                        return userId;
+                }
+            }
+            return userId;
         }
 
         public async Task<bool> HasUserExceededPasswordRequestLimitAsync(string login)

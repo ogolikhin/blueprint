@@ -82,10 +82,10 @@ namespace AdminStore.Controllers
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u => u.Login != ExistedUserLogin)))
                 .ReturnsAsync(CreatedUserId);
 
-            var sqlException = new SqlExceptionBuilder().WithErrorNumber(50001).Build();
+            var badRequestException = new BadRequestException(ErrorMessages.LoginNameUnique);
             _usersRepoMock
                 .Setup(repo => repo.AddUserAsync(It.Is<User>(u=> u.Login == ExistedUserLogin)))
-                .ThrowsAsync(sqlException);
+                .ThrowsAsync(badRequestException);
         }
 
         #region Constuctor

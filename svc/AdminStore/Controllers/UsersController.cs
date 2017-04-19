@@ -369,75 +369,65 @@ namespace AdminStore.Controllers
         [Route(""), BaseExceptionFilter]
         public async Task<HttpResponseMessage> PostUser([FromBody] Models.DTO.User user)
         {
-            try
+            var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
+            if (session == null)
             {
-                var session = Request.Properties[ServiceConstants.SessionProperty] as Session;
-                if (session == null)
-                {
-                    throw new BadRequestException(ErrorMessages.SessionIsEmpty);
-                }
-
-                if (user == null)
-                {
-                    throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
-                }
-
-                var userPermissions = await _sqlPrivilegesRepository.GetUserPermissionsAsync(session.UserId);
-                if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
-                    throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
-
-                if (user.InstanceAdminRoleId.HasValue &&
-                    (!PermissionsChecker.IsFlagBelongPermissions(userPermissions,
-                        InstanceAdminPrivileges.AssignAdminRoles)))
-                {
-                    throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
-                }
-
-                ModelValidator.ValidateUserModel(user);
-
-                var databaseUser = new User
-                {
-                    Department = user.Department,
-                    Enabled = user.Enabled,
-                    ExpirePassword = user.ExpirePassword,
-                    GroupMembership = user.GroupMembership,
-                    Guest = user.Guest,
-                    ImageId = user.ImageId,
-                    Title = user.Title,
-                    Login = user.Login,
-                    Source = user.Source,
-                    InstanceAdminRoleId = user.InstanceAdminRoleId,
-                    AllowFallback = user.AllowFallback,
-                    DisplayName = user.DisplayName,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    UserSALT = Guid.NewGuid()
-                };
-
-                if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
-                {
-                    var decodedPassword = SystemEncryptions.Decode(user.NewPassword);
-                    ModelValidator.ValidateUserPassword(decodedPassword);
-                    if (databaseUser.UserSALT != null)
-                        databaseUser.NewPassword = HashingUtilities.GenerateSaltedHash(decodedPassword, (Guid)databaseUser.UserSALT);
-                }
-                else
-                {
-                    databaseUser.NewPassword = null;
-                }
-             
-                var userId = await _userRepository.AddUserAsync(databaseUser);
-                return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
+                throw new BadRequestException(ErrorMessages.SessionIsEmpty);
             }
-            catch (SqlException exception)
+
+            if (user == null)
             {
-                if (exception.Number == (int) SqlErrorCodes.UserLoginExist)
-                {
-                    throw new BadRequestException(ErrorMessages.LoginNameUnique);
-                }
-                throw;
+                throw new BadRequestException(ErrorMessages.UserModelIsEmpty, ErrorCodes.BadRequest);
             }
+
+            var userPermissions = await _sqlPrivilegesRepository.GetUserPermissionsAsync(session.UserId);
+            if (!PermissionsChecker.IsFlagBelongPermissions(userPermissions, InstanceAdminPrivileges.ManageUsers))
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+
+            if (user.InstanceAdminRoleId.HasValue &&
+                (!PermissionsChecker.IsFlagBelongPermissions(userPermissions,
+                    InstanceAdminPrivileges.AssignAdminRoles)))
+            {
+                throw new AuthorizationException(ErrorMessages.UserDoesNotHavePermissions, ErrorCodes.Forbidden);
+            }
+
+            ModelValidator.ValidateUserModel(user);
+
+            var databaseUser = new User
+            {
+                Department = user.Department,
+                Enabled = user.Enabled,
+                ExpirePassword = user.ExpirePassword,
+                GroupMembership = user.GroupMembership,
+                Guest = user.Guest,
+                ImageId = user.ImageId,
+                Title = user.Title,
+                Login = user.Login,
+                Source = user.Source,
+                InstanceAdminRoleId = user.InstanceAdminRoleId,
+                AllowFallback = user.AllowFallback,
+                DisplayName = user.DisplayName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                UserSALT = Guid.NewGuid()
+            };
+
+            if (!user.AllowFallback.HasValue || !user.AllowFallback.Value)
+            {
+                var decodedPassword = SystemEncryptions.Decode(user.NewPassword);
+                ModelValidator.ValidateUserPassword(decodedPassword);
+                if (databaseUser.UserSALT != null)
+                    databaseUser.NewPassword = HashingUtilities.GenerateSaltedHash(decodedPassword,
+                        (Guid) databaseUser.UserSALT);
+            }
+            else
+            {
+                databaseUser.NewPassword = null;
+            }
+
+            var userId = await _userRepository.AddUserAsync(databaseUser);
+            return Request.CreateResponse<int>(HttpStatusCode.Created, userId);
         }
     }
 }

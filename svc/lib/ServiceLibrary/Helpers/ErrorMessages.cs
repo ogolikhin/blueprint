@@ -23,5 +23,6 @@ namespace ServiceLibrary.Helpers
         public static readonly string TitleFieldLimitation = "The length of the \"Title\" field must be between 2 and 255 characters.";
         public static readonly string DepartmentFieldLimitation = "The length of the \"Department\" field must be between 1 and 255 characters.";
         public static readonly string UserModelIsEmpty = "The user model is empty.";
+        public static readonly string GeneralErrorOfCreatingUser = "The user was not created.";
     }
 }

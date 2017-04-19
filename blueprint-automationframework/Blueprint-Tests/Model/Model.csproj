@@ -93,6 +93,7 @@
     <Compile Include="ArtifactModel\Impl\OpenApiProperty.cs" />
     <Compile Include="ArtifactModel\Impl\OpenApiTrace.cs" />
     <Compile Include="ArtifactModel\Impl\PropertyBase.cs" />
+    <Compile Include="ArtifactModel\Impl\Shape.cs" />
     <Compile Include="ModelHelpers\ArtifactState.cs" />
     <Compile Include="ModelHelpers\ArtifactWrapper.cs" />
     <Compile Include="ArtifactModel\Impl\Review.cs" />

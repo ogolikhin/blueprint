@@ -19,6 +19,8 @@ namespace ArtifactStoreTests
         private IUser _user = null;
         private IProject _project = null;
 
+        private static int USECASEDIAGRAM_WITHACTOR_ID = 144;
+
         #region Setup and Cleanup
 
         [TestFixtureSetUp]
@@ -81,6 +83,31 @@ namespace ArtifactStoreTests
                 "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
 
             NovaArtifactDetails.AssertArtifactsEqual(diagramArtifact, retrievedArtifactVersion1);
+        }
+
+        [Explicit(IgnoreReasons.ProductBug)] // Trello bug: https://trello.com/c/hy2AlWHo
+        [Category(Categories.CustomData)]
+        [Category(Categories.GoldenData)]
+        [TestCase]
+        [TestRail(290207)]
+        [Description("Get the use case diagram artifact which contains an Actor association with attachment & comment. " +
+            "Verify that the indicator flags contains the values for traces, attachements and comments.")]
+        public void GetUseCaseDiagramArtifact_WithActor_VerifyIndicatorFlags()
+        {
+            // getting the latest version of the artifact using open API GetArtifact
+            var retrievedArtifact = Helper.ArtifactStore.GetArtifactDetails(_user, USECASEDIAGRAM_WITHACTOR_ID);
+
+            // Execution: Get the use case diagram artifact an actor association
+            NovaDiagramArtifact usecaseDiagramArtifact = null;
+            Assert.DoesNotThrow(() => { usecaseDiagramArtifact = Helper.ArtifactStore.GetDiagramArtifact(_user, USECASEDIAGRAM_WITHACTOR_ID); },
+                "'GET {0}' should return 200 OK when passed a valid artifact ID!", RestPaths.Svc.ArtifactStore.DIAGRAM_id_);
+
+            // Verify: Verify that the shape indicatorflags contains traces, attachments and comments values.
+            NovaArtifactDetails.AssertArtifactsEqual(usecaseDiagramArtifact, retrievedArtifact);
+
+            ArtifactStoreHelper.VerifyIndicatorFlags(Helper, _user, USECASEDIAGRAM_WITHACTOR_ID,
+                ItemIndicatorFlags.HasManualReuseOrOtherTraces | ItemIndicatorFlags.HasAttachmentsOrDocumentRefs | ItemIndicatorFlags.HasComments,
+                usecaseDiagramArtifact.Shapes[0].Id);
         }
 
         #endregion 200 OK Tests

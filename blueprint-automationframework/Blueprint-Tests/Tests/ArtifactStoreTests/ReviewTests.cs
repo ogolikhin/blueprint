@@ -1,7 +1,6 @@
 ﻿using CustomAttributes;
 using Helper;
 using Model;
-using Model.ArtifactModel.Impl;
 using Model.ArtifactModel.Impl.OperationsResults;
 using NUnit.Framework;
 using TestCommon;
@@ -47,7 +46,8 @@ namespace ArtifactStoreTests
                 "Get Baseline shouldn't return an error.");
 
             // Verify:
-            Assert.AreEqual(1, reviewArtifacts.Total);
+            Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Total, "GetReviewArtifacts should return expected number of artifacts.");
+            Assert.AreEqual(numberOfArtifacts, reviewArtifacts.Items.Count, "GetReviewArtifacts should return expected number of artifacts.");
         }
     }
 }
